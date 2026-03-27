@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hggzk Portal</string>
+    <string name="facebook_app_id">813515171745768</string>
+    <string name="facebook_client_token">6d3e2d55ffb99f4a94d5df77bb5dc992</string>
+    <string name="fb_login_protocol_scheme">fb813515171745768</string>
+</resources>

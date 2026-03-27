@@ -1,0 +1,44 @@
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+**/publish/
+**/publish-api/
+
+# IDE and local tooling
+.vs/
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and local temp files
+*.log
+*.tmp
+*.temp
+*.cache
+*.pid
+*.seed
+
+# Test and debug artifacts
+TestResults/
+coverage/
+artifacts/
+build_output*.txt
+build_output*.log
+build_errors*.txt
+test_results*.log
+YemenBooking.Api/*.log
+
+# Optional local config
+*.user
+*.suo
+
+# Local delivery/debug leftovers
+publish-api.zip
+YemenBooking.Api/appsettings.secrets.json
+YemenBooking.Api/firebase-service-account.json
+YemenBooking.Api/Uploads/
+YemenBooking.Api/Exports/

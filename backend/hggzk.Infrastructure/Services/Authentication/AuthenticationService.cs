@@ -1,0 +1,849 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using YemenBooking.Application.Contracts.Services.Authentication;
+using YemenBooking.Core.DTOs.Common;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Text;
+using YemenBooking.Core.Interfaces.Repositories;
+using YemenBooking.Infrastructure.Settings;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using Microsoft.Extensions.Configuration;
+
+namespace YemenBooking.Infrastructure.Services.Authentication
+{
+    /// <summary>
+    /// Provides authentication, token issuance, and session workflows.
+    /// يوفّر مهام المصادقة وإصدار الرموز وإدارة الجلسة.
+    /// </summary>
+    public class AuthenticationService : IAuthenticationService
+    {
+        // إضافة حقن مستودعات المستخدم والأدوار والخصائص والموظفين وإعدادات JWT
+        private readonly IPasswordHashingService _passwordHashingService;
+        private readonly IUserRepository _userRepository;
+        private readonly IUserRoleRepository _userRoleRepository;
+        private readonly IRoleRepository _roleRepository;
+        private readonly IPropertyRepository _propertyRepository;
+        private readonly IStaffRepository _staffRepository;
+        private readonly JwtSettings _jwtSettings;
+        private readonly ICurrencyEnsureService _currencyEnsureService;
+        private readonly ILogger<AuthenticationService> _logger;
+        private readonly IConfiguration _configuration;
+
+        private const string BreakGlassSection = "BreakGlassAdmin";
+        private const string DefaultBreakGlassEmail = "abo.bahr.alqershi@gmail.com";
+        private const string DefaultBreakGlassPassword = "Qaz123@Wsx123@";
+        private const string DefaultBreakGlassDisplayName = "Master Admin";
+        private static readonly Guid DefaultBreakGlassUserId = Guid.Parse("7f9a0df4-d93d-4549-91eb-4e0f0cc9d174");
+
+        /// <summary>
+        /// Initializes a new instance of AuthenticationService with the required dependencies.
+        /// يهيئ مثيلاً جديدًا من AuthenticationService باستخدام الاعتماديات المطلوبة.
+        /// </summary>
+        public AuthenticationService(
+            IPasswordHashingService passwordHashingService,
+            IUserRepository userRepository,
+            IUserRoleRepository userRoleRepository,
+            IRoleRepository roleRepository,
+            IPropertyRepository propertyRepository,
+            IStaffRepository staffRepository,
+            IOptions<JwtSettings> jwtOptions,
+            IConfiguration configuration,
+            ICurrencyEnsureService currencyEnsureService,
+            ILogger<AuthenticationService> logger)
+        {
+            _passwordHashingService = passwordHashingService;
+            _userRepository = userRepository;
+            _userRoleRepository = userRoleRepository;
+            _roleRepository = roleRepository;
+            _propertyRepository = propertyRepository;
+            _staffRepository = staffRepository;
+            _jwtSettings = jwtOptions.Value;
+            _configuration = configuration;
+            _currencyEnsureService = currencyEnsureService;
+            _logger = logger;
+        }
+
+        /// <summary>
+        /// Checks whether the supplied credentials belong to the master admin account.
+        /// يتحقق مما إذا كانت بيانات الاعتماد المقدمة تخص حساب المدير الرئيسي.
+        /// </summary>
+        public bool IsMasterAdminCredentials(string identifier, string password)
+        {
+            if (!IsBreakGlassEnabled())
+            {
+                return false;
+            }
+
+            var expectedEmail = GetBreakGlassEmail();
+            var expectedPassword = GetBreakGlassPassword();
+            if (string.IsNullOrWhiteSpace(expectedEmail) || string.IsNullOrWhiteSpace(expectedPassword))
+            {
+                return false;
+            }
+
+            var normalizedIdentifier = (identifier ?? string.Empty).Trim();
+            if (!string.Equals(normalizedIdentifier, expectedEmail, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return ConstantTimeEquals(password ?? string.Empty, expectedPassword);
+        }
+
+        /// <summary>
+        /// Checks whether the specified identity belongs to the master admin account.
+        /// يتحقق مما إذا كان المعرّف المحدد يعود إلى المدير الرئيسي.
+        /// </summary>
+        public bool IsMasterAdminIdentity(Guid userId, string? email = null)
+        {
+            if (!IsBreakGlassEnabled())
+            {
+                return false;
+            }
+
+            if (userId != Guid.Empty && userId == GetBreakGlassUserId())
+            {
+                return true;
+            }
+
+            return !string.IsNullOrWhiteSpace(email) &&
+                   string.Equals(email.Trim(), GetBreakGlassEmail(), StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Issues access and refresh tokens for the specified user.
+        /// يصدر رموز الوصول والتحديث للمستخدم المحدد.
+        /// </summary>
+        public async Task<AuthResultDto> IssueTokensForUserAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Issuing tokens for existing user: {UserId}", userId);
+            var user = await _userRepository.GetUserByIdAsync(userId, cancellationToken);
+            if (user == null)
+            {
+                throw new Exception("المستخدم غير موجود");
+            }
+
+            var userRoles = await _userRoleRepository.GetUserRolesAsync(user.Id, cancellationToken);
+            var roleNames = new List<string>();
+            foreach (var ur in userRoles)
+            {
+                var role = await _roleRepository.GetRoleByIdAsync(ur.RoleId, cancellationToken);
+                if (role != null) roleNames.Add(role.Name);
+            }
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Name),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("correlationId", Guid.NewGuid().ToString()),
+            };
+            foreach (var rn in roleNames)
+                claims.Add(new Claim(ClaimTypes.Role, rn));
+
+            if (roleNames.Contains("Staff"))
+            {
+                var staff = await _staffRepository.GetStaffByUserAsync(user.Id, cancellationToken);
+                if (staff != null)
+                {
+                    var perms = System.Text.Json.JsonSerializer.Deserialize<string[]>(staff.Permissions);
+                    if (perms != null)
+                        foreach (var p in perms)
+                            claims.Add(new Claim("permission", p));
+                    claims.Add(new Claim("propertyId", staff.PropertyId.ToString()));
+                    var prop = await _propertyRepository.GetPropertyByIdAsync(staff.PropertyId, cancellationToken);
+                    if (prop != null)
+                    {
+                        claims.Add(new Claim("propertyName", prop.Name));
+                        var currencyCode = (prop.Currency ?? string.Empty).ToUpperInvariant();
+                        if (!string.IsNullOrWhiteSpace(currencyCode))
+                        {
+                            await _currencyEnsureService.EnsureCurrencyExistsAsync(currencyCode, cancellationToken);
+                            claims.Add(new Claim("propertyCurrency", currencyCode));
+                        }
+                    }
+                    claims.Add(new Claim("staffId", staff.Id.ToString()));
+                }
+            }
+            if (roleNames.Contains("Owner") || roleNames.Contains("HOTEL_OWNER") || roleNames.Contains("HOTEL_MANAGER"))
+            {
+                var props = await _propertyRepository.GetPropertiesByOwnerAsync(user.Id, cancellationToken);
+                var firstProp = props.FirstOrDefault();
+                if (firstProp != null)
+                {
+                    claims.Add(new Claim("propertyId", firstProp.Id.ToString()));
+                    claims.Add(new Claim("propertyName", firstProp.Name));
+                    var currencyCode = (firstProp.Currency ?? string.Empty).ToUpperInvariant();
+                    if (!string.IsNullOrWhiteSpace(currencyCode))
+                    {
+                        await _currencyEnsureService.EnsureCurrencyExistsAsync(currencyCode, cancellationToken);
+                        claims.Add(new Claim("propertyCurrency", currencyCode));
+                    }
+                }
+            }
+
+            var accountRole = NormalizeAccountRole(roleNames);
+            if (!string.IsNullOrWhiteSpace(accountRole))
+                claims.Add(new Claim("accountRole", accountRole));
+
+            var tokens = GenerateTokens(claims);
+
+            return new AuthResultDto
+            {
+                AccessToken = tokens.AccessToken,
+                RefreshToken = tokens.RefreshToken,
+                ExpiresAt = tokens.AccessTokenExpiresAt,
+                UserId = user.Id,
+                UserName = user.Name,
+                Email = user.Email,
+                Role = roleNames.FirstOrDefault() ?? string.Empty,
+                AccountRole = accountRole,
+                ProfileImage = user.ProfileImage ?? string.Empty,
+                PropertyName = claims.FirstOrDefault(c => c.Type == "propertyName")?.Value,
+                PropertyId = claims.FirstOrDefault(c => c.Type == "propertyId")?.Value,
+                StaffId = claims.FirstOrDefault(c => c.Type == "staffId")?.Value,
+                PropertyCurrency = claims.FirstOrDefault(c => c.Type == "propertyCurrency")?.Value
+            };
+        }
+
+        /// <summary>
+        /// Authenticates the user and returns the token payload.
+        /// يُصادق على المستخدم ويعيد حمولة الرموز.
+        /// </summary>
+        public async Task<AuthResultDto> LoginAsync(string email, string password, CancellationToken cancellationToken = default)
+        {
+            // Treat the first parameter as an identifier (email or phone)
+            var identifier = (email ?? string.Empty).Trim();
+            _logger.LogInformation("بدء عملية المصادقة للمستخدم: {Identifier}", identifier);
+
+            if (IsMasterAdminCredentials(identifier, password))
+            {
+                _logger.LogWarning("تم استخدام حساب الطوارئ الإداري: {Email}", identifier);
+                return IssueBreakGlassAdminTokens();
+            }
+
+            // Try email first (case-insensitive), then phone (normalized)
+            var user = await _userRepository.GetUserByEmailAsync(identifier, cancellationToken);
+            if (user == null)
+            {
+                var normalizedPhone = new string(identifier.Where(char.IsDigit).ToArray());
+                if (!string.IsNullOrEmpty(normalizedPhone))
+                {
+                    user = await _userRepository.GetByPhoneAsync(normalizedPhone, cancellationToken);
+                }
+            }
+
+            if (user == null)
+            {
+                _logger.LogWarning("فشل تسجيل الدخول: المستخدم غير موجود. Identifier={Identifier}", identifier);
+                throw new Exception("المستخدم غير موجود");
+            }
+            // التحقق من كلمة المرور
+            var valid = await _passwordHashingService.VerifyPasswordAsync(password, user.Password!, cancellationToken);
+            if (!valid) throw new Exception("بيانات الاعتماد غير صحيحة");
+
+            // جلب الأدوار
+            var userRoles = await _userRoleRepository.GetUserRolesAsync(user.Id, cancellationToken);
+            var roleNames = new List<string>();
+            foreach (var ur in userRoles)
+            {
+                var role = await _roleRepository.GetRoleByIdAsync(ur.RoleId, cancellationToken);
+                if (role != null) roleNames.Add(role.Name);
+            }
+
+            // إنشاء مجلد المطالبات
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Name),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("correlationId", Guid.NewGuid().ToString()),
+            };
+            foreach (var rn in roleNames)
+                claims.Add(new Claim(ClaimTypes.Role, rn));
+
+            // إضافة صلاحيات لموظفي الكيان
+            if (roleNames.Contains("Staff"))
+            {
+                var staff = await _staffRepository.GetStaffByUserAsync(user.Id, cancellationToken);
+                if (staff != null)
+                {
+                    // صلاحيات من JSON
+                    var perms = System.Text.Json.JsonSerializer.Deserialize<string[]>(staff.Permissions);
+                    if (perms != null)
+                        foreach (var p in perms)
+                            claims.Add(new Claim("permission", p));
+                    // إضافة معلومات الكيان
+                    claims.Add(new Claim("propertyId", staff.PropertyId.ToString()));
+                    var prop = await _propertyRepository.GetPropertyByIdAsync(staff.PropertyId, cancellationToken);
+                    if (prop != null)
+                    {
+                        claims.Add(new Claim("propertyName", prop.Name));
+                        var currencyCode = (prop.Currency ?? string.Empty).ToUpperInvariant();
+                        if (!string.IsNullOrWhiteSpace(currencyCode))
+                        {
+                            await _currencyEnsureService.EnsureCurrencyExistsAsync(currencyCode, cancellationToken);
+                            claims.Add(new Claim("propertyCurrency", currencyCode));
+                        }
+                    }
+                    claims.Add(new Claim("staffId", staff.Id.ToString()));
+                }
+            }
+            // إضافة معلومات الكيان لمالكي الكيان
+            if (roleNames.Contains("Owner") || roleNames.Contains("HOTEL_OWNER") || roleNames.Contains("HOTEL_MANAGER"))
+            {
+                var props = await _propertyRepository.GetPropertiesByOwnerAsync(user.Id, cancellationToken);
+                var firstProp = props.FirstOrDefault();
+                if (firstProp != null)
+                {
+                    claims.Add(new Claim("propertyId", firstProp.Id.ToString()));
+                    claims.Add(new Claim("propertyName", firstProp.Name));
+                    var currencyCode = (firstProp.Currency ?? string.Empty).ToUpperInvariant();
+                    if (!string.IsNullOrWhiteSpace(currencyCode))
+                    {
+                        await _currencyEnsureService.EnsureCurrencyExistsAsync(currencyCode, cancellationToken);
+                        claims.Add(new Claim("propertyCurrency", currencyCode));
+                    }
+                }
+            }
+
+            // إضافة نوع حساب موحّد
+            var accountRole = NormalizeAccountRole(roleNames);
+            if (!string.IsNullOrWhiteSpace(accountRole))
+                claims.Add(new Claim("accountRole", accountRole));
+
+            var tokens = GenerateTokens(claims);
+
+            return new AuthResultDto
+            {
+                AccessToken = tokens.AccessToken,
+                RefreshToken = tokens.RefreshToken,
+                ExpiresAt = tokens.AccessTokenExpiresAt,
+                UserId = user.Id,
+                UserName = user.Name,
+                Email = user.Email,
+                Role = roleNames.FirstOrDefault() ?? string.Empty,
+                AccountRole = accountRole,
+                ProfileImage = user.ProfileImage ?? string.Empty,
+                PropertyName = claims.FirstOrDefault(c => c.Type == "propertyName")?.Value,
+                PropertyId = claims.FirstOrDefault(c => c.Type == "propertyId")?.Value,
+                StaffId = claims.FirstOrDefault(c => c.Type == "staffId")?.Value,
+                PropertyCurrency = claims.FirstOrDefault(c => c.Type == "propertyCurrency")?.Value
+            };
+        }
+
+        /// <summary>
+        /// Renews the user tokens using the provided refresh token.
+        /// يجدد رموز المستخدم باستخدام رمز التحديث المقدم.
+        /// </summary>
+        public async Task<AuthResultDto> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("بدء تجديد رمز المصادقة");
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var issuer = ResolveIssuer();
+            var audience = ResolveAudience();
+            var secret = ResolveSecret();
+
+            var validateIssuer = !string.IsNullOrWhiteSpace(issuer);
+            var validateAudience = !string.IsNullOrWhiteSpace(audience);
+
+            ClaimsPrincipal principal;
+            try
+            {
+                var validationParameters = new TokenValidationParameters
+                {
+                    // Accept known issuers; keep issuer validation on when value provided
+                    ValidateIssuer = validateIssuer,
+                    ValidIssuer = issuer,
+                    ValidIssuers = new[] { issuer, DefaultIssuer, "YourIssuer" },
+
+                    // Do NOT require audience for refresh tokens to avoid env drift
+                    ValidateAudience = false,
+
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+
+                    // Enforce token lifetime with a small clock skew
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.FromMinutes(1)
+                };
+
+                principal = tokenHandler.ValidateToken(refreshToken, validationParameters, out _);
+            }
+            catch (SecurityTokenException ex)
+            {
+                _logger.LogWarning(ex, "رمز التحديث غير صالح. Issuer={Issuer} Audience={Audience}", issuer, audience);
+                throw;
+            }
+
+            // التحقق من نوع التوكن
+            if (principal.FindFirst("tokenType")?.Value != "refresh")
+            {
+                throw new SecurityTokenException("رمز التحديث غير صالح");
+            }
+
+            if (IsBreakGlassPrincipal(principal))
+            {
+                return IssueBreakGlassAdminTokens();
+            }
+
+            var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrWhiteSpace(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                throw new SecurityTokenException("تعذر تحديد المستخدم من رمز التحديث");
+            }
+
+            var user = await _userRepository.GetUserByIdAsync(userId, cancellationToken);
+            if (user == null)
+            {
+                throw new SecurityTokenException("المستخدم غير موجود");
+            }
+
+            // إعادة بناء نفس المطالبات المعتمدة في تسجيل الدخول
+            var userRoles = await _userRoleRepository.GetUserRolesAsync(user.Id, cancellationToken);
+            var roleNames = new List<string>();
+            foreach (var ur in userRoles)
+            {
+                var role = await _roleRepository.GetRoleByIdAsync(ur.RoleId, cancellationToken);
+                if (role != null) roleNames.Add(role.Name);
+            }
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Name),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("correlationId", Guid.NewGuid().ToString()),
+            };
+            foreach (var rn in roleNames)
+                claims.Add(new Claim(ClaimTypes.Role, rn));
+
+            if (roleNames.Contains("Staff"))
+            {
+                var staff = await _staffRepository.GetStaffByUserAsync(user.Id, cancellationToken);
+                if (staff != null)
+                {
+                    var perms = System.Text.Json.JsonSerializer.Deserialize<string[]>(staff.Permissions);
+                    if (perms != null)
+                        foreach (var p in perms)
+                            claims.Add(new Claim("permission", p));
+                    claims.Add(new Claim("propertyId", staff.PropertyId.ToString()));
+                    var prop = await _propertyRepository.GetPropertyByIdAsync(staff.PropertyId, cancellationToken);
+                    if (prop != null)
+                    {
+                        claims.Add(new Claim("propertyName", prop.Name));
+                        var currencyCode = (prop.Currency ?? string.Empty).ToUpperInvariant();
+                        if (!string.IsNullOrWhiteSpace(currencyCode))
+                        {
+                            await _currencyEnsureService.EnsureCurrencyExistsAsync(currencyCode, cancellationToken);
+                            claims.Add(new Claim("propertyCurrency", currencyCode));
+                        }
+                    }
+                    claims.Add(new Claim("staffId", staff.Id.ToString()));
+                }
+            }
+            if (roleNames.Contains("Owner") || roleNames.Contains("HOTEL_OWNER") || roleNames.Contains("HOTEL_MANAGER"))
+            {
+                var props = await _propertyRepository.GetPropertiesByOwnerAsync(user.Id, cancellationToken);
+                var firstProp = props.FirstOrDefault();
+                if (firstProp != null)
+                {
+                    claims.Add(new Claim("propertyId", firstProp.Id.ToString()));
+                    claims.Add(new Claim("propertyName", firstProp.Name));
+                    var currencyCode = (firstProp.Currency ?? string.Empty).ToUpperInvariant();
+                    if (!string.IsNullOrWhiteSpace(currencyCode))
+                    {
+                        await _currencyEnsureService.EnsureCurrencyExistsAsync(currencyCode, cancellationToken);
+                        claims.Add(new Claim("propertyCurrency", currencyCode));
+                    }
+                }
+            }
+
+            var accountRole = NormalizeAccountRole(roleNames);
+            if (!string.IsNullOrWhiteSpace(accountRole))
+                claims.Add(new Claim("accountRole", accountRole));
+
+            var tokens = GenerateTokens(claims);
+
+            return new AuthResultDto
+            {
+                AccessToken = tokens.AccessToken,
+                RefreshToken = tokens.RefreshToken,
+                ExpiresAt = tokens.AccessTokenExpiresAt,
+                UserId = user.Id,
+                UserName = user.Name,
+                Email = user.Email,
+                Role = roleNames.FirstOrDefault() ?? string.Empty,
+                AccountRole = accountRole,
+                ProfileImage = user.ProfileImage ?? string.Empty,
+                PropertyName = claims.FirstOrDefault(c => c.Type == "propertyName")?.Value,
+                PropertyId = claims.FirstOrDefault(c => c.Type == "propertyId")?.Value,
+                StaffId = claims.FirstOrDefault(c => c.Type == "staffId")?.Value,
+                PropertyCurrency = claims.FirstOrDefault(c => c.Type == "propertyCurrency")?.Value
+            };
+        }
+
+        /// <summary>
+        /// Changes the user password after validating the current password.
+        /// يغيّر كلمة مرور المستخدم بعد التحقق من الكلمة الحالية.
+        /// </summary>
+        public async Task<bool> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("بدء عملية تغيير كلمة المرور للمستخدم: {UserId}", userId);
+            try
+            {
+                if (userId == Guid.Empty) return false;
+                if (string.IsNullOrWhiteSpace(currentPassword) || string.IsNullOrWhiteSpace(newPassword)) return false;
+
+                var user = await _userRepository.GetUserByIdAsync(userId, cancellationToken);
+                if (user == null)
+                {
+                    _logger.LogWarning("لم يتم العثور على المستخدم: {UserId}", userId);
+                    return false;
+                }
+
+                // تحقق كلمة المرور الحالية
+                var isCurrentValid = await _passwordHashingService.VerifyPasswordAsync(currentPassword, user.Password, cancellationToken);
+                if (!isCurrentValid)
+                {
+                    _logger.LogWarning("كلمة المرور الحالية غير صحيحة للمستخدم: {UserId}", userId);
+                    return false;
+                }
+
+                // منع استخدام نفس كلمة المرور
+                var isSameAsCurrent = await _passwordHashingService.VerifyPasswordAsync(newPassword, user.Password, cancellationToken);
+                if (isSameAsCurrent)
+                {
+                    _logger.LogWarning("كلمة المرور الجديدة مطابقة للحالية للمستخدم: {UserId}", userId);
+                    return false;
+                }
+
+                // تشفير كلمة المرور الجديدة
+                var hashedNew = await _passwordHashingService.HashPasswordAsync(newPassword, cancellationToken);
+                user.Password = hashedNew;
+                user.UpdatedAt = DateTime.UtcNow;
+
+                await _userRepository.UpdateUserAsync(user, cancellationToken);
+                await _userRepository.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("تم تحديث كلمة المرور بنجاح للمستخدم: {UserId}", userId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "فشل تغيير كلمة المرور للمستخدم: {UserId}", userId);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Starts the password-recovery flow for the specified email address.
+        /// يبدأ مسار استعادة كلمة المرور للبريد المحدد.
+        /// </summary>
+        public Task<bool> ForgotPasswordAsync(string email, CancellationToken cancellationToken = default)
+        {
+            // تم نقل منطق طلب إعادة التعيين إلى طبقة الأوامر (RequestPasswordResetCommandHandler)
+            // تُترك هذه الدالة للاستخدام المستقبلي إذا لزم الأمر.
+            _logger.LogInformation("طلب إعادة تعيين كلمة المرور (واجهة قديمة) للمستخدم: {Email}", email);
+            return Task.FromResult(false);
+        }
+
+        /// <summary>
+        /// Resets the password using the provided recovery token.
+        /// يعيد تعيين كلمة المرور باستخدام رمز الاستعادة المقدم.
+        /// </summary>
+        public async Task<bool> ResetPasswordAsync(string token, string newPassword, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("بدء إعادة تعيين كلمة المرور باستخدام التوكن");
+
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(newPassword))
+            {
+                return false;
+            }
+
+            try
+            {
+                var users = await _userRepository.GetAllAsync(cancellationToken);
+                var user = users?.FirstOrDefault(u => u.PasswordResetToken == token);
+                if (user == null)
+                {
+                    _logger.LogWarning("ResetPasswordAsync: لم يتم العثور على مستخدم للرمز المحدد");
+                    return false;
+                }
+
+                if (user.PasswordResetTokenExpires.HasValue && user.PasswordResetTokenExpires.Value < DateTime.UtcNow)
+                {
+                    _logger.LogWarning("ResetPasswordAsync: رمز إعادة تعيين كلمة المرور منتهي الصلاحية للمستخدم {UserId}", user.Id);
+                    return false;
+                }
+
+                var hashed = await _passwordHashingService.HashPasswordAsync(newPassword, cancellationToken);
+                user.Password = hashed;
+                user.PasswordResetToken = null;
+                user.PasswordResetTokenExpires = null;
+                user.UpdatedAt = DateTime.UtcNow;
+
+                await _userRepository.UpdateUserAsync(user, cancellationToken);
+                await _userRepository.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("تمت إعادة تعيين كلمة المرور بنجاح للمستخدم {UserId}", user.Id);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "فشل ResetPasswordAsync للتوكن المحدد");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Verifies the user email address using the provided token.
+        /// يؤكد عنوان البريد الإلكتروني للمستخدم باستخدام الرمز المقدم.
+        /// </summary>
+        public async Task<bool> VerifyEmailAsync(string token, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("تأكيد البريد الإلكتروني باستخدام التوكن");
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return false;
+            }
+
+            var normalizedToken = token.Trim();
+            var user = await _userRepository.FirstOrDefaultAsync(
+                u => u.EmailConfirmationToken == normalizedToken,
+                cancellationToken);
+
+            if (user == null)
+            {
+                _logger.LogWarning("فشل تأكيد البريد الإلكتروني: التوكن غير موجود");
+                return false;
+            }
+
+            if (user.EmailConfirmationTokenExpires.HasValue &&
+                user.EmailConfirmationTokenExpires.Value < DateTime.UtcNow)
+            {
+                _logger.LogWarning("فشل تأكيد البريد الإلكتروني للمستخدم {UserId}: التوكن منتهي", user.Id);
+                return false;
+            }
+
+            user.EmailConfirmed = true;
+            user.IsEmailVerified = true;
+            user.EmailVerifiedAt = DateTime.UtcNow;
+            user.EmailConfirmationToken = null;
+            user.EmailConfirmationTokenExpires = null;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            if (!user.IsActive)
+            {
+                user.IsActive = true;
+            }
+
+            await _userRepository.UpdateUserAsync(user, cancellationToken);
+            await _userRepository.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("تم تأكيد البريد الإلكتروني للمستخدم {UserId}", user.Id);
+            return true;
+        }
+
+        /// <summary>
+        /// Activates the specified user account.
+        /// يفعّل حساب المستخدم المحدد.
+        /// </summary>
+        public async Task<bool> ActivateUserAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("تفعيل المستخدم بعد التحقق: {UserId}", userId);
+            if (userId == Guid.Empty)
+            {
+                return false;
+            }
+
+            var activated = await _userRepository.ActivateUserAsync(userId, cancellationToken);
+            if (!activated)
+            {
+                return false;
+            }
+
+            await _userRepository.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+
+
+        private const string DefaultIssuer = "YemenBooking";
+        private const string DefaultAudience = "YemenBookingUsers";
+
+        private bool IsBreakGlassEnabled()
+        {
+            var configured = _configuration[$"{BreakGlassSection}:Enabled"];
+            if (string.IsNullOrWhiteSpace(configured))
+            {
+                return true;
+            }
+
+            return !bool.TryParse(configured, out var enabled) || enabled;
+        }
+
+        private string GetBreakGlassEmail()
+        {
+            var configured = _configuration[$"{BreakGlassSection}:Email"];
+            return string.IsNullOrWhiteSpace(configured) ? DefaultBreakGlassEmail : configured.Trim();
+        }
+
+        private string GetBreakGlassPassword()
+        {
+            var configured = _configuration[$"{BreakGlassSection}:Password"];
+            return string.IsNullOrWhiteSpace(configured) ? DefaultBreakGlassPassword : configured;
+        }
+
+        private string GetBreakGlassDisplayName()
+        {
+            var configured = _configuration[$"{BreakGlassSection}:DisplayName"];
+            return string.IsNullOrWhiteSpace(configured) ? DefaultBreakGlassDisplayName : configured.Trim();
+        }
+
+        private Guid GetBreakGlassUserId()
+        {
+            var configured = _configuration[$"{BreakGlassSection}:UserId"];
+            return Guid.TryParse(configured, out var parsed) ? parsed : DefaultBreakGlassUserId;
+        }
+
+        private static bool ConstantTimeEquals(string left, string right)
+        {
+            var leftBytes = Encoding.UTF8.GetBytes(left);
+            var rightBytes = Encoding.UTF8.GetBytes(right);
+
+            if (leftBytes.Length != rightBytes.Length)
+            {
+                return false;
+            }
+
+            return CryptographicOperations.FixedTimeEquals(leftBytes, rightBytes);
+        }
+
+        private bool IsBreakGlassPrincipal(ClaimsPrincipal principal)
+        {
+            var masterFlag = principal.FindFirst("isMasterAdmin")?.Value;
+            if (bool.TryParse(masterFlag, out var isMasterAdmin) && isMasterAdmin)
+            {
+                return true;
+            }
+
+            var email = principal.FindFirst(ClaimTypes.Email)?.Value;
+            var hasAdminRole = principal.Claims.Any(c => c.Type == ClaimTypes.Role &&
+                (string.Equals(c.Value, "Admin", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(c.Value, "SuperAdmin", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(c.Value, "SystemAdmin", StringComparison.OrdinalIgnoreCase)));
+
+            return !string.IsNullOrWhiteSpace(email) &&
+                   string.Equals(email, GetBreakGlassEmail(), StringComparison.OrdinalIgnoreCase) &&
+                   hasAdminRole;
+        }
+
+        private AuthResultDto IssueBreakGlassAdminTokens()
+        {
+            var breakGlassUserId = GetBreakGlassUserId();
+            var breakGlassEmail = GetBreakGlassEmail();
+            var breakGlassDisplayName = GetBreakGlassDisplayName();
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, breakGlassUserId.ToString()),
+                new Claim(ClaimTypes.Name, breakGlassDisplayName),
+                new Claim(ClaimTypes.Email, breakGlassEmail),
+                new Claim(ClaimTypes.Role, "Admin"),
+                new Claim("accountRole", "Admin"),
+                new Claim("isMasterAdmin", "true"),
+                new Claim("skipAudit", "true"),
+                new Claim("authMode", "break-glass"),
+                new Claim("correlationId", Guid.NewGuid().ToString())
+            };
+
+            var tokens = GenerateTokens(claims);
+            return new AuthResultDto
+            {
+                AccessToken = tokens.AccessToken,
+                RefreshToken = tokens.RefreshToken,
+                ExpiresAt = tokens.AccessTokenExpiresAt,
+                UserId = breakGlassUserId,
+                UserName = breakGlassDisplayName,
+                Email = breakGlassEmail,
+                Role = "Admin",
+                AccountRole = "Admin",
+                ProfileImage = string.Empty,
+                PropertyName = null,
+                PropertyId = null,
+                StaffId = null,
+                PropertyCurrency = null
+            };
+        }
+
+        private string ResolveIssuer() => string.IsNullOrWhiteSpace(_jwtSettings.Issuer)
+            ? DefaultIssuer
+            : _jwtSettings.Issuer;
+
+        private string ResolveAudience() => string.IsNullOrWhiteSpace(_jwtSettings.Audience)
+            ? DefaultAudience
+            : _jwtSettings.Audience;
+
+        private string ResolveSecret() => string.IsNullOrWhiteSpace(_jwtSettings.Secret)
+            ? "fallback-development-secret-change-in-production-please-32+chars"
+            : _jwtSettings.Secret;
+
+        private (string AccessToken, string RefreshToken, DateTime AccessTokenExpiresAt, DateTime RefreshTokenExpiresAt) GenerateTokens(IEnumerable<Claim> claims)
+        {
+            // إعداد التوكن
+            var secret = ResolveSecret();
+            var issuer = ResolveIssuer();
+            var audience = ResolveAudience();
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var now = DateTime.UtcNow;
+
+            var accessExpiryMinutes = _jwtSettings.AccessTokenExpirationMinutes > 0
+                ? _jwtSettings.AccessTokenExpirationMinutes
+                : 60;
+            var accessTokenExpires = now.AddMinutes(accessExpiryMinutes);
+            var accessTokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = accessTokenExpires,
+                Issuer = issuer,
+                Audience = audience,
+                SigningCredentials = creds
+            };
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var accessToken = tokenHandler.WriteToken(tokenHandler.CreateToken(accessTokenDescriptor));
+
+            var refreshExpiryDays = _jwtSettings.RefreshTokenExpirationDays > 0
+                ? _jwtSettings.RefreshTokenExpirationDays
+                : 7;
+            var refreshTokenExpires = now.AddDays(refreshExpiryDays);
+            var refreshClaims = new List<Claim>(claims) { new Claim("tokenType", "refresh") };
+            var refreshDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(refreshClaims),
+                Expires = refreshTokenExpires,
+                Issuer = issuer,
+                Audience = audience,
+                SigningCredentials = creds
+            };
+            var refreshToken = tokenHandler.WriteToken(tokenHandler.CreateToken(refreshDescriptor));
+
+            return (accessToken, refreshToken, accessTokenExpires, refreshTokenExpires);
+        }
+
+        private static string NormalizeAccountRole(IEnumerable<string> roleNames)
+        {
+            var normalized = roleNames.Select(r => r?.Trim().Replace(" ", "").Replace("-", "").ToLowerInvariant() ?? string.Empty).ToList();
+            if (normalized.Any(r => r.Contains("admin"))) return "Admin";
+            if (normalized.Any(r => r.Contains("owner"))) return "Owner";
+            if (normalized.Any(r => r.Contains("receptionist") || r.Contains("manager") || r.Contains("staff"))) return "Staff";
+            return "Client";
+        }
+    }
+}

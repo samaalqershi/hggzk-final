@@ -1,0 +1,90 @@
+using MediatR;
+using YemenBooking.Application.Common.Models;
+using YemenBooking.Application.Features;
+
+namespace YemenBooking.Application.Features.Users.Queries.GetAllUsers;
+
+    /// <summary>
+    /// استعلام جلب جميع المستخدمين.
+    /// all users query.
+    /// </summary>
+public class GetAllUsersQuery : IRequest<PaginatedResult<object>>
+{
+    /// <summary>
+    /// رقم الصفحة
+    /// page number
+    /// </summary>
+    public int PageNumber { get; set; } = 1;
+
+    /// <summary>
+    /// حجم الصفحة
+    /// page size
+    /// </summary>
+    public int PageSize { get; set; } = 10;
+
+    /// <summary>
+    /// مصطلح البحث
+    /// search term
+    /// </summary>
+    public string? SearchTerm { get; set; }
+
+    /// <summary>
+    /// معيار الفرز
+    /// sort key
+    /// </summary>
+    public string? SortBy { get; set; }
+
+    /// <summary>
+    /// الترتيب التصاعدي
+    /// ascending order
+    /// </summary>
+    public bool IsAscending { get; set; } = true;
+
+    /// <summary>
+    /// معرّف الدور
+    /// role ID
+    /// </summary>
+    public Guid? RoleId { get; set; }
+
+    /// <summary>
+    /// اسم الدور
+    /// role name
+    /// </summary>
+    public string? RoleName { get; set; }
+
+    /// <summary>
+    /// كونه نشطًا
+    /// active status
+    /// </summary>
+    public bool? IsActive { get; set; }
+
+    /// <summary>
+    /// تاريخ الإنشاء بعد
+    /// created after date
+    /// </summary>
+    public DateTime? CreatedAfter { get; set; }
+
+    /// <summary>
+    /// تاريخ الإنشاء قبل
+    /// created before date
+    /// </summary>
+    public DateTime? CreatedBefore { get; set; }
+
+    /// <summary>
+    /// آخر تسجيل دخول بعد
+    /// last login after date
+    /// </summary>
+    public DateTime? LastLoginAfter { get; set; }
+
+    /// <summary>
+    /// فئة الولاء
+    /// loyalty tier
+    /// </summary>
+    public string? LoyaltyTier { get; set; }
+
+    /// <summary>
+    /// الحد الأدنى للإنفاق الكلي
+    /// minimum total spent
+    /// </summary>
+    public decimal? MinTotalSpent { get; set; }
+}

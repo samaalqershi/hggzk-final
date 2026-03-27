@@ -1,0 +1,100 @@
+platform :ios, '14.0'
+
+ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+
+project 'Runner', {
+  'Debug' => :debug,
+  'Profile' => :release,
+  'Release' => :release,
+}
+
+def flutter_root
+  generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
+  unless File.exist?(generated_xcode_build_settings_path)
+    raise "#{generated_xcode_build_settings_path} must exist."
+  end
+
+  File.foreach(generated_xcode_build_settings_path) do |line|
+    matches = line.match(/FLUTTER_ROOT\=(.*)/)
+    return matches[1].strip if matches
+  end
+  raise "FLUTTER_ROOT not found"
+end
+
+require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
+
+flutter_ios_podfile_setup
+
+target 'Runner' do
+  use_frameworks!
+  use_modular_headers!
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+      
+      # إزالة Bundle ID من Pods
+      config.build_settings.delete('PRODUCT_BUNDLE_IDENTIFIER')
+      
+      # إزالة إعدادات التوقيع
+      config.build_settings.delete('CODE_SIGN_IDENTITY')
+      config.build_settings.delete('CODE_SIGNING_REQUIRED')
+      config.build_settings.delete('CODE_SIGNING_ALLOWED')
+      config.build_settings.delete('EXPANDED_CODE_SIGN_IDENTITY')
+      config.build_settings.delete('PROVISIONING_PROFILE_SPECIFIER')
+    end
+  end
+  
+  # ========================================
+  # 🔥 إصلاح Privacy Bundles - الحل الأكيد
+  # ========================================
+  puts "🔧 Fixing Privacy Bundle Identifiers..."
+  
+  pods_project_path = installer.pods_project.path
+  pods_dir = File.dirname(pods_project_path)
+  
+  # البحث عن جميع Info.plist في Privacy bundles
+  privacy_bundles = Dir.glob("#{pods_dir}/**/*_Privacy.bundle/Info.plist") +
+                    Dir.glob("#{pods_dir}/**/*-Privacy.bundle/Info.plist") +
+                    Dir.glob("#{pods_dir}/**/PrivacyInfo.bundle/Info.plist") +
+                    Dir.glob("#{pods_dir}/**/*.bundle/Info.plist")
+  
+  fixed_count = 0
+  
+  privacy_bundles.uniq.each do |plist_path|
+    next unless File.exist?(plist_path)
+    
+    begin
+      # قراءة الـ plist
+      plist_content = File.read(plist_path)
+      
+      # التحقق إذا كان يحتوي على Bundle ID للتطبيق الرئيسي
+      if plist_content.include?('com.rezmate.app') && !plist_content.include?('com.rezmate.app.')
+        # استخراج اسم الـ bundle
+        bundle_name = File.basename(File.dirname(plist_path), '.bundle')
+        new_bundle_id = "com.rezmate.app.pods.#{bundle_name}".gsub(/[^a-zA-Z0-9.]/, '-')
+        
+        # استبدال Bundle ID
+        new_content = plist_content.gsub(
+          /<string>com\.rezmate\.app<\/string>/,
+          "<string>#{new_bundle_id}</string>"
+        )
+        
+        if new_content != plist_content
+          File.write(plist_path, new_content)
+          puts "   ✅ Fixed: #{bundle_name} -> #{new_bundle_id}"
+          fixed_count += 1
+        end
+      end
+    rescue => e
+      puts "   ⚠️ Warning: Could not process #{plist_path}: #{e.message}"
+    end
+  end
+  
+  puts "🎉 Fixed #{fixed_count} Privacy Bundle(s)"
+end

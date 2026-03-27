@@ -1,0 +1,12 @@
+global using YemenBooking.Application.Contracts.Services.Authentication;
+global using YemenBooking.Application.Contracts.Services.Communication;
+global using YemenBooking.Application.Contracts.Services.Configuration;
+global using YemenBooking.Application.Contracts.Services.Currency;
+global using YemenBooking.Application.Contracts.Services.Exports;
+global using YemenBooking.Application.Contracts.Services.ImageProcessing;
+global using YemenBooking.Application.Contracts.Services.Location;
+global using YemenBooking.Application.Contracts.Services.Reporting;
+global using YemenBooking.Application.Contracts.Services.Scheduling;
+global using YemenBooking.Application.Contracts.Services.Storage;
+global using YemenBooking.Application.Contracts.Services.Validation;
+global using YemenBooking.Application.Contracts.Services.Wallets;

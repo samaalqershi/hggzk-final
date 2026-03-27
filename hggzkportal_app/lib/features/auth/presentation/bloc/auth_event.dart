@@ -1,0 +1,303 @@
+import 'package:equatable/equatable.dart';
+
+abstract class AuthEvent extends Equatable {
+  const AuthEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class CheckAuthStatusEvent extends AuthEvent {
+  const CheckAuthStatusEvent();
+}
+
+class LoginEvent extends AuthEvent {
+  final String emailOrPhone;
+  final String password;
+  final bool rememberMe;
+
+  const LoginEvent({
+    required this.emailOrPhone,
+    required this.password,
+    this.rememberMe = false,
+  });
+
+  @override
+  List<Object?> get props => [emailOrPhone, password, rememberMe];
+}
+
+class RegisterEvent extends AuthEvent {
+  final String name;
+  final String email;
+  final String phone;
+  final String password;
+  final String passwordConfirmation;
+
+  const RegisterEvent({
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.password,
+    required this.passwordConfirmation,
+  });
+
+  @override
+  List<Object?> get props => [
+        name,
+        email,
+        phone,
+        password,
+        passwordConfirmation,
+      ];
+}
+
+/// Event لتسجيل مالك عقار جديد مع إنشاء عقار مرتبط
+class RegisterOwnerWithPropertyEvent extends AuthEvent {
+  final String name;
+  final String email;
+  final String phone;
+  final String password;
+  final String propertyTypeId;
+  final String propertyName;
+  final String city;
+  final String address;
+  final double? latitude;
+  final double? longitude;
+  final int starRating;
+  final String? description;
+  final String? currency;
+  final List<Map<String, dynamic>>? walletAccounts;
+
+  const RegisterOwnerWithPropertyEvent({
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.password,
+    required this.propertyTypeId,
+    required this.propertyName,
+    required this.city,
+    required this.address,
+    this.latitude,
+    this.longitude,
+    this.starRating = 3,
+    this.description,
+    this.currency,
+    this.walletAccounts,
+  });
+
+  @override
+  List<Object?> get props => [
+        name,
+        email,
+        phone,
+        password,
+        propertyTypeId,
+        propertyName,
+        city,
+        address,
+        latitude,
+        longitude,
+        starRating,
+        description,
+        currency,
+        walletAccounts,
+      ];
+}
+
+class LogoutEvent extends AuthEvent {
+  const LogoutEvent();
+}
+
+class ResetPasswordEvent extends AuthEvent {
+  final String emailOrPhone;
+
+  const ResetPasswordEvent({
+    required this.emailOrPhone,
+  });
+
+  @override
+  List<Object?> get props => [emailOrPhone];
+}
+
+class UpdateProfileEvent extends AuthEvent {
+  final String name;
+  final String? email;
+  final String? phone;
+  final List<Map<String, dynamic>>? walletAccounts;
+  // Owner property fields
+  final String? propertyId;
+  final String? propertyName;
+  final String? propertyAddress;
+  final String? propertyCity;
+  final String? propertyShortDescription;
+  final String? propertyDescription;
+  final String? propertyCurrency;
+  final int? propertyStarRating;
+  final double? propertyLatitude;
+  final double? propertyLongitude;
+
+  const UpdateProfileEvent({
+    required this.name,
+    this.email,
+    this.phone,
+    this.walletAccounts,
+    this.propertyId,
+    this.propertyName,
+    this.propertyAddress,
+    this.propertyCity,
+    this.propertyShortDescription,
+    this.propertyDescription,
+    this.propertyCurrency,
+    this.propertyStarRating,
+    this.propertyLatitude,
+    this.propertyLongitude,
+  });
+
+  @override
+  List<Object?> get props => [
+        name,
+        email,
+        phone,
+        walletAccounts,
+        propertyId,
+        propertyName,
+        propertyAddress,
+        propertyCity,
+        propertyShortDescription,
+        propertyDescription,
+        propertyCurrency,
+        propertyStarRating,
+        propertyLatitude,
+        propertyLongitude,
+      ];
+}
+
+class ChangePasswordEvent extends AuthEvent {
+  final String currentPassword;
+  final String newPassword;
+  final String newPasswordConfirmation;
+
+  const ChangePasswordEvent({
+    required this.currentPassword,
+    required this.newPassword,
+    required this.newPasswordConfirmation,
+  });
+
+  @override
+  List<Object?> get props =>
+      [currentPassword, newPassword, newPasswordConfirmation];
+}
+
+class UploadProfileImageEvent extends AuthEvent {
+  final String imagePath;
+
+  const UploadProfileImageEvent({
+    required this.imagePath,
+  });
+
+  @override
+  List<Object?> get props => [imagePath];
+}
+
+class SocialLoginEvent extends AuthEvent {
+  final SocialLoginProvider provider;
+  final String token;
+  final String? nonce;
+  final String? name;
+
+  const SocialLoginEvent({
+    required this.provider,
+    required this.token,
+    this.nonce,
+    this.name,
+  });
+
+  @override
+  List<Object?> get props => [provider, token, nonce, name];
+}
+
+class CompleteOwnerProfileEvent extends AuthEvent {
+  final String name;
+  final String phone;
+  final String propertyTypeId;
+  final String propertyName;
+  final String city;
+  final String address;
+  final double? latitude;
+  final double? longitude;
+  final int starRating;
+  final String? description;
+  final String? currency;
+  final List<Map<String, dynamic>>? walletAccounts;
+
+  const CompleteOwnerProfileEvent({
+    required this.name,
+    required this.phone,
+    required this.propertyTypeId,
+    required this.propertyName,
+    required this.city,
+    required this.address,
+    this.latitude,
+    this.longitude,
+    this.starRating = 3,
+    this.description,
+    this.currency,
+    this.walletAccounts,
+  });
+
+  @override
+  List<Object?> get props => [
+        name,
+        phone,
+        propertyTypeId,
+        propertyName,
+        city,
+        address,
+        latitude,
+        longitude,
+        starRating,
+        description,
+        currency,
+        walletAccounts,
+      ];
+}
+
+class LoginWithRefreshTokenEvent extends AuthEvent {
+  final String refreshToken;
+
+  const LoginWithRefreshTokenEvent({required this.refreshToken});
+
+  @override
+  List<Object?> get props => [refreshToken];
+}
+
+class DeleteOwnerAccountEvent extends AuthEvent {
+  final String? password;
+  final String? socialProvider;
+  final String? socialToken;
+  final String? socialNonce;
+  final String? reason;
+
+  const DeleteOwnerAccountEvent({
+    this.password,
+    this.socialProvider,
+    this.socialToken,
+    this.socialNonce,
+    this.reason,
+  });
+
+  @override
+  List<Object?> get props => [
+        password,
+        socialProvider,
+        socialToken,
+        socialNonce,
+        reason,
+      ];
+}
+
+enum SocialLoginProvider {
+  google,
+  facebook,
+  apple,
+}

@@ -1,0 +1,487 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
+using Microsoft.Extensions.Logging;
+using YemenBooking.Application.Common.Models;
+using PropertySearchResultDto = YemenBooking.Application.Features.SearchAndFilters.DTOs.PropertySearchResultDto;
+using YemenBooking.Application.Features.Properties.DTOs;
+using YemenBooking.Core.Entities;
+using YemenBooking.Core.Interfaces.Repositories;
+using YemenBooking.Core.Specifications;
+using YemenBooking.Application.Features.SearchAndFilters.DTOs;
+using Newtonsoft.Json;
+using YemenBooking.Application.Common.Interfaces;
+using YemenBooking.Application.Features.AuditLog.Services;
+using YemenBooking.Application.Features.SearchAndFilters.Services;
+using YemenBooking.Application.Contracts.Services.Scheduling;
+
+namespace YemenBooking.Application.Features.SearchAndFilters.Commands.Search;
+
+/// <summary>
+/// يعالج البحث عن العقارات ويعيد النتيجة المطلوبة.
+/// Processes the Search Properties request and returns the requested result.
+/// </summary>
+public class SearchPropertiesCommandHandler : IRequestHandler<SearchPropertiesCommand, ResultDto<SearchPropertiesResponse>>
+{
+    private readonly IPropertyRepository _propertyRepository;
+    private readonly ISearchFilterRepository _searchFilterRepository;
+    private readonly IUnitTypeFieldRepository _unitTypeFieldRepository;
+    private readonly IAvailabilityService _availabilityService;
+    private readonly ISearchService _searchService;
+    private readonly ICurrentUserService _currentUserService;
+    private readonly IAuditService _auditService;
+    private readonly ILogger<SearchPropertiesCommandHandler> _logger;
+    private readonly ISearchLogRepository _searchLogRepository;
+
+    /// <summary>
+    /// ينشئ مثيلاً جديداً من SearchPropertiesCommandHandler.
+    /// Initializes a new instance of SearchPropertiesCommandHandler.
+    /// </summary>
+    public SearchPropertiesCommandHandler(
+        IPropertyRepository propertyRepository,
+        ISearchFilterRepository searchFilterRepository,
+        IUnitTypeFieldRepository unitTypeFieldRepository,
+        IAvailabilityService availabilityService,
+        ISearchService searchService,
+        ICurrentUserService currentUserService,
+        IAuditService auditService,
+        ILogger<SearchPropertiesCommandHandler> logger,
+        ISearchLogRepository searchLogRepository)
+    {
+        _propertyRepository = propertyRepository;
+        _searchFilterRepository = searchFilterRepository;
+        _unitTypeFieldRepository = unitTypeFieldRepository;
+        _availabilityService = availabilityService;
+        _searchService = searchService;
+        _currentUserService = currentUserService;
+        _auditService = auditService;
+        _logger = logger;
+        _searchLogRepository = searchLogRepository;
+    }
+
+    /// <summary>
+    /// يعالج الطلب الحالي ويعيد النتيجة المطلوبة.
+    /// Processes the current request and returns the requested result.
+    /// </summary>
+    /// <param name="request">الطلب الحالي / Current request.</param>
+    /// <param name="cancellationToken">رمز إلغاء العملية / Cancellation token.</param>
+    public async Task<ResultDto<SearchPropertiesResponse>> Handle(SearchPropertiesCommand request, CancellationToken cancellationToken)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        
+        try
+        {
+            _logger.LogInformation("بدء معالجة أمر البحث في الكيانات");
+
+            // Step 1: validate the input data.
+            // الخطوة 1: التحقق من صحة البيانات المدخلة / Validate the input data.
+            var inputValidation = ValidateInputData(request);
+            if (!inputValidation.IsSuccess)
+                return ResultDto<SearchPropertiesResponse>.Failure(inputValidation.Message ?? "خطأ في التحقق من البيانات", inputValidation.Code);
+
+            // Step 2: normalize input dates to UTC.
+            // الخطوة 2: تطبيع تواريخ الإدخال إلى UTC / Normalize input dates to UTC.
+            if (request.CheckIn.HasValue)
+                request.CheckIn = await _currentUserService.ConvertFromUserLocalToUtcAsync(request.CheckIn.Value);
+            if (request.CheckOut.HasValue)
+                request.CheckOut = await _currentUserService.ConvertFromUserLocalToUtcAsync(request.CheckOut.Value);
+
+            // Step 3: build search parameters.
+            // الخطوة 3: بناء معايير البحث / Build search parameters.
+            var searchParameters = await BuildSearchParametersAsync(request, cancellationToken);
+
+            // Step 4: execute the base search.
+            // الخطوة 4: تنفيذ البحث الأساسي / Execute the base search.
+            var specification = new PropertySearchSpecification(searchParameters);
+            var (properties, totalCount) = await _propertyRepository.GetPagedWithSpecificationAsync(
+                specification, cancellationToken);
+                
+            // Step 5: apply availability filtering when dates are present.
+            // الخطوة 5: تطبيق فلترة التوفر عند وجود تواريخ / Apply availability filtering when dates are present.
+            if (request.CheckIn.HasValue && request.CheckOut.HasValue)
+            {
+                properties = await FilterByAvailabilityAsync(properties, request.CheckIn.Value,
+                    request.CheckOut.Value, request.GuestCount ?? 1, cancellationToken);
+                totalCount = properties.Count();
+            }
+
+            // Step 6: apply geographic filtering.
+            // الخطوة 6: تطبيق البحث الجغرافي / Apply geographic filtering.
+            if (request.Latitude.HasValue && request.Longitude.HasValue && request.RadiusKm.HasValue)
+            {
+                properties = await FilterByLocationAsync(properties, request.Latitude.Value, 
+                    request.Longitude.Value, request.RadiusKm.Value, cancellationToken);
+                totalCount = properties.Count();
+            }
+
+            // Step 7: sort the results.
+            // الخطوة 7: ترتيب النتائج / Sort the results.
+            properties = ApplySorting(properties, request.SortBy, request.SortDirection);
+
+            // Step 8: paginate the results.
+            // الخطوة 8: تطبيق التصفح / Paginate the results.
+            var paginatedProperties = properties
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToList();
+
+            // Step 9: map results to DTOs.
+            // الخطوة 9: تحويل النتائج إلى DTOs / Map results to DTOs.
+            var propertyItems = await ConvertToPropertySearchItemsAsync(paginatedProperties, request, cancellationToken);
+
+            // Step 10: calculate statistics.
+            // الخطوة 10: حساب الإحصائيات / Calculate statistics.
+            var statistics = CalculateSearchStatistics(properties, request, stopwatch.ElapsedMilliseconds);
+
+            // Step 11: build the final response.
+            // الخطوة 11: بناء النتيجة النهائية / Build the final response.
+            var result = new SearchPropertiesResponse
+            {
+                Properties = propertyItems,
+                TotalCount = totalCount,
+                CurrentPage = request.PageNumber,
+                PageSize = request.PageSize,
+                TotalPages = (int)Math.Ceiling((double)totalCount / request.PageSize),
+                HasPreviousPage = request.PageNumber > 1,
+                HasNextPage = request.PageNumber < Math.Ceiling((double)totalCount / request.PageSize),
+                Statistics = statistics,
+                AppliedFilters = new SearchFiltersDto(), // Will be populated if needed
+                SearchTimeMs = stopwatch.ElapsedMilliseconds
+            };
+
+            // Step 12: log the search operation.
+            // الخطوة 12: تسجيل عملية البحث / Log the search operation.
+            await LogSearchOperationAsync(request, totalCount, stopwatch.ElapsedMilliseconds);
+
+            stopwatch.Stop();
+            _logger.LogInformation("تم إنجاز البحث بنجاح. النتائج: {Count}, الوقت: {Duration}ms", 
+                totalCount, stopwatch.ElapsedMilliseconds);
+
+            // Persist the search log entry.
+            // حفظ سجل عملية البحث / Persist the search log entry.
+            await _searchLogRepository.AddAsync(new SearchLog
+            {
+                UserId = _currentUserService.UserId,
+                SearchType = "Property",
+                CriteriaJson = JsonConvert.SerializeObject(request),
+                ResultCount = totalCount,
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize
+            }, cancellationToken);
+            await _searchLogRepository.SaveChangesAsync(cancellationToken);
+
+            return ResultDto<SearchPropertiesResponse>.Ok(result, "تم البحث بنجاح");
+        }
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
+            _logger.LogError(ex, "خطأ أثناء البحث في الكيانات");
+            return ResultDto<SearchPropertiesResponse>.Failure("حدث خطأ أثناء البحث في الكيانات");
+        }
+    }
+
+    private ResultDto<SearchPropertiesResponse> ValidateInputData(SearchPropertiesCommand request)
+    {
+        var errors = new List<string>();
+
+        // Validate dates.
+        if (request.CheckIn.HasValue && request.CheckOut.HasValue)
+        {
+            if (request.CheckIn.Value >= request.CheckOut.Value)
+                errors.Add("تاريخ الخروج يجب أن يكون بعد تاريخ الدخول");
+
+            if (request.CheckIn.Value < DateTime.Today)
+                errors.Add("تاريخ الدخول لا يمكن أن يكون في الماضي");
+        }
+
+        // Validate guest count.
+        if (request.GuestCount.HasValue && request.GuestCount.Value <= 0)
+            errors.Add("عدد الضيوف يجب أن يكون أكبر من صفر");
+
+        // Validate pagination.
+        if (request.PageNumber <= 0)
+            errors.Add("رقم الصفحة يجب أن يكون أكبر من صفر");
+
+        if (request.PageSize <= 0 || request.PageSize > 100)
+            errors.Add("حجم الصفحة يجب أن يكون بين 1 و 100");
+
+        // Validate price range.
+        if (request.MinPrice.HasValue && request.MinPrice.Value < 0)
+            errors.Add("الحد الأدنى للسعر لا يمكن أن يكون سالب");
+
+        if (request.MaxPrice.HasValue && request.MaxPrice.Value < 0)
+            errors.Add("الحد الأقصى للسعر لا يمكن أن يكون سالب");
+
+        if (request.MinPrice.HasValue && request.MaxPrice.HasValue && request.MinPrice.Value > request.MaxPrice.Value)
+            errors.Add("الحد الأدنى للسعر لا يمكن أن يكون أكبر من الحد الأقصى");
+
+        // Validate geographic coordinates.
+        if (request.Latitude.HasValue && (request.Latitude.Value < -90 || request.Latitude.Value > 90))
+            errors.Add("خط العرض يجب أن يكون بين -90 و 90");
+
+        if (request.Longitude.HasValue && (request.Longitude.Value < -180 || request.Longitude.Value > 180))
+            errors.Add("خط الطول يجب أن يكون بين -180 و 180");
+
+        if (request.RadiusKm.HasValue && request.RadiusKm.Value <= 0)
+            errors.Add("نطاق البحث يجب أن يكون أكبر من صفر");
+
+        if (errors.Any())
+        {
+            return ResultDto<SearchPropertiesResponse>.Failure(
+                "بيانات غير صحيحة: " + string.Join(", ", errors), "INVALID_INPUT");
+        }
+
+        return ResultDto<SearchPropertiesResponse>.Ok(new SearchPropertiesResponse());
+    }
+
+    private Task<PropertySearchParameters> BuildSearchParametersAsync(
+        SearchPropertiesCommand request, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(new PropertySearchParameters
+        {
+            SearchTerm = request.SearchTerm,
+            PropertyTypeId = request.PropertyTypeId,
+            MinPrice = request.MinPrice,
+            MaxPrice = request.MaxPrice,
+            AmenityIds = request.AmenityIds,
+            StarRatings = request.StarRatings?.ToArray(),
+            MinAverageRating = (double?)request.MinAverageRating,
+            IsApproved = true, // Only approved properties are shown / نعرض فقط الكيانات المعتمدة.
+            PageNumber = request.PageNumber,
+            PageSize = request.PageSize
+        });
+    }
+
+
+
+
+    private bool IsInRange(string? value, object? filterValue, Dictionary<string, object>? options)
+    {
+        if (string.IsNullOrEmpty(value) || filterValue == null) return false;
+
+        if (decimal.TryParse(value, out var numValue))
+        {
+            var min = options?.ContainsKey("min") == true ? Convert.ToDecimal(options["min"]) : decimal.MinValue;
+            var max = options?.ContainsKey("max") == true ? Convert.ToDecimal(options["max"]) : decimal.MaxValue;
+            return numValue >= min && numValue <= max;
+        }
+
+        return false;
+    }
+
+    private bool IsGreater(string? value, object? filterValue)
+    {
+        if (string.IsNullOrEmpty(value) || filterValue == null) return false;
+
+        if (decimal.TryParse(value, out var numValue) && decimal.TryParse(filterValue.ToString(), out var filterNum))
+        {
+            return numValue > filterNum;
+        }
+
+        return false;
+    }
+
+    private bool IsLess(string? value, object? filterValue)
+    {
+        if (string.IsNullOrEmpty(value) || filterValue == null) return false;
+
+        if (decimal.TryParse(value, out var numValue) && decimal.TryParse(filterValue.ToString(), out var filterNum))
+        {
+            return numValue < filterNum;
+        }
+
+        return false;
+    }
+
+    private async Task<IEnumerable<Property>> FilterByAvailabilityAsync(
+        IEnumerable<Property> properties, 
+        DateTime checkIn, 
+        DateTime checkOut, 
+        int guestCount, 
+        CancellationToken cancellationToken)
+    {
+        var availableProperties = new List<Property>();
+
+        foreach (var property in properties)
+        {
+            var availableUnits = await _availabilityService.GetAvailableUnitsInPropertyAsync(
+                property.Id, checkIn, checkOut, guestCount, cancellationToken);
+
+            if (availableUnits.Any())
+            {
+                availableProperties.Add(property);
+            }
+        }
+
+        return availableProperties;
+    }
+
+    private async Task<IEnumerable<Property>> FilterByLocationAsync(
+        IEnumerable<Property> properties, 
+        double latitude, 
+        double longitude, 
+        double radiusKm, 
+        CancellationToken cancellationToken)
+    {
+            // A dedicated geo-search service can be plugged in here.
+            // A dedicated geographic search service can be connected here.
+            // يمكن ربط خدمة بحث جغرافي مخصصة هنا.
+        var nearbyProperties = await _searchService.SearchPropertiesAsync(
+            "", null, null, null, null, null, null, null, 
+            latitude, longitude, radiusKm, cancellationToken);
+
+        var nearbyIds = nearbyProperties.Select(p => p.Id).ToHashSet();
+        return properties.Where(p => nearbyIds.Contains(p.Id));
+    }
+
+    private IEnumerable<Property> ApplySorting(IEnumerable<Property> properties, string? sortBy, string sortDirection)
+    {
+        var isDescending = sortDirection?.ToLower() == "desc";
+
+        return sortBy?.ToLower() switch
+        {
+            "name" => isDescending ? properties.OrderByDescending(p => p.Name) : properties.OrderBy(p => p.Name),
+            "rating" => isDescending ? properties.OrderByDescending(p => p.Reviews.Any() ? 
+                                      p.Reviews.Average(r => (r.Cleanliness + r.Service + r.Location + r.Value) / 4.0) : 0) :
+                                      properties.OrderBy(p => p.Reviews.Any() ? 
+                                      p.Reviews.Average(r => (r.Cleanliness + r.Service + r.Location + r.Value) / 4.0) : 0),
+            "created" => isDescending ? properties.OrderByDescending(p => p.CreatedAt) : properties.OrderBy(p => p.CreatedAt),
+            _ => properties.OrderBy(p => p.Name)
+        };
+    }
+
+    private async Task<List<PropertySearchResultDto>> ConvertToPropertySearchItemsAsync(
+        List<Property> properties, 
+        SearchPropertiesCommand request, 
+        CancellationToken cancellationToken)
+    {
+        var items = new List<PropertySearchResultDto>();
+
+        foreach (var property in properties)
+        {
+            var item = new PropertySearchResultDto
+            {
+                Id = property.Id,
+                Name = property.Name,
+                Description = property.Description,
+                City = property.City,
+                Address = property.Address,
+                StarRating = property.StarRating,
+                PropertyType = property.PropertyType?.Name ?? "",
+                MinPrice = 0,
+                Currency = property.Currency ?? "YER",
+                MaxCapacity = property.Units.Any() ? property.Units.Max(u => u.MaxCapacity) : 0,
+                IsFeatured = false,
+                LastUpdated = property.UpdatedAt
+            };
+
+            // Use the cached average rating stored on the property.
+            // Use the average rating cached on the property.
+            // استخدام متوسط التقييم المخزن في العقار.
+            item.AverageRating = property.AverageRating;
+            item.ReviewsCount = property.Reviews?.Count ?? 0;
+
+            // Images.
+            // Images.
+            // الصور.
+            if (property.Images.Any())
+            {
+                item.MainImageUrl = property.Images.FirstOrDefault(i => i.IsMain)?.Url ?? 
+                                   property.Images.First().Url;
+                item.ImageUrls = property.Images.Take(5).Select(i => i.Url).ToList();
+            }
+
+            // Amenities.
+            // Amenities.
+            // المرافق.
+            item.MainAmenities = property.Amenities.Where(a => a.IsAvailable)
+                .Select(a => a.PropertyTypeAmenity.Amenity.Name).ToList();
+
+            // Availability.
+            // Availability.
+            // التوفر.
+            if (request.CheckIn.HasValue && request.CheckOut.HasValue)
+            {
+                var availableUnits = await _availabilityService.GetAvailableUnitsInPropertyAsync(
+                    property.Id, request.CheckIn.Value, request.CheckOut.Value, 
+                    request.GuestCount ?? 1, cancellationToken);
+                item.IsAvailable = availableUnits.Any();
+                item.AvailableUnitsCount = availableUnits.Count();
+            }
+            else
+            {
+                item.IsAvailable = property.Units.Any(u => u.IsActive);
+                item.AvailableUnitsCount = property.Units.Count(u => u.IsActive);
+            }
+
+            // Distance calculation.
+            // حساب المسافة.
+            if (request.Latitude.HasValue && request.Longitude.HasValue &&
+                property.Latitude != 0 && property.Longitude != 0)
+            {
+                item.DistanceKm = CalculateDistance(request.Latitude.Value, request.Longitude.Value,
+                    (double)property.Latitude, (double)property.Longitude);
+            }
+
+
+            items.Add(item);
+        }
+
+        return items;
+    }
+
+    private double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
+    {
+        var R = 6371; // Earth's radius in kilometers. / نصف قطر الأرض بالكيلومتر.
+        var dLat = ToRadians(lat2 - lat1);
+        var dLon = ToRadians(lon2 - lon1);
+        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                Math.Cos(ToRadians(lat1)) * Math.Cos(ToRadians(lat2)) *
+                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+        return R * c;
+    }
+
+    private double ToRadians(double degrees) => degrees * Math.PI / 180;
+
+    private YemenBooking.Application.Features.SearchAndFilters.DTOs.SearchStatisticsDto CalculateSearchStatistics(
+        IEnumerable<Property> properties, 
+        SearchPropertiesCommand request, 
+        long searchDurationMs)
+    {
+        var propertiesList = properties.ToList();
+        
+        return new YemenBooking.Application.Features.SearchAndFilters.DTOs.SearchStatisticsDto
+        {
+            PropertiesByType = propertiesList
+                .GroupBy(p => p.PropertyType?.Name ?? "غير محدد")
+                .ToDictionary(g => g.Key, g => g.Count()),
+            AverageRating = propertiesList.Any() ? (double)propertiesList.Average(p => p.AverageRating) : 0
+        };
+    }
+
+    private async Task LogSearchOperationAsync(SearchPropertiesCommand request, int resultCount, long durationMs)
+    {
+        try
+        {
+            var notes = $"بحث في الكيانات - النتائج: {resultCount}، المدة: {durationMs}ms - بواسطة {_currentUserService.Username} (ID={_currentUserService.UserId})";
+            await _auditService.LogAuditAsync(
+                entityType: "PropertySearch",
+                entityId: _currentUserService.UserId,
+                action: AuditAction.VIEW,
+                oldValues: null,
+                newValues: Newtonsoft.Json.JsonConvert.SerializeObject(new { ResultCount = resultCount, DurationMs = durationMs }),
+                performedBy: _currentUserService.UserId,
+                notes: notes,
+                cancellationToken: default);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "فشل في تسجيل عملية البحث");
+        }
+    }
+}

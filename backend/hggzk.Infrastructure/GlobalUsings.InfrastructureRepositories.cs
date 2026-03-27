@@ -1,0 +1,11 @@
+global using YemenBooking.Infrastructure.Repositories.Admin;
+global using YemenBooking.Infrastructure.Repositories.Base;
+global using YemenBooking.Infrastructure.Repositories.Bookings;
+global using YemenBooking.Infrastructure.Repositories.Chat;
+global using YemenBooking.Infrastructure.Repositories.Finance;
+global using YemenBooking.Infrastructure.Repositories.Notifications;
+global using YemenBooking.Infrastructure.Repositories.Properties;
+global using YemenBooking.Infrastructure.Repositories.Scheduling;
+global using YemenBooking.Infrastructure.Repositories.Search;
+global using YemenBooking.Infrastructure.Repositories.Units;
+global using YemenBooking.Infrastructure.Repositories.Users;

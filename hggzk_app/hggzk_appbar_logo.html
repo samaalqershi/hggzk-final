@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>hggzk AppBar Logo (Static)</title>
+    <style>
+      :root {
+        --logo-min-size: 36px;
+        --logo-max-size: 1024px;
+        --logo-size: clamp(var(--logo-min-size), 90vmin, var(--logo-max-size));
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: transparent;
+      }
+
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .logo {
+        width: var(--logo-size);
+        height: auto;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Reproduces the Flutter AppBar logo from:
+      lib/features/home/presentation/widgets/futuristic_home_app_bar.dart
+      (_buildFuturisticLogo)
+
+      Animations intentionally removed.
+    -->
+    <svg
+      class="logo"
+      viewBox="-22 -22 80 80"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="hggzk logo"
+      shape-rendering="geometricPrecision"
+      text-rendering="geometricPrecision"
+      preserveAspectRatio="xMidYMid meet"
+      overflow="visible"
+    >
+      <defs>
+        <!-- AppTheme.primaryGradient: [primaryCyan, primaryBlue, primaryPurple, primaryViolet] -->
+        <linearGradient id="primaryGradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#00A1FE" />
+          <stop offset="30%" stop-color="#4FA9FE" />
+          <stop offset="60%" stop-color="#667EEA" />
+          <stop offset="100%" stop-color="#764BA2" />
+        </linearGradient>
+
+        <!-- Glow background: RadialGradient(primaryBlue 0.2, primaryPurple 0.1, transparent) -->
+        <radialGradient id="glowGradient" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#4FA9FE" stop-opacity="0.2" />
+          <stop offset="55%" stop-color="#667EEA" stop-opacity="0.1" />
+          <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+        </radialGradient>
+
+        <!-- Center circle shadow: color primaryBlue @ 0.4, blur=8, spread=1 -->
+        <filter id="centerShadow" x="-50%" y="-50%" width="200%" height="200%">
+          <feMorphology in="SourceAlpha" operator="dilate" radius="1" result="spread" />
+          <feGaussianBlur in="spread" stdDeviation="8" result="blur" />
+          <feFlood flood-color="#4FA9FE" flood-opacity="0.4" result="color" />
+          <feComposite in="color" in2="blur" operator="in" result="shadow" />
+          <feMerge>
+            <feMergeNode in="shadow" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+
+        <!-- Particle shadow: color neonBlue, blur=4, spread=1 -->
+        <filter id="particleShadow" x="-200%" y="-200%" width="400%" height="400%">
+          <feMorphology in="SourceAlpha" operator="dilate" radius="1" result="spread" />
+          <feGaussianBlur in="spread" stdDeviation="4" result="blur" />
+          <feFlood flood-color="#00AEFF" flood-opacity="1" result="color" />
+          <feComposite in="color" in2="blur" operator="in" result="shadow" />
+          <feMerge>
+            <feMergeNode in="shadow" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- Glow circle (36x36) -->
+      <circle cx="18" cy="18" r="18" fill="url(#glowGradient)" />
+
+      <!-- Ring 1: 36x36, stroke primaryBlue @ 0.2, width 0.5 -->
+      <circle
+        cx="18"
+        cy="18"
+        r="17.75"
+        fill="none"
+        stroke="#4FA9FE"
+        stroke-opacity="0.2"
+        stroke-width="0.5"
+      />
+
+      <!-- Ring 2: 32x32, stroke primaryBlue @ 0.15, width 0.5 -->
+      <circle
+        cx="18"
+        cy="18"
+        r="15.75"
+        fill="none"
+        stroke="#4FA9FE"
+        stroke-opacity="0.15"
+        stroke-width="0.5"
+      />
+
+      <!-- Center circle (28x28) with primaryGradient + shadow -->
+      <g filter="url(#centerShadow)">
+        <circle cx="18" cy="18" r="14" fill="url(#primaryGradient)" />
+      </g>
+
+      <!-- Center H -->
+      <text
+        x="18"
+        y="18"
+        text-anchor="middle"
+        dominant-baseline="central"
+        fill="#FFFFFF"
+        font-size="18"
+        font-weight="700"
+        font-family="SF Pro Text, SF Pro Display, Roboto, Arial, sans-serif"
+      >
+        H
+      </text>
+
+      <!-- Orbiting particle (static at top-center) -->
+      <g filter="url(#particleShadow)">
+        <circle cx="26.25" cy="3.711" r="1.5" fill="#00AEFF" />
+      </g>
+    </svg>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+using System;
+using System.Collections.Generic;
+using MediatR;
+using YemenBooking.Application.Common.Models;
+using YemenBooking.Application.Features.Analytics.DTOs;
+using YemenBooking.Application.Features;
+
+namespace YemenBooking.Application.Features.Analytics.Queries.BookingAnalytics
+{
+    /// <summary>
+    /// يمثل استعلامًا ضمن نطاق النطاق الحالي.
+    /// Represents a current feature area query.
+    /// </summary>
+    public class GetBookingTrendsQuery : IRequest<IEnumerable<TimeSeriesDataDto>>
+    {
+        /// <summary>
+        /// معرّف الكيان (اختياري)
+        /// Property identifier (optional)
+        /// </summary>
+        public Guid? PropertyId { get; set; }
+
+        /// <summary>
+        /// النطاق الزمني
+        /// Date range for the trends
+        /// </summary>
+        public DateRangeDto Range { get; set; }
+
+        /// <summary>
+        /// يُهيِّئ هذا الاستعلام بالقيم الأساسية المطلوبة.
+        /// Initializes this query with the required values.
+        /// </summary>
+        public GetBookingTrendsQuery(Guid? propertyId, DateRangeDto range)
+        {
+            PropertyId = propertyId;
+            Range = range;
+        }
+    }
+} 

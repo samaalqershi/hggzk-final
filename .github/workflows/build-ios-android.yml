@@ -1,0 +1,857 @@
+name: Build iOS & Android Apps with App Store Review
+ 
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      app_to_build:
+        description: 'Select app to build'
+        required: false
+        type: choice
+        default: 'all'
+        options:
+          - all
+          - hggzk_app
+          - hggzkportal_app
+      platform:
+        description: 'Platform to build'
+        required: false
+        type: choice
+        default: 'both'
+        options:
+          - both
+          - ios
+          - android
+      ssh:
+        description: 'Enable SSH debug session (tmate)'
+        type: boolean
+        required: false
+        default: false
+      upload_testflight:
+        description: 'Upload to TestFlight'
+        type: boolean
+        required: false
+        default: false
+      submit_for_review:
+        description: 'Submit for App Store Review (iOS only)'
+        type: boolean
+        required: true
+        default: true
+      review_notes:
+        description: 'Review notes for Apple (if submitting for review)'
+        type: string
+        required: false
+        default: 'This is an automated submission. Please review.'
+
+env:
+  ENABLED_APPS: "hggzk_app,hggzkportal_app"
+
+jobs:
+  setup:
+    name: Setup Build Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      has_apps: ${{ steps.set-matrix.outputs.has_apps }}
+      upload_testflight: ${{ steps.check-testflight.outputs.enabled }}
+      submit_for_review: ${{ steps.check-review.outputs.enabled }}
+    steps:
+      - name: Set up build matrix
+        id: set-matrix
+        run: |
+          ENABLED_APPS="${{ env.ENABLED_APPS }}"
+          APPS_JSON=$(echo "$ENABLED_APPS" | sed 's/,/","/g' | sed 's/^/["/' | sed 's/$/"]/')
+          SELECTED_APP="${{ github.event.inputs.app_to_build }}"
+          
+          if [ "$SELECTED_APP" == "all" ] || [ -z "$SELECTED_APP" ]; then
+            echo "matrix=$APPS_JSON" >> $GITHUB_OUTPUT
+          else
+            echo "matrix=[\"$SELECTED_APP\"]" >> $GITHUB_OUTPUT
+          fi
+          echo "has_apps=true" >> $GITHUB_OUTPUT
+
+      - name: Check TestFlight Upload Condition
+        id: check-testflight
+        run: |
+          UPLOAD_ENABLED="false"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.upload_testflight }}" = "true" ]; then
+            UPLOAD_ENABLED="true"
+          fi
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            UPLOAD_ENABLED="true"
+          fi
+          echo "enabled=$UPLOAD_ENABLED" >> $GITHUB_OUTPUT
+
+      - name: Check App Store Review Submission
+        id: check-review
+        run: |
+          REVIEW_ENABLED="false"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.submit_for_review }}" = "true" ]; then
+            REVIEW_ENABLED="true"
+          fi
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            REVIEW_ENABLED="true"
+          fi
+          echo "enabled=$REVIEW_ENABLED" >> $GITHUB_OUTPUT
+
+  build-ios:
+    name: Build ${{ matrix.app }} for iOS
+    needs: setup
+    if: needs.setup.outputs.has_apps == 'true' && github.event.inputs.platform != 'android'
+    runs-on: macos-latest
+    timeout-minutes: 90
+    env:
+      COCOAPODS_DISABLE_STATS: "true"
+      UPLOAD_TESTFLIGHT_ENABLED: ${{ needs.setup.outputs.upload_testflight }}
+      SUBMIT_FOR_REVIEW: ${{ needs.setup.outputs.submit_for_review }}
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJson(needs.setup.outputs.matrix) }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 'latest-stable'
+
+      - name: Verify Xcode version
+        run: |
+          xcodebuild -version
+          xcode-select -p
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Install Fastlane
+        if: env.UPLOAD_TESTFLIGHT_ENABLED == 'true' || env.SUBMIT_FOR_REVIEW == 'true'
+        run: |
+          gem install fastlane
+          fastlane --version
+
+      - name: Set App Configuration
+        run: |
+          echo "==========================================="
+          echo "Setting configuration for ${{ matrix.app }}"
+          echo "==========================================="
+          
+          case "${{ matrix.app }}" in
+            "hggzk_app")
+              echo "BUNDLE_ID=com.hggzk.app" >> "$GITHUB_ENV"
+              echo "APP_DISPLAY_NAME=HGGZK" >> "$GITHUB_ENV"
+              echo "APP_IDENTIFIER=com.hggzk.app" >> "$GITHUB_ENV"
+              ;;
+            "hggzkportal_app")
+              echo "BUNDLE_ID=com.hggzkportal.app" >> "$GITHUB_ENV"
+              echo "APP_DISPLAY_NAME=HGGZK Portal" >> "$GITHUB_ENV"
+              echo "APP_IDENTIFIER=com.hggzkportal.app" >> "$GITHUB_ENV"
+              ;;
+            *)
+              echo "Unknown app: ${{ matrix.app }}"
+              exit 1
+              ;;
+          esac
+          
+          UPLOAD_TESTFLIGHT_VALUE="${{ env.UPLOAD_TESTFLIGHT_ENABLED }}"
+          SUBMIT_FOR_REVIEW_VALUE="${{ env.SUBMIT_FOR_REVIEW }}"
+          
+          if [ "$UPLOAD_TESTFLIGHT_VALUE" = "true" ] || [ "$SUBMIT_FOR_REVIEW_VALUE" = "true" ]; then
+            echo "EXPORT_METHOD=app-store" >> "$GITHUB_ENV"
+            echo "Will build for App Store/TestFlight"
+            if [ "$SUBMIT_FOR_REVIEW_VALUE" = "true" ]; then
+              echo "Will submit for App Store Review"
+            fi
+          else
+            echo "EXPORT_METHOD=development" >> "$GITHUB_ENV"
+            echo "Will build for Development"
+          fi
+
+      - name: Setup App Store Connect API Key
+        env:
+          API_KEY_BASE64: ${{ secrets.APPSTORE_API_KEY_BASE64 }}
+          API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          API_ISSUER_ID: ${{ secrets.APPSTORE_API_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          echo "--- Setting up App Store Connect API ---"
+          
+          if [ -z "${API_KEY_BASE64:-}" ]; then
+            echo "APPSTORE_API_KEY_BASE64 is required for automatic signing!"
+            exit 1
+          fi
+          
+          mkdir -p ~/private_keys
+          echo "$API_KEY_BASE64" | base64 -d > ~/private_keys/AuthKey_${API_KEY_ID}.p8
+          chmod 600 ~/private_keys/AuthKey_${API_KEY_ID}.p8
+          
+          # Setup for Fastlane (if needed)
+          if [ "$UPLOAD_TESTFLIGHT_ENABLED" = "true" ] || [ "$SUBMIT_FOR_REVIEW" = "true" ]; then
+            mkdir -p ~/.appstoreconnect/private_keys
+            cp ~/private_keys/AuthKey_${API_KEY_ID}.p8 ~/.appstoreconnect/private_keys/
+          fi
+          
+          echo "App Store Connect API Key configured"
+          echo "  Key ID: $API_KEY_ID"
+          echo "  Issuer ID: $API_ISSUER_ID"
+          
+          echo "API_KEY_PATH=$HOME/private_keys/AuthKey_${API_KEY_ID}.p8" >> "$GITHUB_ENV"
+          echo "API_KEY_ID=$API_KEY_ID" >> "$GITHUB_ENV"
+          echo "API_ISSUER_ID=$API_ISSUER_ID" >> "$GITHUB_ENV"
+
+      - name: Set Team ID
+        run: |
+          echo "TEAM_ID=KJ8CHSW8D4" >> "$GITHUB_ENV"
+          echo "Team ID: KJ8CHSW8D4"
+
+      - name: SSH debug (tmate)
+        if: github.event_name == 'workflow_dispatch' && inputs.ssh
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+
+      - name: Install CocoaPods
+        run: pod --version || sudo gem install cocoapods
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods
+          key: ${{ runner.os }}-pods-${{ matrix.app }}-${{ hashFiles(format('{0}/ios/Podfile', matrix.app), format('{0}/pubspec.lock', matrix.app)) }}
+          restore-keys: |
+            ${{ runner.os }}-pods-${{ matrix.app }}-
+
+      - name: Flutter clean and pub get
+        working-directory: ./${{ matrix.app }}
+        run: |
+          flutter clean
+          flutter pub get
+
+      - name: Clean iOS Build Environment
+        working-directory: ./${{ matrix.app }}
+        run: |
+          set -euo pipefail
+          
+          echo "==========================================="
+          echo "Deep Cleaning iOS Build Environment"
+          echo "==========================================="
+          
+          rm -rf ~/Library/Developer/Xcode/DerivedData/*
+          rm -rf ios/.symlinks
+          rm -rf ios/Flutter/App.framework
+          rm -rf ios/Flutter/Flutter.framework
+          rm -rf ios/Flutter/Flutter.podspec
+          rm -rf ios/Pods
+          rm -rf ios/Podfile.lock
+          rm -rf .ios
+          rm -rf build/ios
+          rm -rf ios/build
+          
+          pod cache clean --all || true
+          
+          echo "✅ Clean completed"
+
+      - name: Pod Install
+        working-directory: ./${{ matrix.app }}
+        run: |
+          cd ios
+          pod install --repo-update
+          echo "✅ Pod install completed"
+
+      - name: Build iOS (PR - no codesign)
+        if: github.event_name == 'pull_request'
+        working-directory: ./${{ matrix.app }}
+        run: flutter build ios --release --no-codesign
+
+      - name: Build IPA (Automatic Signing)
+        if: github.event_name != 'pull_request'
+        working-directory: ./${{ matrix.app }}
+        run: |
+          set -euo pipefail
+          
+          echo "==========================================="
+          echo "Building IPA for ${{ matrix.app }}"
+          echo "==========================================="
+          echo "Bundle ID: $BUNDLE_ID"
+          echo "Export Method: $EXPORT_METHOD"
+          echo "Team ID: $TEAM_ID"
+          echo ""
+          
+          # ======================================
+          # Step 0: Clean
+          # ======================================
+          rm -rf ~/Library/Developer/Xcode/DerivedData/*
+          rm -rf build/
+          
+          # ======================================
+          # Step 1: Build Flutter iOS
+          # ======================================
+          echo "--- Step 1: Building Flutter iOS ---"
+          flutter build ios --release --no-codesign
+          
+          # ======================================
+          # Step 2: Fix ONLY App Bundle ID in Pods (Privacy bundles)
+          # ======================================
+          echo ""
+          echo "--- Step 2: Fixing Privacy Bundle IDs that use App Bundle ID ---"
+          echo "Looking for bundles using: $BUNDLE_ID"
+          
+          FIXED_COUNT=0
+          for plist in $(find ios/Pods -name "Info.plist" -path "*.bundle*" 2>/dev/null); do
+            CURRENT_ID=$(plutil -extract CFBundleIdentifier raw "$plist" 2>/dev/null || echo "")
+            # فقط إصلاح الـ bundles التي تستخدم Bundle ID التطبيق الرئيسي
+            if [ "$CURRENT_ID" = "$BUNDLE_ID" ]; then
+              BUNDLE_NAME=$(basename "$(dirname "$plist")" .bundle)
+              CLEAN_NAME=$(echo "$BUNDLE_NAME" | sed 's/[^a-zA-Z0-9]/-/g')
+              NEW_ID="${BUNDLE_ID}.privacy.${CLEAN_NAME}"
+              echo "  Fixing: $BUNDLE_NAME"
+              echo "    Old: $CURRENT_ID"
+              echo "    New: $NEW_ID"
+              plutil -replace CFBundleIdentifier -string "$NEW_ID" "$plist"
+              FIXED_COUNT=$((FIXED_COUNT + 1))
+            fi
+          done
+          
+          echo "  ✅ Fixed $FIXED_COUNT privacy bundle(s)"
+          
+          # ======================================
+          # Step 3: Create Archive
+          # ======================================
+          echo ""
+          echo "--- Step 3: Creating Archive ---"
+          
+          xcodebuild -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/Runner.xcarchive \
+            CODE_SIGN_STYLE=Automatic \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$API_KEY_PATH" \
+            -authenticationKeyID "$API_KEY_ID" \
+            -authenticationKeyIssuerID "$API_ISSUER_ID" \
+            clean archive
+          
+          # ======================================
+          # Step 4: Fix ONLY App Bundle ID in Archive
+          # ======================================
+          echo ""
+          echo "--- Step 4: Checking Archive for App Bundle ID Collisions ---"
+          
+          ARCHIVE_APP="build/Runner.xcarchive/Products/Applications/Runner.app"
+          FIXED_IN_ARCHIVE=0
+          
+          for plist in $(find "$ARCHIVE_APP" -name "Info.plist" 2>/dev/null); do
+            # تخطي Info.plist الرئيسي للتطبيق
+            if [ "$plist" = "$ARCHIVE_APP/Info.plist" ]; then
+              continue
+            fi
+            
+            CURRENT_ID=$(plutil -extract CFBundleIdentifier raw "$plist" 2>/dev/null || echo "")
+            
+            # فقط إصلاح إذا كان Bundle ID يساوي Bundle ID التطبيق الرئيسي
+            if [ "$CURRENT_ID" = "$BUNDLE_ID" ]; then
+              PARENT_DIR=$(dirname "$plist")
+              BUNDLE_NAME=$(basename "$PARENT_DIR")
+              CLEAN_NAME=$(echo "$BUNDLE_NAME" | sed 's/[^a-zA-Z0-9]/_/g')
+              NEW_ID="${BUNDLE_ID}.embedded.${CLEAN_NAME}"
+              
+              echo "  Fixing collision: $BUNDLE_NAME"
+              echo "    Old: $CURRENT_ID"
+              echo "    New: $NEW_ID"
+              plutil -replace CFBundleIdentifier -string "$NEW_ID" "$plist"
+              FIXED_IN_ARCHIVE=$((FIXED_IN_ARCHIVE + 1))
+            fi
+          done
+          
+          if [ "$FIXED_IN_ARCHIVE" -gt 0 ]; then
+            echo "  ✅ Fixed $FIXED_IN_ARCHIVE bundle(s) in archive"
+          else
+            echo "  ✅ No collisions found in archive"
+          fi
+          
+          # ======================================
+          # Step 5: Verify App Bundle ID Count
+          # ======================================
+          echo ""
+          echo "--- Step 5: Verifying App Bundle ID ---"
+          
+          APP_BUNDLE_COUNT=$(find "$ARCHIVE_APP" -name "Info.plist" -exec plutil -extract CFBundleIdentifier raw {} 2>/dev/null \; | grep -c "^${BUNDLE_ID}$" || echo "0")
+          
+          echo "  App Bundle ID '$BUNDLE_ID' count: $APP_BUNDLE_COUNT"
+          
+          if [ "$APP_BUNDLE_COUNT" -gt 1 ]; then
+            echo "  ❌ ERROR: Bundle ID collision still exists!"
+            exit 1
+          else
+            echo "  ✅ No collision - Bundle ID is unique"
+          fi
+          
+          # ======================================
+          # Step 6: Export IPA
+          # ======================================
+          echo ""
+          echo "--- Step 6: Exporting IPA ---"
+          
+          cat > "$RUNNER_TEMP/ExportOptions.plist" << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>${EXPORT_METHOD}</string>
+              <key>teamID</key>
+              <string>${TEAM_ID}</string>
+              <key>signingStyle</key>
+              <string>automatic</string>
+              <key>compileBitcode</key>
+              <false/>
+              <key>stripSwiftSymbols</key>
+              <true/>
+              <key>uploadSymbols</key>
+              <true/>
+              <key>generateAppStoreInformation</key>
+              <true/>
+          </dict>
+          </plist>
+          EOF
+          
+          xcodebuild -exportArchive \
+            -archivePath build/Runner.xcarchive \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath build/ipa \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$API_KEY_PATH" \
+            -authenticationKeyID "$API_KEY_ID" \
+            -authenticationKeyIssuerID "$API_ISSUER_ID"
+          
+          echo ""
+          echo "✅ IPA Export Successful!"
+          ls -lh build/ipa/*.ipa
+
+      - name: Rename IPA
+        if: github.event_name != 'pull_request'
+        working-directory: ./${{ matrix.app }}
+        run: |
+          VERSION=$(grep 'version:' pubspec.yaml | cut -d ' ' -f 2 | cut -d '+' -f 1)
+          BUILD_NUMBER=${{ github.run_number }}
+          
+          SUFFIX="Dev"
+          if [ "$EXPORT_METHOD" = "app-store" ]; then
+            SUFFIX="AppStore"
+          elif [ "$EXPORT_METHOD" = "ad-hoc" ]; then
+            SUFFIX="AdHoc"
+          fi
+          
+          IPA_NAME="${{ matrix.app }}-v${VERSION}+${BUILD_NUMBER}-iOS-${SUFFIX}.ipa"
+          mv build/ipa/*.ipa "build/ipa/${IPA_NAME}"
+          
+          echo "Renamed to: ${IPA_NAME}"
+          echo "IPA_NAME=${IPA_NAME}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "BUILD_NUMBER=${BUILD_NUMBER}" >> $GITHUB_ENV
+
+      - name: Final IPA Verification
+        if: github.event_name != 'pull_request'
+        working-directory: ./${{ matrix.app }}
+        run: |
+          set -euo pipefail
+          
+          IPA_PATH="build/ipa/${IPA_NAME}"
+          
+          echo "==========================================="
+          echo "Final IPA Verification Before Upload"
+          echo "==========================================="
+          echo "App Bundle ID: $BUNDLE_ID"
+          echo ""
+          
+          TEMP_DIR=$(mktemp -d)
+          unzip -q "$IPA_PATH" -d "$TEMP_DIR"
+          
+          APP_PATH="$TEMP_DIR/Payload/Runner.app"
+          
+          # عد تكرارات Bundle ID الرئيسي فقط
+          MAIN_COUNT=$(find "$APP_PATH" -name "Info.plist" -exec plutil -extract CFBundleIdentifier raw {} 2>/dev/null \; | grep -c "^${BUNDLE_ID}$" || echo "0")
+          
+          echo "App Bundle ID '$BUNDLE_ID' occurrences: $MAIN_COUNT"
+          
+          if [ "$MAIN_COUNT" -gt 1 ]; then
+            echo ""
+            echo "🔧 Bundle ID collision detected! Fixing in IPA..."
+            
+            FIX_COUNTER=1
+            for plist in $(find "$APP_PATH" -name "Info.plist" 2>/dev/null); do
+              # تخطي التطبيق الرئيسي
+              if [ "$plist" = "$APP_PATH/Info.plist" ]; then
+                continue
+              fi
+              
+              CURRENT_ID=$(plutil -extract CFBundleIdentifier raw "$plist" 2>/dev/null || echo "")
+              if [ "$CURRENT_ID" = "$BUNDLE_ID" ]; then
+                PARENT_NAME=$(basename "$(dirname "$plist")")
+                CLEAN_NAME=$(echo "$PARENT_NAME" | sed 's/[^a-zA-Z0-9]/_/g')
+                NEW_ID="${BUNDLE_ID}.ipa.${CLEAN_NAME}.${FIX_COUNTER}"
+                echo "  Fixing: $PARENT_NAME -> $NEW_ID"
+                plutil -replace CFBundleIdentifier -string "$NEW_ID" "$plist"
+                FIX_COUNTER=$((FIX_COUNTER + 1))
+              fi
+            done
+            
+            echo ""
+            echo "Rebuilding IPA..."
+            
+            ORIGINAL_DIR=$(pwd)
+            cd "$TEMP_DIR"
+            rm -f "$ORIGINAL_DIR/$IPA_PATH"
+            zip -qr "$ORIGINAL_DIR/$IPA_PATH" Payload/
+            cd "$ORIGINAL_DIR"
+            
+            echo "✅ IPA rebuilt with fixes"
+          else
+            echo "✅ No collision - IPA is ready for upload"
+          fi
+          
+          rm -rf "$TEMP_DIR"
+
+      - name: Create Fastlane Configuration
+        if: env.SUBMIT_FOR_REVIEW == 'true'
+        working-directory: ./${{ matrix.app }}
+        run: |
+          mkdir -p fastlane
+          
+          # Create Appfile
+          cat > fastlane/Appfile << EOF
+          app_identifier("$APP_IDENTIFIER")
+          team_id("$TEAM_ID")
+          EOF
+          
+          # Create Fastfile
+          cat > fastlane/Fastfile << 'EOF'
+          default_platform(:ios)
+          
+          platform :ios do
+            desc "Upload to TestFlight and optionally submit for review"
+            lane :upload_and_review do |options|
+              
+              # Configure App Store Connect API
+              api_key = app_store_connect_api_key(
+                key_id: ENV["API_KEY_ID"],
+                issuer_id: ENV["API_ISSUER_ID"],
+                key_filepath: ENV["API_KEY_PATH"],
+                in_house: false
+              )
+              
+              # Upload build to App Store Connect without external TestFlight distribution.
+              # This avoids Beta App Review requirements (beta_app_description/localizations).
+              upload_to_testflight(
+                api_key: api_key,
+                ipa: options[:ipa_path],
+                skip_waiting_for_build_processing: false,
+                distribute_external: false,
+                skip_submission: true,
+                changelog: "Build #{options[:build_number]} - #{options[:version]}"
+              )
+              
+              if options[:submit_for_review] == "true"
+                puts "📱 Preparing for App Store submission..."
+                
+                # Submit for review
+                deliver(
+                  api_key: api_key,
+                  submit_for_review: true,
+                  automatic_release: false,
+                  force: true,
+                  precheck_include_in_app_purchases: false,
+                  
+                  # App metadata
+                  app_version: options[:version],
+                  
+                  # Submission information
+                  submission_information: {
+                    add_id_info_uses_idfa: false,
+                    content_rights_contains_third_party_content: false,
+                    export_compliance_uses_encryption: false
+                  },
+                  
+                  # App review information
+                  app_review_information: {
+                    first_name: "Review",
+                    last_name: "Team",
+                    phone_number: "+1234567890",
+                    email_address: "review@hggzk.com",
+                    demo_user: "demo_user",
+                    demo_password: "demo_pass",
+                    notes: options[:review_notes] || "Automated submission via CI/CD"
+                  },
+                  
+                  # Skip screenshots and metadata (assuming they're already uploaded)
+                  skip_screenshots: true,
+                  skip_metadata: true,
+                  
+                  # Use the build we just uploaded
+                  build_number: options[:build_number].to_s
+                )
+                
+                puts "✅ Successfully submitted for App Store Review!"
+              end
+            end
+          end
+          EOF
+
+      - name: Upload to TestFlight
+        if: env.UPLOAD_TESTFLIGHT_ENABLED == 'true' && env.SUBMIT_FOR_REVIEW != 'true'
+        working-directory: ./${{ matrix.app }}
+        run: |
+          echo "==========================================="
+          echo "Uploading to TestFlight Only"
+          echo "==========================================="
+          
+          xcrun altool --upload-app \
+            -f "build/ipa/${IPA_NAME}" \
+            --type ios \
+            --apiKey "$API_KEY_ID" \
+            --apiIssuer "$API_ISSUER_ID" \
+            --verbose
+          
+          echo "✅ Successfully uploaded to TestFlight!"
+
+      - name: Upload to TestFlight & Submit for Review
+        if: env.SUBMIT_FOR_REVIEW == 'true'
+        working-directory: ./${{ matrix.app }}
+        run: |
+          echo "==========================================="
+          echo "Uploading to TestFlight and Submitting for Review"
+          echo "==========================================="
+          
+          # Prepare review notes
+          REVIEW_NOTES="${{ github.event.inputs.review_notes }}"
+          if [ -z "$REVIEW_NOTES" ]; then
+            REVIEW_NOTES="Automated build from GitHub Actions. Build #$BUILD_NUMBER"
+          fi
+          
+          # Run Fastlane
+          fastlane upload_and_review \
+            ipa_path:"build/ipa/${IPA_NAME}" \
+            build_number:"$BUILD_NUMBER" \
+            version:"$VERSION" \
+            app_name:"$APP_DISPLAY_NAME" \
+            submit_for_review:"true" \
+            review_notes:"$REVIEW_NOTES"
+          
+          echo "✅ Successfully submitted to App Store Review!"
+          echo "📱 Check App Store Connect for review status"
+
+      - name: Alternative Upload Method (Fallback)
+        if: failure() && (env.UPLOAD_TESTFLIGHT_ENABLED == 'true' || env.SUBMIT_FOR_REVIEW == 'true')
+        working-directory: ./${{ matrix.app }}
+        run: |
+          echo "==========================================="
+          echo "Using Alternative Upload Method"
+          echo "==========================================="
+          
+          # Upload using xcrun altool
+          xcrun altool --upload-app \
+            -f "build/ipa/${IPA_NAME}" \
+            --type ios \
+            --apiKey "$API_KEY_ID" \
+            --apiIssuer "$API_ISSUER_ID" \
+            --verbose
+          
+          if [ "$SUBMIT_FOR_REVIEW" = "true" ]; then
+            echo ""
+            echo "⚠️  Note: Automatic review submission failed with Fastlane."
+            echo "📱 Please submit for review manually in App Store Connect."
+          fi
+          
+          echo "✅ Successfully uploaded to TestFlight via alternative method!"
+
+      - name: Upload IPA artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app }}-ios-ipa
+          path: ./${{ matrix.app }}/build/ipa/*.ipa
+          retention-days: 30
+
+      - name: Upload dSYM artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app }}-ios-dsym
+          path: ./${{ matrix.app }}/build/Runner.xcarchive/dSYMs
+          retention-days: 30
+          if-no-files-found: ignore
+
+  build-android:
+    name: Build ${{ matrix.app }} for Android
+    needs: setup
+    if: needs.setup.outputs.has_apps == 'true' && github.event.inputs.platform != 'ios'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJson(needs.setup.outputs.matrix) }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Accept Android Licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Set App Configuration
+        run: |
+          case "${{ matrix.app }}" in
+            "hggzk_app")
+              echo "ANDROID_BUNDLE_ID=com.hggzk.app" >> "$GITHUB_ENV"
+              ;;
+            "hggzkportal_app")
+              echo "ANDROID_BUNDLE_ID=com.hggzkportal.app" >> "$GITHUB_ENV"
+              ;;
+          esac
+
+      - name: SSH debug (tmate)
+        if: github.event_name == 'workflow_dispatch' && inputs.ssh
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+
+      - name: Flutter clean and pub get
+        working-directory: ./${{ matrix.app }}
+        run: |
+          flutter clean
+          flutter pub get
+
+      - name: Build APK (Debug) for PR
+        if: github.event_name == 'pull_request'
+        working-directory: ./${{ matrix.app }}
+        run: flutter build apk --debug
+
+      - name: Setup Android Keystore
+        if: github.event_name != 'pull_request'
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          KEYSTORE_PATH="$GITHUB_WORKSPACE/cer_ios/upload-keystore.jks"
+          
+          if [ ! -f "$KEYSTORE_PATH" ]; then
+            echo "Keystore not found"
+            exit 1
+          fi
+          
+          KEY_PROPS_FILE="./${{ matrix.app }}/android/key.properties"
+          
+          echo "storePassword=$ANDROID_KEYSTORE_PASSWORD" > "$KEY_PROPS_FILE"
+          echo "keyPassword=$ANDROID_KEY_PASSWORD" >> "$KEY_PROPS_FILE"
+          echo "keyAlias=$ANDROID_KEY_ALIAS" >> "$KEY_PROPS_FILE"
+          echo "storeFile=$KEYSTORE_PATH" >> "$KEY_PROPS_FILE"
+          
+          echo "Android Keystore configured"
+
+      - name: Build APK (Release)
+        if: github.event_name != 'pull_request'
+        working-directory: ./${{ matrix.app }}
+        run: |
+          flutter build apk --release
+          ls -lh build/app/outputs/flutter-apk/*.apk
+
+      - name: Build App Bundle (AAB)
+        if: github.event_name != 'pull_request'
+        working-directory: ./${{ matrix.app }}
+        run: |
+          flutter build appbundle --release
+          ls -lh build/app/outputs/bundle/release/*.aab
+
+      - name: Rename artifacts
+        if: github.event_name != 'pull_request'
+        working-directory: ./${{ matrix.app }}
+        run: |
+          VERSION=$(grep 'version:' pubspec.yaml | cut -d ' ' -f 2 | cut -d '+' -f 1)
+          BUILD_NUMBER=${{ github.run_number }}
+          
+          mv "build/app/outputs/flutter-apk/app-release.apk" \
+             "build/app/outputs/flutter-apk/${{ matrix.app }}-v${VERSION}+${BUILD_NUMBER}-Android.apk" || true
+          mv "build/app/outputs/bundle/release/app-release.aab" \
+             "build/app/outputs/bundle/release/${{ matrix.app }}-v${VERSION}+${BUILD_NUMBER}-Android.aab" || true
+
+      - name: Upload APK artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app }}-android-apk
+          path: ./${{ matrix.app }}/build/app/outputs/flutter-apk/*.apk
+          retention-days: 30
+
+      - name: Upload AAB artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app }}-android-aab
+          path: ./${{ matrix.app }}/build/app/outputs/bundle/release/*.aab
+          retention-days: 30
+
+  notify-completion:
+    name: Build Summary
+    needs: [setup, build-ios, build-android]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## 📱 Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Platform | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 🍎 iOS | ${{ needs.build-ios.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🤖 Android | ${{ needs.build-android.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Build Details" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Number:** #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.setup.outputs.upload_testflight }}" = "true" ]; then
+            echo "### ✈️ TestFlight" >> $GITHUB_STEP_SUMMARY
+            echo "- **Upload Enabled:** ✅" >> $GITHUB_STEP_SUMMARY
+            if [ "${{ needs.setup.outputs.submit_for_review }}" = "true" ]; then
+              echo "- **Submitted for Review:** ✅" >> $GITHUB_STEP_SUMMARY
+              echo "- **Review Notes:** ${{ github.event.inputs.review_notes }}" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
+          echo "- [App Store Connect](https://appstoreconnect.apple.com)" >> $GITHUB_STEP_SUMMARY
+          echo "- [TestFlight](https://testflight.apple.com)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Google Play Console](https://play.google.com/console)" >> $GITHUB_STEP_SUMMARY
