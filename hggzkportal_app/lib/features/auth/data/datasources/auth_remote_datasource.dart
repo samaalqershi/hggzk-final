@@ -8,13 +8,19 @@ import '../../../../core/utils/request_logger.dart';
 import '../models/auth_response_model.dart';
 import '../models/user_model.dart';
 
+/// Arabic: عقد مصدر البيانات البعيد الخاص بعمليات المصادقة والتفويض.
+/// English: Defines the remote authentication contract used by repositories.
 abstract class AuthRemoteDataSource {
+  /// Arabic: يسجل دخول المستخدم باستخدام البريد الإلكتروني أو رقم الهاتف.
+  /// English: Signs the user in using an email address or phone number.
   Future<AuthResponseModel> login({
     required String emailOrPhone,
     required String password,
     required bool rememberMe,
   });
 
+  /// Arabic: ينشئ حساب مستخدم جديد عبر واجهة التسجيل العامة.
+  /// English: Creates a new user account through the public registration flow.
   Future<AuthResponseModel> register({
     required String name,
     required String email,
@@ -23,23 +29,33 @@ abstract class AuthRemoteDataSource {
     required String passwordConfirmation,
   });
 
+  /// Arabic: ينهي الجلسة الحالية أو جميع الجلسات المرتبطة بالمستخدم.
+  /// English: Logs the user out from the current session or all sessions.
   Future<void> logout({
     required String userId,
     required String refreshToken,
     bool logoutFromAllDevices = false,
   });
 
+  /// Arabic: يطلب بدء عملية إعادة تعيين كلمة المرور.
+  /// English: Requests the password reset flow for the provided identity.
   Future<void> resetPassword({
     required String emailOrPhone,
   });
 
+  /// Arabic: يجدد رموز الوصول والتحديث للجلسة الحالية.
+  /// English: Refreshes the session access and refresh tokens.
   Future<AuthResponseModel> refreshToken({
     required String accessToken,
     required String refreshToken,
   });
 
+  /// Arabic: يجلب المستخدم الحالي من الخادم.
+  /// English: Fetches the currently authenticated user from the backend.
   Future<UserModel> getCurrentUser();
 
+  /// Arabic: يحدث الملف الشخصي وبيانات العقار المرافقة عند الحاجة.
+  /// English: Updates the user profile and optional property-related fields.
   Future<void> updateProfile({
     required String userId,
     required String name,
@@ -59,6 +75,8 @@ abstract class AuthRemoteDataSource {
     double? propertyLongitude,
   });
 
+  /// Arabic: يغير كلمة مرور المستخدم الحالية.
+  /// English: Changes the current user's password.
   Future<void> changePassword({
     required String userId,
     required String currentPassword,
@@ -66,21 +84,28 @@ abstract class AuthRemoteDataSource {
     String? newPasswordConfirmation,
   });
 
+  /// Arabic: يرفع صورة الملف الشخصي ويعيد بيانات المستخدم المحدثة.
+  /// English: Uploads a profile image and returns the updated user model.
   Future<UserModel> uploadProfileImage({
     required String imagePath,
   });
 
-  // Email verification
+  /// Arabic: يؤكد البريد الإلكتروني باستخدام رمز التحقق المستلم.
+  /// English: Verifies the email address using the submitted verification code.
   Future<bool> verifyEmail({
     required String userId,
     required String code,
   });
+
+  /// Arabic: يعيد إرسال رمز التحقق للبريد الإلكتروني.
+  /// English: Resends the email verification code and returns cooldown seconds.
   Future<int?> resendEmailVerification({
     required String userId,
     required String email,
   });
 
-  /// تسجيل مالك عقار جديد مع إنشاء عقار مرتبط
+  /// Arabic: يسجل مالك عقار جديداً مع إنشاء عقار مرتبط بالحساب.
+  /// English: Registers a new property owner and creates the linked property.
   Future<AuthResponseModel> registerOwnerWithProperty({
     required String name,
     required String email,
@@ -98,6 +123,8 @@ abstract class AuthRemoteDataSource {
     List<Map<String, dynamic>>? walletAccounts,
   });
 
+  /// Arabic: يسجل الدخول الاجتماعي المخصص لتطبيق البوابة.
+  /// English: Performs the portal-specific social login flow.
   Future<AuthResponseModel> portalSocialLogin({
     required String provider,
     required String token,
@@ -105,6 +132,8 @@ abstract class AuthRemoteDataSource {
     String? name,
   });
 
+  /// Arabic: يكمل بيانات مالك العقار بعد التسجيل أو الدخول الاجتماعي.
+  /// English: Completes the owner profile after sign-up or social login.
   Future<AuthResponseModel> completeOwnerProfile({
     required String name,
     required String phone,
@@ -120,6 +149,8 @@ abstract class AuthRemoteDataSource {
     List<Map<String, dynamic>>? walletAccounts,
   });
 
+  /// Arabic: يحذف حساب مالك العقار مع تمرير بيانات التأكيد المطلوبة.
+  /// English: Deletes the owner account with the required confirmation data.
   Future<void> deleteOwnerAccount({
     String? password,
     String? socialProvider,
@@ -129,9 +160,15 @@ abstract class AuthRemoteDataSource {
   });
 }
 
+/// Arabic: تنفيذ API لعمليات المصادقة المعتمدة على `ApiClient`.
+/// English: API-backed implementation of the authentication remote datasource.
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
+  /// Arabic: عميل HTTP الموحد للتعامل مع واجهات الخادم.
+  /// English: Shared HTTP client used to talk to backend endpoints.
   final ApiClient apiClient;
 
+  /// Arabic: ينشئ مصدر بيانات مصادقة عن بعد اعتماداً على عميل API موحد.
+  /// English: Creates the remote auth datasource with the shared API client.
   AuthRemoteDataSourceImpl({required this.apiClient});
 
   @override
@@ -253,7 +290,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
-  // Email verification (new)
+  @override
   Future<bool> verifyEmail({
     required String userId,
     required String code,
@@ -297,6 +334,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  @override
   Future<int?> resendEmailVerification({
     required String userId,
     required String email,

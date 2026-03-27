@@ -9,10 +9,7 @@ import 'package:hggzkportal/core/bloc/theme/theme_state.dart';
 import 'package:hggzkportal/core/localization/app_localizations.dart';
 import 'package:hggzkportal/core/localization/locale_manager.dart';
 import 'package:hggzkportal/routes/app_router.dart';
-import 'package:hggzkportal/injection_container.dart' as di;
 import 'package:hggzkportal/core/bloc/app_bloc.dart';
-import 'package:hggzkportal/services/navigation_service.dart';
-// Removed settings bloc dependency
 import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:hggzkportal/services/message_service.dart';
 

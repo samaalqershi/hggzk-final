@@ -5,11 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
-import '../../features/auth/presentation/bloc/auth_bloc.dart';
-import '../../features/auth/presentation/bloc/auth_state.dart';
-import '../../injection_container.dart';
-import '../../services/local_storage_service.dart';
-import '../../core/widgets/app_logo_widget.dart';
+import 'package:hggzkportal/core/constants/route_constants.dart';
+import 'package:hggzkportal/core/widgets/app_logo_widget.dart';
+import 'package:hggzkportal/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:hggzkportal/features/auth/presentation/bloc/auth_state.dart';
+import 'package:hggzkportal/injection_container.dart';
+import 'package:hggzkportal/services/local_storage_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -152,12 +153,12 @@ class _SplashScreenState extends State<SplashScreen>
     if (authState is AuthAuthenticated) {
       final user = authState.user;
       if (user.isEmailVerified) {
-        context.go('/main');
+        context.go(RouteConstants.main);
       } else {
-        context.go('/verify-otp');
+        context.go(RouteConstants.verifyEmail);
       }
     } else {
-      context.go('/login');
+      context.go(RouteConstants.login);
     }
   }
 

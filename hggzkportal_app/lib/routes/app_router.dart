@@ -8,12 +8,12 @@ import 'package:hggzkportal/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hggzkportal/app/presentation/pages/futuristic_main_screen.dart';
+import 'package:hggzkportal/app/presentation/pages/splash_screen.dart';
 import 'package:hggzkportal/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:hggzkportal/features/auth/presentation/bloc/auth_state.dart';
 import 'package:hggzkportal/features/auth/presentation/pages/login_page.dart';
 import 'package:hggzkportal/features/chat/presentation/widgets/conversation_loader.dart';
-import 'package:hggzkportal/presentation/screens/futuristic_main_screen.dart';
-import 'package:hggzkportal/presentation/screens/splash_screen.dart';
 // Removed imports for deleted features
 // Removed unused imports
 import 'package:hggzkportal/features/auth/presentation/pages/register_page.dart';

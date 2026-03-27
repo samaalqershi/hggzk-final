@@ -9,12 +9,13 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../presentation/bloc/auth_bloc.dart';
 import '../../presentation/bloc/auth_state.dart';
-// Fallback simple widgets to avoid dependency on non-existing common widgets
 import '../../../../injection_container.dart';
-import '../../verification/bloc/email_verification_bloc.dart';
-import '../../verification/bloc/email_verification_event.dart';
-import '../../verification/bloc/email_verification_state.dart';
+import '../bloc/email_verification/email_verification_bloc.dart';
+import '../bloc/email_verification/email_verification_event.dart';
+import '../bloc/email_verification/email_verification_state.dart';
 
+/// Arabic: شاشة إدخال رمز تفعيل البريد الإلكتروني وإعادة إرساله.
+/// English: UI page for submitting and resending the email verification code.
 class VerifyEmailPage extends StatefulWidget {
   const VerifyEmailPage({super.key});
 
@@ -57,10 +58,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   Widget build(BuildContext context) {
     return BlocProvider<EmailVerificationBloc>(
       create: (_) {
-        // فقط إنشاء الـ Bloc بدون إرسال تلقائي
-        // لأن الرمز يُرسل مسبقاً عند التسجيل من RegisterUserCommandHandler
-        final bloc = sl<EmailVerificationBloc>();
-        return bloc;
+        return sl<EmailVerificationBloc>();
       },
       child: Scaffold(
         backgroundColor: AppTheme.darkBackground,
@@ -88,7 +86,6 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                       BlocListener<AuthBloc, AuthState>(
                         listener: (context, aState) {
                           if (aState is AuthUnauthenticated) {
-                            // بعد اكتمال عملية تسجيل الخروج، انتقل لصفحة تسجيل الدخول
                             context.go(RouteConstants.login);
                           }
                         },
@@ -99,15 +96,13 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                       listener: (context, state) {
                         if (state is EmailVerificationSuccess) {
                           HapticFeedback.mediumImpact();
-                          // بعد التحقق: امسح الجلسة الحالية وأعد المستخدم لشاشة تسجيل الدخول
-                          // لتفادي بقاء توكن التسجيل الأولي وإجبار إعادة تسجيل الدخول بمستخدم مُفعّل
                           context
                               .read<AuthBloc>()
                               .add(const LogoutEvent());
-                          // انتظر تبدل الحالة إلى غير مصادق ثم انتقل
-                          // ملاحظة: لو لم يتغير فوراً، نستخدم Future.microtask لضمان تنفيذ التنقل بعد الإطار الحالي
-                          Future.microtask(
-                              () => context.go(RouteConstants.login));
+                          if (!mounted) {
+                            return;
+                          }
+                          context.go(RouteConstants.login);
                         } else if (state is EmailVerificationError) {
                           _showError(state.message);
                         } else if (state is EmailVerificationCodeResent) {

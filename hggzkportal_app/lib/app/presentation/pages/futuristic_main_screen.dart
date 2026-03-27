@@ -1,13 +1,12 @@
-// lib/presentation/screens/futuristic_main_screen.dart
+// lib/app/presentation/pages/futuristic_main_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'dart:math' as math;
-import '../../core/theme/app_theme.dart';
-import '../../features/auth/presentation/pages/profile_page.dart';
-import '../../features/admin_hub/presentation/pages/admin_hub_page.dart';
-// Removed imports for deleted features
+import 'package:hggzkportal/core/theme/app_theme.dart';
+import 'package:hggzkportal/features/admin_hub/presentation/pages/admin_hub_page.dart';
+import 'package:hggzkportal/features/auth/presentation/pages/profile_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
