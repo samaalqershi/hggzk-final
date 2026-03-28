@@ -12,12 +12,29 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 
+/// يوفّر واجهة اختيار وقص ورفع صورة المستخدم مع معاينة فورية للحالة الحالية.
+/// Provides a profile-image picker with cropping support and instant preview
+/// of the current selection.
 class UploadUserImage extends StatefulWidget {
+  /// رابط الصورة الحالية للمستخدم إن وُجدت.
+  /// Current image URL for the user when one already exists.
   final String? currentImageUrl;
+
+  /// رد الاستدعاء الذي يستقبل المسار النهائي للصورة المختارة.
+  /// Callback that receives the final selected image path.
   final Function(String imagePath) onImageSelected;
+
+  /// حجم واجهة الصورة المعروضة داخل الصفحة.
+  /// Visual size of the avatar picker inside the page.
   final double size;
+
+  /// يحدد ما إذا كانت واجهة الاختيار قابلة للتفاعل.
+  /// Controls whether the picker can currently be interacted with.
   final bool enabled;
 
+  /// ينشئ أداة رفع الصورة مع الحالة الحالية ورد الاختيار.
+  /// Creates the image-upload widget with its current state and selection
+  /// callback.
   const UploadUserImage({
     super.key,
     this.currentImageUrl,
@@ -25,32 +42,29 @@ class UploadUserImage extends StatefulWidget {
     this.size = 90, // Reduced from 120
     this.enabled = true,
   });
-
   @override
   State<UploadUserImage> createState() => _UploadUserImageState();
 }
 
-class _UploadUserImageState extends State<UploadUserImage> 
+class _UploadUserImageState extends State<UploadUserImage>
     with TickerProviderStateMixin {
   final ImagePicker _picker = ImagePicker();
   File? _selectedImage;
   bool _isLoading = false;
   bool _isHovered = false;
-  
   late AnimationController _pulseController;
   late AnimationController _rotateController;
   late Animation<double> _pulseAnimation;
   late Animation<double> _rotateAnimation;
-
   @override
   void initState() {
     super.initState();
-    
+
     _pulseController = AnimationController(
       duration: const Duration(seconds: 3),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _pulseAnimation = Tween<double>(
       begin: 0.98,
       end: 1.02,
@@ -58,12 +72,12 @@ class _UploadUserImageState extends State<UploadUserImage>
       parent: _pulseController,
       curve: Curves.easeInOut,
     ));
-    
+
     _rotateController = AnimationController(
       duration: const Duration(seconds: 10), // Faster rotation
       vsync: this,
     )..repeat();
-    
+
     _rotateAnimation = Tween<double>(
       begin: 0,
       end: 2 * math.pi,
@@ -80,8 +94,10 @@ class _UploadUserImageState extends State<UploadUserImage>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: widget.enabled ? (_) => setState(() => _isHovered = true) : null,
-      onTapUp: widget.enabled ? (_) => setState(() => _isHovered = false) : null,
+      onTapDown:
+          widget.enabled ? (_) => setState(() => _isHovered = true) : null,
+      onTapUp:
+          widget.enabled ? (_) => setState(() => _isHovered = false) : null,
       onTapCancel: () => setState(() => _isHovered = false),
       onTap: widget.enabled ? _showImageSourceDialog : null,
       child: Stack(
@@ -151,7 +167,8 @@ class _UploadUserImageState extends State<UploadUserImage>
         width: widget.size,
         height: widget.size,
       );
-    } else if (widget.currentImageUrl != null && widget.currentImageUrl!.isNotEmpty) {
+    } else if (widget.currentImageUrl != null &&
+        widget.currentImageUrl!.isNotEmpty) {
       return CachedImageWidget(
         imageUrl: widget.currentImageUrl!,
         fit: BoxFit.cover,
@@ -207,7 +224,8 @@ class _UploadUserImageState extends State<UploadUserImage>
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black26,
       builder: (context) => _UltraMinimalImageSourceSheet(
-        hasCurrentImage: _selectedImage != null || widget.currentImageUrl != null,
+        hasCurrentImage:
+            _selectedImage != null || widget.currentImageUrl != null,
         onCameraPressed: () {
           Navigator.pop(context);
           _pickImage(ImageSource.camera);
@@ -339,7 +357,7 @@ class _UploadUserImageState extends State<UploadUserImage>
 
   void _showMinimalErrorSnackBar(String message) {
     HapticFeedback.heavyImpact();
-    
+
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
       builder: (context) => _UltraMinimalSnackBar(
@@ -348,9 +366,9 @@ class _UploadUserImageState extends State<UploadUserImage>
         backgroundColor: AppTheme.error,
       ),
     );
-    
+
     overlay.insert(overlayEntry);
-    
+
     Future.delayed(const Duration(seconds: 2), () {
       overlayEntry.remove();
     });
@@ -363,14 +381,12 @@ class _UltraMinimalImageSourceSheet extends StatelessWidget {
   final VoidCallback onCameraPressed;
   final VoidCallback onGalleryPressed;
   final VoidCallback onRemovePressed;
-
   const _UltraMinimalImageSourceSheet({
     required this.hasCurrentImage,
     required this.onCameraPressed,
     required this.onGalleryPressed,
     required this.onRemovePressed,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -402,9 +418,9 @@ class _UltraMinimalImageSourceSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(1.5),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   // Title
                   Text(
                     'اختر صورة',
@@ -413,9 +429,9 @@ class _UltraMinimalImageSourceSheet extends StatelessWidget {
                       color: AppTheme.textWhite.withOpacity(0.9),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   // Camera option
                   _buildMinimalOption(
                     icon: Icons.camera_alt_outlined,
@@ -423,7 +439,7 @@ class _UltraMinimalImageSourceSheet extends StatelessWidget {
                     subtitle: 'التقط صورة جديدة',
                     onTap: onCameraPressed,
                   ),
-                  
+
                   // Gallery option
                   _buildMinimalOption(
                     icon: Icons.photo_library_outlined,
@@ -431,7 +447,7 @@ class _UltraMinimalImageSourceSheet extends StatelessWidget {
                     subtitle: 'اختر من الصور',
                     onTap: onGalleryPressed,
                   ),
-                  
+
                   // Remove option
                   if (hasCurrentImage)
                     _buildMinimalOption(
@@ -441,7 +457,7 @@ class _UltraMinimalImageSourceSheet extends StatelessWidget {
                       onTap: onRemovePressed,
                       isDestructive: true,
                     ),
-                  
+
                   const SizedBox(height: 16),
                 ],
               ),
@@ -540,7 +556,6 @@ class _UltraMinimalDialog extends StatelessWidget {
   final String message;
   final String confirmText;
   final VoidCallback onConfirm;
-
   const _UltraMinimalDialog({
     required this.icon,
     required this.iconColor,
@@ -549,7 +564,6 @@ class _UltraMinimalDialog extends StatelessWidget {
     required this.confirmText,
     required this.onConfirm,
   });
-
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -617,8 +631,7 @@ class _UltraMinimalDialog extends StatelessWidget {
                             ),
                             child: Text(
                               'إلغاء',
-                              style: AppTextStyles.caption.copyWith(
-                              ),
+                              style: AppTextStyles.caption.copyWith(),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -670,13 +683,11 @@ class _UltraMinimalSnackBar extends StatefulWidget {
   final String message;
   final IconData icon;
   final Color backgroundColor;
-
   const _UltraMinimalSnackBar({
     required this.message,
     required this.icon,
     required this.backgroundColor,
   });
-
   @override
   State<_UltraMinimalSnackBar> createState() => _UltraMinimalSnackBarState();
 }
@@ -686,7 +697,6 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
   @override
   void initState() {
     super.initState();
@@ -694,12 +704,12 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _fadeAnimation = CurvedAnimation(
       parent: _controller,
       curve: Curves.easeOut,
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 1),
       end: Offset.zero,
@@ -707,9 +717,9 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
       parent: _controller,
       curve: Curves.easeOutCubic,
     ));
-    
+
     _controller.forward();
-    
+
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (mounted) {
         _controller.reverse();

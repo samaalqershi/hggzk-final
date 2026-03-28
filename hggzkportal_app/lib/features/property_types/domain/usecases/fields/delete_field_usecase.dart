@@ -4,6 +4,7 @@ import '../../../../../core/usecases/usecase.dart';
 import '../../repositories/unit_type_fields_repository.dart';
 
 class DeleteFieldUseCase implements UseCase<bool, String> {
+  /// العربية: يخزن القيمة `repository`.
   final UnitTypeFieldsRepository repository;
 
   DeleteFieldUseCase(this.repository);

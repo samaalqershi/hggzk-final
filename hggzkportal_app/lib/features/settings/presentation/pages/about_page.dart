@@ -5,30 +5,29 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/route_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_logo_widget.dart';
 
 class AboutPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `AboutPage`.
   const AboutPage({super.key});
-
   @override
   State<AboutPage> createState() => _AboutPageState();
 }
 
 class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
+  /// العربية: يخزن القيمة `logoAnimationController`.
   late AnimationController _logoAnimationController;
   late AnimationController _contentAnimationController;
   late AnimationController _particleAnimationController;
   late AnimationController _glowAnimationController;
-
   late Animation<double> _logoRotationAnimation;
   late Animation<double> _logoScaleAnimation;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
   PackageInfo? _packageInfo;
-
   final List<FeatureItem> _features = [
     FeatureItem(
       icon: Icons.search_rounded,
@@ -63,7 +62,6 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
       ),
     ),
   ];
-
   final List<SocialMedia> _socialMedia = [
     SocialMedia(
       icon: Icons.facebook,
@@ -90,7 +88,6 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
       color: const Color(0xFFE4405F),
     ),
   ];
-
   @override
   void initState() {
     super.initState();
@@ -252,8 +249,8 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.primaryPurple.withOpacity(0.3),
-                AppTheme.primaryBlue.withOpacity(0.2),
+                AppTheme.primaryPurple.withValues(alpha: 0.3),
+                AppTheme.primaryBlue.withValues(alpha: 0.2),
                 Colors.transparent,
               ],
             ),
@@ -262,7 +259,7 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
               child: Container(
-                color: AppTheme.darkCard.withOpacity(0.3),
+                color: AppTheme.darkCard.withValues(alpha: 0.3),
                 child: Center(
                   child: _buildAnimatedLogo(),
                 ),
@@ -277,13 +274,13 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.7),
-                AppTheme.darkCard.withOpacity(0.5),
+                AppTheme.darkCard.withValues(alpha: 0.7),
+                AppTheme.darkCard.withValues(alpha: 0.5),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.primaryBlue.withOpacity(0.3),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -322,8 +319,8 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
                     decoration: BoxDecoration(
                       gradient: RadialGradient(
                         colors: [
-                          AppTheme.primaryBlue.withOpacity(
-                            0.3 + (_glowAnimationController.value * 0.2),
+                          AppTheme.primaryBlue.withValues(
+                            alpha: 0.3 + (_glowAnimationController.value * 0.2),
                           ),
                           Colors.transparent,
                         ],
@@ -341,10 +338,10 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
                         shape: BoxShape.circle,
                         gradient: SweepGradient(
                           colors: [
-                            AppTheme.primaryBlue.withOpacity(0.3),
-                            AppTheme.primaryPurple.withOpacity(0.5),
-                            AppTheme.primaryCyan.withOpacity(0.3),
-                            AppTheme.primaryBlue.withOpacity(0.3),
+                            AppTheme.primaryBlue.withValues(alpha: 0.3),
+                            AppTheme.primaryPurple.withValues(alpha: 0.5),
+                            AppTheme.primaryCyan.withValues(alpha: 0.3),
+                            AppTheme.primaryBlue.withValues(alpha: 0.3),
                           ],
                         ),
                       ),
@@ -360,7 +357,7 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.primaryBlue.withOpacity(0.5),
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                           blurRadius: 30,
                           spreadRadius: 10,
                         ),
@@ -476,13 +473,13 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.6),
-            AppTheme.darkCard.withOpacity(0.4),
+            AppTheme.darkCard.withValues(alpha: 0.6),
+            AppTheme.darkCard.withValues(alpha: 0.4),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: gradient.colors[0].withOpacity(0.3),
+          color: gradient.colors[0].withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -577,13 +574,13 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            feature.gradient.colors[0].withOpacity(0.1),
-            feature.gradient.colors[1].withOpacity(0.05),
+            feature.gradient.colors[0].withValues(alpha: 0.1),
+            feature.gradient.colors[1].withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: feature.gradient.colors[0].withOpacity(0.3),
+          color: feature.gradient.colors[0].withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -597,7 +594,7 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: feature.gradient.colors[0].withOpacity(0.4),
+                  color: feature.gradient.colors[0].withValues(alpha: 0.4),
                   blurRadius: 10,
                   spreadRadius: 1,
                 ),
@@ -683,13 +680,13 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.3),
-              AppTheme.darkCard.withOpacity(0.1),
+              AppTheme.darkCard.withValues(alpha: 0.3),
+              AppTheme.darkCard.withValues(alpha: 0.1),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -757,13 +754,13 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              social.color.withOpacity(0.2),
-              social.color.withOpacity(0.1),
+              social.color.withValues(alpha: 0.2),
+              social.color.withValues(alpha: 0.1),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: social.color.withOpacity(0.3),
+            color: social.color.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -784,14 +781,12 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
         _buildLegalItem(
           icon: Icons.description_outlined,
           title: 'الشروط والأحكام',
-          onTap: () {
-            // Navigate to terms page
-          },
+          onTap: () => context.push(RouteConstants.terms),
         ),
         _buildLegalItem(
           icon: Icons.privacy_tip_outlined,
           title: 'سياسة الخصوصية',
-          onTap: () => context.push('/settings/privacy-policy'),
+          onTap: () => context.push(RouteConstants.privacyPolicy),
         ),
         _buildLegalItem(
           icon: Icons.copyright_outlined,
@@ -812,13 +807,13 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -864,13 +859,13 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryBlue.withOpacity(0.1),
-            AppTheme.primaryPurple.withOpacity(0.05),
+            AppTheme.primaryBlue.withValues(alpha: 0.1),
+            AppTheme.primaryPurple.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.3),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -937,11 +932,11 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
       builder: (context) => BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: AlertDialog(
-          backgroundColor: AppTheme.darkCard.withOpacity(0.95),
+          backgroundColor: AppTheme.darkCard.withValues(alpha: 0.95),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
             side: BorderSide(
-              color: AppTheme.primaryBlue.withOpacity(0.3),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1015,11 +1010,11 @@ class _AboutPageState extends State<AboutPage> with TickerProviderStateMixin {
 
 // Models
 class FeatureItem {
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
   final String title;
   final String description;
   final LinearGradient gradient;
-
   FeatureItem({
     required this.icon,
     required this.title,
@@ -1029,11 +1024,11 @@ class FeatureItem {
 }
 
 class SocialMedia {
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
   final String name;
   final String url;
   final Color color;
-
   SocialMedia({
     required this.icon,
     required this.name,
@@ -1044,10 +1039,9 @@ class SocialMedia {
 
 // Particles Painter
 class _ParticlesPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
-
   _ParticlesPainter({required this.animationValue});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -1059,7 +1053,7 @@ class _ParticlesPainter extends CustomPainter {
 
       paint.shader = RadialGradient(
         colors: [
-          AppTheme.primaryBlue.withOpacity(0.3),
+          AppTheme.primaryBlue.withValues(alpha: 0.3),
           Colors.transparent,
         ],
       ).createShader(Rect.fromCircle(

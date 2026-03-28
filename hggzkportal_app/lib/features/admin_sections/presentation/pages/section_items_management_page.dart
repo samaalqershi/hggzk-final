@@ -4,17 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../widgets/section_preview_widget.dart';
-import '../../domain/usecases/sections/get_section_by_id_usecase.dart';
 import '../../../../core/widgets/empty_widget.dart';
 import '../../../../core/enums/section_target.dart';
 import '../../../../core/models/section_item_dto.dart';
-import '../../domain/entities/property_in_section.dart';
-import '../../domain/entities/unit_in_section.dart';
 import '../bloc/section_items/section_items_bloc.dart';
 import '../bloc/section_items/section_items_event.dart';
 import '../bloc/section_items/section_items_state.dart';
@@ -22,7 +18,9 @@ import '../widgets/section_items_list.dart';
 import '../widgets/add_items_dialog.dart';
 
 class SectionItemsManagementPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `sectionId`.
   final String sectionId;
+
   final SectionTarget target;
 
   const SectionItemsManagementPage({
@@ -40,9 +38,13 @@ class _SectionItemsManagementPageState extends State<SectionItemsManagementPage>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   final ScrollController _scrollController = ScrollController();
+
   bool _isReordering = false;
+
   Section? _section;
+
   bool _showPreview = false;
+
   List<dynamic> _orderedItems = [];
 
   @override
@@ -52,6 +54,7 @@ class _SectionItemsManagementPageState extends State<SectionItemsManagementPage>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+
     _loadSection(); // إضافة هنا
     _loadItems();
   }

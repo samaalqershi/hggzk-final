@@ -12,17 +12,36 @@ import '../../../payment/domain/usecases/process_payment_usecase.dart';
 import 'booking_event.dart';
 import 'booking_state.dart';
 
+/// العربية: ينسق الحالة والأحداث الخاصة بـ `BookingBloc`.
 class BookingBloc extends Bloc<BookingEvent, BookingState> {
+  /// العربية: يخزن القيمة `createBookingUseCase`.
   final CreateBookingUseCase createBookingUseCase;
+
+  /// العربية: يخزن القيمة `getBookingDetailsUseCase`.
   final GetBookingDetailsUseCase getBookingDetailsUseCase;
+
+  /// العربية: يخزن القيمة `cancelBookingUseCase`.
   final CancelBookingUseCase cancelBookingUseCase;
+
+  /// العربية: يخزن القيمة `getUserBookingsUseCase`.
   final GetUserBookingsUseCase getUserBookingsUseCase;
+
+  /// العربية: يخزن القيمة `getUserBookingsSummaryUseCase`.
   final GetUserBookingsSummaryUseCase getUserBookingsSummaryUseCase;
+
+  /// العربية: يخزن القيمة `addServicesToBookingUseCase`.
   final AddServicesToBookingUseCase addServicesToBookingUseCase;
+
+  /// العربية: يخزن القيمة `checkAvailabilityUseCase`.
   final CheckAvailabilityUseCase checkAvailabilityUseCase;
+
+  /// العربية: يخزن القيمة `updateBookingUseCase`.
   final UpdateBookingUseCase updateBookingUseCase;
+
+  /// العربية: يخزن القيمة `processPaymentUseCase`.
   final ProcessPaymentUseCase processPaymentUseCase;
-  
+
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingBloc`.
   BookingBloc({
     required this.createBookingUseCase,
     required this.getBookingDetailsUseCase,
@@ -47,6 +66,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     on<UpdateBookingEvent>(_onUpdateBooking);
   }
 
+  /// العربية: يعالج `onCreateBooking`.
   Future<void> _onCreateBooking(
     CreateBookingEvent event,
     Emitter<BookingState> emit,
@@ -61,6 +81,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     );
   }
 
+  /// العربية: يعالج `onGetBookingDetails`.
   Future<void> _onGetBookingDetails(
     GetBookingDetailsEvent event,
     Emitter<BookingState> emit,
@@ -80,6 +101,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     );
   }
 
+  /// العربية: يعالج `onCancelBooking`.
   Future<void> _onCancelBooking(
     CancelBookingEvent event,
     Emitter<BookingState> emit,
@@ -116,6 +138,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     );
   }
 
+  /// العربية: يعالج `onGetUserBookings`.
   Future<void> _onGetUserBookings(
     GetUserBookingsEvent event,
     Emitter<BookingState> emit,
@@ -123,7 +146,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     if (event.loadMore && state is UserBookingsLoaded) {
       final currentState = state as UserBookingsLoaded;
       if (currentState.isLoadingMore || !currentState.hasMore) return;
-      
+
       emit(currentState.copyWith(isLoadingMore: true));
     } else {
       emit(const BookingLoading());
@@ -179,6 +202,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     );
   }
 
+  /// العربية: يعالج `onGetUserBookingsSummary`.
   Future<void> _onGetUserBookingsSummary(
     GetUserBookingsSummaryEvent event,
     Emitter<BookingState> emit,
@@ -198,6 +222,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     );
   }
 
+  /// العربية: يعالج `onAddServicesToBooking`.
   Future<void> _onAddServicesToBooking(
     AddServicesToBookingEvent event,
     Emitter<BookingState> emit,
@@ -218,6 +243,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     );
   }
 
+  /// العربية: يعالج `onCheckAvailability`.
   Future<void> _onCheckAvailability(
     CheckAvailabilityEvent event,
     Emitter<BookingState> emit,
@@ -247,6 +273,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     );
   }
 
+  /// العربية: يعالج `onUpdateBookingForm`.
   void _onUpdateBookingForm(
     UpdateBookingFormEvent event,
     Emitter<BookingState> emit,
@@ -254,6 +281,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     emit(BookingFormUpdated(formData: event.formData));
   }
 
+  /// العربية: يعالج `onResetBookingState`.
   void _onResetBookingState(
     ResetBookingStateEvent event,
     Emitter<BookingState> emit,
@@ -261,6 +289,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     emit(const BookingInitial());
   }
 
+  /// العربية: يعالج `onUpdateBooking`.
   Future<void> _onUpdateBooking(
     UpdateBookingEvent event,
     Emitter<BookingState> emit,
@@ -283,6 +312,7 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
     );
   }
 
+  /// العربية: يعالج `onProcessBookingPayment`.
   Future<void> _onProcessBookingPayment(
     ProcessBookingPaymentEvent event,
     Emitter<BookingState> emit,
@@ -311,13 +341,15 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
               userId: event.userId,
             ),
           );
-          
+
           bookingResult.fold(
             (failure) => emit(BookingError(message: failure.message)),
             (booking) => emit(BookingCreated(booking: booking)),
           );
         } else {
-          emit(BookingError(message: 'فشل الدفع: ${transaction.failureReason ?? "خطأ غير معروف"}'));
+          emit(BookingError(
+              message:
+                  'فشل الدفع: ${transaction.failureReason ?? "خطأ غير معروف"}'));
         }
       },
     );

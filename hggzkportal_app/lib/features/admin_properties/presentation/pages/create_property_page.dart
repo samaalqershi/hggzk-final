@@ -1,37 +1,33 @@
 // lib/features/admin_properties/presentation/pages/create_property_page.dart
 
-import 'package:hggzkportal/core/theme/app_theme.dart';
-import 'package:hggzkportal/features/admin_properties/domain/entities/property_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hggzkportal/core/network/api_client.dart';
-import 'dart:ui';
-import 'dart:math' as math;
-import 'package:hggzkportal/core/theme/app_colors.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
-import '../bloc/properties/properties_bloc.dart';
-import '../bloc/property_types/property_types_bloc.dart';
-import '../bloc/amenities/amenities_bloc.dart';
-import '../widgets/property_image_gallery.dart';
-import '../widgets/amenity_selector_widget.dart';
-import '../widgets/property_map_view.dart';
-import '../bloc/property_images/property_images_bloc.dart';
-import '../bloc/property_images/property_images_event.dart';
-import 'package:hggzkportal/features/helpers/presentation/utils/search_navigation_helper.dart';
-import 'package:hggzkportal/features/admin_users/domain/entities/user.dart';
-import 'package:hggzkportal/injection_container.dart' as di;
+import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:hggzkportal/core/usecases/usecase.dart';
 import 'package:hggzkportal/features/admin_currencies/domain/usecases/get_currencies_usecase.dart';
-import 'package:hggzkportal/features/admin_cities/domain/usecases/get_cities_usecase.dart'
-    as ci_uc;
-import '../../../reference/presentation/widgets/city_selector_dialog.dart';
+import 'package:hggzkportal/features/admin_properties/domain/entities/property_image.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/bloc/amenities/amenities_bloc.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/bloc/properties/properties_bloc.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/bloc/property_images/property_images_bloc.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/widgets/amenity_selector_widget.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/widgets/property_image_gallery.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/widgets/property_map_view.dart';
+import 'package:hggzkportal/features/admin_users/domain/entities/user.dart';
+import 'package:hggzkportal/features/helpers/presentation/utils/search_navigation_helper.dart';
+import 'package:hggzkportal/features/property_types/presentation/bloc/property_types/property_types_bloc.dart';
+import 'package:hggzkportal/features/property_types/presentation/bloc/property_types/property_types_event.dart';
+import 'package:hggzkportal/features/property_types/presentation/bloc/property_types/property_types_state.dart';
+import 'package:hggzkportal/features/reference/presentation/widgets/city_selector_dialog.dart';
+import 'package:hggzkportal/injection_container.dart' as di;
 
 class CreatePropertyPage extends StatelessWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `CreatePropertyPage`.
   const CreatePropertyPage({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -57,8 +53,8 @@ class CreatePropertyPage extends StatelessWidget {
 }
 
 class _CreatePropertyView extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `CreatePropertyView`.
   const _CreatePropertyView();
-
   @override
   State<_CreatePropertyView> createState() => _CreatePropertyViewState();
 }
@@ -95,8 +91,6 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
   String _currency = 'YER';
   String? _selectedCity;
   bool _isFeatured = false;
-  double? _systemCommissionRate;
-
   @override
   void initState() {
     super.initState();
@@ -236,8 +230,8 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -258,13 +252,13 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -280,13 +274,13 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -358,19 +352,20 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                   decoration: BoxDecoration(
                     gradient: isActive ? AppTheme.primaryGradient : null,
                     color: !isActive
-                        ? AppTheme.darkSurface.withOpacity(0.5)
+                        ? AppTheme.darkSurface.withValues(alpha: 0.5)
                         : null,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isActive
-                          ? AppTheme.primaryBlue.withOpacity(0.5)
-                          : AppTheme.darkBorder.withOpacity(0.3),
+                          ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                          : AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                     boxShadow: isActive
                         ? [
                             BoxShadow(
-                              color: AppTheme.primaryBlue.withOpacity(0.3),
+                              color:
+                                  AppTheme.primaryBlue.withValues(alpha: 0.3),
                               blurRadius: 10,
                             ),
                           ]
@@ -403,7 +398,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                       decoration: BoxDecoration(
                         gradient: isCompleted ? AppTheme.primaryGradient : null,
                         color: !isCompleted
-                            ? AppTheme.darkBorder.withOpacity(0.2)
+                            ? AppTheme.darkBorder.withValues(alpha: 0.2)
                             : null,
                         borderRadius: BorderRadius.circular(1),
                       ),
@@ -500,18 +495,6 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
 
               return null;
             },
-            onChanged: (value) {
-              final normalized = value.trim();
-              if (normalized.isEmpty) {
-                _systemCommissionRate = null;
-                return;
-              }
-
-              final parsedValue = double.tryParse(normalized);
-              if (parsedValue != null && parsedValue >= 0 && parsedValue <= 100) {
-                _systemCommissionRate = parsedValue;
-              }
-            },
           ),
 
           const SizedBox(height: 20),
@@ -577,13 +560,13 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.7),
-                  AppTheme.darkCard.withOpacity(0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.7),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -712,17 +695,18 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                 },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkCard.withOpacity(0.5),
-                        AppTheme.darkCard.withOpacity(0.3),
+                        AppTheme.darkCard.withValues(alpha: 0.5),
+                        AppTheme.darkCard.withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -731,16 +715,18 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                       Icon(
                         Icons.location_city_rounded,
                         size: 18,
-                        color: AppTheme.primaryBlue.withOpacity(0.7),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          (_selectedCity ?? '').isNotEmpty ? _selectedCity! : 'اختر المدينة',
+                          (_selectedCity ?? '').isNotEmpty
+                              ? _selectedCity!
+                              : 'اختر المدينة',
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: (_selectedCity ?? '').isNotEmpty
                                 ? AppTheme.textWhite
-                                : AppTheme.textMuted.withOpacity(0.5),
+                                : AppTheme.textMuted.withValues(alpha: 0.5),
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -762,7 +748,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                       const SizedBox(width: 8),
                       Icon(
                         Icons.arrow_drop_down_rounded,
-                        color: AppTheme.primaryBlue.withOpacity(0.7),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                       ),
                     ],
                   ),
@@ -978,13 +964,13 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -998,12 +984,12 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: maxLines == 1
                   ? Icon(
                       icon,
-                      color: AppTheme.primaryBlue.withOpacity(0.7),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                       size: 20,
                     )
                   : null,
@@ -1042,13 +1028,13 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.darkCard.withOpacity(0.5),
-                      AppTheme.darkCard.withOpacity(0.3),
+                      AppTheme.darkCard.withValues(alpha: 0.5),
+                      AppTheme.darkCard.withValues(alpha: 0.3),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.darkBorder.withOpacity(0.3),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -1059,7 +1045,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                     dropdownColor: AppTheme.darkCard,
                     icon: Icon(
                       Icons.arrow_drop_down_rounded,
-                      color: AppTheme.primaryBlue.withOpacity(0.7),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                     ),
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppTheme.textWhite,
@@ -1067,7 +1053,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                     hint: Text(
                       'اختر نوع العقار',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppTheme.textMuted.withOpacity(0.5),
+                        color: AppTheme.textMuted.withValues(alpha: 0.5),
                       ),
                     ),
                     items: state.propertyTypes.map((type) {
@@ -1079,7 +1065,8 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                               Icon(
                                 _getIconFromString(type.icon),
                                 size: 18,
-                                color: AppTheme.primaryBlue.withOpacity(0.7),
+                                color:
+                                    AppTheme.primaryBlue.withValues(alpha: 0.7),
                               ),
                             if (type.icon.isNotEmpty) const SizedBox(width: 8),
                             Text(type.name),
@@ -1137,13 +1124,13 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -1151,7 +1138,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
               children: [
                 Icon(
                   Icons.person_search_rounded,
-                  color: AppTheme.primaryBlue.withOpacity(0.7),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -1159,7 +1146,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                     _selectedOwner?.name ?? 'اختر مالك العقار',
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: _selectedOwner == null
-                          ? AppTheme.textMuted.withOpacity(0.5)
+                          ? AppTheme.textMuted.withValues(alpha: 0.5)
                           : AppTheme.textWhite,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -1168,7 +1155,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                 Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 16,
-                  color: AppTheme.textMuted.withOpacity(0.7),
+                  color: AppTheme.textMuted.withValues(alpha: 0.7),
                 ),
               ],
             ),
@@ -1212,7 +1199,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                     size: 32,
                     color: isSelected
                         ? AppTheme.warning
-                        : AppTheme.textMuted.withOpacity(0.5),
+                        : AppTheme.textMuted.withValues(alpha: 0.5),
                   ),
                 ),
               ),
@@ -1229,15 +1216,15 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.3),
-            AppTheme.darkCard.withOpacity(0.2),
+            AppTheme.darkCard.withValues(alpha: 0.3),
+            AppTheme.darkCard.withValues(alpha: 0.2),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _isFeatured
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1264,13 +1251,13 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: _isFeatured
-                      ? AppTheme.warning.withOpacity(0.2)
-                      : AppTheme.darkSurface.withOpacity(0.5),
+                      ? AppTheme.warning.withValues(alpha: 0.2)
+                      : AppTheme.darkSurface.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: _isFeatured
-                        ? AppTheme.warning.withOpacity(0.5)
-                        : AppTheme.darkBorder.withOpacity(0.3),
+                        ? AppTheme.warning.withValues(alpha: 0.5)
+                        : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -1292,10 +1279,10 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
               });
               HapticFeedback.lightImpact();
             },
-            activeTrackColor: AppTheme.warning.withOpacity(0.5),
+            activeTrackColor: AppTheme.warning.withValues(alpha: 0.5),
             activeThumbColor: AppTheme.warning,
             inactiveThumbColor: AppTheme.textMuted,
-            inactiveTrackColor: AppTheme.darkBorder.withOpacity(0.3),
+            inactiveTrackColor: AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ],
       ),
@@ -1308,13 +1295,13 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1328,7 +1315,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  AppTheme.primaryBlue.withOpacity(0.7),
+                  AppTheme.primaryBlue.withValues(alpha: 0.7),
                 ),
               ),
             ),
@@ -1351,13 +1338,13 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.error.withOpacity(0.3),
+          color: AppTheme.error.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1389,13 +1376,13 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1409,7 +1396,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  AppTheme.primaryBlue.withOpacity(0.7),
+                  AppTheme.primaryBlue.withValues(alpha: 0.7),
                 ),
               ),
             ),
@@ -1437,13 +1424,13 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1456,7 +1443,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [iconColor, iconColor.withOpacity(0.7)],
+                    colors: [iconColor, iconColor.withValues(alpha: 0.7)],
                   ),
                   borderRadius: BorderRadius.circular(6),
                 ),
@@ -1488,7 +1475,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                         Icon(
                           _getItemIcon(item['label']!),
                           size: 14,
-                          color: AppTheme.textMuted.withOpacity(0.7),
+                          color: AppTheme.textMuted.withValues(alpha: 0.7),
                         ),
                         const SizedBox(width: 6),
                         Text(
@@ -1525,13 +1512,13 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.info.withOpacity(0.1),
-            AppTheme.info.withOpacity(0.05),
+            AppTheme.info.withValues(alpha: 0.1),
+            AppTheme.info.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.info.withOpacity(0.3),
+          color: AppTheme.info.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1544,7 +1531,10 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppTheme.info, AppTheme.info.withOpacity(0.7)],
+                    colors: [
+                      AppTheme.info,
+                      AppTheme.info.withValues(alpha: 0.7)
+                    ],
                   ),
                   borderRadius: BorderRadius.circular(6),
                 ),
@@ -1567,7 +1557,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.info.withOpacity(0.2),
+                  color: AppTheme.info.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -1599,13 +1589,13 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.success.withOpacity(0.1),
-            AppTheme.success.withOpacity(0.05),
+            AppTheme.success.withValues(alpha: 0.1),
+            AppTheme.success.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.success.withOpacity(0.3),
+          color: AppTheme.success.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1620,7 +1610,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                   gradient: LinearGradient(
                     colors: [
                       AppTheme.success,
-                      AppTheme.success.withOpacity(0.7)
+                      AppTheme.success.withValues(alpha: 0.7)
                     ],
                   ),
                   borderRadius: BorderRadius.circular(6),
@@ -1644,7 +1634,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.success.withOpacity(0.2),
+                  color: AppTheme.success.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -1666,10 +1656,10 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.error.withOpacity(0.1),
+        color: AppTheme.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.error.withOpacity(0.3),
+          color: AppTheme.error.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1711,13 +1701,13 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1734,13 +1724,13 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -1770,7 +1760,7 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -1857,15 +1847,12 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
     }
 
     if (_systemCommissionRateController.text.trim().isNotEmpty) {
-      final parsedValue = double.tryParse(_systemCommissionRateController.text.trim());
+      final parsedValue =
+          double.tryParse(_systemCommissionRateController.text.trim());
       if (parsedValue == null || parsedValue < 0 || parsedValue > 100) {
         _showErrorMessage('نسبة العمولة المخصصة يجب أن تكون بين 0 و 100');
         return false;
       }
-
-      _systemCommissionRate = parsedValue;
-    } else {
-      _systemCommissionRate = null;
     }
 
     return true;
@@ -2081,19 +2068,19 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
 
 // Currency Dropdown Widget
 class _CurrencyDropdown extends StatefulWidget {
+  /// العربية: يخزن القيمة `value`.
   final String value;
   final ValueChanged<String> onChanged;
   const _CurrencyDropdown({required this.value, required this.onChanged});
-
   @override
   State<_CurrencyDropdown> createState() => _CurrencyDropdownState();
 }
 
 class _CurrencyDropdownState extends State<_CurrencyDropdown> {
+  /// العربية: يخزن القيمة `codes`.
   List<String> _codes = const [];
   bool _loading = true;
   String? _error;
-
   @override
   void initState() {
     super.initState();
@@ -2124,7 +2111,7 @@ class _CurrencyDropdownState extends State<_CurrencyDropdown> {
       labelText: 'العملة',
       labelStyle: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
       filled: true,
-      fillColor: AppTheme.darkSurface.withOpacity(0.3),
+      fillColor: AppTheme.darkSurface.withValues(alpha: 0.3),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
@@ -2174,124 +2161,11 @@ class _CurrencyDropdownState extends State<_CurrencyDropdown> {
   }
 }
 
-// City Dropdown Widget
-class _CityDropdown extends StatefulWidget {
-  final String? value;
-  final ValueChanged<String?> onChanged;
-  final bool requiredField;
-  const _CityDropdown(
-      {required this.value,
-      required this.onChanged,
-      this.requiredField = false});
-
-  @override
-  State<_CityDropdown> createState() => _CityDropdownState();
-}
-
-class _CityDropdownState extends State<_CityDropdown> {
-  List<String> _cities = const [];
-  bool _loading = true;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    try {
-      final usecase = di.sl<ci_uc.GetCitiesUseCase>();
-      final result = await usecase(const ci_uc.GetCitiesParams());
-      result.fold(
-        (f) => setState(() {
-          _error = f.message;
-          _loading = false;
-        }),
-        (list) => setState(() {
-          _cities = list.map((c) => c.name).toList();
-          _loading = false;
-          if (_cities.isNotEmpty &&
-              (widget.value == null || !_cities.contains(widget.value))) {
-            // Do not auto-select when required; keep null so validator can trigger
-          }
-        }),
-      );
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final decoration = InputDecoration(
-      labelText:
-          widget.requiredField ? 'المدينة (إجباري)' : 'المدينة (اختياري)',
-      labelStyle: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
-      filled: true,
-      fillColor: AppTheme.darkSurface.withOpacity(0.3),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-    );
-
-    if (_loading) {
-      return InputDecorator(
-        decoration: decoration,
-        child: Row(children: [
-          const SizedBox(width: 4, height: 4),
-          SizedBox(
-            width: 18,
-            height: 18,
-            child: CircularProgressIndicator(
-                strokeWidth: 2, color: AppTheme.textMuted),
-          ),
-          const SizedBox(width: 8),
-          Text('جاري تحميل المدن...',
-              style: AppTextStyles.caption.copyWith(color: AppTheme.textMuted)),
-        ]),
-      );
-    }
-
-    final items =
-        _cities.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList();
-
-    if (_error != null) {
-      return DropdownButtonFormField<String?>(
-        initialValue: _cities.contains(widget.value) ? widget.value : null,
-        decoration: decoration.copyWith(errorText: _error),
-        items: items,
-        onChanged: (v) => widget.onChanged(v),
-        validator: widget.requiredField
-            ? (v) => (v == null || (v).isEmpty) ? 'المدينة مطلوبة' : null
-            : null,
-      );
-    }
-
-    return DropdownButtonFormField<String?>(
-      initialValue: _cities.contains(widget.value) ? widget.value : null,
-      decoration: decoration,
-      dropdownColor: AppTheme.darkCard,
-      style: AppTextStyles.bodyMedium.copyWith(color: AppTheme.textWhite),
-      items: items,
-      onChanged: (v) => widget.onChanged(v),
-      validator: widget.requiredField
-          ? (v) => (v == null || (v).isEmpty) ? 'المدينة مطلوبة' : null
-          : null,
-    );
-  }
-}
-
 // Background Painter
 class _CreatePropertyBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
-
   _CreatePropertyBackgroundPainter({required this.glowIntensity});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -2299,8 +2173,8 @@ class _CreatePropertyBackgroundPainter extends CustomPainter {
     // Draw glowing orbs
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryBlue.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryBlue.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryBlue.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryBlue.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -2316,8 +2190,8 @@ class _CreatePropertyBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryPurple.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryPurple.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(

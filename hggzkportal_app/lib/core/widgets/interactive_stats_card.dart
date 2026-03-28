@@ -14,7 +14,6 @@ class InteractiveStatsCard extends StatefulWidget {
   final bool isPositive;
   final String? detailedDescription;
   final Map<String, dynamic>? additionalStats;
-
   const InteractiveStatsCard({
     super.key,
     required this.title,
@@ -26,18 +25,15 @@ class InteractiveStatsCard extends StatefulWidget {
     this.detailedDescription,
     this.additionalStats,
   });
-
   @override
   State<InteractiveStatsCard> createState() => _InteractiveStatsCardState();
 }
-
 class _InteractiveStatsCardState extends State<InteractiveStatsCard>
     with SingleTickerProviderStateMixin {
   final GlobalKey _cardKey = GlobalKey();
   late AnimationController _scaleController;
   late Animation<double> _scaleAnimation;
   bool _isPressed = false;
-
   @override
   void initState() {
     super.initState();
@@ -49,13 +45,11 @@ class _InteractiveStatsCardState extends State<InteractiveStatsCard>
       CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
     );
   }
-
   @override
   void dispose() {
     _scaleController.dispose();
     super.dispose();
   }
-
   void _handleLongPress() {
     setState(() => _isPressed = true);
     _scaleController.forward();
@@ -82,14 +76,14 @@ class _InteractiveStatsCardState extends State<InteractiveStatsCard>
       }
     });
   }
-
   String _buildDetailedMessage() {
-    String description = widget.detailedDescription ?? 'اضغط للمزيد من التفاصيل';
-    
+    String description =
+        widget.detailedDescription ?? 'اضغط للمزيد من التفاصيل';
+
     // Add value prominently
     String message = '📊 القيمة الحالية: ${widget.value}\n\n';
     message += description;
-    
+
     // Add additional stats if available
     if (widget.additionalStats != null && widget.additionalStats!.isNotEmpty) {
       message += '\n\n📈 تفاصيل إضافية:';
@@ -97,10 +91,9 @@ class _InteractiveStatsCardState extends State<InteractiveStatsCard>
         message += '\n• $key: $value';
       });
     }
-    
+
     return message;
   }
-
   @override
   Widget build(BuildContext context) {
     return ScaleTransition(

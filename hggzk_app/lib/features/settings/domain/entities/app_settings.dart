@@ -1,15 +1,46 @@
 import 'package:equatable/equatable.dart';
 
+/// يمثل إعدادات التطبيق العامة التي تتحكم في اللغة والثيم والعملة
+/// والتفضيلات الأخرى للمستخدم.
+/// Represents the application's general settings that control language, theme,
+/// currency, and other user preferences.
 class AppSettings extends Equatable {
+  /// اللغة الأساسية التي يعتمدها التطبيق في النصوص والواجهة.
+  /// Primary language the application uses for localized content and UI text.
   final String preferredLanguage;
+
+  /// العملة الافتراضية المستخدمة لعرض الأسعار والقيم المالية.
+  /// Default currency used when presenting prices and monetary values.
   final String preferredCurrency;
+
+  /// المنطقة الزمنية المرجعية المستخدمة في عرض الأوقات والتواريخ.
+  /// Reference time zone used when showing times and dates.
   final String timeZone;
+
+  /// يحدد ما إذا كان التطبيق يعمل بالمظهر الداكن.
+  /// Indicates whether the application is using the dark theme.
   final bool darkMode;
+
+  /// يحدد ما إذا كان تسجيل الدخول أو التحقق البيومتري مفعّلًا.
+  /// Indicates whether biometric authentication is enabled.
   final bool biometricEnabled;
+
+  /// مجموعة تفضيلات الإشعارات التفصيلية المرتبطة بالمستخدم.
+  /// Detailed notification preferences associated with the current user.
   final NotificationSettings notificationSettings;
+
+  /// مساحة مرنة لحفظ إعدادات إضافية لا تستحق حقولًا صريحة بعد.
+  /// Flexible storage for extra settings that do not yet justify dedicated
+  /// fields.
   final Map<String, dynamic> additionalSettings;
+
+  /// آخر وقت معروف تم فيه تحديث الإعدادات أو مزامنتها.
+  /// Last known time when the settings were updated or synchronized.
   final DateTime? lastUpdated;
 
+  /// ينشئ حزمة إعدادات كاملة بالقيم الافتراضية أو بالقيم المحفوظة.
+  /// Creates a full settings snapshot using either defaults or persisted
+  /// values.
   const AppSettings({
     this.preferredLanguage = 'ar',
     this.preferredCurrency = 'YER',
@@ -21,6 +52,8 @@ class AppSettings extends Equatable {
     this.lastUpdated,
   });
 
+  /// يعيد نسخة جديدة من الإعدادات مع استبدال الحقول المطلوبة فقط.
+  /// Returns a new settings object while replacing only the requested fields.
   AppSettings copyWith({
     String? preferredLanguage,
     String? preferredCurrency,
@@ -43,6 +76,9 @@ class AppSettings extends Equatable {
     );
   }
 
+  /// يعيد الحقول التي يعتمد عليها `Equatable` عند مقارنة نسخ الإعدادات.
+  /// Returns the fields that `Equatable` uses when comparing settings
+  /// instances.
   @override
   List<Object?> get props => [
         preferredLanguage,
@@ -56,17 +92,49 @@ class AppSettings extends Equatable {
       ];
 }
 
+/// يمثل مجموعة تفضيلات الإشعارات المضمنة داخل إعدادات التطبيق.
+/// Represents the notification-preferences group nested inside app settings.
 class NotificationSettings extends Equatable {
+  /// يحدد ما إذا كانت إشعارات الحجوزات مسموحًا بها.
+  /// Indicates whether booking notifications are enabled.
   final bool bookingNotifications;
+
+  /// يحدد ما إذا كانت الإشعارات الترويجية مسموحًا بها.
+  /// Indicates whether promotional notifications are enabled.
   final bool promotionalNotifications;
+
+  /// يحدد ما إذا كانت الإشعارات عبر البريد الإلكتروني مفعلة.
+  /// Indicates whether email notifications are enabled.
   final bool emailNotifications;
+
+  /// يحدد ما إذا كانت الإشعارات النصية القصيرة مفعلة.
+  /// Indicates whether SMS notifications are enabled.
   final bool smsNotifications;
+
+  /// يحدد ما إذا كانت الإشعارات الفورية داخل الجهاز مفعلة.
+  /// Indicates whether push notifications are enabled.
   final bool pushNotifications;
+
+  /// يحدد ما إذا كان التطبيق يشغّل صوتًا عند وصول الإشعار.
+  /// Indicates whether the application should play a sound for notifications.
   final bool soundEnabled;
+
+  /// يحدد ما إذا كان التطبيق يهتز عند وصول الإشعار.
+  /// Indicates whether the device should vibrate for notifications.
   final bool vibrationEnabled;
+
+  /// اسم النغمة أو المعرف المنطقي المستخدم لصوت الإشعار.
+  /// Logical tone name or identifier used for the notification sound.
   final String notificationTone;
+
+  /// تفضيلات مخصصة لكل فئة إشعارات عند الحاجة إلى تحكم أكثر دقة.
+  /// Per-category preferences used when finer-grained notification control is
+  /// needed.
   final Map<String, bool> categoryPreferences;
 
+  /// ينشئ مجموعة تفضيلات الإشعارات بالقيم الافتراضية أو المخصصة.
+  /// Creates the notification-preferences group with default or custom
+  /// values.
   const NotificationSettings({
     this.bookingNotifications = true,
     this.promotionalNotifications = true,
@@ -79,6 +147,9 @@ class NotificationSettings extends Equatable {
     this.categoryPreferences = const {},
   });
 
+  /// يعيد نسخة محدثة من تفضيلات الإشعارات مع الحفاظ على بقية القيم.
+  /// Returns an updated notification-preferences object while preserving the
+  /// remaining values.
   NotificationSettings copyWith({
     bool? bookingNotifications,
     bool? promotionalNotifications,
@@ -104,6 +175,9 @@ class NotificationSettings extends Equatable {
     );
   }
 
+  /// يعيد الحقول التي تستخدم لمقارنة تفضيلات الإشعارات منطقيًا.
+  /// Returns the fields used for logical equality between notification
+  /// preferences.
   @override
   List<Object?> get props => [
         bookingNotifications,

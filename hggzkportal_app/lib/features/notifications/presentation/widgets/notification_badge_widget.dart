@@ -8,7 +8,9 @@ import '../../../../core/theme/app_text_styles.dart';
 
 class NotificationBadgeWidget extends StatefulWidget {
   final int count;
+
   final VoidCallback? onTap;
+
   final bool showAnimation;
 
   const NotificationBadgeWidget({
@@ -26,7 +28,9 @@ class NotificationBadgeWidget extends StatefulWidget {
 class _NotificationBadgeWidgetState extends State<NotificationBadgeWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   late Animation<double> _scaleAnimation;
+
   late Animation<double> _pulseAnimation;
 
   @override

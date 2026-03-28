@@ -4,7 +4,17 @@ import 'booking_model.dart';
 import '../../../../../core/enums/payment_method_enum.dart';
 import 'dart:convert';
 
+/// Normalizes booking-detail payloads coming from admin, mobile, and legacy
+/// backends into the shape expected by the booking details screen.
+///
+/// يطبّع بيانات تفاصيل الحجز القادمة من الواجهات الخلفية المختلفة إلى
+/// شكل واحد ثابت تعتمد عليه شاشة التفاصيل وعمليات التسجيل اللاحقة.
 class BookingDetailsModel extends BookingDetails {
+  /// Binds the parsed booking aggregate with its related payments, services,
+  /// guest data, unit details, and property snapshot.
+  ///
+  /// يربط الحجز المُطبّع بكل العناصر المرتبطة به مثل الدفعات والخدمات
+  /// وبيانات الضيف والوحدة والعقار حتى يبقى الكيان منسجمًا عند النقل بين الطبقات.
   const BookingDetailsModel({
     required super.booking,
     required super.payments,
@@ -15,46 +25,48 @@ class BookingDetailsModel extends BookingDetails {
     super.propertyDetails,
   });
 
+  /// Accepts the different payload shapes returned by booking endpoints and
+  /// reshapes them into a single detail model that the portal can render.
+  ///
+  /// تقبل هذه الدالة أكثر من صيغة للرد القادم من الخادم، ثم تعيد بناء
+  /// الحجز والدفعات والخدمات والبيانات المساندة في نموذج موحّد يمكن للواجهة قراءته مباشرة.
   factory BookingDetailsModel.fromJson(Map<String, dynamic> json) {
-    // Support multiple backend shapes (Admin CP, Mobile, Legacy):
-    // 1) { data: {...} } is handled by caller; here we get {...}
-
-Map<String, dynamic>? safeDecodeJsonMap(dynamic v) {
-  try {
-    if (v == null) return null;
-    if (v is Map) return Map<String, dynamic>.from(v);
-    if (v is String) {
-      final decoded = jsonDecode(v);
-      if (decoded is Map) return Map<String, dynamic>.from(decoded);
+    Map<String, dynamic>? safeDecodeJsonMap(dynamic v) {
+      try {
+        if (v == null) return null;
+        if (v is Map) return Map<String, dynamic>.from(v);
+        if (v is String) {
+          final decoded = jsonDecode(v);
+          if (decoded is Map) return Map<String, dynamic>.from(decoded);
+        }
+      } catch (_) {}
+      return null;
     }
-  } catch (_) {}
-  return null;
-}
 
-double readDouble(dynamic value) {
-  if (value == null) return 0;
-  if (value is num) return value.toDouble();
-  return double.tryParse(value.toString()) ?? 0;
-}
+    double readDouble(dynamic value) {
+      if (value == null) return 0;
+      if (value is num) return value.toDouble();
+      return double.tryParse(value.toString()) ?? 0;
+    }
 
-double extractAmountFromMoneyLike(dynamic value) {
-  if (value == null) return 0;
-  if (value is num) return value.toDouble();
-  if (value is Map) {
-    return readDouble(value['amount']);
-  }
-  return 0;
-}
-    // 2) { booking: {...}, payments: [...], services: [...] }
-    // 3) Flat BookingDetailsDto with fields like payments/paymentDetails, contactInfo, propertyAddress, unitImages, totalAmount/currency
+    double extractAmountFromMoneyLike(dynamic value) {
+      if (value == null) return 0;
+      if (value is num) return value.toDouble();
+      if (value is Map) {
+        return readDouble(value['amount']);
+      }
+      return 0;
+    }
 
-    // Extract booking node if present, otherwise treat the whole json as a details DTO
+    // The backend may return either a nested booking object or a flat details
+    // DTO that already contains booking totals, contact info, and images.
     final Object? bookingNode = json['booking'] ?? json;
     final Map<String, dynamic> bookingRaw = bookingNode is Map
         ? Map<String, dynamic>.from(bookingNode)
         : <String, dynamic>{};
 
-    // Normalize booking map expected by BookingModel.fromJson
+    // Rebuild the booking payload into the canonical shape expected by
+    // BookingModel.fromJson so the rest of the app can remain backend-agnostic.
     final bool isFlatDetailsDto = bookingRaw.isNotEmpty &&
         (bookingRaw.containsKey('totalAmount') ||
             bookingRaw.containsKey('bookingNumber') ||
@@ -64,7 +76,7 @@ double extractAmountFromMoneyLike(dynamic value) {
 
     Map<String, dynamic> normalizedBookingMap;
     if (bookingNode == json && isFlatDetailsDto) {
-      // Build a BookingModel-compatible map from flat details
+      // Convert flat detail payloads into a BookingModel-compatible map.
       final String? currency = bookingRaw['currency']?.toString();
       final double baseAmount = readDouble(bookingRaw['totalAmount']);
       final double totalAmountWithServices =
@@ -90,7 +102,7 @@ double extractAmountFromMoneyLike(dynamic value) {
           ? (bookingRaw['unitImages'] as List)
           : const [];
 
-      // Contact info fallback for guest data
+      // Contact info is reused when the backend omits the dedicated guest block.
       final Map<String, dynamic> contactInfo = Map<String, dynamic>.from(
           (bookingRaw['contactInfo'] is Map) ? bookingRaw['contactInfo'] : {});
 
@@ -140,28 +152,26 @@ double extractAmountFromMoneyLike(dynamic value) {
         'paymentStatus': bookingRaw['paymentStatus'],
       };
     } else {
-      // Already in expected booking shape
+      // Already in the canonical nested booking shape.
       normalizedBookingMap = bookingRaw;
     }
 
-    // Payments: support both payments[] and paymentDetails[] (Admin mapping)
     List paymentsRaw = const [];
     if (json['payments'] is List) {
-      // مرر البيانات الأصلية مباشرة إلى PaymentModel
+      // Preserve the original list so PaymentModel can normalize each entry.
       paymentsRaw = json['payments'] as List;
     }
-    
-    // If only paymentDetails is provided
+
     if (paymentsRaw.isEmpty && json['paymentDetails'] is List) {
       paymentsRaw = json['paymentDetails'] as List;
     }
 
-    // Services: support services[] and BookingServiceDto (TotalPrice + Quantity)
     List servicesRaw = const [];
     if (json['services'] is List) servicesRaw = json['services'] as List;
     servicesRaw = servicesRaw.whereType<Map>().map((s) {
       final ms = Map<String, dynamic>.from(s);
-      // If service has TotalPrice/Currency (BookingServiceDto), convert to price + quantity
+      // Some APIs return service totals instead of a per-unit price. Convert
+      // those records into the canonical Service shape used throughout the UI.
       if (ms.containsKey('totalPrice') || ms.containsKey('currency')) {
         final int qty = (ms['quantity'] ?? 1) is int
             ? (ms['quantity'] ?? 1)
@@ -188,14 +198,15 @@ double extractAmountFromMoneyLike(dynamic value) {
       return ms;
     }).toList();
 
-    // Activities (optional)
     List activitiesRaw = const [];
     if (json['activities'] is List) activitiesRaw = json['activities'] as List;
 
-    // Guest info fallback to contactInfo if provided but guestInfo is missing
+    // Guest information can be returned either as a dedicated object or as
+    // a contact-info block shared with the booking header.
     final guestInfoRaw = json['guestInfo'] ?? json['contactInfo'];
 
-    // Unit details fallback using unitImages
+    // Unit details may be omitted in older payloads, so image-only data is used
+    // to keep the details panel useful instead of blank.
     Map<String, dynamic>? unitDetailsRaw;
     if (json['unitDetails'] is Map) {
       unitDetailsRaw = Map<String, dynamic>.from(json['unitDetails']);
@@ -211,7 +222,8 @@ double extractAmountFromMoneyLike(dynamic value) {
       };
     }
 
-    // Property details fallback using propertyAddress in flat DTO
+    // The property snapshot is reconstructed when the backend only provides
+    // an address field and not the full property object.
     Map<String, dynamic>? propertyDetailsRaw;
     if (json['propertyDetails'] is Map) {
       propertyDetailsRaw = Map<String, dynamic>.from(json['propertyDetails']);
@@ -226,9 +238,11 @@ double extractAmountFromMoneyLike(dynamic value) {
       };
     }
 
-    // Inject saved policy snapshot into propertyDetails.policies
+    // Preserve the captured policy snapshot so the portal can show the rules
+    // that were active at booking time, even if the live policy changes later.
     try {
-      final dynamic snapRaw = json['policySnapshot'] ?? bookingRaw['policySnapshot'];
+      final dynamic snapRaw =
+          json['policySnapshot'] ?? bookingRaw['policySnapshot'];
       if (snapRaw is String && snapRaw.trim().isNotEmpty) {
         final Map<String, dynamic> snap = jsonDecode(snapRaw);
         final List policies = snap['Policies'] ?? const [];
@@ -241,7 +255,8 @@ double extractAmountFromMoneyLike(dynamic value) {
             'description': mp['Description'],
             'rules': safeDecodeJsonMap(mp['Rules']),
             'cancellationWindowDays': mp['CancellationWindowDays'],
-            'requireFullPaymentBeforeConfirmation': mp['RequireFullPaymentBeforeConfirmation'],
+            'requireFullPaymentBeforeConfirmation':
+                mp['RequireFullPaymentBeforeConfirmation'],
             'minimumDepositPercentage': mp['MinimumDepositPercentage'],
             'minHoursBeforeCheckIn': mp['MinHoursBeforeCheckIn'],
           };
@@ -254,7 +269,8 @@ double extractAmountFromMoneyLike(dynamic value) {
         propertyDetailsRaw ??= {
           'id': normalizedBookingMap['propertyId'] ?? '',
           'name': normalizedBookingMap['propertyName'] ?? '',
-          'address': bookingRaw['propertyAddress'] ?? json['propertyAddress'] ?? '',
+          'address':
+              bookingRaw['propertyAddress'] ?? json['propertyAddress'] ?? '',
         };
         final Map<String, dynamic> existingPolicies = Map<String, dynamic>.from(
             propertyDetailsRaw['policies'] ?? <String, dynamic>{});
@@ -275,7 +291,7 @@ double extractAmountFromMoneyLike(dynamic value) {
         .where((p) => p != null)
         .cast<PaymentModel>()
         .toList();
-    
+
     return BookingDetailsModel(
       booking: BookingModel.fromJson(normalizedBookingMap),
       payments: processedPayments,
@@ -300,6 +316,10 @@ double extractAmountFromMoneyLike(dynamic value) {
     );
   }
 
+  /// Emits the canonical booking-details payload expected by the booking APIs.
+  ///
+  /// يعيد بناء الحمولة القياسية لتفاصيل الحجز بما يتوافق مع تنسيق
+  /// الواجهات الخلفية التي تتوقع بنية booking مع العناصر المرتبطة بها.
   Map<String, dynamic> toJson() {
     return {
       'booking': (booking as BookingModel).toJson(),
@@ -317,8 +337,16 @@ double extractAmountFromMoneyLike(dynamic value) {
   }
 }
 
-/// 💳 Model للدفعة
+/// Describes a single payment record attached to the booking, including the
+/// captured amount, gateway method, and any refund metadata.
+///
+/// يصف سجل الدفعة المرتبط بالحجز بما فيه المبلغ وطريقة الدفع وحالة السداد
+/// وأي بيانات استرجاع أو إلغاء أرجعتها الواجهة الخلفية.
 class PaymentModel extends Payment {
+  /// Holds a payment in its normalized form after amount parsing and enum
+  /// resolution have already been completed.
+  /// يحتفظ بالدفعة بعد تطبيعها كاملًا، أي بعد تحليل المبلغ وحسم قيم الـ enum
+  /// المرتبطة بالطريقة والحالة.
   const PaymentModel({
     required super.id,
     required super.bookingId,
@@ -332,17 +360,20 @@ class PaymentModel extends Payment {
     super.receiptUrl,
   });
 
+  /// Accepts several payment payload shapes and resolves them into a stable
+  /// payment record regardless of how the backend formats money values.
+  ///
+  /// تتعامل هذه الدالة مع أكثر من شكل لبيانات الدفعة، ثم توحّدها إلى
+  /// سجل واحد يمكن للنظام اعتماده في العرض والحسابات والتقارير.
   factory PaymentModel.fromJson(Map<String, dynamic> json) {
-    // معالجة المبلغ - قد يأتي بعدة أشكال
     Money amountObj;
     if (json['amount'] is Map) {
-      // إذا كان amount عبارة عن Map مباشرة
-      amountObj = MoneyModel.fromJson(Map<String, dynamic>.from(json['amount']));
+      amountObj =
+          MoneyModel.fromJson(Map<String, dynamic>.from(json['amount']));
     } else if (json['amountMoney'] is Map) {
-      // إذا كان البيانات في amountMoney
-      amountObj = MoneyModel.fromJson(Map<String, dynamic>.from(json['amountMoney']));
+      amountObj =
+          MoneyModel.fromJson(Map<String, dynamic>.from(json['amountMoney']));
     } else if (json['amount'] is num) {
-      // إذا كان amount رقم مباشر
       final currency = json['currency']?.toString() ?? 'YER';
       final amount = (json['amount'] as num).toDouble();
       amountObj = MoneyModel(
@@ -351,14 +382,13 @@ class PaymentModel extends Payment {
         formattedAmount: '$currency ${amount.toStringAsFixed(2)}',
       );
     } else {
-      // قيمة افتراضية
       amountObj = MoneyModel(
         amount: 0,
         currency: 'YER',
         formattedAmount: 'YER 0.00',
       );
     }
-    
+
     return PaymentModel(
       id: json['id']?.toString() ?? '',
       bookingId: json['bookingId']?.toString() ?? '',
@@ -366,7 +396,8 @@ class PaymentModel extends Payment {
       transactionId: json['transactionId']?.toString() ?? '',
       method: _parsePaymentMethod(json['method']),
       status: _parsePaymentStatus(json['status']),
-      paymentDate: DateTime.parse(json['paymentDate']?.toString() ?? DateTime.now().toIso8601String()),
+      paymentDate: DateTime.parse(
+          json['paymentDate']?.toString() ?? DateTime.now().toIso8601String()),
       refundReason: json['refundReason'],
       refundedAt: json['refundedAt'] != null
           ? DateTime.parse(json['refundedAt'])
@@ -375,6 +406,11 @@ class PaymentModel extends Payment {
     );
   }
 
+  /// Serializes the payment back into the backend key naming used by the
+  /// admin booking endpoints.
+  ///
+  /// يعيد الدفعة إلى نفس البنية التي يتوقعها خادم الإدارة عند الحفظ أو
+  /// إعادة الإرسال، مع الإبقاء على مفاتيح الحقول كما هي في الـ API.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -390,6 +426,11 @@ class PaymentModel extends Payment {
     };
   }
 
+  /// Resolves the payment method from backend values that may arrive as enums,
+  /// integers, or localized strings.
+  ///
+  /// يحوّل طريقة الدفع القادمة من الخادم بصيغ مختلفة إلى قيمة enum ثابتة
+  /// حتى لا تتشتت قواعد الدفع داخل الواجهة.
   static PaymentMethod _parsePaymentMethod(dynamic method) {
     if (method == null) return PaymentMethod.cash;
     if (method is int) {
@@ -401,14 +442,28 @@ class PaymentModel extends Payment {
     return PaymentMethod.cash;
   }
 
+  /// Resolves the payment status from backend payloads that may mix enum
+  /// names, display labels, or serialized strings.
+  ///
+  /// يحول حالة الدفع القادمة من الخادم إلى القيمة الداخلية الموحدة التي
+  /// تعتمد عليها الشاشات والتقارير.
   static PaymentStatus _parsePaymentStatus(dynamic status) {
     if (status == null) return PaymentStatus.pending;
     return PaymentStatusExtension.fromString(status.toString());
   }
 }
 
-/// 🛎️ Model للخدمة
+/// Captures a service line item attached to a booking and keeps the unit price
+/// and quantity aligned with the totals shown in the portal.
+///
+/// يمثل بند الخدمة المضاف إلى الحجز مع الحفاظ على سعر الوحدة والكمية
+/// بما يطابق الأرقام المعروضة في بوابة الإدارة.
 class ServiceModel extends Service {
+  /// Captures the immutable service payload used by the admin screens so the
+  /// same pricing and quantity values can travel between API mapping and UI.
+  ///
+  /// ينشئ تمثيل الخدمة كما تحتاجه شاشات الإدارة حتى تبقى بيانات السعر
+  /// والكمية متطابقة بين التحويل من الخادم والعرض داخل الواجهة.
   const ServiceModel({
     required super.id,
     required super.name,
@@ -419,6 +474,10 @@ class ServiceModel extends Service {
     super.category,
   });
 
+  /// Builds a service line item from the payload returned by the booking API.
+  ///
+  /// تنشئ بند الخدمة من الحمولة القادمة من الواجهة الخلفية بعد أن تكون
+  /// القيم المالية قد تم تطبيعها مسبقًا.
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
     return ServiceModel(
       id: json['id']?.toString() ?? '',
@@ -432,6 +491,10 @@ class ServiceModel extends Service {
     );
   }
 
+  /// Serializes the service line item using the same structure expected by the
+  /// backend booking endpoints.
+  ///
+  /// تعيد خدمة الحجز إلى البنية نفسها التي يستخدمها الخادم عند الحفظ أو التحديث.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -445,8 +508,17 @@ class ServiceModel extends Service {
   }
 }
 
-/// 📝 Model لنشاط الحجز
+/// Describes a timeline entry for booking actions such as confirmation,
+/// cancellation, check-in, or check-out.
+///
+/// يصف سجلًا زمنيًا لأحداث الحجز مثل التأكيد أو الإلغاء أو تسجيل الدخول
+/// والخروج حتى تستطيع شاشة المسار الزمني عرض التسلسل بدقة.
 class BookingActivityModel extends BookingActivity {
+  /// Creates the timeline activity object used by booking audit and history
+  /// widgets after the API payload is normalized.
+  ///
+  /// ينشئ كائن نشاط الخط الزمني المستخدم في التدقيق وسجل الحجز بعد تطبيع
+  /// حمولة الواجهة الخلفية.
   const BookingActivityModel({
     required super.id,
     required super.action,
@@ -456,6 +528,9 @@ class BookingActivityModel extends BookingActivity {
     super.userName,
   });
 
+  /// Parses an activity record exactly as the timeline view needs it.
+  ///
+  /// تحلل سجل النشاط بالشكل الذي تحتاجه شاشة التسلسل الزمني مباشرة.
   factory BookingActivityModel.fromJson(Map<String, dynamic> json) {
     return BookingActivityModel(
       id: json['id']?.toString() ?? '',
@@ -467,6 +542,9 @@ class BookingActivityModel extends BookingActivity {
     );
   }
 
+  /// Serializes the activity entry using a timeline-friendly ISO timestamp.
+  ///
+  /// تعيد عنصر النشاط بصيغة مناسبة للحفظ مع طابع زمني بصيغة ISO.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -479,8 +557,16 @@ class BookingActivityModel extends BookingActivity {
   }
 }
 
-/// 👤 Model لمعلومات الضيف
+/// Holds the guest identity and contact data that the booking summary needs
+/// when the backend separates traveler details from the booking itself.
+///
+/// يحتفظ ببيانات هوية الضيف ووسائل الاتصال به عندما تفصل الواجهة الخلفية
+/// معلومات المسافر عن سجل الحجز الرئيسي.
 class GuestInfoModel extends GuestInfo {
+  /// Creates the guest-contact snapshot consumed by admin detail screens after
+  /// booking payloads are normalized.
+  ///
+  /// ينشئ لقطة بيانات الضيف التي تستهلكها شاشات الإدارة بعد تطبيع حمولة الحجز.
   const GuestInfoModel({
     required super.name,
     required super.email,
@@ -491,6 +577,9 @@ class GuestInfoModel extends GuestInfo {
     super.address,
   });
 
+  /// Extracts guest contact fields from the payload used by the booking APIs.
+  ///
+  /// تستخرج بيانات التواصل الخاصة بالضيف من الحمولة القادمة من واجهات الحجز.
   factory GuestInfoModel.fromJson(Map<String, dynamic> json) {
     return GuestInfoModel(
       name: json['name'] ?? '',
@@ -503,6 +592,9 @@ class GuestInfoModel extends GuestInfo {
     );
   }
 
+  /// Serializes the guest profile without adding any portal-specific wrappers.
+  ///
+  /// تعيد ملف الضيف بصيغته المباشرة دون تغليف إضافي خاص بالبوابة.
   Map<String, dynamic> toJson() {
     return {
       'name': name,
@@ -516,8 +608,17 @@ class GuestInfoModel extends GuestInfo {
   }
 }
 
-/// 🏠 Model لتفاصيل الوحدة
+/// Describes the booked unit and the limited details required by the booking
+/// details screen, including its images and capacity.
+///
+/// يصف الوحدة المحجوزة بالمعلومات التي تحتاجها شاشة التفاصيل مثل الصور
+/// والسعة والنوع حتى تبقى الواجهة غنية حتى مع payload ناقص.
 class UnitDetailsModel extends UnitDetails {
+  /// Creates the unit snapshot used in booking details so accommodation facts
+  /// remain available even when the booking entity is partially loaded.
+  ///
+  /// ينشئ لقطة الوحدة المستخدمة في تفاصيل الحجز حتى تبقى معلومات السكن
+  /// متاحة حتى لو كانت بيانات الحجز الأساسية جزئية.
   const UnitDetailsModel({
     required super.id,
     required super.name,
@@ -529,6 +630,9 @@ class UnitDetailsModel extends UnitDetails {
     super.location,
   });
 
+  /// Rebuilds the unit snapshot from the payload returned by the booking API.
+  ///
+  /// تعيد بناء لقطة الوحدة من البيانات القادمة من الواجهة الخلفية.
   factory UnitDetailsModel.fromJson(Map<String, dynamic> json) {
     return UnitDetailsModel(
       id: json['id']?.toString() ?? '',
@@ -542,6 +646,9 @@ class UnitDetailsModel extends UnitDetails {
     );
   }
 
+  /// Serializes the unit snapshot back into the shape used by the backend.
+  ///
+  /// تعيد لقطة الوحدة إلى الشكل الذي يتوقعه الخادم عند الحفظ أو النقل.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -556,8 +663,17 @@ class UnitDetailsModel extends UnitDetails {
   }
 }
 
-/// 🏢 Model لتفاصيل العقار
+/// Captures the property snapshot that accompanies a booking so the details
+/// screen can show the property name, address, and policy context.
+///
+/// يحتفظ بلقطة العقار المرافقة للحجز حتى تعرض شاشة التفاصيل الاسم والعنوان
+/// وسياق السياسات المرتبطة بوقت الحجز.
 class PropertyDetailsModel extends PropertyDetails {
+  /// Creates the property snapshot used by booking details so property contact
+  /// data and policy context remain attached to the reservation.
+  ///
+  /// ينشئ لقطة العقار المستخدمة في تفاصيل الحجز حتى تبقى بيانات التواصل
+  /// وسياق السياسات مرتبطين بالحجز.
   const PropertyDetailsModel({
     required super.id,
     required super.name,
@@ -569,6 +685,9 @@ class PropertyDetailsModel extends PropertyDetails {
     super.policies,
   });
 
+  /// Extracts the property subset needed by the booking details view.
+  ///
+  /// تستخرج الجزء الخاص بالعقار الذي تحتاجه شاشة تفاصيل الحجز.
   factory PropertyDetailsModel.fromJson(Map<String, dynamic> json) {
     return PropertyDetailsModel(
       id: json['id']?.toString() ?? '',
@@ -582,6 +701,9 @@ class PropertyDetailsModel extends PropertyDetails {
     );
   }
 
+  /// Serializes the property snapshot while preserving optional policy fields.
+  ///
+  /// تعيد لقطة العقار مع الحقول الاختيارية الخاصة بالسياسات عند وجودها.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -596,6 +718,11 @@ class PropertyDetailsModel extends PropertyDetails {
   }
 }
 
+/// Parses date values that can arrive as ISO strings, epoch values, or already
+/// materialized `DateTime` instances.
+///
+/// يحلل قيم التاريخ التي قد تأتي بصيغة ISO أو كطابع زمني رقمي أو ككائن
+/// `DateTime` جاهز من طبقة وسيطة.
 DateTime? _tryParseDate(dynamic raw) {
   if (raw == null) return null;
   if (raw is DateTime) return raw;
@@ -618,6 +745,11 @@ DateTime? _tryParseDate(dynamic raw) {
   return null;
 }
 
+/// Converts epoch timestamps in seconds, milliseconds, or microseconds into a
+/// local `DateTime` value.
+///
+/// يحول الطوابع الزمنية بصيغ الثواني أو المللي ثانية أو الميكرو ثانية إلى
+/// قيمة `DateTime` محلية مناسبة للعرض.
 DateTime? _dateTimeFromEpoch(int epoch) {
   if (epoch <= 0) return null;
 

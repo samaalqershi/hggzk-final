@@ -4,9 +4,13 @@ import '../models/notification_model.dart';
 
 abstract class NotificationLocalDataSource {
   Future<List<NotificationModel>> getCachedNotifications();
+
   Future<void> cacheNotifications(List<NotificationModel> notifications);
+
   Future<void> clearCache();
+
   Future<Map<String, bool>> getNotificationSettings();
+
   Future<void> saveNotificationSettings(Map<String, bool> settings);
 }
 
@@ -20,14 +24,16 @@ class NotificationLocalDataSourceImpl implements NotificationLocalDataSource {
     final raw = localStorage.getData('notifications_cache')?.toString();
     if (raw == null || raw.isEmpty) return [];
     try {
-      final decoded = raw is String ? raw : raw.toString();
-      final List<dynamic> list = decoded is String ? (decoded.startsWith('[') ? (jsonDecode(decoded) as List<dynamic>) : <dynamic>[]) : <dynamic>[];
+      final decoded = raw;
+      final List<dynamic> list = decoded.startsWith('[')
+          ? (jsonDecode(decoded) as List<dynamic>)
+          : <dynamic>[];
       return list
           .whereType<Map>()
-          .map((e) => NotificationModel.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map((e) => NotificationModel.fromJson(Map<String, dynamic>.from(e)))
           .toList();
     } catch (_) {
-    return [];
+      return [];
     }
   }
 

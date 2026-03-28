@@ -7,13 +7,19 @@ import '../models/unit_model.dart';
 import '../models/review_model.dart';
 import '../models/property_availability_model.dart';
 
+/// Provides the data-source behavior for `PropertyRemoteDataSource`.
+/// العربية: يوفر سلوك مصدر البيانات الخاص بـ `PropertyRemoteDataSource`.
 abstract class PropertyRemoteDataSource {
+  /// Exposes the property details.
+  /// العربية: يعيد property details.
   Future<PropertyDetailModel> getPropertyDetails({
     required String propertyId,
     String? userId,
     String? userRole,
   });
 
+  /// Exposes the property units.
+  /// العربية: يعيد property units.
   Future<List<UnitModel>> getPropertyUnits({
     required String propertyId,
     DateTime? checkInDate,
@@ -21,6 +27,8 @@ abstract class PropertyRemoteDataSource {
     required int guestsCount,
   });
 
+  /// Exposes the property reviews.
+  /// العربية: يعيد property reviews.
   Future<List<ReviewModel>> getPropertyReviews({
     required String propertyId,
     int pageNumber = 1,
@@ -31,6 +39,8 @@ abstract class PropertyRemoteDataSource {
     String? userId,
   });
 
+  /// Processes the addToFavorites flow and maps it into the property feature behavior.
+  /// العربية: يعالج `addToFavorites`.
   Future<bool> addToFavorites({
     required String propertyId,
     required String userId,
@@ -40,15 +50,21 @@ abstract class PropertyRemoteDataSource {
     String currency = 'YER',
   });
 
+  /// Removes the from favorites.
+  /// العربية: يزيل from favorites.
   Future<bool> removeFromFavorites({
     required String propertyId,
     required String userId,
   });
 
+  /// Updates the view count.
+  /// العربية: يحدّث view count.
   Future<bool> updateViewCount({
     required String propertyId,
   });
 
+  /// Checks the availability.
+  /// العربية: يتحقق من availability.
   Future<PropertyAvailabilityModel> checkAvailability({
     required String propertyId,
     required DateTime checkInDate,
@@ -57,11 +73,19 @@ abstract class PropertyRemoteDataSource {
   });
 }
 
+/// Describes the PropertyRemoteDataSourceImpl type used in the property feature.
+/// العربية: يمثل `PropertyRemoteDataSourceImpl`.
 class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
+  /// Keeps the apiClient value available to this object.
+  /// العربية: يخزن القيمة `apiClient`.
   final ApiClient apiClient;
 
+  /// Constructs the PropertyRemoteDataSourceImpl value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyRemoteDataSourceImpl`.
   PropertyRemoteDataSourceImpl({required this.apiClient});
 
+  /// Checks the availability.
+  /// العربية: يتحقق من availability.
   @override
   Future<PropertyAvailabilityModel> checkAvailability({
     required String propertyId,
@@ -98,7 +122,8 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
         if (body is Map<String, dynamic>) {
           final success = body['success'];
           final message = body['message']?.toString();
-          final errorCode = body['errorCode']?.toString() ?? body['code']?.toString();
+          final errorCode =
+              body['errorCode']?.toString() ?? body['code']?.toString();
           final showAsDialog = body['showAsDialog'] == true;
 
           // إذا الـ backend أعاد success=false (مثل: "تاريخ الوصول يجب أن يكون قبل تاريخ المغادرة")
@@ -161,6 +186,8 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
     }
   }
 
+  /// Exposes the property details.
+  /// العربية: يعيد property details.
   @override
   Future<PropertyDetailModel> getPropertyDetails({
     required String propertyId,
@@ -205,6 +232,8 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
     }
   }
 
+  /// Exposes the property units.
+  /// العربية: يعيد property units.
   @override
   Future<List<UnitModel>> getPropertyUnits({
     required String propertyId,
@@ -267,6 +296,8 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
     }
   }
 
+  /// Exposes the property reviews.
+  /// العربية: يعيد property reviews.
   @override
   Future<List<ReviewModel>> getPropertyReviews({
     required String propertyId,
@@ -319,6 +350,8 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
     }
   }
 
+  /// Processes the addToFavorites flow and maps it into the property feature behavior.
+  /// العربية: يعالج `addToFavorites`.
   @override
   Future<bool> addToFavorites({
     required String propertyId,
@@ -377,6 +410,8 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
     }
   }
 
+  /// Removes the from favorites.
+  /// العربية: يزيل from favorites.
   @override
   Future<bool> removeFromFavorites({
     required String propertyId,
@@ -426,6 +461,8 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
     }
   }
 
+  /// Updates the view count.
+  /// العربية: يحدّث view count.
   @override
   Future<bool> updateViewCount({
     required String propertyId,

@@ -4,18 +4,31 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+/// حزمة ترجمة محلية خفيفة تحفظ النصوص الأساسية بعيدًا عن طبقات الواجهة.
+/// Lightweight localization bundle that keeps common strings out of the UI layer.
 class AppLocalizations {
+  /// ينشئ حزمة الترجمة المرتبطة بلغة محددة ليستخدمها التطبيق في العرض.
+  /// Creates the localization bundle tied to a specific language for app
+  /// rendering.
   AppLocalizations(this.locale);
 
+  /// اللغة الحالية التي تحدد النصوص والتنسيقات المناسبة.
+  /// The active locale used to resolve strings and formatting.
   final Locale locale;
 
+  /// يستخرج كائن الترجمة النشط من شجرة الواجهات الحالية.
+  /// Looks up the active localization object from the current widget tree.
   static AppLocalizations? of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
+  /// مفوض يعرّف `MaterialApp` على حزمة الترجمات هذه.
+  /// Delegate that exposes this localization bundle to `MaterialApp`.
   static const LocalizationsDelegate<AppLocalizations> delegate =
       _AppLocalizationsDelegate();
 
+  /// جميع المفوضين المطلوبين لغلاف البورتال وإطار Flutter.
+  /// All delegates required by the portal shell and the Flutter framework.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
     delegate,
@@ -24,12 +37,15 @@ class AppLocalizations {
     GlobalWidgetsLocalizations.delegate,
   ];
 
+  /// اللغات التي تستطيع هذه الحزمة النصية خدمتها مباشرة.
+  /// Locales this embedded dictionary can serve directly.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('ar'),
     Locale('en'),
   ];
 
-  // Load localization strings
+  /// جدول نصوص داخل الذاكرة يُستخدم عندما لا نحتاج إلى طبقة ARB مولدة.
+  /// In-memory string table used when a generated ARB layer is unnecessary.
   static final Map<String, Map<String, String>> _localizedValues = {
     'en': {
       'appName': 'hggzk portal',
@@ -163,32 +179,50 @@ class AppLocalizations {
     },
   };
 
+  /// يعيد النص المترجم أو المفتاح نفسه عندما لا توجد ترجمة مقابلة.
+  /// Returns the localized string or the key itself when no translation exists.
   String get(String key) {
     return _localizedValues[locale.languageCode]?[key] ?? key;
   }
 
-  // Date formatting utility using intl
+  /// ينسق التاريخ وفق ترتيب مناسب للغة النشطة.
+  /// Formats a date using the ordering appropriate for the active locale.
   String formatDate(DateTime date) {
     return intl.DateFormat.yMd(locale.languageCode).format(date);
   }
 
+  /// ينسق الوقت وفق النمط الزمني الذي يتوقعه المستخدم في هذه اللغة.
+  /// Formats time in the standard style expected by the active locale.
   String formatTime(DateTime time) {
     return intl.DateFormat.Hm(locale.languageCode).format(time);
   }
 }
 
+/// Bridge that lets Flutter load the lightweight localization bundle synchronously.
+/// جسر يتيح لـ Flutter تحميل حزمة الترجمة الخفيفة بشكل متزامن.
 class _AppLocalizationsDelegate
     extends LocalizationsDelegate<AppLocalizations> {
+  /// ينشئ delegate الترجمة المستخدم لتسجيل حزمة اللغات داخل Flutter.
+  /// Creates the localization delegate used to register the language bundle
+  /// with Flutter.
   const _AppLocalizationsDelegate();
 
   @override
+
+  /// ينشئ كائن الترجمة المتزامن مباشرة من اللغة المطلوبة دون تحميل خارجي.
+  /// Builds the localization object synchronously from the requested locale
+  /// without external loading.
   Future<AppLocalizations> load(Locale locale) {
     return SynchronousFuture<AppLocalizations>(AppLocalizations(locale));
   }
 
+  /// يعيد `true` فقط للغات الموجودة ضمن القائمة المدعومة.
+  /// Returns `true` only for locales included in the supported list.
   @override
   bool isSupported(Locale locale) => ['ar', 'en'].contains(locale.languageCode);
 
+  /// هذا المفوض ثابت، لذلك لا يحتاج إلى إعادة تحميل.
+  /// This delegate is static, so reloading is never required.
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }

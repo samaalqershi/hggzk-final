@@ -4,13 +4,13 @@ import 'dart:ui';
 import '../../domain/entities/payment.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../../../../core/theme/app_text_styles.dart';
-import '../../../../../../core/theme/app_dimensions.dart';
 import '../../../../../../core/widgets/price_widget.dart';
 import 'payment_status_indicator.dart';
 import 'payment_method_icon.dart';
 import 'futuristic_payment_card.dart';
 
 class FuturisticPaymentsTable extends StatefulWidget {
+  /// العربية: يخزن القيمة `payments`.
   final List<Payment> payments;
   final Function(Payment) onPaymentTap;
   final Function(Payment)? onRefundTap;
@@ -19,7 +19,6 @@ class FuturisticPaymentsTable extends StatefulWidget {
   final bool isLoading;
   final double? height;
   final bool forceCardView; // خيار لفرض عرض الكروت
-
   const FuturisticPaymentsTable({
     super.key,
     required this.payments,
@@ -31,7 +30,6 @@ class FuturisticPaymentsTable extends StatefulWidget {
     this.height,
     this.forceCardView = false,
   });
-
   @override
   State<FuturisticPaymentsTable> createState() =>
       _FuturisticPaymentsTableState();
@@ -48,7 +46,6 @@ class _FuturisticPaymentsTableState extends State<FuturisticPaymentsTable>
   int? _selectedPaymentIndex;
   bool _isGridView = false;
   final Set<String> _selectedPayments = {};
-
   @override
   void initState() {
     super.initState();
@@ -135,7 +132,7 @@ class _FuturisticPaymentsTableState extends State<FuturisticPaymentsTable>
       if (oldList[i].id != newList[i].id) return false;
     }
     return true;
-    }
+  }
 
   void _appendAnimations(int startIndex, int count) {
     for (var i = 0; i < count; i++) {
@@ -147,7 +144,8 @@ class _FuturisticPaymentsTableState extends State<FuturisticPaymentsTable>
       _fadeAnimations.add(Tween<double>(begin: 0.0, end: 1.0).animate(
         CurvedAnimation(parent: controller, curve: Curves.easeIn),
       ));
-      _slideAnimations.add(Tween<Offset>(begin: const Offset(0.2, 0), end: Offset.zero).animate(
+      _slideAnimations.add(
+          Tween<Offset>(begin: const Offset(0.2, 0), end: Offset.zero).animate(
         CurvedAnimation(parent: controller, curve: Curves.easeOutCubic),
       ));
     }
@@ -294,7 +292,8 @@ class _FuturisticPaymentsTableState extends State<FuturisticPaymentsTable>
               GridView.builder(
                 // ❌ لا controller - الـ scroll من الخارج
                 shrinkWrap: true, // 🎯 مثل الحجوزات
-                physics: const NeverScrollableScrollPhysics(), // 🎯 مثل الحجوزات
+                physics:
+                    const NeverScrollableScrollPhysics(), // 🎯 مثل الحجوزات
                 padding: const EdgeInsets.all(16),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossAxisCount,
@@ -304,49 +303,49 @@ class _FuturisticPaymentsTableState extends State<FuturisticPaymentsTable>
                 ),
                 itemCount: widget.payments.length,
                 itemBuilder: (context, index) {
-                    final payment = widget.payments[index];
-                    final isSelected = _selectedPayments.contains(payment.id);
+                  final payment = widget.payments[index];
+                  final isSelected = _selectedPayments.contains(payment.id);
 
-                    return AnimatedBuilder(
-                      animation: _fadeAnimations[index],
-                      builder: (context, child) {
-                        return FadeTransition(
-                          opacity: _fadeAnimations[index],
-                          child: SlideTransition(
-                            position: _slideAnimations[index],
-                            child: ResponsivePaymentCard(
-                              payment: payment,
-                              isSelected: isSelected,
-                              onTap: () {
-                                setState(() {
-                                  _selectedPaymentIndex = index;
-                                });
-                                widget.onPaymentTap(payment);
-                              },
-                              onLongPress: () {
-                                setState(() {
-                                  if (_selectedPayments.contains(payment.id)) {
-                                    _selectedPayments.remove(payment.id);
-                                  } else {
-                                    _selectedPayments.add(payment.id);
-                                  }
-                                });
-                              },
-                              onRefundTap: widget.onRefundTap != null
-                                  ? () => widget.onRefundTap!(payment)
-                                  : null,
-                              onVoidTap: widget.onVoidTap != null
-                                  ? () => widget.onVoidTap!(payment)
-                                  : null,
-                              showActions: widget.showActions,
-                              isCompact: isSmallScreen,
-                            ),
+                  return AnimatedBuilder(
+                    animation: _fadeAnimations[index],
+                    builder: (context, child) {
+                      return FadeTransition(
+                        opacity: _fadeAnimations[index],
+                        child: SlideTransition(
+                          position: _slideAnimations[index],
+                          child: ResponsivePaymentCard(
+                            payment: payment,
+                            isSelected: isSelected,
+                            onTap: () {
+                              setState(() {
+                                _selectedPaymentIndex = index;
+                              });
+                              widget.onPaymentTap(payment);
+                            },
+                            onLongPress: () {
+                              setState(() {
+                                if (_selectedPayments.contains(payment.id)) {
+                                  _selectedPayments.remove(payment.id);
+                                } else {
+                                  _selectedPayments.add(payment.id);
+                                }
+                              });
+                            },
+                            onRefundTap: widget.onRefundTap != null
+                                ? () => widget.onRefundTap!(payment)
+                                : null,
+                            onVoidTap: widget.onVoidTap != null
+                                ? () => widget.onVoidTap!(payment)
+                                : null,
+                            showActions: widget.showActions,
+                            isCompact: isSmallScreen,
                           ),
-                        );
-                      },
-                    );
-                  },
-                ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
 
               // Footer مع عدد المحدد
               if (_selectedPayments.isNotEmpty) _buildSelectionFooter(),
@@ -542,20 +541,20 @@ class _FuturisticPaymentsTableState extends State<FuturisticPaymentsTable>
 
     // 🎯 بدون Scrollbar ولا controller - الـ scroll من الخارج
     return ListView.builder(
-        shrinkWrap: true, // 🎯 مثل الحجوزات
-        physics: const NeverScrollableScrollPhysics(), // 🎯 مثل الحجوزات
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        itemCount: widget.payments.length,
-        itemBuilder: (context, index) {
-          return FadeTransition(
-            opacity: _fadeAnimations[index],
-            child: SlideTransition(
-              position: _slideAnimations[index],
-              child: _buildTableRow(widget.payments[index], index),
-            ),
-          );
-        },
-      );
+      shrinkWrap: true, // 🎯 مثل الحجوزات
+      physics: const NeverScrollableScrollPhysics(), // 🎯 مثل الحجوزات
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: widget.payments.length,
+      itemBuilder: (context, index) {
+        return FadeTransition(
+          opacity: _fadeAnimations[index],
+          child: SlideTransition(
+            position: _slideAnimations[index],
+            child: _buildTableRow(widget.payments[index], index),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildTableRow(Payment payment, int index) {
@@ -860,6 +859,7 @@ class _FuturisticPaymentsTableState extends State<FuturisticPaymentsTable>
 
 // كارت المدفوعات الريسبونسيف المحسّن
 class ResponsivePaymentCard extends StatelessWidget {
+  /// العربية: يخزن القيمة `payment`.
   final Payment payment;
   final bool isSelected;
   final VoidCallback? onTap;
@@ -868,7 +868,6 @@ class ResponsivePaymentCard extends StatelessWidget {
   final VoidCallback? onVoidTap;
   final bool showActions;
   final bool isCompact;
-
   const ResponsivePaymentCard({
     super.key,
     required this.payment,
@@ -880,7 +879,6 @@ class ResponsivePaymentCard extends StatelessWidget {
     this.showActions = true,
     this.isCompact = false,
   });
-
   @override
   Widget build(BuildContext context) {
     return FuturisticPaymentCard(

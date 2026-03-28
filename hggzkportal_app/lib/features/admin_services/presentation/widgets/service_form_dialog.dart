@@ -11,21 +11,19 @@ import 'service_icon_picker.dart';
 
 /// 📝 Service Form Dialog
 class ServiceFormDialog extends StatefulWidget {
+  /// العربية: يخزن القيمة `service`.
   final Service? service;
   final String? propertyId;
   final Function(Map<String, dynamic>) onSubmit;
-
   const ServiceFormDialog({
     super.key,
     this.service,
     this.propertyId,
     required this.onSubmit,
   });
-
   @override
   State<ServiceFormDialog> createState() => _ServiceFormDialogState();
 }
-
 class _ServiceFormDialogState extends State<ServiceFormDialog>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
@@ -35,22 +33,18 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
   final _nameController = TextEditingController();
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
-
   String _selectedIcon = 'room_service';
   String _selectedCurrency = 'SAR';
   PricingModel _selectedPricingModel = PricingModel.perBooking;
   String? _selectedPropertyId;
   bool _isFree = false;
-
   bool _isSubmitting = false;
-
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
     _initializeForm();
   }
-
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -67,7 +61,6 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
 
     _animationController.forward();
   }
-
   void _initializeForm() {
     if (widget.service != null) {
       _nameController.text = widget.service!.name;
@@ -85,7 +78,6 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
       _selectedPropertyId = widget.propertyId;
     }
   }
-
   @override
   void dispose() {
     _animationController.dispose();
@@ -93,7 +85,6 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
     _amountController.dispose();
     super.dispose();
   }
-
   void _showIconPicker() {
     showDialog(
       fullscreenDialog: true,
@@ -106,7 +97,6 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
       ),
     );
   }
-
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
       HapticFeedback.mediumImpact();
@@ -129,7 +119,6 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
       Navigator.of(context).pop();
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return ScaleTransition(
@@ -144,18 +133,18 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppTheme.darkCard.withOpacity(0.95),
-                AppTheme.darkCard.withOpacity(0.85),
+                AppTheme.darkCard.withValues(alpha: 0.95),
+                AppTheme.darkCard.withValues(alpha: 0.85),
               ],
             ),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: AppTheme.primaryBlue.withOpacity(0.3),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.primaryBlue.withOpacity(0.2),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 blurRadius: 30,
                 offset: const Offset(0, 10),
               ),
@@ -197,14 +186,13 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
       ),
     );
   }
-
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
@@ -241,7 +229,6 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
       ),
     );
   }
-
   Widget _buildNameField() {
     return TextFormField(
       controller: _nameController,
@@ -250,7 +237,7 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
         labelText: 'اسم الخدمة',
         labelStyle: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
         filled: true,
-        fillColor: AppTheme.darkSurface.withOpacity(0.3),
+        fillColor: AppTheme.darkSurface.withValues(alpha: 0.3),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -258,20 +245,20 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.5),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.5),
             width: 1,
           ),
         ),
         prefixIcon: Icon(
           Icons.label_rounded,
-          color: AppTheme.primaryBlue.withOpacity(0.7),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.7),
         ),
       ),
       validator: (value) {
@@ -282,17 +269,16 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
       },
     );
   }
-
   Widget _buildIconSelector() {
     return GestureDetector(
       onTap: _showIconPicker,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.darkSurface.withOpacity(0.3),
+          color: AppTheme.darkSurface.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
@@ -303,8 +289,8 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withOpacity(0.2),
-                    AppTheme.primaryPurple.withOpacity(0.1),
+                    AppTheme.primaryBlue.withValues(alpha: 0.2),
+                    AppTheme.primaryPurple.withValues(alpha: 0.1),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(10),
@@ -349,7 +335,6 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
       ),
     );
   }
-
   Widget _buildPriceSection() {
     return Row(
       children: [
@@ -367,7 +352,7 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
               labelStyle:
                   AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
               filled: true,
-              fillColor: AppTheme.darkSurface.withOpacity(0.3),
+              fillColor: AppTheme.darkSurface.withValues(alpha: 0.3),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -375,20 +360,20 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: AppTheme.darkBorder.withOpacity(0.2),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.2),
                   width: 0.5,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: AppTheme.success.withOpacity(0.5),
+                  color: AppTheme.success.withValues(alpha: 0.5),
                   width: 1,
                 ),
               ),
               prefixIcon: Icon(
                 Icons.attach_money_rounded,
-                color: AppTheme.success.withOpacity(0.7),
+                color: AppTheme.success.withValues(alpha: 0.7),
               ),
             ),
             validator: (value) {
@@ -413,7 +398,7 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
               labelStyle:
                   AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
               filled: true,
-              fillColor: AppTheme.darkSurface.withOpacity(0.3),
+              fillColor: AppTheme.darkSurface.withValues(alpha: 0.3),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -435,7 +420,6 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
       ],
     );
   }
-
   Widget _buildPricingModelSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -463,13 +447,14 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   gradient: isSelected ? AppTheme.primaryGradient : null,
-                  color:
-                      isSelected ? null : AppTheme.darkSurface.withOpacity(0.3),
+                  color: isSelected
+                      ? null
+                      : AppTheme.darkSurface.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isSelected
-                        ? AppTheme.primaryBlue.withOpacity(0.5)
-                        : AppTheme.darkBorder.withOpacity(0.2),
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                        : AppTheme.darkBorder.withValues(alpha: 0.2),
                     width: isSelected ? 1.5 : 0.5,
                   ),
                 ),
@@ -488,36 +473,13 @@ class _ServiceFormDialogState extends State<ServiceFormDialog>
       ],
     );
   }
-
-  Widget _buildDescriptionField() {
-    return TextFormField(
-      controller: _descriptionController,
-      maxLines: 4,
-      style: AppTextStyles.bodyMedium.copyWith(color: AppTheme.textWhite),
-      decoration: InputDecoration(
-        labelText: 'الوصف',
-        labelStyle: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
-        filled: true,
-        fillColor: AppTheme.darkSurface.withOpacity(0.3),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        prefixIcon: Icon(
-          Icons.description_rounded,
-          color: AppTheme.primaryBlue.withOpacity(0.7),
-        ),
-      ),
-    );
-  }
-
   Widget _buildFooter() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),

@@ -1,6 +1,10 @@
 import '../../domain/entities/search_result.dart';
 
+/// يعرّف الكلاس `SearchResultModel`.
+/// Describes the `SearchResultModel` class.
 class SearchResultModel<T> extends SearchResult<T> {
+  /// Initializes a new `SearchResultModel` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchResultModel`.
   const SearchResultModel({
     required T item,
     required String id,
@@ -17,6 +21,8 @@ class SearchResultModel<T> extends SearchResult<T> {
           metadata: metadata,
         );
 
+  /// ينشئ مثيلاً من `SearchResultModel`.
+  /// Builds an instance of `SearchResultModel`.
   factory SearchResultModel.fromJson(
     Map<String, dynamic> json,
     T item,
@@ -31,6 +37,8 @@ class SearchResultModel<T> extends SearchResult<T> {
     );
   }
 
+  /// ينفذ العملية `toJson`.
+  /// Runs the `toJson` operation.
   Map<String, dynamic> toJson() {
     return {
       'id': id,

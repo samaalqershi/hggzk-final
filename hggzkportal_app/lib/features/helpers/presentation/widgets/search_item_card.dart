@@ -3,11 +3,23 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/search_result.dart';
 
+/// يعرّف الكلاس `SearchItemCard`.
+/// Describes the `SearchItemCard` class.
 class SearchItemCard extends StatelessWidget {
+  /// Holds the `item` value.
+  /// العربية: يخزن القيمة `item`.
   final SearchResult item;
+
+  /// يخزن العضو `onTap`.
+  /// Holds the `onTap` member.
   final VoidCallback onTap;
+
+  /// يخزن العضو `isSelected`.
+  /// Holds the `isSelected` member.
   final bool isSelected;
 
+  /// ينشئ مثيلاً من `SearchItemCard`.
+  /// Builds an instance of `SearchItemCard`.
   const SearchItemCard({
     super.key,
     required this.item,
@@ -15,6 +27,8 @@ class SearchItemCard extends StatelessWidget {
     this.isSelected = false,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -25,13 +39,13 @@ class SearchItemCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppTheme.primaryBlue.withOpacity(0.1)
-              : AppTheme.darkCard.withOpacity(0.3),
+              ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+              : AppTheme.darkCard.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
-                ? AppTheme.primaryBlue.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.2),
+                ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                : AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -42,7 +56,7 @@ class SearchItemCard extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: AppTheme.darkSurface.withOpacity(0.5),
+                color: AppTheme.darkSurface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: item.imageUrl != null
@@ -57,7 +71,7 @@ class SearchItemCard extends StatelessWidget {
                   : _buildPlaceholderIcon(),
             ),
             const SizedBox(width: 12),
-            
+
             // Content
             Expanded(
               child: Column(
@@ -84,7 +98,7 @@ class SearchItemCard extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Selection Indicator
             if (isSelected)
               Container(
@@ -105,9 +119,11 @@ class SearchItemCard extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildPlaceholderIcon`.
+  /// Runs the `_buildPlaceholderIcon` operation.
   Widget _buildPlaceholderIcon() {
     IconData iconData;
-    
+
     // Determine icon based on metadata
     if (item.metadata != null) {
       if (item.metadata!.containsKey('role')) {
@@ -129,7 +145,7 @@ class SearchItemCard extends StatelessWidget {
 
     return Icon(
       iconData,
-      color: AppTheme.textMuted.withOpacity(0.5),
+      color: AppTheme.textMuted.withValues(alpha: 0.5),
       size: 24,
     );
   }

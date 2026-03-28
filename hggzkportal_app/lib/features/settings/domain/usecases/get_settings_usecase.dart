@@ -5,10 +5,9 @@ import '../entities/app_settings.dart';
 import '../repositories/settings_repository.dart';
 
 class GetSettingsUseCase implements UseCase<AppSettings, NoParams> {
+  /// العربية: يخزن القيمة `repository`.
   final SettingsRepository repository;
-
   GetSettingsUseCase(this.repository);
-
   @override
   Future<Either<Failure, AppSettings>> call(NoParams params) async {
     return await repository.getSettings();

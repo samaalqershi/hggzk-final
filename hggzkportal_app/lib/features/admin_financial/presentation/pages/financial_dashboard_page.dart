@@ -25,7 +25,6 @@ import '../bloc/financial_overview/financial_overview_bloc.dart';
 
 class FinancialDashboardPage extends StatefulWidget {
   const FinancialDashboardPage({super.key});
-
   @override
   State<FinancialDashboardPage> createState() => _FinancialDashboardPageState();
 }
@@ -44,7 +43,6 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
   int _selectedChartIndex = 0;
   bool _isFullScreen = false;
   bool _showQuickActions = false;
-
   @override
   void initState() {
     super.initState();
@@ -131,9 +129,9 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.05),
-                AppTheme.primaryPurple.withOpacity(0.03),
-                AppTheme.primaryCyan.withOpacity(0.05),
+                AppTheme.primaryBlue.withValues(alpha: 0.05),
+                AppTheme.primaryPurple.withValues(alpha: 0.03),
+                AppTheme.primaryCyan.withValues(alpha: 0.05),
                 AppTheme.darkBackground,
               ],
             ),
@@ -161,8 +159,8 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    colors.first.withOpacity(0.08),
-                    colors.last.withOpacity(0.0),
+                    colors.first.withValues(alpha: 0.08),
+                    colors.last.withValues(alpha: 0.0),
                   ],
                 ),
               ),
@@ -199,8 +197,8 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppTheme.primaryBlue.withOpacity(0.2),
-                    AppTheme.primaryPurple.withOpacity(0.1),
+                    AppTheme.primaryBlue.withValues(alpha: 0.2),
+                    AppTheme.primaryPurple.withValues(alpha: 0.1),
                     AppTheme.darkBackground,
                   ],
                 ),
@@ -244,8 +242,8 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
                                 fontSize: 24,
                                 shadows: [
                                   Shadow(
-                                    color:
-                                        AppTheme.primaryCyan.withOpacity(0.5),
+                                    color: AppTheme.primaryCyan
+                                        .withValues(alpha: 0.5),
                                     blurRadius: 10,
                                   ),
                                 ],
@@ -261,7 +259,8 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
                           color: AppTheme.textWhite,
                           shadows: [
                             Shadow(
-                              color: AppTheme.primaryBlue.withOpacity(0.3),
+                              color:
+                                  AppTheme.primaryBlue.withValues(alpha: 0.3),
                               blurRadius: 10,
                             ),
                           ],
@@ -312,21 +311,21 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
             ? AppTheme.primaryGradient
             : LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
               ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isPrimary
-              ? AppTheme.primaryCyan.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.primaryCyan.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
         boxShadow: isPrimary
             ? [
                 BoxShadow(
-                  color: AppTheme.primaryCyan.withOpacity(0.2),
+                  color: AppTheme.primaryCyan.withValues(alpha: 0.2),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -473,13 +472,13 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppTheme.darkCard.withOpacity(0.8),
-                          AppTheme.darkCard.withOpacity(0.6),
+                          AppTheme.darkCard.withValues(alpha: 0.8),
+                          AppTheme.darkCard.withValues(alpha: 0.6),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: AppTheme.darkBorder.withOpacity(0.2),
+                        color: AppTheme.darkBorder.withValues(alpha: 0.2),
                       ),
                     ),
                     child: ClipRRect(
@@ -522,10 +521,10 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
       height: 50,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -557,15 +556,15 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
             gradient: isSelected
                 ? LinearGradient(
                     colors: [
-                      color.withOpacity(0.3),
-                      color.withOpacity(0.2),
+                      color.withValues(alpha: 0.3),
+                      color.withValues(alpha: 0.2),
                     ],
                   )
                 : null,
             borderRadius: BorderRadius.circular(12),
             border: isSelected
                 ? Border.all(
-                    color: color.withOpacity(0.5),
+                    color: color.withValues(alpha: 0.5),
                     width: 1,
                   )
                 : null,
@@ -622,10 +621,10 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppTheme.darkBackground.withOpacity(0.7),
+          color: AppTheme.darkBackground.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
           ),
         ),
         child: Icon(
@@ -788,8 +787,8 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryCyan.withOpacity(
-                    0.3 + (_pulseAnimationController.value * 0.1),
+                  color: AppTheme.primaryCyan.withValues(
+                    alpha: 0.3 + (_pulseAnimationController.value * 0.1),
                   ),
                   blurRadius: 20 + (_pulseAnimationController.value * 5),
                   offset: const Offset(0, 10),
@@ -821,7 +820,7 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
-          color: AppTheme.darkBackground.withOpacity(0.3),
+          color: AppTheme.darkBackground.withValues(alpha: 0.3),
           child: Center(
             child: Container(
               margin: const EdgeInsets.all(32),
@@ -831,13 +830,13 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    AppTheme.darkCard.withOpacity(0.95),
-                    AppTheme.darkCard.withOpacity(0.85),
+                    AppTheme.darkCard.withValues(alpha: 0.95),
+                    AppTheme.darkCard.withValues(alpha: 0.85),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: AppTheme.primaryCyan.withOpacity(0.3),
+                  color: AppTheme.primaryCyan.withValues(alpha: 0.3),
                 ),
               ),
               child: Column(
@@ -920,11 +919,11 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
         height: 100,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: gradient.map((c) => c.withOpacity(0.1)).toList(),
+            colors: gradient.map((c) => c.withValues(alpha: 0.1)).toList(),
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: gradient.first.withOpacity(0.3),
+            color: gradient.first.withValues(alpha: 0.3),
           ),
         ),
         child: Column(
@@ -1087,13 +1086,11 @@ class _FinancialDashboardPageState extends State<FinancialDashboardPage>
 // Custom Painters
 class _DashboardPatternPainter extends CustomPainter {
   final double progress;
-
   _DashboardPatternPainter({required this.progress});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppTheme.primaryCyan.withOpacity(0.03)
+      ..color = AppTheme.primaryCyan.withValues(alpha: 0.03)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.5;
 
@@ -1128,9 +1125,7 @@ class _DashboardPatternPainter extends CustomPainter {
 
 class _FloatingElementsPainter extends CustomPainter {
   final double progress;
-
   _FloatingElementsPainter({required this.progress});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -1149,7 +1144,7 @@ class _FloatingElementsPainter extends CustomPainter {
         AppTheme.primaryViolet,
         AppTheme.success,
       ][i]
-          .withOpacity(0.02 + progress * 0.01);
+          .withValues(alpha: 0.02 + progress * 0.01);
 
       canvas.drawCircle(offset, 30 + progress * 10, paint);
     }

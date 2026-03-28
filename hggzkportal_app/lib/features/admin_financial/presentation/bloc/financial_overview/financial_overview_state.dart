@@ -2,21 +2,16 @@
 
 part of 'financial_overview_bloc.dart';
 
-/// 📋 حالات النظرة العامة المالية
 abstract class FinancialOverviewState extends Equatable {
   const FinancialOverviewState();
-
   @override
   List<Object?> get props => [];
 }
 
-/// 🔄 الحالة الأولية
 class FinancialOverviewInitial extends FinancialOverviewState {}
 
-/// ⏳ جاري التحميل
 class FinancialOverviewLoading extends FinancialOverviewState {}
 
-/// ✅ تم التحميل بنجاح
 class FinancialOverviewLoaded extends FinancialOverviewState {
   final FinancialReport report;
   final List<ChartOfAccount> accounts;
@@ -31,7 +26,6 @@ class FinancialOverviewLoaded extends FinancialOverviewState {
   final bool isExporting;
   final String? exportedFilePath;
   final String? exportError;
-
   const FinancialOverviewLoaded({
     required this.report,
     required this.accounts,
@@ -119,12 +113,9 @@ class FinancialOverviewLoaded extends FinancialOverviewState {
       ];
 }
 
-/// ❌ حالة الخطأ
 class FinancialOverviewError extends FinancialOverviewState {
   final String message;
-
   const FinancialOverviewError(this.message);
-
   @override
   List<Object?> get props => [message];
 }

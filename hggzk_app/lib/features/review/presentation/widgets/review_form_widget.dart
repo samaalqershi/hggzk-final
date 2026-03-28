@@ -6,19 +6,34 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import 'rating_selector_widget.dart';
 
+/// Collects a structured property review with ratings, text, and media.
+/// يجمع مراجعة منظمة للعقار تشمل التقييمات والنص والصور.
+///
+/// The widget keeps the review payload aligned with the bloc contract so the
+/// screen can submit a complete review without guessing default values.
+/// يطابق هذا العنصر حمولة المراجعة مع عقد الـ bloc حتى ترسل الشاشة مراجعة
+/// مكتملة من دون افتراض قيم افتراضية.
 class ReviewFormWidget extends StatefulWidget {
+  /// Receives the final ratings, comment text, and optional image paths.
+  /// يستقبل التقييمات النهائية، ونص التعليق، ومسارات الصور الاختيارية.
   final Function(Map<String, int> ratings, String comment, List<String>? images)
       onSubmit;
 
+  /// Builds the review form shown on the write-review screen.
+  /// ينشئ نموذج التقييم الظاهر في شاشة كتابة المراجعة.
   const ReviewFormWidget({
     super.key,
     required this.onSubmit,
   });
 
+  /// Builds the interactive state that tracks ratings and comment changes.
+  /// ينشئ الحالة التفاعلية التي تتابع تغيّر التقييمات والتعليق.
   @override
   State<ReviewFormWidget> createState() => _ReviewFormWidgetState();
 }
 
+/// Maintains the draft review data and the animated summary card.
+/// يحفظ بيانات المراجعة قيد التحرير وبطاقة الملخص المتحركة.
 class _ReviewFormWidgetState extends State<ReviewFormWidget>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
@@ -29,11 +44,21 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     'location': 0,
     'value': 0,
   };
+
+  /// Tracks whether the reviewer recommends the property overall.
+  /// يحدد ما إذا كان المراجع يوصي بالعقار بشكل عام.
   bool _isRecommended = true;
 
+  /// Drives the subtle glow around the summary banner.
+  /// يقود التوهج الخفيف حول شريط الملخص.
   late AnimationController _glowController;
+
+  /// Softens the highlight pulse used in the summary banner.
+  /// يضبط نبضة التوهج الظاهرة في شريط الملخص.
   late Animation<double> _glowAnimation;
 
+  /// Hooks the comment listener and starts the repeating glow animation.
+  /// يربط مستمع التعليق ويبدأ حركة التوهج المتكررة.
   @override
   void initState() {
     super.initState();
@@ -49,6 +74,8 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     );
   }
 
+  /// Releases the text controller and animation resources.
+  /// يحرر متحكم النص وموارد الحركة.
   @override
   void dispose() {
     _commentController.removeListener(_onCommentChanged);
@@ -57,11 +84,15 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     super.dispose();
   }
 
+  /// Refreshes the form so helper text and submit state stay accurate.
+  /// يحدّث النموذج ليبقى النص المساعد وحالة الإرسال دقيقين.
   void _onCommentChanged() {
     if (!mounted) return;
     setState(() {});
   }
 
+  /// Builds the form shell and its logical review sections.
+  /// يبني هيكل النموذج وأقسام المراجعة المنطقية.
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -85,6 +116,8 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     );
   }
 
+  /// Builds the summary block that seeds the detailed rating controls.
+  /// يبني كتلة الملخص التي تهيئ عناصر التقييم التفصيلية.
   Widget _buildOverallExperience() {
     final overallRating = _getOverallRating();
 
@@ -180,6 +213,8 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     );
   }
 
+  /// Builds the category-by-category rating controls.
+  /// يبني عناصر التقييم حسب كل فئة.
   Widget _buildRatingSection() {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -221,6 +256,8 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     );
   }
 
+  /// Builds one detailed rating control and its progress indicator.
+  /// يبني عنصر تقييم مفصلًا مع مؤشر التقدم الخاص به.
   Widget _buildRatingItem(String label, String key, IconData icon) {
     final rating = _ratings[key]!;
     final progress = rating / 5;
@@ -334,6 +371,8 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     );
   }
 
+  /// Builds the free-text review area and its validation rules.
+  /// يبني مساحة التعليق النصي وقواعد التحقق الخاصة بها.
   Widget _buildCommentSection() {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -386,6 +425,8 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     );
   }
 
+  /// Builds the yes-or-no recommendation toggle.
+  /// يبني مفتاح التوصية بنعم أو لا.
   Widget _buildRecommendationSection() {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -413,6 +454,8 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     );
   }
 
+  /// Builds the submit action and its readiness styling.
+  /// يبني فعل الإرسال وأسلوب الجاهزية الخاص به.
   Widget _buildSubmitButton() {
     final canSubmit = _canSubmit();
 
@@ -483,17 +526,23 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     );
   }
 
+  /// Exposes whether the form contains enough data to submit a review.
+  /// يعيد ما إذا كان النموذج يحتوي على بيانات كافية للإرسال.
   bool _canSubmit() {
     return _ratings.values.every((rating) => rating > 0) &&
         _commentController.text.isNotEmpty;
   }
 
+  /// Averages the category ratings into the summary score shown at the top.
+  /// يحسب متوسط تقييمات الفئات ليظهر كدرجة عامة في الأعلى.
   int _getOverallRating() {
     final total = _ratings.values.fold(0, (sum, rating) => sum + rating);
     if (total == 0) return 0;
     return (total / _ratings.length).round();
   }
 
+  /// Sends the collected review payload to the parent screen.
+  /// يرسل حمولة المراجعة المجمعة إلى الشاشة الأب.
   void _submitReview() {
     if (_formKey.currentState!.validate()) {
       widget.onSubmit(
@@ -504,6 +553,8 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     }
   }
 
+  /// Maps each category key to its accent color in the UI.
+  /// يربط كل مفتاح فئة بلونه البارز داخل الواجهة.
   Color _getCategoryColor(String key) {
     switch (key) {
       case 'cleanliness':

@@ -6,16 +6,43 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/glassmorphic_tooltip.dart';
 
+/// بطاقة إحصائية تفاعلية تعرض قيمة مرفق مع ملخص مرئي وتلميح تفصيلي.
+/// Interactive stats card that shows an amenity metric with a visual summary and detailed tooltip.
 class AmenityStatsCard extends StatefulWidget {
+  /// عنوان البطاقة الذي يوضح نوع الإحصاء.
+  /// Card title that explains the metric.
   final String title;
+
+  /// القيمة الأساسية التي تعرضها البطاقة.
+  /// Main value displayed by the card.
   final String value;
+
+  /// الأيقونة التي تمثل الإحصاء.
+  /// Icon representing the metric.
   final IconData icon;
+
+  /// التدرج المستخدم لتلوين القيمة والعناصر البصرية.
+  /// Gradient used to color the value and visual layers.
   final Gradient gradient;
+
+  /// وصف اختياري قصير أسفل العنوان أو بجانب القيمة.
+  /// Optional short description below the title or beside the value.
   final String? subtitle;
+
+  /// نسبة مئوية اختيارية مرتبطة بالمقياس.
+  /// Optional percentage associated with the metric.
   final double? percentage;
+
+  /// وصف إضافي يظهر في التلميح عند الضغط المطول.
+  /// Additional description shown in the tooltip on long press.
   final String? detailedDescription;
+
+  /// إحصاءات إضافية تضاف داخل التلميح التفصيلي.
+  /// Extra stats appended inside the detailed tooltip.
   final Map<String, dynamic>? additionalStats;
 
+  /// ينشئ بطاقة الإحصاء مع القيم والأسلوب الممررين.
+  /// Creates the stats card with the supplied values and styling.
   const AmenityStatsCard({
     super.key,
     required this.title,
@@ -28,20 +55,42 @@ class AmenityStatsCard extends StatefulWidget {
     this.additionalStats,
   });
 
+  /// ينشئ الحالة المسؤولة عن الحركة والتفاعل مع البطاقة.
+  /// Creates the state responsible for motion and interaction with the card.
   @override
   State<AmenityStatsCard> createState() => _AmenityStatsCardState();
 }
 
+/// تدير هذه الحالة التحريك الدائري والنبض وحالات hover والضغط.
+/// Manages looping animation, pulse, and hover/press states.
 class _AmenityStatsCardState extends State<AmenityStatsCard>
     with SingleTickerProviderStateMixin {
+  /// مفتاح البطاقة المستخدم لربط التلميح بها.
+  /// Card key used to anchor the tooltip to this widget.
   final GlobalKey _cardKey = GlobalKey();
+
+  /// يتحكم في الحركة الدائرية للبطاقة.
+  /// Controls the looping animation for the card.
   late AnimationController _animationController;
+
+  /// قيمة التكبير المستخدمة لإبراز البطاقة.
+  /// Scale value used to emphasize the card.
   late Animation<double> _scaleAnimation;
+
+  /// قيمة الدوران الخاصة بالخلفية الدائرية.
+  /// Rotation value for the circular background element.
   late Animation<double> _rotationAnimation;
 
+  /// يحدد ما إذا كان المؤشر فوق البطاقة.
+  /// Indicates whether the pointer is hovering over the card.
   bool _isHovered = false;
+
+  /// يحدد ما إذا كانت البطاقة مضغوطة مؤقتًا.
+  /// Indicates whether the card is temporarily pressed.
   bool _isPressed = false;
 
+  /// يهيئ الأنيميشن الدورية عند إنشاء البطاقة.
+  /// Initializes the looping animation when the card is created.
   @override
   void initState() {
     super.initState();
@@ -67,12 +116,16 @@ class _AmenityStatsCardState extends State<AmenityStatsCard>
     ));
   }
 
+  /// يحرر متحكم الحركة عند إزالة البطاقة من الشجرة.
+  /// Disposes the animation controller when the card leaves the tree.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// يعرض التلميح التفصيلي ويضبط حالة الضغط المؤقتة.
+  /// Shows the detailed tooltip and toggles the temporary pressed state.
   void _handleLongPress() {
     setState(() => _isPressed = true);
 
@@ -102,6 +155,8 @@ class _AmenityStatsCardState extends State<AmenityStatsCard>
     });
   }
 
+  /// يبني البطاقة الكاملة مع الخلفية والأيقونة والقيمة والوصف.
+  /// Builds the full card with background layers, icon, value, and description.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -122,24 +177,24 @@ class _AmenityStatsCardState extends State<AmenityStatsCard>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppTheme.darkCard.withOpacity(0.8),
-                AppTheme.darkCard.withOpacity(0.6),
+                AppTheme.darkCard.withValues(alpha: 0.8),
+                AppTheme.darkCard.withValues(alpha: 0.6),
               ],
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: _isPressed
-                  ? widget.gradient.colors.first.withOpacity(0.7)
+                  ? widget.gradient.colors.first.withValues(alpha: 0.7)
                   : _isHovered
-                      ? widget.gradient.colors.first.withOpacity(0.5)
-                      : AppTheme.darkBorder.withOpacity(0.3),
+                      ? widget.gradient.colors.first.withValues(alpha: 0.5)
+                      : AppTheme.darkBorder.withValues(alpha: 0.3),
               width: _isPressed ? 2 : 1.5,
             ),
             boxShadow: [
               BoxShadow(
                 color: _isHovered
-                    ? widget.gradient.colors.first.withOpacity(0.3)
-                    : Colors.black.withOpacity(0.2),
+                    ? widget.gradient.colors.first.withValues(alpha: 0.3)
+                    : Colors.black.withValues(alpha: 0.2),
                 blurRadius: _isHovered ? 25 : 15,
                 offset: const Offset(0, 8),
               ),
@@ -156,7 +211,8 @@ class _AmenityStatsCardState extends State<AmenityStatsCard>
                     Positioned.fill(
                       child: CustomPaint(
                         painter: _PatternPainter(
-                          color: widget.gradient.colors.first.withOpacity(0.05),
+                          color: widget.gradient.colors.first
+                              .withValues(alpha: 0.05),
                         ),
                       ),
                     ),
@@ -200,7 +256,7 @@ class _AmenityStatsCardState extends State<AmenityStatsCard>
                             boxShadow: [
                               BoxShadow(
                                 color: widget.gradient.colors.first
-                                    .withOpacity(0.4),
+                                    .withValues(alpha: 0.4),
                                 blurRadius: 15,
                                 spreadRadius: 2,
                               ),
@@ -266,7 +322,8 @@ class _AmenityStatsCardState extends State<AmenityStatsCard>
                                 Text(
                                   widget.subtitle!,
                                   style: AppTextStyles.caption.copyWith(
-                                    color: AppTheme.textMuted.withOpacity(0.7),
+                                    color: AppTheme.textMuted
+                                        .withValues(alpha: 0.7),
                                   ),
                                 ),
                               if (widget.percentage != null) ...[
@@ -278,8 +335,9 @@ class _AmenityStatsCardState extends State<AmenityStatsCard>
                                   ),
                                   decoration: BoxDecoration(
                                     color: widget.percentage! > 0
-                                        ? AppTheme.success.withOpacity(0.2)
-                                        : AppTheme.error.withOpacity(0.2),
+                                        ? AppTheme.success
+                                            .withValues(alpha: 0.2)
+                                        : AppTheme.error.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Row(
@@ -323,11 +381,19 @@ class _AmenityStatsCardState extends State<AmenityStatsCard>
   }
 }
 
+/// يرسم نمطًا خلفيًا خفيفًا يعزز الإحساس بالعمق داخل البطاقة.
+/// Draws a light background pattern that enhances depth inside the card.
 class _PatternPainter extends CustomPainter {
+  /// لون النمط الخلفي.
+  /// Color used for the background pattern.
   final Color color;
 
+  /// ينشئ الرسّام بلون النمط المحدد.
+  /// Creates the painter with the chosen pattern color.
   _PatternPainter({required this.color});
 
+  /// يرسم خطوط النمط الخلفي على اللوحة.
+  /// Paints the background pattern lines onto the canvas.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -346,6 +412,8 @@ class _PatternPainter extends CustomPainter {
     }
   }
 
+  /// لا يعيد الرسم لأن النمط ثابت ولا يعتمد على حالة متغيرة.
+  /// Does not repaint because the pattern is static and state-independent.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

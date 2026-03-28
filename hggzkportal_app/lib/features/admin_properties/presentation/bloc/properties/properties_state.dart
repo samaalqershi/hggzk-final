@@ -3,8 +3,8 @@
 part of 'properties_bloc.dart';
 
 abstract class PropertiesState extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertiesState`.
   const PropertiesState();
-  
   @override
   List<Object?> get props => [];
 }
@@ -14,6 +14,7 @@ class PropertiesInitial extends PropertiesState {}
 class PropertiesLoading extends PropertiesState {}
 
 class PropertiesLoaded extends PropertiesState {
+  /// العربية: يخزن القيمة `properties`.
   final List<Property> properties;
   final int totalCount;
   final int currentPage;
@@ -23,7 +24,6 @@ class PropertiesLoaded extends PropertiesState {
   final String? searchTerm;
   final Map<String, dynamic>? activeFilters;
   final Map<String, dynamic>? stats;
-  
   const PropertiesLoaded({
     required this.properties,
     required this.totalCount,
@@ -35,40 +35,43 @@ class PropertiesLoaded extends PropertiesState {
     this.activeFilters,
     this.stats,
   });
-  
   @override
   List<Object?> get props => [
-    properties, totalCount, currentPage, totalPages,
-    hasNextPage, hasPreviousPage, searchTerm, activeFilters, stats,
-  ];
+        properties,
+        totalCount,
+        currentPage,
+        totalPages,
+        hasNextPage,
+        hasPreviousPage,
+        searchTerm,
+        activeFilters,
+        stats,
+      ];
 }
 
 // إضافة حالات جديدة لتفاصيل العقار
 class PropertyDetailsLoading extends PropertiesState {}
 
 class PropertyDetailsLoaded extends PropertiesState {
+  /// العربية: يخزن القيمة `property`.
   final Property property;
-  
   const PropertyDetailsLoaded(this.property);
-  
   @override
   List<Object> get props => [property];
 }
 
 class PropertyDetailsError extends PropertiesState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
-  
   const PropertyDetailsError(this.message);
-  
   @override
   List<Object> get props => [message];
 }
 
 class PropertiesError extends PropertiesState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
-  
   const PropertiesError(this.message);
-  
   @override
   List<Object> get props => [message];
 }
@@ -76,10 +79,9 @@ class PropertiesError extends PropertiesState {
 class PropertyCreating extends PropertiesState {}
 
 class PropertyCreated extends PropertiesState {
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
-  
   const PropertyCreated(this.propertyId);
-  
   @override
   List<Object> get props => [propertyId];
 }
@@ -93,11 +95,10 @@ class PropertyDeleting extends PropertiesState {}
 class PropertyDeleted extends PropertiesState {}
 
 class PropertyStatusUpdated extends PropertiesState {
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
   final bool isApproved;
-  
   const PropertyStatusUpdated(this.propertyId, this.isApproved);
-  
   @override
   List<Object> get props => [propertyId, isApproved];
 }

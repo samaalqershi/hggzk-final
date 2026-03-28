@@ -9,9 +9,13 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../bloc/daily_schedule_barrel.dart';
 
 class CalculatePriceDialog extends StatefulWidget {
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
+
   final DateTime? initialStartDate;
+
   final DateTime? initialEndDate;
+
   final String currencyCode;
 
   const CalculatePriceDialog({
@@ -48,10 +52,15 @@ class CalculatePriceDialog extends StatefulWidget {
 class _CalculatePriceDialogState extends State<CalculatePriceDialog>
     with SingleTickerProviderStateMixin {
   late DateTime _startDate;
+
   late DateTime _endDate;
+
   bool _isCalculating = false;
+
   Map<String, dynamic>? _result;
+
   late AnimationController _animationController;
+
   late Animation<double> _fadeAnimation;
 
   @override
@@ -88,18 +97,18 @@ class _CalculatePriceDialogState extends State<CalculatePriceDialog>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: AppTheme.primaryPurple.withOpacity(0.3),
+            color: AppTheme.primaryPurple.withValues(alpha: 0.3),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryPurple.withOpacity(0.2),
+              color: AppTheme.primaryPurple.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -206,13 +215,13 @@ class _CalculatePriceDialogState extends State<CalculatePriceDialog>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.primaryPurple.withOpacity(0.15),
-                AppTheme.primaryBlue.withOpacity(0.15),
+                AppTheme.primaryPurple.withValues(alpha: 0.15),
+                AppTheme.primaryBlue.withValues(alpha: 0.15),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.primaryPurple.withOpacity(0.3),
+              color: AppTheme.primaryPurple.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -250,13 +259,13 @@ class _CalculatePriceDialogState extends State<CalculatePriceDialog>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkSurface.withOpacity(0.6),
-              AppTheme.darkSurface.withOpacity(0.4),
+              AppTheme.darkSurface.withValues(alpha: 0.6),
+              AppTheme.darkSurface.withValues(alpha: 0.4),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.primaryPurple.withOpacity(0.3),
+            color: AppTheme.primaryPurple.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -302,13 +311,13 @@ class _CalculatePriceDialogState extends State<CalculatePriceDialog>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.primaryPurple.withOpacity(0.15),
-              AppTheme.primaryBlue.withOpacity(0.15),
+              AppTheme.primaryPurple.withValues(alpha: 0.15),
+              AppTheme.primaryBlue.withValues(alpha: 0.15),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppTheme.primaryPurple.withOpacity(0.3),
+            color: AppTheme.primaryPurple.withValues(alpha: 0.3),
           ),
         ),
         child: Column(

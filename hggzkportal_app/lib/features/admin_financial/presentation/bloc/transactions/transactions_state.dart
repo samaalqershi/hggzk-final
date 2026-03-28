@@ -2,21 +2,16 @@
 
 part of 'transactions_bloc.dart';
 
-/// 📋 حالات المعاملات المالية
 abstract class TransactionsState extends Equatable {
   const TransactionsState();
-
   @override
   List<Object?> get props => [];
 }
 
-/// 🔄 الحالة الأولية
 class TransactionsInitial extends TransactionsState {}
 
-/// ⏳ جاري التحميل
 class TransactionsLoading extends TransactionsState {}
 
-/// ✅ تم التحميل بنجاح
 class TransactionsLoaded extends TransactionsState {
   final List<FinancialTransaction> transactions;
   final List<FinancialTransaction> allTransactions; // For filtering
@@ -31,7 +26,6 @@ class TransactionsLoaded extends TransactionsState {
   final String? successMessage;
   final String? error;
   final FinancialReport report;
-
   const TransactionsLoaded({
     required this.transactions,
     List<FinancialTransaction>? allTransactions,
@@ -50,7 +44,6 @@ class TransactionsLoaded extends TransactionsState {
 
   // 🎯 Helper Methods
   int get totalCount => transactions.length;
-
   double get totalAmount {
     return transactions.fold(0, (sum, t) => sum + t.amount);
   }
@@ -127,12 +120,9 @@ class TransactionsLoaded extends TransactionsState {
       ];
 }
 
-/// ❌ حالة الخطأ
 class TransactionsError extends TransactionsState {
   final String message;
-
   const TransactionsError(this.message);
-
   @override
   List<Object?> get props => [message];
 }

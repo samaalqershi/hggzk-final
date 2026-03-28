@@ -3,9 +3,13 @@ import 'package:hggzkportal/core/enums/payment_method_enum.dart';
 
 class UserWalletAccount extends Equatable {
   final String id;
+
   final PaymentMethod walletType;
+
   final String accountNumber;
+
   final String? accountName;
+
   final bool isDefault;
 
   const UserWalletAccount({
@@ -17,34 +21,56 @@ class UserWalletAccount extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, walletType, accountNumber, accountName, isDefault];
+  List<Object?> get props =>
+      [id, walletType, accountNumber, accountName, isDefault];
 }
 
 class UserDetails extends Equatable {
   final String id;
+
   final String userName;
+
   final String? avatarUrl;
+
   final String email;
+
   final String phoneNumber;
+
   final DateTime createdAt;
+
   final bool isActive;
+
   final DateTime? lastSeen;
+
   final DateTime? lastLoginDate;
+
   final bool emailConfirmed;
+
   final bool phoneNumberConfirmed;
-  
+
   // حسابات العميل والكيان
   final int bookingsCount;
+
   final int canceledBookingsCount;
+
   final int pendingBookingsCount;
+
   final DateTime? firstBookingDate;
+
   final DateTime? lastBookingDate;
+
   final int reportsCreatedCount;
+
   final int reportsAgainstCount;
+
   final double totalPayments;
+
   final double totalRefunds;
+
   final double totalDebitBalance;
+
   final double totalCreditBalance;
+
   final int reviewsCount;
 
   // نقاط الولاء (اختياري)
@@ -52,13 +78,21 @@ class UserDetails extends Equatable {
 
   // بيانات المالك أو الموظف
   final String? role;
+
   final String? propertyId;
+
   final String? propertyName;
+
   final int? unitsCount;
+
   final int? propertyImagesCount;
+
   final int? unitImagesCount;
+
   final double? netRevenue;
+
   final int? repliesCount;
+
   final List<UserWalletAccount> walletAccounts;
 
   const UserDetails({

@@ -8,6 +8,7 @@ import 'package:hggzkportal/core/models/paginated_result.dart';
 import '../models/amenity_model.dart';
 
 abstract class AmenitiesRemoteDataSource {
+  /// العربية: يعيد all amenities.
   Future<PaginatedResult<AmenityModel>> getAllAmenities({
     int? pageNumber,
     int? pageSize,
@@ -28,11 +29,10 @@ abstract class AmenitiesRemoteDataSource {
 }
 
 class AmenitiesRemoteDataSourceImpl implements AmenitiesRemoteDataSource {
+  /// العربية: يخزن القيمة `apiClient`.
   final ApiClient apiClient;
   static const String _baseEndpoint = '/api/admin/amenities';
-
   AmenitiesRemoteDataSourceImpl({required this.apiClient});
-
   @override
   Future<PaginatedResult<AmenityModel>> getAllAmenities({
     int? pageNumber,

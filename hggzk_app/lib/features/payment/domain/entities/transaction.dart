@@ -1,8 +1,9 @@
-/// features/payment/domain/entities/transaction.dart
-
 import 'package:equatable/equatable.dart';
 import '../../../../core/enums/payment_method_enum.dart';
 
+/// يمثل معاملة مالية واحدة مرتبطة بحجز داخل التطبيق.
+/// Represents a single financial transaction associated with a booking in the
+/// app.
 class Transaction extends Equatable {
   final String id;
   final String bookingId;
@@ -26,7 +27,6 @@ class Transaction extends Equatable {
   final DateTime? refundExpiryDate;
   final String? transactionId;
   final String? message;
-
   const Transaction({
     required this.id,
     required this.bookingId,
@@ -51,13 +51,13 @@ class Transaction extends Equatable {
     this.transactionId,
     this.message,
   });
-
   double get totalAmount => amount + fees + taxes;
   bool get isSuccessful => status == PaymentStatus.successful;
   bool get isPending => status == PaymentStatus.pending;
   bool get isFailed => status == PaymentStatus.failed;
-  bool get isRefunded => status == PaymentStatus.refunded || status == PaymentStatus.partiallyRefunded;
-
+  bool get isRefunded =>
+      status == PaymentStatus.refunded ||
+      status == PaymentStatus.partiallyRefunded;
   @override
   List<Object?> get props => [
         id,

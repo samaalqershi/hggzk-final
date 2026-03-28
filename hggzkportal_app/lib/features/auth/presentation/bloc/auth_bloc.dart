@@ -20,21 +20,64 @@ import 'auth_state.dart';
 import '../../../../services/notification_service.dart';
 import '../../../../injection_container.dart' as di;
 
+/// العربية: يدير كل مسارات المصادقة من تسجيل الدخول إلى تحديث الملف
+/// الشخصي وإكمال ملف المالك وحذف الحساب، مع تنسيق الإشعارات المرافقة.
+/// Orchestrates the full authentication surface from login to profile updates, owner onboarding, and account deletion while keeping notification side effects coordinated.
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  /// العربية: يستخدمه البلوك لتشغيل تدفق تسجيل الدخول.
+  /// Used by the bloc to execute the login flow.
   final LoginUseCase loginUseCase;
+
+  /// العربية: ينفذ إنشاء حساب المستخدم العادي.
+  /// Executes standard user registration.
   final RegisterUseCase registerUseCase;
+
+  /// العربية: ينفذ إنشاء حساب مالك العقار.
+  /// Executes property-owner registration.
   final RegisterOwnerUseCase registerOwnerUseCase;
+
+  /// العربية: يعالج تسجيل الدخول عبر المزودات الاجتماعية.
+  /// Receives social-provider sign-in.
   final PortalSocialLoginUseCase portalSocialLoginUseCase;
+
+  /// العربية: يكمل ملف مالك العقار بعد التسجيل الأولي.
+  /// Completes the owner profile after the initial registration.
   final CompleteOwnerProfileUseCase completeOwnerProfileUseCase;
+
+  /// العربية: ينهي الجلسة الحالية.
+  /// Ends the current session.
   final LogoutUseCase logoutUseCase;
+
+  /// العربية: يرسل طلب إعادة تعيين كلمة المرور.
+  /// Sends password-reset requests.
   final ResetPasswordUseCase resetPasswordUseCase;
+
+  /// العربية: يفحص ما إذا كانت الجلسة ما زالت صالحة عند الإقلاع.
+  /// Checks whether the session is still valid at startup.
   final CheckAuthStatusUseCase checkAuthStatusUseCase;
+
+  /// العربية: يجلب المستخدم الحالي بعد التأكد من الجلسة.
+  /// Fetches the current user after session validation.
   final GetCurrentUserUseCase getCurrentUserUseCase;
+
+  /// العربية: يحدّث بيانات الملف الشخصي أو بيانات المالك.
+  /// Updates profile or owner details.
   final UpdateProfileUseCase updateProfileUseCase;
+
+  /// العربية: يرفع صورة الملف الشخصي.
+  /// Uploads the profile image.
   final UploadUserImageUseCase uploadUserImageUseCase;
+
+  /// العربية: يغيّر كلمة المرور الحالية.
+  /// Changes the current password.
   final ChangePasswordUseCase changePasswordUseCase;
+
+  /// العربية: يحذف حساب المالك عند الطلب.
+  /// Deletes the owner account when requested.
   final DeleteOwnerAccountUseCase deleteOwnerAccountUseCase;
 
+  /// العربية: يربط الاعتمادات اللازمة لتشغيل كل مسارات المصادقة من مكان واحد.
+  /// Wires the dependencies needed to run every auth flow from one place.
   AuthBloc({
     required this.loginUseCase,
     required this.registerUseCase,
@@ -65,6 +108,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<CompleteOwnerProfileEvent>(_onCompleteOwnerProfile);
   }
 
+  /// العربية: يتحقق من الجلسة المخزنة ويعيد ضبط الحالة وفق ما إذا كان
+  /// المستخدم ما يزال مسجلاً أم لا.
+  /// Verifies the stored session and resets state based on whether the user is still signed in.
   Future<void> _onCheckAuthStatus(
     CheckAuthStatusEvent event,
     Emitter<AuthState> emit,
@@ -95,6 +141,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  /// العربية: يمرر بيانات الدخول إلى use case ثم ينعكس النجاح أو الفشل في
+  /// الحالات المناسبة.
+  /// Passes login credentials to the use case and reflects success or failure through the appropriate states.
   Future<void> _onLogin(
     LoginEvent event,
     Emitter<AuthState> emit,
@@ -123,6 +172,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  /// العربية: ينشئ حساب المستخدم العادي ثم يحدد ما إذا كان ينبغي اعتبار
+  /// الجلسة جاهزة مباشرة.
+  /// Builds the standard user account and decides whether the session should be treated as ready immediately.
   Future<void> _onRegister(
     RegisterEvent event,
     Emitter<AuthState> emit,
@@ -150,7 +202,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  /// معالجة تسجيل مالك عقار جديد
+  /// العربية: يسجل مالك العقار مع بيانات المنشأة المرتبطة به ثم ينعكس
+  /// النجاح إلى الواجهة.
+  /// Registers a property owner together with the linked property data and then reflects the result in the UI.
   Future<void> _onRegisterOwner(
     RegisterOwnerWithPropertyEvent event,
     Emitter<AuthState> emit,
@@ -187,6 +241,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  /// العربية: ينهي الجلسة ثم يزيل اشتراكات الإشعارات المرتبطة بالمستخدم.
+  /// Ends the session and removes the user's notification subscriptions.
   Future<void> _onLogout(
     LogoutEvent event,
     Emitter<AuthState> emit,
@@ -209,6 +265,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  /// العربية: يطلب إعادة تعيين كلمة المرور ثم يعرض النتيجة المناسبة.
+  /// Requests a password reset and then surfaces the appropriate result.
   Future<void> _onResetPassword(
     ResetPasswordEvent event,
     Emitter<AuthState> emit,
@@ -230,6 +288,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  /// العربية: يرسل بيانات التحديث إلى use case ثم يعيد جلب المستخدم
+  /// الحالي لإبقاء الحالة متزامنة.
+  /// Sends the update payload to the use case and then re-fetches the current user to keep state in sync.
   Future<void> _onUpdateProfile(
     UpdateProfileEvent event,
     Emitter<AuthState> emit,
@@ -272,6 +333,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  /// العربية: يرفع صورة الملف الشخصي ثم يعيد المستخدم المحدث.
+  /// Uploads the profile image and then returns the updated user.
   Future<void> _onUploadProfileImage(
     UploadProfileImageEvent event,
     Emitter<AuthState> emit,
@@ -294,6 +357,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  /// العربية: يغيّر كلمة المرور ويعلن النجاح أو الفشل مباشرة.
+  /// Changes the password and reports success or failure immediately.
   Future<void> _onChangePassword(
     ChangePasswordEvent event,
     Emitter<AuthState> emit,
@@ -315,6 +380,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  /// العربية: يحذف حساب المالك ثم يفصل التوكنات والاشتراكات المرتبطة به.
+  /// Deletes the owner account and then disconnects the related tokens and subscriptions.
   Future<void> _onDeleteOwnerAccount(
     DeleteOwnerAccountEvent event,
     Emitter<AuthState> emit,
@@ -344,6 +411,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  /// العربية: يعالج تسجيل الدخول الاجتماعي ثم يزامن الاشتراكات والإشعارات.
+  /// Receives social login and then syncs subscriptions and notifications.
   Future<void> _onSocialLogin(
     SocialLoginEvent event,
     Emitter<AuthState> emit,
@@ -372,6 +441,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  /// العربية: يكمل ملف المالك ثم يثبت الجلسة المحدثة.
+  /// Completes the owner profile and then promotes the updated session.
   Future<void> _onCompleteOwnerProfile(
     CompleteOwnerProfileEvent event,
     Emitter<AuthState> emit,
@@ -408,6 +479,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  /// العربية: يعيد إنشاء الجلسة اعتمادًا على refresh token محفوظ.
+  /// Rebuilds the session from a stored refresh token.
   Future<void> _onLoginWithRefreshToken(
     LoginWithRefreshTokenEvent event,
     Emitter<AuthState> emit,
@@ -432,6 +505,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  /// العربية: يحول أنواع الأخطاء التقنية إلى رسائل مفهومة للمستخدم.
+  /// Converts technical failure types into user-readable messages.
   String _mapFailureToMessage(Failure failure) {
     // إذا كانت رسالة الخطأ موجودة ومفيدة، استخدمها مباشرة
     if (failure.message.isNotEmpty &&
@@ -440,50 +515,52 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       return failure.message;
     }
 
-    switch (failure.runtimeType) {
-      case ServerFailure:
-        final serverFailure = failure as ServerFailure;
-        // استخدم رسالة الخطأ الفعلية إذا كانت موجودة
-        if (serverFailure.message.isNotEmpty &&
-            serverFailure.message != 'Server failure') {
-          return serverFailure.message;
-        }
-        return 'حدث خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً';
-      case CacheFailure:
-        return 'حدث خطأ في التخزين المحلي';
-      case NetworkFailure:
-        return failure.message.isNotEmpty &&
-                failure.message != 'Network failure'
-            ? failure.message
-            : 'يرجى التحقق من اتصالك بالإنترنت';
-      case ValidationFailure:
-        return (failure as ValidationFailure).message;
-      case ValidationFailureWithErrors:
-        return (failure as ValidationFailureWithErrors).message;
-      case ApiFailure:
-        return (failure as ApiFailure).message;
-      case AuthenticationFailure:
-        final authFailure = failure as AuthenticationFailure;
-        return authFailure.message.isNotEmpty &&
-                authFailure.message != 'Authentication failure'
-            ? authFailure.message
-            : 'بيانات الدخول غير صحيحة';
-      case UnauthorizedFailure:
-        return failure.message.isNotEmpty &&
-                failure.message != 'Unauthorized access'
-            ? failure.message
-            : 'غير مصرح لك بالقيام بهذا الإجراء';
-      case SessionExpiredFailure:
-        return 'انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى';
-      case PermissionDeniedFailure:
-        return failure.message.isNotEmpty &&
-                failure.message != 'Permission denied'
-            ? failure.message
-            : 'ليس لديك صلاحية للقيام بهذا الإجراء';
-      default:
-        return failure.message.isNotEmpty
-            ? failure.message
-            : 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى';
+    if (failure is ServerFailure) {
+      if (failure.message.isNotEmpty && failure.message != 'Server failure') {
+        return failure.message;
+      }
+      return 'حدث خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً';
     }
+    if (failure is CacheFailure) {
+      return 'حدث خطأ في التخزين المحلي';
+    }
+    if (failure is NetworkFailure) {
+      return failure.message.isNotEmpty && failure.message != 'Network failure'
+          ? failure.message
+          : 'يرجى التحقق من اتصالك بالإنترنت';
+    }
+    if (failure is ValidationFailure) {
+      return failure.message;
+    }
+    if (failure is ValidationFailureWithErrors) {
+      return failure.message;
+    }
+    if (failure is ApiFailure) {
+      return failure.message;
+    }
+    if (failure is AuthenticationFailure) {
+      return failure.message.isNotEmpty &&
+              failure.message != 'Authentication failure'
+          ? failure.message
+          : 'بيانات الدخول غير صحيحة';
+    }
+    if (failure is UnauthorizedFailure) {
+      return failure.message.isNotEmpty &&
+              failure.message != 'Unauthorized access'
+          ? failure.message
+          : 'غير مصرح لك بالقيام بهذا الإجراء';
+    }
+    if (failure is SessionExpiredFailure) {
+      return 'انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى';
+    }
+    if (failure is PermissionDeniedFailure) {
+      return failure.message.isNotEmpty &&
+              failure.message != 'Permission denied'
+          ? failure.message
+          : 'ليس لديك صلاحية للقيام بهذا الإجراء';
+    }
+    return failure.message.isNotEmpty
+        ? failure.message
+        : 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى';
   }
 }

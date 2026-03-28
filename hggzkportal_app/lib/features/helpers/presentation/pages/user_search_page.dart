@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/models/paginated_result.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/error_widget.dart';
 import '../../../../core/widgets/empty_widget.dart';
@@ -12,12 +11,27 @@ import '../widgets/search_header.dart';
 import '../widgets/search_item_card.dart';
 import '../widgets/simple_filter_bar.dart';
 
+/// يعرّف الكلاس `UserSearchPage`.
+/// Describes the `UserSearchPage` class.
 class UserSearchPage extends StatefulWidget {
+  /// Holds the `initialSearchTerm` value.
+  /// العربية: يخزن القيمة `initialSearchTerm`.
   final String? initialSearchTerm;
+
+  /// يخزن العضو `allowMultiSelect`.
+  /// Holds the `allowMultiSelect` member.
   final bool allowMultiSelect;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(List<User>)? onUsersSelected;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(User)? onUserSelected;
 
+  /// ينشئ مثيلاً من `UserSearchPage`.
+  /// Builds an instance of `UserSearchPage`.
   const UserSearchPage({
     super.key,
     this.initialSearchTerm,
@@ -26,29 +40,62 @@ class UserSearchPage extends StatefulWidget {
     this.onUserSelected,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<UserSearchPage> createState() => _UserSearchPageState();
 }
 
+/// يعرّف الكلاس `_UserSearchPageState`.
+/// Describes the `_UserSearchPageState` class.
 class _UserSearchPageState extends State<UserSearchPage> {
   final SearchUsersUseCase _searchUsersUseCase = di.sl<SearchUsersUseCase>();
-  
+
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  
+
+  /// يخزن العضو `_users`.
+  /// Holds the `_users` member.
   List<SearchResult> _users = [];
+
+  /// يخزن العضو `_selectedIds`.
+  /// Holds the `_selectedIds` member.
   List<String> _selectedIds = [];
+
+  /// يخزن العضو `_isLoading`.
+  /// Holds the `_isLoading` member.
   bool _isLoading = false;
+
+  /// يخزن العضو `_hasError`.
+  /// Holds the `_hasError` member.
   bool _hasError = false;
+
+  /// يخزن العضو `_errorMessage`.
+  /// Holds the `_errorMessage` member.
   String? _errorMessage;
-  
+
+  /// يخزن العضو `_selectedRole`.
+  /// Holds the `_selectedRole` member.
   String? _selectedRole;
+
+  /// يخزن العضو `_isActiveFilter`.
+  /// Holds the `_isActiveFilter` member.
   bool? _isActiveFilter;
-  
+
+  /// يخزن العضو `_currentPage`.
+  /// Holds the `_currentPage` member.
   int _currentPage = 1;
+
+  /// يخزن العضو `_totalPages`.
+  /// Holds the `_totalPages` member.
   int _totalPages = 1;
+
+  /// يخزن العضو `_isLoadingMore`.
+  /// Holds the `_isLoadingMore` member.
   bool _isLoadingMore = false;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -57,6 +104,8 @@ class _UserSearchPageState extends State<UserSearchPage> {
     _loadUsers();
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _searchController.dispose();
@@ -64,8 +113,10 @@ class _UserSearchPageState extends State<UserSearchPage> {
     super.dispose();
   }
 
+  /// ينفذ العملية `_onScroll`.
+  /// Runs the `_onScroll` operation.
   void _onScroll() {
-    if (_scrollController.position.pixels >= 
+    if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       if (!_isLoadingMore && _currentPage < _totalPages) {
         _loadMoreUsers();
@@ -73,6 +124,8 @@ class _UserSearchPageState extends State<UserSearchPage> {
     }
   }
 
+  /// ينفذ العملية `_loadUsers`.
+  /// Runs the `_loadUsers` operation.
   Future<void> _loadUsers({bool isRefresh = false}) async {
     if (isRefresh) {
       _currentPage = 1;
@@ -85,7 +138,8 @@ class _UserSearchPageState extends State<UserSearchPage> {
     });
 
     final result = await _searchUsersUseCase(
-      searchTerm: _searchController.text.isEmpty ? null : _searchController.text,
+      searchTerm:
+          _searchController.text.isEmpty ? null : _searchController.text,
       role: _selectedRole,
       isActive: _isActiveFilter,
       pageNumber: _currentPage,
@@ -110,6 +164,8 @@ class _UserSearchPageState extends State<UserSearchPage> {
     );
   }
 
+  /// ينفذ العملية `_loadMoreUsers`.
+  /// Runs the `_loadMoreUsers` operation.
   Future<void> _loadMoreUsers() async {
     if (_isLoadingMore) return;
 
@@ -118,9 +174,10 @@ class _UserSearchPageState extends State<UserSearchPage> {
     });
 
     _currentPage++;
-    
+
     final result = await _searchUsersUseCase(
-      searchTerm: _searchController.text.isEmpty ? null : _searchController.text,
+      searchTerm:
+          _searchController.text.isEmpty ? null : _searchController.text,
       role: _selectedRole,
       isActive: _isActiveFilter,
       pageNumber: _currentPage,
@@ -146,6 +203,8 @@ class _UserSearchPageState extends State<UserSearchPage> {
     });
   }
 
+  /// ينفذ العملية `_toggleSelection`.
+  /// Runs the `_toggleSelection` operation.
   void _toggleSelection(String id) {
     setState(() {
       if (widget.allowMultiSelect) {
@@ -160,6 +219,8 @@ class _UserSearchPageState extends State<UserSearchPage> {
     });
   }
 
+  /// ينفذ العملية `_confirmSelection`.
+  /// Runs the `_confirmSelection` operation.
   void _confirmSelection() {
     final selectedUsers = _users
         .where((result) => _selectedIds.contains(result.id))
@@ -168,15 +229,17 @@ class _UserSearchPageState extends State<UserSearchPage> {
 
     if (widget.allowMultiSelect && widget.onUsersSelected != null) {
       widget.onUsersSelected!(selectedUsers);
-    } else if (!widget.allowMultiSelect && 
-               widget.onUserSelected != null && 
-               selectedUsers.isNotEmpty) {
+    } else if (!widget.allowMultiSelect &&
+        widget.onUserSelected != null &&
+        selectedUsers.isNotEmpty) {
       widget.onUserSelected!(selectedUsers.first);
     }
 
     Navigator.of(context).pop();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -186,7 +249,8 @@ class _UserSearchPageState extends State<UserSearchPage> {
           children: [
             // Header with Search
             SearchHeader(
-              title: widget.allowMultiSelect ? 'اختر المستخدمين' : 'اختر مستخدم',
+              title:
+                  widget.allowMultiSelect ? 'اختر المستخدمين' : 'اختر مستخدم',
               searchHint: 'ابحث بالاسم أو البريد الإلكتروني...',
               searchController: _searchController,
               onSearchChanged: (value) {
@@ -201,7 +265,7 @@ class _UserSearchPageState extends State<UserSearchPage> {
                 _loadUsers(isRefresh: true);
               },
             ),
-            
+
             // Filters
             SimpleFilterBar(
               filters: [
@@ -227,7 +291,8 @@ class _UserSearchPageState extends State<UserSearchPage> {
                   label: 'عميل',
                   isSelected: _selectedRole == 'customer',
                   onChanged: (selected) {
-                    setState(() => _selectedRole = selected ? 'customer' : null);
+                    setState(
+                        () => _selectedRole = selected ? 'customer' : null);
                     _loadUsers(isRefresh: true);
                   },
                 ),
@@ -248,21 +313,21 @@ class _UserSearchPageState extends State<UserSearchPage> {
                 _loadUsers(isRefresh: true);
               },
             ),
-            
+
             // Results
             Expanded(
               child: _buildContent(),
             ),
-            
+
             // Action Buttons
             if (_selectedIds.isNotEmpty)
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.5),
+                  color: AppTheme.darkCard.withValues(alpha: 0.5),
                   border: Border(
                     top: BorderSide(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -288,7 +353,10 @@ class _UserSearchPageState extends State<UserSearchPage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryBlue,
                       ),
-                      child: Text('تأكيد',style: TextStyle(color: AppTheme.textWhite),),
+                      child: Text(
+                        'تأكيد',
+                        style: TextStyle(color: AppTheme.textWhite),
+                      ),
                     ),
                   ],
                 ),
@@ -299,6 +367,8 @@ class _UserSearchPageState extends State<UserSearchPage> {
     );
   }
 
+  /// ينفذ العملية `_buildContent`.
+  /// Runs the `_buildContent` operation.
   Widget _buildContent() {
     if (_isLoading && _users.isEmpty) {
       return const LoadingWidget(

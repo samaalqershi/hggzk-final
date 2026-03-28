@@ -9,16 +9,14 @@ import '../../domain/entities/review_response.dart';
 import '../../domain/repositories/reviews_repository.dart';
 import '../datasources/reviews_remote_datasource.dart';
 import '../datasources/reviews_local_datasource.dart';
-
 class ReviewsRepositoryImpl implements ReviewsRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final ReviewsRemoteDataSource remoteDataSource;
   final ReviewsLocalDataSource localDataSource;
-  
   ReviewsRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
   });
-  
   @override
   Future<Either<Failure, PaginatedResult<Review>>> getAllReviews({
     String? status,
@@ -49,10 +47,10 @@ class ReviewsRepositoryImpl implements ReviewsRepository {
         pageSize: pageSize,
         includeStats: includeStats,
       );
-      
+
       // Cache the results
       await localDataSource.cacheReviews(paginatedReviews.items);
-      
+
       return Right(paginatedReviews);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -60,7 +58,6 @@ class ReviewsRepositoryImpl implements ReviewsRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
-
   @override
   Future<Either<Failure, bool>> disableReview(String reviewId) async {
     try {
@@ -72,7 +69,6 @@ class ReviewsRepositoryImpl implements ReviewsRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
-  
   @override
   Future<Either<Failure, Review>> getReviewDetails(String reviewId) async {
     try {
@@ -86,7 +82,6 @@ class ReviewsRepositoryImpl implements ReviewsRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
-  
   @override
   Future<Either<Failure, bool>> approveReview(String reviewId) async {
     try {
@@ -98,7 +93,6 @@ class ReviewsRepositoryImpl implements ReviewsRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
-  
   @override
   Future<Either<Failure, bool>> rejectReview(String reviewId) async {
     try {
@@ -110,7 +104,6 @@ class ReviewsRepositoryImpl implements ReviewsRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
-  
   @override
   Future<Either<Failure, bool>> deleteReview(String reviewId) async {
     try {
@@ -124,7 +117,6 @@ class ReviewsRepositoryImpl implements ReviewsRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
-  
   @override
   Future<Either<Failure, ReviewResponse>> respondToReview({
     required String reviewId,
@@ -144,7 +136,6 @@ class ReviewsRepositoryImpl implements ReviewsRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
-
   Future<Either<Failure, Review?>> getReviewByBooking(String bookingId) async {
     try {
       final review = await remoteDataSource.getReviewByBooking(bookingId);
@@ -158,7 +149,6 @@ class ReviewsRepositoryImpl implements ReviewsRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
-  
   @override
   Future<Either<Failure, List<ReviewResponse>>> getReviewResponses(
     String reviewId,
@@ -172,7 +162,6 @@ class ReviewsRepositoryImpl implements ReviewsRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
-  
   @override
   Future<Either<Failure, bool>> deleteReviewResponse(String responseId) async {
     try {

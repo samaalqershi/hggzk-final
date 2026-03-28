@@ -9,36 +9,29 @@ import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/error_widget.dart';
 import '../../../../core/widgets/empty_widget.dart';
 import '../../domain/entities/service.dart';
-import '../../domain/entities/money.dart';
-import '../../domain/entities/pricing_model.dart';
 import '../bloc/services_bloc.dart';
 import '../bloc/services_event.dart';
 import '../bloc/services_state.dart';
 import '../widgets/futuristic_service_card.dart';
 import '../widgets/futuristic_services_table.dart';
-import 'create_service_page.dart';
-import '../widgets/service_icon_picker.dart';
 import '../widgets/service_details_dialog.dart';
 import '../widgets/service_stats_row.dart';
 import '../widgets/service_filters_widget.dart';
 import '../../../../services/local_storage_service.dart';
 import '../../../../core/constants/storage_constants.dart';
 import '../../../../injection_container.dart' as di;
-import '../utils/service_icons.dart';
 
 /// 🎯 Ultra Premium Admin Services Page
 class AdminServicesPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `AdminServicesPage`.
   const AdminServicesPage({super.key});
-
   @override
   State<AdminServicesPage> createState() => _AdminServicesPageState();
 }
-
 class _AdminServicesPageState extends State<AdminServicesPage>
     with TickerProviderStateMixin {
   // Animation Controllers
@@ -69,7 +62,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
 
   // Scroll
   final ScrollController _scrollController = ScrollController();
-
   @override
   void initState() {
     super.initState();
@@ -78,7 +70,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
     _loadRoleAndContextThenData();
     _scrollController.addListener(_onScroll);
   }
-
   void _initializeAnimations() {
     _backgroundAnimationController = AnimationController(
       duration: const Duration(seconds: 30),
@@ -128,13 +119,11 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       }
     });
   }
-
   void _generateParticles() {
     for (int i = 0; i < 30; i++) {
       _particles.add(_Particle());
     }
   }
-
   void _loadInitialData() {
     if (_selectedPropertyId != null && _selectedPropertyId!.isNotEmpty) {
       context
@@ -145,7 +134,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
           serviceType: 'all', pageNumber: 1, pageSize: 20));
     }
   }
-
   void _loadRoleAndContextThenData() {
     try {
       final storage = di.sl<LocalStorageService>();
@@ -170,7 +158,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
     } catch (_) {}
     _loadInitialData();
   }
-
   @override
   void dispose() {
     _backgroundAnimationController.dispose();
@@ -180,7 +167,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
     _scrollController.dispose();
     super.dispose();
   }
-
   void _onScroll() {
     if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
@@ -194,7 +180,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -209,8 +194,9 @@ class _AdminServicesPageState extends State<AdminServicesPage>
           final prevCount = previous.services.length;
           final currCount = current.services.length;
           // If previous was loadingMore and now finished with more items, this is pagination → do not restart
-          if (wasLoadingMore && currCount > prevCount)
+          if (wasLoadingMore && currCount > prevCount) {
             return true; // allow listener to run, but we will not restart
+          }
           // Allow listener for other transitions too
           return true;
         }
@@ -320,14 +306,13 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       ),
     );
   }
-
   Widget _buildSliverAppBar(bool isMobile) {
     return SliverAppBar(
       expandedHeight: isMobile ? 140 : 160,
       floating: true,
       pinned: true,
       centerTitle: false,
-      backgroundColor: AppTheme.darkBackground.withOpacity(0.95),
+      backgroundColor: AppTheme.darkBackground.withValues(alpha: 0.95),
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: EdgeInsetsDirectional.only(
           start: isMobile ? 16 : 24,
@@ -342,15 +327,15 @@ class _AdminServicesPageState extends State<AdminServicesPage>
                 gradient: LinearGradient(
                   colors: [
                     AppTheme.primaryBlue
-                        .withOpacity(0.1 * _glowAnimation.value),
+                        .withValues(alpha: 0.1 * _glowAnimation.value),
                     AppTheme.primaryPurple
-                        .withOpacity(0.05 * _glowAnimation.value),
+                        .withValues(alpha: 0.05 * _glowAnimation.value),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: AppTheme.primaryBlue
-                      .withOpacity(0.2 * _glowAnimation.value),
+                      .withValues(alpha: 0.2 * _glowAnimation.value),
                   width: 1,
                 ),
               ),
@@ -361,7 +346,7 @@ class _AdminServicesPageState extends State<AdminServicesPage>
                   fontSize: isMobile ? 18 : 20,
                   shadows: [
                     Shadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.5),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                       blurRadius: 15,
                     ),
                   ],
@@ -378,9 +363,9 @@ class _AdminServicesPageState extends State<AdminServicesPage>
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppTheme.primaryBlue.withOpacity(0.15),
-                    AppTheme.primaryPurple.withOpacity(0.08),
-                    AppTheme.darkBackground.withOpacity(0.95),
+                    AppTheme.primaryBlue.withValues(alpha: 0.15),
+                    AppTheme.primaryPurple.withValues(alpha: 0.08),
+                    AppTheme.darkBackground.withValues(alpha: 0.95),
                   ],
                 ),
               ),
@@ -398,7 +383,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       actions: _buildAppBarActions(context),
     );
   }
-
   List<Widget> _buildAppBarActions(BuildContext context) {
     return [
       _buildAppBarIconAction(
@@ -420,7 +404,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       const SizedBox(width: 8),
     ];
   }
-
   Widget _buildAppBarIconAction({
     required IconData icon,
     required VoidCallback onPressed,
@@ -428,10 +411,10 @@ class _AdminServicesPageState extends State<AdminServicesPage>
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.3),
+        color: AppTheme.darkCard.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -455,7 +438,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       ),
     );
   }
-
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: _backgroundRotationAnimation,
@@ -467,8 +449,8 @@ class _AdminServicesPageState extends State<AdminServicesPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.95),
-                AppTheme.darkBackground3.withOpacity(0.9),
+                AppTheme.darkBackground2.withValues(alpha: 0.95),
+                AppTheme.darkBackground3.withValues(alpha: 0.9),
               ],
             ),
           ),
@@ -483,7 +465,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       },
     );
   }
-
   Widget _buildFloatingParticles() {
     return AnimatedBuilder(
       animation: _particlesAnimationController,
@@ -498,7 +479,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       },
     );
   }
-
   Widget _buildStatsCards() {
     return BlocBuilder<ServicesBloc, ServicesState>(
       builder: (context, state) {
@@ -515,7 +495,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       },
     );
   }
-
   Widget _buildFilters() {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -564,7 +543,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       ),
     );
   }
-
   Widget _buildContent(bool isMobile, bool isTablet) {
     return BlocBuilder<ServicesBloc, ServicesState>(
       builder: (context, state) {
@@ -617,7 +595,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       },
     );
   }
-
   Widget _buildGridView(
     List<Service> services,
     ServicesLoaded state,
@@ -687,7 +664,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       ),
     );
   }
-
   Widget _buildListView(List<Service> services, ServicesLoaded state) {
     return SliverToBoxAdapter(
       child: AnimatedBuilder(
@@ -721,9 +697,7 @@ class _AdminServicesPageState extends State<AdminServicesPage>
   }
 
   // Removed FAB: Add action moved to AppBar
-
   bool _isDeleting = false;
-
   void _showDeletingDialog() {
     if (_isDeleting) return;
     _isDeleting = true;
@@ -739,7 +713,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       ),
     );
   }
-
   void _dismissDeletingDialog() {
     if (_isDeleting) {
       _isDeleting = false;
@@ -748,7 +721,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       }
     }
   }
-
   void _showSnack(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -757,14 +729,14 @@ class _AdminServicesPageState extends State<AdminServicesPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                color.withOpacity(0.9),
-                color.withOpacity(0.7),
+                color.withValues(alpha: 0.9),
+                color.withValues(alpha: 0.7),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: color.withOpacity(0.3),
+                color: color.withValues(alpha: 0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -799,23 +771,24 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       ),
     );
   }
-
   Future<void> _navigateToCreatePage() async {
     HapticFeedback.mediumImpact();
-    final result = await context.push('/admin/services/create',
+    final router = GoRouter.of(context);
+    final servicesBloc = context.read<ServicesBloc>();
+    final result = await router.push('/admin/services/create',
         extra: {'propertyId': _selectedPropertyId});
+    if (!mounted) return;
     if (result is Map && result['refresh'] == true) {
       final pid = (result['propertyId'] as String?) ?? _selectedPropertyId;
       setState(() => _selectedPropertyId = pid);
       if (pid != null) {
-        context.read<ServicesBloc>().add(LoadServicesEvent(propertyId: pid));
+        servicesBloc.add(LoadServicesEvent(propertyId: pid));
       } else {
-        context.read<ServicesBloc>().add(const LoadServicesEvent(
+        servicesBloc.add(const LoadServicesEvent(
             serviceType: 'all', pageNumber: 1, pageSize: 20));
       }
     }
   }
-
   void _onPropertyFieldTap() {
     HapticFeedback.lightImpact();
     context.push('/helpers/search/properties', extra: {
@@ -831,23 +804,22 @@ class _AdminServicesPageState extends State<AdminServicesPage>
       },
     });
   }
-
   Future<void> _showEditDialog(Service service) async {
     HapticFeedback.lightImpact();
-    final result = await context.push('/admin/services/${service.id}/edit',
-        extra: service);
+    final router = GoRouter.of(context);
+    final servicesBloc = context.read<ServicesBloc>();
+    final result =
+        await router.push('/admin/services/${service.id}/edit', extra: service);
+    if (!mounted) return;
     if (result is Map && result['refresh'] == true) {
       if (_selectedPropertyId != null) {
-        context
-            .read<ServicesBloc>()
-            .add(LoadServicesEvent(propertyId: _selectedPropertyId));
+        servicesBloc.add(LoadServicesEvent(propertyId: _selectedPropertyId));
       } else {
-        context.read<ServicesBloc>().add(const LoadServicesEvent(
+        servicesBloc.add(const LoadServicesEvent(
             serviceType: 'all', pageNumber: 1, pageSize: 20));
       }
     }
   }
-
   Future<void> _showServiceDetails(Service service) async {
     HapticFeedback.lightImpact();
     context.read<ServicesBloc>().add(LoadServiceDetailsEvent(service.id));
@@ -865,7 +837,6 @@ class _AdminServicesPageState extends State<AdminServicesPage>
           serviceType: 'all', pageNumber: 1, pageSize: 20));
     }
   }
-
   void _confirmDelete(Service service) {
     HapticFeedback.mediumImpact();
     showDialog(
@@ -880,18 +851,18 @@ class _AdminServicesPageState extends State<AdminServicesPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.95),
-                  AppTheme.darkCard.withOpacity(0.85),
+                  AppTheme.darkCard.withValues(alpha: 0.95),
+                  AppTheme.darkCard.withValues(alpha: 0.85),
                 ],
               ),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.error.withOpacity(0.3),
+                color: AppTheme.error.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.error.withOpacity(0.2),
+                  color: AppTheme.error.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -907,13 +878,13 @@ class _AdminServicesPageState extends State<AdminServicesPage>
                     shape: BoxShape.circle,
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.error.withOpacity(0.2),
-                        AppTheme.error.withOpacity(0.1),
+                        AppTheme.error.withValues(alpha: 0.2),
+                        AppTheme.error.withValues(alpha: 0.1),
                       ],
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.error.withOpacity(0.3),
+                        color: AppTheme.error.withValues(alpha: 0.3),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
@@ -948,10 +919,10 @@ class _AdminServicesPageState extends State<AdminServicesPage>
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.error.withOpacity(0.1),
+                    color: AppTheme.error.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: AppTheme.error.withOpacity(0.2),
+                      color: AppTheme.error.withValues(alpha: 0.2),
                       width: 0.5,
                     ),
                   ),
@@ -974,7 +945,7 @@ class _AdminServicesPageState extends State<AdminServicesPage>
                             borderRadius: BorderRadius.circular(12),
                           ),
                           backgroundColor:
-                              AppTheme.darkSurface.withOpacity(0.3),
+                              AppTheme.darkSurface.withValues(alpha: 0.3),
                         ),
                         child: Text(
                           'إلغاء',
@@ -1034,17 +1005,16 @@ class _AdminServicesPageState extends State<AdminServicesPage>
 
 // Enhanced Particle Model
 class _Particle {
+  /// العربية: يخزن القيمة `z`.
   late double x, y, z;
   late double vx, vy;
   late double radius;
   late double opacity;
   late Color color;
   late double lifespan;
-
   _Particle() {
     reset();
   }
-
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -1063,7 +1033,6 @@ class _Particle {
     ];
     color = colors[math.Random().nextInt(colors.length)];
   }
-
   void update() {
     x += vx;
     y += vy;
@@ -1080,22 +1049,21 @@ class _Particle {
 
 // Enhanced Particle Painter
 class _ParticlePainter extends CustomPainter {
+  /// العربية: يخزن القيمة `particles`.
   final List<_Particle> particles;
   final double animationValue;
-
   _ParticlePainter({
     required this.particles,
     required this.animationValue,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
       particle.update();
 
       final paint = Paint()
-        ..color =
-            particle.color.withOpacity(particle.opacity * particle.lifespan)
+        ..color = particle.color
+            .withValues(alpha: particle.opacity * particle.lifespan)
         ..style = PaintingStyle.fill
         ..maskFilter = const MaskFilter.blur(
           BlurStyle.normal,
@@ -1109,21 +1077,19 @@ class _ParticlePainter extends CustomPainter {
       );
     }
   }
-
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 // Enhanced Grid Pattern Painter
 class _GridPatternPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `rotation`.
   final double rotation;
   final double opacity;
-
   _GridPatternPainter({
     required this.rotation,
     required this.opacity,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1145,8 +1111,8 @@ class _GridPatternPainter extends CustomPainter {
 
         paint.shader = RadialGradient(
           colors: [
-            AppTheme.primaryBlue.withOpacity(opacity),
-            AppTheme.primaryPurple.withOpacity(opacity * 0.5),
+            AppTheme.primaryBlue.withValues(alpha: opacity),
+            AppTheme.primaryPurple.withValues(alpha: opacity * 0.5),
             Colors.transparent,
           ],
           radius: 0.5,
@@ -1161,7 +1127,6 @@ class _GridPatternPainter extends CustomPainter {
 
     canvas.restore();
   }
-
   void _drawHexagon(Canvas canvas, Offset center, double radius, Paint paint) {
     final path = Path();
     for (int i = 0; i < 6; i++) {
@@ -1177,17 +1142,15 @@ class _GridPatternPainter extends CustomPainter {
     path.close();
     canvas.drawPath(path, paint);
   }
-
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 // App Bar Pattern Painter
 class _AppBarPatternPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `animation`.
   final double animation;
-
   _AppBarPatternPainter({required this.animation});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1196,7 +1159,7 @@ class _AppBarPatternPainter extends CustomPainter {
 
     // Draw animated wave pattern
     for (int i = 0; i < 5; i++) {
-      paint.color = AppTheme.primaryBlue.withOpacity(0.05 - i * 0.01);
+      paint.color = AppTheme.primaryBlue.withValues(alpha: 0.05 - i * 0.01);
 
       final path = Path();
       path.moveTo(0, size.height * 0.5);
@@ -1211,7 +1174,6 @@ class _AppBarPatternPainter extends CustomPainter {
       canvas.drawPath(path, paint);
     }
   }
-
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

@@ -14,13 +14,13 @@ part 'amenities_event.dart';
 part 'amenities_state.dart';
 
 class AmenitiesBloc extends Bloc<AmenitiesEvent, AmenitiesState> {
+  /// العربية: يخزن القيمة `getAmenities`.
   final GetAmenitiesUseCase getAmenities;
   final CreateAmenityUseCase createAmenity;
   final UpdateAmenityUseCase updateAmenity;
   final DeleteAmenityUseCase deleteAmenity;
   final AssignAmenityToPropertyUseCase assignAmenityToProperty;
   final UnassignAmenityFromPropertyUseCase unassignAmenityFromProperty;
-
   AmenitiesBloc({
     required this.getAmenities,
     required this.createAmenity,
@@ -36,7 +36,6 @@ class AmenitiesBloc extends Bloc<AmenitiesEvent, AmenitiesState> {
     on<AssignAmenityToPropertyEvent>(_onAssignAmenityToProperty);
     on<UnassignAmenityFromPropertyEvent>(_onUnassignAmenityFromProperty);
   }
-
   Future<void> _onLoadAmenities(
     LoadAmenitiesEvent event,
     Emitter<AmenitiesState> emit,
@@ -51,7 +50,8 @@ class AmenitiesBloc extends Bloc<AmenitiesEvent, AmenitiesState> {
         propertyId: event.propertyId,
         isAssigned: event.isAssigned,
         isFree: event.isFree,
-        propertyTypeId: event is LoadAmenitiesEventWithType ? event.propertyTypeId : null,
+        propertyTypeId:
+            event is LoadAmenitiesEventWithType ? event.propertyTypeId : null,
       ),
     );
 

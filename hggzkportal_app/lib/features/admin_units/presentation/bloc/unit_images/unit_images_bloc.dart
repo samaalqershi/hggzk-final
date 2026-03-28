@@ -16,20 +16,55 @@ import '../../../domain/usecases/unit_images/set_primary_unit_image_usecase.dart
 import 'unit_images_event.dart';
 import 'unit_images_state.dart';
 
+/// يمثل هذا الكلاس UnitImagesBloc البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitImagesBloc in the admin unit workflow.
 class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
+  /// This field keeps the uploadUnitImage value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة uploadUnitImage التي يعتمد عليها مسار إدارة الوحدات.
   final UploadUnitImageUseCase uploadUnitImage;
+
+  /// يحتفظ هذا الحقل بقيمة uploadMultipleImages التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the uploadMultipleImages value used by the admin unit workflow.
   final UploadMultipleUnitImagesUseCase uploadMultipleImages;
+
+  /// يحتفظ هذا الحقل بقيمة getUnitImages التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the getUnitImages value used by the admin unit workflow.
   final GetUnitImagesUseCase getUnitImages;
+
+  /// يحتفظ هذا الحقل بقيمة updateUnitImage التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the updateUnitImage value used by the admin unit workflow.
   final UpdateUnitImageUseCase updateUnitImage;
+
+  /// يحتفظ هذا الحقل بقيمة deleteUnitImage التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the deleteUnitImage value used by the admin unit workflow.
   final DeleteUnitImageUseCase deleteUnitImage;
+
+  /// يحتفظ هذا الحقل بقيمة deleteMultipleImages التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the deleteMultipleImages value used by the admin unit workflow.
   final DeleteMultipleUnitImagesUseCase deleteMultipleImages;
+
+  /// يحتفظ هذا الحقل بقيمة reorderImages التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the reorderImages value used by the admin unit workflow.
   final ReorderUnitImagesUseCase reorderImages;
+
+  /// يحتفظ هذا الحقل بقيمة setPrimaryImage التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the setPrimaryImage value used by the admin unit workflow.
   final SetPrimaryUnitImageUseCase setPrimaryImage;
 
+  /// يحتفظ هذا الحقل بقيمة _currentImages التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _currentImages value used by the admin unit workflow.
   List<UnitImage> _currentImages = [];
+
+  /// يحتفظ هذا الحقل بقيمة _selectedImageIds التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectedImageIds value used by the admin unit workflow.
   Set<String> _selectedImageIds = {};
+
+  /// يحتفظ هذا الحقل بقيمة _currentUnitId التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _currentUnitId value used by the admin unit workflow.
   String? _currentUnitId;
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitImagesBloc.
+  /// This constructor creates an instance of UnitImagesBloc.
   UnitImagesBloc({
     required this.uploadUnitImage,
     required this.uploadMultipleImages,
@@ -55,20 +90,23 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
     on<DeselectAllUnitImagesEvent>(_onDeselectAllUnitImages);
   }
 
+  /// ينفذ هذا الأسلوب عملية _onLoadUnitImages ضمن مسار إدارة الوحدات.
+  /// This method performs the _onLoadUnitImages operation in the admin unit workflow.
   Future<void> _onLoadUnitImages(
     LoadUnitImagesEvent event,
     Emitter<UnitImagesState> emit,
   ) async {
     // منع جلب الصور إذا لم يكن هناك unitId أو tempKey
-    if ((event.unitId == null || event.unitId!.isEmpty) && (event.tempKey == null || event.tempKey!.isEmpty)) {
+    if ((event.unitId == null || event.unitId!.isEmpty) &&
+        (event.tempKey == null || event.tempKey!.isEmpty)) {
       emit(const UnitImagesLoaded(images: []));
       return;
     }
 
     emit(const UnitImagesLoading(message: 'Loading images...'));
 
-    final Either<Failure, List<UnitImage>> result =
-        await getUnitImages(GetUnitImagesParams(unitId: event.unitId, tempKey: event.tempKey));
+    final Either<Failure, List<UnitImage>> result = await getUnitImages(
+        GetUnitImagesParams(unitId: event.unitId, tempKey: event.tempKey));
 
     result.fold(
       (failure) => emit(UnitImagesError(
@@ -86,12 +124,15 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _onUploadUnitImage ضمن مسار إدارة الوحدات.
+  /// This method performs the _onUploadUnitImage operation in the admin unit workflow.
   Future<void> _onUploadUnitImage(
     UploadUnitImageEvent event,
     Emitter<UnitImagesState> emit,
   ) async {
     // تحقق من وجود unitId أو tempKey قبل الرفع
-    if ((event.unitId == null || event.unitId!.isEmpty) && (event.tempKey == null || event.tempKey!.isEmpty)) {
+    if ((event.unitId == null || event.unitId!.isEmpty) &&
+        (event.tempKey == null || event.tempKey!.isEmpty)) {
       emit(UnitImagesError(
         message: 'لا يمكن رفع الصور بدون معرف الوحدة أو tempKey',
         previousImages: _currentImages,
@@ -146,6 +187,8 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _onUploadMultipleImages ضمن مسار إدارة الوحدات.
+  /// This method performs the _onUploadMultipleImages operation in the admin unit workflow.
   Future<void> _onUploadMultipleImages(
     UploadMultipleUnitImagesEvent event,
     Emitter<UnitImagesState> emit,
@@ -193,12 +236,15 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
         ));
         // بعد ثانية واحدة، عرض قائمة الصور المحدثة
         Future.delayed(const Duration(seconds: 1), () {
-          add(LoadUnitImagesEvent(unitId: event.unitId, tempKey: event.tempKey));
+          add(LoadUnitImagesEvent(
+              unitId: event.unitId, tempKey: event.tempKey));
         });
       },
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _onUpdateUnitImage ضمن مسار إدارة الوحدات.
+  /// This method performs the _onUpdateUnitImage operation in the admin unit workflow.
   Future<void> _onUpdateUnitImage(
     UpdateUnitImageEvent event,
     Emitter<UnitImagesState> emit,
@@ -233,6 +279,8 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _onDeleteUnitImage ضمن مسار إدارة الوحدات.
+  /// This method performs the _onDeleteUnitImage operation in the admin unit workflow.
   Future<void> _onDeleteUnitImage(
     DeleteUnitImageEvent event,
     Emitter<UnitImagesState> emit,
@@ -261,13 +309,16 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _onDeleteMultipleImages ضمن مسار إدارة الوحدات.
+  /// This method performs the _onDeleteMultipleImages operation in the admin unit workflow.
   Future<void> _onDeleteMultipleImages(
     DeleteMultipleUnitImagesEvent event,
     Emitter<UnitImagesState> emit,
   ) async {
     emit(UnitImagesLoading(message: 'Deleting selected images...'));
 
-    final Either<Failure, bool> result = await deleteMultipleImages(event.imageIds);
+    final Either<Failure, bool> result =
+        await deleteMultipleImages(event.imageIds);
 
     result.fold(
       (failure) => emit(UnitImagesError(
@@ -276,7 +327,8 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
       )),
       (success) {
         if (success) {
-          _currentImages.removeWhere((image) => event.imageIds.contains(image.id));
+          _currentImages
+              .removeWhere((image) => event.imageIds.contains(image.id));
           _selectedImageIds.clear();
           emit(MultipleImagesDeleted(
             remainingImages: List.from(_currentImages),
@@ -287,6 +339,8 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _onReorderUnitImages ضمن مسار إدارة الوحدات.
+  /// This method performs the _onReorderUnitImages operation in the admin unit workflow.
   Future<void> _onReorderUnitImages(
     ReorderUnitImagesEvent event,
     Emitter<UnitImagesState> emit,
@@ -325,6 +379,8 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _onSetPrimaryUnitImage ضمن مسار إدارة الوحدات.
+  /// This method performs the _onSetPrimaryUnitImage operation in the admin unit workflow.
   Future<void> _onSetPrimaryUnitImage(
     SetPrimaryUnitImageEvent event,
     Emitter<UnitImagesState> emit,
@@ -355,12 +411,15 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
           }
 
           // إعادة تحميل الصور للحصول على البيانات المحدثة (الحفاظ على tempKey)
-          add(LoadUnitImagesEvent(unitId: event.unitId, tempKey: event.tempKey));
+          add(LoadUnitImagesEvent(
+              unitId: event.unitId, tempKey: event.tempKey));
         }
       },
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _onClearUnitImages ضمن مسار إدارة الوحدات.
+  /// This method performs the _onClearUnitImages operation in the admin unit workflow.
   void _onClearUnitImages(
     ClearUnitImagesEvent event,
     Emitter<UnitImagesState> emit,
@@ -371,13 +430,15 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
     emit(const UnitImagesInitial());
   }
 
+  /// ينفذ هذا الأسلوب عملية _onRefreshUnitImages ضمن مسار إدارة الوحدات.
+  /// This method performs the _onRefreshUnitImages operation in the admin unit workflow.
   Future<void> _onRefreshUnitImages(
     RefreshUnitImagesEvent event,
     Emitter<UnitImagesState> emit,
   ) async {
     // لا نظهر loading state عند التحديث
-    final Either<Failure, List<UnitImage>> result =
-        await getUnitImages(GetUnitImagesParams(unitId: event.unitId, tempKey: event.tempKey));
+    final Either<Failure, List<UnitImage>> result = await getUnitImages(
+        GetUnitImagesParams(unitId: event.unitId, tempKey: event.tempKey));
 
     result.fold(
       (failure) => emit(UnitImagesError(
@@ -397,6 +458,8 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _onToggleUnitImageSelection ضمن مسار إدارة الوحدات.
+  /// This method performs the _onToggleUnitImageSelection operation in the admin unit workflow.
   void _onToggleUnitImageSelection(
     ToggleUnitImageSelectionEvent event,
     Emitter<UnitImagesState> emit,
@@ -415,6 +478,8 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
     ));
   }
 
+  /// ينفذ هذا الأسلوب عملية _onSelectAllUnitImages ضمن مسار إدارة الوحدات.
+  /// This method performs the _onSelectAllUnitImages operation in the admin unit workflow.
   void _onSelectAllUnitImages(
     SelectAllUnitImagesEvent event,
     Emitter<UnitImagesState> emit,
@@ -429,6 +494,8 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
     ));
   }
 
+  /// ينفذ هذا الأسلوب عملية _onDeselectAllUnitImages ضمن مسار إدارة الوحدات.
+  /// This method performs the _onDeselectAllUnitImages operation in the admin unit workflow.
   void _onDeselectAllUnitImages(
     DeselectAllUnitImagesEvent event,
     Emitter<UnitImagesState> emit,
@@ -443,6 +510,8 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
     ));
   }
 
+  /// ينفذ هذا الأسلوب عملية _mapFailureToMessage ضمن مسار إدارة الوحدات.
+  /// This method performs the _mapFailureToMessage operation in the admin unit workflow.
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
       case ServerFailure:
@@ -456,6 +525,8 @@ class UnitImagesBloc extends Bloc<UnitImagesEvent, UnitImagesState> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية close ضمن مسار إدارة الوحدات.
+  /// This method performs the close operation in the admin unit workflow.
   @override
   Future<void> close() {
     _currentImages = [];

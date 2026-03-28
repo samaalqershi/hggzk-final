@@ -10,17 +10,47 @@ import '../../domain/entities/booking.dart';
 import 'booking_status_badge.dart';
 import '../../../../core/widgets/booking_identity_card_tooltip.dart';
 
+/// تعرض جدول حجوزات تفاعليًا مع فرز وتحديد جماعي وإجراءات سريعة.
+/// Shows an interactive bookings table with sorting, bulk selection, and quick actions.
 class FuturisticBookingsTable extends StatefulWidget {
+  /// قائمة الحجوزات التي يجرى عرضها في الجدول.
+  /// Booking list rendered in the table.
   final List<Booking> bookings;
+
+  /// الحجوزات المحددة حاليًا للعمليات الجماعية.
+  /// Bookings currently selected for bulk operations.
   final List<Booking> selectedBookings;
+
+  /// يستدعى عند الضغط على صف حجز أو بطاقته.
+  /// Called when a booking row or card is tapped.
   final Function(String) onBookingTap;
+
+  /// يستدعى عندما يتغير تحديد مجموعة الحجوزات.
+  /// Called when the selection set changes.
   final Function(List<Booking>) onSelectionChanged;
+
+  /// يحدد ما إذا كانت أزرار الإجراءات تظهر في الجدول.
+  /// Controls whether action buttons appear in the table.
   final bool showActions;
+
+  /// يستدعى عند طلب تأكيد حجز محدد.
+  /// Called when a specific booking should be confirmed.
   final void Function(String bookingId)? onConfirm;
+
+  /// يستدعى عند طلب إلغاء حجز محدد.
+  /// Called when a specific booking should be canceled.
   final void Function(String bookingId)? onCancel;
+
+  /// يستدعى عند طلب تسجيل وصول لحجز محدد.
+  /// Called when a specific booking should be checked in.
   final void Function(String bookingId)? onCheckIn;
+
+  /// يستدعى عند طلب تسجيل مغادرة لحجز محدد.
+  /// Called when a specific booking should be checked out.
   final void Function(String bookingId)? onCheckOut;
 
+  /// ينشئ الجدول مع مصادر البيانات وردود الأفعال للإجراءات.
+  /// Creates the table with its data sources and action callbacks.
   const FuturisticBookingsTable({
     super.key,
     required this.bookings,
@@ -34,19 +64,42 @@ class FuturisticBookingsTable extends StatefulWidget {
     this.onCheckOut,
   });
 
+  /// ينشئ الحالة التي تدير الفرز والتحديد والتفاعل البصري.
+  /// Creates the state that manages sorting, selection, and visual interaction.
   @override
   State<FuturisticBookingsTable> createState() =>
       _FuturisticBookingsTableState();
 }
 
+/// يدير حالة الجدول بما في ذلك الفرز والتحديد والإجراءات.
+/// Manages the table state including sorting, selection, and actions.
 class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
+  /// يحدد ما إذا كان تحديد الكل مفعلًا.
+  /// Indicates whether select-all is active.
   bool _selectAll = false;
+
+  /// يحفظ الصف الذي يمر عليه المؤشر حاليًا.
+  /// Keeps track of the row currently hovered.
   int? _hoveredIndex;
+
+  /// يحفظ معرّف الحجز الذي تعرض للضغط مؤخرًا.
+  /// Stores the booking ID that was most recently pressed.
   String? _pressedBookingId;
+
+  /// العمود الحالي المستخدم في الفرز.
+  /// The current column used for sorting.
   String _sortColumn = 'date';
+
+  /// يحدد اتجاه الفرز تصاعديًا أو تنازليًا.
+  /// Indicates whether sorting is ascending or descending.
   bool _sortAscending = false;
+
+  /// يربط كل حجز بمفتاحه المحلي لعرض المعاينة.
+  /// Maps each booking to a local key for preview anchoring.
   final Map<String, GlobalKey> _rowKeys = {};
 
+  /// يبني الجدول أو النسخة المضغوطة بحسب عرض الشاشة.
+  /// Builds the table or compact variant depending on screen width.
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -80,6 +133,8 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     );
   }
 
+  /// يبني رأس الجدول مع العنوان والعداد وخيار الفرز.
+  /// Builds the table header with title, count, and sorting controls.
   Widget _buildHeader(bool isCompact) {
     return Container(
       padding: EdgeInsets.all(isCompact ? 16 : 20),
@@ -128,6 +183,8 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     );
   }
 
+  /// يبني القائمة المنسدلة التي تختار عمود الفرز.
+  /// Builds the dropdown used to choose the sort column.
   Widget _buildSortDropdown(bool isCompact) {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -209,6 +266,8 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     );
   }
 
+  /// يبني عرضًا مضغوطًا للحجوزات على الشاشات الضيقة.
+  /// Builds a compact card-style view for narrow screens.
   Widget _buildCompactView() {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -362,6 +421,8 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     );
   }
 
+  /// يبني العرض الجدولي الكامل مع تمرير أفقي عند الحاجة.
+  /// Builds the full table view with horizontal scrolling when needed.
   Widget _buildTableView(BoxConstraints constraints) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -384,6 +445,8 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     );
   }
 
+  /// يبني صف رؤوس الأعمدة مع مربع التحديد العام.
+  /// Builds the column header row with the select-all checkbox.
   Widget _buildTableHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -429,6 +492,8 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     );
   }
 
+  /// يبني خلية رأس واحدة ضمن جدول الأعمدة.
+  /// Builds one header cell in the column row.
   Widget _buildHeaderCell(String text, double width) {
     return SizedBox(
       width: width,
@@ -442,6 +507,8 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     );
   }
 
+  /// يبني صفًا كاملًا لحجز واحد داخل الجدول.
+  /// Builds a full row for one booking in the table.
   Widget _buildTableRow(int index, Booking booking) {
     final isSelected = widget.selectedBookings.contains(booking);
     final isHovered = _hoveredIndex == index;
@@ -535,6 +602,8 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     );
   }
 
+  /// يبني خلية نصية قابلة لإعادة الاستخدام داخل الصفوف.
+  /// Builds a reusable text cell for table rows.
   Widget _buildCell(String text, double width, {TextStyle? style}) {
     return SizedBox(
       width: width,
@@ -550,6 +619,8 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     );
   }
 
+  /// يبني أزرار الإجراءات المتاحة على مستوى الصف.
+  /// Builds the action buttons available at row level.
   Widget _buildActions(Booking booking) {
     return Wrap(
       spacing: 4,
@@ -597,6 +668,8 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     );
   }
 
+  /// يبني نسخة مضغوطة من أزرار الصف للشاشات الصغيرة.
+  /// Builds a compact version of the row actions for small screens.
   Widget _buildCompactActions(Booking booking) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -635,6 +708,8 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     );
   }
 
+  /// يعرض قائمة جانبية بالإجراءات الإضافية للحجز.
+  /// Shows a bottom sheet with extra booking actions.
   void _showActionsMenu(Booking booking) {
     showModalBottomSheet(
       context: context,
@@ -714,6 +789,8 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     );
   }
 
+  /// يبني عنصرًا واحدًا داخل قائمة الإجراءات السفلية.
+  /// Builds one item inside the bottom action sheet.
   Widget _buildSheetAction({
     required IconData icon,
     required String label,
@@ -730,6 +807,8 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     );
   }
 
+  /// يبني أيقونة صغيرة قابلة للنقر تستخدم في الصف أو البطاقة.
+  /// Builds a tappable icon used in rows or cards.
   Widget _buildActionIcon({
     required IconData icon,
     required VoidCallback onTap,
@@ -764,6 +843,8 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     );
   }
 
+  /// يعيد ترتيب الحجوزات بحسب العمود والاتجاه المختارين.
+  /// Reorders bookings using the selected column and direction.
   void _sortBookings() {
     widget.bookings.sort((a, b) {
       int result;
@@ -787,6 +868,8 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     });
   }
 
+  /// يضمن وجود مفتاح ثابت لكل صف حجز عند الحاجة.
+  /// Ensures a stable key exists for each booking row when needed.
   GlobalKey _getRowKey(String bookingId) {
     if (!_rowKeys.containsKey(bookingId)) {
       _rowKeys[bookingId] = GlobalKey();
@@ -794,11 +877,13 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
     return _rowKeys[bookingId]!;
   }
 
+  /// يفتح بطاقة التفاصيل المرتبطة بالحجز المختار من الجدول.
+  /// Opens the detailed identity card for the booking selected from the table.
   void _showBookingCard(Booking booking) {
     setState(() => _pressedBookingId = booking.id);
-    
+
     HapticFeedback.mediumImpact();
-    
+
     BookingIdentityCardTooltip.show(
       context: context,
       targetKey: _getRowKey(booking.id),
@@ -827,7 +912,7 @@ class _FuturisticBookingsTableState extends State<FuturisticBookingsTable> {
       cancelledAt: booking.cancelledAt,
       cancellationReason: booking.cancellationReason,
     );
-    
+
     Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted) setState(() => _pressedBookingId = null);
     });

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../core/usecases/usecase.dart';
 import '../../../../../core/models/paginated_result.dart';
 import '../../../domain/entities/section.dart';
 import '../../../domain/usecases/sections/get_all_sections_usecase.dart';
@@ -10,8 +9,11 @@ import 'sections_list_event.dart';
 import 'sections_list_state.dart';
 
 class SectionsListBloc extends Bloc<SectionsListEvent, SectionsListState> {
+  /// العربية: يخزن القيمة `getAllSections`.
   final GetAllSectionsUseCase getAllSections;
+
   final DeleteSectionUseCase deleteSection;
+
   final ToggleSectionStatusUseCase toggleStatus;
 
   int _pageSize = 20;
@@ -72,8 +74,7 @@ class SectionsListBloc extends Bloc<SectionsListEvent, SectionsListState> {
       (failure) => emit(SectionsListError(message: failure.message)),
       (nextPage) {
         // append items to existing for smoother infinite scroll UX
-        final mergedItems = <Section>[]
-          ..addAll(current.page.items);
+        final mergedItems = <Section>[]..addAll(current.page.items);
         for (final s in nextPage.items) {
           if (!mergedItems.any((x) => x.id == s.id)) mergedItems.add(s);
         }
@@ -119,8 +120,8 @@ class SectionsListBloc extends Bloc<SectionsListEvent, SectionsListState> {
     ToggleSectionStatusEvent event,
     Emitter<SectionsListState> emit,
   ) async {
-    final res = await toggleStatus(
-        ToggleSectionStatusParams(sectionId: event.sectionId, isActive: event.isActive));
+    final res = await toggleStatus(ToggleSectionStatusParams(
+        sectionId: event.sectionId, isActive: event.isActive));
     res.fold(
       (_) {},
       (_) => add(LoadSectionsEvent(
@@ -163,4 +164,3 @@ class SectionsListBloc extends Bloc<SectionsListEvent, SectionsListState> {
     ));
   }
 }
-

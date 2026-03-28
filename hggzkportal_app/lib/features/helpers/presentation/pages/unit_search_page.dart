@@ -12,13 +12,31 @@ import '../widgets/search_header.dart';
 import '../widgets/search_item_card.dart';
 import '../widgets/simple_filter_bar.dart';
 
+/// يعرّف الكلاس `UnitSearchPage`.
+/// Describes the `UnitSearchPage` class.
 class UnitSearchPage extends StatefulWidget {
+  /// Holds the `initialSearchTerm` value.
+  /// العربية: يخزن القيمة `initialSearchTerm`.
   final String? initialSearchTerm;
+
+  /// يخزن العضو `propertyId`.
+  /// Holds the `propertyId` member.
   final String? propertyId;
+
+  /// يخزن العضو `allowMultiSelect`.
+  /// Holds the `allowMultiSelect` member.
   final bool allowMultiSelect;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(List<Unit>)? onUnitsSelected;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(Unit)? onUnitSelected;
 
+  /// ينشئ مثيلاً من `UnitSearchPage`.
+  /// Builds an instance of `UnitSearchPage`.
   const UnitSearchPage({
     super.key,
     this.initialSearchTerm,
@@ -28,28 +46,62 @@ class UnitSearchPage extends StatefulWidget {
     this.onUnitSelected,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<UnitSearchPage> createState() => _UnitSearchPageState();
 }
 
+/// يعرّف الكلاس `_UnitSearchPageState`.
+/// Describes the `_UnitSearchPageState` class.
 class _UnitSearchPageState extends State<UnitSearchPage> {
   final SearchUnitsUseCase _searchUnitsUseCase = di.sl<SearchUnitsUseCase>();
 
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
+  /// يخزن العضو `_units`.
+  /// Holds the `_units` member.
   List<SearchResult> _units = [];
+
+  /// يخزن العضو `_selectedIds`.
+  /// Holds the `_selectedIds` member.
   List<String> _selectedIds = [];
+
+  /// يخزن العضو `_isLoading`.
+  /// Holds the `_isLoading` member.
   bool _isLoading = false;
+
+  /// يخزن العضو `_hasError`.
+  /// Holds the `_hasError` member.
   bool _hasError = false;
+
+  /// يخزن العضو `_errorMessage`.
+  /// Holds the `_errorMessage` member.
   String? _errorMessage;
 
+  /// يخزن العضو `_isAvailableFilter`.
+  /// Holds the `_isAvailableFilter` member.
   bool? _isAvailableFilter;
+
+  /// يخزن العضو `_currentPage`.
+  /// Holds the `_currentPage` member.
   int _currentPage = 1;
+
+  /// يخزن العضو `_pageSize`.
+  /// Holds the `_pageSize` member.
   int _pageSize = 20;
+
+  /// يخزن العضو `_hasMore`.
+  /// Holds the `_hasMore` member.
   bool _hasMore = false;
+
+  /// يخزن العضو `_isLoadingMore`.
+  /// Holds the `_isLoadingMore` member.
   bool _isLoadingMore = false;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -66,6 +118,8 @@ class _UnitSearchPageState extends State<UnitSearchPage> {
     });
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _searchController.dispose();
@@ -73,6 +127,8 @@ class _UnitSearchPageState extends State<UnitSearchPage> {
     super.dispose();
   }
 
+  /// ينفذ العملية `_onScroll`.
+  /// Runs the `_onScroll` operation.
   void _onScroll() {
     if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
@@ -86,6 +142,8 @@ class _UnitSearchPageState extends State<UnitSearchPage> {
   }
 
   // Check if we need to load more to fill the screen
+  /// ينفذ العملية `_checkIfShouldLoadMore`.
+  /// Runs the `_checkIfShouldLoadMore` operation.
   void _checkIfShouldLoadMore() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_scrollController.hasClients) return;
@@ -103,6 +161,8 @@ class _UnitSearchPageState extends State<UnitSearchPage> {
     });
   }
 
+  /// ينفذ العملية `_loadUnits`.
+  /// Runs the `_loadUnits` operation.
   Future<void> _loadUnits({bool isRefresh = false}) async {
     if (isRefresh) {
       _currentPage = 1;
@@ -149,6 +209,8 @@ class _UnitSearchPageState extends State<UnitSearchPage> {
     );
   }
 
+  /// ينفذ العملية `_loadMoreUnits`.
+  /// Runs the `_loadMoreUnits` operation.
   Future<void> _loadMoreUnits() async {
     if (_isLoadingMore || !_hasMore || !mounted) return;
 
@@ -195,6 +257,8 @@ class _UnitSearchPageState extends State<UnitSearchPage> {
     );
   }
 
+  /// ينفذ العملية `_toggleSelection`.
+  /// Runs the `_toggleSelection` operation.
   void _toggleSelection(String id) {
     setState(() {
       if (widget.allowMultiSelect) {
@@ -209,6 +273,8 @@ class _UnitSearchPageState extends State<UnitSearchPage> {
     });
   }
 
+  /// ينفذ العملية `_confirmSelection`.
+  /// Runs the `_confirmSelection` operation.
   void _confirmSelection() {
     final selectedUnits = _units
         .where((result) => _selectedIds.contains(result.id))
@@ -226,6 +292,8 @@ class _UnitSearchPageState extends State<UnitSearchPage> {
     Navigator.of(context).pop();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -339,6 +407,8 @@ class _UnitSearchPageState extends State<UnitSearchPage> {
     );
   }
 
+  /// ينفذ العملية `_buildContent`.
+  /// Runs the `_buildContent` operation.
   Widget _buildContent() {
     if (_isLoading && _units.isEmpty) {
       return const LoadingWidget(
@@ -382,6 +452,8 @@ class _UnitSearchPageState extends State<UnitSearchPage> {
     );
   }
 
+  /// ينفذ العملية `_shouldLoadMore`.
+  /// Runs the `_shouldLoadMore` operation.
   bool _shouldLoadMore(PaginatedResult<SearchResult> result) {
     if (result.hasNextPage) {
       return true;
@@ -391,6 +463,8 @@ class _UnitSearchPageState extends State<UnitSearchPage> {
     return result.items.length >= effectivePageSize;
   }
 
+  /// ينفذ العملية `_buildLoadMoreIndicator`.
+  /// Runs the `_buildLoadMoreIndicator` operation.
   Widget _buildLoadMoreIndicator() {
     return const Padding(
       padding: EdgeInsets.symmetric(vertical: 24),

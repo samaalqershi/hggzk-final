@@ -3,11 +3,21 @@ import 'package:flutter/cupertino.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// النتائج بسرعة قبل الدخول إلى تفاصيل القناة.
+/// list quickly before opening a channel.
 class ChannelFilters extends StatefulWidget {
+  /// immediately.
   final Function(String) onSearchChanged;
+
+  /// screen.
   final Function(String?) onTypeChanged;
+
+  /// المتوقفة فقط.
+  /// active or inactive channels.
   final Function(bool?) onActiveFilterChanged;
 
+  /// إدارة.
+  /// across management screens.
   const ChannelFilters({
     super.key,
     required this.onSearchChanged,
@@ -15,29 +25,33 @@ class ChannelFilters extends StatefulWidget {
     required this.onActiveFilterChanged,
   });
 
+  /// status selection.
   @override
   State<ChannelFilters> createState() => _ChannelFiltersState();
 }
 
+/// للمستخدم.
+/// clear to the user.
 class _ChannelFiltersState extends State<ChannelFilters> {
   final TextEditingController _searchController = TextEditingController();
   String? _selectedType;
   bool? _isActive;
-
   final List<ChannelTypeFilter> _types = [
     ChannelTypeFilter('all', 'الكل', CupertinoIcons.square_grid_2x2),
     ChannelTypeFilter('SYSTEM', 'النظام', CupertinoIcons.gear),
     ChannelTypeFilter('CUSTOM', 'مخصص', CupertinoIcons.star),
-    ChannelTypeFilter('ROLE_BASED', 'حسب الدور', CupertinoIcons.person_2_square_stack),
+    ChannelTypeFilter(
+        'ROLE_BASED', 'حسب الدور', CupertinoIcons.person_2_square_stack),
     ChannelTypeFilter('EVENT_BASED', 'حسب الحدث', CupertinoIcons.bell_circle),
   ];
-
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
 
+  /// واضح.
+  /// clear strip.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -51,13 +65,15 @@ class _ChannelFiltersState extends State<ChannelFilters> {
     );
   }
 
+  /// أي فلتر آخر.
+  /// identifies a channel better than any other filter.
   Widget _buildSearchBar() {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.inputBackground.withOpacity(0.3),
+        color: AppTheme.inputBackground.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
       ),
       child: TextField(
@@ -69,7 +85,7 @@ class _ChannelFiltersState extends State<ChannelFilters> {
         decoration: InputDecoration(
           hintText: 'البحث في القنوات...',
           hintStyle: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textMuted.withOpacity(0.5),
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
           ),
           prefixIcon: Icon(
             CupertinoIcons.search,
@@ -99,6 +115,8 @@ class _ChannelFiltersState extends State<ChannelFilters> {
     );
   }
 
+  /// محددة.
+  /// category.
   Widget _buildTypeFilters() {
     return SizedBox(
       height: 40,
@@ -137,14 +155,14 @@ class _ChannelFiltersState extends State<ChannelFilters> {
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),
-              backgroundColor: AppTheme.darkCard.withOpacity(0.5),
+              backgroundColor: AppTheme.darkCard.withValues(alpha: 0.5),
               selectedColor: AppTheme.primaryBlue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(
                   color: isSelected
                       ? AppTheme.primaryBlue
-                      : AppTheme.darkBorder.withOpacity(0.3),
+                      : AppTheme.darkBorder.withValues(alpha: 0.3),
                 ),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -155,6 +173,8 @@ class _ChannelFiltersState extends State<ChannelFilters> {
     );
   }
 
+  /// مراجعة القنوات النشطة أو غير النشطة أولًا.
+  /// review active or inactive channels first.
   Widget _buildStatusFilters() {
     return Row(
       children: [
@@ -183,6 +203,8 @@ class _ChannelFiltersState extends State<ChannelFilters> {
     );
   }
 
+  /// الخيارات.
+  /// the options.
   Widget _buildStatusChip({
     required String label,
     required bool? value,
@@ -206,13 +228,13 @@ class _ChannelFiltersState extends State<ChannelFilters> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: isSelected
-                ? chipColor.withOpacity(0.2)
-                : AppTheme.darkCard.withOpacity(0.5),
+                ? chipColor.withValues(alpha: 0.2)
+                : AppTheme.darkCard.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected
-                  ? chipColor.withOpacity(0.4)
-                  : AppTheme.darkBorder.withOpacity(0.3),
+                  ? chipColor.withValues(alpha: 0.4)
+                  : AppTheme.darkBorder.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -237,13 +259,14 @@ class _ChannelFiltersState extends State<ChannelFilters> {
     );
   }
 
+  /// matters right now.
   Widget _buildSortButton() {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
         ),
       ),
       child: Material(
@@ -275,6 +298,8 @@ class _ChannelFiltersState extends State<ChannelFilters> {
     );
   }
 
+  /// الأصلية.
+  /// stays in place.
   void _showSortOptions() {
     showModalBottomSheet(
       context: context,
@@ -357,6 +382,5 @@ class ChannelTypeFilter {
   final String value;
   final String label;
   final IconData icon;
-
   ChannelTypeFilter(this.value, this.label, this.icon);
 }

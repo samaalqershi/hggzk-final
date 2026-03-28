@@ -7,41 +7,88 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../domain/entities/amenity.dart';
 import '../utils/amenity_icons.dart';
 
+/// حوار إنشاء أو تعديل مرفق مع اسم ووصف وأيقونة قابلة للاختيار.
+/// Dialog for creating or editing an amenity with a selectable name, description, and icon.
 class AmenityFormDialog extends StatefulWidget {
+  /// المرفق الحالي عند التعديل، أو null عند الإنشاء.
+  /// Current amenity when editing, or null when creating a new one.
   final Amenity? amenity;
+
+  /// استدعاء الحفظ الذي يستقبل القيم النهائية بعد التحقق.
+  /// Save callback that receives the final values after validation.
   final Function(String name, String description, String icon) onSave;
 
+  /// ينشئ حوار النموذج مع بيانات مبدئية اختيارية.
+  /// Creates the form dialog with optional initial amenity data.
   const AmenityFormDialog({
     super.key,
     this.amenity,
     required this.onSave,
   });
 
+  /// ينشئ الحالة المسؤولة عن إدخال البيانات والحركات واختيار الأيقونة.
+  /// Creates the state that manages data entry, animations, and icon selection.
   @override
   State<AmenityFormDialog> createState() => _AmenityFormDialogState();
 }
 
+/// تدير هذه الحالة الحقول النصية والأنيميشن وفتح منتقي الأيقونات.
+/// Manages the text fields, animations, and icon picker visibility.
 class _AmenityFormDialogState extends State<AmenityFormDialog>
     with SingleTickerProviderStateMixin {
+  /// يتحكم في حركة ظهور الحوار.
+  /// Controls the dialog entrance animation.
   late AnimationController _animationController;
+
+  /// قيمة المقياس المستخدمة عند ظهور الحوار.
+  /// Scale value used when the dialog opens.
   late Animation<double> _scaleAnimation;
+
+  /// قيمة التلاشي المستخدمة مع الحركة.
+  /// Fade value used alongside the animation.
   late Animation<double> _fadeAnimation;
 
+  /// مفتاح التحقق من صحة النموذج.
+  /// Form validation key.
   final _formKey = GlobalKey<FormState>();
+
+  /// متحكم اسم المرفق.
+  /// Amenity name controller.
   late TextEditingController _nameController;
+
+  /// متحكم وصف المرفق.
+  /// Amenity description controller.
   late TextEditingController _descriptionController;
+
+  /// متحكم البحث داخل الأيقونات.
+  /// Search controller used for icons.
   late TextEditingController _searchController;
+
+  /// الأيقونة المختارة حاليًا.
+  /// Currently selected icon.
   String _selectedIcon = 'wifi';
+
+  /// الفئة الحالية داخل منتقي الأيقونات.
+  /// Current category in the icon picker.
   String _selectedCategory = 'الكل';
+
+  /// يحدد ما إذا كان منتقي الأيقونات ظاهرًا.
+  /// Indicates whether the icon picker is visible.
   bool _showIconPicker = false;
 
+  /// يهيئ المتحكمات وقيم النموذج الأولية.
+  /// Initializes controllers and initial form values.
   @override
   void initState() {
     super.initState();
+
     _initializeControllers();
+
     _initializeAnimations();
   }
 
+  /// يضبط قيم الحقول النصية والأيقونة المختارة من المرفق الحالي.
+  /// Seeds the text fields and selected icon from the current amenity, if any.
   void _initializeControllers() {
     _nameController = TextEditingController(text: widget.amenity?.name ?? '');
     _descriptionController =
@@ -50,6 +97,8 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
     _selectedIcon = widget.amenity?.icon ?? 'wifi';
   }
 
+  /// يهيئ حركة التدرج والشفافية لظهور الحوار.
+  /// Prepares the scale and fade animations for the dialog.
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -69,6 +118,8 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
     _animationController.forward();
   }
 
+  /// يحرر المتحكمات والأنيميشن عند إغلاق الحوار.
+  /// Disposes controllers and animations when the dialog closes.
   @override
   void dispose() {
     _animationController.dispose();
@@ -78,6 +129,8 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
     super.dispose();
   }
 
+  /// يبني الحوار الكامل بما في ذلك الرأس والنموذج ومنتقي الأيقونات والأزرار.
+  /// Builds the full dialog including header, form, icon picker, and actions.
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -97,18 +150,18 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.95),
-                  AppTheme.darkCard.withOpacity(0.85),
+                  AppTheme.darkCard.withValues(alpha: 0.95),
+                  AppTheme.darkCard.withValues(alpha: 0.85),
                 ],
               ),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.2),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -159,19 +212,21 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
     );
   }
 
+  /// يبني رأس الحوار الذي يوضح هل المستخدم يضيف أو يعدل مرفقًا.
+  /// Builds the dialog header that clarifies create or edit mode.
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingLarge),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.8),
-            AppTheme.darkSurface.withOpacity(0.6),
+            AppTheme.darkSurface.withValues(alpha: 0.8),
+            AppTheme.darkSurface.withValues(alpha: 0.6),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.2),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -186,7 +241,7 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.3),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                   blurRadius: 15,
                   spreadRadius: 2,
                 ),
@@ -230,7 +285,7 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.darkSurface.withOpacity(0.5),
+                color: AppTheme.darkSurface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -245,6 +300,8 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
     );
   }
 
+  /// يبني حقل اسم المرفق مع تحقق الإلزام.
+  /// Builds the amenity name field with required validation.
   Widget _buildNameField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -263,38 +320,38 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
           decoration: InputDecoration(
             hintText: 'أدخل اسم المرفق',
             hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             filled: true,
-            fillColor: AppTheme.darkSurface.withOpacity(0.5),
+            fillColor: AppTheme.darkSurface.withValues(alpha: 0.5),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.primaryBlue.withOpacity(0.5),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                 width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.error.withOpacity(0.5),
+                color: AppTheme.error.withValues(alpha: 0.5),
               ),
             ),
             prefixIcon: Icon(
               Icons.label_rounded,
-              color: AppTheme.primaryBlue.withOpacity(0.7),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.7),
             ),
           ),
           validator: (value) {
@@ -308,6 +365,8 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
     );
   }
 
+  /// يبني حقل وصف المرفق متعدد الأسطر.
+  /// Builds the multi-line amenity description field.
   Widget _buildDescriptionField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -327,40 +386,40 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
           decoration: InputDecoration(
             hintText: 'أدخل وصف المرفق',
             hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             filled: true,
-            fillColor: AppTheme.darkSurface.withOpacity(0.5),
+            fillColor: AppTheme.darkSurface.withValues(alpha: 0.5),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.primaryBlue.withOpacity(0.5),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                 width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.error.withOpacity(0.5),
+                color: AppTheme.error.withValues(alpha: 0.5),
               ),
             ),
             prefixIcon: Padding(
               padding: const EdgeInsets.only(bottom: 40),
               child: Icon(
                 Icons.description_rounded,
-                color: AppTheme.primaryBlue.withOpacity(0.7),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.7),
               ),
             ),
           ),
@@ -375,6 +434,8 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
     );
   }
 
+  /// يبني قسم اختيار الأيقونة الحالي ويعرض زر فتح المنتقي.
+  /// Builds the current icon selection area and the picker trigger.
   Widget _buildIconSelector() {
     final selectedIconData = AmenityIcons.getIconByName(_selectedIcon);
 
@@ -412,15 +473,15 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.darkSurface.withOpacity(0.5),
-                  AppTheme.darkSurface.withOpacity(0.3),
+                  AppTheme.darkSurface.withValues(alpha: 0.5),
+                  AppTheme.darkSurface.withValues(alpha: 0.3),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _showIconPicker
-                    ? AppTheme.primaryBlue.withOpacity(0.5)
-                    : AppTheme.darkBorder.withOpacity(0.3),
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                    : AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: _showIconPicker ? 2 : 1,
               ),
             ),
@@ -434,7 +495,7 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                         blurRadius: 10,
                         spreadRadius: 1,
                       ),
@@ -466,7 +527,8 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryBlue.withOpacity(0.2),
+                              color:
+                                  AppTheme.primaryBlue.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -503,6 +565,8 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
     );
   }
 
+  /// يبني منتقي الأيقونات المرشح بحسب الفئة والنص.
+  /// Builds the icon picker filtered by category and text.
   Widget _buildIconPicker() {
     final searchResults = AmenityIcons.searchIcons(
       _searchController.text,
@@ -512,10 +576,10 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
     return Container(
       height: 400,
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.3),
+        color: AppTheme.darkSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -534,17 +598,17 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
                   decoration: InputDecoration(
                     hintText: 'ابحث عن أيقونة...',
                     hintStyle: AppTextStyles.bodyMedium.copyWith(
-                      color: AppTheme.textMuted.withOpacity(0.5),
+                      color: AppTheme.textMuted.withValues(alpha: 0.5),
                     ),
                     filled: true,
-                    fillColor: AppTheme.darkCard.withOpacity(0.5),
+                    fillColor: AppTheme.darkCard.withValues(alpha: 0.5),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
                     ),
                     prefixIcon: Icon(
                       Icons.search_rounded,
-                      color: AppTheme.primaryBlue.withOpacity(0.7),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -583,13 +647,15 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
                               gradient:
                                   isSelected ? AppTheme.primaryGradient : null,
                               color: !isSelected
-                                  ? AppTheme.darkCard.withOpacity(0.5)
+                                  ? AppTheme.darkCard.withValues(alpha: 0.5)
                                   : null,
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
                                 color: isSelected
-                                    ? AppTheme.primaryBlue.withOpacity(0.5)
-                                    : AppTheme.darkBorder.withOpacity(0.3),
+                                    ? AppTheme.primaryBlue
+                                        .withValues(alpha: 0.5)
+                                    : AppTheme.darkBorder
+                                        .withValues(alpha: 0.3),
                                 width: 1,
                               ),
                             ),
@@ -623,7 +689,7 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
                         Icon(
                           Icons.search_off_rounded,
                           size: 48,
-                          color: AppTheme.textMuted.withOpacity(0.3),
+                          color: AppTheme.textMuted.withValues(alpha: 0.3),
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -662,20 +728,20 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
                             gradient:
                                 isSelected ? AppTheme.primaryGradient : null,
                             color: !isSelected
-                                ? AppTheme.darkCard.withOpacity(0.5)
+                                ? AppTheme.darkCard.withValues(alpha: 0.5)
                                 : null,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: isSelected
-                                  ? AppTheme.primaryBlue.withOpacity(0.5)
-                                  : AppTheme.darkBorder.withOpacity(0.2),
+                                  ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                                  : AppTheme.darkBorder.withValues(alpha: 0.2),
                               width: isSelected ? 2 : 1,
                             ),
                             boxShadow: isSelected
                                 ? [
                                     BoxShadow(
-                                      color:
-                                          AppTheme.primaryBlue.withOpacity(0.3),
+                                      color: AppTheme.primaryBlue
+                                          .withValues(alpha: 0.3),
                                       blurRadius: 10,
                                       spreadRadius: 1,
                                     ),
@@ -698,7 +764,8 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
                                 style: AppTextStyles.caption.copyWith(
                                   color: isSelected
                                       ? Colors.white
-                                      : AppTheme.textMuted.withOpacity(0.7),
+                                      : AppTheme.textMuted
+                                          .withValues(alpha: 0.7),
                                   fontSize: 9,
                                 ),
                                 textAlign: TextAlign.center,
@@ -717,19 +784,21 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
     );
   }
 
+  /// يبني أزرار الحفظ والإلغاء في أسفل الحوار.
+  /// Builds the save and cancel action buttons at the bottom of the dialog.
   Widget _buildActions() {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingLarge),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.6),
-            AppTheme.darkSurface.withOpacity(0.4),
+            AppTheme.darkSurface.withValues(alpha: 0.6),
+            AppTheme.darkSurface.withValues(alpha: 0.4),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.2),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -791,6 +860,8 @@ class _AmenityFormDialogState extends State<AmenityFormDialog>
     );
   }
 
+  /// يتحقق من النموذج ثم يرسل القيم المختارة إلى المستدعي.
+  /// Validates the form and sends the selected values to the caller.
   void _handleSave() {
     if (_formKey.currentState!.validate()) {
       HapticFeedback.mediumImpact();

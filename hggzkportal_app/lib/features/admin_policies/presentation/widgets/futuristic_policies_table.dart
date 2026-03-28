@@ -12,15 +12,25 @@ import '../../../admin_properties/domain/entities/policy.dart'
 import '../../domain/entities/policy.dart';
 
 class FuturisticPoliciesTable extends StatefulWidget {
+  /// العربية: يخزن القيمة `policies`.
   final List<Policy> policies;
+
   final List<Policy> selectedPolicies;
+
   final Function(String) onPolicyTap;
+
   final Function(List<Policy>) onSelectionChanged;
+
   final bool showActions;
+
   final void Function(Policy)? onEdit;
+
   final void Function(Policy)? onDelete;
+
   final void Function(Policy)? onToggleStatus;
+
   final void Function(Policy)? onDuplicate;
+
   final void Function(Policy)? onViewDetails;
 
   const FuturisticPoliciesTable({
@@ -46,12 +56,16 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
     with TickerProviderStateMixin {
   // Animation Controllers
   late AnimationController _shimmerController;
+
   late AnimationController _pulseController;
+
   late AnimationController _fadeInController;
 
   // State
   int? _hoveredIndex;
+
   final Set<String> _expandedPolicies = {};
+
   final Map<String, GlobalKey> _policyRowKeys = {};
 
   @override
@@ -294,26 +308,26 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
             end: Alignment.bottomRight,
             colors: isSelected
                 ? [
-                    _getPolicyTypeColor(policy.type).withOpacity(0.15),
-                    _getPolicyTypeColor(policy.type).withOpacity(0.05),
+                    _getPolicyTypeColor(policy.type).withValues(alpha: 0.15),
+                    _getPolicyTypeColor(policy.type).withValues(alpha: 0.05),
                   ]
                 : [
-                    AppTheme.darkCard.withOpacity(0.6),
-                    AppTheme.darkCard.withOpacity(0.4),
+                    AppTheme.darkCard.withValues(alpha: 0.6),
+                    AppTheme.darkCard.withValues(alpha: 0.4),
                   ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? _getPolicyTypeColor(policy.type).withOpacity(0.4)
-                : AppTheme.darkBorder.withOpacity(0.15),
+                ? _getPolicyTypeColor(policy.type).withValues(alpha: 0.4)
+                : AppTheme.darkBorder.withValues(alpha: 0.15),
             width: isSelected ? 1.5 : 1,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? _getPolicyTypeColor(policy.type).withOpacity(0.2)
-                  : Colors.black.withOpacity(0.1),
+                  ? _getPolicyTypeColor(policy.type).withValues(alpha: 0.2)
+                  : Colors.black.withValues(alpha: 0.1),
               blurRadius: isSelected ? 20 : 10,
               offset: const Offset(0, 4),
             ),
@@ -344,19 +358,23 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
                                   gradient: LinearGradient(
                                     colors: [
                                       _getPolicyTypeColor(policy.type)
-                                          .withOpacity(0.3 +
-                                              _pulseController.value * 0.1),
+                                          .withValues(
+                                              alpha: 0.3 +
+                                                  _pulseController.value * 0.1),
                                       _getPolicyTypeColor(policy.type)
-                                          .withOpacity(0.15 +
-                                              _pulseController.value * 0.05),
+                                          .withValues(
+                                              alpha: 0.15 +
+                                                  _pulseController.value *
+                                                      0.05),
                                     ],
                                   ),
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
                                       color: _getPolicyTypeColor(policy.type)
-                                          .withOpacity(
-                                              0.3 * _pulseController.value),
+                                          .withValues(
+                                              alpha:
+                                                  0.3 * _pulseController.value),
                                       blurRadius: 10,
                                     ),
                                   ],
@@ -485,8 +503,8 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppTheme.darkBackground.withOpacity(0.5),
-                          AppTheme.darkBackground.withOpacity(0.3),
+                          AppTheme.darkBackground.withValues(alpha: 0.5),
+                          AppTheme.darkBackground.withValues(alpha: 0.3),
                         ],
                       ),
                     ),
@@ -546,26 +564,26 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
             end: Alignment.bottomRight,
             colors: isSelected
                 ? [
-                    _getPolicyTypeColor(policy.type).withOpacity(0.15),
-                    _getPolicyTypeColor(policy.type).withOpacity(0.05),
+                    _getPolicyTypeColor(policy.type).withValues(alpha: 0.15),
+                    _getPolicyTypeColor(policy.type).withValues(alpha: 0.05),
                   ]
                 : [
-                    AppTheme.darkCard.withOpacity(0.6),
-                    AppTheme.darkCard.withOpacity(0.4),
+                    AppTheme.darkCard.withValues(alpha: 0.6),
+                    AppTheme.darkCard.withValues(alpha: 0.4),
                   ],
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
-                ? _getPolicyTypeColor(policy.type).withOpacity(0.4)
-                : AppTheme.darkBorder.withOpacity(0.15),
+                ? _getPolicyTypeColor(policy.type).withValues(alpha: 0.4)
+                : AppTheme.darkBorder.withValues(alpha: 0.15),
             width: isSelected ? 1.5 : 1,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? _getPolicyTypeColor(policy.type).withOpacity(0.15)
-                  : Colors.black.withOpacity(0.08),
+                  ? _getPolicyTypeColor(policy.type).withValues(alpha: 0.15)
+                  : Colors.black.withValues(alpha: 0.08),
               blurRadius: 15,
               offset: const Offset(0, 5),
             ),
@@ -589,9 +607,10 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              _getPolicyTypeColor(policy.type).withOpacity(0.3),
                               _getPolicyTypeColor(policy.type)
-                                  .withOpacity(0.15),
+                                  .withValues(alpha: 0.3),
+                              _getPolicyTypeColor(policy.type)
+                                  .withValues(alpha: 0.15),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(10),
@@ -717,33 +736,35 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
               end: Alignment.bottomRight,
               colors: isHovered
                   ? [
-                      _getPolicyTypeColor(policy.type).withOpacity(0.12),
-                      _getPolicyTypeColor(policy.type).withOpacity(0.05),
+                      _getPolicyTypeColor(policy.type).withValues(alpha: 0.12),
+                      _getPolicyTypeColor(policy.type).withValues(alpha: 0.05),
                     ]
                   : isSelected
                       ? [
-                          _getPolicyTypeColor(policy.type).withOpacity(0.08),
-                          _getPolicyTypeColor(policy.type).withOpacity(0.03),
+                          _getPolicyTypeColor(policy.type)
+                              .withValues(alpha: 0.08),
+                          _getPolicyTypeColor(policy.type)
+                              .withValues(alpha: 0.03),
                         ]
                       : [
-                          AppTheme.darkCard.withOpacity(0.5),
-                          AppTheme.darkCard.withOpacity(0.3),
+                          AppTheme.darkCard.withValues(alpha: 0.5),
+                          AppTheme.darkCard.withValues(alpha: 0.3),
                         ],
             ),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isHovered
-                  ? _getPolicyTypeColor(policy.type).withOpacity(0.3)
+                  ? _getPolicyTypeColor(policy.type).withValues(alpha: 0.3)
                   : isSelected
-                      ? _getPolicyTypeColor(policy.type).withOpacity(0.2)
-                      : AppTheme.darkBorder.withOpacity(0.1),
+                      ? _getPolicyTypeColor(policy.type).withValues(alpha: 0.2)
+                      : AppTheme.darkBorder.withValues(alpha: 0.1),
               width: isHovered ? 1.5 : 1,
             ),
             boxShadow: [
               BoxShadow(
                 color: isHovered
-                    ? _getPolicyTypeColor(policy.type).withOpacity(0.15)
-                    : Colors.black.withOpacity(0.05),
+                    ? _getPolicyTypeColor(policy.type).withValues(alpha: 0.15)
+                    : Colors.black.withValues(alpha: 0.05),
                 blurRadius: isHovered ? 20 : 10,
                 offset: Offset(0, isHovered ? 6 : 3),
               ),
@@ -783,9 +804,9 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
                   gradient: LinearGradient(
                     colors: [
                       _getPolicyTypeColor(policy.type)
-                          .withOpacity(isHovered ? 0.35 : 0.25),
+                          .withValues(alpha: isHovered ? 0.35 : 0.25),
                       _getPolicyTypeColor(policy.type)
-                          .withOpacity(isHovered ? 0.2 : 0.15),
+                          .withValues(alpha: isHovered ? 0.2 : 0.15),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
@@ -793,7 +814,7 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
                       ? [
                           BoxShadow(
                             color: _getPolicyTypeColor(policy.type)
-                                .withOpacity(0.3),
+                                .withValues(alpha: 0.3),
                             blurRadius: 12,
                           ),
                         ]
@@ -852,7 +873,7 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
                       width: 28,
                       height: 28,
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryViolet.withOpacity(0.15),
+                        color: AppTheme.primaryViolet.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -943,10 +964,10 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(
-            color: AppTheme.darkBackground.withOpacity(0.4),
+            color: AppTheme.darkBackground.withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.15),
+              color: AppTheme.darkBorder.withValues(alpha: 0.15),
             ),
           ),
           child: Row(
@@ -980,10 +1001,10 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.3),
+        color: AppTheme.darkBackground.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.15),
+          color: AppTheme.darkBorder.withValues(alpha: 0.15),
         ),
       ),
       child: Column(
@@ -1011,7 +1032,7 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.3),
+                color: AppTheme.darkCard.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -1035,13 +1056,14 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      _getPolicyTypeColor(policy.type).withOpacity(0.15),
-                      _getPolicyTypeColor(policy.type).withOpacity(0.08),
+                      _getPolicyTypeColor(policy.type).withValues(alpha: 0.15),
+                      _getPolicyTypeColor(policy.type).withValues(alpha: 0.08),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: _getPolicyTypeColor(policy.type).withOpacity(0.3),
+                    color:
+                        _getPolicyTypeColor(policy.type).withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -1103,19 +1125,19 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
         gradient: LinearGradient(
           colors: isActive
               ? [
-                  AppTheme.success.withOpacity(0.2),
-                  AppTheme.success.withOpacity(0.1),
+                  AppTheme.success.withValues(alpha: 0.2),
+                  AppTheme.success.withValues(alpha: 0.1),
                 ]
               : [
-                  AppTheme.textMuted.withOpacity(0.2),
-                  AppTheme.textMuted.withOpacity(0.1),
+                  AppTheme.textMuted.withValues(alpha: 0.2),
+                  AppTheme.textMuted.withValues(alpha: 0.1),
                 ],
         ),
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
           color: isActive
-              ? AppTheme.success.withOpacity(0.3)
-              : AppTheme.textMuted.withOpacity(0.3),
+              ? AppTheme.success.withValues(alpha: 0.3)
+              : AppTheme.textMuted.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -1132,7 +1154,7 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
               boxShadow: isActive
                   ? [
                       BoxShadow(
-                        color: AppTheme.success.withOpacity(0.6),
+                        color: AppTheme.success.withValues(alpha: 0.6),
                         blurRadius: 4,
                       ),
                     ]
@@ -1168,13 +1190,13 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              color.withOpacity(0.15),
-              color.withOpacity(0.08),
+              color.withValues(alpha: 0.15),
+              color.withValues(alpha: 0.08),
             ],
           ),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
@@ -1207,7 +1229,7 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
             end: Alignment.bottomCenter,
             colors: [
               AppTheme.darkCard,
-              AppTheme.darkCard.withOpacity(0.95),
+              AppTheme.darkCard.withValues(alpha: 0.95),
             ],
           ),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -1222,7 +1244,7 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
                 height: 4,
                 margin: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -1266,7 +1288,7 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
                 color: AppTheme.success,
               ),
               Divider(
-                color: AppTheme.darkBorder.withOpacity(0.2),
+                color: AppTheme.darkBorder.withValues(alpha: 0.2),
                 height: 1,
               ),
               _buildSheetAction(
@@ -1298,8 +1320,8 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              color.withOpacity(0.15),
-              color.withOpacity(0.08),
+              color.withValues(alpha: 0.15),
+              color.withValues(alpha: 0.08),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
@@ -1336,17 +1358,17 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.primaryPurple
-                          .withOpacity(0.2 + _pulseController.value * 0.1),
-                      AppTheme.primaryViolet
-                          .withOpacity(0.1 + _pulseController.value * 0.05),
+                      AppTheme.primaryPurple.withValues(
+                          alpha: 0.2 + _pulseController.value * 0.1),
+                      AppTheme.primaryViolet.withValues(
+                          alpha: 0.1 + _pulseController.value * 0.05),
                     ],
                   ),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
                       color: AppTheme.primaryPurple
-                          .withOpacity(0.2 * _pulseController.value),
+                          .withValues(alpha: 0.2 * _pulseController.value),
                       blurRadius: 20,
                     ),
                   ],

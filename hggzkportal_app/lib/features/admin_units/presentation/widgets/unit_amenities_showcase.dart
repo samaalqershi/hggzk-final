@@ -7,26 +7,49 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// يمثل هذا الكلاس UnitAmenitiesShowcase البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitAmenitiesShowcase in the admin unit workflow.
 class UnitAmenitiesShowcase extends StatefulWidget {
+  /// This field keeps the amenities value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة amenities التي يعتمد عليها مسار إدارة الوحدات.
   final List<String> amenities;
+
+  /// يحتفظ هذا الحقل بقيمة isCompact التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the isCompact value used by the admin unit workflow.
   final bool isCompact;
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitAmenitiesShowcase.
+  /// This constructor creates an instance of UnitAmenitiesShowcase.
   const UnitAmenitiesShowcase({
     super.key,
     required this.amenities,
     this.isCompact = false,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<UnitAmenitiesShowcase> createState() => _UnitAmenitiesShowcaseState();
 }
 
+/// يمثل هذا الكلاس _UnitAmenitiesShowcaseState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _UnitAmenitiesShowcaseState in the admin unit workflow.
 class _UnitAmenitiesShowcaseState extends State<UnitAmenitiesShowcase>
     with SingleTickerProviderStateMixin {
+  /// يحتفظ هذا الحقل بقيمة _animationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _animationController value used by the admin unit workflow.
   late AnimationController _animationController;
+
+  /// يحتفظ هذا الحقل بقيمة _hoveredIndex التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _hoveredIndex value used by the admin unit workflow.
   int? _hoveredIndex;
+
+  /// يحتفظ هذا الحقل بقيمة _selectedIndex التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectedIndex value used by the admin unit workflow.
   int? _selectedIndex;
 
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
@@ -36,12 +59,16 @@ class _UnitAmenitiesShowcaseState extends State<UnitAmenitiesShowcase>
     )..forward();
   }
 
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     if (widget.amenities.isEmpty) {
@@ -83,6 +110,8 @@ class _UnitAmenitiesShowcaseState extends State<UnitAmenitiesShowcase>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildEmptyState ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildEmptyState operation in the admin unit workflow.
   Widget _buildEmptyState() {
     return Container(
       height: 200,
@@ -120,6 +149,8 @@ class _UnitAmenitiesShowcaseState extends State<UnitAmenitiesShowcase>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildAmenityCard ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildAmenityCard operation in the admin unit workflow.
   Widget _buildAmenityCard(String amenity, int index) {
     final isHovered = _hoveredIndex == index;
     final isSelected = _selectedIndex == index;
@@ -240,6 +271,8 @@ class _UnitAmenitiesShowcaseState extends State<UnitAmenitiesShowcase>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _getAmenityIcon ضمن مسار إدارة الوحدات.
+  /// This method performs the _getAmenityIcon operation in the admin unit workflow.
   IconData _getAmenityIcon(String amenity) {
     final amenityLower = amenity.toLowerCase();
 
@@ -275,6 +308,8 @@ class _UnitAmenitiesShowcaseState extends State<UnitAmenitiesShowcase>
     return CupertinoIcons.star_fill;
   }
 
+  /// ينفذ هذا الأسلوب عملية _getAmenityGradient ضمن مسار إدارة الوحدات.
+  /// This method performs the _getAmenityGradient operation in the admin unit workflow.
   List<Color> _getAmenityGradient(String amenity) {
     final amenityLower = amenity.toLowerCase();
 

@@ -1,17 +1,28 @@
 import 'package:equatable/equatable.dart';
 
-/// كيان قناة الإشعارات
-/// Notification channel entity
+/// للحقل حتى تبقى طبقات المجال والبيانات متفقة على نفس اللغة.
+/// channels feature.
+/// the domain and data layers speak the same language.
 class NotificationChannel extends Equatable {
   final String id;
   final String name;
+
+  /// topics.
   final String identifier;
+
+  /// it should be enabled or disabled.
   final String? description;
+
+  /// recognize visually.
   final String? icon;
   final String? color;
+
+  /// and subscribing.
   final bool isActive;
   final bool isPrivate;
   final bool isDeletable;
+
+  /// administration.
   final String type; // SYSTEM, CUSTOM, ROLE_BASED, EVENT_BASED
   final List<String> allowedRoles;
   final int subscribersCount;
@@ -21,6 +32,7 @@ class NotificationChannel extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  /// populated records.
   const NotificationChannel({
     required this.id,
     required this.name,
@@ -41,40 +53,47 @@ class NotificationChannel extends Equatable {
     required this.updatedAt,
   });
 
+  /// القناة نفسها وليس مجرد تمثيلها.
+  /// changes the channel’s identity, not just its representation.
   @override
   List<Object?> get props => [
-    id,
-    name,
-    identifier,
-    description,
-    icon,
-    color,
-    isActive,
-    isPrivate,
-    isDeletable,
-    type,
-    allowedRoles,
-    subscribersCount,
-    notificationsSentCount,
-    lastNotificationAt,
-    createdBy,
-    createdAt,
-    updatedAt,
-  ];
+        id,
+        name,
+        identifier,
+        description,
+        icon,
+        color,
+        isActive,
+        isPrivate,
+        isDeletable,
+        type,
+        allowedRoles,
+        subscribersCount,
+        notificationsSentCount,
+        lastNotificationAt,
+        createdBy,
+        createdAt,
+        updatedAt,
+      ];
 
-  /// Get FCM topic for this channel
+  /// دفع مشابهة.
+  /// similar push delivery layer.
   String get fcmTopic => 'channel_$identifier';
 
-  /// Get display color
+  /// من الخادم.
+  /// does not provide a custom one.
   String get displayColor => color ?? '#1E88E5';
 
-  /// Get display icon
+  /// هناك أيقونة مخصصة.
+  /// no custom icon is available.
   String get displayIcon => icon ?? '📢';
 
-  /// Check if channel is system channel
+  /// أنشأها المشرف.
+  /// by admins.
   bool get isSystem => type == 'SYSTEM';
 
-  /// Get channel type label in Arabic
+  /// بطاقات الإدارة والتقارير.
+  /// reads clearly in admin cards and reports.
   String get typeLabel {
     switch (type) {
       case 'SYSTEM':
@@ -91,23 +110,31 @@ class NotificationChannel extends Equatable {
   }
 }
 
-/// كيان اشتراك المستخدم في القناة
-/// User channel subscription entity
+/// نشطًا أم لا.
+/// and whether the subscription is still active.
 class UserChannelSubscription extends Equatable {
   final String id;
   final String userId;
   final String channelId;
+
+  /// immediately.
   final NotificationChannel? channel;
   final String? userName;
+
+  /// screens.
   final String? userEmail;
   final bool isActive;
   final bool isMuted;
   final DateTime subscribedAt;
   final DateTime? unsubscribedAt;
+
+  /// channel.
   final int notificationsReceivedCount;
   final DateTime? lastNotificationReceivedAt;
   final String? notes;
 
+  /// يرسل الخادم كل البيانات.
+  /// object consistent when the backend omits some fields.
   const UserChannelSubscription({
     required this.id,
     required this.userId,
@@ -124,29 +151,32 @@ class UserChannelSubscription extends Equatable {
     this.notes,
   });
 
+  /// يصف سجلًا مختلفًا.
+  /// change describes a different record.
   @override
   List<Object?> get props => [
-    id,
-    userId,
-    channelId,
-    channel,
-    userName,
-    userEmail,
-    isActive,
-    isMuted,
-    subscribedAt,
-    unsubscribedAt,
-    notificationsReceivedCount,
-    lastNotificationReceivedAt,
-    notes,
-  ];
+        id,
+        userId,
+        channelId,
+        channel,
+        userName,
+        userEmail,
+        isActive,
+        isMuted,
+        subscribedAt,
+        unsubscribedAt,
+        notificationsReceivedCount,
+        lastNotificationReceivedAt,
+        notes,
+      ];
 }
 
-/// كيان سجل إشعارات القناة
-/// Channel notification history entity
+/// successful the delivery was.
 class ChannelNotificationHistory extends Equatable {
   final String id;
   final String channelId;
+
+  /// another service.
   final String? notificationId;
   final String title;
   final String content;
@@ -158,6 +188,8 @@ class ChannelNotificationHistory extends Equatable {
   final String? senderName;
   final DateTime sentAt;
 
+  /// الجزئي أو الردود الناقصة.
+  /// queries or incomplete responses.
   const ChannelNotificationHistory({
     required this.id,
     required this.channelId,
@@ -173,29 +205,31 @@ class ChannelNotificationHistory extends Equatable {
     required this.sentAt,
   });
 
+  /// محددًا لا يتكرر.
+  /// entry represents one specific send event.
   @override
   List<Object?> get props => [
-    id,
-    channelId,
-    notificationId,
-    title,
-    content,
-    type,
-    recipientsCount,
-    successfulDeliveries,
-    failedDeliveries,
-    senderId,
-    senderName,
-    sentAt,
-  ];
+        id,
+        channelId,
+        notificationId,
+        title,
+        content,
+        type,
+        recipientsCount,
+        successfulDeliveries,
+        failedDeliveries,
+        senderId,
+        senderName,
+        sentAt,
+      ];
 
-  /// Get success rate
+  /// reports.
   double get successRate {
     if (recipientsCount == 0) return 0;
     return (successfulDeliveries / recipientsCount) * 100;
   }
 
-  /// Get type label in Arabic
+  /// UI.
   String get typeLabel {
     switch (type) {
       case 'INFO':
@@ -214,8 +248,8 @@ class ChannelNotificationHistory extends Equatable {
   }
 }
 
-/// إحصائيات القنوات
-/// Channels statistics
+/// القنوات.
+/// understand channel health.
 class ChannelStatistics extends Equatable {
   final int totalChannels;
   final int activeChannels;
@@ -225,6 +259,7 @@ class ChannelStatistics extends Equatable {
   final Map<String, int> channelsByType;
   final List<ChannelSummary> topActiveChannels;
 
+  /// directly.
   const ChannelStatistics({
     required this.totalChannels,
     required this.activeChannels,
@@ -234,27 +269,26 @@ class ChannelStatistics extends Equatable {
     required this.channelsByType,
     required this.topActiveChannels,
   });
-
   @override
   List<Object?> get props => [
-    totalChannels,
-    activeChannels,
-    totalSubscriptions,
-    activeSubscriptions,
-    totalNotificationsSent,
-    channelsByType,
-    topActiveChannels,
-  ];
+        totalChannels,
+        activeChannels,
+        totalSubscriptions,
+        activeSubscriptions,
+        totalNotificationsSent,
+        channelsByType,
+        topActiveChannels,
+      ];
 }
 
-/// ملخص القناة
-/// Channel summary
 class ChannelSummary extends Equatable {
   final String id;
   final String name;
   final int notificationsSentCount;
   final int subscribersCount;
 
+  /// لوحة الإدارة.
+  /// dashboard card.
   const ChannelSummary({
     required this.id,
     required this.name,
@@ -262,6 +296,8 @@ class ChannelSummary extends Equatable {
     required this.subscribersCount,
   });
 
+  /// indicators.
   @override
-  List<Object?> get props => [id, name, notificationsSentCount, subscribersCount];
+  List<Object?> get props =>
+      [id, name, notificationsSentCount, subscribersCount];
 }

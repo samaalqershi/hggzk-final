@@ -18,6 +18,7 @@ import '../../domain/entities/daily_schedule.dart';
 /// - تأثيرات أنيميشن متقدمة
 class DayDetailsDialog extends StatefulWidget {
   /// الجدول اليومي
+  /// العربية: يخزن القيمة `schedule`.
   final DailySchedule schedule;
 
   /// دالة الحفظ
@@ -58,17 +59,18 @@ class DayDetailsDialog extends StatefulWidget {
 class _DayDetailsDialogState extends State<DayDetailsDialog>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   late Animation<double> _scaleAnimation;
+
   late Animation<double> _fadeAnimation;
 
   late DailySchedule _editedSchedule;
-  bool _isEditing = false;
-  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _editedSchedule = widget.schedule;
+
     _initializeAnimations();
   }
 
@@ -120,18 +122,18 @@ class _DayDetailsDialogState extends State<DayDetailsDialog>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.95),
-                  AppTheme.darkCard.withOpacity(0.85),
+                  AppTheme.darkCard.withValues(alpha: 0.95),
+                  AppTheme.darkCard.withValues(alpha: 0.85),
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: _getStatusColor().withOpacity(0.3),
+                color: _getStatusColor().withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: _getStatusColor().withOpacity(0.2),
+                  color: _getStatusColor().withValues(alpha: 0.2),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -169,13 +171,13 @@ class _DayDetailsDialogState extends State<DayDetailsDialog>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            _getStatusColor().withOpacity(0.2),
-            _getStatusColor().withOpacity(0.1),
+            _getStatusColor().withValues(alpha: 0.2),
+            _getStatusColor().withValues(alpha: 0.1),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -189,7 +191,7 @@ class _DayDetailsDialogState extends State<DayDetailsDialog>
               gradient: LinearGradient(
                 colors: [
                   _getStatusColor(),
-                  _getStatusColor().withOpacity(0.7),
+                  _getStatusColor().withValues(alpha: 0.7),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
@@ -222,7 +224,7 @@ class _DayDetailsDialogState extends State<DayDetailsDialog>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: _getStatusColor().withOpacity(0.2),
+                        color: _getStatusColor().withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -238,7 +240,7 @@ class _DayDetailsDialogState extends State<DayDetailsDialog>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryBlue.withOpacity(0.2),
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -345,13 +347,13 @@ class _DayDetailsDialogState extends State<DayDetailsDialog>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.5),
-            AppTheme.darkSurface.withOpacity(0.3),
+            AppTheme.darkSurface.withValues(alpha: 0.5),
+            AppTheme.darkSurface.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -416,7 +418,7 @@ class _DayDetailsDialogState extends State<DayDetailsDialog>
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -434,10 +436,10 @@ class _DayDetailsDialogState extends State<DayDetailsDialog>
                 child: Container(
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AppTheme.error.withOpacity(0.1),
+                    color: AppTheme.error.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.error.withOpacity(0.3),
+                      color: AppTheme.error.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -475,7 +477,7 @@ class _DayDetailsDialogState extends State<DayDetailsDialog>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),

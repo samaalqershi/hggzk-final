@@ -6,13 +6,15 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/policy.dart';
 import '../repositories/policies_repository.dart';
 
-class GetPoliciesByTypeUseCase implements UseCase<PaginatedResult<Policy>, GetPoliciesByTypeParams> {
+class GetPoliciesByTypeUseCase
+    implements UseCase<PaginatedResult<Policy>, GetPoliciesByTypeParams> {
   final PoliciesRepository repository;
 
   GetPoliciesByTypeUseCase(this.repository);
 
   @override
-  Future<Either<Failure, PaginatedResult<Policy>>> call(GetPoliciesByTypeParams params) async {
+  Future<Either<Failure, PaginatedResult<Policy>>> call(
+      GetPoliciesByTypeParams params) async {
     return await repository.getPoliciesByType(
       type: params.type,
       pageNumber: params.pageNumber,
@@ -22,8 +24,11 @@ class GetPoliciesByTypeUseCase implements UseCase<PaginatedResult<Policy>, GetPo
 }
 
 class GetPoliciesByTypeParams extends Equatable {
+  /// العربية: يخزن القيمة `type`.
   final PolicyType type;
+
   final int pageNumber;
+
   final int pageSize;
 
   const GetPoliciesByTypeParams({

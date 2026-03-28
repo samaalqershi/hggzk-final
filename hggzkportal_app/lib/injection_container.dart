@@ -44,8 +44,6 @@ import 'package:hggzkportal/features/admin_units/domain/usecases/unit_images/upd
 import 'package:hggzkportal/features/admin_units/domain/usecases/unit_images/upload_multiple_unit_images_usecase.dart';
 import 'package:hggzkportal/features/admin_units/domain/usecases/unit_images/upload_unit_image_usecase.dart'; // إضافة هذا الاستيراد
 import 'package:hggzkportal/features/admin_units/presentation/bloc/unit_images/unit_images_bloc.dart';
-import 'package:hggzkportal/services/data_sync_service.dart';
-import 'package:hggzkportal/services/local_data_service.dart';
 import 'package:hggzkportal/services/media_pipeline.dart';
 import 'package:hggzkportal/services/section_content_service.dart';
 import 'package:hggzkportal/services/section_service.dart';
@@ -499,24 +497,18 @@ import 'features/admin_properties/presentation/bloc/amenities/amenities_bloc.dar
     as ap_am_bloc;
 import 'features/admin_properties/presentation/bloc/policies/policies_bloc.dart'
     as ap_po_bloc;
-import 'features/admin_properties/presentation/bloc/property_types/property_types_bloc.dart'
-    as ap_pt_bloc;
 import 'features/admin_properties/domain/repositories/properties_repository.dart'
     as ap_repo;
 import 'features/admin_properties/domain/repositories/amenities_repository.dart'
     as ap_am_repo;
 import 'features/admin_properties/domain/repositories/policies_repository.dart'
     as ap_po_repo;
-import 'features/admin_properties/domain/repositories/property_types_repository.dart'
-    as ap_pt_repo;
 import 'features/admin_properties/data/repositories/properties_repository_impl.dart'
     as ap_repo_impl;
 import 'features/admin_properties/data/repositories/amenities_repository_impl.dart'
     as ap_am_repo_impl;
 import 'features/admin_properties/data/repositories/policies_repository_impl.dart'
     as ap_po_repo_impl;
-import 'features/admin_properties/data/repositories/property_types_repository_impl.dart'
-    as ap_pt_repo_impl;
 import 'features/admin_properties/data/datasources/properties_remote_datasource.dart'
     as ap_ds_prop_remote;
 import 'features/admin_properties/data/datasources/properties_local_datasource.dart'
@@ -525,8 +517,6 @@ import 'features/admin_properties/data/datasources/amenities_remote_datasource.d
     as ap_ds_am_remote;
 import 'features/admin_properties/data/datasources/policies_remote_datasource.dart'
     as ap_ds_po_remote;
-import 'features/admin_properties/data/datasources/property_types_remote_datasource.dart'
-    as ap_ds_pt_remote;
 import 'features/admin_properties/domain/usecases/properties/get_all_properties_usecase.dart'
     as ap_uc_prop1;
 import 'features/admin_properties/domain/usecases/properties/create_property_usecase.dart'
@@ -565,14 +555,6 @@ import 'features/admin_properties/domain/usecases/policies/update_policy_usecase
     as ap_uc_po3;
 import 'features/admin_properties/domain/usecases/policies/delete_policy_usecase.dart'
     as ap_uc_po4;
-import 'features/admin_properties/domain/usecases/property_types/get_property_types_usecase.dart'
-    as ap_uc_pt1;
-import 'features/admin_properties/domain/usecases/property_types/create_property_type_usecase.dart'
-    as ap_uc_pt2;
-import 'features/admin_properties/domain/usecases/property_types/update_property_type_usecase.dart'
-    as ap_uc_pt3;
-import 'features/admin_properties/domain/usecases/property_types/delete_property_type_usecase.dart'
-    as ap_uc_pt4;
 
 // Features - Admin Daily Schedule
 import 'features/admin_daily_schedule/presentation/bloc/daily_schedule/daily_schedule_bloc.dart';
@@ -699,7 +681,7 @@ import 'features/admin_payments/domain/usecases/analytics/get_refund_statistics_
     as pay_uc_refund_stats;
 import 'package:hggzkportal/features/admin_payments/presentation/bloc/payment_analytics/payment_analytics_bloc.dart'
     as pay_an_bloc;
-import 'package:hggzkportal/features/auth/presentation/bloc/email_verification/email_verification_bloc.dart';
+import 'package:hggzkportal/features/auth/presentation/bloc/email_verification_bloc.dart';
 // Admin Notifications
 import 'features/admin_notifications/presentation/bloc/admin_notifications_bloc.dart'
     as an_bloc;
@@ -723,9 +705,7 @@ import 'features/admin_notifications/domain/usecases/get_user_notifications_usec
     as an_uc_get_user;
 import 'features/admin_notifications/domain/usecases/get_notifications_stats_usecase.dart'
     as an_uc_stats;
-
 final sl = GetIt.instance;
-
 Future<void> init() async {
   // Features - Auth
   _initAuth();
@@ -867,7 +847,6 @@ void _initNotifications() {
     () => notif_ds_local.NotificationLocalDataSourceImpl(localStorage: sl()),
   );
 }
-
 void _initSettings() {
   // Bloc
   sl.registerFactory(() => st_bloc.SettingsBloc(
@@ -901,7 +880,6 @@ void _initSettings() {
   sl.registerLazySingleton<st_ds_local.SettingsLocalDataSource>(
       () => st_ds_local.SettingsLocalDataSourceImpl(localStorage: sl()));
 }
-
 void _initAuth() {
   // Bloc
   sl.registerFactory(
@@ -954,14 +932,12 @@ void _initAuth() {
     () => AuthLocalDataSourceImpl(sharedPreferences: sl()),
   );
 }
-
 void _initAuthVerification() {
   // Bloc
   sl.registerFactory(() => EmailVerificationBloc(
         authRepository: sl(),
       ));
 }
-
 void _initChat() {
   // Bloc
   sl.registerFactory(() {
@@ -1051,7 +1027,6 @@ void _initChat() {
         ws: sl(),
       ));
 }
-
 void _initAdminUnits() {
   // Blocs
   sl.registerFactory(() => UnitsListBloc(
@@ -1131,7 +1106,6 @@ void _initAdminUnits() {
     ),
   );
 }
-
 void _initPropertyTypes() {
   // Blocs
   sl.registerFactory(() => PropertyTypesBloc(
@@ -1208,7 +1182,6 @@ void _initPropertyTypes() {
   sl.registerLazySingleton<utf_ds.UnitTypeFieldsRemoteDataSource>(
       () => utf_ds.UnitTypeFieldsRemoteDataSourceImpl(apiClient: sl()));
 }
-
 void _initAdminProperties() {
   // Blocs
   sl.registerFactory(() => ap_bloc.PropertiesBloc(
@@ -1234,12 +1207,6 @@ void _initAdminProperties() {
         createPolicy: sl<ap_uc_po2.CreatePolicyUseCase>(),
         updatePolicy: sl<ap_uc_po3.UpdatePolicyUseCase>(),
         deletePolicy: sl<ap_uc_po4.DeletePolicyUseCase>(),
-      ));
-  sl.registerFactory(() => ap_pt_bloc.PropertyTypesBloc(
-        getPropertyTypes: sl<ap_uc_pt1.GetPropertyTypesUseCase>(),
-        createPropertyType: sl<ap_uc_pt2.CreatePropertyTypeUseCase>(),
-        updatePropertyType: sl<ap_uc_pt3.UpdatePropertyTypeUseCase>(),
-        deletePropertyType: sl<ap_uc_pt4.DeletePropertyTypeUseCase>(),
       ));
 
   // Property Images BLoC
@@ -1312,16 +1279,6 @@ void _initAdminProperties() {
   sl.registerLazySingleton<ap_uc_po4.DeletePolicyUseCase>(
       () => ap_uc_po4.DeletePolicyUseCase(sl()));
 
-  // Use cases - property types
-  sl.registerLazySingleton<ap_uc_pt1.GetPropertyTypesUseCase>(
-      () => ap_uc_pt1.GetPropertyTypesUseCase(sl()));
-  sl.registerLazySingleton<ap_uc_pt2.CreatePropertyTypeUseCase>(
-      () => ap_uc_pt2.CreatePropertyTypeUseCase(sl()));
-  sl.registerLazySingleton<ap_uc_pt3.UpdatePropertyTypeUseCase>(
-      () => ap_uc_pt3.UpdatePropertyTypeUseCase(sl()));
-  sl.registerLazySingleton<ap_uc_pt4.DeletePropertyTypeUseCase>(
-      () => ap_uc_pt4.DeletePropertyTypeUseCase(sl()));
-
   // Repositories
   sl.registerLazySingleton<ap_repo.PropertiesRepository>(
       () => ap_repo_impl.PropertiesRepositoryImpl(
@@ -1337,11 +1294,6 @@ void _initAdminProperties() {
           ));
   sl.registerLazySingleton<ap_po_repo.PoliciesRepository>(
       () => ap_po_repo_impl.PoliciesRepositoryImpl(
-            remoteDataSource: sl(),
-            networkInfo: sl(),
-          ));
-  sl.registerLazySingleton<ap_pt_repo.PropertyTypesRepository>(
-      () => ap_pt_repo_impl.PropertyTypesRepositoryImpl(
             remoteDataSource: sl(),
             networkInfo: sl(),
           ));
@@ -1368,10 +1320,7 @@ void _initAdminProperties() {
       () => ap_ds_am_remote.AmenitiesRemoteDataSourceImpl(apiClient: sl()));
   sl.registerLazySingleton<ap_ds_po_remote.PoliciesRemoteDataSource>(
       () => ap_ds_po_remote.PoliciesRemoteDataSourceImpl(apiClient: sl()));
-  sl.registerLazySingleton<ap_ds_pt_remote.PropertyTypesRemoteDataSource>(
-      () => ap_ds_pt_remote.PropertyTypesRemoteDataSourceImpl(apiClient: sl()));
 }
-
 void _initAdminDailySchedule() {
   // Bloc
   sl.registerFactory(() => DailyScheduleBloc(
@@ -1411,7 +1360,6 @@ void _initAdminDailySchedule() {
   sl.registerLazySingleton<DailyScheduleRemoteDataSource>(
       () => DailyScheduleRemoteDataSourceImpl(dio: sl()));
 }
-
 void _initAdminServices() {
   // Bloc
   sl.registerFactory(() => ServicesBloc(
@@ -1445,7 +1393,6 @@ void _initAdminServices() {
   sl.registerLazySingleton<ServicesRemoteDataSource>(
       () => ServicesRemoteDataSourceImpl(apiClient: sl()));
 }
-
 void _initAdminReviews() {
   // Blocs
   sl.registerFactory(() => ar_list_bloc.ReviewsListBloc(
@@ -1499,7 +1446,6 @@ void _initAdminReviews() {
   sl.registerLazySingleton<ar_ds_local.ReviewsLocalDataSource>(
       () => ar_ds_local.ReviewsLocalDataSourceImpl(sharedPreferences: sl()));
 }
-
 void _initAdminAuditLogs() {
   // Bloc
   sl.registerFactory(() => AuditLogsBloc(
@@ -1542,7 +1488,6 @@ void _initAdminAuditLogs() {
     () => al_ds_local.AuditLogsLocalDataSourceImpl(),
   );
 }
-
 void _initAdminAmenities() {
   // Bloc
   sl.registerFactory(() => aa_bloc.AmenitiesBloc(
@@ -1575,7 +1520,6 @@ void _initAdminAmenities() {
   sl.registerLazySingleton<aa_ds_remote.AmenitiesRemoteDataSource>(
       () => aa_ds_remote.AmenitiesRemoteDataSourceImpl(apiClient: sl()));
 }
-
 void _initAdminPolicies() {
   // Bloc
   sl.registerFactory(() => apo_bloc.PoliciesBloc(
@@ -1623,7 +1567,6 @@ void _initAdminPolicies() {
   sl.registerLazySingleton<apo_ds_local.PoliciesLocalDataSource>(
       () => apo_ds_local.PoliciesLocalDataSourceImpl(sharedPreferences: sl()));
 }
-
 void _initAdminCurrencies() {
   // Bloc
   sl.registerFactory(() => ac_bloc.CurrenciesBloc(
@@ -1658,7 +1601,6 @@ void _initAdminCurrencies() {
   sl.registerLazySingleton<ac_ds_local.CurrenciesLocalDataSource>(
       () => ac_ds_local.CurrenciesLocalDataSourceImpl(sharedPreferences: sl()));
 }
-
 void _initAdminCities() {
   // Bloc
   sl.registerFactory(() => ci_bloc.CitiesBloc(
@@ -1707,7 +1649,6 @@ void _initAdminCities() {
   sl.registerLazySingleton<ci_ds_local.CitiesLocalDataSource>(
       () => ci_ds_local.CitiesLocalDataSourceImpl(sharedPreferences: sl()));
 }
-
 void _initHelpers() {
   // Use cases
   sl.registerLazySingleton<helpers_uc_users.SearchUsersUseCase>(
@@ -1731,7 +1672,6 @@ void _initHelpers() {
   sl.registerLazySingleton<helpers_ds.HelpersRemoteDataSource>(
       () => helpers_ds.HelpersRemoteDataSourceImpl(sl()));
 }
-
 void _initAdminUsers() {
   // Blocs
   sl.registerFactory(() => UsersListBloc(
@@ -1783,7 +1723,6 @@ void _initAdminUsers() {
   sl.registerLazySingleton<au_ds_local.UsersLocalDataSource>(
       () => au_ds_local.UsersLocalDataSourceImpl(sharedPreferences: sl()));
 }
-
 void _initAdminBookings() {
   // Blocs
   sl.registerFactory(() => ab_list_bloc.BookingsListBloc(
@@ -1893,7 +1832,6 @@ void _initAdminBookings() {
     () => ab_ds_local.BookingsLocalDataSourceImpl(sharedPreferences: sl()),
   );
 }
-
 void _initAdminPayments() {
   // Blocs
   sl.registerFactory(() => pay_list_bloc.PaymentsListBloc(
@@ -1971,7 +1909,6 @@ void _initAdminPayments() {
   sl.registerLazySingleton<pay_ds_local.PaymentsLocalDataSource>(
       () => pay_ds_local.PaymentsLocalDataSourceImpl(sharedPreferences: sl()));
 }
-
 void _initTheme() {
   // Bloc
   sl.registerFactory(
@@ -1980,7 +1917,6 @@ void _initTheme() {
     ),
   );
 }
-
 void _initOnboarding() {
   sl.registerFactory(() => onboarding_bloc.OnboardingBloc(
         localStorage: sl(),
@@ -1988,7 +1924,6 @@ void _initOnboarding() {
         getCurrenciesUseCase: sl<ref_uc_currencies.GetCurrenciesUseCase>(),
       ));
 }
-
 void _initReference() {
   // Bloc
   sl.registerFactory(() => ref_bloc.ReferenceBloc(
@@ -2016,7 +1951,6 @@ void _initReference() {
   sl.registerLazySingleton<ref_ds_local.ReferenceLocalDataSource>(
       () => ref_ds_local.ReferenceLocalDataSourceImpl(localStorage: sl()));
 }
-
 void _initAdminSections() {
   // Use cases
   sl.registerLazySingleton(() => GetAllSectionsUseCase(sl()));
@@ -2172,7 +2106,6 @@ void _initAdminSections() {
         reorderItems: sl(),
       ));
 }
-
 void _initCore() {
   // Network
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
@@ -2193,19 +2126,10 @@ void _initCore() {
   sl.registerLazySingleton(() => AnalyticsService());
   sl.registerLazySingleton(() => DeepLinkService());
   sl.registerLazySingleton(() => MediaPipeline());
-
-  // Data Management Services
-  sl.registerLazySingleton(() => LocalDataService(sl()));
   sl.registerLazySingleton(() => ConnectivityService());
-
-  // Reference module wiring is handled in _initReference()
-
-  // Data sync service
-  sl.registerLazySingleton(() => DataSyncService());
 
   // Removed generic WebSocketService registration; using ChatWebSocketService for chat feature
 }
-
 Future<void> _initExternal() async {
   // Shared Preferences
   final sharedPreferences = await SharedPreferences.getInstance();
@@ -2223,7 +2147,6 @@ Future<void> _initExternal() async {
                 address: io.InternetAddress.tryParse('8.8.8.8')!, port: 53),
           ]));
 }
-
 void _initAdminNotifications() {
   // Bloc
   sl.registerFactory(() => an_bloc.AdminNotificationsBloc(
@@ -2263,7 +2186,6 @@ void _initAdminNotifications() {
   sl.registerLazySingleton<an_ds_remote.AdminNotificationsRemoteDataSource>(
       () => an_ds_remote.AdminNotificationsRemoteDataSource(apiClient: sl()));
 }
-
 void _initAdminFinancial() {
   // Blocs
   sl.registerFactory(() => AccountsBloc(repository: sl()));
@@ -2287,7 +2209,6 @@ void _initAdminFinancial() {
     ),
   );
 }
-
 void _initNotificationChannels() {
   // Data Source
   sl.registerLazySingleton<NotificationChannelsRemoteDataSource>(

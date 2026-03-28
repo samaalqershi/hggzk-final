@@ -8,23 +8,22 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class InAppWebViewPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `title`.
   final String title;
   final String url;
-
   const InAppWebViewPage({
     super.key,
     required this.title,
     required this.url,
   });
-
   @override
   State<InAppWebViewPage> createState() => _InAppWebViewPageState();
 }
 
 class _InAppWebViewPageState extends State<InAppWebViewPage> {
+  /// العربية: يخزن القيمة `controller`.
   late final WebViewController _controller;
   int _progress = 0;
-
   @override
   void initState() {
     super.initState();
@@ -68,7 +67,8 @@ class _InAppWebViewPageState extends State<InAppWebViewPage> {
                       child: LinearProgressIndicator(
                         value: _progress / 100.0,
                         minHeight: 2,
-                        backgroundColor: AppTheme.darkCard.withValues(alpha: 0.3),
+                        backgroundColor:
+                            AppTheme.darkCard.withValues(alpha: 0.3),
                         valueColor: AlwaysStoppedAnimation<Color>(
                           AppTheme.primaryBlue.withValues(alpha: 0.85),
                         ),
@@ -90,7 +90,8 @@ class _InAppWebViewPageState extends State<InAppWebViewPage> {
                               color: AppTheme.darkCard.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: AppTheme.darkBorder.withValues(alpha: 0.12),
+                                color:
+                                    AppTheme.darkBorder.withValues(alpha: 0.12),
                                 width: 0.5,
                               ),
                             ),
@@ -131,16 +132,15 @@ class _WebBackground extends StatelessWidget {
 }
 
 class _WebHeader extends StatelessWidget {
+  /// العربية: يخزن القيمة `title`.
   final String title;
   final VoidCallback onBack;
   final VoidCallback onReload;
-
   const _WebHeader({
     required this.title,
     required this.onBack,
     required this.onReload,
   });
-
   @override
   Widget build(BuildContext context) {
     return Padding(

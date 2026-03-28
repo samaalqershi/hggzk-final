@@ -1,5 +1,4 @@
-// lib/features/admin_properties/presentation/widgets/city_image_gallery.dart
-// (الجزء الأول من التحديثات)
+// lib/features/admin_cities/presentation/widgets/city_image_gallery.dart
 
 import 'dart:async';
 import 'package:hggzkportal/core/constants/app_constants.dart';
@@ -12,9 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:hggzkportal/core/theme/app_colors.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:reorderables/reorderables.dart';
@@ -23,17 +20,58 @@ import '../bloc/city_images/city_images_bloc.dart';
 import '../bloc/city_images/city_images_event.dart';
 import '../bloc/city_images/city_images_state.dart';
 
+/// Full-featured gallery widget that manages local drafts and remote city media.
+///
+/// ويدجت معرض متكامل يدير المسودات المحلية ووسائط المدينة البعيدة.
 class CityImageGallery extends StatefulWidget {
+  /// Saved city identifier when the gallery is attached to a persisted city.
+  ///
+  /// معرّف المدينة المحفوظ عندما يكون المعرض مرتبطًا بمدينة محفوظة.
   final String? cityId;
+
+  /// Temporary key used while the city record is still a draft.
+  ///
+  /// مفتاح مؤقت يُستخدم ما دامت المدينة ما زالت مسودة.
   final String? tempKey;
+
+  /// Disables editing actions and leaves the gallery in read-only mode.
+  ///
+  /// يعطل إجراءات التعديل ويجعل المعرض في وضع القراءة فقط.
   final bool isReadOnly;
+
+  /// Maximum number of still images allowed in the gallery.
+  ///
+  /// الحد الأقصى لعدد الصور الثابتة المسموح بها في المعرض.
   final int maxImages;
-  final int maxVideos; // إضافة حد الفيديوهات
+
+  /// Maximum number of video assets allowed alongside the still images.
+  ///
+  /// الحد الأقصى لعدد الفيديوهات المسموح بها مع الصور الثابتة.
+  final int maxVideos;
+
+  /// Callback fired when the remote gallery changes.
+  ///
+  /// دالة تُستدعى عندما يتغير المعرض البعيد.
   final Function(List<CityImage>)? onImagesChanged;
+
+  /// Callback fired when local draft image paths change.
+  ///
+  /// دالة تُستدعى عندما تتغير مسارات الصور المحلية للمسودة.
   final Function(List<String>)? onLocalImagesChanged;
+
+  /// Initial remote images shown before any live refresh happens.
+  ///
+  /// الصور البعيدة الأولية المعروضة قبل أي تحديث مباشر.
   final List<CityImage>? initialImages;
+
+  /// Initial local file paths collected before the city is saved.
+  ///
+  /// مسارات الملفات المحلية الأولية المجمعة قبل حفظ المدينة.
   final List<String>? initialLocalImages;
 
+  /// Creates the gallery used by the city form and details flows.
+  ///
+  /// ينشئ المعرض المستخدم في نموذج المدينة ومسارات التفاصيل.
   const CityImageGallery({
     super.key,
     this.cityId,
@@ -46,60 +84,141 @@ class CityImageGallery extends StatefulWidget {
     this.initialImages,
     this.initialLocalImages,
   });
-
   @override
   State<CityImageGallery> createState() => CityImageGalleryState();
 }
 
+/// يدير كل حالات معرض صور المدينة، من المسودات المحلية إلى الوسائط البعيدة.
+/// Manages the full city image gallery state, from local drafts to remote media.
 class CityImageGalleryState extends State<CityImageGallery>
     with TickerProviderStateMixin {
+  /// يختار الصور والفيديوهات من الجهاز المحلي.
+  /// Picks images and videos from the local device.
   final ImagePicker _picker = ImagePicker();
+
+  /// متحكم الحركة الرئيسي الذي يفعّل ظهور المعرض.
+  /// Main animation controller that reveals the gallery.
   late AnimationController _animationController;
+
+  /// متحكم نبض خفيف يستخدم في بعض التأثيرات البصرية.
+  /// Soft pulse controller used for subtle visual effects.
   late AnimationController _pulseController;
+
+  /// متحكم حركة يضبط وضع التحديد داخل المعرض.
+  /// Animation controller that supports selection state transitions.
   late AnimationController _selectionController;
+
+  /// متحكم حركة خاص بحالات الرفع والتقدم.
+  /// Animation controller dedicated to upload progress states.
   late AnimationController _uploadAnimationController;
+
+  /// متحكم BLoC الخاص بتحميل وإدارة صور المدينة البعيدة.
+  /// BLoC controller for loading and managing remote city images.
   CityImagesBloc? _imagesBloc;
 
-  // Local state management
+  /// قائمة الملفات المحلية التي لم تُرفع بعد.
+  /// Local files that have not been uploaded yet.
   List<String> _localImages = [];
+
+  /// صور المدينة القادمة من الخادم.
+  /// Remote city images received from the server.
   List<CityImage> _remoteImages = [];
+
+  /// القائمة الموحّدة التي يراها المستخدم في الواجهة.
+  /// Combined image list currently shown in the UI.
   List<CityImage> _displayImages = [];
 
-  // تتبع الفيديوهات المنفصل
-  final Map<String, String?> _videoThumbnails =
-      {}; // مسار الفيديو -> مسار الصورة المصغرة
+  /// يخزن الصورة المصغرة المولدة لكل ملف فيديو محلي.
+  /// Stores the generated thumbnail for each local video file.
+  final Map<String, String?> _videoThumbnails = {};
 
-  // Upload tracking
+  /// يتتبع نسبة التقدم لكل ملف أثناء الرفع.
+  /// Tracks upload progress for each file.
   final Map<String, double> _uploadProgress = {};
-  final Map<String, bool> _uploadingFiles = {};
-  final Map<String, File?> _uploadingFileObjects = {};
-  final Map<String, String> _uploadingFileTypes =
-      {}; // تتبع نوع الملف (image/video)
 
+  /// يحدد الملفات التي ما زالت قيد الرفع.
+  /// Marks which files are still uploading.
+  final Map<String, bool> _uploadingFiles = {};
+
+  /// يحتفظ بكائنات الملفات أثناء الرفع أو المعاينة.
+  /// Holds file objects while uploading or previewing.
+  final Map<String, File?> _uploadingFileObjects = {};
+
+  /// يخزن نوع كل ملف أثناء الرفع لتفريق الصور عن الفيديو.
+  /// Stores each file type during upload to distinguish images from videos.
+  final Map<String, String> _uploadingFileTypes = {};
+
+  /// فهرس العنصر الذي يمر عليه المؤشر حاليًا.
+  /// Index of the item currently under the pointer.
   int? _hoveredIndex;
+
+  /// يحدد ما إذا كان المستخدم يسحب عناصر داخل المعرض.
+  /// Indicates whether the user is dragging items in the gallery.
   bool _isDragging = false;
+
+  /// يحدد وضع التحديد للوسائط البعيدة.
+  /// Indicates selection mode for remote media.
   bool _isSelectionMode = false;
+
+  /// يحدد وضع إعادة الترتيب للوسائط البعيدة.
+  /// Indicates reorder mode for remote media.
   bool _isReorderMode = false;
+
+  /// يحدد وضع التحديد للملفات المحلية.
+  /// Indicates selection mode for local files.
   bool _isLocalSelectionMode = false;
+
+  /// يحدد وضع إعادة الترتيب للملفات المحلية.
+  /// Indicates reorder mode for local files.
   bool _isLocalReorderMode = false;
+
+  /// مجموعة معرّفات الصور البعيدة المحددة.
+  /// Set of selected remote image IDs.
   final Set<String> _selectedImageIds = {};
+
+  /// مجموعة فهارس الملفات المحلية المحددة.
+  /// Set of selected local file indices.
   final Set<int> _selectedLocalIndices = {};
+
+  /// يحدد الصورة الرئيسية المعروضة للوسائط البعيدة.
+  /// Defines the primary image among remote media.
   int? _primaryImageIndex = 0;
+
+  /// يحدد الصورة الرئيسية المعروضة للوسائط المحلية.
+  /// Defines the primary image among local media.
   int? _primaryLocalImageIndex = 0;
 
+  /// يحدد ما إذا كان المعرض يعمل في وضع محلي فقط.
+  /// Indicates whether the gallery is operating in local-only mode.
   bool get _isLocalMode =>
       (widget.cityId == null || widget.cityId!.isEmpty) &&
       (widget.tempKey == null || widget.tempKey!.isEmpty);
+
+  /// يحدد ما إذا كان التحميل الأولي للبيانات قد اكتمل.
+  /// Indicates whether the initial data load has completed.
   bool _isInitialLoadDone = false;
 
-  // عد الوسائط
+  /// يحسب عدد الصور البعيدة المعروضة حاليًا.
+  /// Counts the remote images currently displayed.
   int get _imageCount => _displayImages.where((img) => img.isImage).length;
+
+  /// يحسب عدد الفيديوهات البعيدة المعروضة حاليًا.
+  /// Counts the remote videos currently displayed.
   int get _videoCount => _displayImages.where((img) => img.isVideo).length;
+
+  /// يحسب عدد الصور المحلية غير الفيديو.
+  /// Counts local non-video image files.
   int get _localImageCount =>
       _localImages.where((path) => !AppConstants.isVideoFile(path)).length;
+
+  /// يحسب عدد الفيديوهات المحلية.
+  /// Counts local video files.
   int get _localVideoCount =>
       _localImages.where((path) => AppConstants.isVideoFile(path)).length;
 
+  /// Boots the gallery by preparing animations and seeding initial media data.
+  ///
+  /// يهيئ المعرض عبر تجهيز الحركات وحقن بيانات الوسائط الأولية.
   @override
   void initState() {
     super.initState();
@@ -107,6 +226,8 @@ class CityImageGalleryState extends State<CityImageGallery>
     _initializeData();
   }
 
+  /// يجهز كل متحكمات الحركة المستخدمة في المعرض.
+  /// Prepares all animation controllers used by the gallery.
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
@@ -130,6 +251,8 @@ class CityImageGalleryState extends State<CityImageGallery>
     _animationController.forward();
   }
 
+  /// يحمّل القيم الأولية ويجهز المصغرات للفيديوهات المحلية.
+  /// Loads initial values and prepares thumbnails for local videos.
   void _initializeData() {
     if (widget.initialLocalImages != null) {
       _localImages = List.from(widget.initialLocalImages!);
@@ -145,6 +268,8 @@ class CityImageGalleryState extends State<CityImageGallery>
     }
   }
 
+  /// يولد صورًا مصغرة للفيديوهات المحلية المخزنة في المسودة.
+  /// Generates thumbnails for local draft videos.
   Future<void> _generateThumbnailsForLocalVideos() async {
     for (String path in _localImages) {
       if (AppConstants.isVideoFile(path)) {
@@ -158,6 +283,8 @@ class CityImageGalleryState extends State<CityImageGallery>
     }
   }
 
+  /// يربط المعرض مع BLoC الصور البعيدة عند توفره في الشجرة.
+  /// Connects the gallery to the remote images BLoC when available.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -178,6 +305,8 @@ class CityImageGalleryState extends State<CityImageGallery>
     }
   }
 
+  /// يحرر كل المتحكمات عند إزالة المعرض من الشجرة.
+  /// Disposes all controllers when the gallery is removed from the tree.
   @override
   void dispose() {
     _animationController.dispose();
@@ -187,6 +316,8 @@ class CityImageGalleryState extends State<CityImageGallery>
     super.dispose();
   }
 
+  /// يبني العرض المناسب بين الوضع المحلي والوضع المتصل بالخادم.
+  /// Builds the appropriate view for local-only or server-backed mode.
   @override
   Widget build(BuildContext context) {
     if (_isLocalMode) {
@@ -208,6 +339,8 @@ class CityImageGalleryState extends State<CityImageGallery>
     );
   }
 
+  /// يرفع الصور المحلية المؤجلة إلى المدينة التي تم إنشاؤها حديثًا.
+  /// Uploads pending local images to a newly created city.
   Future<void> uploadLocalImages(String newCityId) async {
     if (_localImages.isEmpty || _imagesBloc == null) return;
 
@@ -223,6 +356,8 @@ class CityImageGalleryState extends State<CityImageGallery>
     });
   }
 
+  /// يبني المحتوى الرئيسي عندما تكون الوسائط البعيدة متاحة.
+  /// Builds the main content when remote media is available.
   Widget _buildContent(CityImagesState state) {
     final images =
         _displayImages.isNotEmpty ? _displayImages : getImagesFromState(state);
@@ -245,6 +380,8 @@ class CityImageGalleryState extends State<CityImageGallery>
     );
   }
 
+  /// يبني الواجهة الكاملة عندما يعمل المعرض بوضع محلي فقط.
+  /// Builds the full UI when the gallery is running in local-only mode.
   Widget _buildLocalModeContent() {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -278,6 +415,11 @@ class CityImageGalleryState extends State<CityImageGallery>
     );
   }
 
+  /// Builds the reorderable grid used when the gallery is managing local draft
+  /// files before they are uploaded.
+  ///
+  /// يبني الشبكة القابلة لإعادة الترتيب المستخدمة عند إدارة ملفات المسودة
+  /// المحلية قبل رفعها إلى الخادم.
   Widget _buildLocalReorderableGrid(List<String> images) {
     return ReorderableWrap(
       spacing: 8,
@@ -294,6 +436,9 @@ class CityImageGalleryState extends State<CityImageGallery>
     );
   }
 
+  /// Builds one draggable tile for a local draft image inside reorder mode.
+  ///
+  /// يبني بطاقة قابلة للسحب لصورة مسودة محلية داخل وضع إعادة الترتيب.
   Widget _buildReorderableLocalImageItem(String imagePath, int index) {
     final isPrimary = index == _primaryLocalImageIndex;
 
@@ -304,7 +449,7 @@ class CityImageGalleryState extends State<CityImageGallery>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.3),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -323,13 +468,13 @@ class CityImageGalleryState extends State<CityImageGallery>
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.8),
+                color: AppTheme.darkCard.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(
                 Icons.drag_indicator_rounded,
                 size: 16,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
               ),
             ),
           ),
@@ -342,7 +487,7 @@ class CityImageGalleryState extends State<CityImageGallery>
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.9),
+                color: AppTheme.darkCard.withValues(alpha: 0.9),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -366,7 +511,7 @@ class CityImageGalleryState extends State<CityImageGallery>
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.warning.withOpacity(0.9),
+                  color: AppTheme.warning.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -395,6 +540,9 @@ class CityImageGalleryState extends State<CityImageGallery>
     );
   }
 
+  /// Reorders the local draft files and keeps the primary-image pointer valid.
+  ///
+  /// يعيد ترتيب ملفات المسودة المحلية ويحافظ على صحة مؤشر الصورة الرئيسية.
   void _reorderLocalImages(int oldIndex, int newIndex) {
     setState(() {
       final image = _localImages.removeAt(oldIndex);
@@ -446,7 +594,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                     Text(
                       'صور: $_localImageCount/${widget.maxImages} • فيديو: $_localVideoCount/${widget.maxVideos}',
                       style: AppTextStyles.caption.copyWith(
-                        color: AppTheme.textMuted.withOpacity(0.7),
+                        color: AppTheme.textMuted.withValues(alpha: 0.7),
                         fontWeight: FontWeight.w300,
                       ),
                     ),
@@ -462,10 +610,10 @@ class CityImageGalleryState extends State<CityImageGallery>
               margin: const EdgeInsets.only(top: 12),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.1),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: AppTheme.primaryBlue.withOpacity(0.2),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 ),
               ),
               child: Row(
@@ -475,7 +623,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                         ? Icons.info_outline_rounded
                         : Icons.drag_indicator_rounded,
                     size: 14,
-                    color: AppTheme.primaryBlue.withOpacity(0.7),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -483,7 +631,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                         ? 'اضغط على الوسائط لتحديدها'
                         : 'اسحب الوسائط لإعادة ترتيبها',
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.primaryBlue.withOpacity(0.8),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.8),
                       fontSize: 11,
                     ),
                   ),
@@ -495,10 +643,10 @@ class CityImageGalleryState extends State<CityImageGallery>
               margin: const EdgeInsets.only(top: 12),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: AppTheme.warning.withOpacity(0.1),
+                color: AppTheme.warning.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: AppTheme.warning.withOpacity(0.3),
+                  color: AppTheme.warning.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -640,14 +788,14 @@ class CityImageGalleryState extends State<CityImageGallery>
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected
-                  ? AppTheme.primaryBlue.withOpacity(0.6)
-                  : AppTheme.darkBorder.withOpacity(0.1),
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.6)
+                  : AppTheme.darkBorder.withValues(alpha: 0.1),
               width: isSelected ? 2.5 : 1,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.2),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                       blurRadius: 8,
                       spreadRadius: 1,
                     ),
@@ -671,8 +819,9 @@ class CityImageGalleryState extends State<CityImageGallery>
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(
-                            isHovered || _isLocalSelectionMode ? 0.6 : 0.3),
+                        Colors.black.withValues(
+                            alpha:
+                                isHovered || _isLocalSelectionMode ? 0.6 : 0.3),
                       ],
                     ),
                   ),
@@ -682,7 +831,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkCard.withOpacity(0.7),
+                        color: AppTheme.darkCard.withValues(alpha: 0.7),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -716,8 +865,8 @@ class CityImageGalleryState extends State<CityImageGallery>
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: isVideo
-                          ? AppTheme.info.withOpacity(0.8)
-                          : AppTheme.darkCard.withOpacity(0.8),
+                          ? AppTheme.info.withValues(alpha: 0.8)
+                          : AppTheme.darkCard.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(
@@ -732,7 +881,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                         Text(
                           isVideo ? 'فيديو' : '${index + 1}',
                           style: AppTextStyles.caption.copyWith(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
                           ),
@@ -749,11 +898,11 @@ class CityImageGalleryState extends State<CityImageGallery>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.warning.withOpacity(0.9),
+                        color: AppTheme.warning.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(6),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.warning.withOpacity(0.3),
+                            color: AppTheme.warning.withValues(alpha: 0.3),
                             blurRadius: 6,
                             spreadRadius: 1,
                           ),
@@ -790,15 +939,15 @@ class CityImageGalleryState extends State<CityImageGallery>
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppTheme.primaryBlue
-                            : AppTheme.darkCard.withOpacity(0.8),
+                            : AppTheme.darkCard.withValues(alpha: 0.8),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           width: 2,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 4,
                           ),
                         ],
@@ -819,7 +968,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: AppTheme.warning.withOpacity(0.8),
+                        color: AppTheme.warning.withValues(alpha: 0.8),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -855,11 +1004,11 @@ class CityImageGalleryState extends State<CityImageGallery>
 
   Widget buildVideoPlaceholder() {
     return Container(
-      color: AppTheme.darkCard.withOpacity(0.3),
+      color: AppTheme.darkCard.withValues(alpha: 0.3),
       child: Center(
         child: Icon(
           Icons.videocam_outlined,
-          color: AppTheme.textMuted.withOpacity(0.5),
+          color: AppTheme.textMuted.withValues(alpha: 0.5),
           size: 32,
         ),
       ),
@@ -916,13 +1065,13 @@ class CityImageGalleryState extends State<CityImageGallery>
               filterQuality: FilterQuality.low,
             ),
             placeholder: (context, url) => Container(
-              color: AppTheme.darkCard.withOpacity(0.3),
+              color: AppTheme.darkCard.withValues(alpha: 0.3),
             ),
             errorWidget: (context, url, error) => Container(
-              color: AppTheme.darkCard.withOpacity(0.3),
+              color: AppTheme.darkCard.withValues(alpha: 0.3),
               child: Icon(
                 Icons.image_not_supported_outlined,
-                color: AppTheme.textMuted.withOpacity(0.3),
+                color: AppTheme.textMuted.withValues(alpha: 0.3),
                 size: 24,
               ),
             ),
@@ -935,10 +1084,10 @@ class CityImageGalleryState extends State<CityImageGallery>
             cacheWidth: targetWidth,
             errorBuilder: (context, error, stackTrace) {
               return Container(
-                color: AppTheme.darkCard.withOpacity(0.3),
+                color: AppTheme.darkCard.withValues(alpha: 0.3),
                 child: Icon(
                   Icons.image_not_supported_outlined,
-                  color: AppTheme.textMuted.withOpacity(0.3),
+                  color: AppTheme.textMuted.withValues(alpha: 0.3),
                   size: 24,
                 ),
               );
@@ -1352,7 +1501,7 @@ class CityImageGalleryState extends State<CityImageGallery>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.3),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -1370,13 +1519,13 @@ class CityImageGalleryState extends State<CityImageGallery>
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.8),
+                color: AppTheme.darkCard.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(
                 Icons.drag_indicator_rounded,
                 size: 16,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
               ),
             ),
           ),
@@ -1387,7 +1536,7 @@ class CityImageGalleryState extends State<CityImageGallery>
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.9),
+                color: AppTheme.darkCard.withValues(alpha: 0.9),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -1409,7 +1558,7 @@ class CityImageGalleryState extends State<CityImageGallery>
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.warning.withOpacity(0.9),
+                  color: AppTheme.warning.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -1524,17 +1673,17 @@ class CityImageGalleryState extends State<CityImageGallery>
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: isDestructive
-              ? AppTheme.error.withOpacity(0.1)
+              ? AppTheme.error.withValues(alpha: 0.1)
               : isActive
-                  ? AppTheme.primaryBlue.withOpacity(0.15)
-                  : Colors.white.withOpacity(0.05),
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.15)
+                  : Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isDestructive
-                ? AppTheme.error.withOpacity(0.3)
+                ? AppTheme.error.withValues(alpha: 0.3)
                 : isActive
-                    ? AppTheme.primaryBlue.withOpacity(0.3)
-                    : Colors.white.withOpacity(0.1),
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                    : Colors.white.withValues(alpha: 0.1),
           ),
         ),
         child: Row(
@@ -1547,7 +1696,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                   ? AppTheme.error
                   : isActive
                       ? AppTheme.primaryBlue
-                      : Colors.white.withOpacity(0.6),
+                      : Colors.white.withValues(alpha: 0.6),
             ),
             const SizedBox(width: 4),
             Text(
@@ -1557,7 +1706,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                     ? AppTheme.error
                     : isActive
                         ? AppTheme.primaryBlue
-                        : Colors.white.withOpacity(0.7),
+                        : Colors.white.withValues(alpha: 0.7),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
@@ -1602,7 +1751,7 @@ class CityImageGalleryState extends State<CityImageGallery>
     return Container(
       height: 180,
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.1),
+        color: AppTheme.darkCard.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Center(
@@ -1615,14 +1764,14 @@ class CityImageGalleryState extends State<CityImageGallery>
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                    AppTheme.primaryBlue.withOpacity(0.5)),
+                    AppTheme.primaryBlue.withValues(alpha: 0.5)),
               ),
             ),
             const SizedBox(height: 16),
             Text(
               'جاري التحميل...',
               style: AppTextStyles.caption.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
                 fontWeight: FontWeight.w300,
               ),
             ),
@@ -1637,10 +1786,10 @@ class CityImageGalleryState extends State<CityImageGallery>
     return Container(
       height: 180,
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.05),
+        color: AppTheme.darkCard.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.1),
+          color: AppTheme.darkBorder.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -1650,14 +1799,14 @@ class CityImageGalleryState extends State<CityImageGallery>
           children: [
             Icon(
               Icons.image_not_supported_outlined,
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
               size: 32,
             ),
             const SizedBox(height: 12),
             Text(
               'لا توجد وسائط',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
                 fontWeight: FontWeight.w300,
               ),
             ),
@@ -1696,7 +1845,7 @@ class CityImageGalleryState extends State<CityImageGallery>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.3),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -1715,13 +1864,13 @@ class CityImageGalleryState extends State<CityImageGallery>
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.8),
+                color: AppTheme.darkCard.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(
                 Icons.drag_indicator_rounded,
                 size: 16,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
               ),
             ),
           ),
@@ -1732,7 +1881,7 @@ class CityImageGalleryState extends State<CityImageGallery>
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.9),
+                color: AppTheme.darkCard.withValues(alpha: 0.9),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -1754,7 +1903,7 @@ class CityImageGalleryState extends State<CityImageGallery>
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.warning.withOpacity(0.9),
+                  color: AppTheme.warning.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -1950,13 +2099,13 @@ class CityImageGalleryState extends State<CityImageGallery>
             filterQuality: FilterQuality.low,
           ),
           placeholder: (context, url) => Container(
-            color: AppTheme.darkCard.withOpacity(0.3),
+            color: AppTheme.darkCard.withValues(alpha: 0.3),
           ),
           errorWidget: (context, url, error) => Container(
-            color: AppTheme.darkCard.withOpacity(0.3),
+            color: AppTheme.darkCard.withValues(alpha: 0.3),
             child: Icon(
               Icons.image_not_supported_outlined,
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
               size: 24,
             ),
           ),
@@ -1985,13 +2134,13 @@ class CityImageGalleryState extends State<CityImageGallery>
               filterQuality: FilterQuality.low,
             ),
             placeholder: (context, url) => Container(
-              color: AppTheme.darkCard.withOpacity(0.3),
+              color: AppTheme.darkCard.withValues(alpha: 0.3),
             ),
             errorWidget: (context, url, error) => Container(
-              color: AppTheme.darkCard.withOpacity(0.3),
+              color: AppTheme.darkCard.withValues(alpha: 0.3),
               child: Icon(
                 Icons.image_not_supported_outlined,
-                color: AppTheme.textMuted.withOpacity(0.3),
+                color: AppTheme.textMuted.withValues(alpha: 0.3),
                 size: 24,
               ),
             ),
@@ -2004,10 +2153,10 @@ class CityImageGalleryState extends State<CityImageGallery>
             cacheWidth: targetWidth,
             errorBuilder: (context, error, stackTrace) {
               return Container(
-                color: AppTheme.darkCard.withOpacity(0.3),
+                color: AppTheme.darkCard.withValues(alpha: 0.3),
                 child: Icon(
                   Icons.image_not_supported_outlined,
-                  color: AppTheme.textMuted.withOpacity(0.3),
+                  color: AppTheme.textMuted.withValues(alpha: 0.3),
                   size: 24,
                 ),
               );
@@ -2030,17 +2179,18 @@ class CityImageGalleryState extends State<CityImageGallery>
         width: 28,
         height: 28,
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withOpacity(0.95),
+          color: AppTheme.darkCard.withValues(alpha: 0.95),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color:
-                color?.withOpacity(0.3) ?? AppTheme.darkBorder.withOpacity(0.2),
+            color: color?.withValues(alpha: 0.3) ??
+                AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
         child: Icon(
           icon,
-          color: color?.withOpacity(0.9) ?? AppTheme.textWhite.withOpacity(0.8),
+          color: color?.withValues(alpha: 0.9) ??
+              AppTheme.textWhite.withValues(alpha: 0.8),
           size: 14,
         ),
       ),
@@ -2143,7 +2293,7 @@ class CityImageGalleryState extends State<CityImageGallery>
             color: Colors.white,
           ),
         ),
-        backgroundColor: AppTheme.success.withOpacity(0.9),
+        backgroundColor: AppTheme.success.withValues(alpha: 0.9),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -2165,7 +2315,7 @@ class CityImageGalleryState extends State<CityImageGallery>
             color: Colors.white,
           ),
         ),
-        backgroundColor: AppTheme.error.withOpacity(0.9),
+        backgroundColor: AppTheme.error.withValues(alpha: 0.9),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -2210,7 +2360,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                   Text(
                     'صور: $_imageCount/${widget.maxImages} • فيديو: $_videoCount/${widget.maxVideos}',
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.textMuted.withOpacity(0.7),
+                      color: AppTheme.textMuted.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w300,
                     ),
                   ),
@@ -2225,10 +2375,10 @@ class CityImageGalleryState extends State<CityImageGallery>
               margin: const EdgeInsets.only(top: 12),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.1),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: AppTheme.primaryBlue.withOpacity(0.2),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 ),
               ),
               child: Row(
@@ -2238,7 +2388,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                         ? Icons.info_outline_rounded
                         : Icons.drag_indicator_rounded,
                     size: 14,
-                    color: AppTheme.primaryBlue.withOpacity(0.7),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -2246,7 +2396,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                         ? 'اضغط على الوسائط لتحديدها'
                         : 'اسحب الوسائط لإعادة ترتيبها',
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.primaryBlue.withOpacity(0.8),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.8),
                       fontSize: 11,
                     ),
                   ),
@@ -2286,22 +2436,22 @@ class CityImageGalleryState extends State<CityImageGallery>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppTheme.darkCard.withOpacity(0.4),
-                AppTheme.darkCard.withOpacity(0.2),
+                AppTheme.darkCard.withValues(alpha: 0.4),
+                AppTheme.darkCard.withValues(alpha: 0.2),
               ],
             ),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isComplete
-                  ? AppTheme.success.withOpacity(0.3)
-                  : AppTheme.primaryBlue.withOpacity(0.2),
+                  ? AppTheme.success.withValues(alpha: 0.3)
+                  : AppTheme.primaryBlue.withValues(alpha: 0.2),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
                 color: isComplete
-                    ? AppTheme.success.withOpacity(0.1)
-                    : AppTheme.primaryBlue.withOpacity(0.1),
+                    ? AppTheme.success.withValues(alpha: 0.1)
+                    : AppTheme.primaryBlue.withValues(alpha: 0.1),
                 blurRadius: 10,
                 spreadRadius: 2,
               ),
@@ -2322,7 +2472,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.2),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.2),
                         ),
                       ),
                       child: ClipRRect(
@@ -2342,14 +2492,16 @@ class CityImageGalleryState extends State<CityImageGallery>
                               Icon(
                                 isVideo ? Icons.videocam : Icons.image,
                                 size: 14,
-                                color: AppTheme.primaryBlue.withOpacity(0.7),
+                                color:
+                                    AppTheme.primaryBlue.withValues(alpha: 0.7),
                               ),
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
                                   fileName,
                                   style: AppTextStyles.bodySmall.copyWith(
-                                    color: AppTheme.textWhite.withOpacity(0.9),
+                                    color: AppTheme.textWhite
+                                        .withValues(alpha: 0.9),
                                     fontWeight: FontWeight.w400,
                                   ),
                                   maxLines: 1,
@@ -2364,8 +2516,8 @@ class CityImageGalleryState extends State<CityImageGallery>
                                         key: const ValueKey('complete'),
                                         padding: const EdgeInsets.all(4),
                                         decoration: BoxDecoration(
-                                          color:
-                                              AppTheme.success.withOpacity(0.2),
+                                          color: AppTheme.success
+                                              .withValues(alpha: 0.2),
                                           shape: BoxShape.circle,
                                         ),
                                         child: Icon(
@@ -2383,9 +2535,11 @@ class CityImageGalleryState extends State<CityImageGallery>
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
                                               color: AppTheme.primaryBlue
-                                                  .withOpacity(0.1 +
-                                                      (_pulseController.value *
-                                                          0.1)),
+                                                  .withValues(
+                                                      alpha: 0.1 +
+                                                          (_pulseController
+                                                                  .value *
+                                                              0.1)),
                                             ),
                                             child: Icon(
                                               Icons.cloud_upload_outlined,
@@ -2406,7 +2560,8 @@ class CityImageGalleryState extends State<CityImageGallery>
                               Container(
                                 height: 4,
                                 decoration: BoxDecoration(
-                                  color: AppTheme.darkBorder.withOpacity(0.1),
+                                  color: AppTheme.darkBorder
+                                      .withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
@@ -2421,21 +2576,23 @@ class CityImageGalleryState extends State<CityImageGallery>
                                     colors: isComplete
                                         ? [
                                             AppTheme.success,
-                                            AppTheme.success.withOpacity(0.7)
+                                            AppTheme.success
+                                                .withValues(alpha: 0.7)
                                           ]
                                         : [
                                             AppTheme.primaryBlue,
                                             AppTheme.primaryBlue
-                                                .withOpacity(0.7)
+                                                .withValues(alpha: 0.7)
                                           ],
                                   ),
                                   borderRadius: BorderRadius.circular(2),
                                   boxShadow: [
                                     BoxShadow(
                                       color: isComplete
-                                          ? AppTheme.success.withOpacity(0.3)
+                                          ? AppTheme.success
+                                              .withValues(alpha: 0.3)
                                           : AppTheme.primaryBlue
-                                              .withOpacity(0.3),
+                                              .withValues(alpha: 0.3),
                                       blurRadius: 4,
                                       spreadRadius: 0,
                                     ),
@@ -2452,8 +2609,8 @@ class CityImageGalleryState extends State<CityImageGallery>
                                 : 'جاري الرفع... ${(progress * 100).toInt()}%',
                             style: AppTextStyles.caption.copyWith(
                               color: isComplete
-                                  ? AppTheme.success.withOpacity(0.8)
-                                  : AppTheme.textMuted.withOpacity(0.7),
+                                  ? AppTheme.success.withValues(alpha: 0.8)
+                                  : AppTheme.textMuted.withValues(alpha: 0.7),
                               fontSize: 11,
                             ),
                           ),
@@ -2473,10 +2630,10 @@ class CityImageGalleryState extends State<CityImageGallery>
   Widget buildUploadThumbnail(File? file, bool isVideo) {
     if (file == null) {
       return Container(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         child: Icon(
           isVideo ? Icons.videocam_outlined : Icons.image_outlined,
-          color: AppTheme.textMuted.withOpacity(0.5),
+          color: AppTheme.textMuted.withValues(alpha: 0.5),
           size: 24,
         ),
       );
@@ -2499,10 +2656,10 @@ class CityImageGalleryState extends State<CityImageGallery>
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
         return Container(
-          color: AppTheme.darkCard.withOpacity(0.5),
+          color: AppTheme.darkCard.withValues(alpha: 0.5),
           child: Icon(
             Icons.image_outlined,
-            color: AppTheme.textMuted.withOpacity(0.5),
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
             size: 24,
           ),
         );
@@ -2638,14 +2795,14 @@ class CityImageGalleryState extends State<CityImageGallery>
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected
-                  ? AppTheme.primaryBlue.withOpacity(0.6)
-                  : AppTheme.darkBorder.withOpacity(0.1),
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.6)
+                  : AppTheme.darkBorder.withValues(alpha: 0.1),
               width: isSelected ? 2.5 : 1,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.2),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                       blurRadius: 8,
                       spreadRadius: 1,
                     ),
@@ -2672,8 +2829,8 @@ class CityImageGalleryState extends State<CityImageGallery>
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(
-                            isHovered || isSelectionMode ? 0.6 : 0.3),
+                        Colors.black.withValues(
+                            alpha: isHovered || isSelectionMode ? 0.6 : 0.3),
                       ],
                     ),
                   ),
@@ -2685,7 +2842,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkCard.withOpacity(0.7),
+                        color: AppTheme.darkCard.withValues(alpha: 0.7),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -2722,8 +2879,8 @@ class CityImageGalleryState extends State<CityImageGallery>
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: isVideo
-                          ? AppTheme.info.withOpacity(0.8)
-                          : AppTheme.darkCard.withOpacity(0.8),
+                          ? AppTheme.info.withValues(alpha: 0.8)
+                          : AppTheme.darkCard.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(
@@ -2738,7 +2895,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                         Text(
                           isVideo ? media.durationFormatted : '${index + 1}',
                           style: AppTextStyles.caption.copyWith(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
                           ),
@@ -2757,11 +2914,11 @@ class CityImageGalleryState extends State<CityImageGallery>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.warning.withOpacity(0.9),
+                        color: AppTheme.warning.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(6),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.warning.withOpacity(0.3),
+                            color: AppTheme.warning.withValues(alpha: 0.3),
                             blurRadius: 6,
                             spreadRadius: 1,
                           ),
@@ -2801,15 +2958,15 @@ class CityImageGalleryState extends State<CityImageGallery>
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppTheme.primaryBlue
-                            : AppTheme.darkCard.withOpacity(0.8),
+                            : AppTheme.darkCard.withValues(alpha: 0.8),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           width: 2,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 4,
                           ),
                         ],
@@ -2865,13 +3022,13 @@ class CityImageGalleryState extends State<CityImageGallery>
         height: 140,
         decoration: BoxDecoration(
           color: _isDragging
-              ? AppTheme.primaryBlue.withOpacity(0.05)
-              : AppTheme.darkCard.withOpacity(0.1),
+              ? AppTheme.primaryBlue.withValues(alpha: 0.05)
+              : AppTheme.darkCard.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: _isDragging
-                ? AppTheme.primaryBlue.withOpacity(0.3)
-                : AppTheme.darkBorder.withOpacity(0.1),
+                ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                : AppTheme.darkBorder.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
@@ -2897,8 +3054,8 @@ class CityImageGalleryState extends State<CityImageGallery>
                         ? Icons.file_download_outlined
                         : Icons.add_photo_alternate_outlined,
                     color: _isDragging
-                        ? AppTheme.primaryBlue.withOpacity(0.8)
-                        : AppTheme.textMuted.withOpacity(0.5),
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.8)
+                        : AppTheme.textMuted.withValues(alpha: 0.5),
                     size: 32,
                   ),
                   const SizedBox(height: 12),
@@ -2907,7 +3064,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                         ? 'أفلت الملفات هنا'
                         : 'اضغط أو اسحب لإضافة صور أو فيديو',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppTheme.textMuted.withOpacity(0.7),
+                      color: AppTheme.textMuted.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w300,
                     ),
                   ),
@@ -2916,7 +3073,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                     Text(
                       'وصلت للحد الأقصى',
                       style: AppTextStyles.caption.copyWith(
-                        color: AppTheme.error.withOpacity(0.5),
+                        color: AppTheme.error.withValues(alpha: 0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w300,
                       ),
@@ -2925,7 +3082,7 @@ class CityImageGalleryState extends State<CityImageGallery>
                     Text(
                       'صور: PNG, JPG • فيديو: MP4, MOV • Max ${AppConstants.maxVideoUploadSize ~/ (1024 * 1024)}MB',
                       style: AppTextStyles.caption.copyWith(
-                        color: AppTheme.textMuted.withOpacity(0.5),
+                        color: AppTheme.textMuted.withValues(alpha: 0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w300,
                       ),
@@ -3015,7 +3172,6 @@ class CityImageGalleryState extends State<CityImageGallery>
   }
 
   // بقية الدوال كما هي مع الدوال المساعدة...
-
   void previewImage(CityImage image) {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -3054,7 +3210,7 @@ class CityImageGalleryState extends State<CityImageGallery>
             color: Colors.white,
           ),
         ),
-        backgroundColor: AppTheme.success.withOpacity(0.9),
+        backgroundColor: AppTheme.success.withValues(alpha: 0.9),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -3143,14 +3299,23 @@ class CityImageGalleryState extends State<CityImageGallery>
 
 // Video Preview Screen
 class _VideoPreviewScreen extends StatelessWidget {
+  /// Local file path or remote URL of the video being previewed.
+  ///
+  /// مسار ملف محلي أو رابط بعيد للفيديو الذي تتم معاينته.
   final String videoUrl;
+
+  /// Tells the preview whether the provided path points to local storage.
+  ///
+  /// يوضح للمعاينة ما إذا كان المسار يشير إلى تخزين محلي.
   final bool isLocal;
 
+  /// Opens a focused viewer for one video asset.
+  ///
+  /// يفتح عارضًا مركزًا لملف فيديو واحد.
   const _VideoPreviewScreen({
     required this.videoUrl,
     required this.isLocal,
   });
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -3173,12 +3338,12 @@ class _VideoPreviewScreen extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.7),
+                  color: AppTheme.darkCard.withValues(alpha: 0.7),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.close,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   size: 20,
                 ),
               ),
@@ -3192,14 +3357,44 @@ class _VideoPreviewScreen extends StatelessWidget {
 
 // Local Media Options Sheet
 class _LocalMediaOptionsSheet extends StatelessWidget {
+  /// Media path used to identify the selected local item.
+  ///
+  /// مسار الوسائط المستخدم لتحديد العنصر المحلي المحدد.
   final String mediaPath;
+
+  /// Zero-based index of the item inside the draft gallery.
+  ///
+  /// الفهرس الصفري للعنصر داخل معرض المسودة.
   final int index;
+
+  /// Indicates whether the selected local item is a video.
+  ///
+  /// يوضح ما إذا كان العنصر المحلي المحدد فيديو.
   final bool isVideo;
+
+  /// Indicates whether the local item is currently the primary asset.
+  ///
+  /// يوضح ما إذا كان العنصر المحلي هو الوسيط الأساسي حاليًا.
   final bool isPrimary;
+
+  /// Optional callback that promotes the local item to primary.
+  ///
+  /// استدعاء اختياري يرقّي العنصر المحلي إلى أساسي.
   final VoidCallback? onSetPrimary;
+
+  /// Removes the selected local item from the draft gallery.
+  ///
+  /// يحذف العنصر المحلي المحدد من معرض المسودة.
   final VoidCallback onDelete;
+
+  /// Opens the selected local asset in a preview screen.
+  ///
+  /// يفتح العنصر المحلي المحدد في شاشة معاينة.
   final VoidCallback onView;
 
+  /// Presents actions for one local media item.
+  ///
+  /// يعرض الإجراءات الخاصة بعنصر وسائط محلي واحد.
   const _LocalMediaOptionsSheet({
     required this.mediaPath,
     required this.index,
@@ -3209,7 +3404,6 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
     required this.onDelete,
     required this.onView,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -3220,7 +3414,7 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
         right: 20,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.95),
+        color: AppTheme.darkCard.withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -3230,7 +3424,7 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
             width: 32,
             height: 3,
             decoration: BoxDecoration(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(1.5),
             ),
           ),
@@ -3281,29 +3475,30 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: color?.withOpacity(0.1) ?? AppTheme.darkCard.withOpacity(0.3),
+          color: color?.withValues(alpha: 0.1) ??
+              AppTheme.darkCard.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           children: [
             Icon(
               icon,
-              color: color?.withOpacity(0.8) ??
-                  AppTheme.primaryBlue.withOpacity(0.8),
+              color: color?.withValues(alpha: 0.8) ??
+                  AppTheme.primaryBlue.withValues(alpha: 0.8),
               size: 20,
             ),
             const SizedBox(width: 12),
             Text(
               title,
               style: AppTextStyles.bodySmall.copyWith(
-                color: color ?? AppTheme.textWhite.withOpacity(0.9),
+                color: color ?? AppTheme.textWhite.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w300,
               ),
             ),
             const Spacer(),
             Icon(
               Icons.arrow_forward_ios,
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
               size: 14,
             ),
           ],
@@ -3314,14 +3509,23 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
 }
 
 class _DeleteConfirmationDialog extends StatelessWidget {
+  /// Number of selected images that will be removed.
+  ///
+  /// عدد الصور المحددة التي سيتم حذفها.
   final int count;
+
+  /// Confirms the destructive gallery action.
+  ///
+  /// يؤكد الإجراء التخريبي للمعرض.
   final VoidCallback onConfirm;
 
+  /// Asks the user to confirm the deletion before mutating the gallery.
+  ///
+  /// يطلب من المستخدم تأكيد الحذف قبل تعديل المعرض.
   const _DeleteConfirmationDialog({
     required this.count,
     required this.onConfirm,
   });
-
   @override
   Widget build(BuildContext context) {
     return BackdropFilter(
@@ -3331,10 +3535,10 @@ class _DeleteConfirmationDialog extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppTheme.darkCard.withOpacity(0.95),
+            color: AppTheme.darkCard.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: AppTheme.error.withOpacity(0.3),
+              color: AppTheme.error.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -3346,11 +3550,11 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                 height: 64,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppTheme.error.withOpacity(0.1),
+                  color: AppTheme.error.withValues(alpha: 0.1),
                 ),
                 child: Icon(
                   Icons.delete_outline_rounded,
-                  color: AppTheme.error.withOpacity(0.8),
+                  color: AppTheme.error.withValues(alpha: 0.8),
                   size: 32,
                 ),
               ),
@@ -3382,7 +3586,7 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: AppTheme.darkBorder.withOpacity(0.3),
+                            color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -3404,7 +3608,7 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: AppTheme.error.withOpacity(0.9),
+                          color: AppTheme.error.withValues(alpha: 0.9),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -3431,18 +3635,35 @@ class _DeleteConfirmationDialog extends StatelessWidget {
 
 // 29. _MinimalistImagePickerSheet
 class _MinimalistImagePickerSheet extends StatelessWidget {
+  /// Invoked when the user wants to capture a new image with the camera.
+  ///
+  /// يُستدعى عندما يريد المستخدم التقاط صورة جديدة بالكاميرا.
   final VoidCallback? onCameraSelected;
+
+  /// Invoked when the user wants to pick a single image from the gallery.
+  ///
+  /// يُستدعى عندما يريد المستخدم اختيار صورة واحدة من المعرض.
   final VoidCallback? onGallerySelected;
+
+  /// Invoked when the user wants to choose several files at once.
+  ///
+  /// يُستدعى عندما يريد المستخدم اختيار عدة ملفات دفعة واحدة.
   final VoidCallback? onMultipleSelected;
+
+  /// Invoked when the user wants to attach a video asset.
+  ///
+  /// يُستدعى عندما يريد المستخدم إرفاق ملف فيديو.
   final VoidCallback? onVideoSelected;
 
+  /// Presents the media source options for the draft gallery.
+  ///
+  /// يعرض خيارات مصدر الوسائط لمعرض المسودة.
   const _MinimalistImagePickerSheet({
     this.onCameraSelected,
     this.onGallerySelected,
     this.onMultipleSelected,
     this.onVideoSelected,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -3453,7 +3674,7 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
         right: 20,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.95),
+        color: AppTheme.darkCard.withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -3463,7 +3684,7 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
             width: 32,
             height: 3,
             decoration: BoxDecoration(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(1.5),
             ),
           ),
@@ -3517,8 +3738,8 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: disabled
-              ? AppTheme.darkCard.withOpacity(0.1)
-              : AppTheme.darkCard.withOpacity(0.3),
+              ? AppTheme.darkCard.withValues(alpha: 0.1)
+              : AppTheme.darkCard.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
@@ -3526,8 +3747,8 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
             Icon(
               icon,
               color: disabled
-                  ? AppTheme.textMuted.withOpacity(0.3)
-                  : AppTheme.primaryBlue.withOpacity(0.8),
+                  ? AppTheme.textMuted.withValues(alpha: 0.3)
+                  : AppTheme.primaryBlue.withValues(alpha: 0.8),
               size: 20,
             ),
             const SizedBox(width: 12),
@@ -3535,8 +3756,8 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
               title,
               style: AppTextStyles.bodySmall.copyWith(
                 color: disabled
-                    ? AppTheme.textMuted.withOpacity(0.5)
-                    : AppTheme.textWhite.withOpacity(0.9),
+                    ? AppTheme.textMuted.withValues(alpha: 0.5)
+                    : AppTheme.textWhite.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w300,
               ),
             ),
@@ -3544,8 +3765,8 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios,
               color: disabled
-                  ? AppTheme.textMuted.withOpacity(0.2)
-                  : AppTheme.textMuted.withOpacity(0.3),
+                  ? AppTheme.textMuted.withValues(alpha: 0.2)
+                  : AppTheme.textMuted.withValues(alpha: 0.3),
               size: 14,
             ),
           ],
@@ -3557,10 +3778,15 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
 
 // 31. _MinimalistLocalImagePreview
 class _MinimalistLocalImagePreview extends StatelessWidget {
+  /// Path of the local file shown in the preview.
+  ///
+  /// مسار الملف المحلي المعروض في المعاينة.
   final String imagePath;
 
+  /// Opens a full-screen viewer for a local file path.
+  ///
+  /// يفتح عارضًا بملء الشاشة لمسار ملف محلي.
   const _MinimalistLocalImagePreview({required this.imagePath});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -3581,12 +3807,12 @@ class _MinimalistLocalImagePreview extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.7),
+                  color: AppTheme.darkCard.withValues(alpha: 0.7),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.close,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   size: 20,
                 ),
               ),
@@ -3600,14 +3826,44 @@ class _MinimalistLocalImagePreview extends StatelessWidget {
 
 // 33. _MediaOptionsSheet
 class _MediaOptionsSheet extends StatelessWidget {
+  /// Remote image or video item whose actions are being shown.
+  ///
+  /// عنصر الصورة أو الفيديو البعيد الذي تعرض له الإجراءات.
   final CityImage media;
+
+  /// Position of the item in the current gallery order.
+  ///
+  /// موضع العنصر في ترتيب المعرض الحالي.
   final int index;
+
+  /// Indicates whether the item is already the primary city image.
+  ///
+  /// يوضح ما إذا كان العنصر هو الصورة الأساسية للمدينة.
   final bool isPrimary;
+
+  /// Indicates whether the media item is a video.
+  ///
+  /// يوضح ما إذا كان العنصر المرئي فيديو.
   final bool isVideo;
+
+  /// Optional callback used to promote the item to primary.
+  ///
+  /// استدعاء اختياري لترقية العنصر إلى أساسي.
   final VoidCallback? onSetPrimary;
+
+  /// Deletes the selected media item.
+  ///
+  /// يحذف عنصر الوسائط المحدد.
   final VoidCallback onDelete;
+
+  /// Opens a focused preview for the selected media item.
+  ///
+  /// يفتح معاينة مركزة لعنصر الوسائط المحدد.
   final VoidCallback onView;
 
+  /// Presents the action sheet for a remote gallery item.
+  ///
+  /// يعرض لوحة الإجراءات لعنصر معرض بعيد.
   const _MediaOptionsSheet({
     required this.media,
     required this.index,
@@ -3617,7 +3873,6 @@ class _MediaOptionsSheet extends StatelessWidget {
     required this.onDelete,
     required this.onView,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -3628,7 +3883,7 @@ class _MediaOptionsSheet extends StatelessWidget {
         right: 20,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.95),
+        color: AppTheme.darkCard.withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -3638,7 +3893,7 @@ class _MediaOptionsSheet extends StatelessWidget {
             width: 32,
             height: 3,
             decoration: BoxDecoration(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(1.5),
             ),
           ),
@@ -3689,29 +3944,30 @@ class _MediaOptionsSheet extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: color?.withOpacity(0.1) ?? AppTheme.darkCard.withOpacity(0.3),
+          color: color?.withValues(alpha: 0.1) ??
+              AppTheme.darkCard.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           children: [
             Icon(
               icon,
-              color: color?.withOpacity(0.8) ??
-                  AppTheme.primaryBlue.withOpacity(0.8),
+              color: color?.withValues(alpha: 0.8) ??
+                  AppTheme.primaryBlue.withValues(alpha: 0.8),
               size: 20,
             ),
             const SizedBox(width: 12),
             Text(
               title,
               style: AppTextStyles.bodySmall.copyWith(
-                color: color ?? AppTheme.textWhite.withOpacity(0.9),
+                color: color ?? AppTheme.textWhite.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w300,
               ),
             ),
             const Spacer(),
             Icon(
               Icons.arrow_forward_ios,
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
               size: 14,
             ),
           ],
@@ -3722,10 +3978,15 @@ class _MediaOptionsSheet extends StatelessWidget {
 }
 
 class _MinimalistImagePreview extends StatelessWidget {
+  /// Remote city image shown in the preview viewer.
+  ///
+  /// صورة مدينة بعيدة معروضة في عارض المعاينة.
   final CityImage image;
 
+  /// Opens a full-screen preview for the remote image.
+  ///
+  /// يفتح معاينة ملء الشاشة للصورة البعيدة.
   const _MinimalistImagePreview({required this.image});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -3747,12 +4008,12 @@ class _MinimalistImagePreview extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.7),
+                  color: AppTheme.darkCard.withValues(alpha: 0.7),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.close,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   size: 20,
                 ),
               ),

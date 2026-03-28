@@ -6,11 +6,27 @@ import '../../domain/entities/support_message.dart';
 import '../../domain/repositories/support_repository.dart';
 import 'support_state.dart';
 
+/// Coordinates support-message submission and enriches the request with
+/// device metadata so the support team gets enough context to help quickly.
+///
+/// ينسق إرسال رسالة الدعم ويضيف بيانات الجهاز حتى يحصل فريق الدعم على
+/// سياق كافٍ للمساعدة بسرعة.
 class SupportCubit extends Cubit<SupportState> {
+  /// Sends the final support payload to the backend.
+  ///
+  /// يرسل الحمولة النهائية لرسالة الدعم إلى الخادم.
   final SupportRepository repository;
 
+  /// Creates the cubit with the repository that owns the support API call.
+  ///
+  /// ينشئ الـ cubit مع المستودع الذي يتولى استدعاء API الخاص بالدعم.
   SupportCubit({required this.repository}) : super(SupportInitial());
 
+  /// Collects app and device context, then sends the support request and emits
+  /// the matching success or error state.
+  ///
+  /// يجمع سياق التطبيق والجهاز ثم يرسل طلب الدعم ويصدر حالة النجاح أو الخطأ
+  /// المناسبة.
   Future<void> sendSupportMessage({
     required String userName,
     required String userEmail,

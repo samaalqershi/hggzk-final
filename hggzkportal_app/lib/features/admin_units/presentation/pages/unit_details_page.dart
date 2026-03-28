@@ -19,30 +19,49 @@ import '../../../admin_daily_schedule/presentation/pages/daily_schedule_page.dar
 import '../../../admin_daily_schedule/presentation/bloc/daily_schedule_barrel.dart';
 import '../../../../injection_container.dart';
 
+/// يمثل هذا الكلاس UnitDetailsPage البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitDetailsPage in the admin unit workflow.
 class UnitDetailsPage extends StatefulWidget {
+  /// This field keeps the unitId value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة unitId التي يعتمد عليها مسار إدارة الوحدات.
   final String unitId;
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitDetailsPage.
+  /// This constructor creates an instance of UnitDetailsPage.
   const UnitDetailsPage({
     super.key,
     required this.unitId,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<UnitDetailsPage> createState() => _UnitDetailsPageState();
 }
 
+/// يمثل هذا الكلاس _UnitDetailsPageState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _UnitDetailsPageState in the admin unit workflow.
 class _UnitDetailsPageState extends State<UnitDetailsPage>
     with SingleTickerProviderStateMixin {
   // Animation Controller - واحد فقط للحركات الأساسية
+  /// يحتفظ هذا الحقل بقيمة _animationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _animationController value used by the admin unit workflow.
   late AnimationController _animationController;
 
   // Scroll Controller
   final ScrollController _scrollController = ScrollController();
+
+  /// يحتفظ هذا الحقل بقيمة _scrollOffset التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _scrollOffset value used by the admin unit workflow.
   double _scrollOffset = 0;
 
   // Tab Controller
+  /// يحتفظ هذا الحقل بقيمة _selectedTabIndex التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectedTabIndex value used by the admin unit workflow.
   int _selectedTabIndex = 0;
 
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
@@ -51,59 +70,17 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
       vsync: this,
     )..forward();
 
+    /// ينفذ هذا الأسلوب عملية _setupScrollListener ضمن مسار إدارة الوحدات.
+    /// This method performs the _setupScrollListener operation in the admin unit workflow.
     _setupScrollListener();
+
+    /// ينفذ هذا الأسلوب عملية _loadUnitDetails ضمن مسار إدارة الوحدات.
+    /// This method performs the _loadUnitDetails operation in the admin unit workflow.
     _loadUnitDetails();
   }
 
-  // جمع الحقول الأساسية من المصدرين
-  List<Map<String, dynamic>> _collectPrimaryFilterFields(Unit unit) {
-    final List<Map<String, dynamic>> fields = [];
-    for (final fv in unit.fieldValues) {
-      if (fv.isPrimaryFilter == true) {
-        fields.add({
-          'displayName': fv.displayName ?? fv.fieldName ?? 'حقل',
-          'value': fv.fieldValue,
-          'fieldTypeId': fv.fieldTypeId ?? 'text',
-        });
-      }
-    }
-    for (final group in unit.dynamicFields) {
-      for (final f in group.fieldValues) {
-        if (f.isPrimaryFilter == true) {
-          fields.add({
-            'displayName': f.displayName ?? f.fieldName ?? 'حقل',
-            'value': f.fieldValue,
-            'fieldTypeId': f.fieldTypeId ?? 'text',
-          });
-        }
-      }
-    }
-    // بديل إن لم توجد أساسية
-    if (fields.isEmpty) {
-      for (final fv in unit.fieldValues) {
-        if (fv.fieldValue.isNotEmpty) {
-          fields.add({
-            'displayName': fv.displayName ?? fv.fieldName ?? 'حقل',
-            'value': fv.fieldValue,
-            'fieldTypeId': fv.fieldTypeId ?? 'text',
-          });
-        }
-      }
-      for (final group in unit.dynamicFields) {
-        for (final f in group.fieldValues) {
-          if (f.fieldValue.isNotEmpty) {
-            fields.add({
-              'displayName': f.displayName ?? f.fieldName ?? 'حقل',
-              'value': f.fieldValue,
-              'fieldTypeId': f.fieldTypeId ?? 'text',
-            });
-          }
-        }
-      }
-    }
-    return fields;
-  }
-
+  /// ينفذ هذا الأسلوب عملية _setupScrollListener ضمن مسار إدارة الوحدات.
+  /// This method performs the _setupScrollListener operation in the admin unit workflow.
   void _setupScrollListener() {
     _scrollController.addListener(() {
       if (mounted) {
@@ -114,12 +91,16 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     });
   }
 
+  /// ينفذ هذا الأسلوب عملية _loadUnitDetails ضمن مسار إدارة الوحدات.
+  /// This method performs the _loadUnitDetails operation in the admin unit workflow.
   void _loadUnitDetails() {
     context.read<UnitDetailsBloc>().add(
           LoadUnitDetailsEvent(unitId: widget.unitId),
         );
   }
 
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _animationController.dispose();
@@ -127,6 +108,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     super.dispose();
   }
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,6 +130,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildLoadedContent ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildLoadedContent operation in the admin unit workflow.
   Widget _buildLoadedContent(Unit unit, UnitAnalytics? analytics) {
     return Stack(
       children: [
@@ -176,6 +161,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildSliverHeader ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildSliverHeader operation in the admin unit workflow.
   Widget _buildSliverHeader(Unit unit) {
     return SliverAppBar(
       expandedHeight: 320,
@@ -254,6 +241,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildHeaderInfo ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildHeaderInfo operation in the admin unit workflow.
   Widget _buildHeaderInfo(Unit unit) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,6 +297,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildContent ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildContent operation in the admin unit workflow.
   Widget _buildContent(Unit unit, UnitAnalytics? analytics) {
     return Column(
       children: [
@@ -325,14 +316,11 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildStatsSection ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildStatsSection operation in the admin unit workflow.
   Widget _buildStatsSection(Unit unit, UnitAnalytics? analytics) {
     final avgRating = analytics?.averageRating;
     final ratingText = avgRating == null ? '-' : avgRating.toStringAsFixed(1);
-
-    final revenue = analytics?.totalRevenue;
-    final currency = analytics?.currency ?? 'YER';
-    final revenueText =
-        revenue == null ? '-' : '${revenue.toStringAsFixed(0)} $currency';
 
     final occupancy = analytics?.occupancyRate;
     final occupancyText =
@@ -383,6 +371,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildStatCard ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildStatCard operation in the admin unit workflow.
   Widget _buildStatCard({
     required IconData icon,
     required String label,
@@ -439,6 +429,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildTabBar ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildTabBar operation in the admin unit workflow.
   Widget _buildTabBar() {
     final tabs = ['معلومات', 'الصور', 'المميزات', 'التوفر'];
 
@@ -486,6 +478,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildTabContent ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildTabContent operation in the admin unit workflow.
   Widget _buildTabContent(Unit unit) {
     return Container(
       margin: const EdgeInsets.all(20),
@@ -496,6 +490,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _getTabContent ضمن مسار إدارة الوحدات.
+  /// This method performs the _getTabContent operation in the admin unit workflow.
   Widget _getTabContent(Unit unit) {
     switch (_selectedTabIndex) {
       case 0:
@@ -511,6 +507,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildInfoTab ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildInfoTab operation in the admin unit workflow.
   Widget _buildInfoTab(Unit unit) {
     return Container(
       key: const ValueKey('info'),
@@ -543,6 +541,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildGalleryTab ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildGalleryTab operation in the admin unit workflow.
   Widget _buildGalleryTab(Unit unit) {
     return SizedBox(
       key: const ValueKey('gallery'),
@@ -558,6 +558,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _getCapacityStatValue ضمن مسار إدارة الوحدات.
+  /// This method performs the _getCapacityStatValue operation in the admin unit workflow.
   String _getCapacityStatValue(Unit unit) {
     final detailedCapacity =
         (unit.adultsCapacity ?? 0) + (unit.childrenCapacity ?? 0);
@@ -568,6 +570,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     return unit.maxCapacity.toString();
   }
 
+  /// ينفذ هذا الأسلوب عملية _getCapacityInfoText ضمن مسار إدارة الوحدات.
+  /// This method performs the _getCapacityInfoText operation in the admin unit workflow.
   String _getCapacityInfoText(Unit unit) {
     final parts = <String>[];
 
@@ -586,6 +590,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     return '${unit.maxCapacity} أشخاص';
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFeaturesTab ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFeaturesTab operation in the admin unit workflow.
   Widget _buildFeaturesTab(Unit unit) {
     return Container(
       key: const ValueKey('features'),
@@ -655,6 +661,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildAvailabilityTab ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildAvailabilityTab operation in the admin unit workflow.
   Widget _buildAvailabilityTab(Unit unit) {
     return Container(
       key: const ValueKey('availability'),
@@ -773,6 +781,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildSectionTitle ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildSectionTitle operation in the admin unit workflow.
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
@@ -783,6 +793,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildInfoRow ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildInfoRow operation in the admin unit workflow.
   Widget _buildInfoRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -807,6 +819,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildDynamicFields ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildDynamicFields operation in the admin unit workflow.
   Widget _buildDynamicFields(List<FieldGroupWithValues> fieldGroups) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -839,6 +853,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
   }
 
   // جمع الحقول من المصدرين وعرض غير المكررات
+  /// ينفذ هذا الأسلوب عملية _buildAllDynamicFields ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildAllDynamicFields operation in the admin unit workflow.
   Widget _buildAllDynamicFields(Unit unit) {
     final grouped = unit.dynamicFields;
     final groupedFieldIds = <String>{
@@ -864,6 +880,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
   }
 
   // منسق بسيط للقيم مثل الكارد
+  /// ينفذ هذا الأسلوب عملية _formatFieldValue ضمن مسار إدارة الوحدات.
+  /// This method performs the _formatFieldValue operation in the admin unit workflow.
   String _formatFieldValue(dynamic value, String fieldType) {
     if (value == null || value.toString().isEmpty) return 'غير محدد';
     switch (fieldType) {
@@ -892,6 +910,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFloatingHeader ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFloatingHeader operation in the admin unit workflow.
   Widget _buildFloatingHeader(Unit unit) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -956,6 +976,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFloatingActions ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFloatingActions operation in the admin unit workflow.
   Widget _buildFloatingActions(Unit unit) {
     return Positioned(
       bottom: 32,
@@ -978,6 +1000,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFloatingButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFloatingButton operation in the admin unit workflow.
   Widget _buildFloatingButton({
     required IconData icon,
     required Color color,
@@ -1011,6 +1035,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildBackButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildBackButton operation in the admin unit workflow.
   Widget _buildBackButton() {
     return GestureDetector(
       onTap: () {
@@ -1037,6 +1063,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildActionButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildActionButton operation in the admin unit workflow.
   Widget _buildActionButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -1066,6 +1094,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildLoadingState ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildLoadingState operation in the admin unit workflow.
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -1087,6 +1117,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildErrorState ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildErrorState operation in the admin unit workflow.
   Widget _buildErrorState(String message) {
     return Center(
       child: Container(
@@ -1152,6 +1184,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
   }
 
   // Helper Methods
+  /// ينفذ هذا الأسلوب عملية _getFeatureIcon ضمن مسار إدارة الوحدات.
+  /// This method performs the _getFeatureIcon operation in the admin unit workflow.
   IconData _getFeatureIcon(String feature) {
     final featureLower = feature.toLowerCase();
     if (featureLower.contains('واي فاي') || featureLower.contains('wifi')) {
@@ -1169,6 +1203,8 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _handleStateChanges ضمن مسار إدارة الوحدات.
+  /// This method performs the _handleStateChanges operation in the admin unit workflow.
   void _handleStateChanges(BuildContext context, UnitDetailsState state) {
     if (state is UnitDeleted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1196,14 +1232,20 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _navigateToEdit ضمن مسار إدارة الوحدات.
+  /// This method performs the _navigateToEdit operation in the admin unit workflow.
   void _navigateToEdit(Unit unit) {
     context.push('/admin/units/${unit.id}/edit');
   }
 
+  /// ينفذ هذا الأسلوب عملية _shareUnit ضمن مسار إدارة الوحدات.
+  /// This method performs the _shareUnit operation in the admin unit workflow.
   void _shareUnit(Unit unit) {
     // Implement share functionality
   }
 
+  /// ينفذ هذا الأسلوب عملية _showDeleteConfirmation ضمن مسار إدارة الوحدات.
+  /// This method performs the _showDeleteConfirmation operation in the admin unit workflow.
   void _showDeleteConfirmation(Unit unit) {
     HapticFeedback.mediumImpact();
     showDialog(
@@ -1220,12 +1262,12 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.error.withOpacity(0.3),
+                color: AppTheme.error.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.error.withOpacity(0.2),
+                  color: AppTheme.error.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -1238,7 +1280,7 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.error.withOpacity(0.1),
+                    color: AppTheme.error.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.delete_outline,

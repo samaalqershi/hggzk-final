@@ -6,6 +6,7 @@ import 'package:hggzkportal/core/error/failures.dart';
 import 'package:dio/dio.dart';
 
 abstract class PropertyImagesRepository {
+  /// العربية: يعالج `uploadImage`.
   Future<Either<Failure, PropertyImage>> uploadImage({
     String? propertyId,
     String? tempKey,
@@ -17,32 +18,25 @@ abstract class PropertyImagesRepository {
     List<String>? tags,
     ProgressCallback? onSendProgress,
   });
-
   Future<Either<Failure, List<PropertyImage>>> getPropertyImages(
       String? propertyId,
       {String? tempKey});
-
   Future<Either<Failure, bool>> updateImage(
     String imageId,
     Map<String, dynamic> data,
   );
-
   Future<Either<Failure, bool>> deleteImage(String imageId);
-
   Future<Either<Failure, bool>> reorderImages(
     String? propertyId,
     String? tempKey,
     List<String> imageIds,
   );
-
   Future<Either<Failure, bool>> setAsPrimaryImage(
     String? propertyId,
     String? tempKey,
     String imageId,
   );
-
   Future<Either<Failure, bool>> deleteMultipleImages(List<String> imageIds);
-
   Future<Either<Failure, List<PropertyImage>>> uploadMultipleImages({
     String? propertyId,
     String? tempKey,

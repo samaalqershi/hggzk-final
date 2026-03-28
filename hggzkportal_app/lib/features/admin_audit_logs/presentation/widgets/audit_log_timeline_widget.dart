@@ -9,32 +9,53 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/audit_log.dart';
 
+/// خط زمني تفاعلي يجمع سجلات التدقيق حسب التاريخ ويعرضها كأحداث متسلسلة.
+/// Interactive timeline that groups audit logs by date and presents them as ordered events.
 class AuditLogTimelineWidget extends StatefulWidget {
+  /// السجلات المطلوب عرضها داخل الخط الزمني.
+  /// Audit logs to render inside the timeline.
   final List<AuditLog> auditLogs;
+
+  /// يستدعى عند النقر على أي سجل داخل الخط الزمني.
+  /// Called when the user taps any log item in the timeline.
   final Function(AuditLog) onLogTap;
 
+  /// ينشئ الخط الزمني مع البيانات ورد النقر.
   const AuditLogTimelineWidget({
     super.key,
     required this.auditLogs,
     required this.onLogTap,
   });
 
+  /// ينشئ الحالة المسؤولة عن توزيع الحركة والعرض المتدرج.
   @override
   State<AuditLogTimelineWidget> createState() => _AuditLogTimelineWidgetState();
 }
 
+/// تدير هذه الحالة التحريك المتسلسل وتجميع السجلات وتصميم العناصر.
+/// Manages staggered animations, log grouping, and timeline item layout.
 class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     with TickerProviderStateMixin {
+  /// قائمة متحكمات الحركة، واحدة لكل سجل.
+  /// Animation controllers, one per log entry.
   late List<AnimationController> _controllers;
+
+  /// قيم التلاشي المتسلسل لكل سجل.
+  /// Staggered fade values for each log item.
   late List<Animation<double>> _fadeAnimations;
+
+  /// قيم الانزلاق المتسلسل لكل سجل.
+  /// Staggered slide values for each log item.
   late List<Animation<double>> _slideAnimations;
 
+  /// يهيئ الحالة ويبدأ إعداد الحركة المتدرجة.
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
   }
 
+  /// يجهز متحكمات الحركة وقيم التلاشي والانزلاق بشكل متسلسل.
   void _initializeAnimations() {
     _controllers = List.generate(
       widget.auditLogs.length,
@@ -74,6 +95,7 @@ class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     }
   }
 
+  /// يحرر جميع متحكمات الحركة عند إزالة الخط الزمني.
   @override
   void dispose() {
     for (final controller in _controllers) {
@@ -82,6 +104,7 @@ class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     super.dispose();
   }
 
+  /// يبني الخط الزمني حسب حجم الشاشة مع الرأس وقائمة الأيام.
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -134,6 +157,7 @@ class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     );
   }
 
+  /// يبني رأس الخط الزمني مع التبديل بين العرض الجدولي والمختصر.
   Widget _buildHeader(bool isCompact) {
     return Container(
       padding: EdgeInsets.all(isCompact ? 16 : 20),
@@ -201,6 +225,7 @@ class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     );
   }
 
+  /// يبني مفتاح التبديل بين العرض القائم على القائمة والعرض التحليلي.
   Widget _buildViewToggle(bool isCompact) {
     return Container(
       padding: const EdgeInsets.all(4),
@@ -231,6 +256,7 @@ class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     );
   }
 
+  /// يبني زر تبديل صغير داخل رأس الخط الزمني.
   Widget _buildToggleButton({
     required IconData icon,
     required bool isActive,
@@ -267,6 +293,7 @@ class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     );
   }
 
+  /// يبني قسم يوم واحد مع جميع السجلات المنتمية إليه.
   Widget _buildDateSection(String date, List<AuditLog> logs, bool isCompact) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -361,6 +388,7 @@ class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     );
   }
 
+  /// يبني عنصرًا واحدًا داخل الخط الزمني مع العقدة والخط والمحتوى.
   Widget _buildTimelineItem({
     required AuditLog log,
     required bool isLast,
@@ -499,6 +527,7 @@ class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     );
   }
 
+  /// يبني شارة توقيت قصيرة توضح وقت السجل.
   Widget _buildTimeBadge(DateTime timestamp, bool isCompact) {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -534,6 +563,7 @@ class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     );
   }
 
+  /// يبني صندوق معلومات المستخدم المرتبط بالسجل.
   Widget _buildUserInfo(AuditLog log, bool isCompact) {
     return Container(
       padding: EdgeInsets.all(isCompact ? 8 : 10),
@@ -619,6 +649,7 @@ class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     );
   }
 
+  /// يبني معاينة مختصرة للتغييرات النصية داخل السجل.
   Widget _buildChangesPreview(String changes, bool isCompact) {
     final previewText =
         changes.length > 100 ? '${changes.substring(0, 100)}...' : changes;
@@ -672,6 +703,7 @@ class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     );
   }
 
+  /// يبني مؤشرًا مرئيًا يلفت الانتباه إلى العمليات البطيئة.
   Widget _buildSlowOperationIndicator(bool isCompact) {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -707,6 +739,7 @@ class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     );
   }
 
+  /// يجمع السجلات حسب التاريخ النصي المعروض في الواجهة.
   Map<String, List<AuditLog>> _groupLogsByDate() {
     Map<String, List<AuditLog>> grouped = {};
 
@@ -718,6 +751,7 @@ class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     return grouped;
   }
 
+  /// يختار لون العقدة والخط بناءً على نوع العملية.
   Color _getActionColor(String action) {
     switch (action.toLowerCase()) {
       case 'create':
@@ -735,6 +769,7 @@ class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     }
   }
 
+  /// يختار الأيقونة المناسبة لنوع العملية داخل الخط الزمني.
   IconData _getActionIcon(String action) {
     switch (action.toLowerCase()) {
       case 'create':
@@ -752,6 +787,7 @@ class _AuditLogTimelineWidgetState extends State<AuditLogTimelineWidget>
     }
   }
 
+  /// يعيد وسمًا عربيًا مختصرًا يصف نوع العملية.
   String _getActionLabel(String action) {
     switch (action.toLowerCase()) {
       case 'create':

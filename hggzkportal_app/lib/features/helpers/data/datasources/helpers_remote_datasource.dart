@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../../../../core/network/api_client.dart';
@@ -9,7 +8,11 @@ import '../../../admin_cities/data/models/city_model.dart';
 import '../../domain/entities/search_result.dart';
 import '../models/search_result_model.dart';
 
+/// يعرّف الكلاس المجرد `HelpersRemoteDataSource`.
+/// Describes the abstract `HelpersRemoteDataSource` class.
 abstract class HelpersRemoteDataSource {
+  /// Receives `searchUsers`.
+  /// العربية: يعالج `searchUsers`.
   Future<PaginatedResult<SearchResult>> searchUsers({
     String? searchTerm,
     String? role,
@@ -18,6 +21,8 @@ abstract class HelpersRemoteDataSource {
     int pageSize = 20,
   });
 
+  /// ينفذ العملية `searchProperties`.
+  /// Runs the `searchProperties` operation.
   Future<PaginatedResult<SearchResult>> searchProperties({
     String? searchTerm,
     String? typeId,
@@ -27,6 +32,8 @@ abstract class HelpersRemoteDataSource {
     int pageSize = 20,
   });
 
+  /// ينفذ العملية `searchUnits`.
+  /// Runs the `searchUnits` operation.
   Future<PaginatedResult<SearchResult>> searchUnits({
     String? searchTerm,
     String? propertyId,
@@ -35,6 +42,8 @@ abstract class HelpersRemoteDataSource {
     int pageSize = 20,
   });
 
+  /// ينفذ العملية `searchCities`.
+  /// Runs the `searchCities` operation.
   Future<PaginatedResult<SearchResult>> searchCities({
     String? searchTerm,
     String? country,
@@ -42,6 +51,8 @@ abstract class HelpersRemoteDataSource {
     int pageSize = 20,
   });
 
+  /// ينفذ العملية `searchBookings`.
+  /// Runs the `searchBookings` operation.
   Future<PaginatedResult<SearchResult>> searchBookings({
     String? searchTerm,
     String? userId,
@@ -54,11 +65,19 @@ abstract class HelpersRemoteDataSource {
   });
 }
 
+/// يعرّف الكلاس `HelpersRemoteDataSourceImpl`.
+/// Describes the `HelpersRemoteDataSourceImpl` class.
 class HelpersRemoteDataSourceImpl implements HelpersRemoteDataSource {
+  /// Holds the `apiClient` value.
+  /// العربية: يخزن القيمة `apiClient`.
   final ApiClient _apiClient;
 
+  /// ينشئ مثيلاً من `HelpersRemoteDataSourceImpl`.
+  /// Builds an instance of `HelpersRemoteDataSourceImpl`.
   HelpersRemoteDataSourceImpl(this._apiClient);
 
+  /// ينفذ العملية `searchUsers`.
+  /// Runs the `searchUsers` operation.
   @override
   Future<PaginatedResult<SearchResult>> searchUsers({
     String? searchTerm,
@@ -118,6 +137,8 @@ class HelpersRemoteDataSourceImpl implements HelpersRemoteDataSource {
     );
   }
 
+  /// ينفذ العملية `_isGuid`.
+  /// Runs the `_isGuid` operation.
   bool _isGuid(String? value) {
     if (value == null) return false;
     final guidRegex = RegExp(
@@ -125,18 +146,27 @@ class HelpersRemoteDataSourceImpl implements HelpersRemoteDataSource {
     return guidRegex.hasMatch(value);
   }
 
+  /// ينفذ العملية `_mapRoleAlias`.
+  /// Runs the `_mapRoleAlias` operation.
   String _mapRoleAlias(String role) {
     // Normalize to the 5 canonical roles: Admin, Owner, Client, Staff, Guest
     final lower = role.trim().toLowerCase();
-    if (lower == 'admin' || lower == 'administrator' || lower == 'super_admin') return 'Admin';
-    if (lower == 'owner' || lower == 'hotel_owner' || lower == 'property_owner') return 'Owner';
+    if (lower == 'admin' || lower == 'administrator' || lower == 'super_admin')
+      return 'Admin';
+    if (lower == 'owner' || lower == 'hotel_owner' || lower == 'property_owner')
+      return 'Owner';
     if (lower == 'client' || lower == 'customer') return 'Client';
-    if (lower == 'staff' || lower == 'manager' || lower == 'hotel_manager' || lower == 'receptionist') return 'Staff';
+    if (lower == 'staff' ||
+        lower == 'manager' ||
+        lower == 'hotel_manager' ||
+        lower == 'receptionist') return 'Staff';
     if (lower == 'guest' || lower == 'visitor') return 'Guest';
     // Fallback to original capitalized
     return role;
   }
 
+  /// ينفذ العملية `searchProperties`.
+  /// Runs the `searchProperties` operation.
   @override
   Future<PaginatedResult<SearchResult>> searchProperties({
     String? searchTerm,
@@ -187,6 +217,8 @@ class HelpersRemoteDataSourceImpl implements HelpersRemoteDataSource {
     );
   }
 
+  /// ينفذ العملية `searchUnits`.
+  /// Runs the `searchUnits` operation.
   @override
   Future<PaginatedResult<SearchResult>> searchUnits({
     String? searchTerm,
@@ -255,6 +287,8 @@ class HelpersRemoteDataSourceImpl implements HelpersRemoteDataSource {
     );
   }
 
+  /// ينفذ العملية `searchCities`.
+  /// Runs the `searchCities` operation.
   @override
   Future<PaginatedResult<SearchResult>> searchCities({
     String? searchTerm,
@@ -313,6 +347,8 @@ class HelpersRemoteDataSourceImpl implements HelpersRemoteDataSource {
     );
   }
 
+  /// ينفذ العملية `searchBookings`.
+  /// Runs the `searchBookings` operation.
   @override
   Future<PaginatedResult<SearchResult>> searchBookings({
     String? searchTerm,

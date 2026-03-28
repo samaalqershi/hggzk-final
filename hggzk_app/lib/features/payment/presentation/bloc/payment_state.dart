@@ -1,12 +1,11 @@
-/// features/payment/presentation/bloc/payment_state.dart
-
 import 'package:equatable/equatable.dart';
 import '../../../../core/enums/payment_method_enum.dart';
 import '../../domain/entities/transaction.dart';
 
+/// يمثل لقطات حالة ميزة الدفع كما تحتاجها الواجهة.
+/// Represents the payment feature state snapshots required by the UI.
 abstract class PaymentState extends Equatable {
   const PaymentState();
-
   @override
   List<Object?> get props => [];
 }
@@ -21,9 +20,7 @@ class PaymentProcessing extends PaymentState {
 
 class PaymentSuccess extends PaymentState {
   final Transaction transaction;
-
   const PaymentSuccess({required this.transaction});
-
   @override
   List<Object> get props => [transaction];
 }
@@ -32,13 +29,11 @@ class PaymentError extends PaymentState {
   final String message;
   final String? code;
   final bool showAsDialog;
-
   const PaymentError({
     required this.message,
     this.code,
     this.showAsDialog = false,
   });
-
   @override
   List<Object> get props => [message, code ?? '', showAsDialog];
 }
@@ -46,12 +41,10 @@ class PaymentError extends PaymentState {
 class PaymentMethodSelected extends PaymentState {
   final PaymentMethod paymentMethod;
   final bool requiresDetails;
-
   const PaymentMethodSelected({
     required this.paymentMethod,
     required this.requiresDetails,
   });
-
   @override
   List<Object> get props => [paymentMethod, requiresDetails];
 }
@@ -62,9 +55,7 @@ class PaymentDetailsValid extends PaymentState {
 
 class PaymentDetailsInvalid extends PaymentState {
   final Map<String, String> errors;
-
   const PaymentDetailsInvalid({required this.errors});
-
   @override
   List<Object> get props => [errors];
 }
@@ -79,7 +70,6 @@ class PaymentHistoryLoaded extends PaymentState {
   final int currentPage;
   final int totalCount;
   final bool isLoadingMore;
-
   const PaymentHistoryLoaded({
     required this.transactions,
     required this.hasMore,
@@ -87,7 +77,6 @@ class PaymentHistoryLoaded extends PaymentState {
     required this.totalCount,
     required this.isLoadingMore,
   });
-
   PaymentHistoryLoaded copyWith({
     List<Transaction>? transactions,
     bool? hasMore,
@@ -116,9 +105,7 @@ class PaymentHistoryLoaded extends PaymentState {
 
 class PaymentRefundSuccess extends PaymentState {
   final String message;
-
   const PaymentRefundSuccess({required this.message});
-
   @override
   List<Object> get props => [message];
 }

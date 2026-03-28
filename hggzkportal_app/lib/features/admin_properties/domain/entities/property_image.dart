@@ -28,6 +28,7 @@ enum MediaType {
 }
 
 class PropertyImage extends Equatable {
+  /// العربية: يخزن القيمة `id`.
   final String id;
   final String url;
   final String filename;
@@ -49,7 +50,6 @@ class PropertyImage extends Equatable {
   final MediaType mediaType; // إضافة نوع الوسائط
   final String? videoThumbnail; // إضافة thumbnail للفيديو
   final int? duration; // مدة الفيديو بالثواني
-
   const PropertyImage({
     required this.id,
     required this.url,
@@ -73,12 +73,10 @@ class PropertyImage extends Equatable {
     this.videoThumbnail,
     this.duration,
   });
-
   bool get isReady => processingStatus == ProcessingStatus.ready;
   bool get isVideo => mediaType == MediaType.video;
   bool get isImage => mediaType == MediaType.image;
   String get sizeInMB => (size / (1024 * 1024)).toStringAsFixed(2);
-
   String get displayThumbnail {
     if (isVideo && videoThumbnail != null) return videoThumbnail!;
     return thumbnails.medium;
@@ -118,18 +116,17 @@ class PropertyImage extends Equatable {
 }
 
 class ImageThumbnails extends Equatable {
+  /// العربية: يخزن القيمة `small`.
   final String small;
   final String medium;
   final String large;
   final String hd;
-
   const ImageThumbnails({
     required this.small,
     required this.medium,
     required this.large,
     required this.hd,
   });
-
   @override
   List<Object> get props => [small, medium, large, hd];
 }

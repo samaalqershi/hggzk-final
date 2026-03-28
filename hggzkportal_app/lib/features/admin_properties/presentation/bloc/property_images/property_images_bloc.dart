@@ -26,11 +26,9 @@ class PropertyImagesBloc
   final DeleteMultipleImagesUseCase deleteMultipleImages;
   final ReorderImagesUseCase reorderImages;
   final SetPrimaryImageUseCase setPrimaryImage;
-
   List<PropertyImage> _currentImages = [];
   Set<String> _selectedImageIds = {};
   String? _currentPropertyId;
-
   PropertyImagesBloc({
     required this.uploadPropertyImage,
     required this.uploadMultipleImages,
@@ -454,7 +452,7 @@ class PropertyImagesBloc
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
       case ServerFailure:
-        return (failure as ServerFailure).message ?? 'Server Error';
+        return (failure as ServerFailure).message;
       case NetworkFailure:
         return 'Network connection error. Please check your internet connection.';
       case CacheFailure:

@@ -15,14 +15,20 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/register_form.dart';
 
+/// تعرض شاشة إنشاء الحساب الجديدة مع النموذج والحركة الافتتاحية الخاصة بها.
+/// Presents the sign-up screen together with its registration form and
+/// entrance motion.
 class RegisterPage extends StatefulWidget {
+  /// يحدد ما إذا كانت هذه الشاشة أول خطوة يراها المستخدم الجديد.
+  /// Indicates whether this page is the first onboarding step for a new user.
   final bool isFirst;
 
+  /// ينشئ شاشة التسجيل مع خيار تحديد ما إذا كانت أول زيارة.
+  /// Creates the registration screen and marks whether it is the first visit.
   const RegisterPage({
     super.key,
     this.isFirst = false,
   });
-
   @override
   State<RegisterPage> createState() => _RegisterPageState();
 }
@@ -48,7 +54,6 @@ class _RegisterPageState extends State<RegisterPage>
 
   // Particles
   final List<_UltraParticle> _particles = [];
-
   @override
   void initState() {
     super.initState();
@@ -732,11 +737,9 @@ class _UltraParticle {
   late double radius;
   late double opacity;
   late Color color;
-
   _UltraParticle() {
     reset();
   }
-
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -766,12 +769,10 @@ class _UltraParticle {
 class _UltraParticlePainter extends CustomPainter {
   final List<_UltraParticle> particles;
   final double animationValue;
-
   _UltraParticlePainter({
     required this.particles,
     required this.animationValue,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
@@ -797,12 +798,10 @@ class _UltraParticlePainter extends CustomPainter {
 class _SubtleWavePainter extends CustomPainter {
   final double animation;
   final Color color;
-
   _SubtleWavePainter({
     required this.animation,
     required this.color,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -832,12 +831,10 @@ class _SubtleWavePainter extends CustomPainter {
 class _UltraGridPainter extends CustomPainter {
   final double rotation;
   final double opacity;
-
   _UltraGridPainter({
     required this.rotation,
     required this.opacity,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()

@@ -4,6 +4,7 @@ import 'money_model.dart';
 
 /// 🛎️ Model للخدمة
 class ServiceModel extends Service {
+  /// العربية: ينشئ مثيلًا جديدًا من `ServiceModel`.
   const ServiceModel({
     required super.id,
     required super.propertyId,
@@ -14,16 +15,16 @@ class ServiceModel extends Service {
     required super.icon,
     super.description,
   });
-
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
     // Handle pricing model from backend format
     final pricingModelData = json['pricingModel'];
     PricingModel pricingModel;
-    
+
     if (pricingModelData is Map) {
       pricingModel = PricingModel.fromValue(pricingModelData.keys.first);
     } else {
-      pricingModel = PricingModel.fromValue('${pricingModelData ?? 'PerBooking'}');
+      pricingModel =
+          PricingModel.fromValue('${pricingModelData ?? 'PerBooking'}');
     }
 
     return ServiceModel(
@@ -37,7 +38,6 @@ class ServiceModel extends Service {
       description: json['description'],
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -54,7 +54,6 @@ class ServiceModel extends Service {
       if (description != null) 'description': description,
     };
   }
-
   Service toEntity() => Service(
         id: id,
         propertyId: propertyId,

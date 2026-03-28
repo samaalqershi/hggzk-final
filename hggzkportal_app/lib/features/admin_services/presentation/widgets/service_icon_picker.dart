@@ -7,44 +7,39 @@ import '../utils/service_icons.dart';
 
 /// 🎨 Premium Service Icon Picker Dialog
 class ServiceIconPicker extends StatefulWidget {
+  /// العربية: يخزن القيمة `selectedIcon`.
   final String selectedIcon;
   final Function(String) onIconSelected;
-
   const ServiceIconPicker({
     super.key,
     required this.selectedIcon,
     required this.onIconSelected,
   });
-
   @override
   State<ServiceIconPicker> createState() => _ServiceIconPickerState();
 }
-
 class _ServiceIconPickerState extends State<ServiceIconPicker>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
-  
+
   final _searchController = TextEditingController();
   String _selectedCategory = 'الكل';
   String _searchQuery = '';
-  
   List<ServiceIconData> _filteredIcons = [];
-
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
     _filterIcons();
   }
-
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.95,
       end: 1.0,
@@ -52,7 +47,7 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
       parent: _animationController,
       curve: Curves.easeOutCubic,
     ));
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -60,42 +55,39 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
       parent: _animationController,
       curve: Curves.easeIn,
     ));
-    
+
     _animationController.forward();
   }
-
   void _filterIcons() {
     setState(() {
       List<ServiceIconData> icons = ServiceIcons.icons;
-      
+
       if (_selectedCategory != 'الكل') {
         icons = ServiceIcons.filterByCategory(_selectedCategory);
       }
-      
+
       if (_searchQuery.isNotEmpty) {
         icons = icons.where((icon) {
           return icon.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                 icon.label.toLowerCase().contains(_searchQuery.toLowerCase());
+              icon.label.toLowerCase().contains(_searchQuery.toLowerCase());
         }).toList();
       }
-      
+
       _filteredIcons = icons;
     });
   }
-
   @override
   void dispose() {
     _animationController.dispose();
     _searchController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isTablet = size.width > 600;
     final isMobile = size.width < 400;
-    
+
     return AnimatedBuilder(
       animation: _animationController,
       builder: (context, child) {
@@ -115,13 +107,14 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
                   maxHeight: size.height * 0.85,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.isDark 
-                    ? AppTheme.darkCard.withOpacity(0.98)
-                    : Colors.white,
+                  color: AppTheme.isDark
+                      ? AppTheme.darkCard.withValues(alpha: 0.98)
+                      : Colors.white,
                   borderRadius: BorderRadius.circular(isMobile ? 20 : 28),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(AppTheme.isDark ? 0.3 : 0.08),
+                      color: Colors.black
+                          .withValues(alpha: AppTheme.isDark ? 0.3 : 0.08),
                       blurRadius: 30,
                       offset: const Offset(0, 10),
                     ),
@@ -147,17 +140,16 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
       },
     );
   }
-
   Widget _buildHeader(bool isMobile) {
     return Container(
       padding: EdgeInsets.all(isMobile ? 16 : 24),
       decoration: BoxDecoration(
-        color: AppTheme.isDark 
-          ? AppTheme.darkSurface.withOpacity(0.5)
-          : AppTheme.lightBackground.withOpacity(0.8),
+        color: AppTheme.isDark
+            ? AppTheme.darkSurface.withValues(alpha: 0.5)
+            : AppTheme.lightBackground.withValues(alpha: 0.8),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
@@ -167,7 +159,7 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
           Container(
             padding: EdgeInsets.all(isMobile ? 8 : 10),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -183,7 +175,10 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
               children: [
                 Text(
                   'اختر أيقونة',
-                  style: (isMobile ? AppTextStyles.heading3 : AppTextStyles.heading2).copyWith(
+                  style: (isMobile
+                          ? AppTextStyles.heading3
+                          : AppTextStyles.heading2)
+                      .copyWith(
                     color: AppTheme.textWhite,
                     fontWeight: FontWeight.w600,
                   ),
@@ -216,7 +211,6 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
       ),
     );
   }
-
   Widget _buildSearchBar(bool isMobile) {
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -235,8 +229,8 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
           ),
           filled: true,
           fillColor: AppTheme.isDark
-            ? AppTheme.darkSurface.withOpacity(0.5)
-            : AppTheme.inputBackground,
+              ? AppTheme.darkSurface.withValues(alpha: 0.5)
+              : AppTheme.inputBackground,
           contentPadding: EdgeInsets.symmetric(
             horizontal: 16,
             vertical: isMobile ? 12 : 14,
@@ -248,14 +242,14 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(
-              color: AppTheme.darkBorder.withOpacity(0.1),
+              color: AppTheme.darkBorder.withValues(alpha: 0.1),
               width: 1,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(
-              color: AppTheme.primaryBlue.withOpacity(0.3),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -265,19 +259,19 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
             size: isMobile ? 20 : 22,
           ),
           suffixIcon: _searchQuery.isNotEmpty
-            ? IconButton(
-                icon: Icon(
-                  Icons.clear_rounded,
-                  color: AppTheme.textMuted,
-                  size: isMobile ? 18 : 20,
-                ),
-                onPressed: () {
-                  _searchController.clear();
-                  _searchQuery = '';
-                  _filterIcons();
-                },
-              )
-            : null,
+              ? IconButton(
+                  icon: Icon(
+                    Icons.clear_rounded,
+                    color: AppTheme.textMuted,
+                    size: isMobile ? 18 : 20,
+                  ),
+                  onPressed: () {
+                    _searchController.clear();
+                    _searchQuery = '';
+                    _filterIcons();
+                  },
+                )
+              : null,
         ),
         onChanged: (value) {
           _searchQuery = value;
@@ -286,10 +280,9 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
       ),
     );
   }
-
   Widget _buildCategoryTabs(bool isMobile) {
     final categories = ServiceIcons.getCategories();
-    
+
     return Container(
       height: isMobile ? 36 : 42,
       margin: EdgeInsets.only(
@@ -304,7 +297,7 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
         itemBuilder: (context, index) {
           final category = categories[index];
           final isSelected = _selectedCategory == category;
-          
+
           return Padding(
             padding: EdgeInsets.only(right: isMobile ? 6 : 8),
             child: Material(
@@ -326,25 +319,27 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
-                      ? AppTheme.primaryBlue.withOpacity(0.1)
-                      : Colors.transparent,
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isSelected
-                        ? AppTheme.primaryBlue.withOpacity(0.3)
-                        : AppTheme.darkBorder.withOpacity(0.15),
+                          ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                          : AppTheme.darkBorder.withValues(alpha: 0.15),
                       width: 1,
                     ),
                   ),
                   child: Text(
                     category,
-                    style: (isMobile ? AppTextStyles.caption : AppTextStyles.bodySmall).copyWith(
-                      color: isSelected 
-                        ? AppTheme.primaryBlue 
-                        : AppTheme.textMuted,
-                      fontWeight: isSelected 
-                        ? FontWeight.w600 
-                        : FontWeight.normal,
+                    style: (isMobile
+                            ? AppTextStyles.caption
+                            : AppTextStyles.bodySmall)
+                        .copyWith(
+                      color: isSelected
+                          ? AppTheme.primaryBlue
+                          : AppTheme.textMuted,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),
                 ),
@@ -355,7 +350,6 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
       ),
     );
   }
-
   Widget _buildIconGrid(bool isMobile, bool isTablet) {
     if (_filteredIcons.isEmpty) {
       return Center(
@@ -365,13 +359,13 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppTheme.darkSurface.withOpacity(0.3),
+                color: AppTheme.darkSurface.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.search_off_rounded,
                 size: isMobile ? 40 : 48,
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 16),
@@ -393,10 +387,10 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
         ),
       );
     }
-    
+
     final crossAxisCount = isMobile ? 4 : (isTablet ? 6 : 8);
     final aspectRatio = isMobile ? 0.85 : 0.9; // تعديل نسبة العرض للطول
-    
+
     return GridView.builder(
       padding: EdgeInsets.symmetric(
         horizontal: isMobile ? 16 : 24,
@@ -412,7 +406,7 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
       itemBuilder: (context, index) {
         final iconData = _filteredIcons[index];
         final isSelected = widget.selectedIcon == iconData.name;
-        
+
         return Material(
           color: Colors.transparent,
           child: InkWell(
@@ -427,15 +421,15 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
               padding: EdgeInsets.all(isMobile ? 4 : 6),
               decoration: BoxDecoration(
                 color: isSelected
-                  ? AppTheme.primaryBlue.withOpacity(0.1)
-                  : AppTheme.isDark
-                    ? AppTheme.darkSurface.withOpacity(0.3)
-                    : AppTheme.lightSurface,
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+                    : AppTheme.isDark
+                        ? AppTheme.darkSurface.withValues(alpha: 0.3)
+                        : AppTheme.lightSurface,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: isSelected
-                    ? AppTheme.primaryBlue.withOpacity(0.4)
-                    : AppTheme.darkBorder.withOpacity(0.1),
+                      ? AppTheme.primaryBlue.withValues(alpha: 0.4)
+                      : AppTheme.darkBorder.withValues(alpha: 0.1),
                   width: isSelected ? 1.5 : 1,
                 ),
               ),
@@ -451,9 +445,9 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
                           alignment: Alignment.center,
                           child: Icon(
                             iconData.icon,
-                            color: isSelected 
-                              ? AppTheme.primaryBlue 
-                              : AppTheme.textLight,
+                            color: isSelected
+                                ? AppTheme.primaryBlue
+                                : AppTheme.textLight,
                             size: isMobile ? 20 : 24,
                           ),
                         ),
@@ -468,12 +462,12 @@ class _ServiceIconPickerState extends State<ServiceIconPicker>
                             style: TextStyle(
                               fontSize: isMobile ? 7 : 8,
                               height: 1.1, // تقليل ارتفاع السطر
-                              color: isSelected 
-                                ? AppTheme.primaryBlue 
-                                : AppTheme.textMuted,
-                              fontWeight: isSelected 
-                                ? FontWeight.w600 
-                                : FontWeight.normal,
+                              color: isSelected
+                                  ? AppTheme.primaryBlue
+                                  : AppTheme.textMuted,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
                             ),
                             textAlign: TextAlign.center,
                             maxLines: 2,

@@ -13,14 +13,22 @@ import '../models/booking_trends_model.dart';
 import '../models/booking_window_analysis_model.dart';
 import '../models/payment_model.dart' as payment_models;
 
+/// يعرّف عمليات الوصول البعيد الخاصة بالحجوزات، من أوامر الحالة إلى
+/// التقارير والتحليلات الزمنية.
+/// Defines the remote booking operations, from status commands to reports and
+/// time-based analyses.
 abstract class BookingsRemoteDataSource {
-  // Commands
+  /// يلغي الحجز مع إرسال سبب الإلغاء وهل يجب استرجاع المدفوعات.
+  /// Cancels a booking while sending the cancellation reason and whether
+  /// payments should be refunded.
   Future<bool> cancelBooking({
     required String bookingId,
     required String cancellationReason,
     bool refundPayments = false,
   });
 
+  /// يحدّث تواريخ الإقامة أو عدد الضيوف لحجز قائم.
+  /// Updates stay dates or guest count for an existing booking.
   Future<bool> updateBooking({
     required String bookingId,
     DateTime? checkIn,
@@ -28,31 +36,60 @@ abstract class BookingsRemoteDataSource {
     int? guestsCount,
   });
 
+  /// يؤكد الحجز في المسار التشغيلي الحالي للخادم.
+  /// Confirms the booking in the backend's current workflow.
   Future<bool> confirmBooking({required String bookingId});
+
+  /// يسجل دخول الضيف إلى الوحدة بعد الوصول.
+  /// Records the guest check-in after arrival.
   Future<bool> checkIn({required String bookingId});
+
+  /// يسجل خروج الضيف من الوحدة بعد انتهاء الإقامة.
+  /// Records the guest check-out after the stay ends.
   Future<bool> checkOut({required String bookingId});
+
+  /// يكمل دورة الحجز وينقله إلى الحالة النهائية المنفذة.
+  /// Completes the booking lifecycle and moves it to the final executed
+  /// state.
   Future<bool> completeBooking({required String bookingId});
 
+  /// يسجل دفعة جديدة مرتبطة بالحجز ويعيد تمثيلها بعد اعتماد الخادم.
+  /// Registers a new booking payment and returns the server-approved
+  /// representation.
   Future<Payment> registerBookingPayment(RegisterPaymentParams params);
 
-  // Services
+  /// يضيف خدمة اختيارية إلى الحجز الحالي.
+  /// Adds an optional service to the current booking.
   Future<bool> addServiceToBooking({
     required String bookingId,
     required String serviceId,
   });
 
+  /// يزيل خدمة مرتبطة بالحجز الحالي.
+  /// Removes a service linked to the current booking.
   Future<bool> removeServiceFromBooking({
     required String bookingId,
     required String serviceId,
   });
 
+  /// يجلب الخدمات المضافة إلى الحجز حتى تعرضها شاشة التفاصيل أو التعديل.
+  /// Fetches the services attached to a booking so the details or edit view
+  /// can render them.
   Future<List<ServiceModel>> getBookingServices({required String bookingId});
 
-  // Queries
+  /// يجلب الحجز الأساسي بالمعرف الداخلي.
+  /// Fetches the base booking record by its internal identifier.
   Future<BookingModel> getBookingById({required String bookingId});
 
+  /// يجلب تفاصيل الحجز الكاملة بما في ذلك الدفعات والخدمات والبيانات
+  /// المساندة.
+  /// Fetches the full booking details including payments, services, and
+  /// supporting data.
   Future<BookingDetailsModel> getBookingDetails({required String bookingId});
 
+  /// يجلب الحجوزات ضمن نطاق تاريخي مع مرشحات إضافية للعرض الجدولي.
+  /// Fetches bookings within a date range with extra filters for table
+  /// rendering.
   Future<PaginatedResult<BookingModel>> getBookingsByDateRange({
     required DateTime startDate,
     required DateTime endDate,
@@ -68,6 +105,9 @@ abstract class BookingsRemoteDataSource {
     String? sortBy,
   });
 
+  /// يجلب الحجوزات الخاصة بعقار محدد مع مرشحات الحالة والدفع والتصفح.
+  /// Fetches bookings for a specific property with status, payment, and
+  /// paging filters.
   Future<PaginatedResult<BookingModel>> getBookingsByProperty({
     required String propertyId,
     DateTime? startDate,
@@ -84,12 +124,16 @@ abstract class BookingsRemoteDataSource {
     String? sortBy,
   });
 
+  /// يجلب الحجوزات المطابقة لحالة واحدة محددة.
+  /// Fetches bookings that match a single status value.
   Future<PaginatedResult<BookingModel>> getBookingsByStatus({
     required BookingStatus status,
     int? pageNumber,
     int? pageSize,
   });
 
+  /// يجلب الحجوزات المرتبطة بوحدة محددة مع نطاق زمني اختياري.
+  /// Fetches bookings linked to a specific unit with an optional time range.
   Future<PaginatedResult<BookingModel>> getBookingsByUnit({
     required String unitId,
     DateTime? startDate,
@@ -98,6 +142,8 @@ abstract class BookingsRemoteDataSource {
     int? pageSize,
   });
 
+  /// يجلب الحجوزات الخاصة بمستخدم معيّن مع مرشحات إضافية اختيارية.
+  /// Fetches bookings for a specific user with optional extra filters.
   Future<PaginatedResult<BookingModel>> getBookingsByUser({
     required String userId,
     int? pageNumber,
@@ -112,31 +158,52 @@ abstract class BookingsRemoteDataSource {
     String? sortBy,
   });
 
-  // Reports
+  /// يجلب تقرير الحجوزات الإجمالي ضمن نطاق زمني محدد.
+  /// Fetches the aggregate booking report for a specific date range.
   Future<BookingReportModel> getBookingReport({
     required DateTime startDate,
     required DateTime endDate,
     String? propertyId,
   });
 
+  /// يجلب اتجاهات الحجز والإيراد والإشغال ضمن النطاق الزمني المحدد.
+  /// Fetches booking, revenue, and occupancy trends for the chosen time range.
   Future<BookingTrendsModel> getBookingTrends({
     String? propertyId,
     required DateTime startDate,
     required DateTime endDate,
   });
 
+  /// يجلب تحليل نافذة الحجز للعقار المطلوب.
+  /// Fetches the booking-window analysis for the requested property.
   Future<BookingWindowAnalysisModel> getBookingWindowAnalysis({
     required String propertyId,
   });
 }
 
+/// ينفذ عمليات الحجوزات البعيدة ويحوّل استجابات الـ API إلى نماذج
+/// الحجز المعتمدة داخل البوابة.
+/// Implements the remote booking operations and converts API responses into
+/// the booking models used by the portal.
 class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
+  /// عميل الشبكة المشترك الذي يرسل أوامر واستعلامات الحجوزات إلى الخادم.
+  /// Shared network client that sends booking commands and queries to the
+  /// backend.
   final ApiClient apiClient;
+
+  /// المسار الأساسي الذي تعرض منه واجهة الإدارة عمليات الحجوزات.
+  /// Base endpoint through which the admin API exposes booking operations.
   static const String _baseEndpoint = '/api/admin/bookings';
 
+  /// يربط مصدر البيانات البعيد بعميل الشبكة المحقون من طبقة الاعتماد.
+  /// Binds the remote datasource to the injected network client from the DI
+  /// layer.
   BookingsRemoteDataSourceImpl({required this.apiClient});
-
   @override
+
+  /// يرسل طلب إلغاء الحجز مع تفاصيل السبب وخيار استرجاع المدفوعات.
+  /// Sends the booking-cancellation request with the reason and optional
+  /// refund flag.
   Future<bool> cancelBooking({
     required String bookingId,
     required String cancellationReason,
@@ -171,13 +238,20 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
       final msg = (data is Map<String, dynamic>)
           ? (data['message']?.toString() ?? 'Network error occurred')
           : 'Network error occurred';
-      final code = (data is Map<String, dynamic>) ? (data['errorCode']?.toString() ?? data['code']?.toString()) : null;
-      final showAsDialog = (data is Map<String, dynamic>) ? (data['showAsDialog'] == true) : false;
+      final code = (data is Map<String, dynamic>)
+          ? (data['errorCode']?.toString() ?? data['code']?.toString())
+          : null;
+      final showAsDialog = (data is Map<String, dynamic>)
+          ? (data['showAsDialog'] == true)
+          : false;
       throw ServerException(msg, code: code, showAsDialog: showAsDialog);
     }
   }
 
   @override
+
+  /// يرسل التحديث الجزئي للحجز مثل التواريخ أو عدد الضيوف.
+  /// Sends a partial booking update such as dates or guest count.
   Future<bool> updateBooking({
     required String bookingId,
     DateTime? checkIn,
@@ -213,6 +287,10 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يرسل طلب تأكيد الحجز إلى المسار التشغيلي المناسب.
+  /// Sends the booking confirmation request to the appropriate workflow
+  /// endpoint.
   Future<bool> confirmBooking({required String bookingId}) async {
     try {
       final response = await apiClient.post(
@@ -238,6 +316,9 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يسجل وصول الضيف إلى الوحدة عبر نقطة check-in.
+  /// Registers the guest arrival through the check-in endpoint.
   Future<bool> checkIn({required String bookingId}) async {
     try {
       final response = await apiClient.post(
@@ -263,6 +344,9 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يسجل مغادرة الضيف من الوحدة عبر نقطة check-out.
+  /// Registers the guest departure through the check-out endpoint.
   Future<bool> checkOut({required String bookingId}) async {
     try {
       final response = await apiClient.post(
@@ -288,6 +372,9 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// ينهي الحجز ويضعه في الحالة النهائية المكتملة.
+  /// Finalizes the booking and moves it to the completed state.
   Future<bool> completeBooking({required String bookingId}) async {
     try {
       final response = await apiClient.post(
@@ -313,6 +400,10 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يسجل دفعة الحجز ويحوّل الاستجابة إلى كيان دفعة معتمد.
+  /// Registers a booking payment and converts the response into a normalized
+  /// payment entity.
   Future<Payment> registerBookingPayment(RegisterPaymentParams params) async {
     try {
       final response = await apiClient.post(
@@ -324,7 +415,8 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
             'currency': params.currency,
             'exchangeRate': 1.0,
           },
-          'paymentMethod': params.paymentMethod.index + 1, // Convert enum to backend value
+          'paymentMethod':
+              params.paymentMethod.index + 1, // Convert enum to backend value
           'transactionId': params.transactionId ?? '',
           'notes': params.notes ?? '',
           'paymentDate': params.paymentDate?.toIso8601String(),
@@ -351,6 +443,9 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يضيف خدمة إلى الحجز الحالي مع تمرير المعرفين المطلوبين.
+  /// Adds a service to the current booking while sending both required ids.
   Future<bool> addServiceToBooking({
     required String bookingId,
     required String serviceId,
@@ -382,6 +477,10 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يزيل خدمة من الحجز الحالي عبر نقطة الإزالة المخصصة.
+  /// Removes a service from the current booking through the dedicated removal
+  /// endpoint.
   Future<bool> removeServiceFromBooking({
     required String bookingId,
     required String serviceId,
@@ -413,6 +512,10 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يجلب الخدمات المرتبطة بالحجز لعرضها في شاشة التفاصيل.
+  /// Fetches the services linked to the booking so the details screen can
+  /// render them.
   Future<List<ServiceModel>> getBookingServices(
       {required String bookingId}) async {
     try {
@@ -440,6 +543,10 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يجلب الحجز الأساسي بالمعرف ويعيده بعد تطبيع الرد من الـ API.
+  /// Fetches the base booking by id and returns it after normalizing the API
+  /// response.
   Future<BookingModel> getBookingById({required String bookingId}) async {
     try {
       final response = await apiClient.get('$_baseEndpoint/$bookingId');
@@ -469,6 +576,10 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يجلب تفاصيل الحجز الكاملة بما في ذلك العلاقات والسجل الزمني.
+  /// Fetches the full booking details including relationships and timeline
+  /// data.
   Future<BookingDetailsModel> getBookingDetails(
       {required String bookingId}) async {
     try {
@@ -498,14 +609,23 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
     }
   }
 
+  /// يدمج رسالة الخادم مع قائمة الأخطاء التفصيلية عندما يعيد الـ API
+  /// استجابة غنية بالتفاصيل.
+  /// Merges the server message with detailed errors when the API returns a
+  /// rich error response.
   String _joinMessageAndErrors(String? message, dynamic responseData) {
     try {
       if (responseData is Map<String, dynamic>) {
         final errs = responseData['errors'];
         if (errs is List) {
-          final combined = errs.map((e) => e.toString()).where((e) => e.isNotEmpty).join(' / ');
+          final combined = errs
+              .map((e) => e.toString())
+              .where((e) => e.isNotEmpty)
+              .join(' / ');
           if (combined.isNotEmpty) {
-            if (message != null && message.isNotEmpty && message != 'حدثت أخطاء متعددة') {
+            if (message != null &&
+                message.isNotEmpty &&
+                message != 'حدثت أخطاء متعددة') {
               return '$message\n$combined';
             }
             return combined;
@@ -517,6 +637,11 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يجلب الحجوزات ضمن نطاق تاريخي مع المرشحات الإضافية المطلوبة للعرض
+  /// التحليلي.
+  /// Fetches bookings within a date range with the extra filters required for
+  /// analytical views.
   Future<PaginatedResult<BookingModel>> getBookingsByDateRange({
     required DateTime startDate,
     required DateTime endDate,
@@ -574,6 +699,11 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يجلب الحجوزات الخاصة بعقار محدد مع الحفاظ على مرونة المرشحات
+  /// الاختيارية.
+  /// Fetches bookings for a specific property while keeping optional filters
+  /// flexible.
   Future<PaginatedResult<BookingModel>> getBookingsByProperty({
     required String propertyId,
     DateTime? startDate,
@@ -634,6 +764,9 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يجلب الحجوزات المطابقة لحالة واحدة لتغذية القوائم المفلترة.
+  /// Fetches bookings matching one status value to power filtered lists.
   Future<PaginatedResult<BookingModel>> getBookingsByStatus({
     required BookingStatus status,
     int? pageNumber,
@@ -674,6 +807,9 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يجلب الحجوزات المرتبطة بوحدة واحدة ضمن نطاق زمني اختياري.
+  /// Fetches bookings linked to a single unit within an optional time range.
   Future<PaginatedResult<BookingModel>> getBookingsByUnit({
     required String unitId,
     DateTime? startDate,
@@ -718,6 +854,9 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يجلب الحجوزات الخاصة بمستخدم محدد مع مرشحات تشغيلية إضافية.
+  /// Fetches bookings for a specific user with extra operational filters.
   Future<PaginatedResult<BookingModel>> getBookingsByUser({
     required String userId,
     int? pageNumber,
@@ -774,6 +913,10 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يجلب تقرير الحجز الإجمالي للعقار أو للنطاق الزمني المطلوب.
+  /// Fetches the aggregate booking report for the requested property or date
+  /// range.
   Future<BookingReportModel> getBookingReport({
     required DateTime startDate,
     required DateTime endDate,
@@ -809,6 +952,9 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يجلب مؤشرات الاتجاهات الزمنية الخاصة بالحجوزات والإيرادات والإشغال.
+  /// Fetches the time-based trends for bookings, revenue, and occupancy.
   Future<BookingTrendsModel> getBookingTrends({
     String? propertyId,
     required DateTime startDate,
@@ -844,6 +990,10 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
   }
 
   @override
+
+  /// يجلب تحليل نافذة الحجز للعقار المطلوب حتى يبيّن سلوك الحجز المبكر.
+  /// Fetches the booking-window analysis for the requested property to show
+  /// early-booking behavior.
   Future<BookingWindowAnalysisModel> getBookingWindowAnalysis({
     required String propertyId,
   }) async {

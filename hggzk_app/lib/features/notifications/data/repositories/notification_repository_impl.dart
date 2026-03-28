@@ -7,11 +7,27 @@ import '../../domain/repositories/notification_repository.dart';
 import '../datasources/notification_local_datasource.dart';
 import '../datasources/notification_remote_datasource.dart';
 
+/// ينسق بين المصدرين المحلي والبعيد في ميزة الإشعارات، مع استخدام الكاش
+/// عند انقطاع الشبكة وإرجاع نتائج موحدة للطبقات الأعلى.
+/// Coordinates local and remote notification sources, falling back to cache
+/// when offline and returning unified results to higher layers.
 class NotificationRepositoryImpl implements NotificationRepository {
+  /// المصدر البعيد المسؤول عن جلب الإشعارات من الخادم.
+  /// Remote data source responsible for fetching notifications from the
+  /// backend.
   final NotificationRemoteDataSource remoteDataSource;
+
+  /// المصدر المحلي المستخدم للكاش وتفضيلات الإشعارات.
+  /// Local data source used for caching and notification preferences.
   final NotificationLocalDataSource localDataSource;
+
+  /// خدمة حالة الشبكة التي تحدد ما إذا كان المسار البعيد متاحًا.
+  /// Network service used to determine whether remote calls are available.
   final NetworkInfo networkInfo;
 
+  /// ينشئ تنفيذ المستودع مع المصادر اللازمة لإدارة الإشعارات.
+  /// Creates the repository implementation with the dependencies required to
+  /// manage notifications.
   NotificationRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
@@ -19,7 +35,8 @@ class NotificationRepositoryImpl implements NotificationRepository {
   });
 
   @override
-  Future<Either<Failure, PaginatedResult<NotificationEntity>>> getNotifications({
+  Future<Either<Failure, PaginatedResult<NotificationEntity>>>
+      getNotifications({
     int page = 1,
     int limit = 20,
     String? type,
@@ -34,7 +51,8 @@ class NotificationRepositoryImpl implements NotificationRepository {
         await localDataSource.cacheNotifications(result.items);
         return Right(result);
       } else {
-        final cachedNotifications = await localDataSource.getCachedNotifications();
+        final cachedNotifications =
+            await localDataSource.getCachedNotifications();
         return Right(PaginatedResult(
           items: cachedNotifications,
           pageNumber: 1,
@@ -43,7 +61,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         ));
       }
     } catch (e) {
-      return const Left(ServerFailure( 'Server error occurred'));
+      return const Left(ServerFailure('Server error occurred'));
     }
   }
 
@@ -57,7 +75,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return const Left(NetworkFailure());
       }
     } catch (e) {
-      return const Left(ServerFailure( 'Server error occurred'));
+      return const Left(ServerFailure('Server error occurred'));
     }
   }
 
@@ -71,12 +89,13 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return const Left(NetworkFailure());
       }
     } catch (e) {
-      return const Left(ServerFailure( 'Server error occurred'));
+      return const Left(ServerFailure('Server error occurred'));
     }
   }
 
   @override
-  Future<Either<Failure, void>> dismissNotification(String notificationId) async {
+  Future<Either<Failure, void>> dismissNotification(
+      String notificationId) async {
     try {
       if (await networkInfo.isConnected) {
         await remoteDataSource.dismissNotification(notificationId);
@@ -85,7 +104,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return const Left(NetworkFailure());
       }
     } catch (e) {
-      return const Left(ServerFailure( 'Server error occurred'));
+      return const Left(ServerFailure('Server error occurred'));
     }
   }
 
@@ -101,12 +120,13 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return Right(cachedSettings);
       }
     } catch (e) {
-      return const Left(ServerFailure( 'Server error occurred'));
+      return const Left(ServerFailure('Server error occurred'));
     }
   }
 
   @override
-  Future<Either<Failure, void>> updateNotificationSettings(Map<String, bool> settings) async {
+  Future<Either<Failure, void>> updateNotificationSettings(
+      Map<String, bool> settings) async {
     try {
       if (await networkInfo.isConnected) {
         await remoteDataSource.updateNotificationSettings(settings);
@@ -116,7 +136,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return const Left(NetworkFailure());
       }
     } catch (e) {
-      return const Left(ServerFailure( 'Server error occurred'));
+      return const Left(ServerFailure('Server error occurred'));
     }
   }
 
@@ -130,7 +150,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return const Left(NetworkFailure());
       }
     } catch (e) {
-      return const Left(ServerFailure( 'Server error occurred'));
+      return const Left(ServerFailure('Server error occurred'));
     }
   }
 }

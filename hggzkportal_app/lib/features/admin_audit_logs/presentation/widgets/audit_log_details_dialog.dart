@@ -11,30 +11,64 @@ import '../../domain/entities/audit_log.dart';
 import 'package:hggzkportal/injection_container.dart' as di;
 import '../../domain/repositories/audit_logs_repository.dart' as repo;
 
+/// حوار تفصيلي يعرض سجل التدقيق مع القيم القديمة والجديدة والبيانات المساندة.
+/// Detailed dialog that shows an audit log with old values, new values, and metadata.
 class AuditLogDetailsDialog extends StatefulWidget {
+  /// السجل المراد عرضه بالتفصيل.
+  /// Audit log to display in detail.
   final AuditLog auditLog;
 
+  /// ينشئ الحوار اعتمادًا على سجل التدقيق الممرر.
+  /// Creates the dialog from the provided audit log.
   const AuditLogDetailsDialog({
     super.key,
     required this.auditLog,
   });
 
+  /// ينشئ حالة الحوار المسؤولة عن الحركة وجلب التفاصيل الثقيلة عند الحاجة.
+  /// Creates the dialog state that handles motion and lazy loading of heavy details.
   @override
   State<AuditLogDetailsDialog> createState() => _AuditLogDetailsDialogState();
 }
 
+/// تدير هذه الحالة الحركة، تبديل الأقسام، وجلب تفاصيل السجل عند الحاجة.
+/// Manages animation, section toggles, and lazy loading of log details.
 class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
     with SingleTickerProviderStateMixin {
+  /// يتحكم في تكبير وتلاشي الحوار عند الظهور.
+  /// Controls the dialog scale and fade-in animation.
   late AnimationController _animationController;
+
+  /// قيمة التكبير المستخدمة عند دخول الحوار.
+  /// Scale value used while the dialog enters.
   late Animation<double> _scaleAnimation;
+
+  /// قيمة الشفافية المستخدمة لظهور الحوار تدريجيًا.
+  /// Fade value used to reveal the dialog gradually.
   late Animation<double> _fadeAnimation;
 
+  /// يحدد إظهار قسم القيم القديمة.
+  /// Indicates whether the old-values section is expanded.
   bool _showOldValues = false;
+
+  /// يحدد إظهار قسم القيم الجديدة.
+  /// Indicates whether the new-values section is expanded.
   bool _showNewValues = false;
+
+  /// يحدد إظهار قسم البيانات الإضافية.
+  /// Indicates whether the metadata section is expanded.
   bool _showMetadata = false;
+
+  /// يحدد ما إذا كانت تفاصيل السجل الإضافية قيد الجلب.
+  /// Indicates whether the extra audit-log details are still loading.
   bool _loading = false;
+
+  /// النسخة الحالية من السجل، وقد تُستبدل بسجل كامل لاحقًا.
+  /// Current log snapshot, which may later be replaced by a fully loaded record.
   late AuditLog _log;
 
+  /// يهيئ الحركة ويبدأ جلب التفاصيل الثقيلة إذا كانت ناقصة.
+  /// Initializes the animation and fetches heavy details if needed.
   @override
   void initState() {
     super.initState();
@@ -63,17 +97,23 @@ class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
     _animationController.forward();
 
     // Fetch heavy fields on demand
-    if (_log.oldValues == null && _log.newValues == null && _log.metadata == null) {
+    if (_log.oldValues == null &&
+        _log.newValues == null &&
+        _log.metadata == null) {
       _fetchDetails();
     }
   }
 
+  /// يحرر متحكم الحركة عند إغلاق الحوار.
+  /// Disposes the animation controller when the dialog is closed.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// يبني الحوار الكامل مع الأقسام القابلة للطي وزر الإغلاق.
+  /// Builds the full dialog with collapsible sections and the close action.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -141,8 +181,7 @@ class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
                                         _buildMainInfo(isCompact),
                                         const SizedBox(height: 20),
                                         _buildDetailsSection(isCompact),
-                                        if (_log.oldValues !=
-                                            null) ...[
+                                        if (_log.oldValues != null) ...[
                                           const SizedBox(height: 20),
                                           _buildValuesSection(
                                             title: 'القيم السابقة',
@@ -155,8 +194,7 @@ class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
                                             isCompact: isCompact,
                                           ),
                                         ],
-                                        if (_log.newValues !=
-                                            null) ...[
+                                        if (_log.newValues != null) ...[
                                           const SizedBox(height: 20),
                                           _buildValuesSection(
                                             title: 'القيم الجديدة',
@@ -169,8 +207,7 @@ class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
                                             isCompact: isCompact,
                                           ),
                                         ],
-                                        if (_log.metadata !=
-                                            null) ...[
+                                        if (_log.metadata != null) ...[
                                           const SizedBox(height: 20),
                                           _buildValuesSection(
                                             title: 'البيانات الإضافية',
@@ -217,6 +254,8 @@ class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
     );
   }
 
+  /// يبني رأس الحوار الذي يوضح نوع العملية ويعرض زر الإغلاق.
+  /// Builds the dialog header that shows the action type and close button.
   Widget _buildHeader(bool isCompact) {
     return Container(
       padding: EdgeInsets.all(isCompact ? 16 : 20),
@@ -307,6 +346,8 @@ class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
     );
   }
 
+  /// يبني القسم العلوي الذي يعرض المعرف والجدول والمستخدم والتوقيت.
+  /// Builds the top section showing the ID, table, user, and timestamp.
   Widget _buildMainInfo(bool isCompact) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -363,6 +404,8 @@ class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
     );
   }
 
+  /// يبني قسم الوصف الذي يعرض تغييرات السجل وملاحظاته.
+  /// Builds the details section that shows the log changes and notes.
   Widget _buildDetailsSection(bool isCompact) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -441,6 +484,8 @@ class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
     );
   }
 
+  /// يبني قسم القيم القابل للطي لعرض JSON قبل/بعد أو بيانات أخرى.
+  /// Builds a collapsible values section for before/after JSON or similar data.
   Widget _buildValuesSection({
     required String title,
     required Map<String, dynamic> values,
@@ -523,6 +568,8 @@ class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
     );
   }
 
+  /// يعرض كائن JSON أو خريطة مفاتيح/قيم بطريقة قابلة للنسخ والقراءة.
+  /// Renders a JSON object or key/value map in a readable, copy-friendly form.
   Widget _buildJsonView(Map<String, dynamic> data, bool isCompact) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -562,6 +609,8 @@ class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
     );
   }
 
+  /// يبني صفًا معلوماتيًا صغيرًا مع أيقونة ووسم وقيمة قابلة للنسخ.
+  /// Builds a compact info row with an icon, label, and copyable value.
   Widget _buildInfoRow({
     required IconData icon,
     required String label,
@@ -627,6 +676,8 @@ class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
     );
   }
 
+  /// يبني شريط الإجراءات السفلي الذي يغلق الحوار.
+  /// Builds the bottom action bar that closes the dialog.
   Widget _buildActions(bool isCompact) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -664,6 +715,8 @@ class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
     );
   }
 
+  /// يحدد لون الرأس والشريط وفق نوع العملية المسجلة.
+  /// Chooses the header and accent color based on the logged action.
   Color _getActionColor() {
     switch (widget.auditLog.action.toLowerCase()) {
       case 'create':
@@ -681,6 +734,8 @@ class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
     }
   }
 
+  /// يحدد الأيقونة المناسبة لنوع العملية داخل الحوار.
+  /// Chooses the icon that matches the action type.
   IconData _getActionIcon() {
     switch (widget.auditLog.action.toLowerCase()) {
       case 'create':
@@ -698,6 +753,8 @@ class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
     }
   }
 
+  /// يعيد وسمًا عربيًا واضحًا لنوع العملية المسجلة.
+  /// Returns a clear Arabic label for the logged action.
   String _getActionLabel() {
     switch (widget.auditLog.action.toLowerCase()) {
       case 'create':
@@ -715,6 +772,8 @@ class _AuditLogDetailsDialogState extends State<AuditLogDetailsDialog>
     }
   }
 
+  /// يجلب السجل الكامل من المستودع عندما تكون الحقول الثقيلة غير محملة.
+  /// Loads the full log record from the repository when heavy fields are missing.
   Future<void> _fetchDetails() async {
     setState(() => _loading = true);
     try {

@@ -19,27 +19,42 @@ import '../bloc/booking_state.dart';
 import '../widgets/booking_status_widget.dart';
 import '../widgets/cancellation_deadline_has_expired_widget.dart';
 
+/// العربية: يمثل عنصر الصفحة `BookingDetailsPage`.
 class BookingDetailsPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `bookingId`.
   final String bookingId;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingDetailsPage`.
   const BookingDetailsPage({
     super.key,
     required this.bookingId,
   });
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<BookingDetailsPage> createState() => _BookingDetailsPageState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `BookingDetailsPageState`.
 class _BookingDetailsPageState extends State<BookingDetailsPage>
     with SingleTickerProviderStateMixin {
+  /// العربية: يخزن القيمة `controller`.
   late AnimationController _controller;
   final ScrollController _scrollController = ScrollController();
+
+  /// العربية: يخزن القيمة `cachedBooking`.
   dynamic _cachedBooking;
+
+  /// العربية: يخزن القيمة `pendingCancelReason`.
   String? _pendingCancelReason;
+
+  /// العربية: يخزن القيمة `pendingCancelBookingId`.
   String? _pendingCancelBookingId;
+
+  /// العربية: يخزن القيمة `pendingCancelUserId`.
   String? _pendingCancelUserId;
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -50,6 +65,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     _loadBookingDetails();
   }
 
+  /// العربية: يبني user review card.
   Widget _buildUserReviewCard(dynamic booking) {
     final review = booking.userReview;
     if (review == null) return const SizedBox.shrink();
@@ -218,6 +234,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// العربية: يحمل booking details.
   void _loadBookingDetails() {
     final authState = context.read<AuthBloc>().state;
     if (authState is AuthAuthenticated) {
@@ -230,6 +247,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     }
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _controller.dispose();
@@ -237,6 +255,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     super.dispose();
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -272,6 +291,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// العربية: يعالج booking state.
   void _handleBookingState(BuildContext context, BookingState state) {
     if (state is BookingCancelled) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -324,6 +344,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     }
   }
 
+  /// العربية: يعرض refund then cancel dialog.
   void _showRefundThenCancelDialog() {
     final authState = context.read<AuthBloc>().state;
     if (authState is! AuthAuthenticated) {
@@ -449,6 +470,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// العربية: يعالج `refreshUserBookings`.
   Future<void> _refreshUserBookings() async {
     context.read<BookingBloc>().add(const ResetBookingStateEvent());
   }
@@ -456,6 +478,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   // ═══════════════════════════════════════════════════════════════
   // المحتوى الرئيسي
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني content.
   Widget _buildContent(dynamic booking) {
     return CustomScrollView(
       controller: _scrollController,
@@ -522,6 +545,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   // ═══════════════════════════════════════════════════════════════
   // AppBar
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني app bar.
   Widget _buildAppBar(dynamic booking) {
     final statusColor = _getStatusColor(booking.status);
 
@@ -597,6 +621,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// العربية: يبني back button.
   Widget _buildBackButton() {
     return Container(
       margin: const EdgeInsets.all(8),
@@ -646,6 +671,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   // ═══════════════════════════════════════════════════════════════
   // بطاقة الحالة
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني status card.
   Widget _buildStatusCard(dynamic booking) {
     final statusColor = _getStatusColor(booking.status);
     final isMissed = _checkIfMissed(booking);
@@ -718,6 +744,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   // ═══════════════════════════════════════════════════════════════
   // بطاقة العقار
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني property card.
   Widget _buildPropertyCard(dynamic booking) {
     return _buildCard(
       child: Column(
@@ -804,6 +831,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   // ═══════════════════════════════════════════════════════════════
   // بطاقة معلومات الحجز
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني booking info card.
   Widget _buildBookingInfoCard(dynamic booking) {
     final dateFormat = DateFormat('dd MMM yyyy', 'ar');
 
@@ -846,6 +874,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   // ═══════════════════════════════════════════════════════════════
   // بطاقة معلومات الضيوف
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني guest info card.
   Widget _buildGuestInfoCard(dynamic booking) {
     return _buildCard(
       child: Column(
@@ -888,6 +917,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   // ═══════════════════════════════════════════════════════════════
   // بطاقة السياسات
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني policies card.
   Widget _buildPoliciesCard(dynamic booking) {
     final snapshot = booking.policySnapshot as String?;
     if (snapshot == null || snapshot.trim().isEmpty) {
@@ -983,6 +1013,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// العربية: يبني services card.
   Widget _buildServicesCard(dynamic booking) {
     return _buildCard(
       child: Column(
@@ -1038,6 +1069,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   // ═══════════════════════════════════════════════════════════════
   // تحذير عدم الدفع
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني unpaid warning.
   Widget _buildUnpaidWarning(dynamic booking) {
     if (booking.isPaid == true) return const SizedBox.shrink();
 
@@ -1114,6 +1146,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   // ═══════════════════════════════════════════════════════════════
   // بطاقة معلومات الدفع
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني payment info card.
   Widget _buildPaymentInfoCard(dynamic booking) {
     final double total = (booking.totalAmount ?? 0).toDouble();
     final String currency = booking.currency ?? 'YER';
@@ -1206,6 +1239,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// العربية: يبني payment row.
   Widget _buildPaymentRow(
       String label, double amount, String currency, Color valueColor) {
     return Row(
@@ -1229,6 +1263,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   // ═══════════════════════════════════════════════════════════════
   // سياسة الإلغاء
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني cancellation policy.
   Widget _buildCancellationPolicy(dynamic booking) {
     final cancellationDeadline =
         booking.checkInDate.subtract(const Duration(hours: 24));
@@ -1243,6 +1278,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   // ═══════════════════════════════════════════════════════════════
   // قسم الإجراءات
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني actions section.
   Widget _buildActionsSection(dynamic booking) {
     final canShowPayButton = _canShowPayButton(booking);
 
@@ -1343,6 +1379,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// العربية: يبني action button.
   Widget _buildActionButton({
     required IconData icon,
     required String label,
@@ -1391,6 +1428,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   // ═══════════════════════════════════════════════════════════════
   // مكونات مساعدة
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني card.
   Widget _buildCard({
     required Widget child,
     LinearGradient? gradient,
@@ -1416,6 +1454,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// العربية: يبني card header.
   Widget _buildCardHeader({
     required IconData icon,
     required String title,
@@ -1443,6 +1482,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// العربية: يبني info row.
   Widget _buildInfoRow({
     required IconData icon,
     required String label,
@@ -1489,6 +1529,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// العربية: يبني divider.
   Widget _buildDivider() {
     return Container(
       height: 1,
@@ -1505,6 +1546,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// العربية: يبني loading state.
   Widget _buildLoadingState() {
     return const Center(
       child: LoadingWidget(
@@ -1514,6 +1556,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// العربية: يبني error state.
   Widget _buildErrorState(BookingError state) {
     return Center(
       child: Padding(
@@ -1568,6 +1611,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   // ═══════════════════════════════════════════════════════════════
   // دوال مساعدة
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يتحقق من if missed.
   bool _checkIfMissed(dynamic booking) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -1582,6 +1626,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
         booking.status != BookingStatus.checkedIn;
   }
 
+  /// العربية: يعالج `canShowPayButton`.
   bool _canShowPayButton(dynamic booking) {
     final double total = (booking.totalAmount ?? 0).toDouble();
     double paid = 0.0;
@@ -1604,6 +1649,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
         booking.status != BookingStatus.completed;
   }
 
+  /// العربية: يعيد status color.
   Color _getStatusColor(BookingStatus status) {
     switch (status) {
       case BookingStatus.confirmed:
@@ -1619,6 +1665,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     }
   }
 
+  /// العربية: يعيد status icon.
   IconData _getStatusIcon(BookingStatus status) {
     switch (status) {
       case BookingStatus.confirmed:
@@ -1634,6 +1681,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     }
   }
 
+  /// العربية: يعيد booking policy visual.
   _BookingPolicyVisual _getBookingPolicyVisual(String type) {
     final lower = type.toLowerCase();
     if (lower == 'cancellation') {
@@ -1671,6 +1719,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// العربية: يعرض policy dialog.
   void _showPolicyDialog({required String title, required String description}) {
     HapticFeedback.heavyImpact();
     showDialog(
@@ -1688,6 +1737,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// العربية: يبني dialog.
   Widget _buildDialog({
     required IconData icon,
     required Color iconColor,
@@ -1769,10 +1819,13 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   // ═══════════════════════════════════════════════════════════════
   // Navigation & Actions
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يشارك booking.
   void _shareBooking() => HapticFeedback.selectionClick();
 
+  /// العربية: يعالج `modifyBooking`.
   void _modifyBooking(dynamic booking) => HapticFeedback.selectionClick();
 
+  /// العربية: يعالج `cancelBooking`.
   void _cancelBooking(dynamic booking) {
     HapticFeedback.mediumImpact();
     final authState = context.read<AuthBloc>().state;
@@ -1914,6 +1967,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     ).then((_) => reasonController.dispose());
   }
 
+  /// العربية: يعالج `writeReview`.
   void _writeReview(dynamic booking) {
     HapticFeedback.selectionClick();
     context.push<bool>('/review/write', extra: {
@@ -1930,11 +1984,13 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     });
   }
 
+  /// العربية: يفتح property details.
   void _openPropertyDetails(dynamic booking) {
     HapticFeedback.selectionClick();
     context.push('/property/${booking.propertyId}');
   }
 
+  /// العربية: يعالج `goToPayment`.
   void _goToPayment(dynamic booking) {
     HapticFeedback.selectionClick();
 
@@ -1979,11 +2035,18 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
   }
 }
 
+/// العربية: يمثل `BookingPolicyVisual`.
 class _BookingPolicyVisual {
+  /// العربية: يخزن القيمة `title`.
   final String title;
+
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
+
+  /// العربية: يخزن القيمة `color`.
   final Color color;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingPolicyVisual`.
   const _BookingPolicyVisual({
     required this.title,
     required this.icon,

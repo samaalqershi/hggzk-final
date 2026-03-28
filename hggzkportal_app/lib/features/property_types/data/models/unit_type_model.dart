@@ -2,6 +2,7 @@ import '../../domain/entities/unit_type.dart';
 import 'unit_type_field_model.dart';
 
 class UnitTypeModel extends UnitType {
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitTypeModel`.
   const UnitTypeModel({
     required String id,
     required String propertyTypeId,
@@ -48,18 +49,17 @@ class UnitTypeModel extends UnitType {
       isHasAdults: json['isHasAdults'] ?? false,
       isHasChildren: json['isHasChildren'] ?? false,
       isMultiDays: json['isMultiDays'] ?? false,
-      isRequiredToDetermineTheHour: json['isRequiredToDetermineTheHour'] ?? false,
+      isRequiredToDetermineTheHour:
+          json['isRequiredToDetermineTheHour'] ?? false,
       fields: json['fields'] != null
           ? (json['fields'] as List)
               .map((field) => UnitTypeFieldModel.fromJson(field))
               .toList()
           : [],
-      createdAt: json['createdAt'] != null 
-          ? DateTime.parse(json['createdAt']) 
-          : null,
-      updatedAt: json['updatedAt'] != null 
-          ? DateTime.parse(json['updatedAt']) 
-          : null,
+      createdAt:
+          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      updatedAt:
+          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
     );
   }
 

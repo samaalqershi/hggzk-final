@@ -7,22 +7,22 @@ import '../../entities/property.dart';
 import '../../repositories/properties_repository.dart';
 
 class GetPropertyDetailsPublicParams {
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
   final bool includeUnits;
-
   GetPropertyDetailsPublicParams({
     required this.propertyId,
     this.includeUnits = false,
   });
 }
 
-class GetPropertyDetailsPublicUseCase implements UseCase<Property, GetPropertyDetailsPublicParams> {
+class GetPropertyDetailsPublicUseCase
+    implements UseCase<Property, GetPropertyDetailsPublicParams> {
   final PropertiesRepository repository;
-
   GetPropertyDetailsPublicUseCase(this.repository);
-
   @override
-  Future<Either<Failure, Property>> call(GetPropertyDetailsPublicParams params) async {
+  Future<Either<Failure, Property>> call(
+      GetPropertyDetailsPublicParams params) async {
     return await repository.getPropertyDetailsPublic(
       params.propertyId,
       includeUnits: params.includeUnits,

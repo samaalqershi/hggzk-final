@@ -4,7 +4,8 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/notification_repository.dart';
 
-class DismissNotificationUseCase implements UseCase<void, DismissNotificationParams> {
+class DismissNotificationUseCase
+    implements UseCase<void, DismissNotificationParams> {
   final NotificationRepository repository;
 
   DismissNotificationUseCase(this.repository);

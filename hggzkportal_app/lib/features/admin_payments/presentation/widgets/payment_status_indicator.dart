@@ -7,11 +7,11 @@ import '../../../../../../core/enums/payment_method_enum.dart';
 enum PaymentStatusSize { small, medium, large }
 
 class PaymentStatusIndicator extends StatefulWidget {
+  /// العربية: يخزن القيمة `status`.
   final PaymentStatus status;
   final PaymentStatusSize size;
   final bool showAnimation;
   final bool showIcon;
-
   const PaymentStatusIndicator({
     super.key,
     required this.status,
@@ -19,7 +19,6 @@ class PaymentStatusIndicator extends StatefulWidget {
     this.showAnimation = true,
     this.showIcon = true,
   });
-
   @override
   State<PaymentStatusIndicator> createState() => _PaymentStatusIndicatorState();
 }
@@ -28,7 +27,6 @@ class _PaymentStatusIndicatorState extends State<PaymentStatusIndicator>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _pulseAnimation;
-
   @override
   void initState() {
     super.initState();

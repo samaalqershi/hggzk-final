@@ -6,10 +6,8 @@ enum PricingModel {
   perUnit('PerUnit', 'لكل وحدة'),
   perHour('PerHour', 'لكل ساعة'),
   fixed('Fixed', 'سعر ثابت');
-
   final String value;
   final String label;
-
   const PricingModel(this.value, this.label);
 
   /// يحاول مطابقة قيمة التطبيق أولاً ثم يدعم قيم الباك اند (Fixed/PerPerson/PerNight)

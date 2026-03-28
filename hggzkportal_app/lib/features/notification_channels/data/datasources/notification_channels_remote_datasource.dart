@@ -1,10 +1,16 @@
 import 'package:hggzkportal/core/network/api_client.dart';
 import '../../domain/entities/notification_channel.dart';
 
+/// التحويل بين JSON والكيانات هنا بدل دفعه إلى المجال.
+/// JSON-to-entity mapping stays here instead of leaking into the domain.
 class NotificationChannelsRemoteDataSource {
+  /// responses.
   final ApiClient apiClient;
+
+  /// operation.
   NotificationChannelsRemoteDataSource({required this.apiClient});
 
+  /// screen.
   Future<List<NotificationChannel>> getChannels({
     String? search,
     String? type,
@@ -27,13 +33,16 @@ class NotificationChannelsRemoteDataSource {
     return items.map(_parseChannel).toList();
   }
 
+  /// domain entity.
   Future<NotificationChannel> getChannel(String id) async {
     final res = await apiClient.get('/api/admin/notification-channels/$id');
     final data = res.data['data'] as Map<String, dynamic>;
-    final channel = data['channel'] ?? data; // دعم الشكلين
+    final channel = data['channel'] ?? data;
     return _parseChannel(Map<String, dynamic>.from(channel));
   }
 
+  /// التحويل.
+  /// persisted record after conversion.
   Future<NotificationChannel> createChannel({
     required String name,
     required String identifier,
@@ -50,10 +59,13 @@ class NotificationChannelsRemoteDataSource {
       if (icon != null) 'icon': icon,
       if (color != null) 'color': color,
     };
-    final res = await apiClient.post('/api/admin/notification-channels', data: body);
+    final res =
+        await apiClient.post('/api/admin/notification-channels', data: body);
     return _parseChannel(Map<String, dynamic>.from(res.data['data']));
   }
 
+  /// الجزئية واضحة وخفيفة.
+  /// and lightweight.
   Future<NotificationChannel> updateChannel(
     String id, {
     String? name,
@@ -69,15 +81,20 @@ class NotificationChannelsRemoteDataSource {
     if (icon != null) body['icon'] = icon;
     if (color != null) body['color'] = color;
 
-    final res = await apiClient.put('/api/admin/notification-channels/$id', data: body);
+    final res =
+        await apiClient.put('/api/admin/notification-channels/$id', data: body);
     return _parseChannel(Map<String, dynamic>.from(res.data['data']));
   }
 
+  /// فقط إلى معرفة هل انتهت العملية.
+  /// because the UI only needs to know whether the operation finished.
   Future<bool> deleteChannel(String id) async {
     final res = await apiClient.delete('/api/admin/notification-channels/$id');
     return (res.data['success'] as bool?) ?? true;
   }
 
+  /// فقط.
+  /// subscribers only.
   Future<List<UserChannelSubscription>> getChannelSubscribers(
     String channelId, {
     bool activeOnly = true,
@@ -90,6 +107,8 @@ class NotificationChannelsRemoteDataSource {
     return items.map(_parseSubscription).toList();
   }
 
+  /// متماسكة.
+  /// coherent.
   Future<int> addSubscribers(String channelId, List<String> userIds) async {
     final res = await apiClient.post(
       '/api/admin/notification-channels/$channelId/subscribers',
@@ -98,6 +117,8 @@ class NotificationChannelsRemoteDataSource {
     return (res.data['data']?['addedCount'] ?? 0) as int;
   }
 
+  /// مركزية.
+  /// centralized.
   Future<int> removeSubscribers(String channelId, List<String> userIds) async {
     final res = await apiClient.delete(
       '/api/admin/notification-channels/$channelId/subscribers',
@@ -106,6 +127,8 @@ class NotificationChannelsRemoteDataSource {
     return (res.data['data']?['removedCount'] ?? 0) as int;
   }
 
+  /// عرض النتيجة مباشرة.
+  /// record so the UI can show the outcome immediately.
   Future<ChannelNotificationHistory> sendChannelNotification(
     String channelId, {
     required String title,
@@ -125,6 +148,7 @@ class NotificationChannelsRemoteDataSource {
     return _parseHistory(Map<String, dynamic>.from(res.data['data']));
   }
 
+  /// heavy.
   Future<List<ChannelNotificationHistory>> getChannelHistory(
     String channelId, {
     int page = 1,
@@ -139,7 +163,8 @@ class NotificationChannelsRemoteDataSource {
   }
 
   Future<ChannelStatistics> getStatistics() async {
-    final res = await apiClient.get('/api/admin/notification-channels/statistics');
+    final res =
+        await apiClient.get('/api/admin/notification-channels/statistics');
     final data = Map<String, dynamic>.from(res.data['data'] as Map);
     return ChannelStatistics(
       totalChannels: (data['total_channels'] ?? 0) as int,
@@ -153,25 +178,34 @@ class NotificationChannelsRemoteDataSource {
           .map((e) => ChannelSummary(
                 id: (e['id'] ?? '').toString(),
                 name: (e['name'] ?? '').toString(),
-                notificationsSentCount: (e['notificationsSentCount'] ?? 0) as int,
+                notificationsSentCount:
+                    (e['notificationsSentCount'] ?? 0) as int,
                 subscribersCount: (e['subscribersCount'] ?? 0) as int,
               ))
           .toList(),
     );
   }
 
+  /// بحاجة إلى أكثر من ملخص عام.
+  /// more than a global summary.
   Future<Map<String, dynamic>> getChannelStatistics(String channelId) async {
-    final res = await apiClient.get('/api/admin/notification-channels/$channelId');
+    final res =
+        await apiClient.get('/api/admin/notification-channels/$channelId');
     final data = Map<String, dynamic>.from(res.data['data'] as Map);
     return Map<String, dynamic>.from(data['statistics'] ?? {});
   }
 
+  /// في الصفحات الإدارية.
+  /// subscription state is reflected in admin screens.
   Future<List<NotificationChannel>> getUserChannels(String userId) async {
-    final res = await apiClient.get('/api/admin/notification-channels/user/$userId');
+    final res =
+        await apiClient.get('/api/admin/notification-channels/user/$userId');
     final items = (res.data['data'] as List).cast<Map<String, dynamic>>();
     return items.map(_parseChannel).toList();
   }
 
+  /// والإزالة على الشبكة.
+  /// removals do not get split across the network.
   Future<bool> updateUserSubscriptions(
     String userId, {
     List<String>? channelsToAdd,
@@ -185,11 +219,11 @@ class NotificationChannelsRemoteDataSource {
       '/api/admin/notification-channels/user/$userId/subscriptions',
       data: body,
     );
-    // consider success true on 200
     return (res.data is Map) ? ((res.data['success'] as bool?) ?? true) : true;
   }
 
-  // Parsers
+  /// الأخرى بعيدة عن تفاصيل الاستجابة الخام.
+  /// layers stay away from raw response details.
   NotificationChannel _parseChannel(Map<String, dynamic> json) {
     return NotificationChannel(
       id: (json['id'] ?? '').toString(),
@@ -209,25 +243,34 @@ class NotificationChannelsRemoteDataSource {
           ? DateTime.tryParse(json['lastNotificationAt'].toString())
           : null,
       createdBy: json['createdBy']?.toString(),
-      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
-      updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+          DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
+          DateTime.now(),
     );
   }
 
+  /// user-channel relationship.
   UserChannelSubscription _parseSubscription(Map<String, dynamic> json) {
+    final channelJson = json['channel'];
     return UserChannelSubscription(
       id: (json['id'] ?? '').toString(),
       userId: (json['userId'] ?? '').toString(),
       channelId: (json['channelId'] ?? '').toString(),
+      channel: channelJson is Map<String, dynamic>
+          ? _parseChannel(Map<String, dynamic>.from(channelJson))
+          : null,
       userName: json['userName']?.toString(),
       userEmail: json['userEmail']?.toString(),
       isActive: (json['isActive'] ?? true) as bool,
       isMuted: (json['isMuted'] ?? false) as bool,
-      subscribedAt: DateTime.tryParse(json['subscribedAt']?.toString() ?? '') ?? DateTime.now(),
+      subscribedAt: DateTime.tryParse(json['subscribedAt']?.toString() ?? '') ??
+          DateTime.now(),
       unsubscribedAt: json['unsubscribedAt'] != null
           ? DateTime.tryParse(json['unsubscribedAt'].toString())
           : null,
-      notificationsReceivedCount: (json['notificationsReceivedCount'] ?? 0) as int,
+      notificationsReceivedCount:
+          (json['notificationsReceivedCount'] ?? 0) as int,
       lastNotificationReceivedAt: json['lastNotificationReceivedAt'] != null
           ? DateTime.tryParse(json['lastNotificationReceivedAt'].toString())
           : null,
@@ -248,7 +291,8 @@ class NotificationChannelsRemoteDataSource {
       failedDeliveries: (json['failedDeliveries'] ?? 0) as int,
       senderId: json['senderId']?.toString(),
       senderName: json['senderName']?.toString(),
-      sentAt: DateTime.tryParse(json['sentAt']?.toString() ?? '') ?? DateTime.now(),
+      sentAt:
+          DateTime.tryParse(json['sentAt']?.toString() ?? '') ?? DateTime.now(),
     );
   }
 }

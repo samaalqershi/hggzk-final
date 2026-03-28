@@ -9,13 +9,38 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/city.dart';
 import 'city_images_collage.dart';
 
+/// Presentation card that shows a city preview, status, and quick actions.
+///
+/// بطاقة عرض تُظهر معاينة المدينة وحالتها وإجراءاتها السريعة.
 class FuturisticCityCard extends StatefulWidget {
+  /// City record rendered inside the preview card.
+  ///
+  /// سجل المدينة المعروض داخل بطاقة المعاينة.
   final City city;
+
+  /// Triggered when the card body is tapped.
+  ///
+  /// يُستدعى عند النقر على جسم البطاقة.
   final VoidCallback? onTap;
+
+  /// Triggered when the edit action is requested from the card overlay.
+  ///
+  /// يُستدعى عند طلب تعديل البطاقة من طبقة الإجراءات.
   final VoidCallback? onEdit;
+
+  /// Triggered when the delete action is requested from the card overlay.
+  ///
+  /// يُستدعى عند طلب حذف البطاقة من طبقة الإجراءات.
   final VoidCallback? onDelete;
+
+  /// Uses a compact row layout instead of the larger square variant.
+  ///
+  /// يستخدم تخطيطًا مضغوطًا بدل النسخة المربعة الأكبر.
   final bool isCompact;
 
+  /// Creates the card used inside the grid or list view.
+  ///
+  /// ينشئ البطاقة المستخدمة داخل عرض الشبكة أو القائمة.
   const FuturisticCityCard({
     super.key,
     required this.city,
@@ -25,16 +50,30 @@ class FuturisticCityCard extends StatefulWidget {
     this.isCompact = false,
   });
 
+  /// ينشئ حالة البطاقة التي تدير الظهور والتفاعل والإجراءات.
+  /// Creates the card state that manages motion, interaction, and actions.
   @override
   State<FuturisticCityCard> createState() => _FuturisticCityCardState();
 }
 
+/// يدير الحركة الداخلية وإظهار طبقة الإجراءات وسلوك البطاقة.
+/// Manages internal motion, the action overlay, and card interaction behavior.
 class _FuturisticCityCardState extends State<FuturisticCityCard>
     with SingleTickerProviderStateMixin {
+  /// متحكم الحركة الذي يدير تأثيرات اللمس والانتقال.
+  /// Animation controller used for touch feedback and transitions.
   late AnimationController _animationController;
+
+  /// يحدد ما إذا كانت البطاقة في حالة مرور بصري.
+  /// Indicates whether the card is currently hovered or pressed visually.
   bool _isHovered = false;
+
+  /// يحدد ظهور طبقة الإجراءات العلوية.
+  /// Controls whether the action overlay is visible.
   bool _showActions = false;
 
+  /// يجهز متحكم الحركة قبل العرض الأول للبطاقة.
+  /// Initializes the animation controller before the card first renders.
   @override
   void initState() {
     super.initState();
@@ -44,12 +83,16 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
     );
   }
 
+  /// يحرر متحكم الحركة عند إزالة البطاقة من الشجرة.
+  /// Disposes the animation controller when the card leaves the tree.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// يبني البطاقة بالنسخة الكاملة أو المضغوطة حسب الوضع.
+  /// Builds the card in full or compact mode depending on configuration.
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
@@ -72,6 +115,8 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
   }
 
   // الكارد الكامل - استخدام AspectRatio بدلاً من الارتفاع الثابت
+  /// يبني التخطيط الكامل المربع مع الصور والمحتوى وطبقة الإجراءات.
+  /// Builds the square full layout with images, content, and action overlay.
   Widget _buildFullCard() {
     return AspectRatio(
       aspectRatio: 1.0, // نسبة 1:1 للكارد المربع
@@ -84,13 +129,13 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: widget.city.isActive == true
-                    ? AppTheme.success.withOpacity(0.3)
-                    : AppTheme.darkBorder.withOpacity(0.2),
+                    ? AppTheme.success.withValues(alpha: 0.3)
+                    : AppTheme.darkBorder.withValues(alpha: 0.2),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.shadowDark.withOpacity(0.15),
+                  color: AppTheme.shadowDark.withValues(alpha: 0.15),
                   blurRadius: 15,
                   offset: const Offset(0, 8),
                 ),
@@ -162,6 +207,8 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
   }
 
   // الكارد المضغوط
+  /// يبني التخطيط المضغوط المستخدم في العروض الأضيق.
+  /// Builds the compact layout used in denser views.
   Widget _buildCompactCard() {
     return Container(
       height: 100,
@@ -170,13 +217,13 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: widget.city.isActive == true
-              ? AppTheme.success.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.2),
+              ? AppTheme.success.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.shadowDark.withOpacity(0.1),
+            color: AppTheme.shadowDark.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -226,6 +273,8 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
   }
 
   // محتوى القسم السفلي للكارد الكامل
+  /// يبني القسم النصي والإجرائي في البطاقة الكاملة.
+  /// Builds the text and action section for the full card.
   Widget _buildContentSection() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -254,14 +303,14 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
                   Icon(
                     CupertinoIcons.location_solid,
                     size: 9,
-                    color: AppTheme.textMuted.withOpacity(0.7),
+                    color: AppTheme.textMuted.withValues(alpha: 0.7),
                   ),
                   const SizedBox(width: 3),
                   Expanded(
                     child: Text(
                       widget.city.country,
                       style: AppTextStyles.caption.copyWith(
-                        color: AppTheme.textMuted.withOpacity(0.7),
+                        color: AppTheme.textMuted.withValues(alpha: 0.7),
                         fontSize: 10,
                       ),
                       maxLines: 1,
@@ -298,6 +347,8 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
   }
 
   // محتوى الكارد المضغوط
+  /// يبني المحتوى المضغوط داخل الصف الأفقي للبطاقة.
+  /// Builds the compact content inside the card's horizontal row.
   Widget _buildCompactContent() {
     return Row(
       children: [
@@ -333,14 +384,14 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
                   Icon(
                     CupertinoIcons.location,
                     size: 9,
-                    color: AppTheme.textMuted.withOpacity(0.7),
+                    color: AppTheme.textMuted.withValues(alpha: 0.7),
                   ),
                   const SizedBox(width: 2),
                   Expanded(
                     child: Text(
                       widget.city.country,
                       style: AppTextStyles.caption.copyWith(
-                        color: AppTheme.textMuted.withOpacity(0.7),
+                        color: AppTheme.textMuted.withValues(alpha: 0.7),
                         fontSize: 9,
                       ),
                       maxLines: 1,
@@ -388,6 +439,8 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
   }
 
   // أيقونة الإجراء
+  /// يبني أيقونة إجراء صغيرة قابلة للنقر مع تأثير لمس.
+  /// Builds a small tappable action icon with haptic feedback.
   Widget _buildActionIcon({
     required IconData icon,
     required VoidCallback? onTap,
@@ -402,10 +455,10 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
       child: Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(5),
           border: Border.all(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             width: 0.5,
           ),
         ),
@@ -415,6 +468,8 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
   }
 
   // شارة الحالة
+  /// يبني شارة الحالة التي توضّح ما إذا كانت المدينة نشطة.
+  /// Builds the status badge that shows whether the city is active.
   Widget _buildStatusBadge({bool isSmall = false}) {
     final isActive = widget.city.isActive == true;
 
@@ -425,8 +480,8 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
       ),
       decoration: BoxDecoration(
         color: isActive
-            ? AppTheme.success.withOpacity(0.8)
-            : AppTheme.textMuted.withOpacity(0.6),
+            ? AppTheme.success.withValues(alpha: 0.8)
+            : AppTheme.textMuted.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -456,14 +511,16 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
   }
 
   // عداد العقارات
+  /// يعرض عدد العقارات المرتبطة بالمدينة داخل شارة صغيرة.
+  /// Shows the number of properties linked to the city in a small badge.
   Widget _buildPropertiesCount({bool isSmall = false}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
       decoration: BoxDecoration(
-        color: AppTheme.primaryBlue.withOpacity(0.1),
+        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(3),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.2),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -491,14 +548,16 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
   }
 
   // شارة عدد الصور
+  /// يعرض شارة صغيرة لعدد الصور المتاحة للمدينة.
+  /// Shows a small badge for the number of images in the city.
   Widget _buildImageBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
       decoration: BoxDecoration(
-        color: AppTheme.primaryPurple.withOpacity(0.1),
+        color: AppTheme.primaryPurple.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(3),
         border: Border.all(
-          color: AppTheme.primaryPurple.withOpacity(0.2),
+          color: AppTheme.primaryPurple.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -526,13 +585,15 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
   }
 
   // طبقة الإجراءات
+  /// يعرض طبقة الإجراءات العائمة عند طلب التعديل السريع.
+  /// Shows the floating action overlay for quick editing.
   Widget _buildActionsOverlay() {
     return ClipRRect(
       borderRadius: BorderRadius.circular(widget.isCompact ? 11 : 15),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: Container(
-          color: AppTheme.darkBackground.withOpacity(0.85),
+          color: AppTheme.darkBackground.withValues(alpha: 0.85),
           child: Center(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -565,6 +626,8 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
   }
 
   // زر الإجراء في الطبقة العلوية
+  /// يبني زرًا داخل طبقة الإجراءات يحمل أيقونة وتسميه.
+  /// Builds one button inside the action overlay with icon and label.
   Widget _buildOverlayAction({
     required IconData icon,
     required String label,
@@ -582,10 +645,10 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -610,6 +673,8 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
     );
   }
 
+  /// يحدّث حالة المرور ويشغّل أو يوقف الحركة المرتبطة بها.
+  /// Updates the hover state and starts or stops the related animation.
   void _setHovered(bool value) {
     setState(() => _isHovered = value);
     if (value) {

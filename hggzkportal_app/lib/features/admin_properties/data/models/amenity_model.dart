@@ -3,6 +3,7 @@
 import '../../domain/entities/amenity.dart';
 
 class AmenityModel extends Amenity {
+  /// العربية: ينشئ مثيلًا جديدًا من `AmenityModel`.
   const AmenityModel({
     required String id,
     required String name,
@@ -12,19 +13,18 @@ class AmenityModel extends Amenity {
     double? extraCost,
     String? currency,
   }) : super(
-    id: id,
-    name: name,
-    description: description,
-    icon: icon,
-    isAvailable: isAvailable,
-    extraCost: extraCost,
-    currency: currency,
-  );
-  
+          id: id,
+          name: name,
+          description: description,
+          icon: icon,
+          isAvailable: isAvailable,
+          extraCost: extraCost,
+          currency: currency,
+        );
   factory AmenityModel.fromJson(Map<String, dynamic> json) {
     double? cost;
     String? curr;
-    
+
     if (json['extraCost'] != null) {
       if (json['extraCost'] is Map) {
         cost = (json['extraCost']['amount'] as num?)?.toDouble();
@@ -33,7 +33,7 @@ class AmenityModel extends Amenity {
         cost = (json['extraCost'] as num?)?.toDouble();
       }
     }
-    
+
     return AmenityModel(
       id: (json['id'] ?? json['amenityId'] ?? '').toString(),
       name: json['name'] as String,
@@ -44,7 +44,6 @@ class AmenityModel extends Amenity {
       currency: curr ?? 'YER',
     );
   }
-  
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -52,10 +51,11 @@ class AmenityModel extends Amenity {
       'description': description,
       'icon': icon,
       'isAvailable': isAvailable,
-      if (extraCost != null) 'extraCost': {
-        'amount': extraCost,
-        'currency': currency ?? 'YER',
-      },
+      if (extraCost != null)
+        'extraCost': {
+          'amount': extraCost,
+          'currency': currency ?? 'YER',
+        },
     };
   }
 }

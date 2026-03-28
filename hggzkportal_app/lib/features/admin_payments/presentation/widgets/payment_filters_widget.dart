@@ -7,11 +7,10 @@ import 'dart:ui';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../../../../core/theme/app_text_styles.dart';
 import '../../../../../../core/enums/payment_method_enum.dart';
-import '../../../../../../core/utils/formatters.dart';
 
 class PaymentFiltersWidget extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `PaymentFiltersWidget`.
   const PaymentFiltersWidget({super.key});
-
   @override
   State<PaymentFiltersWidget> createState() => _PaymentFiltersWidgetState();
 }
@@ -24,7 +23,6 @@ class _PaymentFiltersWidgetState extends State<PaymentFiltersWidget>
   final TextEditingController _searchController = TextEditingController();
   late AnimationController _animationController;
   bool _isExpanded = false;
-
   @override
   void initState() {
     super.initState();

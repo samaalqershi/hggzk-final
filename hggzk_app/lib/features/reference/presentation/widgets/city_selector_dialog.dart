@@ -12,9 +12,20 @@ import '../bloc/reference_bloc.dart';
 import '../bloc/reference_event.dart';
 import '../bloc/reference_state.dart';
 
+/// Dialog used to choose the active city reference for the app.
+/// حوار اختيار المدينة المرجعية النشطة داخل التطبيق.
+///
+/// It loads cities from `ReferenceBloc`, restores the last selection, and
+/// returns the chosen city to the caller.
+/// يجلب المدن من `ReferenceBloc`، ويستعيد آخر اختيار محفوظ، ثم يعيد المدينة
+/// المختارة إلى الجهة المستدعية.
 class CitySelectorDialog extends StatelessWidget {
+  /// Builds the reusable city picker shell.
+  /// ينشئ الهيكل القابل لإعادة الاستخدام لمنتقي المدينة.
   const CitySelectorDialog({super.key});
 
+  /// Opens the dialog and resolves with the selected city name.
+  /// يفتح الحوار ويعيد اسم المدينة المختارة عند الإغلاق.
   static Future<String?> show(BuildContext context) async {
     return showDialog<String>(
       context: context,
@@ -33,6 +44,8 @@ class CitySelectorDialog extends StatelessWidget {
     );
   }
 
+  /// Renders the dialog surface with the glassmorphism frame.
+  /// يرسم سطح الحوار بإطار زجاجي واضح.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -70,21 +83,43 @@ class CitySelectorDialog extends StatelessWidget {
   }
 }
 
+/// Stateful dialog body that manages search, animation, and selection.
+/// جسم حواري متغير يدير البحث والحركة والاختيار.
 class _DialogContent extends StatefulWidget {
+  /// Builds the interactive content of the city picker.
+  /// ينشئ المحتوى التفاعلي لمنتقي المدينة.
   const _DialogContent();
 
+  /// Builds the animation-backed state for the dialog body.
+  /// ينشئ الحالة المدعومة بالحركة لجسم الحوار.
   @override
   State<_DialogContent> createState() => _DialogContentState();
 }
 
+/// Tracks the query text and entrance animations for the picker body.
+/// يتتبع نص البحث وحركات الظهور لجسم المنتقي.
 class _DialogContentState extends State<_DialogContent>
     with SingleTickerProviderStateMixin {
   final _searchController = TextEditingController();
+
+  /// Drives the entry animation for the dialog body.
+  /// يقود حركة الظهور لجسم الحوار.
   late AnimationController _animationController;
+
+  /// Fades the content in after the dialog mounts.
+  /// يدرج المحتوى تدريجيًا بعد تركيب الحوار.
   late Animation<double> _fadeAnimation;
+
+  /// Slides the content slightly upward for a softer entrance.
+  /// يرفع المحتوى قليلًا للأعلى لظهور أكثر نعومة.
   late Animation<Offset> _slideAnimation;
+
+  /// Keeps the active search text used to filter cities.
+  /// يحتفظ بنص البحث النشط لتصفية المدن.
   String _searchQuery = '';
 
+  /// Starts the entrance animation once the body is mounted.
+  /// يبدأ حركة الظهور بعد تركيب الجسم.
   @override
   void initState() {
     super.initState();
@@ -112,6 +147,8 @@ class _DialogContentState extends State<_DialogContent>
     _animationController.forward();
   }
 
+  /// Releases the search controller and animation controller.
+  /// يحرر متحكم البحث ومتحكم الحركة.
   @override
   void dispose() {
     _searchController.dispose();
@@ -119,6 +156,8 @@ class _DialogContentState extends State<_DialogContent>
     super.dispose();
   }
 
+  /// Builds the animated content body of the city picker.
+  /// يبني جسم المحتوى المتحرك لمنتقي المدينة.
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -144,6 +183,8 @@ class _DialogContentState extends State<_DialogContent>
     );
   }
 
+  /// Builds the title row and close control.
+  /// يبني صف العنوان وزر الإغلاق.
   Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
@@ -218,6 +259,8 @@ class _DialogContentState extends State<_DialogContent>
     );
   }
 
+  /// Builds the in-dialog search field used for instant filtering.
+  /// يبني حقل البحث داخل الحوار لتصفية فورية.
   Widget _buildSearchField() {
     return Container(
       height: 48,
@@ -263,6 +306,8 @@ class _DialogContentState extends State<_DialogContent>
     );
   }
 
+  /// Builds the list of cities that match the current query.
+  /// يبني قائمة المدن المطابقة للاستعلام الحالي.
   Widget _buildCitiesList() {
     return BlocBuilder<ReferenceBloc, ReferenceState>(
       builder: (context, state) {
@@ -302,6 +347,8 @@ class _DialogContentState extends State<_DialogContent>
     );
   }
 
+  /// Builds the placeholder shown while the city list loads.
+  /// يبني العنصر الظاهر أثناء تحميل قائمة المدن.
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -334,6 +381,8 @@ class _DialogContentState extends State<_DialogContent>
     );
   }
 
+  /// Builds the feedback shown when no cities match the query.
+  /// يبني رسالة الحالة الفارغة عند عدم وجود نتائج.
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -363,6 +412,8 @@ class _DialogContentState extends State<_DialogContent>
     );
   }
 
+  /// Builds the fallback shown when loading cities fails.
+  /// يبني البديل الظاهر عند فشل تحميل المدن.
   Widget _buildErrorState(String message) {
     return Center(
       child: Column(
@@ -408,6 +459,8 @@ class _DialogContentState extends State<_DialogContent>
     );
   }
 
+  /// Builds the selectable city grid presented to the user.
+  /// يبني شبكة المدن القابلة للاختيار.
   Widget _buildCitiesGrid({
     required List<City> cities,
     required String? selectedCity,
@@ -450,12 +503,27 @@ class _DialogContentState extends State<_DialogContent>
   }
 }
 
+/// Animated tile used to present one selectable city.
+/// بطاقة متحركة تعرض مدينة واحدة قابلة للاختيار.
 class _CityCard extends StatefulWidget {
+  /// City shown inside the tile.
+  /// المدينة المعروضة داخل البطاقة.
   final City city;
+
+  /// Highlights the tile when it matches the persisted selection.
+  /// يبرز البطاقة عندما تطابق الاختيار المحفوظ.
   final bool isSelected;
+
+  /// Invoked when the user picks this city.
+  /// يُستدعى عند اختيار هذه المدينة.
   final VoidCallback onTap;
+
+  /// Staggers the entrance animation so the grid feels layered.
+  /// يؤخر الحركة قليلًا لجعل الشبكة تبدو متدرجة.
   final Duration animationDelay;
 
+  /// Builds one animated city tile inside the selection grid.
+  /// ينشئ بطاقة مدينة متحركة داخل شبكة الاختيار.
   const _CityCard({
     required this.city,
     required this.isSelected,
@@ -463,16 +531,30 @@ class _CityCard extends StatefulWidget {
     required this.animationDelay,
   });
 
+  /// Builds the animation state for the selectable tile.
+  /// ينشئ حالة الحركة للبطاقة القابلة للاختيار.
   @override
   State<_CityCard> createState() => _CityCardState();
 }
 
+/// Controls the card animation and press feedback.
+/// يدير حركة البطاقة واستجابة الضغط.
 class _CityCardState extends State<_CityCard>
     with SingleTickerProviderStateMixin {
+  /// Drives the scale animation for the tile entrance.
+  /// يقود حركة التدرج الخاصة بظهور البطاقة.
   late AnimationController _controller;
+
+  /// Shrinks and expands the tile as it enters the grid.
+  /// يغيّر حجم البطاقة أثناء ظهورها.
   late Animation<double> _scaleAnimation;
+
+  /// Tracks the pressed state for subtle tap feedback.
+  /// يتتبع حالة الضغط لإظهار تغذية راجعة خفيفة.
   bool _isPressed = false;
 
+  /// Starts the entrance animation after the optional delay.
+  /// يبدأ حركة الظهور بعد التأخير الاختياري.
   @override
   void initState() {
     super.initState();
@@ -496,12 +578,16 @@ class _CityCardState extends State<_CityCard>
     });
   }
 
+  /// Releases the animation controller owned by this tile.
+  /// يحرر متحكم الحركة المملوك لهذه البطاقة.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// Builds the tappable tile and its selection decoration.
+  /// يبني البطاقة القابلة للنقر وزينة التحديد الخاصة بها.
   @override
   Widget build(BuildContext context) {
     return ScaleTransition(

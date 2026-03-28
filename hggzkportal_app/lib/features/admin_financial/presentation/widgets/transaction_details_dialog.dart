@@ -14,14 +14,12 @@ class TransactionDetailsDialog extends StatefulWidget {
   final FinancialTransaction transaction;
   final VoidCallback? onPost;
   final VoidCallback? onReverse;
-
   const TransactionDetailsDialog({
     super.key,
     required this.transaction,
     this.onPost,
     this.onReverse,
   });
-
   @override
   State<TransactionDetailsDialog> createState() =>
       _TransactionDetailsDialogState();
@@ -34,9 +32,6 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog>
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
   late TabController _tabController;
-
-  int _currentTabIndex = 0;
-
   @override
   void initState() {
     super.initState();
@@ -71,10 +66,6 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog>
       length: 4,
       vsync: this,
     );
-
-    _tabController.addListener(() {
-      setState(() => _currentTabIndex = _tabController.index);
-    });
 
     _animationController.forward();
   }
@@ -115,13 +106,13 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppTheme.darkCard.withOpacity(0.95),
-                          AppTheme.darkCard.withOpacity(0.85),
+                          AppTheme.darkCard.withValues(alpha: 0.95),
+                          AppTheme.darkCard.withValues(alpha: 0.85),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: _getStatusColor().withOpacity(0.3),
+                        color: _getStatusColor().withValues(alpha: 0.3),
                         width: 1,
                       ),
                     ),
@@ -168,13 +159,13 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            _getStatusColor().withOpacity(0.2),
-            _getStatusColor().withOpacity(0.1),
+            _getStatusColor().withValues(alpha: 0.2),
+            _getStatusColor().withValues(alpha: 0.1),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
           ),
         ),
       ),
@@ -188,13 +179,13 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog>
               gradient: LinearGradient(
                 colors: [
                   _getTransactionColor(),
-                  _getTransactionColor().withOpacity(0.7),
+                  _getTransactionColor().withValues(alpha: 0.7),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: _getTransactionColor().withOpacity(0.3),
+                  color: _getTransactionColor().withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -267,10 +258,10 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog>
     return Container(
       height: isCompact ? 40 : 48,
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.3),
+        color: AppTheme.darkBackground.withValues(alpha: 0.3),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
           ),
         ),
       ),
@@ -340,10 +331,10 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog>
                 width: double.infinity,
                 padding: EdgeInsets.all(isCompact ? 10 : 12),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkBackground.withOpacity(0.5),
+                  color: AppTheme.darkBackground.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.darkBorder.withOpacity(0.2),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Column(
@@ -586,13 +577,13 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            _getTransactionColor().withOpacity(0.2),
-            _getTransactionColor().withOpacity(0.1),
+            _getTransactionColor().withValues(alpha: 0.2),
+            _getTransactionColor().withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _getTransactionColor().withOpacity(0.3),
+          color: _getTransactionColor().withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -641,7 +632,7 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog>
               width: isCompact ? 28 : 32,
               height: isCompact ? 28 : 32,
               decoration: BoxDecoration(
-                color: AppTheme.primaryCyan.withOpacity(0.1),
+                color: AppTheme.primaryCyan.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -713,10 +704,10 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog>
     return Container(
       padding: EdgeInsets.all(isCompact ? 16 : 20),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.5),
+        color: AppTheme.darkBackground.withValues(alpha: 0.5),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
           ),
         ),
       ),
@@ -773,10 +764,10 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog>
           vertical: isCompact ? 8 : 10,
         ),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: color.withOpacity(0.5),
+            color: color.withValues(alpha: 0.5),
           ),
         ),
         child: Row(
@@ -812,13 +803,13 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            _getStatusColor().withOpacity(0.2),
-            _getStatusColor().withOpacity(0.1),
+            _getStatusColor().withValues(alpha: 0.2),
+            _getStatusColor().withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(isSmall ? 4 : 6),
         border: Border.all(
-          color: _getStatusColor().withOpacity(0.5),
+          color: _getStatusColor().withValues(alpha: 0.5),
         ),
       ),
       child: Text(

@@ -6,16 +6,15 @@ import 'package:hggzkportal/features/admin_properties/domain/entities/amenity.da
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hggzkportal/core/theme/app_colors.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import '../bloc/amenities/amenities_bloc.dart';
 
 class AmenitySelectorWidget extends StatefulWidget {
+  /// العربية: يخزن القيمة `selectedAmenities`.
   final List<String> selectedAmenities;
   final Function(List<String>) onAmenitiesChanged;
   final bool isReadOnly;
   final String? propertyTypeId;
-
   const AmenitySelectorWidget({
     super.key,
     required this.selectedAmenities,
@@ -23,14 +22,12 @@ class AmenitySelectorWidget extends StatefulWidget {
     this.isReadOnly = false,
     this.propertyTypeId,
   });
-
   @override
   State<AmenitySelectorWidget> createState() => _AmenitySelectorWidgetState();
 }
 
 class _AmenitySelectorWidgetState extends State<AmenitySelectorWidget> {
   // لا نحتاج لتحميل المرافق هنا لأنها محملة بالفعل في الصفحة الرئيسية
-
   @override
   Widget build(BuildContext context) {
     // Require property type selection first
@@ -80,9 +77,9 @@ class _AmenitySelectorWidgetState extends State<AmenitySelectorWidget> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.3),
+        color: AppTheme.darkSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.darkBorder.withOpacity(0.3)),
+        border: Border.all(color: AppTheme.darkBorder.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -113,7 +110,7 @@ class _AmenitySelectorWidgetState extends State<AmenitySelectorWidget> {
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  AppTheme.primaryBlue.withOpacity(0.7),
+                  AppTheme.primaryBlue.withValues(alpha: 0.7),
                 ),
               ),
             ),
@@ -134,10 +131,10 @@ class _AmenitySelectorWidgetState extends State<AmenitySelectorWidget> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.error.withOpacity(0.1),
+        color: AppTheme.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.error.withOpacity(0.3),
+          color: AppTheme.error.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -196,7 +193,7 @@ class _AmenitySelectorWidgetState extends State<AmenitySelectorWidget> {
             Icon(
               Icons.apartment_outlined,
               size: 48,
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 12),
             Text(
@@ -209,7 +206,7 @@ class _AmenitySelectorWidgetState extends State<AmenitySelectorWidget> {
             Text(
               'يرجى إضافة مرافق من لوحة التحكم',
               style: AppTextStyles.caption.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.7),
+                color: AppTheme.textMuted.withValues(alpha: 0.7),
               ),
             ),
           ],
@@ -227,10 +224,10 @@ class _AmenitySelectorWidgetState extends State<AmenitySelectorWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: AppTheme.primaryBlue.withOpacity(0.1),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: AppTheme.primaryBlue.withOpacity(0.3),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -282,21 +279,21 @@ class _AmenitySelectorWidgetState extends State<AmenitySelectorWidget> {
                       ? AppTheme.primaryGradient
                       : LinearGradient(
                           colors: [
-                            AppTheme.darkCard.withOpacity(0.5),
-                            AppTheme.darkCard.withOpacity(0.3),
+                            AppTheme.darkCard.withValues(alpha: 0.5),
+                            AppTheme.darkCard.withValues(alpha: 0.3),
                           ],
                         ),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
                     color: isSelected
-                        ? AppTheme.primaryBlue.withOpacity(0.5)
-                        : AppTheme.darkBorder.withOpacity(0.3),
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                        : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: AppTheme.primaryBlue.withOpacity(0.2),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -312,7 +309,7 @@ class _AmenitySelectorWidgetState extends State<AmenitySelectorWidget> {
                       size: 18,
                       color: isSelected
                           ? Colors.white
-                          : AppTheme.textMuted.withOpacity(0.7),
+                          : AppTheme.textMuted.withValues(alpha: 0.7),
                     ),
                     const SizedBox(width: 8),
 
@@ -334,7 +331,7 @@ class _AmenitySelectorWidgetState extends State<AmenitySelectorWidget> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.warning.withOpacity(0.2),
+                          color: AppTheme.warning.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(

@@ -31,7 +31,7 @@ class NotificationModel extends NotificationEntity {
               ? DateTime.parse(json['read_at'])
               : json['ReadAt'] != null
                   ? DateTime.tryParse(json['ReadAt'])
-              : null,
+                  : null,
     );
   }
 

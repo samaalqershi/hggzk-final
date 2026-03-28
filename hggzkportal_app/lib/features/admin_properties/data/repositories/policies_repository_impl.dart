@@ -10,16 +10,16 @@ import '../../domain/repositories/policies_repository.dart';
 import '../datasources/policies_remote_datasource.dart';
 
 class PoliciesRepositoryImpl implements PoliciesRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final PoliciesRemoteDataSource remoteDataSource;
   final NetworkInfo networkInfo;
-  
   PoliciesRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
-  
   @override
-  Future<Either<Failure, List<Policy>>> getPropertyPolicies(String propertyId) async {
+  Future<Either<Failure, List<Policy>>> getPropertyPolicies(
+      String propertyId) async {
     if (await networkInfo.isConnected) {
       try {
         final policies = await remoteDataSource.getPropertyPolicies(propertyId);
@@ -28,10 +28,10 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
   Future<Either<Failure, Policy>> getPolicyById(String policyId) async {
     if (await networkInfo.isConnected) {
@@ -42,12 +42,13 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
-  Future<Either<Failure, String>> createPolicy(Map<String, dynamic> data) async {
+  Future<Either<Failure, String>> createPolicy(
+      Map<String, dynamic> data) async {
     if (await networkInfo.isConnected) {
       try {
         final id = await remoteDataSource.createPolicy(data);
@@ -56,12 +57,13 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
-  Future<Either<Failure, bool>> updatePolicy(String policyId, Map<String, dynamic> data) async {
+  Future<Either<Failure, bool>> updatePolicy(
+      String policyId, Map<String, dynamic> data) async {
     if (await networkInfo.isConnected) {
       try {
         final success = await remoteDataSource.updatePolicy(policyId, data);
@@ -70,10 +72,10 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
   Future<Either<Failure, bool>> deletePolicy(String policyId) async {
     if (await networkInfo.isConnected) {
@@ -84,10 +86,10 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
   Future<Either<Failure, PaginatedResult<Policy>>> getPoliciesByType({
     required String policyType,
@@ -106,7 +108,7 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
 }

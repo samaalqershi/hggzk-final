@@ -23,8 +23,6 @@ class NotificationSettingsPage extends StatefulWidget {
 class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   Map<String, bool> _settings = {};
 
-  bool _hasChanges = false;
-
   @override
   void initState() {
     super.initState();
@@ -307,7 +305,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               HapticFeedback.lightImpact();
               setState(() {
                 _settings[key] = value;
-                _hasChanges = false; // no pending changes; saved instantly
               });
               // Update instantly (no save button)
               context.read<NotificationBloc>().add(

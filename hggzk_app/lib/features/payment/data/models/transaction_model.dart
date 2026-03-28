@@ -1,8 +1,9 @@
-/// features/payment/data/models/transaction_model.dart
-
 import '../../../../core/enums/payment_method_enum.dart';
 import '../../domain/entities/transaction.dart';
 
+/// يحول بيانات المعاملة القادمة من الخادم إلى كيان دفع موحد.
+/// Converts transaction payloads from the backend into a normalized payment
+/// entity.
 class TransactionModel extends Transaction {
   const TransactionModel({
     required super.id,
@@ -28,7 +29,6 @@ class TransactionModel extends Transaction {
     super.transactionId,
     super.message,
   });
-
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
     return TransactionModel(
       id: json['id'] ?? '',
@@ -38,11 +38,13 @@ class TransactionModel extends Transaction {
       unitName: json['unitName'] ?? '',
       amount: (json['amount'] ?? 0).toDouble(),
       currency: json['currency'] ?? 'YER',
-      paymentMethod: PaymentMethodExtension.fromString(json['paymentMethod'] ?? 'cash'),
+      paymentMethod:
+          PaymentMethodExtension.fromString(json['paymentMethod'] ?? 'cash'),
       status: PaymentStatusExtension.fromString(json['status'] ?? 'pending'),
-      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
-      processedAt: json['processedAt'] != null 
-          ? DateTime.parse(json['processedAt']) 
+      createdAt:
+          DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
+      processedAt: json['processedAt'] != null
+          ? DateTime.parse(json['processedAt'])
           : null,
       externalReference: json['externalReference'],
       invoiceNumber: json['invoiceNumber'],
@@ -52,15 +54,15 @@ class TransactionModel extends Transaction {
       taxes: (json['taxes'] ?? 0).toDouble(),
       netAmount: (json['netAmount'] ?? 0).toDouble(),
       canRefund: json['canRefund'] ?? false,
-      refundExpiryDate: json['refundExpiryDate'] != null 
-          ? DateTime.parse(json['refundExpiryDate']) 
+      refundExpiryDate: json['refundExpiryDate'] != null
+          ? DateTime.parse(json['refundExpiryDate'])
           : null,
       transactionId: json['transactionId'],
       message: json['message'],
     );
   }
-
-  factory TransactionModel.fromProcessPaymentResponse(Map<String, dynamic> json) {
+  factory TransactionModel.fromProcessPaymentResponse(
+      Map<String, dynamic> json) {
     final statusDto = (json['paymentStatusDto'] ?? '').toString().toLowerCase();
     PaymentStatus status;
     if (statusDto == 'pending') {
@@ -83,23 +85,24 @@ class TransactionModel extends Transaction {
       unitName: '', // Will be filled from request
       amount: (json['processedAmount'] ?? 0).toDouble(),
       currency: json['currency'] ?? 'YER',
-      paymentMethod: PaymentMethod.cash, // Will be filled from request عند الحاجة
+      paymentMethod:
+          PaymentMethod.cash, // Will be filled from request عند الحاجة
       status: status,
-      createdAt: json['processedAt'] != null 
-          ? DateTime.parse(json['processedAt']) 
+      createdAt: json['processedAt'] != null
+          ? DateTime.parse(json['processedAt'])
           : DateTime.now(),
-      processedAt: json['processedAt'] != null 
-          ? DateTime.parse(json['processedAt']) 
+      processedAt: json['processedAt'] != null
+          ? DateTime.parse(json['processedAt'])
           : null,
       fees: (json['fees'] ?? 0).toDouble(),
       taxes: 0,
-      netAmount: (json['processedAmount'] ?? 0).toDouble() - (json['fees'] ?? 0).toDouble(),
+      netAmount: (json['processedAmount'] ?? 0).toDouble() -
+          (json['fees'] ?? 0).toDouble(),
       canRefund: json['success'] == true,
       transactionId: json['transactionId'],
       message: json['message'],
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,

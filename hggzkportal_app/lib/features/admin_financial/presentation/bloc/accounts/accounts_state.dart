@@ -2,21 +2,16 @@
 
 part of 'accounts_bloc.dart';
 
-/// 🎯 حالات دليل الحسابات
 abstract class AccountsState extends Equatable {
   const AccountsState();
-
   @override
   List<Object?> get props => [];
 }
 
-/// الحالة الأولية
 class AccountsInitial extends AccountsState {}
 
-/// جاري التحميل
 class AccountsLoading extends AccountsState {}
 
-/// تم تحميل الحسابات
 class AccountsLoaded extends AccountsState {
   final List<ChartOfAccount> accounts;
   final List<ChartOfAccount> allAccounts;
@@ -26,7 +21,6 @@ class AccountsLoaded extends AccountsState {
   final bool isProcessing;
   final String? successMessage;
   final String? error;
-
   AccountsLoaded({
     required this.accounts,
     List<ChartOfAccount>? allAccounts,
@@ -37,7 +31,6 @@ class AccountsLoaded extends AccountsState {
     this.successMessage,
     this.error,
   }) : allAccounts = allAccounts ?? accounts;
-
   AccountsLoaded copyWith({
     List<ChartOfAccount>? accounts,
     List<ChartOfAccount>? allAccounts,
@@ -73,12 +66,9 @@ class AccountsLoaded extends AccountsState {
       ];
 }
 
-/// حدث خطأ
 class AccountsError extends AccountsState {
   final String message;
-
   const AccountsError(this.message);
-
   @override
   List<Object> get props => [message];
 }

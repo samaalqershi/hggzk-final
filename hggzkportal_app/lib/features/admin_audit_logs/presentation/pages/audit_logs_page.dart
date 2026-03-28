@@ -21,30 +21,72 @@ import '../widgets/audit_log_timeline_widget.dart';
 import '../widgets/audit_log_stats_card.dart';
 import '../widgets/audit_log_details_dialog.dart';
 
+/// Arabic: صفحة سجلات التدقيق التي تعرض الأحداث، الفلاتر، الإحصاءات، وطريقة العرض الزمنية أو الجدولية.
+/// English: Audit logs page that presents events, filters, statistics, and either a timeline or table view.
 class AuditLogsPage extends StatefulWidget {
+  /// Arabic: ينشئ صفحة سجلات التدقيق بدون معاملات لأن البيانات تُحمّل من طبقة الـ bloc.
+  /// English: Creates the audit logs page; data is loaded through the bloc layer.
   const AuditLogsPage({super.key});
 
   @override
+
+  /// Arabic: ينشئ حالة الصفحة المسؤولة عن التمرير، التحميل التدريجي، والتحكم بالعرض.
+  /// English: Creates the page state that manages scrolling, incremental loading, and view toggles.
   State<AuditLogsPage> createState() => _AuditLogsPageState();
 }
 
+/// Arabic: حالة صفحة سجلات التدقيق التي تدير التحميل التدريجي، الفلاتر، والتحول بين العروض.
+/// English: State for the audit logs page, handling pagination, filters, and view switching.
 class _AuditLogsPageState extends State<AuditLogsPage>
     with TickerProviderStateMixin {
+  /// Arabic: أقل فترة انتظار بين محاولات جلب المزيد حتى لا تتكرر الطلبات بسرعة.
+  /// English: Minimum delay between load-more attempts to prevent repeated rapid requests.
   static const Duration _loadMoreTriggerDebounce = Duration(milliseconds: 450);
+
+  /// Arabic: المسافة المتبقية قبل نهاية القائمة التي عندها نبدأ بطلب الصفحة التالية.
+  /// English: Remaining scroll distance that triggers the next page load.
   static const double _loadMoreThreshold = 220;
 
+  /// Arabic: يتحكم في حركة الظهور الأولية وعناصر الشعار داخل الصفحة.
+  /// English: Controls the initial entrance animation and decorative page motion.
   late AnimationController _animationController;
+
+  /// Arabic: يدير نبض الإضاءة في زر التصدير والعناصر التفاعلية.
+  /// English: Drives the pulsing light effect used by the export button and related accents.
   late AnimationController _pulseAnimationController;
+
+  /// Arabic: يدير التبويبات أو الأوضاع الثلاثة الخاصة بعرض السجل.
+  /// English: Manages the three tabs or view modes used for audit log presentation.
   late TabController _tabController;
+
+  /// Arabic: يتابع موضع التمرير لتفعيل الجلب الإضافي عند الاقتراب من نهاية القائمة.
+  /// English: Tracks scroll position to trigger loading more items near the end of the list.
   final ScrollController _scrollController = ScrollController();
+
+  /// Arabic: يحدد آخر وقت تم فيه تشغيل جلب المزيد حتى يُطبق التأخير القصير.
+  /// English: Stores the last time load-more was triggered so the debounce window can be enforced.
   DateTime? _lastLoadMoreTriggerAt;
 
+  /// Arabic: يحدد ما إذا كان العرض الحالي شبكة بطاقات بدل الجدول.
+  /// English: Indicates whether the current presentation uses a grid instead of a table.
   bool _isGridView = false;
+
+  /// Arabic: يتحكم في إظهار قسم الفلاتر أو إخفائه.
+  /// English: Controls whether the filter section is expanded or collapsed.
   bool _showFilters = false;
+
+  /// Arabic: يتحكم في إظهار المخطط الزمني بدل القائمة العادية.
+  /// English: Controls whether the timeline view is shown instead of the standard list.
   bool _showTimeline = false;
+
+  /// Arabic: يحفظ الفلاتر النشطة كي تبقى الواجهة متزامنة مع نتائج البحث.
+  /// English: Keeps the active filters so the UI stays in sync with the filtered results.
   AuditLogFilters? _activeFilters;
 
   @override
+
+  /// Arabic: يهيئ الأنيميشنات، يشغل التحميل الأولي، ويثبت مستمع التمرير.
+  /// English: Initializes animations, loads the initial data set, and attaches the scroll listener.
   void initState() {
     super.initState();
     _animationController = AnimationController(
@@ -62,6 +104,8 @@ class _AuditLogsPageState extends State<AuditLogsPage>
     _setupScrollListener();
   }
 
+  /// Arabic: يطلب أول دفعة من سجلات التدقيق لآخر ثلاثين يومًا.
+  /// English: Requests the first batch of audit logs for the last thirty days.
   void _loadAuditLogs() {
     context.read<AuditLogsBloc>().add(
           LoadAuditLogsEvent(
@@ -75,12 +119,16 @@ class _AuditLogsPageState extends State<AuditLogsPage>
         );
   }
 
+  /// Arabic: يربط مستمعًا على التمرير لتفعيل تحميل المزيد تلقائيًا عند الحاجة.
+  /// English: Attaches a scroll listener that automatically attempts to load more items when needed.
   void _setupScrollListener() {
     _scrollController.addListener(() {
       _tryLoadMoreIfNeeded();
     });
   }
 
+  /// Arabic: يعيد محاولة الجلب التدريجي عندما تصل الحالة إلى مؤشرات تدل أن التحميل التالي متاح.
+  /// English: Re-attempts incremental loading when the state indicates another page may be available.
   void _onAuditLogsStateChanged(AuditLogsState state) {
     if (state is! AuditLogsLoaded) return;
     if (state.hasReachedMax || state.isLoadingMore) return;
@@ -91,6 +139,8 @@ class _AuditLogsPageState extends State<AuditLogsPage>
     });
   }
 
+  /// Arabic: يفحص قرب التمرير من النهاية ثم يطلق حدث الجلب التدريجي مع حماية من التكرار.
+  /// English: Checks whether the scroll is close to the end and dispatches load-more with debounce protection.
   void _tryLoadMoreIfNeeded({bool skipDebounce = false}) {
     if (!_scrollController.hasClients) return;
 
@@ -115,6 +165,9 @@ class _AuditLogsPageState extends State<AuditLogsPage>
   }
 
   @override
+
+  /// Arabic: يحرر المتحكمات حتى لا تبقى موارد الرسوم والتمرير والتبويبات معلقة.
+  /// English: Disposes controllers so animation, scroll, and tab resources are released.
   void dispose() {
     _animationController.dispose();
     _pulseAnimationController.dispose();
@@ -124,6 +177,9 @@ class _AuditLogsPageState extends State<AuditLogsPage>
   }
 
   @override
+
+  /// Arabic: يبني الصفحة كاملة مع الاستماع لحالات السجل وإظهار العرض المناسب.
+  /// English: Builds the full page while listening to audit log state and showing the appropriate view.
   Widget build(BuildContext context) {
     return BlocListener<AuditLogsBloc, AuditLogsState>(
       listenWhen: (previous, current) {
@@ -152,6 +208,8 @@ class _AuditLogsPageState extends State<AuditLogsPage>
     );
   }
 
+  /// Arabic: يبني شريطًا علويًا متموجًا يحتوي العنوان وأزرار التحكم بالعرض والتصدير.
+  /// English: Builds the themed sliver app bar containing the title, view controls, and export action.
   Widget _buildSliverAppBar() {
     return SliverAppBar(
       expandedHeight: 120,
@@ -209,6 +267,8 @@ class _AuditLogsPageState extends State<AuditLogsPage>
     );
   }
 
+  /// Arabic: يبني زر إجراء دائريًا يمكن أن يكون في حالة نشطة أو عادية.
+  /// English: Builds a circular action button that can render in active or normal state.
   Widget _buildActionButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -249,6 +309,8 @@ class _AuditLogsPageState extends State<AuditLogsPage>
     );
   }
 
+  /// Arabic: يبني زر التصدير المتوهج الذي يرسل السجلات الحالية إلى ملف أو إجراء تصدير.
+  /// English: Builds the glowing export button that dispatches the current audit logs to an export flow.
   Widget _buildExportButton() {
     return AnimatedBuilder(
       animation: _pulseAnimationController,
@@ -305,6 +367,8 @@ class _AuditLogsPageState extends State<AuditLogsPage>
     );
   }
 
+  /// Arabic: يبني قسم الإحصاءات أعلى القائمة ليعرض صورة سريعة عن السجل.
+  /// English: Builds the statistics section above the list to provide a quick snapshot of the logs.
   Widget _buildStatsSection() {
     return SliverToBoxAdapter(
       child: BlocBuilder<AuditLogsBloc, AuditLogsState>(
@@ -326,6 +390,8 @@ class _AuditLogsPageState extends State<AuditLogsPage>
     );
   }
 
+  /// Arabic: يبني قسم الفلاتر القابل للطي ويحدّث الاستعلام عند تغيير أي فلتر.
+  /// English: Builds the collapsible filter section and updates the query whenever filters change.
   Widget _buildFilterSection() {
     return SliverToBoxAdapter(
       child: AnimatedContainer(
@@ -352,6 +418,8 @@ class _AuditLogsPageState extends State<AuditLogsPage>
     );
   }
 
+  /// Arabic: يبني عرض المخطط الزمني عندما يختار المستخدم رؤية السجل كسرد متسلسل.
+  /// English: Builds the timeline view when the user chooses a chronological representation.
   Widget _buildTimelineSection() {
     return SliverToBoxAdapter(
       child: BlocBuilder<AuditLogsBloc, AuditLogsState>(
@@ -401,6 +469,8 @@ class _AuditLogsPageState extends State<AuditLogsPage>
     );
   }
 
+  /// Arabic: يقرر أي نمط عرض يجب إظهاره: مخطط زمني أو قائمة السجلات.
+  /// English: Chooses whether the page should display a timeline or the standard logs list.
   Widget _buildLogsList() {
     return BlocBuilder<AuditLogsBloc, AuditLogsState>(
       builder: (context, state) {
@@ -439,6 +509,8 @@ class _AuditLogsPageState extends State<AuditLogsPage>
     );
   }
 
+  /// Arabic: يبني عرض الشبكة لسجلات التدقيق عندما تكون معاينة البطاقات أفضل.
+  /// English: Builds the grid presentation for audit logs when card-style browsing is preferred.
   Widget _buildGridView(AuditLogsLoaded state) {
     return SliverPadding(
       padding: const EdgeInsets.all(16),
@@ -473,6 +545,8 @@ class _AuditLogsPageState extends State<AuditLogsPage>
     );
   }
 
+  /// Arabic: يبني عرض الجدول عندما تكون الكثافة المعلوماتية أهم من البطاقات.
+  /// English: Builds the table presentation when information density is more useful than cards.
   Widget _buildTableView(AuditLogsLoaded state) {
     return SliverToBoxAdapter(
       child: Padding(
@@ -485,6 +559,8 @@ class _AuditLogsPageState extends State<AuditLogsPage>
     );
   }
 
+  /// Arabic: يفتح نافذة تفاصيل السجل المختار ليعرض البيانات الكاملة.
+  /// English: Opens the selected log details dialog so the full record can be reviewed.
   void _showLogDetails(AuditLog log) {
     showDialog(
       fullscreenDialog: true,
@@ -493,6 +569,8 @@ class _AuditLogsPageState extends State<AuditLogsPage>
     );
   }
 
+  /// Arabic: يرسل حدث التصدير اعتمادًا على الاستعلام الحالي عندما تكون البيانات جاهزة.
+  /// English: Dispatches the export event using the current query when data is available.
   void _handleExport() {
     final state = context.read<AuditLogsBloc>().state;
     if (state is AuditLogsLoaded) {

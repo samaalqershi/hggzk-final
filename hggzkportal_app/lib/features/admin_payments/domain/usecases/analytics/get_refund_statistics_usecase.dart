@@ -8,9 +8,7 @@ import '../../repositories/payments_repository.dart';
 class GetRefundStatisticsUseCase
     implements UseCase<RefundAnalytics, GetRefundStatisticsParams> {
   final PaymentsRepository repository;
-
   GetRefundStatisticsUseCase(this.repository);
-
   @override
   Future<Either<Failure, RefundAnalytics>> call(
     GetRefundStatisticsParams params,
@@ -24,16 +22,15 @@ class GetRefundStatisticsUseCase
 }
 
 class GetRefundStatisticsParams extends Equatable {
+  /// العربية: يخزن القيمة `startDate`.
   final DateTime? startDate;
   final DateTime? endDate;
   final String? propertyId;
-
   const GetRefundStatisticsParams({
     this.startDate,
     this.endDate,
     this.propertyId,
   });
-
   @override
   List<Object?> get props => [startDate, endDate, propertyId];
 }

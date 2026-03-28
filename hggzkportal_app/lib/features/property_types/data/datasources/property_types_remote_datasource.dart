@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'dart:convert';
-import '../../../../core/constants/api_constants.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../../../../core/models/result_dto.dart';
@@ -8,20 +7,21 @@ import '../../../../core/network/api_client.dart';
 import '../models/property_type_model.dart';
 
 abstract class PropertyTypesRemoteDataSource {
+  /// العربية: يعيد all property types.
   Future<PaginatedResult<PropertyTypeModel>> getAllPropertyTypes({
     required int pageNumber,
     required int pageSize,
   });
-  
+
   Future<PropertyTypeModel> getPropertyTypeById(String id);
-  
+
   Future<String> createPropertyType({
     required String name,
     required String description,
     required List<String> defaultAmenities,
     required String icon,
   });
-  
+
   Future<bool> updatePropertyType({
     required String propertyTypeId,
     required String name,
@@ -29,12 +29,14 @@ abstract class PropertyTypesRemoteDataSource {
     required List<String> defaultAmenities,
     required String icon,
   });
-  
+
   Future<bool> deletePropertyType(String propertyTypeId);
 }
 
-class PropertyTypesRemoteDataSourceImpl implements PropertyTypesRemoteDataSource {
+class PropertyTypesRemoteDataSourceImpl
+    implements PropertyTypesRemoteDataSource {
   final ApiClient apiClient;
+
   static const String _baseEndpoint = '/api/admin/property-types';
 
   PropertyTypesRemoteDataSourceImpl({required this.apiClient});
@@ -52,7 +54,7 @@ class PropertyTypesRemoteDataSourceImpl implements PropertyTypesRemoteDataSource
           'pageSize': pageSize,
         },
       );
-      
+
       dynamic raw = response.data;
       if (raw is String) {
         try {
@@ -75,10 +77,10 @@ class PropertyTypesRemoteDataSourceImpl implements PropertyTypesRemoteDataSource
       }
 
       if (payload is Map<String, dynamic>) {
-      return PaginatedResult<PropertyTypeModel>.fromJson(
+        return PaginatedResult<PropertyTypeModel>.fromJson(
           payload,
-          (json) => PropertyTypeModel.fromJson(json as Map<String, dynamic>),
-      );
+          (json) => PropertyTypeModel.fromJson(json),
+        );
       }
 
       if (payload is List) {
@@ -94,7 +96,8 @@ class PropertyTypesRemoteDataSourceImpl implements PropertyTypesRemoteDataSource
         );
       }
 
-      throw const ServerException('Invalid response structure for property types');
+      throw const ServerException(
+          'Invalid response structure for property types');
     } on DioException catch (e) {
       throw ServerException(e.message ?? 'Server error occurred');
     }
@@ -106,7 +109,9 @@ class PropertyTypesRemoteDataSourceImpl implements PropertyTypesRemoteDataSource
       final response = await apiClient.get('$_baseEndpoint/$id');
       dynamic raw = response.data;
       if (raw is String) {
-        try { raw = json.decode(raw); } catch (_) {}
+        try {
+          raw = json.decode(raw);
+        } catch (_) {}
       }
       final result = ResultDto.fromJson((raw as Map<String, dynamic>), null);
       final data = result.data;
@@ -114,7 +119,7 @@ class PropertyTypesRemoteDataSourceImpl implements PropertyTypesRemoteDataSource
         final map = data is String ? json.decode(data) : data;
         return PropertyTypeModel.fromJson(map as Map<String, dynamic>);
       }
-        throw ServerException(result.message ?? 'Failed to get property type');
+      throw ServerException(result.message ?? 'Failed to get property type');
     } on DioException catch (e) {
       throw ServerException(e.message ?? 'Server error occurred');
     }
@@ -137,13 +142,14 @@ class PropertyTypesRemoteDataSourceImpl implements PropertyTypesRemoteDataSource
           'icon': icon,
         },
       );
-      
+
       final result = ResultDto.fromJson(response.data, null);
-      
+
       if (result.isSuccess && result.data != null) {
         return result.data as String;
       } else {
-        throw ServerException(result.message ?? 'Failed to create property type');
+        throw ServerException(
+            result.message ?? 'Failed to create property type');
       }
     } on DioException catch (e) {
       throw ServerException(e.message ?? 'Server error occurred');
@@ -169,7 +175,7 @@ class PropertyTypesRemoteDataSourceImpl implements PropertyTypesRemoteDataSource
           'icon': icon,
         },
       );
-      
+
       final result = ResultDto.fromJson(response.data, null);
       return result.isSuccess;
     } on DioException catch (e) {

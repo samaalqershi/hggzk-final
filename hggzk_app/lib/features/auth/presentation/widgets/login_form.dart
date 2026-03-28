@@ -10,17 +10,27 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/constants/route_constants.dart';
 
+/// يجمع حقول تسجيل الدخول التقليدي ويعيد القيم النهائية إلى الصفحة المالكة
+/// بعد التحقق من صحتها.
+/// Collects the classic sign-in fields and returns validated values to the
+/// owning page.
 class LoginForm extends StatefulWidget {
+  /// رد الاستدعاء الذي يستقبل بيانات تسجيل الدخول الجاهزة للإرسال.
+  /// Callback that receives the validated sign-in payload.
   final Function(String emailOrPhone, String password, bool rememberMe)
       onSubmit;
+
+  /// يحدد ما إذا كانت عملية إرسال النموذج جارية حاليًا.
+  /// Indicates whether a submission is currently in progress.
   final bool isLoading;
 
+  /// ينشئ نموذج تسجيل الدخول مع رد الإرسال وحالة التحميل.
+  /// Creates the login form with its submit callback and loading state.
   const LoginForm({
     super.key,
     required this.onSubmit,
     this.isLoading = false,
   });
-
   @override
   State<LoginForm> createState() => _LoginFormState();
 }
@@ -31,17 +41,14 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
   final _passwordController = TextEditingController();
   final _emailOrPhoneFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
-
   bool _obscurePassword = true;
   bool _rememberMe = false;
-
   late AnimationController _fieldAnimationController;
   late AnimationController _buttonAnimationController;
   late AnimationController _iconRotationController;
   late AnimationController _shimmerController;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-
   @override
   void initState() {
     super.initState();

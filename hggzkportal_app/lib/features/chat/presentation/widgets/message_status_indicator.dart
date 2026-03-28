@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 
+/// يعرّف الكلاس `MessageStatusIndicator`.
+/// Describes the `MessageStatusIndicator` class.
 class MessageStatusIndicator extends StatelessWidget {
+  /// Holds the `status` value.
+  /// العربية: يخزن القيمة `status`.
   final String status;
+
+  /// يخزن العضو `color`.
+  /// Holds the `color` member.
   final Color? color;
+
+  /// يخزن العضو `size`.
+  /// Holds the `size` member.
   final double size;
 
+  /// ينشئ مثيلاً من `MessageStatusIndicator`.
+  /// Builds an instance of `MessageStatusIndicator`.
   const MessageStatusIndicator({
     super.key,
     required this.status,
@@ -13,6 +25,8 @@ class MessageStatusIndicator extends StatelessWidget {
     this.size = 14, // Reduced from 16
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     IconData iconData;

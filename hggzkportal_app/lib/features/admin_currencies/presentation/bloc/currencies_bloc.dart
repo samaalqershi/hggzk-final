@@ -12,9 +12,13 @@ import 'currencies_state.dart';
 
 class CurrenciesBloc extends Bloc<CurrenciesEvent, CurrenciesState> {
   final GetCurrenciesUseCase getCurrencies;
+
   final SaveCurrenciesUseCase saveCurrencies;
+
   final DeleteCurrencyUseCase deleteCurrency;
+
   final SetDefaultCurrencyUseCase setDefaultCurrency;
+
   final CurrenciesRepository repository;
 
   List<Currency> _allCurrencies = [];
@@ -264,8 +268,6 @@ class CurrenciesBloc extends Bloc<CurrenciesEvent, CurrenciesState> {
     Emitter<CurrenciesState> emit,
   ) {
     if (state is CurrenciesLoaded) {
-      final currentState = state as CurrenciesLoaded;
-
       emit(CurrenciesLoaded(
         currencies: _allCurrencies,
         filteredCurrencies: _filterCurrencies(_allCurrencies, event.query),

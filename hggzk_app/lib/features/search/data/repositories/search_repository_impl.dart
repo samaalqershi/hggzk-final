@@ -7,13 +7,17 @@ import '../../domain/entities/search_result.dart';
 import '../../domain/repositories/search_repository.dart';
 import '../datasources/search_remote_datasource.dart';
 
+/// العربية: يوفر سلوك المستودع الخاص بـ `SearchRepositoryImpl`.
 class SearchRepositoryImpl implements SearchRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final SearchRemoteDataSource remoteDataSource;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchRepositoryImpl`.
   SearchRepositoryImpl({
     required this.remoteDataSource,
   });
 
+  /// العربية: يعالج `searchProperties`.
   @override
   Future<Either<Failure, PaginatedResult<SearchResult>>> searchProperties({
     String? searchTerm,
@@ -118,6 +122,7 @@ class SearchRepositoryImpl implements SearchRepository {
     }
   }
 
+  /// العربية: يعيد search filters.
   @override
   Future<Either<Failure, SearchFilters>> getSearchFilters() async {
     try {
@@ -134,6 +139,7 @@ class SearchRepositoryImpl implements SearchRepository {
     }
   }
 
+  /// العربية: يعيد search suggestions.
   @override
   Future<Either<Failure, List<String>>> getSearchSuggestions({
     required String query,
@@ -156,6 +162,7 @@ class SearchRepositoryImpl implements SearchRepository {
     }
   }
 
+  /// العربية: يعيد recommended properties.
   @override
   Future<Either<Failure, List<SearchResult>>> getRecommendedProperties({
     String? userId,
@@ -180,6 +187,7 @@ class SearchRepositoryImpl implements SearchRepository {
     }
   }
 
+  /// العربية: يعيد popular destinations.
   @override
   Future<Either<Failure, List<String>>> getPopularDestinations({
     int limit = 10,
@@ -200,6 +208,7 @@ class SearchRepositoryImpl implements SearchRepository {
     }
   }
 
+  /// العربية: يعالج `relaxationLevelToString`.
   String _relaxationLevelToString(SearchRelaxationLevel level) {
     switch (level) {
       case SearchRelaxationLevel.exact:

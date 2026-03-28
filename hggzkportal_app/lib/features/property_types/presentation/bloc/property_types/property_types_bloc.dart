@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/entities/property_type.dart';
 import '../../../domain/usecases/property_types/get_all_property_types_usecase.dart';
@@ -7,10 +8,16 @@ import '../../../domain/usecases/property_types/delete_property_type_usecase.dar
 import 'property_types_event.dart';
 import 'property_types_state.dart';
 
+/// Coordinates property-type management using the canonical feature owner.
+/// يدير دورة حياة أنواع العقار عبر الـ feature القانوني المعتمد في المشروع.
 class PropertyTypesBloc extends Bloc<PropertyTypesEvent, PropertyTypesState> {
+  /// العربية: يخزن القيمة `getAllPropertyTypes`.
   final GetAllPropertyTypesUseCase getAllPropertyTypes;
+
   final CreatePropertyTypeUseCase createPropertyType;
+
   final UpdatePropertyTypeUseCase updatePropertyType;
+
   final DeletePropertyTypeUseCase deletePropertyType;
 
   PropertyTypesBloc({
@@ -30,15 +37,17 @@ class PropertyTypesBloc extends Bloc<PropertyTypesEvent, PropertyTypesState> {
     LoadPropertyTypesEvent event,
     Emitter<PropertyTypesState> emit,
   ) async {
+    // Refreshes the shared catalog used by admin flows and selectors.
+    // يحدث القائمة المشتركة المستخدمة في الشاشات الإدارية وحقول الاختيار.
     emit(PropertyTypesLoading());
-    
+
     final result = await getAllPropertyTypes(
       GetAllPropertyTypesParams(
         pageNumber: event.pageNumber,
         pageSize: event.pageSize,
       ),
     );
-    
+
     result.fold(
       (failure) => emit(PropertyTypesError(message: failure.message)),
       (paginatedResult) => emit(PropertyTypesLoaded(
@@ -55,7 +64,7 @@ class PropertyTypesBloc extends Bloc<PropertyTypesEvent, PropertyTypesState> {
   ) async {
     final currentState = state;
     emit(PropertyTypeOperationLoading());
-    
+
     final result = await createPropertyType(
       CreatePropertyTypeParams(
         name: event.name,
@@ -64,7 +73,7 @@ class PropertyTypesBloc extends Bloc<PropertyTypesEvent, PropertyTypesState> {
         icon: event.icon,
       ),
     );
-    
+
     result.fold(
       (failure) {
         emit(PropertyTypeOperationError(message: failure.message));
@@ -73,7 +82,8 @@ class PropertyTypesBloc extends Bloc<PropertyTypesEvent, PropertyTypesState> {
         }
       },
       (_) {
-        emit(const PropertyTypeOperationSuccess(message: 'تم إضافة نوع الكيان بنجاح'));
+        emit(const PropertyTypeOperationSuccess(
+            message: 'تم إضافة نوع الكيان بنجاح'));
         add(const LoadPropertyTypesEvent());
       },
     );
@@ -85,7 +95,7 @@ class PropertyTypesBloc extends Bloc<PropertyTypesEvent, PropertyTypesState> {
   ) async {
     final currentState = state;
     emit(PropertyTypeOperationLoading());
-    
+
     final result = await updatePropertyType(
       UpdatePropertyTypeParams(
         propertyTypeId: event.propertyTypeId,
@@ -95,7 +105,7 @@ class PropertyTypesBloc extends Bloc<PropertyTypesEvent, PropertyTypesState> {
         icon: event.icon,
       ),
     );
-    
+
     result.fold(
       (failure) {
         emit(PropertyTypeOperationError(message: failure.message));
@@ -104,7 +114,8 @@ class PropertyTypesBloc extends Bloc<PropertyTypesEvent, PropertyTypesState> {
         }
       },
       (_) {
-        emit(const PropertyTypeOperationSuccess(message: 'تم تحديث نوع الكيان بنجاح'));
+        emit(const PropertyTypeOperationSuccess(
+            message: 'تم تحديث نوع الكيان بنجاح'));
         add(const LoadPropertyTypesEvent());
       },
     );
@@ -116,9 +127,9 @@ class PropertyTypesBloc extends Bloc<PropertyTypesEvent, PropertyTypesState> {
   ) async {
     final currentState = state;
     emit(PropertyTypeOperationLoading());
-    
+
     final result = await deletePropertyType(event.propertyTypeId);
-    
+
     result.fold(
       (failure) {
         emit(PropertyTypeOperationError(message: failure.message));
@@ -127,7 +138,8 @@ class PropertyTypesBloc extends Bloc<PropertyTypesEvent, PropertyTypesState> {
         }
       },
       (_) {
-        emit(const PropertyTypeOperationSuccess(message: 'تم حذف نوع الكيان بنجاح'));
+        emit(const PropertyTypeOperationSuccess(
+            message: 'تم حذف نوع الكيان بنجاح'));
         add(const LoadPropertyTypesEvent());
       },
     );
@@ -139,14 +151,14 @@ class PropertyTypesBloc extends Bloc<PropertyTypesEvent, PropertyTypesState> {
   ) {
     if (state is PropertyTypesLoaded) {
       final loadedState = state as PropertyTypesLoaded;
-      
+
       if (event.propertyTypeId == null) {
         // إلغاء التحديد
         emit(loadedState.copyWith(clearSelection: true));
       } else {
         // البحث عن النوع المطلوب
         PropertyType? selectedType;
-        
+
         // البحث الآمن عن النوع
         for (final type in loadedState.propertyTypes) {
           if (type.id == event.propertyTypeId) {
@@ -154,13 +166,15 @@ class PropertyTypesBloc extends Bloc<PropertyTypesEvent, PropertyTypesState> {
             break;
           }
         }
-        
+
         if (selectedType != null) {
           // تم العثور على النوع
           emit(loadedState.copyWith(selectedPropertyType: selectedType));
         } else {
           // لم يتم العثور على النوع - يمكنك إضافة معالجة خاصة هنا
-          print('Warning: Property type with id ${event.propertyTypeId} not found');
+          debugPrint(
+            'Warning: Property type with id ${event.propertyTypeId} not found',
+          );
           // يمكنك اختيار عدم تغيير الحالة أو إلغاء التحديد
           emit(loadedState.copyWith(clearSelection: true));
         }

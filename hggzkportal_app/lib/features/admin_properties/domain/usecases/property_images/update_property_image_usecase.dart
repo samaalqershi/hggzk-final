@@ -6,10 +6,9 @@ import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../../repositories/property_images_repository.dart';
 
 class UpdatePropertyImageUseCase implements UseCase<bool, UpdateImageParams> {
+  /// العربية: يخزن القيمة `repository`.
   final PropertyImagesRepository repository;
-
   UpdatePropertyImageUseCase(this.repository);
-
   @override
   Future<Either<Failure, bool>> call(UpdateImageParams params) async {
     return await repository.updateImage(params.imageId, params.data);
@@ -17,9 +16,9 @@ class UpdatePropertyImageUseCase implements UseCase<bool, UpdateImageParams> {
 }
 
 class UpdateImageParams {
+  /// العربية: يخزن القيمة `imageId`.
   final String imageId;
   final Map<String, dynamic> data;
-
   UpdateImageParams({
     required this.imageId,
     required this.data,

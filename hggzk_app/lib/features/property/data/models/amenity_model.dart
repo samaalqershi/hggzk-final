@@ -1,6 +1,10 @@
 import '../../domain/entities/amenity.dart';
 
+/// Describes the AmenityModel data model used to parse and emit property API payloads.
+/// العربية: يمثل نموذج البيانات `AmenityModel`.
 class AmenityModel extends Amenity {
+  /// Constructs the AmenityModel value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `AmenityModel`.
   const AmenityModel({
     required super.id,
     required super.name,
@@ -14,6 +18,8 @@ class AmenityModel extends Amenity {
     required super.createdAt,
   });
 
+  /// Constructs the AmenityModel.fromJson value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `AmenityModel.fromJson`.
   factory AmenityModel.fromJson(Map<String, dynamic> json) {
     return AmenityModel(
       // prefer property-specific amenityId, fallback to global id
@@ -34,6 +40,8 @@ class AmenityModel extends Amenity {
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -49,6 +57,8 @@ class AmenityModel extends Amenity {
     };
   }
 
+  /// Constructs the AmenityModel.fromEntity value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `AmenityModel.fromEntity`.
   factory AmenityModel.fromEntity(Amenity amenity) {
     return AmenityModel(
       id: amenity.id,

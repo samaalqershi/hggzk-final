@@ -5,13 +5,19 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/attachment.dart';
 import '../repositories/chat_repository.dart';
 
-class UpdateChatSettingsUseCase implements UseCase<ChatSettings, UpdateChatSettingsParams> {
+/// العربية: ينفذ حالة الاستخدام `UpdateChatSettingsUseCase`.
+class UpdateChatSettingsUseCase
+    implements UseCase<ChatSettings, UpdateChatSettingsParams> {
+  /// العربية: يخزن القيمة `repository`.
   final ChatRepository repository;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `UpdateChatSettingsUseCase`.
   UpdateChatSettingsUseCase(this.repository);
 
+  /// العربية: ينفذ السلوك الرئيسي الذي يقدمه هذا الكائن القابل للاستدعاء.
   @override
-  Future<Either<Failure, ChatSettings>> call(UpdateChatSettingsParams params) async {
+  Future<Either<Failure, ChatSettings>> call(
+      UpdateChatSettingsParams params) async {
     return await repository.updateChatSettings(
       notificationsEnabled: params.notificationsEnabled,
       soundEnabled: params.soundEnabled,
@@ -25,16 +31,33 @@ class UpdateChatSettingsUseCase implements UseCase<ChatSettings, UpdateChatSetti
   }
 }
 
+/// العربية: يمثل `UpdateChatSettingsParams`.
 class UpdateChatSettingsParams extends Equatable {
+  /// العربية: يخزن القيمة `notificationsEnabled`.
   final bool? notificationsEnabled;
+
+  /// العربية: يخزن القيمة `soundEnabled`.
   final bool? soundEnabled;
+
+  /// العربية: يخزن القيمة `showReadReceipts`.
   final bool? showReadReceipts;
+
+  /// العربية: يخزن القيمة `showTypingIndicator`.
   final bool? showTypingIndicator;
+
+  /// العربية: يخزن القيمة `theme`.
   final String? theme;
+
+  /// العربية: يخزن القيمة `fontSize`.
   final String? fontSize;
+
+  /// العربية: يخزن القيمة `autoDownloadMedia`.
   final bool? autoDownloadMedia;
+
+  /// العربية: يخزن القيمة `backupMessages`.
   final bool? backupMessages;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `UpdateChatSettingsParams`.
   const UpdateChatSettingsParams({
     this.notificationsEnabled,
     this.soundEnabled,
@@ -46,15 +69,16 @@ class UpdateChatSettingsParams extends Equatable {
     this.backupMessages,
   });
 
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object?> get props => [
-    notificationsEnabled,
-    soundEnabled,
-    showReadReceipts,
-    showTypingIndicator,
-    theme,
-    fontSize,
-    autoDownloadMedia,
-    backupMessages,
-  ];
+        notificationsEnabled,
+        soundEnabled,
+        showReadReceipts,
+        showTypingIndicator,
+        theme,
+        fontSize,
+        autoDownloadMedia,
+        backupMessages,
+      ];
 }

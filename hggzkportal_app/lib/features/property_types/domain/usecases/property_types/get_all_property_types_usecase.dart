@@ -6,8 +6,9 @@ import '../../../../../core/usecases/usecase.dart';
 import '../../entities/property_type.dart';
 import '../../repositories/property_types_repository.dart';
 
-class GetAllPropertyTypesUseCase 
-    implements UseCase<PaginatedResult<PropertyType>, GetAllPropertyTypesParams> {
+class GetAllPropertyTypesUseCase
+    implements
+        UseCase<PaginatedResult<PropertyType>, GetAllPropertyTypesParams> {
   final PropertyTypesRepository repository;
 
   GetAllPropertyTypesUseCase(this.repository);
@@ -24,7 +25,9 @@ class GetAllPropertyTypesUseCase
 }
 
 class GetAllPropertyTypesParams extends Equatable {
+  /// العربية: يخزن القيمة `pageNumber`.
   final int pageNumber;
+
   final int pageSize;
 
   const GetAllPropertyTypesParams({

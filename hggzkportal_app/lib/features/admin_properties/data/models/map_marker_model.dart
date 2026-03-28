@@ -3,6 +3,7 @@
 import '../../domain/entities/map_location.dart';
 
 class MapMarkerModel extends MapMarker {
+  /// العربية: ينشئ مثيلًا جديدًا من `MapMarkerModel`.
   const MapMarkerModel({
     required String id,
     required Coordinates coordinates,
@@ -18,21 +19,20 @@ class MapMarkerModel extends MapMarker {
     double? rating,
     bool isAvailable = true,
   }) : super(
-    id: id,
-    coordinates: coordinates,
-    name: name,
-    address: address,
-    description: description,
-    icon: icon,
-    color: color,
-    type: type,
-    isSelected: isSelected,
-    isFeatured: isFeatured,
-    price: price,
-    rating: rating,
-    isAvailable: isAvailable,
-  );
-  
+          id: id,
+          coordinates: coordinates,
+          name: name,
+          address: address,
+          description: description,
+          icon: icon,
+          color: color,
+          type: type,
+          isSelected: isSelected,
+          isFeatured: isFeatured,
+          price: price,
+          rating: rating,
+          isAvailable: isAvailable,
+        );
   factory MapMarkerModel.fromJson(Map<String, dynamic> json) {
     return MapMarkerModel(
       id: json['id'] as String,
@@ -52,7 +52,6 @@ class MapMarkerModel extends MapMarker {
       isAvailable: json['isAvailable'] as bool? ?? true,
     );
   }
-  
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -70,7 +69,7 @@ class MapMarkerModel extends MapMarker {
       'isAvailable': isAvailable,
     };
   }
-  
+
   static MarkerType _parseMarkerType(String value) {
     switch (value.toLowerCase()) {
       case 'property':
@@ -83,7 +82,7 @@ class MapMarkerModel extends MapMarker {
         return MarkerType.custom;
     }
   }
-  
+
   static String _markerTypeToString(MarkerType type) {
     switch (type) {
       case MarkerType.property:
@@ -99,18 +98,17 @@ class MapMarkerModel extends MapMarker {
 }
 
 class CoordinatesModel extends Coordinates {
+  /// العربية: ينشئ مثيلًا جديدًا من `CoordinatesModel`.
   const CoordinatesModel({
     required double latitude,
     required double longitude,
   }) : super(latitude: latitude, longitude: longitude);
-  
   factory CoordinatesModel.fromJson(Map<String, dynamic> json) {
     return CoordinatesModel(
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
     );
   }
-  
   Map<String, dynamic> toJson() {
     return {
       'latitude': latitude,
@@ -120,18 +118,17 @@ class CoordinatesModel extends Coordinates {
 }
 
 class MarkerPriceModel extends MarkerPrice {
+  /// العربية: ينشئ مثيلًا جديدًا من `MarkerPriceModel`.
   const MarkerPriceModel({
     required double amount,
     required String currency,
   }) : super(amount: amount, currency: currency);
-  
   factory MarkerPriceModel.fromJson(Map<String, dynamic> json) {
     return MarkerPriceModel(
       amount: (json['amount'] as num).toDouble(),
       currency: json['currency'] as String,
     );
   }
-  
   Map<String, dynamic> toJson() {
     return {
       'amount': amount,

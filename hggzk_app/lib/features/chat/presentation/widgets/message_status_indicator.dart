@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 
+/// Small delivery marker that explains whether a message is still sending,
+/// delivered, read, or failed.
+/// مؤشر صغير يوضح ما إذا كانت الرسالة ما زالت تُرسل أو وصلت أو قُرئت أو
+/// فشلت.
 class MessageStatusIndicator extends StatelessWidget {
+  /// Delivery state that determines the icon and visual emphasis.
+  /// حالة التسليم التي تحدد الأيقونة والظهور البصري.
   final String status;
+
+  /// Optional color override used by the surrounding message bubble.
+  /// لون اختياري يمكن للفقاعة المحيطة فرضه.
   final Color? color;
+
+  /// Base icon size used to keep the status marker compact.
+  /// الحجم الأساسي للأيقونة حتى يبقى المؤشر صغيرًا.
   final double size;
 
+  /// Builds the delivery marker for a single message bubble.
+  /// ينشئ مؤشر التسليم لفقاعة رسالة واحدة.
   const MessageStatusIndicator({
     super.key,
     required this.status,
@@ -13,6 +27,8 @@ class MessageStatusIndicator extends StatelessWidget {
     this.size = 14, // Reduced from 16
   });
 
+  /// Resolves the visual icon for the current delivery status.
+  /// يحدد الأيقونة المناسبة لحالة التسليم الحالية.
   @override
   Widget build(BuildContext context) {
     IconData iconData;

@@ -15,48 +15,110 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/register_form.dart';
 
+/// يعرّف الكلاس `RegisterPage`.
+/// Describes the `RegisterPage` class.
 class RegisterPage extends StatefulWidget {
+  /// Indicates whether `isFirst` is enabled.
+  /// العربية: يحدد ما إذا كانت القيمة `isFirst` مفعلة.
   final bool isFirst;
 
+  /// ينشئ مثيلاً من `RegisterPage`.
+  /// Builds an instance of `RegisterPage`.
   const RegisterPage({
     super.key,
     this.isFirst = false,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<RegisterPage> createState() => _RegisterPageState();
 }
 
+/// يعرّف الكلاس `_RegisterPageState`.
+/// Describes the `_RegisterPageState` class.
 class _RegisterPageState extends State<RegisterPage>
     with TickerProviderStateMixin {
   // Animation Controllers
+  /// يخزن العضو `_backgroundController`.
+  /// Holds the `_backgroundController` member.
   late AnimationController _backgroundController;
+
+  /// يخزن العضو `_contentController`.
+  /// Holds the `_contentController` member.
   late AnimationController _contentController;
+
+  /// يخزن العضو `_particleController`.
+  /// Holds the `_particleController` member.
   late AnimationController _particleController;
+
+  /// يخزن العضو `_glowController`.
+  /// Holds the `_glowController` member.
   late AnimationController _glowController;
+
+  /// يخزن العضو `_waveController`.
+  /// Holds the `_waveController` member.
   late AnimationController _waveController;
+
+  /// يخزن العضو `_logoController`.
+  /// Holds the `_logoController` member.
   late AnimationController _logoController;
 
   // Animations
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
+
+  /// يخزن العضو `_slideAnimation`.
+  /// Holds the `_slideAnimation` member.
   late Animation<Offset> _slideAnimation;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
+
+  /// يخزن العضو `_rotationAnimation`.
+  /// Holds the `_rotationAnimation` member.
   late Animation<double> _rotationAnimation;
+
+  /// يخزن العضو `_glowAnimation`.
+  /// Holds the `_glowAnimation` member.
   late Animation<double> _glowAnimation;
+
+  /// يخزن العضو `_waveAnimation`.
+  /// Holds the `_waveAnimation` member.
   late Animation<double> _waveAnimation;
+
+  /// يخزن العضو `_logoRotation`.
+  /// Holds the `_logoRotation` member.
   late Animation<double> _logoRotation;
 
   // Particles
+  /// يخزن العضو `_particles`.
+  /// Holds the `_particles` member.
   final List<_UltraParticle> _particles = [];
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
+
+    /// ينفذ العملية `_initializeAnimations`.
+    /// Runs the `_initializeAnimations` operation.
     _initializeAnimations();
+
+    /// ينفذ العملية `_generateParticles`.
+    /// Runs the `_generateParticles` operation.
     _generateParticles();
+
+    /// ينفذ العملية `_startAnimations`.
+    /// Runs the `_startAnimations` operation.
     _startAnimations();
   }
 
+  /// ينفذ العملية `_initializeAnimations`.
+  /// Runs the `_initializeAnimations` operation.
   void _initializeAnimations() {
     _backgroundController = AnimationController(
       duration: const Duration(seconds: 25),
@@ -145,12 +207,16 @@ class _RegisterPageState extends State<RegisterPage>
     ));
   }
 
+  /// ينفذ العملية `_generateParticles`.
+  /// Runs the `_generateParticles` operation.
   void _generateParticles() {
     for (int i = 0; i < 15; i++) {
       _particles.add(_UltraParticle());
     }
   }
 
+  /// ينفذ العملية `_startAnimations`.
+  /// Runs the `_startAnimations` operation.
   void _startAnimations() {
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
@@ -159,6 +225,8 @@ class _RegisterPageState extends State<RegisterPage>
     });
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _backgroundController.dispose();
@@ -170,6 +238,8 @@ class _RegisterPageState extends State<RegisterPage>
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,6 +262,8 @@ class _RegisterPageState extends State<RegisterPage>
     );
   }
 
+  /// ينفذ العملية `_buildUltraBackground`.
+  /// Runs the `_buildUltraBackground` operation.
   Widget _buildUltraBackground() {
     return AnimatedBuilder(
       animation: Listenable.merge([_rotationAnimation, _waveAnimation]),
@@ -234,6 +306,8 @@ class _RegisterPageState extends State<RegisterPage>
     );
   }
 
+  /// ينفذ العملية `_buildFloatingParticles`.
+  /// Runs the `_buildFloatingParticles` operation.
   Widget _buildFloatingParticles() {
     return AnimatedBuilder(
       animation: _particleController,
@@ -249,6 +323,8 @@ class _RegisterPageState extends State<RegisterPage>
     );
   }
 
+  /// ينفذ العملية `_buildMainContent`.
+  /// Runs the `_buildMainContent` operation.
   Widget _buildMainContent() {
     return SafeArea(
       child: CustomScrollView(
@@ -288,6 +364,8 @@ class _RegisterPageState extends State<RegisterPage>
     );
   }
 
+  /// ينفذ العملية `_buildCompactHeader`.
+  /// Runs the `_buildCompactHeader` operation.
   Widget _buildCompactHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -308,6 +386,8 @@ class _RegisterPageState extends State<RegisterPage>
     );
   }
 
+  /// ينفذ العملية `_buildGlassButton`.
+  /// Runs the `_buildGlassButton` operation.
   Widget _buildGlassButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -349,6 +429,8 @@ class _RegisterPageState extends State<RegisterPage>
     );
   }
 
+  /// ينفذ العملية `_buildCompactLogo`.
+  /// Runs the `_buildCompactLogo` operation.
   Widget _buildCompactLogo() {
     return AnimatedBuilder(
       animation: Listenable.merge([_logoRotation, _glowAnimation]),
@@ -403,6 +485,8 @@ class _RegisterPageState extends State<RegisterPage>
     );
   }
 
+  /// ينفذ العملية `_buildCompactTitle`.
+  /// Runs the `_buildCompactTitle` operation.
   Widget _buildCompactTitle() {
     return Column(
       children: [
@@ -432,6 +516,8 @@ class _RegisterPageState extends State<RegisterPage>
     );
   }
 
+  /// ينفذ العملية `_buildUltraForm`.
+  /// Runs the `_buildUltraForm` operation.
   Widget _buildUltraForm() {
     return Container(
       padding: const EdgeInsets.all(18),
@@ -444,7 +530,7 @@ class _RegisterPageState extends State<RegisterPage>
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             blurRadius: 30,
             offset: const Offset(0, 18),
           ),
@@ -539,6 +625,8 @@ class _RegisterPageState extends State<RegisterPage>
     );
   }
 
+  /// ينفذ العملية `_buildLoginLink`.
+  /// Runs the `_buildLoginLink` operation.
   Widget _buildLoginLink() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -588,75 +676,8 @@ class _RegisterPageState extends State<RegisterPage>
     );
   }
 
-  Widget _buildSkipButton() {
-    return Positioned(
-      bottom: MediaQuery.of(context).padding.bottom + 20,
-      left: 20,
-      right: 20,
-      child: AnimatedBuilder(
-        animation: _glowAnimation,
-        builder: (context, child) {
-          return GestureDetector(
-            onTap: () {
-              HapticFeedback.mediumImpact();
-              context.go(RouteConstants.main);
-            },
-            child: Container(
-              height: 42,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.white.withValues(alpha: 0.08),
-                    Colors.white.withValues(alpha: 0.04),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.white
-                      .withValues(alpha: 0.1 + 0.05 * _glowAnimation.value),
-                  width: 0.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.white
-                        .withValues(alpha: 0.05 * _glowAnimation.value),
-                    blurRadius: 10,
-                    spreadRadius: 1,
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'تخطي التسجيل',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppTheme.textWhite.withValues(alpha: 0.7),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Icon(
-                        Icons.arrow_forward_rounded,
-                        size: 16,
-                        color: AppTheme.textWhite.withValues(alpha: 0.7),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
+  /// ينفذ العملية `_handleAuthState`.
+  /// Runs the `_handleAuthState` operation.
   void _handleAuthState(BuildContext context, AuthState state) {
     if (state is AuthRegistrationSuccess) {
       HapticFeedback.mediumImpact();
@@ -678,6 +699,8 @@ class _RegisterPageState extends State<RegisterPage>
     }
   }
 
+  /// ينفذ العملية `_showUltraErrorSnackBar`.
+  /// Runs the `_showUltraErrorSnackBar` operation.
   void _showUltraErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -745,17 +768,37 @@ class _RegisterPageState extends State<RegisterPage>
 }
 
 // Ultra light particle model
+/// يعرّف الكلاس `_UltraParticle`.
+/// Describes the `_UltraParticle` class.
 class _UltraParticle {
+  /// Holds the `y` value.
+  /// العربية: يخزن القيمة `y`.
   late double x, y;
+
+  /// يخزن العضو `vy`.
+  /// Holds the `vy` member.
   late double vx, vy;
+
+  /// يخزن العضو `radius`.
+  /// Holds the `radius` member.
   late double radius;
+
+  /// يخزن العضو `opacity`.
+  /// Holds the `opacity` member.
   late double opacity;
+
+  /// يخزن العضو `color`.
+  /// Holds the `color` member.
   late Color color;
 
+  /// ينشئ مثيلاً من `_UltraParticle`.
+  /// Builds an instance of `_UltraParticle`.
   _UltraParticle() {
     reset();
   }
 
+  /// ينفذ العملية `reset`.
+  /// Runs the `reset` operation.
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -772,6 +815,8 @@ class _UltraParticle {
     color = colors[math.Random().nextInt(colors.length)];
   }
 
+  /// ينفذ العملية `update`.
+  /// Runs the `update` operation.
   void update() {
     x += vx;
     y += vy;
@@ -782,15 +827,26 @@ class _UltraParticle {
 }
 
 // Custom Painters
+/// يعرّف الكلاس `_UltraParticlePainter`.
+/// Describes the `_UltraParticlePainter` class.
 class _UltraParticlePainter extends CustomPainter {
+  /// Holds the `particles` value.
+  /// العربية: يخزن القيمة `particles`.
   final List<_UltraParticle> particles;
+
+  /// يخزن العضو `animationValue`.
+  /// Holds the `animationValue` member.
   final double animationValue;
 
+  /// ينشئ مثيلاً من `_UltraParticlePainter`.
+  /// Builds an instance of `_UltraParticlePainter`.
   _UltraParticlePainter({
     required this.particles,
     required this.animationValue,
   });
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
@@ -809,19 +865,32 @@ class _UltraParticlePainter extends CustomPainter {
     }
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+/// يعرّف الكلاس `_SubtleWavePainter`.
+/// Describes the `_SubtleWavePainter` class.
 class _SubtleWavePainter extends CustomPainter {
+  /// Holds the `animation` value.
+  /// العربية: يخزن القيمة `animation`.
   final double animation;
+
+  /// يخزن العضو `color`.
+  /// Holds the `color` member.
   final Color color;
 
+  /// ينشئ مثيلاً من `_SubtleWavePainter`.
+  /// Builds an instance of `_SubtleWavePainter`.
   _SubtleWavePainter({
     required this.animation,
     required this.color,
   });
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -844,19 +913,32 @@ class _SubtleWavePainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+/// يعرّف الكلاس `_UltraGridPainter`.
+/// Describes the `_UltraGridPainter` class.
 class _UltraGridPainter extends CustomPainter {
+  /// Holds the `rotation` value.
+  /// العربية: يخزن القيمة `rotation`.
   final double rotation;
+
+  /// يخزن العضو `opacity`.
+  /// Holds the `opacity` member.
   final double opacity;
 
+  /// ينشئ مثيلاً من `_UltraGridPainter`.
+  /// Builds an instance of `_UltraGridPainter`.
   _UltraGridPainter({
     required this.rotation,
     required this.opacity,
   });
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -890,6 +972,8 @@ class _UltraGridPainter extends CustomPainter {
     canvas.restore();
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

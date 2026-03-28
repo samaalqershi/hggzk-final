@@ -5,14 +5,32 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/conversation.dart';
 
-// في ملف pinned_admins_widget.dart، حدث callback onUserTap:
-
+/// Horizontal admin strip shown when the chat screen needs to surface staff
+/// members or pinned moderators.
+/// شريط أفقي للمشرفين يظهر عندما تحتاج شاشة الدردشة إلى إبراز أفراد
+/// الطاقم أو المشرفين المثبتين.
 class PinnedAdminsWidget extends StatelessWidget {
+  /// Admin accounts that should appear in the pinned strip.
+  /// حسابات الإدارة التي يجب أن تظهر في الشريط المثبت.
   final List<ChatUser> adminUsers;
+
+  /// Admins currently selected by the surrounding flow.
+  /// المشرفون المختارون حاليًا في المسار المحيط.
   final Set<ChatUser> selectedUsers;
+
+  /// Called when a user tile is tapped so the host screen can update the
+  /// selection state.
+  /// يُستدعى عند النقر على بطاقة مستخدم كي تحدّث الشاشة المضيفة حالة
+  /// الاختيار.
   final Function(ChatUser) onUserTap;
+
+  /// Optional controller used when the strip participates in a larger scroll
+  /// experience.
+  /// متحكم اختياري عندما يكون الشريط جزءًا من تجربة تمرير أكبر.
   final ScrollController? scrollController;
 
+  /// Builds the pinned admin strip that sits above the chat composer.
+  /// ينشئ شريط المشرفين المثبت الذي يظهر فوق محرر الرسائل.
   const PinnedAdminsWidget({
     super.key,
     required this.adminUsers,
@@ -21,6 +39,8 @@ class PinnedAdminsWidget extends StatelessWidget {
     this.scrollController,
   });
 
+  /// Renders the admin strip or collapses it when no staff members exist.
+  /// يرسم الشريط أو يطويه عندما لا توجد حسابات طاقم.
   @override
   Widget build(BuildContext context) {
     if (adminUsers.isEmpty) {
@@ -100,7 +120,7 @@ class PinnedAdminsWidget extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Admins horizontal list
           SizedBox(
             height: 100,
@@ -112,7 +132,7 @@ class PinnedAdminsWidget extends StatelessWidget {
               itemBuilder: (context, index) {
                 final admin = adminUsers[index];
                 final isSelected = selectedUsers.contains(admin);
-                
+
                 return _AdminItemWidget(
                   admin: admin,
                   isSelected: isSelected,
@@ -128,12 +148,27 @@ class PinnedAdminsWidget extends StatelessWidget {
   }
 }
 
+  /// Individual admin tile rendered inside the horizontal strip.
+  /// بطاقة مشرف منفصلة داخل الشريط الأفقي.
 class _AdminItemWidget extends StatefulWidget {
+  /// Admin user represented by this tile.
+  /// مستخدم الإدارة الذي تمثله هذه البطاقة.
   final ChatUser admin;
+
+  /// Whether the tile should render as selected.
+  /// يحدد ما إذا كانت البطاقة يجب أن تظهر كعنصر محدد.
   final bool isSelected;
+
+  /// Triggered when the user taps the tile.
+  /// يُستدعى عند النقر على البطاقة.
   final VoidCallback onTap;
+
+  /// Position in the strip used to stagger the entrance animation.
+  /// الموقع داخل الشريط ويُستخدم لتدرّج حركة الظهور.
   final int index;
 
+  /// Builds one selectable admin tile.
+  /// ينشئ بطاقة مشرف قابلة للاختيار.
   const _AdminItemWidget({
     required this.admin,
     required this.isSelected,
@@ -141,16 +176,31 @@ class _AdminItemWidget extends StatefulWidget {
     required this.index,
   });
 
+  /// Creates the animated state for the admin tile.
+  /// ينشئ الحالة المتحركة لبطاقة المشرف.
   @override
   State<_AdminItemWidget> createState() => _AdminItemWidgetState();
 }
 
+/// Animates the tile entry, scaling, and fade-in so the strip feels more
+/// deliberate.
+/// يدير ظهور البطاقة بالحركة والتكبير والتلاشي حتى يبدو الشريط مقصودًا.
 class _AdminItemWidgetState extends State<_AdminItemWidget>
     with SingleTickerProviderStateMixin {
+  /// Animation controller for the admin tile entrance.
+  /// متحكم الحركة الخاص بظهور بطاقة المشرف.
   late AnimationController _controller;
+
+  /// Controls the tile scale as it enters the strip.
+  /// يتحكم في تكبير البطاقة أثناء ظهورها.
   late Animation<double> _scaleAnimation;
+
+  /// Controls the opacity ramp for the same entrance animation.
+  /// يتحكم في تغير الشفافية أثناء حركة الظهور نفسها.
   late Animation<double> _fadeAnimation;
 
+  /// Prepares the staggered entrance animation.
+  /// يهيئ حركة الظهور المتدرجة.
   @override
   void initState() {
     super.initState();
@@ -158,7 +208,7 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
       duration: Duration(milliseconds: 400 + (widget.index * 50)),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.5,
       end: 1.0,
@@ -166,7 +216,7 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
       parent: _controller,
       curve: Curves.easeOutBack,
     ));
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -174,16 +224,20 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
       parent: _controller,
       curve: Curves.easeOut,
     ));
-    
+
     _controller.forward();
   }
 
+  /// Releases the animation controller owned by the tile.
+  /// يحرر متحكم الحركة المملوك للبطاقة.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// Renders the selectable admin tile with avatar, labels, and highlight.
+  /// يرسم بطاقة المشرف القابلة للاختيار مع الصورة والعناوين والتأكيد البصري.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -224,7 +278,7 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                               ],
                             ),
                           ),
-                        
+
                         // Avatar container
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
@@ -265,7 +319,7 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                             ),
                           ),
                         ),
-                        
+
                         // Crown badge
                         Positioned(
                           top: 0,
@@ -297,7 +351,7 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                             ),
                           ),
                         ),
-                        
+
                         // Selection checkmark
                         if (widget.isSelected)
                           Positioned(
@@ -323,9 +377,9 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                           ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 6),
-                    
+
                     // Name
                     Text(
                       widget.admin.name.split(' ').first,
@@ -342,7 +396,7 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),
-                    
+
                     // Status
                     if (widget.admin.isOnline)
                       Container(
@@ -374,11 +428,14 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
     );
   }
 
+  /// العربية: يعيد initials.
   String _getInitials(String name) {
     final parts = name.trim().split(' ').where((e) => e.isNotEmpty).toList();
     if (parts.isEmpty) return '?';
     if (parts.length == 1) {
-      return parts.first.substring(0, parts.first.length.clamp(0, 2)).toUpperCase();
+      return parts.first
+          .substring(0, parts.first.length.clamp(0, 2))
+          .toUpperCase();
     }
     return (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase();
   }

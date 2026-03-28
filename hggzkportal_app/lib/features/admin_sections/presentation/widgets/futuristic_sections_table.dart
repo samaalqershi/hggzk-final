@@ -8,11 +8,17 @@ import '../../domain/entities/section.dart';
 import 'section_status_badge.dart';
 
 class FuturisticSectionsTable extends StatefulWidget {
+  /// العربية: يخزن القيمة `sections`.
   final List<Section> sections;
+
   final Function(String) onSectionTap;
+
   final Function(String) onEdit;
+
   final Function(Section) onDelete;
+
   final Function(Section) onToggleStatus;
+
   final Function(Section)? onManageItems;
 
   const FuturisticSectionsTable({
@@ -31,9 +37,13 @@ class FuturisticSectionsTable extends StatefulWidget {
 }
 
 class _FuturisticSectionsTableState extends State<FuturisticSectionsTable> {
+  /// العربية: يخزن القيمة `hoveredIndex`.
   int? _hoveredIndex;
+
   String _sortColumn = 'order';
+
   bool _sortAscending = true;
+
   late List<Section> _sorted;
 
   @override
@@ -519,7 +529,8 @@ class _FuturisticSectionsTableState extends State<FuturisticSectionsTable> {
           tooltip: 'تعديل',
           color: AppTheme.primaryBlue,
         ),
-        if (widget.onManageItems != null && section.contentType != SectionContentType.none)
+        if (widget.onManageItems != null &&
+            section.contentType != SectionContentType.none)
           _buildActionIcon(
             icon: CupertinoIcons.square_stack_3d_down_right,
             onTap: () => widget.onManageItems!(section),

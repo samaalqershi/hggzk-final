@@ -3,24 +3,42 @@ import 'package:table_calendar/table_calendar.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// العربية: يمثل `AvailabilityCalendarResult`.
 class AvailabilityCalendarResult {
+  /// العربية: يخزن القيمة `checkIn`.
   final DateTime checkIn;
+
+  /// العربية: يخزن القيمة `checkOut`.
   final DateTime checkOut;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `AvailabilityCalendarResult`.
   const AvailabilityCalendarResult({
     required this.checkIn,
     required this.checkOut,
   });
 }
 
+/// العربية: يمثل `AvailabilityCalendarDialog`.
 class AvailabilityCalendarDialog extends StatefulWidget {
+  /// العربية: يخزن القيمة `firstDay`.
   final DateTime firstDay;
+
+  /// العربية: يخزن القيمة `lastDay`.
   final DateTime lastDay;
+
+  /// العربية: يخزن القيمة `availableDates`.
   final Set<DateTime> availableDates;
+
+  /// العربية: يخزن القيمة `unpricedDates`.
   final Set<DateTime> unpricedDates;
+
+  /// العربية: يخزن القيمة `initialCheckIn`.
   final DateTime? initialCheckIn;
+
+  /// العربية: يخزن القيمة `initialCheckOut`.
   final DateTime? initialCheckOut;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `AvailabilityCalendarDialog`.
   const AvailabilityCalendarDialog({
     super.key,
     required this.firstDay,
@@ -31,6 +49,7 @@ class AvailabilityCalendarDialog extends StatefulWidget {
     this.initialCheckOut,
   });
 
+  /// العربية: يعرض العملية المطلوبة لـ `show`.
   static Future<AvailabilityCalendarResult?> show(
     BuildContext context, {
     required DateTime firstDay,
@@ -53,19 +72,31 @@ class AvailabilityCalendarDialog extends StatefulWidget {
     );
   }
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<AvailabilityCalendarDialog> createState() =>
       _AvailabilityCalendarDialogState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `AvailabilityCalendarDialogState`.
 class _AvailabilityCalendarDialogState
     extends State<AvailabilityCalendarDialog> {
+  /// العربية: يخزن القيمة `rangeStart`.
   DateTime? _rangeStart;
+
+  /// العربية: يخزن القيمة `rangeEnd`.
   DateTime? _rangeEnd;
+
+  /// العربية: يخزن القيمة `focusedDay`.
   late DateTime _focusedDay;
+
+  /// العربية: يخزن القيمة `availableKeys`.
   late final Set<int> _availableKeys;
+
+  /// العربية: يخزن القيمة `unpricedKeys`.
   late final Set<int> _unpricedKeys;
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -88,10 +119,13 @@ class _AvailabilityCalendarDialogState
         widget.unpricedDates.map((d) => _dateKey(_dateOnly(d))).toSet();
   }
 
+  /// العربية: يعالج `dateOnly`.
   DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 
+  /// العربية: يعالج `dateKey`.
   int _dateKey(DateTime d) => (d.year * 10000) + (d.month * 100) + d.day;
 
+  /// العربية: يعالج `clampToBounds`.
   DateTime _clampToBounds(DateTime day) {
     final d = _dateOnly(day);
     final first = _dateOnly(widget.firstDay);
@@ -101,6 +135,7 @@ class _AvailabilityCalendarDialogState
     return d;
   }
 
+  /// العربية: يعالج `isWithinBounds`.
   bool _isWithinBounds(DateTime day) {
     final d = _dateOnly(day);
     final first = _dateOnly(widget.firstDay);
@@ -108,14 +143,17 @@ class _AvailabilityCalendarDialogState
     return !d.isBefore(first) && !d.isAfter(last);
   }
 
+  /// العربية: يعالج `isNightAvailable`.
   bool _isNightAvailable(DateTime d) {
     return _availableKeys.contains(_dateKey(_dateOnly(d)));
   }
 
+  /// العربية: يعالج `isUnpricedDay`.
   bool _isUnpricedDay(DateTime d) {
     return _unpricedKeys.contains(_dateKey(_dateOnly(d)));
   }
 
+  /// العربية: يعالج `isCheckoutValid`.
   bool _isCheckoutValid(DateTime start, DateTime end) {
     if (!end.isAfter(start)) return false;
 
@@ -131,11 +169,13 @@ class _AvailabilityCalendarDialogState
     return true;
   }
 
+  /// العربية: يعالج `isDayEnabled`.
   bool _isDayEnabled(DateTime day) {
     final d = _dateOnly(day);
     return _isWithinBounds(d) && _isNightAvailable(d) && !_isUnpricedDay(d);
   }
 
+  /// العربية: يعالج `onDaySelected`.
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     final checkIn = _dateOnly(selectedDay);
     if (!_isDayEnabled(checkIn)) return;
@@ -148,6 +188,7 @@ class _AvailabilityCalendarDialogState
     );
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Dialog(

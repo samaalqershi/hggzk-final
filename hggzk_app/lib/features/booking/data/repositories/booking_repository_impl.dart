@@ -11,15 +11,21 @@ import '../../domain/repositories/booking_repository.dart';
 import '../datasources/booking_remote_datasource.dart';
 import '../models/booking_request_model.dart';
 
+/// العربية: يوفر سلوك المستودع الخاص بـ `BookingRepositoryImpl`.
 class BookingRepositoryImpl implements BookingRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final BookingRemoteDataSource remoteDataSource;
+
+  /// العربية: يخزن القيمة `internetConnectionChecker`.
   final InternetConnectionChecker internetConnectionChecker;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingRepositoryImpl`.
   BookingRepositoryImpl({
     required this.remoteDataSource,
     required this.internetConnectionChecker,
   });
 
+  /// العربية: ينشئ booking.
   @override
   Future<Either<Failure, Booking>> createBooking(BookingRequest request) async {
     if (!(await internetConnectionChecker.hasConnection)) {
@@ -29,7 +35,7 @@ class BookingRepositoryImpl implements BookingRepository {
     try {
       final requestModel = BookingRequestModel.fromEntity(request);
       final result = await remoteDataSource.createBooking(requestModel);
-      
+
       if (result.success && result.data != null) {
         return Right(result.data!);
       } else {
@@ -40,6 +46,7 @@ class BookingRepositoryImpl implements BookingRepository {
     }
   }
 
+  /// العربية: يعيد booking details.
   @override
   Future<Either<Failure, Booking>> getBookingDetails({
     required String bookingId,
@@ -54,17 +61,19 @@ class BookingRepositoryImpl implements BookingRepository {
         bookingId: bookingId,
         userId: userId,
       );
-      
+
       if (result.success && result.data != null) {
         return Right(result.data!);
       } else {
-        return Left(ServerFailure(result.message ?? 'فشل الحصول على تفاصيل الحجز'));
+        return Left(
+            ServerFailure(result.message ?? 'فشل الحصول على تفاصيل الحجز'));
       }
     } catch (error) {
       return ErrorHandler.handle(error);
     }
   }
 
+  /// العربية: يعالج `cancelBooking`.
   @override
   Future<Either<Failure, bool>> cancelBooking({
     required String bookingId,
@@ -83,7 +92,7 @@ class BookingRepositoryImpl implements BookingRepository {
         reason: reason,
         refundPayments: refundPayments,
       );
-      
+
       if (result.success) {
         return Right(result.data ?? false);
       } else {
@@ -98,6 +107,7 @@ class BookingRepositoryImpl implements BookingRepository {
     }
   }
 
+  /// العربية: يعيد user bookings.
   @override
   Future<Either<Failure, PaginatedResult<Booking>>> getUserBookings({
     required String userId,
@@ -116,7 +126,7 @@ class BookingRepositoryImpl implements BookingRepository {
         pageNumber: pageNumber,
         pageSize: pageSize,
       );
-      
+
       if (result.success && result.data != null) {
         final paginatedBookings = PaginatedResult<Booking>(
           items: result.data!.items.cast<Booking>(),
@@ -134,6 +144,7 @@ class BookingRepositoryImpl implements BookingRepository {
     }
   }
 
+  /// العربية: يعيد user booking summary.
   @override
   Future<Either<Failure, Map<String, dynamic>>> getUserBookingSummary({
     required String userId,
@@ -148,17 +159,19 @@ class BookingRepositoryImpl implements BookingRepository {
         userId: userId,
         year: year,
       );
-      
+
       if (result.success && result.data != null) {
         return Right(result.data!);
       } else {
-        return Left(ServerFailure(result.message ?? 'فشل الحصول على ملخص الحجوزات'));
+        return Left(
+            ServerFailure(result.message ?? 'فشل الحصول على ملخص الحجوزات'));
       }
     } catch (error) {
       return ErrorHandler.handle(error);
     }
   }
 
+  /// العربية: يعالج `addServicesToBooking`.
   @override
   Future<Either<Failure, Booking>> addServicesToBooking({
     required String bookingId,
@@ -175,7 +188,7 @@ class BookingRepositoryImpl implements BookingRepository {
         serviceId: serviceId,
         quantity: quantity,
       );
-      
+
       if (result.success && result.data != null) {
         return Right(result.data!);
       } else {
@@ -186,6 +199,7 @@ class BookingRepositoryImpl implements BookingRepository {
     }
   }
 
+  /// العربية: يتحقق من availability.
   @override
   Future<Either<Failure, UnitAvailability>> checkAvailability({
     required String unitId,
@@ -210,7 +224,7 @@ class BookingRepositoryImpl implements BookingRepository {
         guestsCount: guestsCount,
         excludeBookingId: excludeBookingId,
       );
-      
+
       if (result.success && result.data != null) {
         return Right(result.data!);
       } else {
@@ -221,6 +235,7 @@ class BookingRepositoryImpl implements BookingRepository {
     }
   }
 
+  /// العربية: يعيد unit available days.
   @override
   Future<Either<Failure, UnitAvailableDays>> getUnitAvailableDays({
     required String unitId,
@@ -248,6 +263,7 @@ class BookingRepositoryImpl implements BookingRepository {
     }
   }
 
+  /// العربية: يحدّث booking.
   @override
   Future<Either<Failure, bool>> updateBooking({
     required String bookingId,

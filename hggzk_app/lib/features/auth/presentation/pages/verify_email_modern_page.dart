@@ -4,21 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
+import 'package:hggzk/core/constants/route_constants.dart';
+import 'package:hggzk/core/theme/app_text_styles.dart';
+import 'package:hggzk/core/theme/app_theme.dart';
 import 'package:hggzk/features/auth/presentation/bloc/auth_event.dart';
-
-import '../../../../core/constants/route_constants.dart';
-import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/app_theme.dart';
-import '../../../../injection_container.dart';
-import '../../verification/bloc/email_verification_bloc.dart';
-import '../../verification/bloc/email_verification_event.dart';
-import '../../verification/bloc/email_verification_state.dart';
+import 'package:hggzk/features/auth/presentation/bloc/verification/email_verification_bloc.dart';
+import 'package:hggzk/features/auth/presentation/bloc/verification/email_verification_event.dart';
+import 'package:hggzk/features/auth/presentation/bloc/verification/email_verification_state.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_state.dart';
 
+/// تعرض خطوة تأكيد البريد الإلكتروني مع إدخال الرمز وإعادة الإرسال والعودة
+/// إلى مسار المصادقة عند النجاح.
+/// Presents the email-confirmation step with code entry, resend support, and
+/// navigation back into the auth flow after success.
 class VerifyEmailModernPage extends StatefulWidget {
+  /// ينشئ شاشة التحقق من البريد الإلكتروني.
+  /// Creates the email-verification page.
   const VerifyEmailModernPage({super.key});
-
   @override
   State<VerifyEmailModernPage> createState() => _VerifyEmailModernPageState();
 }
@@ -28,11 +32,9 @@ class _VerifyEmailModernPageState extends State<VerifyEmailModernPage>
   final TextEditingController _codeController = TextEditingController();
   Timer? _timer;
   int _seconds = 0;
-
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
   @override
   void initState() {
     super.initState();

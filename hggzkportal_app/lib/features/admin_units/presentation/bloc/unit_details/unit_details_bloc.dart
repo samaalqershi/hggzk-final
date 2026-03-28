@@ -10,12 +10,27 @@ import '../../../domain/usecases/assign_unit_to_sections_usecase.dart';
 part 'unit_details_event.dart';
 part 'unit_details_state.dart';
 
+/// يمثل هذا الكلاس UnitDetailsBloc البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitDetailsBloc in the admin unit workflow.
 class UnitDetailsBloc extends Bloc<UnitDetailsEvent, UnitDetailsState> {
+  /// This field keeps the getUnitDetailsUseCase value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة getUnitDetailsUseCase التي يعتمد عليها مسار إدارة الوحدات.
   final GetUnitDetailsUseCase getUnitDetailsUseCase;
+
+  /// يحتفظ هذا الحقل بقيمة getUnitAnalyticsUseCase التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the getUnitAnalyticsUseCase value used by the admin unit workflow.
   final GetUnitAnalyticsUseCase getUnitAnalyticsUseCase;
+
+  /// يحتفظ هذا الحقل بقيمة deleteUnitUseCase التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the deleteUnitUseCase value used by the admin unit workflow.
   final DeleteUnitUseCase deleteUnitUseCase;
+
+  /// يحتفظ هذا الحقل بقيمة assignUnitToSectionsUseCase التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the assignUnitToSectionsUseCase value used by the admin unit workflow.
   final AssignUnitToSectionsUseCase assignUnitToSectionsUseCase;
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitDetailsBloc.
+  /// This constructor creates an instance of UnitDetailsBloc.
   UnitDetailsBloc({
     required this.getUnitDetailsUseCase,
     required this.getUnitAnalyticsUseCase,
@@ -27,6 +42,8 @@ class UnitDetailsBloc extends Bloc<UnitDetailsEvent, UnitDetailsState> {
     on<AssignToSectionsEvent>(_onAssignToSections);
   }
 
+  /// ينفذ هذا الأسلوب عملية _onLoadUnitDetails ضمن مسار إدارة الوحدات.
+  /// This method performs the _onLoadUnitDetails operation in the admin unit workflow.
   Future<void> _onLoadUnitDetails(
     LoadUnitDetailsEvent event,
     Emitter<UnitDetailsState> emit,
@@ -57,6 +74,8 @@ class UnitDetailsBloc extends Bloc<UnitDetailsEvent, UnitDetailsState> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _onDeleteUnit ضمن مسار إدارة الوحدات.
+  /// This method performs the _onDeleteUnit operation in the admin unit workflow.
   Future<void> _onDeleteUnit(
     DeleteUnitDetailsEvent event,
     Emitter<UnitDetailsState> emit,
@@ -69,6 +88,8 @@ class UnitDetailsBloc extends Bloc<UnitDetailsEvent, UnitDetailsState> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _onAssignToSections ضمن مسار إدارة الوحدات.
+  /// This method performs the _onAssignToSections operation in the admin unit workflow.
   Future<void> _onAssignToSections(
     AssignToSectionsEvent event,
     Emitter<UnitDetailsState> emit,

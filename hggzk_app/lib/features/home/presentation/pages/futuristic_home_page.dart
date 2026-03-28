@@ -5,8 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hggzk/features/home/presentation/widgets/futuristic_home_app_bar.dart';
-import 'package:hggzk/features/home/presentation/widgets/futuristic_unit_type_card.dart';
-import 'package:hggzk/features/home/presentation/widgets/hero_banner_widget.dart';
 import 'package:hggzk/features/home/presentation/widgets/elegant_property_types_section.dart';
 import 'package:hggzk/features/home/presentation/widgets/elegant_unit_types_section.dart';
 import 'package:hggzk/features/home/presentation/widgets/refresh_indicator_widget.dart';
@@ -21,45 +19,50 @@ import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
 import '../../domain/entities/section.dart';
 import '../../domain/entities/unit_type.dart';
-import '../../../search/domain/entities/search_filter.dart' show UnitTypeField;
 import '../../../reference/presentation/widgets/city_selector_dialog.dart';
-import '../../../../services/local_storage_service.dart';
-import '../../../../services/filter_storage_service.dart';
+import 'package:hggzk/core/services/local_storage_service.dart';
+import 'package:hggzk/core/services/filter_storage_service.dart';
 import 'package:get_it/get_it.dart';
 import '../widgets/sections/base_section_widget.dart';
-import '../../../../presentation/navigation/main_tab_notification.dart';
+import 'package:hggzk/app/navigation/switch_main_tab_notification.dart';
 import '../../../booking/presentation/widgets/date_picker_widget.dart';
 import '../../../booking/presentation/widgets/guest_selector_widget.dart';
 
+/// تمثل الصفحة الرئيسية للتطبيق، وتجمع بين أدوات التصفح السريعة والفلاتر
+/// والأقسام الديناميكية داخل تجربة بصرية واحدة متدرجة.
+/// Represents the app's home screen, combining quick browsing tools, filters,
+/// and dynamic sections inside one layered visual experience.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
-  // Animation Controllers
+  // Arabic: متحكمات الحركة التي تقود الخلفية والمحتوى والتوهج.
+  // English: Animation controllers that drive the background, content, and
+  // glow effects.
   late AnimationController _backgroundAnimationController;
   late AnimationController _particlesAnimationController;
   late AnimationController _glowAnimationController;
   late AnimationController _contentAnimationController;
   late AnimationController _waveAnimationController;
-  late AnimationController _shimmerController;
 
-  // Animations
+  // Arabic: الحركات المشتقة من المتحكمات السابقة.
+  // English: Animations derived from the controllers above.
   late Animation<double> _backgroundRotationAnimation;
   late Animation<double> _contentFadeAnimation;
   late Animation<Offset> _contentSlideAnimation;
   late Animation<double> _waveAnimation;
-  late Animation<double> _shimmerAnimation;
 
-  // Scroll and Particles
+  // Arabic: أدوات التمرير والجسيمات التي تصنع العمق البصري.
+  // English: Scroll and particle tooling that creates visual depth.
   final ScrollController _scrollController = ScrollController();
   final List<_AdvancedParticle> _particles = [];
   final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
 
-  // State
+  // Arabic: حالة الظهور التفاعلي داخل الصفحة الرئيسية.
+  // English: Interactive state used within the home screen.
   bool _showFloatingSearch = false;
   double _scrollOffset = 0;
   double _scrollVelocity = 0;
@@ -67,6 +70,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
+  /// يهيئ الحركات الأولية ويؤخر التحميل قليلًا حتى يظهر الانتقال الافتتاحي
+  /// بسلاسة قبل بدء جلب البيانات.
+  /// Initializes the opening animations and delays data loading slightly so
+  /// the entrance transition remains smooth before fetching begins.
   @override
   void initState() {
     super.initState();
@@ -76,7 +83,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _setupScrollListener();
     _startAnimations();
 
-    // Load home data with delay for smooth animation
+    // Arabic: نؤخر التحميل قليلًا حتى لا يقطع ظهور الحركات الافتتاحية.
+    // English: Delay loading slightly so the entrance animation remains smooth.
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
         context.read<HomeBloc>().add(const LoadHomeDataEvent());
@@ -84,6 +92,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     });
   }
 
+  /// يبني تنبيهًا يوضح للمستخدم أن التواريخ المخزنة أصبحت قديمة وتم تجاهلها
+  /// إلى أن يختار تواريخ جديدة.
+  /// Builds a warning that explains when stored dates have gone stale and were
+  /// ignored until the user chooses new ones.
   Widget _buildExpiredDatesWarning() {
     try {
       final selections =
@@ -161,6 +173,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  /// يهيئ مجموعة الحركات التي تمنح الصفحة عمقها البصري وتدرج ظهور محتواها.
+  /// Sets up the animation suite that gives the page its depth and staged
+  /// content reveal.
   void _initializeAnimations() {
     _backgroundAnimationController = AnimationController(
       duration: const Duration(seconds: 30),
@@ -184,11 +199,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     _waveAnimationController = AnimationController(
       duration: const Duration(seconds: 8),
-      vsync: this,
-    )..repeat();
-
-    _shimmerController = AnimationController(
-      duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat();
 
@@ -224,14 +234,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       curve: Curves.easeInOut,
     ));
 
-    _shimmerAnimation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(CurvedAnimation(
-      parent: _shimmerController,
-      curve: Curves.easeInOut,
-    ));
-
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
@@ -246,12 +248,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     ));
   }
 
+  /// ينشئ الجسيمات الخلفية المستخدمة لإضافة عمق وحركة مستمرة إلى الصفحة.
+  /// Creates the background particles used to add depth and continuous motion
+  /// to the page.
   void _generateAdvancedParticles() {
     for (int i = 0; i < 30; i++) {
       _particles.add(_AdvancedParticle());
     }
   }
 
+  /// يربط التمرير بخصائص الواجهة التفاعلية مثل سرعة الحركة وظهور شريط البحث
+  /// وتأثير البارالاكس على الجسيمات.
+  /// Connects scrolling to interactive UI properties such as motion velocity,
+  /// floating-search visibility, and particle parallax.
   void _setupScrollListener() {
     _scrollController.addListener(() {
       final now = DateTime.now();
@@ -268,13 +277,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         _lastScrollTime = now;
       });
 
-      // Parallax effect for particles
+      // Arabic: نحرك الجسيمات بنسبة بسيطة لتوليد parallax.
+      // English: Move particles slightly to create a parallax effect.
       for (var particle in _particles) {
         particle.parallaxOffset = _scrollOffset * 0.001;
       }
     });
   }
 
+  /// يطلق حركة إظهار المحتوى الرئيسي بعد اكتمال الافتتاحية الأولى للصفحة.
+  /// Starts the main content reveal once the initial page entrance has settled.
   void _startAnimations() {
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
@@ -290,34 +302,46 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _glowAnimationController.dispose();
     _contentAnimationController.dispose();
     _waveAnimationController.dispose();
-    _shimmerController.dispose();
     _scrollController.dispose();
     _pulseController.dispose();
     super.dispose();
   }
 
   @override
+
+  /// يبني الهيكل العام للصفحة مع الخلفية المتحركة والمحتوى القابل للتمرير
+  /// وشريط البحث العائم.
+  /// Builds the overall page shell with the animated background, scrollable
+  /// content, and floating search affordance.
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
       body: Stack(
         children: [
-          // Advanced animated background
+          // Arabic: الخلفية المتقدمة المتحركة.
+          // English: Advanced animated background.
           _buildAdvancedBackground(),
 
-          // Floating particles with parallax
+          // Arabic: جسيمات عائمة مع parallax.
+          // English: Floating particles with parallax.
           _buildAdvancedParticles(),
 
-          // Main content
+          // Arabic: المحتوى الرئيسي.
+          // English: Main content.
           _buildMainContent(),
 
-          // Floating search bar
+          // Arabic: شريط البحث العائم.
+          // English: Floating search bar.
           _buildFloatingSearchBar(),
         ],
       ),
     );
   }
 
+  /// يبني الطبقات الخلفية الزخرفية التي تمنح الصفحة مظهرها الموجي والشبكي.
+  /// Builds the decorative background layers responsible for the wave and grid
+  /// look.
   Widget _buildAdvancedBackground() {
     return AnimatedBuilder(
       animation: Listenable.merge([
@@ -340,7 +364,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ),
           child: Stack(
             children: [
-              // Wave overlay
+              // Arabic: طبقة الموجة.
+              // English: Wave overlay.
               CustomPaint(
                 painter: _AdvancedWavePainter(
                   waveAnimation: _waveAnimation.value,
@@ -350,7 +375,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 size: Size.infinite,
               ),
 
-              // Grid pattern
+              // Arabic: نمط الشبكة.
+              // English: Grid pattern.
               CustomPaint(
                 painter: _FuturisticGridPainter(
                   rotation: _backgroundRotationAnimation.value * 0.1,
@@ -366,6 +392,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  /// يبني طبقة الجسيمات المتحركة التي تطفو فوق الخلفية الأساسية.
+  /// Builds the moving particle layer that floats above the primary
+  /// background.
   Widget _buildAdvancedParticles() {
     return AnimatedBuilder(
       animation: _particlesAnimationController,
@@ -382,16 +411,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  /// يبني منطقة المحتوى الرئيسية، بما فيها شريط التطبيق والمحتوى المتدرج
+  /// داخل `CustomScrollView`.
+  /// Builds the main content region, including the app bar and staged content
+  /// inside a `CustomScrollView`.
   Widget _buildMainContent() {
     return FuturisticRefreshIndicator(
       key: _refreshKey,
       onRefresh: _handleRefresh,
       child: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
-          // Build slivers conditionally
+          // Arabic: نبني الـ slivers بشكل شرطي بحسب الحالة.
+          // English: Build slivers conditionally based on state.
           final slivers = <Widget>[];
 
-          // 1. Always add App Bar
+          // Arabic: نضيف شريط التطبيق دائمًا.
+          // English: Always add the app bar.
           slivers.add(
             FuturisticHomeAppBar(
               isExpanded: !_showFloatingSearch,
@@ -404,9 +439,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             ),
           );
 
-          // 2. Property types and unit types are now shown inside content (not pinned)
+          // Arabic: أنواع العقارات والوحدات أصبحت داخل المحتوى وليست مثبّتة.
+          // English: Property and unit types now live inside the content area
+          // instead of being pinned.
 
-          // 3. Main Content
+          // Arabic: نضيف المحتوى الرئيسي.
+          // English: Add the main content.
           slivers.add(
             SliverToBoxAdapter(
               child: FadeTransition(
@@ -431,6 +469,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  /// يبني شريط البحث العائم الذي يظهر بعد تجاوز مسافة تمرير كافية.
+  /// Builds the floating search bar that appears after the user scrolls far
+  /// enough down the page.
   Widget _buildFloatingSearchBar() {
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 300),
@@ -442,6 +483,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  /// يبني النسخة المضغوطة من الشريط العائم والمثبتة أعلى الشاشة.
+  /// Builds the compact version of the floating bar pinned at the top of the
+  /// screen.
   Widget _buildCompactSearchBar() {
     return Container(
       decoration: BoxDecoration(
@@ -470,7 +514,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  // Back to top button
+                  // Arabic: زر العودة إلى أعلى الصفحة.
+                  // English: Back-to-top button.
                   _buildFloatingActionButton(
                     icon: Icons.arrow_upward_rounded,
                     onTap: _scrollToTop,
@@ -518,44 +563,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCompactSearchField() {
-    return Container(
-      height: 36,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.darkSurface.withOpacity(0.6),
-            AppTheme.darkSurface.withOpacity(0.4),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
-          width: 0.5,
-        ),
-      ),
-      child: TextField(
-        style: AppTextStyles.bodySmall.copyWith(
-          color: AppTheme.textWhite,
-        ),
-        decoration: InputDecoration(
-          hintText: 'ابحث عن وجهتك...',
-          hintStyle: AppTextStyles.caption.copyWith(
-            color: AppTheme.textMuted.withOpacity(0.5),
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-          prefixIcon: Icon(
-            Icons.search_rounded,
-            size: 18,
-            color: AppTheme.textMuted,
-          ),
-        ),
-        onSubmitted: _handleSearch,
-      ),
-    );
-  }
-
   Widget _buildContent() {
     final size = MediaQuery.of(context).size;
     final isTablet = size.width > 600;
@@ -570,16 +577,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             children: [
               const SizedBox(height: 16),
 
-              // تحذير في حال كانت التواريخ المحفوظة أقدم من اليوم الحالي
+              // Arabic: تنبيه عند وجود تواريخ محفوظة أصبحت قديمة.
+              // English: Warning when saved dates are now stale.
               _buildExpiredDatesWarning(),
             ],
           ),
         ),
 
-        // Property Types Section - NEW ELEGANT DESIGN
+        // Arabic: قسم أنواع العقارات بتصميمه الجديد.
+        // English: Property types section in its updated design.
         _buildPropertyTypesSection(),
 
-        // Unit Types Section - NEW ELEGANT DESIGN
+        // Arabic: قسم أنواع الوحدات بالتصميم الجديد.
+        // English: Unit types section in its updated design.
         _buildUnitTypesSection(),
 
         Padding(
@@ -588,12 +598,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             children: [
               const SizedBox(height: 20),
 
-              // Dynamic unit fields لم تعد تُستخدم في فلترة البحث، لذا تم إخفاؤها من الصفحة الرئيسية
+              // Arabic: الحقول الديناميكية لم تعد جزءًا من فلترة الصفحة
+              // الرئيسية، لذا أُخفيت هنا.
+              // English: Dynamic unit fields are no longer part of home-screen
+              // filtering, so they stay hidden here.
               _buildDynamicFieldsSection(),
 
               const SizedBox(height: 20),
 
-              // Sections content
+              // Arabic: محتوى الأقسام.
+              // English: Section content.
               _buildSectionsContent(),
             ],
           ),
@@ -601,7 +615,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
         const SizedBox(height: 20),
 
-        // Footer - يظهر فقط بعد تحميل البيانات
+        // Arabic: التذييل يظهر فقط بعد اكتمال تحميل البيانات.
+        // English: Footer appears only after data has finished loading.
         _buildConditionalFooter(isDesktop, isTablet),
 
         const SizedBox(
@@ -682,7 +697,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             textDirection: TextDirection.rtl,
             child: Row(
               children: [
-                // Logo Section - مُحسّن ✨
+                // Arabic: قسم الشعار المحسن.
+                // English: Enhanced logo section.
                 AnimatedBuilder(
                   animation: _glowAnimationController,
                   builder: (context, child) {
@@ -715,7 +731,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             width: 1.5, // ✅ زيادة من 0.5
                           ),
                           boxShadow: [
-                            // ✅ ظل أقوى للشعار
+                            // Arabic: ظل أقوى للشعار.
+                            // English: Stronger logo shadow.
                             BoxShadow(
                               color: isDark
                                   ? AppTheme.primaryBlue.withOpacity(0.3)
@@ -736,7 +753,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Copyright Section - مُحسّن
+                      // Arabic: قسم الحقوق المحسن.
+                      // English: Enhanced copyright section.
                       Wrap(
                         alignment: WrapAlignment.center,
                         spacing: 8,
@@ -790,7 +808,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      // Phone Number - مُحسّن
+                      // Arabic: رقم الهاتف بتنسيق أوضح.
+                      // English: Phone number with clearer formatting.
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6), // ✅ زيادة الحشو
@@ -809,7 +828,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             width: 1, // ✅ زيادة من 0.5
                           ),
                           boxShadow: [
-                            // ✅ إضافة ظل للوضوح
+                            // Arabic: ظل إضافي لتحسين الوضوح.
+                            // English: Extra shadow for readability.
                             BoxShadow(
                               color: isDark
                                   ? AppTheme.primaryBlue.withOpacity(0.1)
@@ -920,223 +940,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCompactWelcomeSection() {
-    return AnimatedBuilder(
-      animation: _shimmerAnimation,
-      builder: (context, child) {
-        return Row(
-          children: [
-            ShaderMask(
-              shaderCallback: (bounds) {
-                return LinearGradient(
-                  colors: [
-                    AppTheme.primaryCyan,
-                    AppTheme.primaryBlue,
-                    AppTheme.primaryPurple,
-                  ],
-                  stops: [
-                    0.0,
-                    0.5 + 0.3 * _shimmerAnimation.value,
-                    1.0,
-                  ],
-                ).createShader(bounds);
-              },
-              child: Text(
-                'مرحبًا بك',
-                style: AppTextStyles.h2.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            AnimatedBuilder(
-              animation: _glowAnimationController,
-              builder: (context, child) {
-                return Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(
-                          0.3 + 0.2 * _glowAnimationController.value,
-                        ),
-                        blurRadius: 10 + 5 * _glowAnimationController.value,
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.auto_awesome,
-                    size: 14,
-                    color: Colors.white,
-                  ),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildMainSearchBar() {
-    return GestureDetector(
-      onTap: () => _navigateToSearch(),
-      child: Container(
-        height: 48,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppTheme.darkCard.withOpacity(0.7),
-              AppTheme.darkCard.withOpacity(0.5),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.2),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
-              blurRadius: 15,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(14),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      gradient: AppTheme.primaryGradient,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.search_rounded,
-                      size: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'إلى أين تريد الذهاب؟',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppTheme.textMuted.withOpacity(0.7),
-                    ),
-                  ),
-                  const Spacer(),
-                  Icon(
-                    Icons.auto_awesome,
-                    size: 20,
-                    color: AppTheme.textMuted.withOpacity(0.5),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDynamicContent() {
-    return BlocBuilder<HomeBloc, HomeState>(
-      builder: (context, state) {
-        if (state is! HomeLoaded) return const SizedBox.shrink();
-
-        return const Column(
-          children: [
-            // Property types grid
-            // if (state.propertyTypes.isNotEmpty)
-            //   FuturisticPropertyTypesGrid(
-            //     propertyTypes: state.propertyTypes,
-            //     selectedTypeId: state.selectedPropertyTypeId,
-            //     onTypeSelected: (id) {
-            //       context.read<HomeBloc>().add(
-            //             UpdatePropertyTypeFilterEvent(propertyTypeId: id),
-            //           );
-            //     },
-            //     isCompact: true,
-            //   ),
-
-            // Unit types and dynamic fields
-            // if (state.selectedPropertyTypeId != null)
-            //   _buildUnitTypesAndFields(state),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildUnitTypesAndFields(HomeLoaded state) {
-    final List<UnitType> unitTypes =
-        state.unitTypes[state.selectedPropertyTypeId] ?? <UnitType>[];
-
-    if (unitTypes.isEmpty) return const SizedBox.shrink();
-
-    return Column(
-      children: [
-        const SizedBox(height: 12),
-
-        // Unit types horizontal list
-        SizedBox(
-          height: 100,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            itemCount: unitTypes.length,
-            itemBuilder: (context, index) {
-              final unitType = unitTypes[index];
-              final isSelected = state.selectedUnitTypeId == unitType.id;
-
-              return Padding(
-                padding: EdgeInsets.only(
-                  right: index == 0 ? 0 : 4,
-                  left: index == unitTypes.length - 1 ? 0 : 4,
-                ),
-                child: FuturisticUnitTypeCard(
-                  id: unitType.id,
-                  name: unitType.name,
-                  icon: unitType.icon ?? 'bed',
-                  isSelected: isSelected,
-                  animationDelay: Duration(milliseconds: index * 50),
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    context.read<HomeBloc>().add(
-                          UpdateUnitTypeSelectionEvent(unitTypeId: unitType.id),
-                        );
-                  },
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildCompactExploreButton(HomeLoaded state) {
-    // Compute enablement based on dates, guests (if required), and required fields
-    UnitType? selectedUnit;
-    if (state.selectedPropertyTypeId != null &&
-        state.selectedUnitTypeId != null) {
-      final unitTypes =
-          state.unitTypes[state.selectedPropertyTypeId] ?? const <UnitType>[];
-      try {
-        selectedUnit =
-            unitTypes.firstWhere((u) => u.id == state.selectedUnitTypeId);
-      } catch (_) {}
+    // Arabic: نحسب إمكانية التفعيل بناءً على التواريخ والضيوف والحقول
+    // المطلوبة.
+    // English: Compute enablement from dates, guests, and required fields.
+    final selectedUnitId = state.selectedUnitTypeId;
+    final unitTypes = state.selectedPropertyTypeId != null
+        ? state.unitTypes[state.selectedPropertyTypeId] ?? const <UnitType>[]
+        : const <UnitType>[];
+    if (selectedUnitId == null) {
+      return const SizedBox.shrink();
     }
+
+    final hasSelectedUnit = unitTypes.any((u) => u.id == selectedUnitId);
+    if (!hasSelectedUnit) {
+      return const SizedBox.shrink();
+    }
+
+    final selectedUnit = unitTypes.firstWhere((u) => u.id == selectedUnitId);
 
     final df = Map<String, dynamic>.from(state.dynamicFieldValues);
     final DateTime? checkIn =
@@ -1147,18 +968,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     final int children = (df['children'] as int?) ?? 0;
     final bool datesOk = checkIn != null && checkOut != null;
     bool guestsOk = true;
-    if (selectedUnit != null &&
-        (selectedUnit.isHasAdults || selectedUnit.isHasChildren)) {
+    if (selectedUnit.isHasAdults || selectedUnit.isHasChildren) {
       guestsOk = (!selectedUnit.isHasAdults || adults >= 1) &&
           (!selectedUnit.isHasChildren || children >= 0);
     }
     // لم نعد نعتبر الحقول الديناميكية شرطاً لتفعيل زر الاستكشاف
     bool fieldsOk = true;
 
-    final bool isEnabled =
-        selectedUnit != null && datesOk && guestsOk && fieldsOk;
-
-    final int guestsCount = adults + children;
+    final bool isEnabled = datesOk && guestsOk && fieldsOk;
 
     return Opacity(
       opacity: isEnabled ? 1.0 : 0.6,
@@ -1181,13 +998,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     params['city'] = selectedCity;
                   }
 
-                  if (checkIn != null)
-                    params['checkIn'] = checkIn.toIso8601String();
-                  if (checkOut != null)
-                    params['checkOut'] = checkOut.toIso8601String();
+                  params['checkIn'] = checkIn.toIso8601String();
+                  params['checkOut'] = checkOut.toIso8601String();
                   // لا تمرر guestsCount لأنواع الوحدات التي لا تدعم بالغين/أطفال
-                  final bool supportsGuests = selectedUnit != null &&
-                      (selectedUnit.isHasAdults || selectedUnit.isHasChildren);
+                  final bool supportsGuests =
+                      selectedUnit.isHasAdults || selectedUnit.isHasChildren;
                   if (supportsGuests) {
                     params['adults'] = adults;
                     params['children'] = children;
@@ -1601,16 +1416,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           return const SizedBox.shrink();
         }
 
-        // استخدام firstWhere مع معالجة الخطأ بشكل صحيح
-        UnitType? selectedUnit;
-        try {
-          selectedUnit = unitTypes.firstWhere(
-            (u) => u.id == state.selectedUnitTypeId,
-          );
-        } catch (e) {
-          // في حالة عدم العثور على الوحدة المحددة
+        final selectedUnitId = state.selectedUnitTypeId;
+        if (selectedUnitId == null) {
           return const SizedBox.shrink();
         }
+
+        final hasSelectedUnit = unitTypes.any((u) => u.id == selectedUnitId);
+        if (!hasSelectedUnit) {
+          return const SizedBox.shrink();
+        }
+
+        final selectedUnit =
+            unitTypes.firstWhere((u) => u.id == selectedUnitId);
 
         return AnimatedContainer(
           duration: const Duration(milliseconds: 400),
@@ -1668,14 +1485,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
 
     // البحث عن الوحدة المحددة بشكل آمن
-    UnitType? selectedUnit;
-    try {
-      selectedUnit = unitTypes.firstWhere(
-        (u) => u.id == state.selectedUnitTypeId,
-      );
-    } catch (e) {
+    final selectedUnitId = state.selectedUnitTypeId;
+    final hasSelectedUnit =
+        selectedUnitId != null && unitTypes.any((u) => u.id == selectedUnitId);
+    if (!hasSelectedUnit) {
       return const SizedBox.shrink();
     }
+    final selectedUnit = unitTypes.firstWhere((u) => u.id == selectedUnitId);
 
     // Dates and guests validation
     final df = state.dynamicFieldValues;
@@ -1692,10 +1508,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           (!selectedUnit.isHasChildren || children >= 0);
     }
 
-    final bool canShow = state.selectedPropertyTypeId != null &&
-        state.selectedUnitTypeId != null &&
-        datesOk &&
-        guestsOk;
+    final bool canShow = datesOk && guestsOk;
 
     if (!canShow) {
       // عرض رسالة توضيحية عند عدم استيفاء الشروط
@@ -1730,7 +1543,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       );
     }
 
-    // عرض نفس تصميم مربع "كل شيء جاهز" مع زر استكشاف صغير وأنيق
+    // Arabic: نعرض بطاقة جاهزية صغيرة مع زر استكشاف أنيق.
+    // English: Show a compact readiness card with a neat explore button.
     return _buildExploreOnlySection(state);
   }
 
@@ -1858,25 +1672,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  // Navigation methods
+  // Arabic: أساليب التنقل داخل الصفحة الرئيسية.
+  // English: Navigation methods for the home flow.
   Future<void> _handleRefresh() async {
     HapticFeedback.mediumImpact();
     context.read<HomeBloc>().add(const RefreshHomeDataEvent());
     await Future.delayed(const Duration(milliseconds: 500));
-  }
-
-  void _handleSearch(String query) {
-    final normalizedQuery = query.trim();
-    if (normalizedQuery.isNotEmpty) {
-      context.push('/search', extra: {
-        'searchTerm': normalizedQuery,
-      });
-    }
-  }
-
-  void _handleQuickFilter(String type) {
-    HapticFeedback.lightImpact();
-    // Handle quick filter selection
   }
 
   void _scrollToTop() {
@@ -1885,11 +1686,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeOutExpo,
     );
-  }
-
-  void _openFilters() {
-    HapticFeedback.mediumImpact();
-    // Open filters modal
   }
 
   Future<void> _openCitySelector() async {
@@ -1906,15 +1702,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       existing['city'] = selected;
       await fss.saveCurrentFilters(existing);
     }
-  }
-
-  void _navigateToSearch() {
-    final selectedCity =
-        GetIt.instance<LocalStorageService>().getSelectedCity();
-    final searchParams = <String, dynamic>{
-      if (selectedCity.isNotEmpty) 'city': selectedCity,
-    };
-    context.push('/search', extra: searchParams);
   }
 
   void _navigateToNotifications() {
@@ -1982,9 +1769,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 }
 
-// Advanced Particle Model
+// Arabic: نموذج الجسيمات المتقدمة.
+// English: Advanced particle model.
 class _AdvancedParticle {
-  // Marked as late because they are initialized in reset() and constructor before use
+  // Arabic: متأخر لأن قيمه تتهيأ في reset() أو عند الإنشاء قبل الاستخدام.
+  // English: Marked late because the values are initialized in reset() or the
+  // constructor before use.
   late double x, y, z;
   late double vx, vy, vz;
   late double radius;
@@ -1992,12 +1782,10 @@ class _AdvancedParticle {
   late Color color;
   double parallaxOffset = 0;
   late double rotationSpeed;
-
   _AdvancedParticle() {
     reset();
     rotationSpeed = (math.Random().nextDouble() - 0.5) * 0.01;
   }
-
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -2028,18 +1816,17 @@ class _AdvancedParticle {
   }
 }
 
-// Painters
+// Arabic: الرسامون المسؤولون عن الخلفيات والتأثيرات.
+// English: Painters responsible for the backgrounds and effects.
 class _AdvancedParticlePainter extends CustomPainter {
   final List<_AdvancedParticle> particles;
   final double animationValue;
   final double scrollVelocity;
-
   _AdvancedParticlePainter({
     required this.particles,
     required this.animationValue,
     required this.scrollVelocity,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
@@ -2070,13 +1857,11 @@ class _AdvancedWavePainter extends CustomPainter {
   final double waveAnimation;
   final double glowIntensity;
   final double scrollOffset;
-
   _AdvancedWavePainter({
     required this.waveAnimation,
     required this.glowIntensity,
     required this.scrollOffset,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -2117,13 +1902,11 @@ class _FuturisticGridPainter extends CustomPainter {
   final double rotation;
   final double opacity;
   final double scrollOffset;
-
   _FuturisticGridPainter({
     required this.rotation,
     required this.opacity,
     required this.scrollOffset,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -2162,37 +1945,4 @@ class _FuturisticGridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
-}
-
-class _PropertyTypesBarDelegate extends SliverPersistentHeaderDelegate {
-  final Widget child;
-  final double height;
-
-  _PropertyTypesBarDelegate({
-    required this.child,
-    this.height = 56.0,
-  });
-
-  @override
-  double get minExtent => height;
-
-  @override
-  double get maxExtent => height;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return SizedBox(
-      height: height,
-      child: child,
-    );
-  }
-
-  @override
-  bool shouldRebuild(covariant _PropertyTypesBarDelegate oldDelegate) {
-    return child != oldDelegate.child || height != oldDelegate.height;
-  }
 }

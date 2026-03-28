@@ -11,11 +11,17 @@ import 'package:intl/intl.dart';
 
 class FuturisticCurrencyCard extends StatefulWidget {
   final Currency currency;
+
   final bool isSelected;
+
   final bool isCompact;
+
   final VoidCallback? onTap;
+
   final VoidCallback? onEdit;
+
   final VoidCallback? onDelete;
+
   final VoidCallback? onSetDefault;
 
   const FuturisticCurrencyCard({
@@ -36,11 +42,15 @@ class FuturisticCurrencyCard extends StatefulWidget {
 class _FuturisticCurrencyCardState extends State<FuturisticCurrencyCard>
     with TickerProviderStateMixin {
   late AnimationController _hoverController;
+
   late AnimationController _pulseController;
+
   late AnimationController _rateChangeController;
 
   bool _isHovered = false;
+
   bool _showActions = false;
+
   double? _previousRate;
 
   @override

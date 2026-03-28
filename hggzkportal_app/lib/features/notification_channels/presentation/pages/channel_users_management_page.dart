@@ -1,13 +1,11 @@
 // lib/features/notifications/presentation/pages/channel_users_management_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_widget.dart';
@@ -21,13 +19,12 @@ import '../bloc/channels_event.dart';
 import '../bloc/channels_state.dart';
 
 class ChannelUsersManagementPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `channelId`.
   final String channelId;
-
   const ChannelUsersManagementPage({
     super.key,
     required this.channelId,
   });
-
   @override
   State<ChannelUsersManagementPage> createState() =>
       _ChannelUsersManagementPageState();
@@ -54,7 +51,6 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
   final List<User> _selectedUsersToAdd = [];
   final List<String> _selectedUsersToRemove = [];
   bool _showOnlyActive = true;
-  final String _searchQuery = '';
   String? _hoveredSubscriptionId;
   bool _isSelectionMode = false;
   String _sortBy = 'date';
@@ -62,14 +58,12 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
 
   // View Mode
   bool _isGridView = false;
-
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
-
     _loadChannelDetails();
     _loadSubscribers();
   }
@@ -200,8 +194,8 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
           end: Alignment.bottomRight,
           colors: [
             AppTheme.darkBackground,
-            AppTheme.darkBackground2.withOpacity(0.8),
-            AppTheme.darkBackground3.withOpacity(0.6),
+            AppTheme.darkBackground2.withValues(alpha: 0.8),
+            AppTheme.darkBackground3.withValues(alpha: 0.6),
           ],
         ),
       ),
@@ -222,13 +216,13 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.7),
-              AppTheme.darkCard.withOpacity(0.3),
+              AppTheme.darkCard.withValues(alpha: 0.7),
+              AppTheme.darkCard.withValues(alpha: 0.3),
             ],
           ),
           border: Border(
             bottom: BorderSide(
-              color: AppTheme.primaryBlue.withOpacity(0.2),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -283,13 +277,13 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkSurface.withOpacity(0.5),
-              AppTheme.darkSurface.withOpacity(0.3),
+              AppTheme.darkSurface.withValues(alpha: 0.5),
+              AppTheme.darkSurface.withValues(alpha: 0.3),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -328,10 +322,10 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withOpacity(0.5),
+          color: AppTheme.darkCard.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ),
         child: Icon(
@@ -359,12 +353,14 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           gradient: _isSelectionMode ? AppTheme.primaryGradient : null,
-          color: _isSelectionMode ? null : AppTheme.darkCard.withOpacity(0.5),
+          color: _isSelectionMode
+              ? null
+              : AppTheme.darkCard.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: _isSelectionMode
                 ? Colors.transparent
-                : AppTheme.darkBorder.withOpacity(0.3),
+                : AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ),
         child: Icon(
@@ -384,12 +380,13 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           gradient: _showOnlyActive ? AppTheme.primaryGradient : null,
-          color: _showOnlyActive ? null : AppTheme.darkCard.withOpacity(0.5),
+          color:
+              _showOnlyActive ? null : AppTheme.darkCard.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: _showOnlyActive
                 ? Colors.transparent
-                : AppTheme.darkBorder.withOpacity(0.3),
+                : AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ),
         child: Icon(
@@ -407,10 +404,10 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withOpacity(0.5),
+          color: AppTheme.darkCard.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ),
         child: Icon(
@@ -443,17 +440,17 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withOpacity(0.1),
-                    AppTheme.primaryPurple.withOpacity(0.05),
+                    AppTheme.primaryBlue.withValues(alpha: 0.1),
+                    AppTheme.primaryPurple.withValues(alpha: 0.05),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: AppTheme.primaryBlue.withOpacity(0.3),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.1),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -504,8 +501,8 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.3),
-            AppTheme.darkCard.withOpacity(0.1),
+            AppTheme.darkCard.withValues(alpha: 0.3),
+            AppTheme.darkCard.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
@@ -541,15 +538,15 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: channelColor.withOpacity(0.2),
+              color: channelColor.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: channelColor.withOpacity(0.4),
+                color: channelColor.withValues(alpha: 0.4),
                 width: 2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: channelColor.withOpacity(0.3),
+                  color: channelColor.withValues(alpha: 0.3),
                   blurRadius: 15,
                   spreadRadius: 2,
                 ),
@@ -635,7 +632,7 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
     return Container(
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.3),
+        color: AppTheme.darkCard.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
       ),
       child: TabBar(
@@ -645,7 +642,7 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryBlue.withOpacity(0.3),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -784,40 +781,40 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         margin: const EdgeInsets.only(bottom: 12),
-        transform: Matrix4.identity()..translate(0.0, isHovered ? -3.0 : 0.0),
+        transform: Matrix4.translationValues(0.0, isHovered ? -3.0 : 0.0, 0.0),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: isSelected
                 ? [
-                    AppTheme.error.withOpacity(0.15),
-                    AppTheme.error.withOpacity(0.05),
+                    AppTheme.error.withValues(alpha: 0.15),
+                    AppTheme.error.withValues(alpha: 0.05),
                   ]
                 : isHovered
                     ? [
-                        AppTheme.primaryBlue.withOpacity(0.08),
-                        AppTheme.primaryPurple.withOpacity(0.04),
+                        AppTheme.primaryBlue.withValues(alpha: 0.08),
+                        AppTheme.primaryPurple.withValues(alpha: 0.04),
                       ]
                     : [
-                        AppTheme.darkCard.withOpacity(0.7),
-                        AppTheme.darkCard.withOpacity(0.5),
+                        AppTheme.darkCard.withValues(alpha: 0.7),
+                        AppTheme.darkCard.withValues(alpha: 0.5),
                       ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? AppTheme.error.withOpacity(0.3)
+                ? AppTheme.error.withValues(alpha: 0.3)
                 : isHovered
-                    ? AppTheme.primaryBlue.withOpacity(0.3)
-                    : AppTheme.darkBorder.withOpacity(0.3),
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                    : AppTheme.darkBorder.withValues(alpha: 0.3),
             width: isHovered ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? AppTheme.error.withOpacity(0.1)
+                  ? AppTheme.error.withValues(alpha: 0.1)
                   : isHovered
-                      ? AppTheme.primaryBlue.withOpacity(0.1)
-                      : Colors.black.withOpacity(0.05),
+                      ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+                      : Colors.black.withValues(alpha: 0.05),
               blurRadius: isHovered ? 20 : 10,
               offset: Offset(0, isHovered ? 8 : 4),
             ),
@@ -880,19 +877,19 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
         gradient: LinearGradient(
           colors: isSelected
               ? [
-                  AppTheme.error.withOpacity(0.15),
-                  AppTheme.error.withOpacity(0.05),
+                  AppTheme.error.withValues(alpha: 0.15),
+                  AppTheme.error.withValues(alpha: 0.05),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.7),
-                  AppTheme.darkCard.withOpacity(0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.7),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
                 ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isSelected
-              ? AppTheme.error.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.error.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
         ),
       ),
       child: ClipRRect(
@@ -975,21 +972,21 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
             ? AppTheme.primaryGradient
             : LinearGradient(
                 colors: [
-                  AppTheme.textMuted.withOpacity(0.3),
-                  AppTheme.textMuted.withOpacity(0.1),
+                  AppTheme.textMuted.withValues(alpha: 0.3),
+                  AppTheme.textMuted.withValues(alpha: 0.1),
                 ],
               ),
         shape: BoxShape.circle,
         border: Border.all(
           color: subscription.isActive
-              ? AppTheme.success.withOpacity(0.5)
+              ? AppTheme.success.withValues(alpha: 0.5)
               : AppTheme.darkBorder,
           width: 2,
         ),
         boxShadow: subscription.isActive
             ? [
                 BoxShadow(
-                  color: AppTheme.success.withOpacity(0.3),
+                  color: AppTheme.success.withValues(alpha: 0.3),
                   blurRadius: 10,
                   spreadRadius: 1,
                 ),
@@ -1063,7 +1060,7 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: AppTheme.warning.withOpacity(0.2),
+              color: AppTheme.warning.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -1086,10 +1083,10 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -1123,12 +1120,13 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
         height: 32,
         decoration: BoxDecoration(
           gradient: isSelected ? AppTheme.primaryGradient : null,
-          color: isSelected ? null : AppTheme.darkSurface.withOpacity(0.5),
+          color:
+              isSelected ? null : AppTheme.darkSurface.withValues(alpha: 0.5),
           shape: BoxShape.circle,
           border: Border.all(
             color: isSelected
                 ? Colors.transparent
-                : AppTheme.darkBorder.withOpacity(0.3),
+                : AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ),
         child: isSelected
@@ -1148,7 +1146,7 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppTheme.error.withOpacity(0.2),
+              color: AppTheme.error.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
@@ -1251,13 +1249,13 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.info.withOpacity(0.1),
-            AppTheme.info.withOpacity(0.05),
+            AppTheme.info.withValues(alpha: 0.1),
+            AppTheme.info.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.info.withOpacity(0.3),
+          color: AppTheme.info.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -1287,13 +1285,13 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.success.withOpacity(0.1),
-            AppTheme.success.withOpacity(0.05),
+            AppTheme.success.withValues(alpha: 0.1),
+            AppTheme.success.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.success.withOpacity(0.3),
+          color: AppTheme.success.withValues(alpha: 0.3),
         ),
       ),
       child: ClipRRect(
@@ -1367,13 +1365,13 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ),
       ),
@@ -1410,7 +1408,7 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
               gradient: _selectedUsersToRemove.isNotEmpty
                   ? LinearGradient(colors: [
                       AppTheme.error,
-                      AppTheme.error.withOpacity(0.8),
+                      AppTheme.error.withValues(alpha: 0.8),
                     ])
                   : AppTheme.primaryGradient,
               borderRadius: BorderRadius.circular(20),
@@ -1419,7 +1417,7 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
                   color: (_selectedUsersToRemove.isNotEmpty
                           ? AppTheme.error
                           : AppTheme.primaryBlue)
-                      .withOpacity(0.3),
+                      .withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),
@@ -1528,7 +1526,6 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
   }
 
   // ==================== Helper Methods ====================
-
   List<UserChannelSubscription> _sortSubscribers(
       List<UserChannelSubscription> subscribers) {
     final sorted = List<UserChannelSubscription>.from(subscribers);
@@ -1585,7 +1582,6 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
   }
 
   // ==================== Action Methods ====================
-
   void _toggleActiveFilter() {
     HapticFeedback.lightImpact();
     setState(() {
@@ -1673,13 +1669,13 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
           decoration: BoxDecoration(
-            color: AppTheme.darkCard.withOpacity(0.95),
+            color: AppTheme.darkCard.withValues(alpha: 0.95),
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
             ),
           ),
           padding: const EdgeInsets.all(20),
@@ -1738,13 +1734,15 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
                               color: _isAscending
-                                  ? AppTheme.primaryBlue.withOpacity(0.2)
-                                  : AppTheme.darkSurface.withOpacity(0.5),
+                                  ? AppTheme.primaryBlue.withValues(alpha: 0.2)
+                                  : AppTheme.darkSurface.withValues(alpha: 0.5),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: _isAscending
-                                    ? AppTheme.primaryBlue.withOpacity(0.5)
-                                    : AppTheme.darkBorder.withOpacity(0.3),
+                                    ? AppTheme.primaryBlue
+                                        .withValues(alpha: 0.5)
+                                    : AppTheme.darkBorder
+                                        .withValues(alpha: 0.3),
                               ),
                             ),
                             child: Row(
@@ -1782,13 +1780,15 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
                               color: !_isAscending
-                                  ? AppTheme.primaryBlue.withOpacity(0.2)
-                                  : AppTheme.darkSurface.withOpacity(0.5),
+                                  ? AppTheme.primaryBlue.withValues(alpha: 0.2)
+                                  : AppTheme.darkSurface.withValues(alpha: 0.5),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: !_isAscending
-                                    ? AppTheme.primaryBlue.withOpacity(0.5)
-                                    : AppTheme.darkBorder.withOpacity(0.3),
+                                    ? AppTheme.primaryBlue
+                                        .withValues(alpha: 0.5)
+                                    : AppTheme.darkBorder
+                                        .withValues(alpha: 0.3),
                               ),
                             ),
                             child: Row(
@@ -1846,8 +1846,8 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
                 height: 36,
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppTheme.primaryBlue.withOpacity(0.2)
-                      : AppTheme.darkSurface.withOpacity(0.5),
+                      ? AppTheme.primaryBlue.withValues(alpha: 0.2)
+                      : AppTheme.darkSurface.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -1890,7 +1890,7 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
         child: Container(
           height: MediaQuery.of(context).size.height * 0.7,
           decoration: BoxDecoration(
-            color: AppTheme.darkCard.withOpacity(0.95),
+            color: AppTheme.darkCard.withValues(alpha: 0.95),
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
@@ -1965,13 +1965,13 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: subscription.isActive
-                ? AppTheme.success.withOpacity(0.2)
-                : AppTheme.error.withOpacity(0.2),
+                ? AppTheme.success.withValues(alpha: 0.2)
+                : AppTheme.error.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: subscription.isActive
-                  ? AppTheme.success.withOpacity(0.5)
-                  : AppTheme.error.withOpacity(0.5),
+                  ? AppTheme.success.withValues(alpha: 0.5)
+                  : AppTheme.error.withValues(alpha: 0.5),
             ),
           ),
           child: Text(
@@ -1990,7 +1990,7 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.5),
+        color: AppTheme.darkSurface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -2057,10 +2057,10 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -2144,10 +2144,10 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -2168,7 +2168,7 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
               const Spacer(),
               Icon(
                 Icons.arrow_forward_ios_rounded,
-                color: color.withOpacity(0.5),
+                color: color.withValues(alpha: 0.5),
                 size: 16,
               ),
             ],
@@ -2182,7 +2182,7 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.3),
+        color: AppTheme.darkSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -2244,10 +2244,10 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppTheme.darkCard.withOpacity(0.95),
+              color: AppTheme.darkCard.withValues(alpha: 0.95),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.error.withOpacity(0.3),
+                color: AppTheme.error.withValues(alpha: 0.3),
               ),
             ),
             child: Column(
@@ -2257,7 +2257,7 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.error.withOpacity(0.1),
+                    color: AppTheme.error.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.person_remove_rounded,
@@ -2369,10 +2369,9 @@ class _ChannelUsersManagementPageState extends State<ChannelUsersManagementPage>
 
 // Background Painter
 class _UsersBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `pulseValue`.
   final double pulseValue;
-
   _UsersBackgroundPainter({required this.pulseValue});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -2380,8 +2379,8 @@ class _UsersBackgroundPainter extends CustomPainter {
     // Draw animated circles
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryBlue.withOpacity(0.1 * pulseValue),
-        AppTheme.primaryBlue.withOpacity(0.05 * pulseValue),
+        AppTheme.primaryBlue.withValues(alpha: 0.1 * pulseValue),
+        AppTheme.primaryBlue.withValues(alpha: 0.05 * pulseValue),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -2397,8 +2396,8 @@ class _UsersBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryPurple.withOpacity(0.08 * pulseValue),
-        AppTheme.primaryPurple.withOpacity(0.04 * pulseValue),
+        AppTheme.primaryPurple.withValues(alpha: 0.08 * pulseValue),
+        AppTheme.primaryPurple.withValues(alpha: 0.04 * pulseValue),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -2414,7 +2413,7 @@ class _UsersBackgroundPainter extends CustomPainter {
 
     // Draw grid pattern
     final gridPaint = Paint()
-      ..color = AppTheme.darkBorder.withOpacity(0.02)
+      ..color = AppTheme.darkBorder.withValues(alpha: 0.02)
       ..strokeWidth = 0.5
       ..style = PaintingStyle.stroke;
 

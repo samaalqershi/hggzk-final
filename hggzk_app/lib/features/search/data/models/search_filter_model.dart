@@ -2,7 +2,9 @@ import 'package:hggzk/features/search/domain/entities/search_result.dart';
 
 import '../../domain/entities/search_filter.dart';
 
+/// العربية: يمثل نموذج البيانات `SearchFilterModel`.
 class SearchFilterModel extends SearchFilter {
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchFilterModel`.
   const SearchFilterModel({
     required super.filterId,
     required super.fieldId,
@@ -14,6 +16,7 @@ class SearchFilterModel extends SearchFilter {
     super.field,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchFilterModel.fromJson`.
   factory SearchFilterModel.fromJson(Map<String, dynamic> json) {
     return SearchFilterModel(
       filterId: json['filterId'] ?? '',
@@ -29,6 +32,7 @@ class SearchFilterModel extends SearchFilter {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'filterId': filterId,
@@ -43,7 +47,9 @@ class SearchFilterModel extends SearchFilter {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `UnitTypeFieldModel`.
 class UnitTypeFieldModel extends UnitTypeField {
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitTypeFieldModel`.
   const UnitTypeFieldModel({
     required super.fieldId,
     required super.unitTypeId,
@@ -65,6 +71,7 @@ class UnitTypeFieldModel extends UnitTypeField {
     required super.priority,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitTypeFieldModel.fromJson`.
   factory UnitTypeFieldModel.fromJson(Map<String, dynamic> json) {
     return UnitTypeFieldModel(
       fieldId: json['fieldId'] ?? '',
@@ -88,6 +95,7 @@ class UnitTypeFieldModel extends UnitTypeField {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'fieldId': fieldId,
@@ -112,7 +120,9 @@ class UnitTypeFieldModel extends UnitTypeField {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `SearchFiltersModel`.
 class SearchFiltersModel extends SearchFilters {
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchFiltersModel`.
   const SearchFiltersModel({
     required super.cities,
     required super.propertyTypes,
@@ -129,6 +139,7 @@ class SearchFiltersModel extends SearchFilters {
     required super.dynamicFieldValues,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchFiltersModel.fromJson`.
   factory SearchFiltersModel.fromJson(Map<String, dynamic> json) {
     return SearchFiltersModel(
       cities: (json['cities'] as List?)
@@ -179,6 +190,7 @@ class SearchFiltersModel extends SearchFilters {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'cities': cities.map((e) => (e as CityFilterModel).toJson()).toList(),
@@ -207,13 +219,16 @@ class SearchFiltersModel extends SearchFilters {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `CityFilterModel`.
 class CityFilterModel extends CityFilter {
+  /// العربية: ينشئ مثيلًا جديدًا من `CityFilterModel`.
   const CityFilterModel({
     required super.id,
     required super.name,
     required super.propertiesCount,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `CityFilterModel.fromJson`.
   factory CityFilterModel.fromJson(Map<String, dynamic> json) {
     return CityFilterModel(
       id: json['id'] ?? '',
@@ -222,6 +237,7 @@ class CityFilterModel extends CityFilter {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -231,9 +247,12 @@ class CityFilterModel extends CityFilter {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `PropertyTypeFilterModel`.
 class PropertyTypeFilterModel extends PropertyTypeFilter {
+  /// العربية: يخزن القيمة `icon`.
   final String icon;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyTypeFilterModel`.
   const PropertyTypeFilterModel({
     required super.id,
     required super.name,
@@ -241,6 +260,7 @@ class PropertyTypeFilterModel extends PropertyTypeFilter {
     this.icon = 'home', // Default icon if not provided
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyTypeFilterModel.fromJson`.
   factory PropertyTypeFilterModel.fromJson(Map<String, dynamic> json) {
     return PropertyTypeFilterModel(
       id: json['id'] ?? '',
@@ -250,6 +270,7 @@ class PropertyTypeFilterModel extends PropertyTypeFilter {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -260,13 +281,16 @@ class PropertyTypeFilterModel extends PropertyTypeFilter {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `PriceRangeModel`.
 class PriceRangeModel extends PriceRange {
+  /// العربية: ينشئ مثيلًا جديدًا من `PriceRangeModel`.
   const PriceRangeModel({
     required super.minPrice,
     required super.maxPrice,
     required super.averagePrice,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `PriceRangeModel.fromJson`.
   factory PriceRangeModel.fromJson(Map<String, dynamic> json) {
     return PriceRangeModel(
       minPrice: (json['minPrice'] ?? 0).toDouble(),
@@ -275,6 +299,7 @@ class PriceRangeModel extends PriceRange {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'minPrice': minPrice,
@@ -284,7 +309,9 @@ class PriceRangeModel extends PriceRange {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `AmenityFilterModel`.
 class AmenityFilterModel extends AmenityFilter {
+  /// العربية: ينشئ مثيلًا جديدًا من `AmenityFilterModel`.
   const AmenityFilterModel({
     required super.id,
     required super.name,
@@ -294,6 +321,7 @@ class AmenityFilterModel extends AmenityFilter {
     super.propertyTypeIds = const [],
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `AmenityFilterModel.fromJson`.
   factory AmenityFilterModel.fromJson(Map<String, dynamic> json) {
     return AmenityFilterModel(
       id: json['id'] ?? '',
@@ -308,6 +336,7 @@ class AmenityFilterModel extends AmenityFilter {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -320,10 +349,13 @@ class AmenityFilterModel extends AmenityFilter {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `UnitTypeFilterModel`.
 class UnitTypeFilterModel extends UnitTypeFilter {
   // The ID of the property type this unit type belongs to
+  /// العربية: يخزن القيمة `icon`.
   final String icon;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitTypeFilterModel`.
   const UnitTypeFilterModel({
     required super.id,
     required super.name,
@@ -336,6 +368,7 @@ class UnitTypeFilterModel extends UnitTypeFilter {
     this.icon = 'home',
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitTypeFilterModel.fromJson`.
   factory UnitTypeFilterModel.fromJson(Map<String, dynamic> json) {
     return UnitTypeFilterModel(
         id: json['id'] ?? '',
@@ -350,6 +383,7 @@ class UnitTypeFilterModel extends UnitTypeFilter {
             json['isRequiredToDetermineTheHour'] ?? false);
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -365,12 +399,15 @@ class UnitTypeFilterModel extends UnitTypeFilter {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `DistanceRangeModel`.
 class DistanceRangeModel extends DistanceRange {
+  /// العربية: ينشئ مثيلًا جديدًا من `DistanceRangeModel`.
   const DistanceRangeModel({
     required super.minDistance,
     required super.maxDistance,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `DistanceRangeModel.fromJson`.
   factory DistanceRangeModel.fromJson(Map<String, dynamic> json) {
     return DistanceRangeModel(
       minDistance: (json['minDistance'] ?? 0).toDouble(),
@@ -378,6 +415,7 @@ class DistanceRangeModel extends DistanceRange {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'minDistance': minDistance,
@@ -386,7 +424,9 @@ class DistanceRangeModel extends DistanceRange {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `ServiceFilterModel`.
 class ServiceFilterModel extends ServiceFilter {
+  /// العربية: ينشئ مثيلًا جديدًا من `ServiceFilterModel`.
   const ServiceFilterModel({
     required super.id,
     required super.name,
@@ -394,6 +434,7 @@ class ServiceFilterModel extends ServiceFilter {
     super.icon = 'service',
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `ServiceFilterModel.fromJson`.
   factory ServiceFilterModel.fromJson(Map<String, dynamic> json) {
     return ServiceFilterModel(
       id: json['id'] ?? '',
@@ -403,6 +444,7 @@ class ServiceFilterModel extends ServiceFilter {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -413,7 +455,9 @@ class ServiceFilterModel extends ServiceFilter {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `DynamicFieldValueFilterModel`.
 class DynamicFieldValueFilterModel extends DynamicFieldValueFilter {
+  /// العربية: ينشئ مثيلًا جديدًا من `DynamicFieldValueFilterModel`.
   const DynamicFieldValueFilterModel({
     required super.fieldName,
     required super.displayName,
@@ -421,6 +465,7 @@ class DynamicFieldValueFilterModel extends DynamicFieldValueFilter {
     required super.count,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `DynamicFieldValueFilterModel.fromJson`.
   factory DynamicFieldValueFilterModel.fromJson(Map<String, dynamic> json) {
     return DynamicFieldValueFilterModel(
       fieldName: json['fieldName'] ?? '',
@@ -430,6 +475,7 @@ class DynamicFieldValueFilterModel extends DynamicFieldValueFilter {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'fieldName': fieldName,
@@ -440,12 +486,15 @@ class DynamicFieldValueFilterModel extends DynamicFieldValueFilter {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `StarRatingOptionModel`.
 class StarRatingOptionModel extends StarRatingOption {
+  /// العربية: ينشئ مثيلًا جديدًا من `StarRatingOptionModel`.
   const StarRatingOptionModel({
     required super.value,
     required super.propertiesCount,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `StarRatingOptionModel.fromJson`.
   factory StarRatingOptionModel.fromJson(Map<String, dynamic> json) {
     return StarRatingOptionModel(
       value: json['value'] ?? 0,
@@ -453,6 +502,7 @@ class StarRatingOptionModel extends StarRatingOption {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'value': value,

@@ -3,7 +3,6 @@
 import '../../domain/entities/financial_transaction.dart';
 import 'chart_of_account_model.dart';
 
-/// 💳 نموذج القيود المحاسبية
 class FinancialTransactionModel extends FinancialTransaction {
   const FinancialTransactionModel({
     required super.id,
@@ -66,12 +65,11 @@ class FinancialTransactionModel extends FinancialTransaction {
     super.isAutomatic,
     super.automaticSource,
   });
-
   factory FinancialTransactionModel.fromJson(Map<String, dynamic> json) {
     return FinancialTransactionModel(
       id: json['id']?.toString() ?? '',
       transactionNumber: json['transactionNumber']?.toString() ?? '',
-      transactionDate: json['transactionDate'] != null 
+      transactionDate: json['transactionDate'] != null
           ? DateTime.parse(json['transactionDate'])
           : DateTime.now(),
       entryType: _parseJournalEntryType(json['entryType']),
@@ -100,16 +98,16 @@ class FinancialTransactionModel extends FinancialTransaction {
       unitId: json['unitId']?.toString(),
       status: _parseTransactionStatus(json['status']),
       isPosted: json['isPosted'] ?? false,
-      postingDate: json['postingDate'] != null 
-          ? DateTime.parse(json['postingDate']) 
+      postingDate: json['postingDate'] != null
+          ? DateTime.parse(json['postingDate'])
           : null,
       approvedBy: json['approvedBy']?.toString(),
-      approvedAt: json['approvedAt'] != null 
-          ? DateTime.parse(json['approvedAt']) 
+      approvedAt: json['approvedAt'] != null
+          ? DateTime.parse(json['approvedAt'])
           : null,
       rejectedBy: json['rejectedBy']?.toString(),
-      rejectedAt: json['rejectedAt'] != null 
-          ? DateTime.parse(json['rejectedAt']) 
+      rejectedAt: json['rejectedAt'] != null
+          ? DateTime.parse(json['rejectedAt'])
           : null,
       rejectionReason: json['rejectionReason']?.toString(),
       fiscalYear: json['fiscalYear'] ?? DateTime.now().year,
@@ -132,23 +130,21 @@ class FinancialTransactionModel extends FinancialTransaction {
       isReversed: json['isReversed'] ?? false,
       reverseTransactionId: json['reverseTransactionId']?.toString(),
       cancellationReason: json['cancellationReason']?.toString(),
-      cancelledAt: json['cancelledAt'] != null 
-          ? DateTime.parse(json['cancelledAt']) 
+      cancelledAt: json['cancelledAt'] != null
+          ? DateTime.parse(json['cancelledAt'])
           : null,
       cancelledBy: json['cancelledBy']?.toString(),
       createdBy: json['createdBy']?.toString() ?? '',
-      createdAt: json['createdAt'] != null 
+      createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : DateTime.now(),
       updatedBy: json['updatedBy']?.toString(),
-      updatedAt: json['updatedAt'] != null 
-          ? DateTime.parse(json['updatedAt']) 
-          : null,
+      updatedAt:
+          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
       isAutomatic: json['isAutomatic'] ?? false,
       automaticSource: json['automaticSource']?.toString(),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -213,7 +209,7 @@ class FinancialTransactionModel extends FinancialTransaction {
 
   static JournalEntryType _parseJournalEntryType(dynamic value) {
     if (value == null) return JournalEntryType.generalJournal;
-    
+
     // Handle integer values (backend enum indices start at 1)
     if (value is int) {
       final index = value - 1; // Backend starts at 1, Flutter at 0
@@ -221,7 +217,7 @@ class FinancialTransactionModel extends FinancialTransaction {
         return JournalEntryType.values[index];
       }
     }
-    
+
     // Handle string values
     if (value is String) {
       // Try to parse as number first
@@ -229,7 +225,7 @@ class FinancialTransactionModel extends FinancialTransaction {
       if (intValue != null) {
         return _parseJournalEntryType(intValue);
       }
-      
+
       // Map backend string names to Flutter enum values (order matches backend now)
       final enumMap = <String, JournalEntryType>{
         'GeneralJournal': JournalEntryType.generalJournal,
@@ -242,12 +238,12 @@ class FinancialTransactionModel extends FinancialTransaction {
         'Opening': JournalEntryType.opening,
         'Reversal': JournalEntryType.reversal,
       };
-      
+
       // Try exact match
       if (enumMap.containsKey(value)) {
         return enumMap[value]!;
       }
-      
+
       // Try case-insensitive match
       final lowerValue = value.toLowerCase();
       for (final entry in enumMap.entries) {
@@ -256,13 +252,13 @@ class FinancialTransactionModel extends FinancialTransaction {
         }
       }
     }
-    
+
     return JournalEntryType.generalJournal;
   }
 
   static TransactionType _parseTransactionType(dynamic value) {
     if (value == null) return TransactionType.adjustment;
-    
+
     // Handle integer values (backend enum indices start at 1)
     if (value is int) {
       final index = value - 1; // Backend starts at 1, Flutter at 0
@@ -270,7 +266,7 @@ class FinancialTransactionModel extends FinancialTransaction {
         return TransactionType.values[index];
       }
     }
-    
+
     // Handle string values
     if (value is String) {
       // Try to parse as number first
@@ -278,7 +274,7 @@ class FinancialTransactionModel extends FinancialTransaction {
       if (intValue != null) {
         return _parseTransactionType(intValue);
       }
-      
+
       // Map backend string names to Flutter enum values
       final enumMap = <String, TransactionType>{
         'NewBooking': TransactionType.newBooking,
@@ -302,12 +298,12 @@ class FinancialTransactionModel extends FinancialTransaction {
         'OpeningBalance': TransactionType.openingBalance,
         'AgentCommission': TransactionType.agentCommission,
       };
-      
+
       // Try exact match
       if (enumMap.containsKey(value)) {
         return enumMap[value]!;
       }
-      
+
       // Try case-insensitive match
       final lowerValue = value.toLowerCase();
       for (final entry in enumMap.entries) {
@@ -316,13 +312,13 @@ class FinancialTransactionModel extends FinancialTransaction {
         }
       }
     }
-    
+
     return TransactionType.adjustment;
   }
 
   static TransactionStatus _parseTransactionStatus(dynamic value) {
     if (value == null) return TransactionStatus.draft;
-    
+
     // Handle integer values (backend enum indices start at 1)
     if (value is int) {
       final index = value - 1; // Backend starts at 1, Flutter at 0
@@ -330,7 +326,7 @@ class FinancialTransactionModel extends FinancialTransaction {
         return TransactionStatus.values[index];
       }
     }
-    
+
     // Handle string values
     if (value is String) {
       // Try to parse as number first
@@ -338,7 +334,7 @@ class FinancialTransactionModel extends FinancialTransaction {
       if (intValue != null) {
         return _parseTransactionStatus(intValue);
       }
-      
+
       // Map backend string names to Flutter enum values
       final enumMap = <String, TransactionStatus>{
         'Draft': TransactionStatus.draft,
@@ -349,12 +345,12 @@ class FinancialTransactionModel extends FinancialTransaction {
         'Cancelled': TransactionStatus.cancelled,
         'Reversed': TransactionStatus.reversed,
       };
-      
+
       // Try exact match
       if (enumMap.containsKey(value)) {
         return enumMap[value]!;
       }
-      
+
       // Try case-insensitive match
       final lowerValue = value.toLowerCase();
       for (final entry in enumMap.entries) {
@@ -363,7 +359,7 @@ class FinancialTransactionModel extends FinancialTransaction {
         }
       }
     }
-    
+
     return TransactionStatus.draft;
   }
 }

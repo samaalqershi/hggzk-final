@@ -8,7 +8,6 @@ import '../../domain/usecases/get_user_notifications_usecase.dart';
 import '../../domain/usecases/get_notifications_stats_usecase.dart';
 import 'admin_notifications_event.dart';
 import 'admin_notifications_state.dart';
-
 class AdminNotificationsBloc
     extends Bloc<AdminNotificationsEvent, AdminNotificationsState> {
   final CreateAdminNotificationUseCase createUseCase;
@@ -18,10 +17,8 @@ class AdminNotificationsBloc
   final GetSystemAdminNotificationsUseCase getSystemUseCase;
   final GetUserAdminNotificationsUseCase getUserUseCase;
   final GetAdminNotificationsStatsUseCase getStatsUseCase;
-
   Map<String, int>? _cachedStats;
   String? _statsError;
-
   AdminNotificationsBloc({
     required this.createUseCase,
     required this.broadcastUseCase,
@@ -53,7 +50,6 @@ class AdminNotificationsBloc
         )),
       );
     });
-
     on<LoadUserNotificationsEvent>((event, emit) async {
       emit(AdminNotificationsLoading(
           stats: _cachedStats, statsError: _statsError));
@@ -76,7 +72,6 @@ class AdminNotificationsBloc
         )),
       );
     });
-
     on<CreateAdminNotificationEvent>((event, emit) async {
       emit(AdminNotificationsSubmitting('create',
           stats: _cachedStats, statsError: _statsError));
@@ -102,7 +97,6 @@ class AdminNotificationsBloc
         },
       );
     });
-
     on<BroadcastAdminNotificationEvent>((event, emit) async {
       emit(AdminNotificationsSubmitting('broadcast',
           stats: _cachedStats, statsError: _statsError));
@@ -133,7 +127,6 @@ class AdminNotificationsBloc
         },
       );
     });
-
     on<DeleteAdminNotificationEvent>((event, emit) async {
       emit(AdminNotificationsSubmitting('delete',
           stats: _cachedStats, statsError: _statsError));
@@ -151,7 +144,6 @@ class AdminNotificationsBloc
         )),
       );
     });
-
     on<ResendAdminNotificationEvent>((event, emit) async {
       emit(AdminNotificationsSubmitting('resend',
           stats: _cachedStats, statsError: _statsError));
@@ -169,7 +161,6 @@ class AdminNotificationsBloc
         )),
       );
     });
-
     on<LoadAdminNotificationsStatsEvent>((event, emit) async {
       // Default last 30 days window similar to currencies
       final now = DateTime.now();
@@ -190,7 +181,6 @@ class AdminNotificationsBloc
       );
     });
   }
-
   AdminNotificationsState _cloneStateWithStats(
     AdminNotificationsState current, {
     required Map<String, int>? stats,

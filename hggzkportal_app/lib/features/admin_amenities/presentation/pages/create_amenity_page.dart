@@ -1,8 +1,5 @@
 // lib/features/admin_amenities/presentation/pages/create_amenity_page.dart
 
-import 'dart:ui';
-import 'dart:math' as math;
-import 'package:hggzkportal/core/theme/app_colors.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:hggzkportal/features/admin_amenities/presentation/widgets/amenity_icon_picker.dart';
@@ -13,41 +10,85 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hggzkportal/features/admin_properties/presentation/bloc/property_types/property_types_bloc.dart'
-    as ap_pt_bloc;
+import 'package:hggzkportal/features/property_types/presentation/bloc/property_types/property_types_bloc.dart'
+    as pt_bloc;
+import 'package:hggzkportal/features/property_types/presentation/bloc/property_types/property_types_event.dart'
+    as pt_event;
+import 'package:hggzkportal/features/property_types/presentation/bloc/property_types/property_types_state.dart'
+    as pt_state;
 
+/// Arabic: صفحة إنشاء مرفق جديد مع نموذج متعدد الخطوات وتغذية بصرية متدرجة.
+/// English: Page for creating a new amenity using a multi-step form and animated visual feedback.
 class CreateAmenityPage extends StatefulWidget {
+  /// Arabic: ينشئ صفحة إنشاء المرفق دون معاملات لأن كل المدخلات تُجمع داخل النموذج نفسه.
+  /// English: Creates the create-amenity page; the form itself gathers all required inputs.
   const CreateAmenityPage({super.key});
 
+  /// Arabic: ينشئ الحالة التي تدير النموذج متعدد الخطوات وحركات الصفحة.
+  /// English: Creates the state object that manages the multi-step form and page animations.
   @override
   State<CreateAmenityPage> createState() => _CreateAmenityPageState();
 }
 
+/// Arabic: تدير هذه الحالة إدخال بيانات المرفق الجديد والتحقق منها ثم إرسالها.
+/// English: Manages entry, validation, and submission of the new amenity data.
 class _CreateAmenityPageState extends State<CreateAmenityPage>
     with TickerProviderStateMixin {
-  // Controllers
+  /// Arabic: يتحكم في ظهور النموذج وانتقالاته الرئيسية عند فتح الصفحة.
+  /// English: Controls the main form entrance and transition animations.
   late AnimationController _animationController;
+
+  /// Arabic: يدير نبض الخلفية المتوهجة التي تعطي الصفحة طابعًا حيًا.
+  /// English: Drives the pulsing glow background that gives the page a lively feel.
   late AnimationController _glowController;
+
+  /// Arabic: يحدد شفافية ظهور المحتوى الرئيسي عند التهيئة.
+  /// English: Controls the fade-in of the main content during setup.
   late Animation<double> _fadeAnimation;
+
+  /// Arabic: يحدد انزلاق المحتوى الرئيسي من الأسفل إلى موضعه النهائي.
+  /// English: Controls the slide-in motion of the main content.
   late Animation<Offset> _slideAnimation;
 
-  // Form Controllers
+  /// Arabic: مفتاح النموذج المستخدم للتحقق من صحة الحقول قبل الإرسال.
+  /// English: Form key used to validate fields before submission.
   final _formKey = GlobalKey<FormState>();
+
+  /// Arabic: يتحكم في قيمة حقل اسم المرفق.
+  /// English: Controls the amenity name input value.
   final TextEditingController _nameController = TextEditingController();
+
+  /// Arabic: يتحكم في قيمة حقل الوصف.
+  /// English: Controls the description input value.
   final TextEditingController _descriptionController = TextEditingController();
 
-  // State
+  /// Arabic: الأيقونة المختارة حاليًا للمرفق الجديد.
+  /// English: Currently selected icon for the new amenity.
   String _selectedIcon = 'star_rounded';
+
+  /// Arabic: معرّف نوع العقار المرتبط اختياريًا بالمرفق.
+  /// English: Optional property type identifier linked to the amenity.
   String? _selectedPropertyTypeId;
+
+  /// Arabic: يحدد ما إذا كان المرفق سيصبح افتراضيًا لهذا النوع من العقارات.
+  /// English: Indicates whether this amenity should be the default for the selected property type.
   bool _isDefaultForType = false;
+
+  /// Arabic: الخطوة الحالية ضمن النموذج متعدد المراحل.
+  /// English: Current step in the multi-step form flow.
   int _currentStep = 0;
 
+  /// Arabic: يجهز الأنيميشنات والبيانات الأولية فور إنشاء الحالة.
+  /// English: Prepares animations and initial state as soon as the widget state is created.
   @override
   void initState() {
     super.initState();
+
     _initializeAnimations();
   }
 
+  /// Arabic: يجهز أنيميشن الظهور والانزلاق والتوهج قبل عرض الصفحة.
+  /// English: Prepares the fade, slide, and glow animations before the page is shown.
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -80,6 +121,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     });
   }
 
+  /// Arabic: يحرر جميع المتحكمات حتى لا تبقى موارد الرسوم والحقول معلقة.
+  /// English: Releases all controllers so animation and input resources are not leaked.
   @override
   void dispose() {
     _animationController.dispose();
@@ -89,6 +132,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     super.dispose();
   }
 
+  /// Arabic: يبني الصفحة الكاملة بما فيها الاستماع لحالات الـ bloc والنموذج متعدد الخطوات.
+  /// English: Builds the full page, including bloc listening and the multi-step form layout.
   @override
   Widget build(BuildContext context) {
     return BlocListener<AmenitiesBloc, AmenitiesState>(
@@ -141,6 +186,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يبني الخلفية المتحركة متعددة الطبقات خلف النموذج.
+  /// English: Builds the layered animated background behind the form.
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: _glowController,
@@ -152,8 +199,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -168,19 +215,21 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يبني شريط الرأس الذي يحتوي على العنوان وزر الرجوع.
+  /// English: Builds the header area containing the title and back button.
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -196,13 +245,13 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -247,6 +296,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يبني مؤشر الخطوات الذي يوضح تقدم المستخدم داخل النموذج.
+  /// English: Builds the step indicator that shows progress through the form.
   Widget _buildProgressIndicator() {
     final steps = ['المعلومات الأساسية', 'الإعدادات', 'المراجعة'];
 
@@ -269,19 +320,20 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
                   decoration: BoxDecoration(
                     gradient: isActive ? AppTheme.primaryGradient : null,
                     color: !isActive
-                        ? AppTheme.darkSurface.withOpacity(0.5)
+                        ? AppTheme.darkSurface.withValues(alpha: 0.5)
                         : null,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isActive
-                          ? AppTheme.primaryBlue.withOpacity(0.5)
-                          : AppTheme.darkBorder.withOpacity(0.3),
+                          ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                          : AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                     boxShadow: isActive
                         ? [
                             BoxShadow(
-                              color: AppTheme.primaryBlue.withOpacity(0.3),
+                              color:
+                                  AppTheme.primaryBlue.withValues(alpha: 0.3),
                               blurRadius: 10,
                             ),
                           ]
@@ -314,7 +366,7 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
                       decoration: BoxDecoration(
                         gradient: isCompleted ? AppTheme.primaryGradient : null,
                         color: !isCompleted
-                            ? AppTheme.darkBorder.withOpacity(0.2)
+                            ? AppTheme.darkBorder.withValues(alpha: 0.2)
                             : null,
                         borderRadius: BorderRadius.circular(1),
                       ),
@@ -328,6 +380,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يجمع الخطوات داخل نموذج واحد حتى يتم التحقق والإرسال من مكان موحد.
+  /// English: Wraps all steps in a single form so validation and submission happen from one place.
   Widget _buildFormContent() {
     return Form(
       key: _formKey,
@@ -342,6 +396,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يبني خطوة المعلومات الأساسية التي تجمع الاسم والوصف والأيقونة.
+  /// English: Builds the basic info step that collects the name, description, and icon.
   Widget _buildBasicInfoStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -382,6 +438,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يبني خطوة الإعدادات التي تربط المرفق بنوع عقار وتحدد الإعدادات الافتراضية.
+  /// English: Builds the settings step that links the amenity to a property type and default behavior.
   Widget _buildSettingsStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -430,6 +488,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يبني خطوة المراجعة النهائية قبل إرسال إنشاء المرفق.
+  /// English: Builds the final review step shown before creating the amenity.
   Widget _buildReviewStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -473,6 +533,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يفتح منتقي الأيقونات المخصص لاختيار رمز المرفق بصريًا.
+  /// English: Opens the custom icon picker used to choose the amenity symbol visually.
   Widget _buildIconSelector() {
     return GestureDetector(
       onTap: _showIconPicker,
@@ -481,13 +543,13 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.5),
-              AppTheme.darkCard.withOpacity(0.3),
+              AppTheme.darkCard.withValues(alpha: 0.5),
+              AppTheme.darkCard.withValues(alpha: 0.3),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -498,8 +560,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withOpacity(0.2),
-                    AppTheme.primaryPurple.withOpacity(0.1),
+                    AppTheme.primaryBlue.withValues(alpha: 0.2),
+                    AppTheme.primaryPurple.withValues(alpha: 0.1),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(10),
@@ -542,6 +604,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يبني واجهة اختيار نوع العقار المرتبط بالمرفق مع حالات التحميل والخطأ.
+  /// English: Builds the property type selector with loading and error states.
   Widget _buildPropertyTypeSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -554,32 +618,32 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
           ),
         ),
         const SizedBox(height: 8),
-        BlocBuilder<ap_pt_bloc.PropertyTypesBloc,
-            ap_pt_bloc.PropertyTypesState>(
+        BlocBuilder<pt_bloc.PropertyTypesBloc, pt_state.PropertyTypesState>(
           builder: (context, state) {
-            if (state is ap_pt_bloc.PropertyTypesInitial) {
+            if (state is pt_state.PropertyTypesInitial) {
               context
-                  .read<ap_pt_bloc.PropertyTypesBloc>()
-                  .add(const ap_pt_bloc.LoadPropertyTypesEvent(pageSize: 1000));
+                  .read<pt_bloc.PropertyTypesBloc>()
+                  .add(const pt_event.LoadPropertyTypesEvent(pageSize: 1000));
             }
-            if (state is ap_pt_bloc.PropertyTypesLoading ||
-                state is ap_pt_bloc.PropertyTypesInitial) {
+            if (state is pt_state.PropertyTypesLoading ||
+                state is pt_state.PropertyTypesInitial) {
               return _buildLoadingDropdown();
             }
-            if (state is ap_pt_bloc.PropertyTypesError) {
+            if (state is pt_state.PropertyTypesError) {
               return _buildErrorDropdown(state.message);
             }
-            if (state is ap_pt_bloc.PropertyTypesLoaded) {
+            if (state is pt_state.PropertyTypesLoaded) {
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(colors: [
-                    AppTheme.darkCard.withOpacity(0.5),
-                    AppTheme.darkCard.withOpacity(0.3),
+                    AppTheme.darkCard.withValues(alpha: 0.5),
+                    AppTheme.darkCard.withValues(alpha: 0.3),
                   ]),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3), width: 1),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
+                      width: 1),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String?>(
@@ -587,12 +651,12 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
                     isExpanded: true,
                     dropdownColor: AppTheme.darkCard,
                     icon: Icon(Icons.arrow_drop_down_rounded,
-                        color: AppTheme.primaryBlue.withOpacity(0.7)),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.7)),
                     style: AppTextStyles.bodyMedium
                         .copyWith(color: AppTheme.textWhite),
                     hint: Text('اختر نوع العقار لربطه بالمرفق',
                         style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppTheme.textMuted.withOpacity(0.5))),
+                            color: AppTheme.textMuted.withValues(alpha: 0.5))),
                     items: [
                       const DropdownMenuItem<String?>(
                           value: null, child: Text('بدون')),
@@ -603,8 +667,9 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
                     onChanged: (value) {
                       setState(() {
                         _selectedPropertyTypeId = value;
-                        if (_selectedPropertyTypeId == null)
+                        if (_selectedPropertyTypeId == null) {
                           _isDefaultForType = false;
+                        }
                       });
                     },
                   ),
@@ -618,6 +683,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يبني صفًا واحدًا داخل قسم الإعدادات مع أيقونة ووصف وتحكم نهائي.
+  /// English: Builds a single setting row with an icon, description, and trailing control.
   Widget _buildSettingItem({
     required String title,
     required String subtitle,
@@ -629,13 +696,13 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -646,8 +713,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
             height: 40,
             decoration: BoxDecoration(
               gradient: LinearGradient(colors: [
-                AppTheme.primaryBlue.withOpacity(0.2),
-                AppTheme.primaryPurple.withOpacity(0.1),
+                AppTheme.primaryBlue.withValues(alpha: 0.2),
+                AppTheme.primaryPurple.withValues(alpha: 0.1),
               ]),
               borderRadius: BorderRadius.circular(10),
             ),
@@ -685,6 +752,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يبني بطاقة مراجعة موجزة تعرض مجموعة حقول قبل الإرسال.
+  /// English: Builds a compact review card that lists a group of fields before submission.
   Widget _buildReviewCard({
     required String title,
     required List<Map<String, String>> items,
@@ -694,13 +763,13 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -746,6 +815,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يبني حقل إدخال مزخرفًا يدعم التحقق وعدة أسطر حسب الحاجة.
+  /// English: Builds a decorated input field that supports validation and multiple lines.
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
@@ -769,13 +840,13 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -788,12 +859,12 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: maxLines == 1
                   ? Icon(
                       icon,
-                      color: AppTheme.primaryBlue.withOpacity(0.7),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                       size: 20,
                     )
                   : null,
@@ -807,19 +878,21 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يبني حالة مؤقتة أثناء تحميل أنواع العقار من الخلفية.
+  /// English: Builds the temporary loading state while property types are being fetched.
   Widget _buildLoadingDropdown() {
     return Container(
       height: 56,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -848,19 +921,21 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يبني حالة الخطأ عندما يفشل تحميل أنواع العقار.
+  /// English: Builds the error state shown when loading property types fails.
   Widget _buildErrorDropdown(String message) {
     return Container(
       height: 56,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.error.withOpacity(0.3),
+          color: AppTheme.error.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -886,19 +961,21 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يبني أزرار التنقل السفلية للانتقال بين الخطوات أو إرسال النموذج.
+  /// English: Builds the bottom navigation buttons used to move between steps or submit the form.
   Widget _buildActionButtons() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -915,13 +992,13 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -951,7 +1028,7 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -988,13 +1065,14 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
-  // Helper Methods
+  /// Arabic: يعيد اسم نوع العقار المختار ليظهر في خطوة المراجعة.
+  /// English: Returns the selected property type name for display in the review step.
   String _getPropertyTypeName() {
     if (_selectedPropertyTypeId == null) return 'بدون';
 
     // Try to get the name from the loaded property types
-    final state = context.read<ap_pt_bloc.PropertyTypesBloc>().state;
-    if (state is ap_pt_bloc.PropertyTypesLoaded) {
+    final state = context.read<pt_bloc.PropertyTypesBloc>().state;
+    if (state is pt_state.PropertyTypesLoaded) {
       try {
         final propertyType = state.propertyTypes
             .firstWhere((t) => t.id == _selectedPropertyTypeId);
@@ -1006,6 +1084,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     return 'غير محدد';
   }
 
+  /// Arabic: يحول اسم الأيقونة النصي إلى `IconData` المستخدم فعليًا في الواجهة.
+  /// English: Converts the string icon name into the `IconData` used by the UI.
   IconData _getIconFromString(String icon) {
     // Map string to IconData
     switch (icon) {
@@ -1024,6 +1104,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     }
   }
 
+  /// Arabic: يتعامل مع الرجوع من الصفحة، إما خطوة للخلف أو خروجًا من الصفحة.
+  /// English: Handles back navigation by moving a step backward or leaving the page.
   void _handleBack() {
     if (_currentStep > 0) {
       setState(() {
@@ -1034,6 +1116,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     }
   }
 
+  /// Arabic: يعيد المستخدم إلى الخطوة السابقة داخل النموذج.
+  /// English: Moves the user to the previous step in the form flow.
   void _previousStep() {
     if (_currentStep > 0) {
       setState(() {
@@ -1042,6 +1126,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     }
   }
 
+  /// Arabic: ينتقل إلى الخطوة التالية بعد التحقق من صحة المدخلات المطلوبة.
+  /// English: Advances to the next step after validating the required inputs.
   void _nextStep() {
     if (_currentStep < 2) {
       bool isValid = true;
@@ -1058,6 +1144,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     }
   }
 
+  /// Arabic: يتحقق من الحد الأدنى من البيانات الأساسية قبل متابعة الإضافة.
+  /// English: Validates the minimum basic information before the user proceeds.
   bool _validateBasicInfo() {
     if (_nameController.text.isEmpty) {
       _showErrorMessage('الرجاء إدخال اسم المرفق');
@@ -1066,6 +1154,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     return true;
   }
 
+  /// Arabic: يرسل حدث إنشاء المرفق إلى طبقة الـ bloc بعد نجاح التحقق.
+  /// English: Sends the create-amenity event to the bloc after validation succeeds.
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       context.read<AmenitiesBloc>().add(
@@ -1080,6 +1170,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     }
   }
 
+  /// Arabic: يفتح نافذة اختيار الأيقونة ليغير المستخدم الرمز المخصص للمرفق.
+  /// English: Opens the icon selection dialog so the user can change the amenity symbol.
   void _showIconPicker() {
     showDialog(
       context: context,
@@ -1092,6 +1184,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يعرض رسالة نجاح قصيرة بعد اكتمال إنشاء المرفق.
+  /// English: Shows a short success message after the amenity is created.
   void _showSuccessMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1114,6 +1208,8 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     );
   }
 
+  /// Arabic: يعرض رسالة خطأ واضحة عندما تفشل عملية إنشاء المرفق.
+  /// English: Shows a clear error message when amenity creation fails.
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1137,20 +1233,29 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
   }
 }
 
+/// Arabic: يرسم خلفية الصفحة المتحركة عبر دوائر ضوئية متدرجة.
+/// English: Paints the page background using animated glowing radial orbs.
 class _CreateAmenityBackgroundPainter extends CustomPainter {
+  /// Arabic: شدة الوهج الحالية التي يقرأها الرسام لتحديد قوة الدوائر الضوئية.
+  /// English: Current glow intensity used by the painter to scale the light orbs.
   final double glowIntensity;
 
+  /// Arabic: ينشئ الرسام مع شدة الوهج المطلوبة من الحركة.
+  /// English: Creates the painter with the glow intensity provided by the animation.
   _CreateAmenityBackgroundPainter({required this.glowIntensity});
 
   @override
+
+  /// Arabic: يرسم التوهج الخلفي في مواضع ثابتة مع شدة متغيرة.
+  /// English: Draws the animated background glow in fixed positions with varying intensity.
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
 
     // Draw glowing orbs
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryBlue.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryBlue.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryBlue.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryBlue.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -1166,8 +1271,8 @@ class _CreateAmenityBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryPurple.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryPurple.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -1183,5 +1288,8 @@ class _CreateAmenityBackgroundPainter extends CustomPainter {
   }
 
   @override
+
+  /// Arabic: يعيد الرسم عند تغير شدة الوهج لأن الحركة مرتبطة بقيمة آنية.
+  /// English: Repaints whenever glow intensity changes because the animation is time-based.
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

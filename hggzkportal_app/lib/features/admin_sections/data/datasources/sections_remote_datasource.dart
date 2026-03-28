@@ -1,16 +1,13 @@
-import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../../../../core/models/section_item_dto.dart';
-import '../../domain/entities/section.dart' as domain;
-import '../../domain/entities/property_in_section.dart' as domain;
-import '../../domain/entities/unit_in_section.dart' as domain;
 import '../models/section_model.dart';
 import '../models/property_in_section_model.dart';
 import '../models/unit_in_section_model.dart';
 
 /// 🌐 Remote Data Source للأقسام
 abstract class SectionsRemoteDataSource {
+  /// العربية: يعيد sections.
   Future<PaginatedResult<SectionModel>> getSections({
     int? pageNumber,
     int? pageSize,
@@ -22,23 +19,37 @@ abstract class SectionsRemoteDataSource {
   Future<SectionModel> getSectionById(String sectionId);
 
   Future<SectionModel> createSection(Map<String, dynamic> payload);
-  Future<SectionModel> updateSection(String sectionId, Map<String, dynamic> payload);
+
+  Future<SectionModel> updateSection(
+      String sectionId, Map<String, dynamic> payload);
+
   Future<bool> deleteSection(String sectionId);
+
   Future<bool> toggleSectionStatus(String sectionId, bool isActive);
 
   Future<void> assignItems(String sectionId, AssignSectionItemsDto payload);
+
   Future<void> addItems(String sectionId, AddItemsToSectionDto payload);
+
   Future<void> removeItems(String sectionId, RemoveItemsFromSectionDto payload);
+
   Future<void> reorderItems(String sectionId, UpdateItemOrderDto payload);
 
-  Future<PaginatedResult<PropertyInSectionModel>> getPropertyItems(String sectionId, {int? pageNumber, int? pageSize});
-  Future<PaginatedResult<UnitInSectionModel>> getUnitItems(String sectionId, {int? pageNumber, int? pageSize});
+  Future<PaginatedResult<PropertyInSectionModel>> getPropertyItems(
+      String sectionId,
+      {int? pageNumber,
+      int? pageSize});
+
+  Future<PaginatedResult<UnitInSectionModel>> getUnitItems(String sectionId,
+      {int? pageNumber, int? pageSize});
 }
 
 class SectionsRemoteDataSourceImpl implements SectionsRemoteDataSource {
+  /// العربية: يخزن القيمة `apiClient`.
   final ApiClient apiClient;
 
   static const String _adminBase = '/api/admin/sections';
+
   static const String _clientBase = '/api/client/sections';
 
   SectionsRemoteDataSourceImpl({required this.apiClient});
@@ -86,7 +97,8 @@ class SectionsRemoteDataSourceImpl implements SectionsRemoteDataSource {
   }
 
   @override
-  Future<SectionModel> updateSection(String sectionId, Map<String, dynamic> payload) async {
+  Future<SectionModel> updateSection(
+      String sectionId, Map<String, dynamic> payload) async {
     final resp = await apiClient.put('$_adminBase/$sectionId', data: payload);
     final data = (resp.data is Map && resp.data['data'] != null)
         ? resp.data['data']
@@ -106,7 +118,8 @@ class SectionsRemoteDataSourceImpl implements SectionsRemoteDataSource {
 
   @override
   Future<bool> toggleSectionStatus(String sectionId, bool isActive) async {
-    final resp = await apiClient.post('$_adminBase/$sectionId/toggle-status', data: {
+    final resp =
+        await apiClient.post('$_adminBase/$sectionId/toggle-status', data: {
       'isActive': isActive,
     });
     if (resp.data is Map<String, dynamic>) {
@@ -117,28 +130,39 @@ class SectionsRemoteDataSourceImpl implements SectionsRemoteDataSource {
   }
 
   @override
-  Future<void> assignItems(String sectionId, AssignSectionItemsDto payload) async {
-    await apiClient.post('$_adminBase/$sectionId/assign-items', data: payload.toJson());
+  Future<void> assignItems(
+      String sectionId, AssignSectionItemsDto payload) async {
+    await apiClient.post('$_adminBase/$sectionId/assign-items',
+        data: payload.toJson());
   }
 
   @override
   Future<void> addItems(String sectionId, AddItemsToSectionDto payload) async {
-    await apiClient.post('$_adminBase/$sectionId/add-items', data: payload.toJson());
+    await apiClient.post('$_adminBase/$sectionId/add-items',
+        data: payload.toJson());
   }
 
   @override
-  Future<void> removeItems(String sectionId, RemoveItemsFromSectionDto payload) async {
-    await apiClient.post('$_adminBase/$sectionId/remove-items', data: payload.toJson());
+  Future<void> removeItems(
+      String sectionId, RemoveItemsFromSectionDto payload) async {
+    await apiClient.post('$_adminBase/$sectionId/remove-items',
+        data: payload.toJson());
   }
 
   @override
-  Future<void> reorderItems(String sectionId, UpdateItemOrderDto payload) async {
-    await apiClient.post('$_adminBase/$sectionId/reorder-items', data: payload.toJson());
+  Future<void> reorderItems(
+      String sectionId, UpdateItemOrderDto payload) async {
+    await apiClient.post('$_adminBase/$sectionId/reorder-items',
+        data: payload.toJson());
   }
 
   @override
-  Future<PaginatedResult<PropertyInSectionModel>> getPropertyItems(String sectionId, {int? pageNumber, int? pageSize}) async {
-    final resp = await apiClient.get('$_clientBase/$sectionId/items', queryParameters: {
+  Future<PaginatedResult<PropertyInSectionModel>> getPropertyItems(
+      String sectionId,
+      {int? pageNumber,
+      int? pageSize}) async {
+    final resp =
+        await apiClient.get('$_clientBase/$sectionId/items', queryParameters: {
       if (pageNumber != null) 'pageNumber': pageNumber,
       if (pageSize != null) 'pageSize': pageSize,
     });
@@ -149,8 +173,10 @@ class SectionsRemoteDataSourceImpl implements SectionsRemoteDataSource {
   }
 
   @override
-  Future<PaginatedResult<UnitInSectionModel>> getUnitItems(String sectionId, {int? pageNumber, int? pageSize}) async {
-    final resp = await apiClient.get('$_clientBase/$sectionId/items', queryParameters: {
+  Future<PaginatedResult<UnitInSectionModel>> getUnitItems(String sectionId,
+      {int? pageNumber, int? pageSize}) async {
+    final resp =
+        await apiClient.get('$_clientBase/$sectionId/items', queryParameters: {
       if (pageNumber != null) 'pageNumber': pageNumber,
       if (pageSize != null) 'pageSize': pageSize,
     });
@@ -160,4 +186,3 @@ class SectionsRemoteDataSourceImpl implements SectionsRemoteDataSource {
     );
   }
 }
-

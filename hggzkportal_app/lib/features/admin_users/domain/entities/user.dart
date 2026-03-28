@@ -2,18 +2,31 @@ import 'package:equatable/equatable.dart';
 
 class User extends Equatable {
   final String id;
+
   final String name;
+
   final String role;
+
   final String email;
+
   final String phone;
+
   final String? profileImage;
+
   final DateTime createdAt;
+
   final bool isActive;
+
   final Map<String, dynamic>? settings;
+
   final List<String>? favorites;
+
   final DateTime? lastSeen;
+
   final DateTime? lastLoginDate;
+
   final bool emailConfirmed;
+
   final bool phoneNumberConfirmed;
 
   const User({

@@ -22,9 +22,8 @@ import '../bloc/transactions/transactions_bloc.dart';
 class TransactionsListPage extends StatefulWidget {
   final String? initialBookingId;
   final String? initialUserId;
-
-  const TransactionsListPage({super.key, this.initialBookingId, this.initialUserId});
-
+  const TransactionsListPage(
+      {super.key, this.initialBookingId, this.initialUserId});
   @override
   State<TransactionsListPage> createState() => _TransactionsListPageState();
 }
@@ -46,7 +45,6 @@ class _TransactionsListPageState extends State<TransactionsListPage>
   DateTime _endDate = DateTime.now();
   TransactionStatus? _selectedStatus;
   TransactionType? _selectedType;
-
   @override
   void initState() {
     super.initState();
@@ -78,7 +76,8 @@ class _TransactionsListPageState extends State<TransactionsListPage>
 
   void _loadTransactions() {
     final bloc = context.read<TransactionsBloc>();
-    if (widget.initialBookingId != null && widget.initialBookingId!.isNotEmpty) {
+    if (widget.initialBookingId != null &&
+        widget.initialBookingId!.isNotEmpty) {
       bloc.add(LoadTransactionsByBooking(bookingId: widget.initialBookingId!));
       return;
     }
@@ -154,9 +153,9 @@ class _TransactionsListPageState extends State<TransactionsListPage>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.primaryCyan.withOpacity(0.03),
-            AppTheme.primaryPurple.withOpacity(0.02),
-            AppTheme.primaryBlue.withOpacity(0.03),
+            AppTheme.primaryCyan.withValues(alpha: 0.03),
+            AppTheme.primaryPurple.withValues(alpha: 0.02),
+            AppTheme.primaryBlue.withValues(alpha: 0.03),
             AppTheme.darkBackground,
           ],
           stops: const [0.0, 0.3, 0.7, 1.0],
@@ -182,7 +181,7 @@ class _TransactionsListPageState extends State<TransactionsListPage>
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppTheme.primaryCyan.withOpacity(0.1),
+                    AppTheme.primaryCyan.withValues(alpha: 0.1),
                     AppTheme.darkBackground,
                   ],
                 ),
@@ -229,7 +228,7 @@ class _TransactionsListPageState extends State<TransactionsListPage>
                       color: AppTheme.textWhite,
                       shadows: [
                         Shadow(
-                          color: AppTheme.primaryCyan.withOpacity(0.3),
+                          color: AppTheme.primaryCyan.withValues(alpha: 0.3),
                           blurRadius: 10,
                         ),
                       ],
@@ -280,8 +279,8 @@ class _TransactionsListPageState extends State<TransactionsListPage>
         shape: BoxShape.circle,
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryCyan.withOpacity(0.05),
-            AppTheme.primaryPurple.withOpacity(0.03),
+            AppTheme.primaryCyan.withValues(alpha: 0.05),
+            AppTheme.primaryPurple.withValues(alpha: 0.03),
           ],
         ),
       ),
@@ -300,21 +299,21 @@ class _TransactionsListPageState extends State<TransactionsListPage>
             ? AppTheme.primaryGradient
             : LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
               ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isPrimary
-              ? AppTheme.primaryCyan.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.primaryCyan.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
         boxShadow: isPrimary
             ? [
                 BoxShadow(
-                  color: AppTheme.primaryCyan.withOpacity(0.2),
+                  color: AppTheme.primaryCyan.withValues(alpha: 0.2),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -381,13 +380,13 @@ class _TransactionsListPageState extends State<TransactionsListPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
       ),
       child: ClipRRect(
@@ -465,10 +464,10 @@ class _TransactionsListPageState extends State<TransactionsListPage>
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppTheme.darkBackground.withOpacity(0.5),
+            color: AppTheme.darkBackground.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.primaryCyan.withOpacity(0.2),
+              color: AppTheme.primaryCyan.withValues(alpha: 0.2),
             ),
           ),
           child: Column(
@@ -519,10 +518,10 @@ class _TransactionsListPageState extends State<TransactionsListPage>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppTheme.primaryCyan.withOpacity(0.1),
+              color: AppTheme.primaryCyan.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: AppTheme.primaryCyan.withOpacity(0.3),
+                color: AppTheme.primaryCyan.withValues(alpha: 0.3),
               ),
             ),
             child: Text(
@@ -553,9 +552,12 @@ class _TransactionsListPageState extends State<TransactionsListPage>
                     _selectedType = type;
                   });
                   final bloc = context.read<TransactionsBloc>();
-                  if ((widget.initialBookingId != null && widget.initialBookingId!.isNotEmpty) ||
-                      (widget.initialUserId != null && widget.initialUserId!.isNotEmpty)) {
-                    bloc.add(FilterTransactions(status: _selectedStatus, type: _selectedType));
+                  if ((widget.initialBookingId != null &&
+                          widget.initialBookingId!.isNotEmpty) ||
+                      (widget.initialUserId != null &&
+                          widget.initialUserId!.isNotEmpty)) {
+                    bloc.add(FilterTransactions(
+                        status: _selectedStatus, type: _selectedType));
                   } else {
                     _loadTransactions();
                   }
@@ -668,8 +670,8 @@ class _TransactionsListPageState extends State<TransactionsListPage>
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryCyan.withOpacity(
-                      0.3 + (_fabAnimationController.value * 0.1),
+                    color: AppTheme.primaryCyan.withValues(
+                      alpha: 0.3 + (_fabAnimationController.value * 0.1),
                     ),
                     blurRadius: 20 + (_fabAnimationController.value * 5),
                     offset: const Offset(0, 10),
@@ -752,7 +754,7 @@ class _TransactionsListPageState extends State<TransactionsListPage>
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppTheme.darkBorder.withOpacity(0.3),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -785,23 +787,23 @@ class _TransactionsListPageState extends State<TransactionsListPage>
                           )
                         : null,
                     filled: true,
-                    fillColor: AppTheme.darkBackground.withOpacity(0.5),
+                    fillColor: AppTheme.darkBackground.withValues(alpha: 0.5),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
-                        color: AppTheme.darkBorder.withOpacity(0.3),
+                        color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
-                        color: AppTheme.darkBorder.withOpacity(0.3),
+                        color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
-                        color: AppTheme.primaryCyan.withOpacity(0.5),
+                        color: AppTheme.primaryCyan.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -935,7 +937,7 @@ class _TransactionsListPageState extends State<TransactionsListPage>
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -994,13 +996,13 @@ class _TransactionsListPageState extends State<TransactionsListPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            color.withOpacity(0.05),
-            color.withOpacity(0.02),
+            color.withValues(alpha: 0.05),
+            color.withValues(alpha: 0.02),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
         ),
       ),
       child: Material(
@@ -1020,7 +1022,7 @@ class _TransactionsListPageState extends State<TransactionsListPage>
                   height: 48,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [color, color.withOpacity(0.7)],
+                      colors: [color, color.withValues(alpha: 0.7)],
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -1076,7 +1078,7 @@ class _TransactionsListPageState extends State<TransactionsListPage>
   Widget _buildQuickActionsSheet() {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.95),
+        color: AppTheme.darkCard.withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: ClipRRect(
@@ -1091,7 +1093,7 @@ class _TransactionsListPageState extends State<TransactionsListPage>
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -1163,11 +1165,11 @@ class _TransactionsListPageState extends State<TransactionsListPage>
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: gradient.map((c) => c.withOpacity(0.05)).toList(),
+          colors: gradient.map((c) => c.withValues(alpha: 0.05)).toList(),
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: gradient.first.withOpacity(0.2),
+          color: gradient.first.withValues(alpha: 0.2),
         ),
       ),
       child: Material(
@@ -1190,7 +1192,7 @@ class _TransactionsListPageState extends State<TransactionsListPage>
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: gradient.first.withOpacity(0.3),
+                        color: gradient.first.withValues(alpha: 0.3),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),

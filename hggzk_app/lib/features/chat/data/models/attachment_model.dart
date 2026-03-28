@@ -1,6 +1,11 @@
 import '../../domain/entities/attachment.dart';
 
+/// Data-model representation of a chat attachment used to translate API
+/// payloads into the domain entity.
+/// تمثيل بيانات لمرفق دردشة يترجم حمولة الـ API إلى كيان المجال.
 class AttachmentModel extends Attachment {
+  /// Builds a model from normalized attachment values.
+  /// ينشئ نموذجًا من قيم مرفق مطبّعة.
   const AttachmentModel({
     required super.id,
     required super.conversationId,
@@ -17,6 +22,8 @@ class AttachmentModel extends Attachment {
     super.downloadProgress,
   });
 
+  /// Parses backend JSON into a typed attachment model.
+  /// يحول JSON القادم من الخادم إلى نموذج مرفق مضبوط النوع.
   factory AttachmentModel.fromJson(Map<String, dynamic> json) {
     return AttachmentModel(
       id: json['attachment_id'] ?? json['id'] ?? '',
@@ -38,6 +45,8 @@ class AttachmentModel extends Attachment {
     );
   }
 
+  /// Serializes the attachment model back into the backend field layout.
+  /// يحول نموذج المرفق إلى تنسيق الحقول الذي يتوقعه الخادم.
   Map<String, dynamic> toJson() {
     return {
       'attachment_id': id,
@@ -56,6 +65,10 @@ class AttachmentModel extends Attachment {
     };
   }
 
+  /// Creates a model copy from the domain entity when persistence needs the
+  /// serialized shape.
+  /// ينشئ نسخة نموذجية من كيان المجال عندما تحتاج طبقة التخزين للشكل
+  /// المسلسل.
   factory AttachmentModel.fromEntity(Attachment attachment) {
     return AttachmentModel(
       id: attachment.id,
@@ -75,6 +88,8 @@ class AttachmentModel extends Attachment {
   }
 }
 
+/// Converts duration payloads from several backend formats into seconds.
+/// يحول حقول المدة القادمة بصيغ متعددة من الخادم إلى عدد الثواني.
 int? _parseDurationSeconds(dynamic value) {
   if (value == null) return null;
   if (value is int) return value;

@@ -12,62 +12,120 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../bloc/search_bloc.dart';
 import '../bloc/search_state.dart';
 import '../bloc/search_event.dart';
-import '../../../../services/data_sync_service.dart';
-import '../../../../injection_container.dart';
+import 'package:hggzk/core/services/data_sync_service.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import 'package:hggzk/features/search/data/models/search_filter_model.dart';
 
+/// Filters screen that lets the user refine search criteria before results are
+/// requested.
+/// شاشة الفلاتر التي تتيح للمستخدم تضييق معايير البحث قبل جلب النتائج.
 class SearchFiltersPage extends StatefulWidget {
+  /// Optional filter payload used to seed the screen.
+  /// حمولة فلاتر اختيارية لتهيئة الشاشة.
   final Map<String, dynamic>? initialFilters;
 
+  /// Builds the filters screen with an optional initial payload.
+  /// ينشئ شاشة الفلاتر مع حمولة ابتدائية اختيارية.
   const SearchFiltersPage({
     super.key,
     this.initialFilters,
   });
 
+  /// Builds the state object for this widget.
+  /// ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<SearchFiltersPage> createState() => _SearchFiltersPageState();
 }
 
+/// Keeps the editable filter form, validation state, and preview flow in sync.
+/// يبقي نموذج الفلاتر القابل للتعديل وحالة التحقق ومسار المعاينة متزامنة.
 class _SearchFiltersPageState extends State<SearchFiltersPage>
     with TickerProviderStateMixin {
+  /// Working filter map edited by the user.
+  /// خريطة الفلاتر العملية التي يعدلها المستخدم.
   late Map<String, dynamic> _filters;
   final ScrollController _scrollController = ScrollController();
+
+  /// Controls the visible search-term input.
+  /// يتحكم بحقل عبارة البحث الظاهر.
   late TextEditingController _searchTermController;
+
+  /// Keeps keyboard focus on the search-term field when needed.
+  /// يبقي التركيز على حقل عبارة البحث عند الحاجة.
   late FocusNode _searchTermFocusNode;
 
   // Data services
+  /// Loads supporting metadata such as property and unit types.
+  /// يحمل البيانات المساندة مثل أنواع العقارات والوحدات.
   late DataSyncService _dataSyncService;
 
   // Data state
+  /// Cached property types used to build local fallback filters.
+  /// أنواع العقارات المخزنة المستخدمة لبناء فلاتر احتياطية محليًا.
   List<dynamic> _propertyTypes = [];
+
+  /// Cached unit types used for dependent filter options.
+  /// أنواع الوحدات المخزنة المستخدمة لخيارات الفلاتر التابعة.
   List<dynamic> _unitTypes = [];
+
+  /// True while remote or local filter metadata is loading.
+  /// تكون صحيحة أثناء تحميل بيانات الفلاتر من الشبكة أو محليًا.
   bool _isLoadingData = false;
 
   // Validation state
+  /// True when the current form passes validation.
+  /// تكون صحيحة عندما ينجح النموذج الحالي في التحقق.
   bool _isValidFilter = false;
+
+  /// Current validation error message shown to the user.
+  /// رسالة الخطأ الحالية المعروضة للمستخدم.
   String _validationError = '';
+
+  /// Tracks which required dynamic fields are currently satisfied.
+  /// يتتبع الحقول الديناميكية المطلوبة التي تحققت حاليًا.
   Map<String, bool> _requiredFieldsStatus = {};
 
   // Ultra Animation Controllers
+  /// العربية: يخزن القيمة `entranceController`.
   late AnimationController _entranceController;
+
+  /// العربية: يخزن القيمة `floatingController`.
   late AnimationController _floatingController;
+
+  /// العربية: يخزن القيمة `glowController`.
   late AnimationController _glowController;
+
+  /// العربية: يخزن القيمة `particleController`.
   late AnimationController _particleController;
+
+  /// العربية: يخزن القيمة `waveController`.
   late AnimationController _waveController;
 
   // Animations
+  /// العربية: يخزن القيمة `entranceAnimation`.
   late Animation<double> _entranceAnimation;
+
+  /// العربية: يخزن القيمة `floatingAnimation`.
   late Animation<double> _floatingAnimation;
+
+  /// العربية: يخزن القيمة `glowAnimation`.
   late Animation<double> _glowAnimation;
+
+  /// العربية: يخزن القيمة `waveAnimation`.
   late Animation<double> _waveAnimation;
 
   // Active filters tracking
+  /// العربية: يخزن القيمة `activeFilterCount`.
   int _activeFilterCount = 0;
+
+  /// العربية: يخزن القيمة `previewDebounce`.
   Timer? _previewDebounce;
 
   // Floating particles
+  /// العربية: يخزن القيمة `particles`.
   final List<_NanoParticle> _particles = [];
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -94,6 +152,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     _validateFilters();
   }
 
+  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     _entranceController = AnimationController(
       duration: const Duration(milliseconds: 1000),
@@ -152,12 +211,14 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     _entranceController.forward();
   }
 
+  /// العربية: ينشئ particles.
   void _generateParticles() {
     for (int i = 0; i < 15; i++) {
       _particles.add(_NanoParticle());
     }
   }
 
+  /// العربية: يتحقق من صحة filters.
   bool _validateFilters() {
     setState(() {
       _validationError = '';
@@ -171,6 +232,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     return true;
   }
 
+  /// العربية: يحمل filters.
   void _loadFilters() {
     final bloc = context.read<SearchBloc>();
     final loadedState = _resolveLoadedFiltersState(bloc.state);
@@ -184,6 +246,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     }
   }
 
+  /// العربية: يحمل local data.
   void _loadLocalData() async {
     setState(() {
       _isLoadingData = true;
@@ -212,6 +275,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     }
   }
 
+  /// العربية: يحمل unit types for property type.
   void _loadUnitTypesForPropertyType(String propertyTypeId) async {
     try {
       final unitTypeModels =
@@ -234,6 +298,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     }
   }
 
+  /// العربية: يعالج `calculateActiveFilters`.
   void _calculateActiveFilters() {
     _activeFilterCount = 0;
     _filters.forEach((key, value) {
@@ -251,6 +316,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     _scheduleFacetPreview();
   }
 
+  /// العربية: يعرض validation error.
   void _showValidationError() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -282,6 +348,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _searchTermController.dispose();
@@ -296,6 +363,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     super.dispose();
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -334,6 +402,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني ultra background.
   Widget _buildUltraBackground() {
     return AnimatedBuilder(
       animation: Listenable.merge([_waveAnimation, _glowAnimation]),
@@ -362,6 +431,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني floating particles.
   Widget _buildFloatingParticles() {
     return AnimatedBuilder(
       animation: _particleController,
@@ -377,6 +447,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني ultra header.
   Widget _buildUltraHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -423,6 +494,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني content.
   Widget _buildContent() {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
@@ -490,6 +562,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني quick filters.
   Widget _buildQuickFilters() {
     final quickFilters = [
       {'label': 'الأكثر شعبية', 'icon': Icons.trending_up_rounded},
@@ -525,6 +598,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني cities section.
   Widget _buildCitiesSection(SearchFilters? filters) {
     final cities = filters?.cities ?? const <CityFilter>[];
     if (cities.isEmpty) return const SizedBox.shrink();
@@ -561,6 +635,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني search term section.
   Widget _buildSearchTermSection() {
     return _NanoSection(
       title: 'بحث عن عقار',
@@ -634,6 +709,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني quick filter chip.
   Widget _buildQuickFilterChip({
     required String label,
     required IconData icon,
@@ -691,6 +767,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني date section.
   Widget _buildDateSection(SearchFiltersLoaded? loadedState) {
     return _NanoSection(
       title: 'التواريخ',
@@ -746,6 +823,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني date field.
   Widget _buildDateField({
     required String label,
     DateTime? date,
@@ -792,6 +870,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني guests section.
   Widget _buildGuestsSection() {
     final guestsCount = _filters['guestsCount'] ?? 1;
 
@@ -877,6 +956,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني futuristic property types section.
   Widget _buildFuturisticPropertyTypesSection(SearchFilters? filters) {
     final liveTypes = filters?.propertyTypes ?? const [];
     final types = liveTypes.isNotEmpty ? liveTypes : _propertyTypes;
@@ -926,6 +1006,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني futuristic unit types section.
   Widget _buildFuturisticUnitTypesSection(SearchFilters? filters) {
     final selectedPropertyTypeId = _filters['propertyTypeId'];
     if (selectedPropertyTypeId == null) return const SizedBox.shrink();
@@ -973,6 +1054,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني price section.
   Widget _buildPriceSection(SearchFiltersLoaded? loadedState) {
     final double minPrice = (_filters['minPrice'] as num?)?.toDouble() ?? 0.0;
     final double maxPrice =
@@ -1028,6 +1110,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني section count badge.
   Widget _buildSectionCountBadge({
     required int? matchingResultsCount,
     required bool isLoading,
@@ -1076,6 +1159,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني section count summary.
   Widget _buildSectionCountSummary({
     required int? matchingResultsCount,
     required bool isLoading,
@@ -1128,6 +1212,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني price field.
   Widget _buildPriceField({
     required String label,
     required double value,
@@ -1185,6 +1270,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني ultra price slider.
   Widget _buildUltraPriceSlider(double min, double max) {
     return Container(
       height: 40,
@@ -1241,6 +1327,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني rating section.
   Widget _buildRatingSection(SearchFilters? filters) {
     final selectedRating = _filters['minStarRating'] ?? 0;
     final options = (filters?.starRatingOptions ?? const <StarRatingOption>[])
@@ -1286,6 +1373,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يعالج `lookupPropertyTypeCount`.
   int _lookupPropertyTypeCount(
     String typeId,
     SearchFilters? filters,
@@ -1303,6 +1391,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     }
   }
 
+  /// العربية: يعالج `lookupUnitTypeCount`.
   int _lookupUnitTypeCount(
     String unitTypeId,
     SearchFilters? filters,
@@ -1320,6 +1409,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     }
   }
 
+  /// العربية: يبني amenities section.
   Widget _buildAmenitiesSection(SearchFilters? filters) {
     final allAmenities = filters?.amenities ?? [];
     if (allAmenities.isEmpty) return const SizedBox.shrink();
@@ -1374,6 +1464,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني services section.
   Widget _buildServicesSection(SearchFilters? filters) {
     final services = filters?.services ?? const <ServiceFilter>[];
     if (services.isEmpty) return const SizedBox.shrink();
@@ -1416,6 +1507,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني dynamic field values section.
   Widget _buildDynamicFieldValuesSection(SearchFilters? filters) {
     final dynamicValues =
         filters?.dynamicFieldValues ?? const <DynamicFieldValueFilter>[];
@@ -1493,6 +1585,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني vertical options list.
   Widget _buildVerticalOptionsList(List<Widget> children) {
     return Column(
       children: [
@@ -1504,6 +1597,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني vertical count option.
   Widget _buildVerticalCountOption({
     required String label,
     required int count,
@@ -1608,6 +1702,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يحدد dynamic field label.
   String _resolveDynamicFieldLabel(
     List<DynamicFieldValueFilter> options,
     String fallbackFieldName,
@@ -1622,6 +1717,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     return _humanizeDynamicFieldName(fallbackFieldName);
   }
 
+  /// العربية: يعالج `humanizeDynamicFieldName`.
   String _humanizeDynamicFieldName(String value) {
     final normalized = value.trim();
     if (normalized.isEmpty) {
@@ -1637,6 +1733,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     return collapsed;
   }
 
+  /// العربية: يبني ultra footer.
   Widget _buildUltraFooter() {
     final filtersState =
         _resolveLoadedFiltersState(context.watch<SearchBloc>().state);
@@ -1850,6 +1947,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني nano button.
   Widget _buildNanoButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -1876,6 +1974,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني nano text button.
   Widget _buildNanoTextButton({
     required String label,
     required IconData icon,
@@ -1916,6 +2015,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يبني nano counter button.
   Widget _buildNanoCounterButton({
     required IconData icon,
     required bool enabled,
@@ -1950,6 +2050,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     );
   }
 
+  /// العربية: يعالج `resetFilters`.
   void _resetFilters() {
     setState(() {
       _filters.clear();
@@ -1963,6 +2064,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     HapticFeedback.mediumImpact();
   }
 
+  /// العربية: يختار date.
   Future<void> _selectDate(String field) async {
     final picked = await showDatePicker(
       context: context,
@@ -1990,10 +2092,12 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     }
   }
 
+  /// العربية: ينسق date.
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}';
   }
 
+  /// العربية: يعيد amenity icon.
   IconData _getAmenityIcon(String amenity) {
     final icons = {
       'واي فاي': Icons.wifi_rounded,
@@ -2003,6 +2107,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     return icons[amenity] ?? Icons.check_circle_outline_rounded;
   }
 
+  /// العربية: يعالج `scheduleFacetPreview`.
   void _scheduleFacetPreview() {
     _previewDebounce?.cancel();
     final sanitizedFilters = _buildSanitizedFilters();
@@ -2015,6 +2120,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     });
   }
 
+  /// العربية: يبني sanitized filters.
   Map<String, dynamic> _buildSanitizedFilters() {
     final sanitized = _normalizeVisibleFilters(_filters);
 
@@ -2080,6 +2186,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     return sanitized;
   }
 
+  /// العربية: يعالج `normalizeVisibleFilters`.
   Map<String, dynamic> _normalizeVisibleFilters(Map<String, dynamic> source) {
     final sanitized = Map<String, dynamic>.from(source);
 
@@ -2139,6 +2246,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     return sanitized;
   }
 
+  /// العربية: يحدد loaded filters state.
   SearchFiltersLoaded? _resolveLoadedFiltersState(SearchState state) {
     if (state is SearchCombinedState &&
         state.filtersState is SearchFiltersLoaded) {
@@ -2154,14 +2262,27 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
 }
 
 // Nano Section Widget with validation support
+/// العربية: يمثل `NanoSection`.
 class _NanoSection extends StatelessWidget {
+  /// العربية: يخزن القيمة `title`.
   final String title;
+
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
+
+  /// العربية: يخزن القيمة `child`.
   final Widget child;
+
+  /// العربية: يحدد ما إذا كانت القيمة `isRequired` مفعلة.
   final bool isRequired;
+
+  /// العربية: يحدد ما إذا كانت القيمة `hasError` مفعلة.
   final bool hasError;
+
+  /// العربية: يخزن القيمة `headerSuffix`.
   final Widget? headerSuffix;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `NanoSection`.
   const _NanoSection({
     required this.title,
     required this.icon,
@@ -2171,6 +2292,7 @@ class _NanoSection extends StatelessWidget {
     this.headerSuffix,
   });
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -2248,15 +2370,21 @@ class _NanoSection extends StatelessWidget {
 }
 
 // Painters
+/// العربية: يمثل `UltraWavePainter`.
 class _UltraWavePainter extends CustomPainter {
+  /// العربية: يخزن القيمة `waveAnimation`.
   final double waveAnimation;
+
+  /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `UltraWavePainter`.
   _UltraWavePainter({
     required this.waveAnimation,
     required this.glowIntensity,
   });
 
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -2292,17 +2420,22 @@ class _UltraWavePainter extends CustomPainter {
     }
   }
 
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+/// العربية: يمثل `NanoParticle`.
 class _NanoParticle {
+  /// العربية: يخزن القيمة `opacity`.
   late double x, y, vx, vy, radius, opacity;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `NanoParticle`.
   _NanoParticle() {
     reset();
   }
 
+  /// العربية: يعالج `reset`.
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -2312,6 +2445,7 @@ class _NanoParticle {
     opacity = math.Random().nextDouble() * 0.3 + 0.1;
   }
 
+  /// العربية: يحدّث العملية المطلوبة لـ `update`.
   void update() {
     x += vx;
     y += vy;
@@ -2320,15 +2454,21 @@ class _NanoParticle {
   }
 }
 
+/// العربية: يمثل `NanoParticlePainter`.
 class _NanoParticlePainter extends CustomPainter {
+  /// العربية: يخزن القيمة `particles`.
   final List<_NanoParticle> particles;
+
+  /// العربية: يخزن القيمة `animation`.
   final double animation;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `NanoParticlePainter`.
   _NanoParticlePainter({
     required this.particles,
     required this.animation,
   });
 
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -2346,6 +2486,7 @@ class _NanoParticlePainter extends CustomPainter {
     }
   }
 
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

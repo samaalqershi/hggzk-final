@@ -1,1165 +1,49 @@
-// import 'package:flutter/material.dart';
-// import '../../../../core/utils/image_utils.dart';
-// import 'package:google_maps_flutter/google_maps_flutter.dart';
-// import 'dart:ui';
-// import '../../../../core/theme/app_theme.dart';
-// import '../../../../core/theme/app_text_styles.dart';
-// import '../../domain/entities/search_result.dart';
-
-// class SearchResultsMapPage extends StatefulWidget {
-//   final List<SearchResult> results;
-//   final VoidCallback? onBackToList;
-
-//   const SearchResultsMapPage({
-//     super.key,
-//     required this.results,
-//     this.onBackToList,
-//   });
-
-//   @override
-//   State<SearchResultsMapPage> createState() => _SearchResultsMapPageState();
-// }
-
-// class _SearchResultsMapPageState extends State<SearchResultsMapPage>
-//     with TickerProviderStateMixin {
-//   GoogleMapController? _mapController;
-//   Set<Marker> _markers = {};
-//   String? _selectedMarkerId;
-//   final PageController _pageController = PageController(viewportFraction: 0.9);
-
-//   // Animation Controllers
-//   late AnimationController _cardAnimationController;
-//   late AnimationController _fabAnimationController;
-//   late Animation<double> _cardSlideAnimation;
-//   late Animation<double> _fabScaleAnimation;
-
-//   // Yemen coordinates (Sana'a)
-//   static const LatLng _defaultLocation = LatLng(15.3694, 44.1910);
-
-//   // Map Style
-//   static const String _mapStyle = '''
-//   [
-//     {
-//       "elementType": "geometry",
-//       "stylers": [{"color": "#1d2c4d"}]
-//     },
-//     {
-//       "elementType": "labels.text.fill",
-//       "stylers": [{"color": "#8ec3b9"}]
-//     },
-//     {
-//       "elementType": "labels.text.stroke",
-//       "stylers": [{"color": "#1a3646"}]
-//     },
-//     {
-//       "featureType": "poi",
-//       "elementType": "labels",
-//       "stylers": [{"visibility": "off"}]
-//     },
-//     {
-//       "featureType": "road",
-//       "elementType": "geometry",
-//       "stylers": [{"color": "#304a7d"}]
-//     },
-//     {
-//       "featureType": "road",
-//       "elementType": "geometry.stroke",
-//       "stylers": [{"color": "#255763"}]
-//     },
-//     {
-//       "featureType": "water",
-//       "elementType": "geometry",
-//       "stylers": [{"color": "#0e1626"}]
-//     }
-//   ]
-//   ''';
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _initializeAnimations();
-//     _initializeMarkers();
-//   }
-
-//   void _initializeAnimations() {
-//     _cardAnimationController = AnimationController(
-//       duration: const Duration(milliseconds: 500),
-//       vsync: this,
-//     );
-
-//     _fabAnimationController = AnimationController(
-//       duration: const Duration(milliseconds: 300),
-//       vsync: this,
-//     )..forward();
-
-//     _cardSlideAnimation = Tween<double>(
-//       begin: 1.0,
-//       end: 0.0,
-//     ).animate(CurvedAnimation(
-//       parent: _cardAnimationController,
-//       curve: Curves.easeOutQuart,
-//     ));
-
-//     _fabScaleAnimation = Tween<double>(
-//       begin: 0.0,
-//       end: 1.0,
-//     ).animate(CurvedAnimation(
-//       parent: _fabAnimationController,
-//       curve: Curves.elasticOut,
-//     ));
-
-//     _cardAnimationController.forward();
-//   }
-
-//   @override
-//   void dispose() {
-//     _mapController?.dispose();
-//     _pageController.dispose();
-//     _cardAnimationController.dispose();
-//     _fabAnimationController.dispose();
-//     super.dispose();
-//   }
-
-//   void _initializeMarkers() {
-//     _markers = widget.results.map((result) {
-//       return Marker(
-//         markerId: MarkerId(result.id),
-//         position: LatLng(result.latitude, result.longitude),
-//         onTap: () => _onMarkerTapped(result),
-//         icon: BitmapDescriptor.defaultMarkerWithHue(
-//           _selectedMarkerId == result.id
-//               ? BitmapDescriptor.hueBlue
-//               : BitmapDescriptor.hueRed,
-//         ),
-//         infoWindow: InfoWindow(
-//           title: result.name,
-//           snippet: '${result.minPrice} ${result.currency}',
-//         ),
-//       );
-//     }).toSet();
-//   }
-
-//   void _onMarkerTapped(SearchResult result) {
-//     setState(() {
-//       _selectedMarkerId = result.id;
-//       _initializeMarkers();
-//     });
-
-//     final index = widget.results.indexWhere((r) => r.id == result.id);
-//     if (index != -1) {
-//       _pageController.animateToPage(
-//         index,
-//         duration: const Duration(milliseconds: 300),
-//         curve: Curves.easeInOut,
-//       );
-//     }
-//   }
-
-//   void _onPropertyCardTapped(SearchResult result) {
-//     setState(() {
-//       _selectedMarkerId = result.id;
-//       _initializeMarkers();
-//     });
-
-//     _mapController?.animateCamera(
-//       CameraUpdate.newLatLngZoom(
-//         LatLng(result.latitude, result.longitude),
-//         15,
-//       ),
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Stack(
-//         children: [
-//           _buildMap(),
-//           _buildTopBar(),
-//           _buildPropertyCards(),
-//           _buildMapControls(),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildMap() {
-//     return GoogleMap(
-//       onMapCreated: (controller) {
-//         _mapController = controller;
-//         controller.setMapStyle(_mapStyle);
-//       },
-//       initialCameraPosition: CameraPosition(
-//         target: _calculateCenter(),
-//         zoom: 12,
-//       ),
-//       markers: _markers,
-//       myLocationEnabled: true,
-//       myLocationButtonEnabled: false,
-//       zoomControlsEnabled: false,
-//       mapToolbarEnabled: false,
-//       compassEnabled: false,
-//     );
-//   }
-
-//   Widget _buildTopBar() {
-//     return Positioned(
-//       top: 0,
-//       left: 0,
-//       right: 0,
-//       child: Container(
-//         decoration: BoxDecoration(
-//           gradient: LinearGradient(
-//             begin: Alignment.topCenter,
-//             end: Alignment.bottomCenter,
-//             colors: [
-//               AppTheme.darkBackground.withOpacity(0.9),
-//               AppTheme.darkBackground.withOpacity(0.7),
-//               AppTheme.darkBackground.withOpacity(0.0),
-//             ],
-//           ),
-//         ),
-//         child: ClipRRect(
-//           child: BackdropFilter(
-//             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-//             child: SafeArea(
-//               child: Padding(
-//                 padding: const EdgeInsets.all(16),
-//                 child: Row(
-//                   children: [
-//                     _buildCircularButton(
-//                       icon: Icons.arrow_back_rounded,
-//                       onPressed: widget.onBackToList ?? () => Navigator.pop(context),
-//                       isPrimary: true,
-//                     ),
-//                     const Spacer(),
-//                     _buildCircularButton(
-//                       icon: Icons.layers_rounded,
-//                       onPressed: _showMapTypeSelector,
-//                     ),
-//                     const SizedBox(width: 12),
-//                     _buildCircularButton(
-//                       icon: Icons.filter_list_rounded,
-//                       onPressed: _showFilterOptions,
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildPropertyCards() {
-//     if (widget.results.isEmpty) {
-//       return const SizedBox.shrink();
-//     }
-
-//     return Positioned(
-//       bottom: MediaQuery.of(context).padding.bottom + 20,
-//       left: 0,
-//       right: 0,
-//       height: 150,
-//       child: AnimatedBuilder(
-//         animation: _cardSlideAnimation,
-//         builder: (context, child) {
-//           return Transform.translate(
-//             offset: Offset(0, 200 * _cardSlideAnimation.value),
-//             child: PageView.builder(
-//               controller: _pageController,
-//               onPageChanged: (index) {
-//                 final result = widget.results[index];
-//                 _onPropertyCardTapped(result);
-//               },
-//               itemCount: widget.results.length,
-//               itemBuilder: (context, index) {
-//                 final result = widget.results[index];
-//                 return Padding(
-//                   padding: const EdgeInsets.symmetric(horizontal: 8),
-//                   child: _MapPropertyCard(
-//                     result: result,
-//                     isSelected: _selectedMarkerId == result.id,
-//                     onTap: () => _onPropertyCardTapped(result),
-//                   ),
-//                 );
-//               },
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
-
-//   Widget _buildMapControls() {
-//     return Positioned(
-//       right: 16,
-//       bottom: 180,
-//       child: AnimatedBuilder(
-//         animation: _fabScaleAnimation,
-//         builder: (context, child) {
-//           return Transform.scale(
-//             scale: _fabScaleAnimation.value,
-//             child: Column(
-//               children: [
-//                 _buildCircularButton(
-//                   icon: Icons.add_rounded,
-//                   onPressed: _zoomIn,
-//                   size: 48,
-//                 ),
-//                 const SizedBox(height: 12),
-//                 _buildCircularButton(
-//                   icon: Icons.remove_rounded,
-//                   onPressed: _zoomOut,
-//                   size: 48,
-//                 ),
-//                 const SizedBox(height: 20),
-//                 _buildCircularButton(
-//                   icon: Icons.my_location_rounded,
-//                   onPressed: _goToMyLocation,
-//                   size: 48,
-//                   isPrimary: true,
-//                 ),
-//               ],
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
-
-//   Widget _buildCircularButton({
-//     required IconData icon,
-//     required VoidCallback onPressed,
-//     double size = 52,
-//     bool isPrimary = false,
-//   }) {
-//     return Container(
-//       width: size,
-//       height: size,
-//       decoration: BoxDecoration(
-//         gradient: isPrimary
-//             ? AppTheme.primaryGradient
-//             : LinearGradient(
-//                 colors: [
-//                   AppTheme.darkCard.withOpacity(0.9),
-//                   AppTheme.darkCard.withOpacity(0.7),
-//                 ],
-//               ),
-//         shape: BoxShape.circle,
-//         border: Border.all(
-//           color: isPrimary
-//               ? Colors.transparent
-//               : AppTheme.darkBorder.withOpacity(0.3),
-//           width: 1,
-//         ),
-//         boxShadow: [
-//           BoxShadow(
-//             color: isPrimary
-//                 ? AppTheme.primaryBlue.withOpacity(0.4)
-//                 : AppTheme.shadowDark.withOpacity(0.5),
-//             blurRadius: isPrimary ? 20 : 15,
-//             spreadRadius: isPrimary ? 2 : 1,
-//           ),
-//         ],
-//       ),
-//       child: ClipRRect(
-//         borderRadius: BorderRadius.circular(size / 2),
-//         child: BackdropFilter(
-//           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-//           child: Material(
-//             color: Colors.transparent,
-//             child: InkWell(
-//               onTap: onPressed,
-//               child: Icon(
-//                 icon,
-//                 size: size * 0.45,
-//                 color: Colors.white,
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   LatLng _calculateCenter() {
-//     if (widget.results.isEmpty) {
-//       return _defaultLocation;
-//     }
-
-//     double sumLat = 0;
-//     double sumLng = 0;
-
-//     for (final result in widget.results) {
-//       sumLat += result.latitude;
-//       sumLng += result.longitude;
-//     }
-
-//     return LatLng(
-//       sumLat / widget.results.length,
-//       sumLng / widget.results.length,
-//     );
-//   }
-
-//   void _zoomIn() {
-//     _mapController?.animateCamera(CameraUpdate.zoomIn());
-//   }
-
-//   void _zoomOut() {
-//     _mapController?.animateCamera(CameraUpdate.zoomOut());
-//   }
-
-//   void _goToMyLocation() {
-//     // Implement go to current location
-//     // You can use location package to get current location
-//     // For now, we'll zoom to default location
-//     _mapController?.animateCamera(
-//       CameraUpdate.newLatLngZoom(_defaultLocation, 15),
-//     );
-//   }
-
-//   void _showMapTypeSelector() {
-//     showModalBottomSheet(
-//       context: context,
-//       backgroundColor: Colors.transparent,
-//       isScrollControlled: true,
-//       builder: (context) {
-//         return _MapTypeSelector(
-//           onSelectType: (type) {
-//             Navigator.pop(context);
-//             _changeMapType(type);
-//           },
-//         );
-//       },
-//     );
-//   }
-
-//   void _changeMapType(String type) {
-//     // Change map type based on selection
-//     MapType mapType;
-//     switch (type) {
-//       case 'satellite':
-//         mapType = MapType.satellite;
-//         break;
-//       case 'terrain':
-//         mapType = MapType.terrain;
-//         break;
-//       case 'hybrid':
-//         mapType = MapType.hybrid;
-//         break;
-//       default:
-//         mapType = MapType.normal;
-//     }
-
-//     // Update map type through controller
-//     setState(() {
-//       // You would need to recreate the map with new type
-//       // or use a state variable to control map type
-//     });
-//   }
-
-//   void _showFilterOptions() {
-//     showModalBottomSheet(
-//       context: context,
-//       backgroundColor: Colors.transparent,
-//       isScrollControlled: true,
-//       builder: (context) {
-//         return _MapFilterOptions(
-//           onApplyFilters: (filters) {
-//             Navigator.pop(context);
-//             // Apply filters to map
-//             _applyMapFilters(filters);
-//           },
-//         );
-//       },
-//     );
-//   }
-
-//   void _applyMapFilters(Map<String, dynamic> filters) {
-//     // Apply filters and update markers
-//     setState(() {
-//       // Filter results based on criteria
-//     });
-//   }
-// }
-
-// // Map Property Card Widget
-// class _MapPropertyCard extends StatelessWidget {
-//   final SearchResult result;
-//   final bool isSelected;
-//   final VoidCallback onTap;
-
-//   const _MapPropertyCard({
-//     required this.result,
-//     required this.isSelected,
-//     required this.onTap,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: onTap,
-//       child: AnimatedContainer(
-//         duration: const Duration(milliseconds: 300),
-//         decoration: BoxDecoration(
-//           gradient: LinearGradient(
-//             colors: isSelected
-//                 ? [
-//                     AppTheme.primaryBlue.withOpacity(0.2),
-//                     AppTheme.primaryPurple.withOpacity(0.1),
-//                   ]
-//                 : [
-//                     AppTheme.darkCard.withOpacity(0.95),
-//                     AppTheme.darkCard.withOpacity(0.85),
-//                   ],
-//           ),
-//           borderRadius: BorderRadius.circular(20),
-//           border: Border.all(
-//             color: isSelected
-//                 ? AppTheme.primaryBlue.withOpacity(0.5)
-//                 : AppTheme.darkBorder.withOpacity(0.3),
-//             width: isSelected ? 2 : 1,
-//           ),
-//           boxShadow: [
-//             BoxShadow(
-//               color: isSelected
-//                   ? AppTheme.primaryBlue.withOpacity(0.3)
-//                   : AppTheme.shadowDark.withOpacity(0.5),
-//               blurRadius: isSelected ? 25 : 20,
-//               spreadRadius: isSelected ? 3 : 1,
-//             ),
-//           ],
-//         ),
-//         child: ClipRRect(
-//           borderRadius: BorderRadius.circular(20),
-//           child: BackdropFilter(
-//             filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-//             child: Row(
-//               children: [
-//                 // Property Image
-//                 Container(
-//                   width: 130,
-//                   decoration: BoxDecoration(
-//                     borderRadius: const BorderRadius.horizontal(
-//                       right: Radius.circular(20),
-//                     ),
-//                     image: DecorationImage(
-//                       image: NetworkImage(ImageUtils.resolveUrl(result.mainImageUrl ?? '')),
-//                       fit: BoxFit.cover,
-//                     ),
-//                   ),
-//                   child: Stack(
-//                     children: [
-//                       // Gradient Overlay
-//                       Container(
-//                         decoration: BoxDecoration(
-//                           borderRadius: const BorderRadius.horizontal(
-//                             right: Radius.circular(20),
-//                           ),
-//                           gradient: LinearGradient(
-//                             begin: Alignment.topCenter,
-//                             end: Alignment.bottomCenter,
-//                             colors: [
-//                               Colors.transparent,
-//                               AppTheme.darkBackground.withOpacity(0.7),
-//                             ],
-//                           ),
-//                         ),
-//                       ),
-
-//                       // Featured Badge
-//                       if (result.isFeatured)
-//                         Positioned(
-//                           top: 12,
-//                           right: 12,
-//                           child: Container(
-//                             padding: const EdgeInsets.symmetric(
-//                               horizontal: 8,
-//                               vertical: 4,
-//                             ),
-//                             decoration: BoxDecoration(
-//                               gradient: AppTheme.primaryGradient,
-//                               borderRadius: BorderRadius.circular(12),
-//                               boxShadow: [
-//                                 BoxShadow(
-//                                   color: AppTheme.primaryBlue.withOpacity(0.5),
-//                                   blurRadius: 10,
-//                                   spreadRadius: 1,
-//                                 ),
-//                               ],
-//                             ),
-//                             child: Text(
-//                               'مميز',
-//                               style: AppTextStyles.overline.copyWith(
-//                                 color: Colors.white,
-//                                 fontWeight: FontWeight.bold,
-//                               ),
-//                             ),
-//                           ),
-//                         ),
-//                     ],
-//                   ),
-//                 ),
-
-//                 // Property Details
-//                 Expanded(
-//                   child: Padding(
-//                     padding: const EdgeInsets.all(12),
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                       children: [
-//                         Text(
-//                           result.name,
-//                           style: AppTextStyles.bodyMedium.copyWith(
-//                             fontWeight: FontWeight.bold,
-//                             color: isSelected
-//                                 ? AppTheme.primaryBlue
-//                                 : AppTheme.textWhite,
-//                           ),
-//                           maxLines: 2,
-//                           overflow: TextOverflow.ellipsis,
-//                         ),
-
-//                         Row(
-//                           children: [
-//                             Icon(
-//                               Icons.location_on_outlined,
-//                               size: 14,
-//                               color: AppTheme.textMuted.withOpacity(0.7),
-//                             ),
-//                             const SizedBox(width: 4),
-//                             Expanded(
-//                               child: Text(
-//                                 result.address,
-//                                 style: AppTextStyles.caption.copyWith(
-//                                   color: AppTheme.textMuted,
-//                                 ),
-//                                 maxLines: 1,
-//                                 overflow: TextOverflow.ellipsis,
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-
-//                         Row(
-//                           children: [
-//                             Container(
-//                               padding: const EdgeInsets.symmetric(
-//                                 horizontal: 6,
-//                                 vertical: 2,
-//                               ),
-//                               decoration: BoxDecoration(
-//                                 color: AppTheme.warning.withOpacity(0.2),
-//                                 borderRadius: BorderRadius.circular(8),
-//                               ),
-//                               child: Row(
-//                                 mainAxisSize: MainAxisSize.min,
-//                                 children: [
-//                                   const Icon(
-//                                     Icons.star_rounded,
-//                                     size: 14,
-//                                     color: AppTheme.warning,
-//                                   ),
-//                                   const SizedBox(width: 2),
-//                                   Text(
-//                                     result.averageRating.toStringAsFixed(1),
-//                                     style: AppTextStyles.caption.copyWith(
-//                                       fontWeight: FontWeight.bold,
-//                                       color: AppTheme.warning,
-//                                     ),
-//                                   ),
-//                                 ],
-//                               ),
-//                             ),
-
-//                             const Spacer(),
-
-//                             Column(
-//                               crossAxisAlignment: CrossAxisAlignment.end,
-//                               children: [
-//                                 if (result.minPrice != result.discountedPrice)
-//                                   Text(
-//                                     '${result.minPrice.toStringAsFixed(0)} ${result.currency}',
-//                                     style: AppTextStyles.overline.copyWith(
-//                                       decoration: TextDecoration.lineThrough,
-//                                       color: AppTheme.textMuted.withOpacity(0.7),
-//                                     ),
-//                                   ),
-//                                 ShaderMask(
-//                                   shaderCallback: (bounds) =>
-//                                       AppTheme.primaryGradient.createShader(bounds),
-//                                   child: Text(
-//                                     '${result.discountedPrice.toStringAsFixed(0)} ${result.currency}',
-//                                     style: AppTextStyles.bodyMedium.copyWith(
-//                                       fontWeight: FontWeight.bold,
-//                                       color: Colors.white,
-//                                     ),
-//                                   ),
-//                                 ),
-//                               ],
-//                             ),
-//                           ],
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// // Map Type Selector Widget
-// class _MapTypeSelector extends StatelessWidget {
-//   final Function(String) onSelectType;
-
-//   const _MapTypeSelector({required this.onSelectType});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       decoration: BoxDecoration(
-//         gradient: LinearGradient(
-//           begin: Alignment.topCenter,
-//           end: Alignment.bottomCenter,
-//           colors: [
-//             AppTheme.darkCard.withOpacity(0.95),
-//             AppTheme.darkSurface,
-//           ],
-//         ),
-//         borderRadius: const BorderRadius.vertical(
-//           top: Radius.circular(28),
-//         ),
-//         border: Border.all(
-//           color: AppTheme.darkBorder.withOpacity(0.3),
-//           width: 1,
-//         ),
-//       ),
-//       child: ClipRRect(
-//         borderRadius: const BorderRadius.vertical(
-//           top: Radius.circular(28),
-//         ),
-//         child: BackdropFilter(
-//           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-//           child: SafeArea(
-//             child: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               children: [
-//                 Container(
-//                   margin: const EdgeInsets.only(top: 12),
-//                   width: 50,
-//                   height: 5,
-//                   decoration: BoxDecoration(
-//                     gradient: AppTheme.primaryGradient,
-//                     borderRadius: BorderRadius.circular(3),
-//                     boxShadow: [
-//                       BoxShadow(
-//                         color: AppTheme.primaryBlue.withOpacity(0.5),
-//                         blurRadius: 10,
-//                         spreadRadius: 1,
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-
-//                 Padding(
-//                   padding: const EdgeInsets.all(20),
-//                   child: Text(
-//                     'نوع الخريطة',
-//                     style: AppTextStyles.h3.copyWith(
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                 ),
-
-//                 _buildMapTypeOption(
-//                   title: 'عادية',
-//                   subtitle: 'خريطة الشوارع الافتراضية',
-//                   icon: Icons.map_outlined,
-//                   onTap: () => onSelectType('normal'),
-//                 ),
-
-//                 _buildMapTypeOption(
-//                   title: 'قمر صناعي',
-//                   subtitle: 'صور الأقمار الصناعية',
-//                   icon: Icons.satellite_outlined,
-//                   onTap: () => onSelectType('satellite'),
-//                 ),
-
-//                 _buildMapTypeOption(
-//                   title: 'تضاريس',
-//                   subtitle: 'خريطة طبوغرافية',
-//                   icon: Icons.terrain_outlined,
-//                   onTap: () => onSelectType('terrain'),
-//                 ),
-
-//                 _buildMapTypeOption(
-//                   title: 'هجين',
-//                   subtitle: 'قمر صناعي مع الشوارع',
-//                   icon: Icons.layers_outlined,
-//                   onTap: () => onSelectType('hybrid'),
-//                 ),
-
-//                 const SizedBox(height: 20),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildMapTypeOption({
-//     required String title,
-//     required String subtitle,
-//     required IconData icon,
-//     required VoidCallback onTap,
-//   }) {
-//     return Material(
-//       color: Colors.transparent,
-//       child: InkWell(
-//         onTap: onTap,
-//         child: Padding(
-//           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-//           child: Row(
-//             children: [
-//               Container(
-//                 width: 48,
-//                 height: 48,
-//                 decoration: BoxDecoration(
-//                   gradient: AppTheme.primaryGradient,
-//                   borderRadius: BorderRadius.circular(14),
-//                   boxShadow: [
-//                     BoxShadow(
-//                       color: AppTheme.primaryBlue.withOpacity(0.3),
-//                       blurRadius: 15,
-//                       spreadRadius: 1,
-//                     ),
-//                   ],
-//                 ),
-//                 child: Icon(
-//                   icon,
-//                   color: Colors.white,
-//                   size: 24,
-//                 ),
-//               ),
-//               const SizedBox(width: 16),
-//               Expanded(
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Text(
-//                       title,
-//                       style: AppTextStyles.bodyMedium.copyWith(
-//                         fontWeight: FontWeight.w600,
-//                       ),
-//                     ),
-//                     const SizedBox(height: 2),
-//                     Text(
-//                       subtitle,
-//                       style: AppTextStyles.caption.copyWith(
-//                         color: AppTheme.textMuted,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               Icon(
-//                 Icons.arrow_forward_ios_rounded,
-//                 size: 16,
-//                 color: AppTheme.textMuted.withOpacity(0.5),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// // Map Filter Options Widget
-// class _MapFilterOptions extends StatefulWidget {
-//   final Function(Map<String, dynamic>) onApplyFilters;
-
-//   const _MapFilterOptions({required this.onApplyFilters});
-
-//   @override
-//   State<_MapFilterOptions> createState() => _MapFilterOptionsState();
-// }
-
-// class _MapFilterOptionsState extends State<_MapFilterOptions> {
-//   double _radiusKm = 5.0;
-//   bool _showFeatured = false;
-//   bool _showAvailable = true;
-//   String? _selectedPropertyType;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       decoration: BoxDecoration(
-//         gradient: LinearGradient(
-//           begin: Alignment.topCenter,
-//           end: Alignment.bottomCenter,
-//           colors: [
-//             AppTheme.darkCard.withOpacity(0.95),
-//             AppTheme.darkSurface,
-//           ],
-//         ),
-//         borderRadius: const BorderRadius.vertical(
-//           top: Radius.circular(28),
-//         ),
-//         border: Border.all(
-//           color: AppTheme.darkBorder.withOpacity(0.3),
-//           width: 1,
-//         ),
-//       ),
-//       child: ClipRRect(
-//         borderRadius: const BorderRadius.vertical(
-//           top: Radius.circular(28),
-//         ),
-//         child: BackdropFilter(
-//           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-//           child: SafeArea(
-//             child: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               children: [
-//                 Container(
-//                   margin: const EdgeInsets.only(top: 12),
-//                   width: 50,
-//                   height: 5,
-//                   decoration: BoxDecoration(
-//                     gradient: AppTheme.primaryGradient,
-//                     borderRadius: BorderRadius.circular(3),
-//                   ),
-//                 ),
-
-//                 Padding(
-//                   padding: const EdgeInsets.all(20),
-//                   child: Text(
-//                     'فلاتر الخريطة',
-//                     style: AppTextStyles.h3.copyWith(
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                 ),
-
-//                 // Radius Slider
-//                 Padding(
-//                   padding: const EdgeInsets.symmetric(horizontal: 20),
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Row(
-//                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                         children: [
-//                           Text(
-//                             'نطاق البحث',
-//                             style: AppTextStyles.bodyMedium.copyWith(
-//                               fontWeight: FontWeight.w600,
-//                             ),
-//                           ),
-//                           Container(
-//                             padding: const EdgeInsets.symmetric(
-//                               horizontal: 12,
-//                               vertical: 6,
-//                             ),
-//                             decoration: BoxDecoration(
-//                               gradient: AppTheme.primaryGradient,
-//                               borderRadius: BorderRadius.circular(12),
-//                             ),
-//                             child: Text(
-//                               '${_radiusKm.toStringAsFixed(1)} كم',
-//                               style: AppTextStyles.caption.copyWith(
-//                                 color: Colors.white,
-//                                 fontWeight: FontWeight.bold,
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                       const SizedBox(height: 12),
-//                       SliderTheme(
-//                         data: SliderThemeData(
-//                           activeTrackColor: AppTheme.primaryBlue,
-//                           inactiveTrackColor: AppTheme.primaryBlue.withOpacity(0.2),
-//                           thumbColor: AppTheme.primaryBlue,
-//                           overlayColor: AppTheme.primaryBlue.withOpacity(0.2),
-//                         ),
-//                         child: Slider(
-//                           value: _radiusKm,
-//                           min: 1,
-//                           max: 20,
-//                           onChanged: (value) {
-//                             setState(() {
-//                               _radiusKm = value;
-//                             });
-//                           },
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-
-//                 const Divider(color: AppTheme.darkBorder),
-
-//                 // Toggle Options
-//                 _buildSwitchOption(
-//                   title: 'العقارات المميزة فقط',
-//                   subtitle: 'عرض العقارات المميزة',
-//                   value: _showFeatured,
-//                   onChanged: (value) {
-//                     setState(() {
-//                       _showFeatured = value;
-//                     });
-//                   },
-//                 ),
-
-//                 _buildSwitchOption(
-//                   title: 'المتاح فقط',
-//                   subtitle: 'إخفاء العقارات المحجوزة',
-//                   value: _showAvailable,
-//                   onChanged: (value) {
-//                     setState(() {
-//                       _showAvailable = value;
-//                     });
-//                   },
-//                 ),
-
-//                 const SizedBox(height: 20),
-
-//                 // Apply Button
-//                 Padding(
-//                   padding: const EdgeInsets.symmetric(horizontal: 20),
-//                   child: Container(
-//                     width: double.infinity,
-//                     decoration: BoxDecoration(
-//                       gradient: AppTheme.primaryGradient,
-//                       borderRadius: BorderRadius.circular(16),
-//                       boxShadow: [
-//                         BoxShadow(
-//                           color: AppTheme.primaryBlue.withOpacity(0.4),
-//                           blurRadius: 20,
-//                           spreadRadius: 2,
-//                         ),
-//                       ],
-//                     ),
-//                     child: Material(
-//                       color: Colors.transparent,
-//                       child: InkWell(
-//                         onTap: () {
-//                           widget.onApplyFilters({
-//                             'radius': _radiusKm,
-//                             'featured': _showFeatured,
-//                             'available': _showAvailable,
-//                             'propertyType': _selectedPropertyType,
-//                           });
-//                         },
-//                         borderRadius: BorderRadius.circular(16),
-//                         child: Padding(
-//                           padding: const EdgeInsets.symmetric(vertical: 16),
-//                           child: Text(
-//                             'تطبيق الفلاتر',
-//                             style: AppTextStyles.buttonLarge.copyWith(
-//                               color: Colors.white,
-//                             ),
-//                             textAlign: TextAlign.center,
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-
-//                 const SizedBox(height: 20),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildSwitchOption({
-//     required String title,
-//     required String subtitle,
-//     required bool value,
-//     required Function(bool) onChanged,
-//   }) {
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-//       child: Row(
-//         children: [
-//           Expanded(
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Text(
-//                   title,
-//                   style: AppTextStyles.bodyMedium.copyWith(
-//                     fontWeight: FontWeight.w600,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 2),
-//                 Text(
-//                   subtitle,
-//                   style: AppTextStyles.caption.copyWith(
-//                     color: AppTheme.textMuted,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//           Switch(
-//             value: value,
-//             onChanged: onChanged,
-//             activeColor: AppTheme.primaryBlue,
-//             activeTrackColor: AppTheme.primaryBlue.withOpacity(0.3),
-//             inactiveThumbColor: AppTheme.textMuted,
-//             inactiveTrackColor: AppTheme.darkCard,
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../core/utils/image_utils.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:ui';
+
+import '../../../../core/utils/image_utils.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/search_result.dart';
 
+/// العربية: يمثل عنصر الصفحة `SearchResultsMapPage`.
 class SearchResultsMapPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `results`.
   final List<SearchResult> results;
+
+  /// العربية: يخزن القيمة `onBackToList`.
   final VoidCallback? onBackToList;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchResultsMapPage`.
   const SearchResultsMapPage({
     super.key,
     required this.results,
     this.onBackToList,
   });
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<SearchResultsMapPage> createState() => _SearchResultsMapPageState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `SearchResultsMapPageState`.
 class _SearchResultsMapPageState extends State<SearchResultsMapPage>
     with SingleTickerProviderStateMixin {
+  /// العربية: يخزن القيمة `mapController`.
   GoogleMapController? _mapController;
+
+  /// العربية: يخزن القيمة `markers`.
   Set<Marker> _markers = {};
+
+  /// العربية: يخزن القيمة `selectedMarkerId`.
   String? _selectedMarkerId;
   final PageController _pageController = PageController(viewportFraction: 0.85);
 
+  /// العربية: يخزن القيمة `animationController`.
   late AnimationController _animationController;
+
+  /// العربية: يخزن القيمة `fadeAnimation`.
   late Animation<double> _fadeAnimation;
 
   static const LatLng _defaultLocation = LatLng(15.3694, 44.1910);
@@ -1191,6 +75,7 @@ class _SearchResultsMapPageState extends State<SearchResultsMapPage>
   ]
   ''';
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -1209,6 +94,7 @@ class _SearchResultsMapPageState extends State<SearchResultsMapPage>
     _initializeMarkers();
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _mapController?.dispose();
@@ -1217,6 +103,7 @@ class _SearchResultsMapPageState extends State<SearchResultsMapPage>
     super.dispose();
   }
 
+  /// العربية: يهيئ markers.
   void _initializeMarkers() {
     _markers = widget.results.map((result) {
       return Marker(
@@ -1232,6 +119,7 @@ class _SearchResultsMapPageState extends State<SearchResultsMapPage>
     }).toSet();
   }
 
+  /// العربية: يعالج `onMarkerTapped`.
   void _onMarkerTapped(SearchResult result) {
     setState(() {
       _selectedMarkerId = result.id;
@@ -1248,6 +136,7 @@ class _SearchResultsMapPageState extends State<SearchResultsMapPage>
     }
   }
 
+  /// العربية: يعالج `onPropertyCardTapped`.
   void _onPropertyCardTapped(SearchResult result) {
     setState(() {
       _selectedMarkerId = result.id;
@@ -1262,6 +151,7 @@ class _SearchResultsMapPageState extends State<SearchResultsMapPage>
     );
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1276,6 +166,7 @@ class _SearchResultsMapPageState extends State<SearchResultsMapPage>
     );
   }
 
+  /// العربية: يبني map.
   Widget _buildMap() {
     return GoogleMap(
       onMapCreated: (controller) {
@@ -1295,6 +186,7 @@ class _SearchResultsMapPageState extends State<SearchResultsMapPage>
     );
   }
 
+  /// العربية: يبني minimal top bar.
   Widget _buildMinimalTopBar() {
     return Positioned(
       top: 0,
@@ -1340,6 +232,7 @@ class _SearchResultsMapPageState extends State<SearchResultsMapPage>
     );
   }
 
+  /// العربية: يبني minimal property cards.
   Widget _buildMinimalPropertyCards() {
     if (widget.results.isEmpty) return const SizedBox.shrink();
 
@@ -1373,6 +266,7 @@ class _SearchResultsMapPageState extends State<SearchResultsMapPage>
     );
   }
 
+  /// العربية: يبني minimal map controls.
   Widget _buildMinimalMapControls() {
     return Positioned(
       right: 12,
@@ -1402,6 +296,7 @@ class _SearchResultsMapPageState extends State<SearchResultsMapPage>
     );
   }
 
+  /// العربية: يبني minimal button.
   Widget _buildMinimalButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -1437,6 +332,7 @@ class _SearchResultsMapPageState extends State<SearchResultsMapPage>
     );
   }
 
+  /// العربية: يعالج `calculateCenter`.
   LatLng _calculateCenter() {
     if (widget.results.isEmpty) return _defaultLocation;
 
@@ -1454,15 +350,20 @@ class _SearchResultsMapPageState extends State<SearchResultsMapPage>
     );
   }
 
+  /// العربية: يعالج `zoomIn`.
   void _zoomIn() => _mapController?.animateCamera(CameraUpdate.zoomIn());
+
+  /// العربية: يعالج `zoomOut`.
   void _zoomOut() => _mapController?.animateCamera(CameraUpdate.zoomOut());
 
+  /// العربية: يعالج `goToMyLocation`.
   void _goToMyLocation() {
     _mapController?.animateCamera(
       CameraUpdate.newLatLngZoom(_defaultLocation, 15),
     );
   }
 
+  /// العربية: يعرض map type selector.
   void _showMapTypeSelector() {
     showModalBottomSheet(
       context: context,
@@ -1476,6 +377,7 @@ class _SearchResultsMapPageState extends State<SearchResultsMapPage>
     );
   }
 
+  /// العربية: يعرض filter options.
   void _showFilterOptions() {
     showModalBottomSheet(
       context: context,
@@ -1491,17 +393,25 @@ class _SearchResultsMapPageState extends State<SearchResultsMapPage>
 }
 
 // Minimal Map Property Card
+/// العربية: يمثل `MinimalMapPropertyCard`.
 class _MinimalMapPropertyCard extends StatelessWidget {
+  /// العربية: يخزن القيمة `result`.
   final SearchResult result;
+
+  /// العربية: يحدد ما إذا كانت القيمة `isSelected` مفعلة.
   final bool isSelected;
+
+  /// العربية: يخزن القيمة `onTap`.
   final VoidCallback onTap;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `MinimalMapPropertyCard`.
   const _MinimalMapPropertyCard({
     required this.result,
     required this.isSelected,
     required this.onTap,
   });
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -1696,11 +606,15 @@ class _MinimalMapPropertyCard extends StatelessWidget {
 }
 
 // Minimal Map Type Selector
+/// العربية: يمثل `MinimalMapTypeSelector`.
 class _MinimalMapTypeSelector extends StatelessWidget {
+  /// العربية: يعالج `Function`.
   final Function(String) onSelectType;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `MinimalMapTypeSelector`.
   const _MinimalMapTypeSelector({required this.onSelectType});
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1744,6 +658,7 @@ class _MinimalMapTypeSelector extends StatelessWidget {
     );
   }
 
+  /// العربية: يبني option.
   Widget _buildOption(String title, IconData icon, VoidCallback onTap) {
     return ListTile(
       onTap: () {
@@ -1769,21 +684,32 @@ class _MinimalMapTypeSelector extends StatelessWidget {
 }
 
 // Minimal Map Filter Options
+/// العربية: يمثل `MinimalMapFilterOptions`.
 class _MinimalMapFilterOptions extends StatefulWidget {
+  /// العربية: يعالج `Function`.
   final Function(Map<String, dynamic>) onApplyFilters;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `MinimalMapFilterOptions`.
   const _MinimalMapFilterOptions({required this.onApplyFilters});
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<_MinimalMapFilterOptions> createState() =>
       _MinimalMapFilterOptionsState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `MinimalMapFilterOptionsState`.
 class _MinimalMapFilterOptionsState extends State<_MinimalMapFilterOptions> {
+  /// العربية: يخزن القيمة `radiusKm`.
   double _radiusKm = 5.0;
+
+  /// العربية: يخزن القيمة `showFeatured`.
   bool _showFeatured = false;
+
+  /// العربية: يخزن القيمة `showAvailable`.
   bool _showAvailable = true;
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1920,6 +846,7 @@ class _MinimalMapFilterOptionsState extends State<_MinimalMapFilterOptions> {
     );
   }
 
+  /// العربية: يبني switch.
   Widget _buildSwitch(String title, bool value, Function(bool) onChanged) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),

@@ -4,7 +4,9 @@ import 'message_reaction_model.dart';
 import '../../domain/entities/message.dart';
 import 'attachment_model.dart';
 
+/// العربية: يمثل نموذج البيانات `MessageModel`.
 class MessageModel extends Message {
+  /// العربية: ينشئ مثيلًا جديدًا من `MessageModel`.
   const MessageModel({
     required super.id,
     required super.conversationId,
@@ -23,6 +25,7 @@ class MessageModel extends Message {
     super.deliveryReceipt,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `MessageModel.fromJson`.
   factory MessageModel.fromJson(Map<String, dynamic> json) {
     return MessageModel(
       id: json['id'] ?? json['message_id'] ?? '',
@@ -55,6 +58,7 @@ class MessageModel extends Message {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'message_id': id,
@@ -78,6 +82,7 @@ class MessageModel extends Message {
     };
   }
 
+  /// العربية: ينشئ مثيلًا جديدًا من `MessageModel.fromEntity`.
   factory MessageModel.fromEntity(Message message) {
     return MessageModel(
       id: message.id,
@@ -99,13 +104,16 @@ class MessageModel extends Message {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `LocationModel`.
 class LocationModel extends Location {
+  /// العربية: ينشئ مثيلًا جديدًا من `LocationModel`.
   const LocationModel({
     required super.latitude,
     required super.longitude,
     super.address,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `LocationModel.fromJson`.
   factory LocationModel.fromJson(Map<String, dynamic> json) {
     return LocationModel(
       latitude: (json['latitude'] as num).toDouble(),
@@ -114,6 +122,7 @@ class LocationModel extends Location {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'latitude': latitude,

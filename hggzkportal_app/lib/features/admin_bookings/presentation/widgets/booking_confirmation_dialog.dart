@@ -6,20 +6,46 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// يحدد ما إذا كان مربع الحوار يؤكد الحجز أو يلغيه.
+/// Indicates whether the dialog confirms or cancels a booking.
 enum BookingConfirmationType {
   confirm,
   cancel,
 }
 
+/// يعرض مربع حوار نهائيًا لإقرار الحجز أو إلغائه مع شرح واضح للإجراء.
+/// Shows a final confirmation dialog for confirming or canceling a booking.
 class BookingConfirmationDialog extends StatelessWidget {
+  /// يحدد نوع الإجراء المراد تأكيده من خلال مربع الحوار.
+  /// Defines the action type being confirmed in the dialog.
   final BookingConfirmationType type;
+
+  /// يعرّف الحجز المستهدف الذي سيُنفذ عليه الإجراء.
+  /// Identifies the target booking that will receive the action.
   final String bookingId;
+
+  /// الرقم المرجعي الظاهر للمستخدم لمطابقة الحجز بسهولة.
+  /// Optional reference visible to the user for easier booking matching.
   final String? bookingReference;
+
+  /// يستدعى بعد تأكيد المستخدم للإجراء.
+  /// Called after the user confirms the action.
   final VoidCallback onConfirm;
+
+  /// نص مخصص للعنوان عندما لا تكفي الصياغة الافتراضية.
+  /// Optional custom title when the default wording is not enough.
   final String? customTitle;
+
+  /// نص مخصص للوصف التوضيحي أعلى الأزرار.
+  /// Optional custom subtitle shown above the action buttons.
   final String? customSubtitle;
+
+  /// نص مخصص لزر التأكيد في مربع الحوار.
+  /// Optional custom label for the confirmation button.
   final String? customConfirmText;
 
+  /// ينشئ مربع الحوار مع القيم المخصصة أو الافتراضية المناسبة.
+  /// Creates the dialog with custom or default content values.
   const BookingConfirmationDialog({
     super.key,
     required this.type,
@@ -31,6 +57,8 @@ class BookingConfirmationDialog extends StatelessWidget {
     this.customConfirmText,
   });
 
+  /// يبني واجهة التأكيد أو الإلغاء مع الحالة اللونية والنص المناسب.
+  /// Builds the confirm/cancel dialog with the proper color and copy.
   @override
   Widget build(BuildContext context) {
     final isConfirm = type == BookingConfirmationType.confirm;
@@ -55,12 +83,12 @@ class BookingConfirmationDialog extends StatelessWidget {
             color: AppTheme.darkCard,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: color.withOpacity(0.2),
+                color: color.withValues(alpha: 0.2),
                 blurRadius: 30,
                 spreadRadius: 5,
               ),
@@ -74,7 +102,7 @@ class BookingConfirmationDialog extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                 ),
                 child: Icon(
                   icon,
@@ -111,7 +139,7 @@ class BookingConfirmationDialog extends StatelessWidget {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.darkBackground.withOpacity(0.5),
+                    color: AppTheme.darkBackground.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -187,7 +215,8 @@ class BookingConfirmationDialog extends StatelessWidget {
   }
 }
 
-/// Helper function to show confirmation dialog
+/// يفتح مربع حوار التأكيد الخاص بالحجز داخل نافذة منبثقة مركزية.
+/// Opens the booking confirmation dialog in a centered modal route.
 Future<void> showBookingConfirmationDialog({
   required BuildContext context,
   required BookingConfirmationType type,

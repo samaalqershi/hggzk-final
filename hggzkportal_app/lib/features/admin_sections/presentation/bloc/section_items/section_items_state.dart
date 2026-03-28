@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import '../../../../../core/models/paginated_result.dart' as core;
 
 abstract class SectionItemsState extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `SectionItemsState`.
   const SectionItemsState();
 
   @override
@@ -14,6 +15,7 @@ class SectionItemsLoading extends SectionItemsState {}
 
 class SectionItemsLoaded extends SectionItemsState {
   final core.PaginatedResult<dynamic> page;
+
   const SectionItemsLoaded(this.page);
 
   @override
@@ -21,7 +23,9 @@ class SectionItemsLoaded extends SectionItemsState {
 }
 
 class SectionItemsError extends SectionItemsState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
+
   const SectionItemsError(this.message);
 
   @override
@@ -29,4 +33,3 @@ class SectionItemsError extends SectionItemsState {
 }
 
 class SectionItemsOperationSuccess extends SectionItemsState {}
-

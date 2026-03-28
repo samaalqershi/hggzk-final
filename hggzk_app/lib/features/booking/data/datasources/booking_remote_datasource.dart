@@ -10,21 +10,26 @@ import '../models/booking_request_model.dart';
 import '../models/unit_available_days_model.dart';
 import '../models/unit_availability_model.dart';
 
+/// العربية: يوفر سلوك مصدر البيانات الخاص بـ `BookingRemoteDataSource`.
 abstract class BookingRemoteDataSource {
+  /// العربية: ينشئ booking.
   Future<ResultDto<BookingModel>> createBooking(BookingRequestModel request);
-  
+
+  /// العربية: يعيد booking details.
   Future<ResultDto<BookingModel>> getBookingDetails({
     required String bookingId,
     required String userId,
   });
-  
+
+  /// العربية: يعالج `cancelBooking`.
   Future<ResultDto<bool>> cancelBooking({
     required String bookingId,
     required String userId,
     required String reason,
     bool refundPayments = false,
   });
-  
+
+  /// العربية: يحدّث booking.
   Future<ResultDto<bool>> updateBooking({
     required String bookingId,
     DateTime? checkIn,
@@ -32,25 +37,29 @@ abstract class BookingRemoteDataSource {
     int? guestsCount,
     List<Map<String, dynamic>>? services,
   });
-  
+
+  /// العربية: يعيد user bookings.
   Future<ResultDto<PaginatedResult<BookingModel>>> getUserBookings({
     required String userId,
     String? status,
     int pageNumber = 1,
     int pageSize = 10,
   });
-  
+
+  /// العربية: يعيد user booking summary.
   Future<ResultDto<Map<String, dynamic>>> getUserBookingSummary({
     required String userId,
     int? year,
   });
-  
+
+  /// العربية: يعالج `addServicesToBooking`.
   Future<ResultDto<BookingModel>> addServicesToBooking({
     required String bookingId,
     required String serviceId,
     required int quantity,
   });
-  
+
+  /// العربية: يتحقق من availability.
   Future<ResultDto<UnitAvailabilityModel>> checkAvailability({
     required String unitId,
     required DateTime checkIn,
@@ -61,6 +70,7 @@ abstract class BookingRemoteDataSource {
     String? excludeBookingId,
   });
 
+  /// العربية: يعيد unit available days.
   Future<ResultDto<UnitAvailableDaysModel>> getUnitAvailableDays({
     required String unitId,
     int months = 3,
@@ -68,13 +78,18 @@ abstract class BookingRemoteDataSource {
   });
 }
 
+/// العربية: يمثل `BookingRemoteDataSourceImpl`.
 class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
+  /// العربية: يخزن القيمة `apiClient`.
   final ApiClient apiClient;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingRemoteDataSourceImpl`.
   BookingRemoteDataSourceImpl({required this.apiClient});
 
+  /// العربية: ينشئ booking.
   @override
-  Future<ResultDto<BookingModel>> createBooking(BookingRequestModel request) async {
+  Future<ResultDto<BookingModel>> createBooking(
+      BookingRequestModel request) async {
     const requestName = 'booking.createBooking';
     logRequestStart(requestName, details: {
       'request': request.toJson(),
@@ -92,15 +107,16 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           response.data,
           (json) => _parseCreateBookingResponse(json),
         );
-        
+
         if (resultDto.success && resultDto.data != null) {
           return resultDto;
         } else {
-          throw ServerException(resultDto.message ?? 'Failed to create booking');
+          throw ServerException(
+              resultDto.message ?? 'Failed to create booking');
         }
-
       } else {
-        throw ServerException(response.data['message'] ?? 'Failed to create booking');
+        throw ServerException(
+            response.data['message'] ?? 'Failed to create booking');
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -112,6 +128,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
     }
   }
 
+  /// العربية: يعيد unit available days.
   @override
   Future<ResultDto<UnitAvailableDaysModel>> getUnitAvailableDays({
     required String unitId,
@@ -167,6 +184,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
     }
   }
 
+  /// العربية: يحدّث booking.
   @override
   Future<ResultDto<bool>> updateBooking({
     required String bookingId,
@@ -261,6 +279,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
     }
   }
 
+  /// العربية: يعيد booking details.
   @override
   Future<ResultDto<BookingModel>> getBookingDetails({
     required String bookingId,
@@ -285,7 +304,8 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           (json) => BookingModel.fromJson(json),
         );
       } else {
-        throw ServerException(response.data['message'] ?? 'Failed to get booking details');
+        throw ServerException(
+            response.data['message'] ?? 'Failed to get booking details');
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -297,6 +317,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
     }
   }
 
+  /// العربية: يعالج `cancelBooking`.
   @override
   Future<ResultDto<bool>> cancelBooking({
     required String bookingId,
@@ -328,7 +349,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           response.data,
           (json) => json['success'] ?? false,
         );
-        
+
         if (resultDto.success) {
           return ResultDto<bool>(
             success: true,
@@ -372,6 +393,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
     }
   }
 
+  /// العربية: يعيد user bookings.
   @override
   Future<ResultDto<PaginatedResult<BookingModel>>> getUserBookings({
     required String userId,
@@ -392,7 +414,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         'pageNumber': pageNumber,
         'pageSize': pageSize,
       };
-      
+
       if (status != null) {
         queryParams['status'] = status;
       }
@@ -413,7 +435,8 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           ),
         );
       } else {
-        throw ServerException(response.data['message'] ?? 'Failed to get user bookings');
+        throw ServerException(
+            response.data['message'] ?? 'Failed to get user bookings');
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -425,6 +448,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
     }
   }
 
+  /// العربية: يعيد user booking summary.
   @override
   Future<ResultDto<Map<String, dynamic>>> getUserBookingSummary({
     required String userId,
@@ -439,7 +463,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
       final queryParams = <String, dynamic>{
         'userId': userId,
       };
-      
+
       if (year != null) {
         queryParams['year'] = year;
       }
@@ -457,7 +481,8 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           (json) => json,
         );
       } else {
-        throw ServerException(response.data['message'] ?? 'Failed to get booking summary');
+        throw ServerException(
+            response.data['message'] ?? 'Failed to get booking summary');
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -469,6 +494,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
     }
   }
 
+  /// العربية: يعالج `addServicesToBooking`.
   @override
   Future<ResultDto<BookingModel>> addServicesToBooking({
     required String bookingId,
@@ -498,14 +524,15 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           response.data,
           (json) => _parseAddServiceResponse(json, bookingId),
         );
-        
+
         if (resultDto.success && resultDto.data != null) {
           return resultDto;
         } else {
           throw ServerException(resultDto.message ?? 'Failed to add service');
         }
       } else {
-        throw ServerException(response.data['message'] ?? 'Failed to add service to booking');
+        throw ServerException(
+            response.data['message'] ?? 'Failed to add service to booking');
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -517,6 +544,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
     }
   }
 
+  /// العربية: يتحقق من availability.
   @override
   Future<ResultDto<UnitAvailabilityModel>> checkAvailability({
     required String unitId,
@@ -556,7 +584,8 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           (json) => UnitAvailabilityModel.fromJson(json),
         );
       } else {
-        throw ServerException(response.data['message'] ?? 'Failed to check availability');
+        throw ServerException(
+            response.data['message'] ?? 'Failed to check availability');
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -569,6 +598,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
   }
 
   // Helper method to parse create booking response
+  /// العربية: يحلل create booking response.
   BookingModel _parseCreateBookingResponse(Map<String, dynamic> json) {
     return BookingModel(
       id: json['bookingId'] ?? '',
@@ -597,7 +627,9 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
     );
   }
 
-  BookingModel _parseAddServiceResponse(Map<String, dynamic> json, String bookingId) {
+  /// العربية: يحلل add service response.
+  BookingModel _parseAddServiceResponse(
+      Map<String, dynamic> json, String bookingId) {
     return BookingModel(
       id: bookingId,
       bookingNumber: '',

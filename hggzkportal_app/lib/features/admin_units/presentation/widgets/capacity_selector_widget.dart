@@ -7,12 +7,27 @@ import 'dart:ui';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import '../../domain/entities/unit_type.dart';
 
+/// يمثل هذا الكلاس CapacitySelectorWidget البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for CapacitySelectorWidget in the admin unit workflow.
 class CapacitySelectorWidget extends StatefulWidget {
+  /// This field keeps the unitType value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة unitType التي يعتمد عليها مسار إدارة الوحدات.
   final UnitType unitType;
+
+  /// ينفذ هذا الأسلوب عملية Function ضمن مسار إدارة الوحدات.
+  /// This method performs the Function operation in the admin unit workflow.
   final Function(int?, int?) onCapacityChanged;
+
+  /// يحتفظ هذا الحقل بقيمة initialAdults التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the initialAdults value used by the admin unit workflow.
   final int? initialAdults;
+
+  /// يحتفظ هذا الحقل بقيمة initialChildren التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the initialChildren value used by the admin unit workflow.
   final int? initialChildren;
 
+  /// ينشئ هذا المُنشئ مثيلاً من CapacitySelectorWidget.
+  /// This constructor creates an instance of CapacitySelectorWidget.
   const CapacitySelectorWidget({
     super.key,
     required this.unitType,
@@ -21,21 +36,40 @@ class CapacitySelectorWidget extends StatefulWidget {
     this.initialChildren,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<CapacitySelectorWidget> createState() => _CapacitySelectorWidgetState();
 }
 
+/// يمثل هذا الكلاس _CapacitySelectorWidgetState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _CapacitySelectorWidgetState in the admin unit workflow.
 class _CapacitySelectorWidgetState extends State<CapacitySelectorWidget>
     with SingleTickerProviderStateMixin {
+  /// يحتفظ هذا الحقل بقيمة _adults التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _adults value used by the admin unit workflow.
   int? _adults;
+
+  /// يحتفظ هذا الحقل بقيمة _children التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _children value used by the admin unit workflow.
   int? _children;
 
+  /// يحتفظ هذا الحقل بقيمة _animationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _animationController value used by the admin unit workflow.
   late AnimationController _animationController;
+
+  /// يحتفظ هذا الحقل بقيمة _scaleAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _scaleAnimation value used by the admin unit workflow.
   late Animation<double> _scaleAnimation;
 
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
+
+    /// ينفذ هذا الأسلوب عملية _syncInitialValues ضمن مسار إدارة الوحدات.
+    /// This method performs the _syncInitialValues operation in the admin unit workflow.
     _syncInitialValues();
 
     _animationController = AnimationController(
@@ -54,6 +88,8 @@ class _CapacitySelectorWidgetState extends State<CapacitySelectorWidget>
     _animationController.forward();
   }
 
+  /// ينفذ هذا الأسلوب عملية didUpdateWidget ضمن مسار إدارة الوحدات.
+  /// This method performs the didUpdateWidget operation in the admin unit workflow.
   @override
   void didUpdateWidget(covariant CapacitySelectorWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -65,17 +101,23 @@ class _CapacitySelectorWidgetState extends State<CapacitySelectorWidget>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// ينفذ هذا الأسلوب عملية _syncInitialValues ضمن مسار إدارة الوحدات.
+  /// This method performs the _syncInitialValues operation in the admin unit workflow.
   void _syncInitialValues() {
     _adults = widget.initialAdults ?? (widget.unitType.isHasAdults ? 1 : 0);
     _children = widget.initialChildren ?? 0;
   }
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     if (!widget.unitType.isHasAdults && !widget.unitType.isHasChildren) {
@@ -90,18 +132,18 @@ class _CapacitySelectorWidgetState extends State<CapacitySelectorWidget>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppTheme.primaryBlue.withOpacity(0.1),
-              AppTheme.primaryPurple.withOpacity(0.05),
+              AppTheme.primaryBlue.withValues(alpha: 0.1),
+              AppTheme.primaryPurple.withValues(alpha: 0.05),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.2),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -187,6 +229,8 @@ class _CapacitySelectorWidgetState extends State<CapacitySelectorWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildCapacityField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildCapacityField operation in the admin unit workflow.
   Widget _buildCapacityField({
     required String label,
     required IconData icon,
@@ -197,10 +241,10 @@ class _CapacitySelectorWidgetState extends State<CapacitySelectorWidget>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.3),
+        color: AppTheme.darkSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -262,6 +306,8 @@ class _CapacitySelectorWidgetState extends State<CapacitySelectorWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildCounterButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildCounterButton operation in the admin unit workflow.
   Widget _buildCounterButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -283,16 +329,16 @@ class _CapacitySelectorWidgetState extends State<CapacitySelectorWidget>
           gradient: isPrimary && isEnabled ? AppTheme.primaryGradient : null,
           color: !isPrimary
               ? (isEnabled
-                  ? AppTheme.darkCard.withOpacity(0.5)
-                  : AppTheme.darkCard.withOpacity(0.2))
+                  ? AppTheme.darkCard.withValues(alpha: 0.5)
+                  : AppTheme.darkCard.withValues(alpha: 0.2))
               : null,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isEnabled
                 ? (isPrimary
-                    ? AppTheme.primaryBlue.withOpacity(0.5)
-                    : AppTheme.darkBorder.withOpacity(0.3))
-                : AppTheme.darkBorder.withOpacity(0.2),
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                    : AppTheme.darkBorder.withValues(alpha: 0.3))
+                : AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -301,7 +347,7 @@ class _CapacitySelectorWidgetState extends State<CapacitySelectorWidget>
           size: 18,
           color: isEnabled
               ? (isPrimary ? Colors.white : AppTheme.textMuted)
-              : AppTheme.textMuted.withOpacity(0.3),
+              : AppTheme.textMuted.withValues(alpha: 0.3),
         ),
       ),
     );

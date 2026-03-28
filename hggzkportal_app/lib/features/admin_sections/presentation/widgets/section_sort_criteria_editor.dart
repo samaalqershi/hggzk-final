@@ -4,7 +4,9 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class SectionSortCriteriaEditor extends StatefulWidget {
+  /// العربية: يخزن القيمة `initialCriteria`.
   final Map<String, dynamic>? initialCriteria;
+
   final Function(Map<String, dynamic>) onCriteriaChanged;
 
   const SectionSortCriteriaEditor({
@@ -19,7 +21,9 @@ class SectionSortCriteriaEditor extends StatefulWidget {
 }
 
 class _SectionSortCriteriaEditorState extends State<SectionSortCriteriaEditor> {
+  /// العربية: يخزن القيمة `sortBy`.
   String _sortBy = 'createdAt';
+
   bool _ascending = false;
 
   @override

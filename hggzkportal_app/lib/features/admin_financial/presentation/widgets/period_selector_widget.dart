@@ -9,19 +9,16 @@ import 'package:intl/intl.dart' as intl;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
-/// 📅 ويدجت محدد الفترة الزمنية
 class PeriodSelectorWidget extends StatefulWidget {
   final DateTime startDate;
   final DateTime endDate;
   final Function(DateTime, DateTime)? onPeriodChanged;
-
   const PeriodSelectorWidget({
     super.key,
     required this.startDate,
     required this.endDate,
     this.onPeriodChanged,
   });
-
   @override
   State<PeriodSelectorWidget> createState() => _PeriodSelectorWidgetState();
 }
@@ -29,30 +26,20 @@ class PeriodSelectorWidget extends StatefulWidget {
 class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
-  
   String _selectedPeriod = 'custom';
   late DateTime _startDate;
   late DateTime _endDate;
-  
   bool _isExpanded = false;
-
   @override
   void initState() {
     super.initState();
     _startDate = widget.startDate;
     _endDate = widget.endDate;
-    
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    
-    _scaleAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
-    
     _detectSelectedPeriod();
   }
 
@@ -67,19 +54,22 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
     final today = DateTime(now.year, now.month, now.day);
     final startOfMonth = DateTime(now.year, now.month, 1);
     final startOfYear = DateTime(now.year, 1, 1);
-    
+
     final start = DateTime(_startDate.year, _startDate.month, _startDate.day);
     final end = DateTime(_endDate.year, _endDate.month, _endDate.day);
-    
+
     if (start == today && end == today) {
       _selectedPeriod = 'today';
-    } else if (start == today.subtract(const Duration(days: 6)) && end == today) {
+    } else if (start == today.subtract(const Duration(days: 6)) &&
+        end == today) {
       _selectedPeriod = 'week';
-    } else if (start == today.subtract(const Duration(days: 29)) && end == today) {
+    } else if (start == today.subtract(const Duration(days: 29)) &&
+        end == today) {
       _selectedPeriod = 'month';
     } else if (start == startOfMonth && end == today) {
       _selectedPeriod = 'thisMonth';
-    } else if (start == today.subtract(const Duration(days: 89)) && end == today) {
+    } else if (start == today.subtract(const Duration(days: 89)) &&
+        end == today) {
       _selectedPeriod = 'quarter';
     } else if (start == startOfYear && end == today) {
       _selectedPeriod = 'year';
@@ -92,10 +82,10 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
     HapticFeedback.lightImpact();
     setState(() {
       _selectedPeriod = period;
-      
+
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day, 23, 59, 59);
-      
+
       switch (period) {
         case 'today':
           _startDate = DateTime(now.year, now.month, now.day);
@@ -122,7 +112,7 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
           _endDate = today;
           break;
       }
-      
+
       if (period != 'custom') {
         widget.onPeriodChanged?.call(_startDate, _endDate);
       }
@@ -147,15 +137,17 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
             ),
             dialogBackgroundColor: AppTheme.darkCard,
             textTheme: TextTheme(
-              headlineMedium: AppTextStyles.heading3.copyWith(color: AppTheme.textWhite),
-              bodyLarge: AppTextStyles.bodyMedium.copyWith(color: AppTheme.textLight),
+              headlineMedium:
+                  AppTextStyles.heading3.copyWith(color: AppTheme.textWhite),
+              bodyLarge:
+                  AppTextStyles.bodyMedium.copyWith(color: AppTheme.textLight),
             ),
           ),
           child: child!,
         );
       },
     );
-    
+
     if (picked != null) {
       setState(() {
         _startDate = picked.start;
@@ -174,13 +166,13 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.darkCard.withOpacity(0.8),
-            AppTheme.darkCard.withOpacity(0.6),
+            AppTheme.darkCard.withValues(alpha: 0.8),
+            AppTheme.darkCard.withValues(alpha: 0.6),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -195,12 +187,14 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
               children: [
                 // Main Period Display
                 _buildMainDisplay(),
-                
+
                 // Period Options (Expandable)
                 AnimatedSize(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
-                  child: _isExpanded ? _buildPeriodOptions() : const SizedBox.shrink(),
+                  child: _isExpanded
+                      ? _buildPeriodOptions()
+                      : const SizedBox.shrink(),
                 ),
               ],
             ),
@@ -210,7 +204,6 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
     );
   }
 
-  /// 🎯 Main Display
   Widget _buildMainDisplay() {
     return GestureDetector(
       onTap: () {
@@ -231,13 +224,13 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppTheme.primaryCyan.withOpacity(0.1),
-              AppTheme.primaryPurple.withOpacity(0.1),
+              AppTheme.primaryCyan.withValues(alpha: 0.1),
+              AppTheme.primaryPurple.withValues(alpha: 0.1),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.primaryCyan.withOpacity(0.3),
+            color: AppTheme.primaryCyan.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -248,7 +241,7 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: AppTheme.primaryCyan.withOpacity(0.2),
+                color: AppTheme.primaryCyan.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
@@ -257,9 +250,9 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
                 size: 20,
               ),
             ),
-            
+
             const SizedBox(width: 12),
-            
+
             // Date Range Display
             Expanded(
               child: Column(
@@ -299,7 +292,7 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
                 ],
               ),
             ),
-            
+
             // Expand/Collapse Icon
             AnimatedRotation(
               turns: _isExpanded ? 0.5 : 0,
@@ -316,12 +309,11 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
     );
   }
 
-  /// 📋 Period Options
   Widget _buildPeriodOptions() {
     return Column(
       children: [
         const SizedBox(height: 16),
-        
+
         // Quick Select Buttons
         Wrap(
           spacing: 8,
@@ -330,14 +322,16 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
             _buildPeriodChip('اليوم', 'today', CupertinoIcons.sun_max_fill),
             _buildPeriodChip('أسبوع', 'week', CupertinoIcons.calendar_today),
             _buildPeriodChip('شهر', 'month', CupertinoIcons.calendar),
-            _buildPeriodChip('هذا الشهر', 'thisMonth', CupertinoIcons.calendar_badge_plus),
-            _buildPeriodChip('ربع سنة', 'quarter', CupertinoIcons.chart_bar_square),
+            _buildPeriodChip(
+                'هذا الشهر', 'thisMonth', CupertinoIcons.calendar_badge_plus),
+            _buildPeriodChip(
+                'ربع سنة', 'quarter', CupertinoIcons.chart_bar_square),
             _buildPeriodChip('سنة', 'year', CupertinoIcons.calendar_circle),
           ],
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Custom Date Range Button
         GestureDetector(
           onTap: _selectCustomDateRange,
@@ -349,15 +343,15 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
                   ? AppTheme.primaryGradient
                   : LinearGradient(
                       colors: [
-                        AppTheme.darkBackground.withOpacity(0.5),
-                        AppTheme.darkBackground.withOpacity(0.3),
+                        AppTheme.darkBackground.withValues(alpha: 0.5),
+                        AppTheme.darkBackground.withValues(alpha: 0.3),
                       ],
                     ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _selectedPeriod == 'custom'
-                    ? AppTheme.primaryCyan.withOpacity(0.5)
-                    : AppTheme.darkBorder.withOpacity(0.3),
+                    ? AppTheme.primaryCyan.withValues(alpha: 0.5)
+                    : AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -389,10 +383,9 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
     );
   }
 
-  /// 📅 Period Chip
   Widget _buildPeriodChip(String label, String value, IconData icon) {
     final isSelected = _selectedPeriod == value;
-    
+
     return GestureDetector(
       onTap: () => _selectPeriod(value),
       child: AnimatedContainer(
@@ -402,17 +395,19 @@ class _PeriodSelectorWidgetState extends State<PeriodSelectorWidget>
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    AppTheme.primaryCyan.withOpacity(0.3),
-                    AppTheme.primaryPurple.withOpacity(0.3),
+                    AppTheme.primaryCyan.withValues(alpha: 0.3),
+                    AppTheme.primaryPurple.withValues(alpha: 0.3),
                   ],
                 )
               : null,
-          color: isSelected ? null : AppTheme.darkBackground.withOpacity(0.5),
+          color: isSelected
+              ? null
+              : AppTheme.darkBackground.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isSelected
-                ? AppTheme.primaryCyan.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.2),
+                ? AppTheme.primaryCyan.withValues(alpha: 0.5)
+                : AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 1,
           ),
         ),

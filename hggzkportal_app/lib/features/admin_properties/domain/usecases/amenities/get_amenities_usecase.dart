@@ -8,6 +8,7 @@ import '../../entities/amenity.dart';
 import '../../repositories/amenities_repository.dart';
 
 class GetAmenitiesParams {
+  /// العربية: يخزن القيمة `pageNumber`.
   final int? pageNumber;
   final int? pageSize;
   final String? searchTerm;
@@ -15,7 +16,6 @@ class GetAmenitiesParams {
   final bool? isAssigned;
   final bool? isFree;
   final String? propertyTypeId;
-  
   GetAmenitiesParams({
     this.pageNumber = 1,
     this.pageSize = 10,
@@ -27,13 +27,13 @@ class GetAmenitiesParams {
   });
 }
 
-class GetAmenitiesUseCase implements UseCase<PaginatedResult<Amenity>, GetAmenitiesParams> {
+class GetAmenitiesUseCase
+    implements UseCase<PaginatedResult<Amenity>, GetAmenitiesParams> {
   final AmenitiesRepository repository;
-  
   GetAmenitiesUseCase(this.repository);
-  
   @override
-  Future<Either<Failure, PaginatedResult<Amenity>>> call(GetAmenitiesParams params) async {
+  Future<Either<Failure, PaginatedResult<Amenity>>> call(
+      GetAmenitiesParams params) async {
     return await repository.getAllAmenities(
       pageNumber: params.pageNumber,
       pageSize: params.pageSize,

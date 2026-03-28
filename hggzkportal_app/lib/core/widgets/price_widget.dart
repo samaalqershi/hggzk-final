@@ -3,19 +3,55 @@ import '../theme/app_theme.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_dimensions.dart';
 
+/// يعرض السعر بمرونة عبر عدة أوضاع مثل السعر العادي أو المخفض أو المفصل.
+/// Renders prices in multiple layouts such as normal, discounted, compact, or detailed views.
 class PriceWidget extends StatelessWidget {
+  /// السعر الحالي الذي تريد الواجهة عرضه.
+  /// The current price value shown by the widget.
   final double price;
+
+  /// السعر الأصلي عندما نحتاج لإظهار الخصم أو المقارنة.
+  /// Original price used when a discount or comparison is needed.
   final double? originalPrice;
+
+  /// رمز العملة المعروض بجانب السعر.
+  /// Currency code shown alongside the price.
   final String currency;
+
+  /// يحدد أسلوب العرض المناسب للسياق الحالي.
+  /// Chooses the price layout that best fits the current context.
   final PriceDisplayType displayType;
+
+  /// نمط نصي اختياري للسعر الأساسي.
+  /// Optional text style for the main price.
   final TextStyle? priceStyle;
+
+  /// نمط نصي اختياري للسعر الأصلي عندما يظهر بجانب السعر الحالي.
+  /// Optional text style for the original price when shown.
   final TextStyle? originalPriceStyle;
+
+  /// نمط نصي اختياري لرمز العملة أو النص المرافق.
+  /// Optional text style for the currency label or accompanying text.
   final TextStyle? currencyStyle;
+
+  /// فترة زمنية اختيارية مثل الليلة أو الشهر.
+  /// Optional period label such as night or month.
   final String? period;
+
+  /// يحدد ما إذا كان رمز العملة سيظهر أم لا.
+  /// Controls whether the currency symbol is rendered.
   final bool showCurrencySymbol;
+
+  /// محاذاة صف السعر داخل الحاوية.
+  /// Row alignment used for the price layout.
   final MainAxisAlignment alignment;
+
+  /// يفعّل عدًا بصريًا من الصفر إلى السعر النهائي.
+  /// Enables a visual count-up animation toward the final price.
   final bool animate;
 
+  /// Creates a price display that adapts to plain, discounted, and detailed views.
+  /// ينشئ عرض سعر يتكيف مع الأوضاع العادية والمخفضة والمفصلة.
   const PriceWidget({
     super.key,
     required this.price,
@@ -31,6 +67,8 @@ class PriceWidget extends StatelessWidget {
     this.animate = false,
   });
 
+  /// Chooses the requested layout variant and renders the price accordingly.
+  /// يختار نمط العرض المطلوب ويظهر السعر بناءً عليه.
   @override
   Widget build(BuildContext context) {
     switch (displayType) {
@@ -45,6 +83,8 @@ class PriceWidget extends StatelessWidget {
     }
   }
 
+  /// Renders the common price row used across cards and details pages.
+  /// يعرض صف السعر الشائع المستخدم في البطاقات وصفحات التفاصيل.
   Widget _buildNormalPrice(BuildContext context) {
     final Widget priceWidget = Row(
       mainAxisAlignment: alignment,
@@ -58,9 +98,10 @@ class PriceWidget extends StatelessWidget {
           const SizedBox(width: AppDimensions.spaceXSmall),
           Text(
             currency,
-            style: currencyStyle ?? AppTextStyles.bodyMedium.copyWith(
-              fontWeight: FontWeight.normal,
-            ),
+            style: currencyStyle ??
+                AppTextStyles.bodyMedium.copyWith(
+                  fontWeight: FontWeight.normal,
+                ),
           ),
         ],
         if (period != null) ...[
@@ -92,9 +133,10 @@ class PriceWidget extends StatelessWidget {
                 const SizedBox(width: AppDimensions.spaceXSmall),
                 Text(
                   currency,
-                  style: currencyStyle ?? AppTextStyles.bodyMedium.copyWith(
-                    fontWeight: FontWeight.normal,
-                  ),
+                  style: currencyStyle ??
+                      AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.normal,
+                      ),
                 ),
               ],
             ],
@@ -105,13 +147,12 @@ class PriceWidget extends StatelessWidget {
 
     return priceWidget;
   }
-
   Widget _buildDiscountPrice(BuildContext context) {
     if (originalPrice == null || originalPrice == price) {
       return _buildNormalPrice(context);
     }
 
-    final double discountPercentage = 
+    final double discountPercentage =
         ((originalPrice! - price) / originalPrice! * 100);
 
     return Column(
@@ -124,18 +165,20 @@ class PriceWidget extends StatelessWidget {
           children: [
             Text(
               _formatPrice(price),
-              style: priceStyle ?? AppTextStyles.heading1.copyWith(
-                color: AppTheme.success,
-              ),
+              style: priceStyle ??
+                  AppTextStyles.heading1.copyWith(
+                    color: AppTheme.success,
+                  ),
             ),
             if (showCurrencySymbol) ...[
               const SizedBox(width: AppDimensions.spaceXSmall),
               Text(
                 currency,
-                style: currencyStyle ?? AppTextStyles.bodyMedium.copyWith(
-                  fontWeight: FontWeight.normal,
-                  color: AppTheme.success,
-                ),
+                style: currencyStyle ??
+                    AppTextStyles.bodyMedium.copyWith(
+                      fontWeight: FontWeight.normal,
+                      color: AppTheme.success,
+                    ),
               ),
             ],
             const SizedBox(width: AppDimensions.spaceSmall),
@@ -146,7 +189,8 @@ class PriceWidget extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 color: AppTheme.success.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(AppDimensions.borderRadiusXs),
+                borderRadius:
+                    BorderRadius.circular(AppDimensions.borderRadiusXs),
               ),
               child: Text(
                 '${discountPercentage.toStringAsFixed(0)}% خصم',
@@ -164,10 +208,11 @@ class PriceWidget extends StatelessWidget {
           children: [
             Text(
               _formatPrice(originalPrice!),
-              style: originalPriceStyle ?? AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted,
-                decoration: TextDecoration.lineThrough,
-              ),
+              style: originalPriceStyle ??
+                  AppTextStyles.bodyMedium.copyWith(
+                    color: AppTheme.textMuted,
+                    decoration: TextDecoration.lineThrough,
+                  ),
             ),
             if (showCurrencySymbol) ...[
               const SizedBox(width: AppDimensions.spaceXSmall),
@@ -184,7 +229,6 @@ class PriceWidget extends StatelessWidget {
       ],
     );
   }
-
   Widget _buildCompactPrice(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -218,7 +262,6 @@ class PriceWidget extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildDetailedPrice(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -278,7 +321,6 @@ class PriceWidget extends StatelessWidget {
       ),
     );
   }
-
   String _formatPrice(double value) {
     if (value >= 1000000) {
       return '${(value / 1000000).toStringAsFixed(1)}M';
@@ -288,7 +330,6 @@ class PriceWidget extends StatelessWidget {
     return value.toStringAsFixed(0);
   }
 }
-
 enum PriceDisplayType {
   normal,
   discount,

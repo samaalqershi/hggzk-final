@@ -22,20 +22,47 @@ import '../widgets/notification_filter_widget.dart';
 import '../widgets/notification_badge_widget.dart';
 import '../../domain/entities/notification.dart';
 
+/// تعرض قائمة الإشعارات الكاملة مع الفلاتر والعمليات السريعة مثل وضع
+/// الإشعار كمقروء أو إخفائه، وتستمع أيضًا لطلبات التمرير لتحميل المزيد.
+/// Shows the full notifications feed with filters and quick actions such as
+/// marking items as read or dismissing them, and listens for scroll events to
+/// load more items.
 class NotificationsPage extends StatefulWidget {
+  /// ينشئ صفحة الإشعارات الرئيسية في التطبيق.
+  /// Creates the main notifications page in the app.
   const NotificationsPage({super.key});
 
+  /// ينشئ الحالة التي تدير التحميل، التمرير، والفلاتر داخل الصفحة.
+  /// Creates the state object that manages loading, scrolling, and filters on
+  /// the page.
   @override
   State<NotificationsPage> createState() => _NotificationsPageState();
 }
 
+/// تدير دورة حياة شاشة الإشعارات وربطها بالفلاتر والتحميل المرحلي.
+/// Manages the notifications screen lifecycle and ties it to filtering and
+/// incremental loading.
 class _NotificationsPageState extends State<NotificationsPage>
     with SingleTickerProviderStateMixin {
+  /// متحكم حركة قصير العمر يُستخدم لتنسيق انتقالات الواجهة.
+  /// Short-lived animation controller used to coordinate UI motion.
   late AnimationController _animationController;
+
+  /// يراقب التمرير لاكتشاف لحظة الوصول إلى نهاية القائمة.
+  /// Watches scrolling to detect when the user reaches the list end.
   final ScrollController _scrollController = ScrollController();
+
+  /// نوع الإشعارات المختار حاليًا، إن كان المستخدم قد فعّل فلترًا.
+  /// Currently selected notification type, when a filter is active.
   String? _selectedType;
+
+  /// يحدد ما إذا كانت الواجهة تعرض الإشعارات غير المقروءة فقط.
+  /// Indicates whether the view is showing unread notifications only.
   bool _showUnreadOnly = false;
 
+  /// يهيئ الحركة ويبدأ تحميل البيانات وربط التمرير بالتوسعة التدريجية.
+  /// Initializes the animation, starts loading data, and binds scroll handling
+  /// to incremental loading.
   @override
   void initState() {
     super.initState();
@@ -47,6 +74,10 @@ class _NotificationsPageState extends State<NotificationsPage>
     _setupScrollListener();
   }
 
+  /// Arabic: يطلب الصفحة الأولى من الإشعارات ويعيد تحديث العدّاد غير
+  /// المقروء.
+  /// English: Requests the first page of notifications and refreshes the
+  /// unread counter.
   void _loadNotifications() {
     context.read<NotificationBloc>().add(
           LoadNotificationsEvent(
@@ -57,6 +88,9 @@ class _NotificationsPageState extends State<NotificationsPage>
     context.read<NotificationBloc>().add(const LoadUnreadCountEvent());
   }
 
+  /// Arabic: يضيف مستمعًا للتمرير ليحمل دفعات جديدة عند الاقتراب من النهاية.
+  /// English: Adds a scroll listener that loads additional pages near the end
+  /// of the list.
   void _setupScrollListener() {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -75,12 +109,21 @@ class _NotificationsPageState extends State<NotificationsPage>
   }
 
   @override
+
+  /// Arabic: يحرر المتحكمات المرتبطة بالشاشة عند مغادرتها.
+  /// English: Releases the screen's controllers when the page is disposed.
+  @override
   void dispose() {
     _animationController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
+  @override
+
+  /// Arabic: يبني هيكل الصفحة مع الشريط والفلاتر وقائمة الإشعارات.
+  /// English: Builds the page structure with the app bar, filters, and
+  /// notifications list.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,6 +142,9 @@ class _NotificationsPageState extends State<NotificationsPage>
     );
   }
 
+  /// Arabic: يبني الشريط العلوي المتدرج مع العنوان والعداد والاختصارات.
+  /// English: Builds the gradient sliver app bar with title, unread counter,
+  /// and shortcuts.
   Widget _buildSliverAppBar() {
     return SliverAppBar(
       expandedHeight: 140,
@@ -178,6 +224,10 @@ class _NotificationsPageState extends State<NotificationsPage>
     );
   }
 
+  /// Arabic: يبني زرًا صغيرًا في الشريط العلوي لفتح إعدادات أو إجراءات
+  /// سريعة.
+  /// English: Builds a compact top-bar button for settings or other quick
+  /// actions.
   Widget _buildActionButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -213,6 +263,10 @@ class _NotificationsPageState extends State<NotificationsPage>
     );
   }
 
+  /// Arabic: يضع شريط الفلاتر أسفل العنوان ليضبط نوع الإشعارات وحالة
+  /// القراءة.
+  /// English: Places the filter strip below the header to control type and
+  /// read-state filtering.
   Widget _buildFilterSection() {
     return SliverToBoxAdapter(
       child: Padding(
@@ -232,6 +286,10 @@ class _NotificationsPageState extends State<NotificationsPage>
     );
   }
 
+  /// Arabic: يبني المحتوى الرئيسي حسب حالة bloc، من التحميل إلى الفراغ إلى
+  /// العناصر الفعلية.
+  /// English: Builds the main content according to the bloc state, from
+  /// loading to empty state to actual items.
   Widget _buildNotificationsList() {
     return BlocBuilder<NotificationBloc, NotificationState>(
       buildWhen: (previous, current) {
@@ -342,6 +400,9 @@ class _NotificationsPageState extends State<NotificationsPage>
     );
   }
 
+  /// Arabic: يطبق فلاتر النوع وحالة القراءة على قائمة الإشعارات الحالية.
+  /// English: Applies type and unread-state filters to the current
+  /// notification list.
   List<NotificationEntity> _filterNotifications(
       List<NotificationEntity> notifications) {
     var filtered = notifications;
@@ -359,6 +420,10 @@ class _NotificationsPageState extends State<NotificationsPage>
     return filtered;
   }
 
+  /// Arabic: يفتح تفاصيل الإشعار، ويعلّم الإشعار كمقروء قبل عرض اللوحة
+  /// السفلية.
+  /// English: Opens notification details and marks the item as read before
+  /// showing the bottom sheet.
   void _openNotificationDetails(NotificationEntity notification) {
     _markAsRead(notification.id);
 
@@ -371,6 +436,10 @@ class _NotificationsPageState extends State<NotificationsPage>
     _showNotificationDetailsSheet(notification);
   }
 
+  /// Arabic: يعرض لوحة تفاصيل من الأسفل تشرح الرسالة وتمنح اختصارات
+  /// التفاعل.
+  /// English: Shows a bottom sheet with the notification message and action
+  /// shortcuts.
   void _showNotificationDetailsSheet(NotificationEntity notification) {
     showModalBottomSheet(
       context: context,
@@ -457,6 +526,10 @@ class _NotificationsPageState extends State<NotificationsPage>
     );
   }
 
+  /// Arabic: يختار أيقونة ولون الإشعار بناءً على الفئة المنطقية المستخرجة من
+  /// نوعه الخام.
+  /// English: Chooses the notification icon and color by mapping the raw type
+  /// to a logical category.
   Widget _buildNotificationIcon(String type) {
     final IconData icon;
     final List<Color> gradient;
@@ -507,6 +580,10 @@ class _NotificationsPageState extends State<NotificationsPage>
     );
   }
 
+  /// Arabic: يحول نوع الإشعار الخام إلى فئة مستقرة يمكن للواجهة أن تبني
+  /// عليها الشكل والأيقونة.
+  /// English: Converts the raw notification type into a stable category that
+  /// the UI can use for iconography and styling.
   String _mapTypeToCategory(String rawType) {
     final String t = rawType.trim();
     if (t.isEmpty) return 'other';
@@ -524,6 +601,10 @@ class _NotificationsPageState extends State<NotificationsPage>
     return 'other';
   }
 
+  /// Arabic: يبني أزرارًا سياقية داخل التفاصيل، مثل الانتقال للصفحة
+  /// المرتبطة أو إغلاق اللوحة.
+  /// English: Builds contextual action buttons inside the details sheet, such
+  /// as navigating to the related page or closing the panel.
   Widget _buildActionButtons(NotificationEntity notification) {
     return Row(
       children: [
@@ -588,12 +669,16 @@ class _NotificationsPageState extends State<NotificationsPage>
     );
   }
 
+  /// Arabic: يرسل حدثًا إلى bloc لوضع الإشعار كمقروء.
+  /// English: Sends a bloc event to mark the notification as read.
   void _markAsRead(String notificationId) {
     context.read<NotificationBloc>().add(
           MarkNotificationAsReadEvent(notificationId: notificationId),
         );
   }
 
+  /// Arabic: يعلّم جميع الإشعارات كمقروءة بعد اهتزاز خفيف لتأكيد الفعل.
+  /// English: Marks every notification as read after a light haptic cue.
   void _markAllAsRead() {
     HapticFeedback.mediumImpact();
     context.read<NotificationBloc>().add(
@@ -601,14 +686,19 @@ class _NotificationsPageState extends State<NotificationsPage>
         );
   }
 
+  /// Arabic: يرسل حدثًا لإخفاء إشعار واحد من القائمة الحالية.
+  /// English: Sends an event to dismiss a single notification from the
+  /// current list.
   void _dismissNotification(String notificationId) {
     context.read<NotificationBloc>().add(
           DismissNotificationEvent(notificationId: notificationId),
         );
   }
 
+  /// Arabic: يحول الوقت إلى صيغة بسيطة يسهل قراءتها داخل بطاقة التفاصيل.
+  /// English: Formats the timestamp into a simple, readable string for the
+  /// details card.
   String _formatDateTime(DateTime dateTime) {
-    // Format date and time nicely
     return '${dateTime.day}/${dateTime.month}/${dateTime.year} - ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 }

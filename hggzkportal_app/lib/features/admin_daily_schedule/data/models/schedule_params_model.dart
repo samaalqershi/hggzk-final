@@ -4,21 +4,34 @@ import '../../domain/entities/daily_schedule.dart';
 /// نموذج طلب تحديث الجدول - للإرسال إلى API
 class UpdateScheduleRequestModel {
   /// تاريخ البداية
+  /// العربية: يخزن القيمة `startDate`.
   final DateTime startDate;
 
   /// تاريخ النهاية
   final DateTime endDate;
+
   final ScheduleStatus? status;
+
   final String? reason;
+
   final String? notes;
+
   final double? priceAmount;
+
   final String? currency;
+
   final PriceType? priceType;
+
   final PricingTier? pricingTier;
+
   final double? percentageChange;
+
   final double? minPrice;
+
   final double? maxPrice;
+
   final String? startTime;
+
   final String? endTime;
 
   /// هل يتم الكتابة فوق السجلات الحالية في نفس الفترة
@@ -75,7 +88,8 @@ class UpdateScheduleRequestModel {
       if (priceAmount != null) 'PriceAmount': priceAmount,
       if (currency != null) 'Currency': currency,
       if (priceType != null) 'PriceType': _priceTypeToString(priceType!),
-      if (pricingTier != null) 'PricingTier': _pricingTierToString(pricingTier!),
+      if (pricingTier != null)
+        'PricingTier': _pricingTierToString(pricingTier!),
       if (percentageChange != null) 'PercentageChange': percentageChange,
       if (minPrice != null) 'MinPrice': minPrice,
       if (maxPrice != null) 'MaxPrice': maxPrice,
@@ -138,19 +152,33 @@ class UpdateScheduleRequestModel {
 
 /// نموذج طلب التحديث المجمع للجدول - للإرسال إلى API
 class BulkUpdateScheduleRequestModel {
+  /// العربية: يخزن القيمة `startDate`.
   final DateTime startDate;
+
   final DateTime endDate;
+
   final ScheduleStatus? status;
+
   final String? reason;
+
   final String? notes;
+
   final double? priceAmount;
+
   final String? currency;
+
   final PriceType? priceType;
+
   final PricingTier? pricingTier;
+
   final double? percentageChange;
+
   final double? minPrice;
+
   final double? maxPrice;
+
   final List<int>? daysOfWeek;
+
   final bool? skipBooked;
 
   const BulkUpdateScheduleRequestModel({
@@ -205,7 +233,8 @@ class BulkUpdateScheduleRequestModel {
       if (priceType != null)
         'PriceType': UpdateScheduleRequestModel._priceTypeToString(priceType!),
       if (pricingTier != null)
-        'PricingTier': UpdateScheduleRequestModel._pricingTierToString(pricingTier!),
+        'PricingTier':
+            UpdateScheduleRequestModel._pricingTierToString(pricingTier!),
       if (percentageChange != null) 'PercentageChange': percentageChange,
       if (minPrice != null) 'MinPrice': minPrice,
       if (maxPrice != null) 'MaxPrice': maxPrice,
@@ -217,7 +246,9 @@ class BulkUpdateScheduleRequestModel {
 
 /// نموذج طلب التحقق من التوافر - للإرسال إلى API
 class CheckAvailabilityRequestModel {
+  /// العربية: يخزن القيمة `startDate`.
   final DateTime startDate;
+
   final DateTime endDate;
 
   const CheckAvailabilityRequestModel({
@@ -245,6 +276,7 @@ class CheckAvailabilityRequestModel {
 
 /// نموذج استجابة التحقق من التوافر - من API (يمتد من Entity)
 class CheckAvailabilityResponseModel extends CheckAvailabilityResponse {
+  /// العربية: ينشئ مثيلًا جديدًا من `CheckAvailabilityResponseModel`.
   const CheckAvailabilityResponseModel({
     required super.isAvailable,
     required super.nights,
@@ -259,9 +291,7 @@ class CheckAvailabilityResponseModel extends CheckAvailabilityResponse {
   factory CheckAvailabilityResponseModel.fromJson(Map<String, dynamic> json) {
     final unavailableDatesJson = json['UnavailableDates'] as List<dynamic>?;
     final unavailableDates = unavailableDatesJson != null
-        ? unavailableDatesJson
-            .map((e) => DateTime.parse(e as String))
-            .toList()
+        ? unavailableDatesJson.map((e) => DateTime.parse(e as String)).toList()
         : <DateTime>[];
 
     return CheckAvailabilityResponseModel(
@@ -293,8 +323,11 @@ class CheckAvailabilityResponseModel extends CheckAvailabilityResponse {
 
 /// نموذج طلب حساب السعر الإجمالي - للإرسال إلى API
 class CalculateTotalPriceRequestModel {
+  /// العربية: يخزن القيمة `startDate`.
   final DateTime startDate;
+
   final DateTime endDate;
+
   final String? currency;
 
   const CalculateTotalPriceRequestModel({
@@ -315,9 +348,13 @@ class CalculateTotalPriceRequestModel {
 
 /// نموذج استجابة حساب السعر الإجمالي - من API
 class CalculateTotalPriceResponseModel {
+  /// العربية: يخزن القيمة `totalPrice`.
   final double totalPrice;
+
   final String currency;
+
   final int numberOfDays;
+
   final List<DailyPriceBreakdown>? breakdown;
 
   const CalculateTotalPriceResponseModel({
@@ -328,8 +365,7 @@ class CalculateTotalPriceResponseModel {
   });
 
   /// تحويل من JSON إلى Model
-  factory CalculateTotalPriceResponseModel.fromJson(
-      Map<String, dynamic> json) {
+  factory CalculateTotalPriceResponseModel.fromJson(Map<String, dynamic> json) {
     final breakdownJson = json['Breakdown'] as List<dynamic>?;
     final breakdown = breakdownJson
         ?.map((e) => DailyPriceBreakdown.fromJson(e as Map<String, dynamic>))
@@ -349,15 +385,19 @@ class CalculateTotalPriceResponseModel {
       'TotalPrice': totalPrice,
       'Currency': currency,
       'NumberOfDays': numberOfDays,
-      if (breakdown != null) 'Breakdown': breakdown!.map((e) => e.toJson()).toList(),
+      if (breakdown != null)
+        'Breakdown': breakdown!.map((e) => e.toJson()).toList(),
     };
   }
 }
 
 /// تفاصيل سعر اليوم الواحد
 class DailyPriceBreakdown {
+  /// العربية: يخزن القيمة `date`.
   final DateTime date;
+
   final double price;
+
   final String? priceType;
 
   const DailyPriceBreakdown({

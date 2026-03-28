@@ -3,15 +3,22 @@ import '../../../admin_users/domain/entities/user.dart';
 import '../../../admin_properties/domain/entities/property.dart';
 import '../../../admin_units/domain/entities/unit.dart';
 import '../../../admin_cities/domain/entities/city.dart';
-import '../pages/user_search_page.dart';
-import '../../../admin_notifications/presentation/pages/user_selector_page.dart' as an_selector;
+import '../../../admin_notifications/presentation/pages/user_selector_page.dart'
+    as an_selector;
 import '../pages/property_search_page.dart';
 import '../pages/unit_search_page.dart';
 import '../pages/city_search_page.dart';
 import '../pages/booking_search_page.dart';
 
+/// يجمع مسارات البحث المتكررة في واجهة واحدة حتى تستخدم الشاشات
+/// نفس سلوك الانتقال والاختيار بدل تكراره في كل صفحة.
+/// Groups repeated search flows behind one helper so screens reuse
+/// the same navigation and selection behavior instead of duplicating it.
 class SearchNavigationHelper {
-  // البحث عن مستخدم واحد
+  /// يفتح منتقي المستخدمين ويعيد مستخدمًا واحدًا عندما يكون الربط
+  /// فرديًا.
+  /// Opens the user picker and returns a single user when the
+  /// relation is one-to-one.
   static Future<User?> searchSingleUser(
     BuildContext context, {
     String? initialSearchTerm,
@@ -30,7 +37,10 @@ class SearchNavigationHelper {
     return result;
   }
 
-  // البحث عن مستخدمين متعددين
+  /// يفتح منتقي المستخدمين في وضع التحديد المتعدد عندما تحتاج
+  /// العملية إلى أكثر من مستخدم.
+  /// Opens the user picker in multi-select mode when the workflow
+  /// needs more than one user.
   static Future<List<User>?> searchMultipleUsers(
     BuildContext context, {
     String? initialSearchTerm,
@@ -49,7 +59,9 @@ class SearchNavigationHelper {
     return result;
   }
 
-  // البحث عن عقار واحد
+  /// يمرر البحث إلى شاشة العقارات ويعيد عقارًا واحدًا بعد الاختيار.
+  /// Delegates the search to the property screen and returns one
+  /// property after selection.
   static Future<Property?> searchSingleProperty(
     BuildContext context, {
     String? initialSearchTerm,
@@ -68,7 +80,10 @@ class SearchNavigationHelper {
     return result;
   }
 
-  // البحث عن عقارات متعددة
+  /// يستخدم شاشة العقارات في وضع متعدد عندما يتطلب التدفق أكثر من
+  /// عقار.
+  /// Uses the property screen in multi-select mode when the flow
+  /// needs several properties.
   static Future<List<Property>?> searchMultipleProperties(
     BuildContext context, {
     String? initialSearchTerm,
@@ -87,7 +102,9 @@ class SearchNavigationHelper {
     return result;
   }
 
-  // البحث عن وحدة واحدة
+  /// يفتح شاشة الوحدات مع إمكانية تقييدها بالعقار الحالي.
+  /// Opens the unit screen and can constrain it to the current
+  /// property.
   static Future<Unit?> searchSingleUnit(
     BuildContext context, {
     String? initialSearchTerm,
@@ -108,7 +125,9 @@ class SearchNavigationHelper {
     return result;
   }
 
-  // البحث عن وحدات متعددة
+  /// يعيد مجموعة وحدات مختارة عندما يكون الربط جماعيًا.
+  /// Exposes a selected group of units when the relation is
+  /// multi-valued.
   static Future<List<Unit>?> searchMultipleUnits(
     BuildContext context, {
     String? initialSearchTerm,
@@ -129,7 +148,8 @@ class SearchNavigationHelper {
     return result;
   }
 
-  // البحث عن مدينة واحدة
+  /// يفتح منتقي المدن ويمكن تقييده بدولة معينة لتقليل نطاق البحث.
+  /// Opens the city picker and can narrow the search to one country.
   static Future<City?> searchSingleCity(
     BuildContext context, {
     String? initialSearchTerm,
@@ -150,7 +170,9 @@ class SearchNavigationHelper {
     return result;
   }
 
-  // البحث عن مدن متعددة
+  /// يتيح اختيار أكثر من مدينة عندما تحتاج الفلاتر إلى نطاق أوسع.
+  /// Allows selecting multiple cities when filters need broader
+  /// geographic coverage.
   static Future<List<City>?> searchMultipleCities(
     BuildContext context, {
     String? initialSearchTerm,
@@ -171,7 +193,10 @@ class SearchNavigationHelper {
     return result;
   }
 
-  // البحث عن حجز واحد
+  /// يربط البحث بالحجوزات ويعيد حجزًا واحدًا مع إمكان تضييق النتائج
+  /// بواسطة المستخدم أو الوحدة.
+  /// Connects the booking search and returns one booking while
+  /// optionally narrowing results by user or unit.
   static Future<Map<String, dynamic>?> searchSingleBooking(
     BuildContext context, {
     String? initialSearchTerm,
@@ -194,7 +219,10 @@ class SearchNavigationHelper {
     return result;
   }
 
-  // البحث عن حجوزات متعددة
+  /// يفتح البحث متعدد الاختيار للحجوزات عندما تتطلب العملية قائمة
+  /// بدل سجل واحد.
+  /// Opens the booking picker in multi-select mode when the workflow
+  /// needs a list instead of a single record.
   static Future<List<Map<String, dynamic>>?> searchMultipleBookings(
     BuildContext context, {
     String? initialSearchTerm,

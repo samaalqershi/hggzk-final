@@ -5,13 +5,31 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 
+/// يمثل هذا الكلاس UnitFormWidget البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitFormWidget in the admin unit workflow.
 class UnitFormWidget extends StatefulWidget {
+  /// Callback fired when the selected property changes so dependent unit types can be refreshed.
+  /// استدعاء يُستخدم عند تغيير العقار المحدد لكي تُعاد تهيئة أنواع الوحدات المرتبطة به.
   final Function(String) onPropertyChanged;
+
+  /// Callback fired when the selected unit type changes so the form can load the matching fields.
+  /// استدعاء يُستخدم عند تغيير نوع الوحدة حتى تُحمَّل الحقول المرتبطة بهذا النوع.
   final Function(String) onUnitTypeChanged;
+
+  /// يحتفظ هذا الحقل بقيمة initialPropertyId التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the initialPropertyId value used by the admin unit workflow.
   final String? initialPropertyId;
+
+  /// يحتفظ هذا الحقل بقيمة initialUnitTypeId التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the initialUnitTypeId value used by the admin unit workflow.
   final String? initialUnitTypeId;
+
+  /// يحتفظ هذا الحقل بقيمة initialName التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the initialName value used by the admin unit workflow.
   final String? initialName;
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitFormWidget.
+  /// This constructor creates an instance of UnitFormWidget.
   const UnitFormWidget({
     super.key,
     required this.onPropertyChanged,
@@ -21,31 +39,48 @@ class UnitFormWidget extends StatefulWidget {
     this.initialName,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<UnitFormWidget> createState() => _UnitFormWidgetState();
 }
 
+/// يمثل هذا الكلاس _UnitFormWidgetState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _UnitFormWidgetState in the admin unit workflow.
 class _UnitFormWidgetState extends State<UnitFormWidget>
     with SingleTickerProviderStateMixin {
   final _nameController = TextEditingController();
+
+  /// يحتفظ هذا الحقل بقيمة _selectedPropertyId التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectedPropertyId value used by the admin unit workflow.
   String? _selectedPropertyId;
+
+  /// يحتفظ هذا الحقل بقيمة _selectedUnitTypeId التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectedUnitTypeId value used by the admin unit workflow.
   String? _selectedUnitTypeId;
-  
+
+  /// يحتفظ هذا الحقل بقيمة _animationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _animationController value used by the admin unit workflow.
   late AnimationController _animationController;
+
+  /// يحتفظ هذا الحقل بقيمة _fadeAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _fadeAnimation value used by the admin unit workflow.
   late Animation<double> _fadeAnimation;
-  
+
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
     _nameController.text = widget.initialName ?? '';
     _selectedPropertyId = widget.initialPropertyId;
     _selectedUnitTypeId = widget.initialUnitTypeId;
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -53,10 +88,12 @@ class _UnitFormWidgetState extends State<UnitFormWidget>
       parent: _animationController,
       curve: Curves.easeOut,
     ));
-    
+
     _animationController.forward();
   }
 
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _nameController.dispose();
@@ -64,6 +101,8 @@ class _UnitFormWidgetState extends State<UnitFormWidget>
     super.dispose();
   }
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -74,18 +113,18 @@ class _UnitFormWidgetState extends State<UnitFormWidget>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppTheme.darkCard.withOpacity(0.5),
-              AppTheme.darkCard.withOpacity(0.3),
+              AppTheme.darkCard.withValues(alpha: 0.5),
+              AppTheme.darkCard.withValues(alpha: 0.3),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.2),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -126,18 +165,18 @@ class _UnitFormWidgetState extends State<UnitFormWidget>
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   _buildTextField(
                     label: 'اسم الوحدة',
                     controller: _nameController,
                     icon: Icons.home_rounded,
                     hint: 'أدخل اسم الوحدة',
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   _buildDropdown(
                     label: 'العقار',
                     value: _selectedPropertyId,
@@ -152,9 +191,9 @@ class _UnitFormWidgetState extends State<UnitFormWidget>
                       widget.onPropertyChanged(value!);
                     },
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   _buildDropdown(
                     label: 'نوع الوحدة',
                     value: _selectedUnitTypeId,
@@ -176,6 +215,8 @@ class _UnitFormWidgetState extends State<UnitFormWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildTextField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildTextField operation in the admin unit workflow.
   Widget _buildTextField({
     required String label,
     required TextEditingController controller,
@@ -191,13 +232,13 @@ class _UnitFormWidgetState extends State<UnitFormWidget>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkSurface.withOpacity(0.5),
-                AppTheme.darkSurface.withOpacity(0.3),
+                AppTheme.darkSurface.withValues(alpha: 0.5),
+                AppTheme.darkSurface.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -209,12 +250,12 @@ class _UnitFormWidgetState extends State<UnitFormWidget>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: Icon(
                 icon,
                 size: 20,
-                color: AppTheme.primaryBlue.withOpacity(0.7),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.7),
               ),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.all(16),
@@ -225,6 +266,8 @@ class _UnitFormWidgetState extends State<UnitFormWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildDropdown ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildDropdown operation in the admin unit workflow.
   Widget _buildDropdown({
     required String label,
     required String? value,
@@ -247,19 +290,19 @@ class _UnitFormWidgetState extends State<UnitFormWidget>
               gradient: LinearGradient(
                 colors: enabled
                     ? [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
                       ]
                     : [
-                        AppTheme.darkSurface.withOpacity(0.3),
-                        AppTheme.darkSurface.withOpacity(0.2),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.2),
                       ],
               ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: enabled
-                    ? AppTheme.darkBorder.withOpacity(0.3)
-                    : AppTheme.darkBorder.withOpacity(0.2),
+                    ? AppTheme.darkBorder.withValues(alpha: 0.3)
+                    : AppTheme.darkBorder.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -272,14 +315,14 @@ class _UnitFormWidgetState extends State<UnitFormWidget>
               decoration: InputDecoration(
                 hintText: hint,
                 hintStyle: AppTextStyles.bodyMedium.copyWith(
-                  color: AppTheme.textMuted.withOpacity(0.5),
+                  color: AppTheme.textMuted.withValues(alpha: 0.5),
                 ),
                 prefixIcon: Icon(
                   icon,
                   size: 20,
-                  color: enabled 
-                      ? AppTheme.primaryBlue.withOpacity(0.7)
-                      : AppTheme.textMuted.withOpacity(0.5),
+                  color: enabled
+                      ? AppTheme.primaryBlue.withValues(alpha: 0.7)
+                      : AppTheme.textMuted.withValues(alpha: 0.5),
                 ),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(
@@ -296,6 +339,8 @@ class _UnitFormWidgetState extends State<UnitFormWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildLabel ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildLabel operation in the admin unit workflow.
   Widget _buildLabel(String label) {
     return Row(
       children: [
@@ -316,6 +361,8 @@ class _UnitFormWidgetState extends State<UnitFormWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _getPropertyItems ضمن مسار إدارة الوحدات.
+  /// This method performs the _getPropertyItems operation in the admin unit workflow.
   List<DropdownMenuItem<String>> _getPropertyItems() {
     return [
       const DropdownMenuItem(
@@ -329,9 +376,11 @@ class _UnitFormWidgetState extends State<UnitFormWidget>
     ];
   }
 
+  /// ينفذ هذا الأسلوب عملية _getUnitTypeItems ضمن مسار إدارة الوحدات.
+  /// This method performs the _getUnitTypeItems operation in the admin unit workflow.
   List<DropdownMenuItem<String>> _getUnitTypeItems() {
     if (_selectedPropertyId == null) return [];
-    
+
     return [
       const DropdownMenuItem(
         value: 'type1',

@@ -7,21 +7,49 @@ import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../../../core/widgets/app_logo_widget.dart';
 
+/// شريط علوي مخصص للصفحة الرئيسية يجمع بين الهوية البصرية للتطبيق والعناصر
+/// العملية السريعة مثل الموقع والإشعارات والملف الشخصي.
+/// Custom home app bar that blends the product's visual identity with quick
+/// utility actions such as location, notifications, and profile access.
 class FuturisticHomeAppBar extends StatefulWidget {
+  /// يحدد ما إذا كان الشريط يُعرض بصيغته الموسعة أو المضغوطة.
+  /// Controls whether the bar is rendered in its expanded or collapsed form.
   final bool isExpanded;
-  final double scrollOffset;
-  final String? userName;
-  final String? userImage;
-  final String currentLocation;
-  final int notificationCount;
-  final VoidCallback? onLocationTap;
-  final VoidCallback? onNotificationTap;
-  final VoidCallback? onProfileTap;
 
+  /// قيمة التمرير التي تقود التحولات البصرية داخل الشريط.
+  /// Current scroll offset used to drive the bar's visual transitions.
+  final double scrollOffset;
+
+  /// اسم المستخدم الظاهر في الشريط عندما تكون البيانات متاحة.
+  /// Display name shown in the bar when user data is available.
+  final String? userName;
+
+  /// صورة المستخدم الشخصية إن وُجدت.
+  /// Profile image for the current user when available.
+  final String? userImage;
+
+  /// المدينة أو الموقع الحالي الذي يظهر كمرجع للبحث والتصفح.
+  /// Current city or location shown as context for browsing and search.
+  final String currentLocation;
+
+  /// عدد الإشعارات غير المقروءة المعروض في شارة التنبيه.
+  /// Number of unread notifications displayed in the notification badge.
+  final int notificationCount;
+
+  /// رد اختياري لفتح اختيار الموقع أو المدينة.
+  /// Optional callback used to open location or city selection.
+  final VoidCallback? onLocationTap;
+
+  /// رد اختياري للانتقال إلى شاشة الإشعارات.
+  /// Optional callback used when the notification affordance is tapped.
+  final VoidCallback? onNotificationTap;
+
+  /// رد اختياري للانتقال إلى الملف الشخصي أو إعدادات الحساب.
+  /// Optional callback used to open the profile or account area.
+  final VoidCallback? onProfileTap;
   const FuturisticHomeAppBar({
     super.key,
     required this.isExpanded,
@@ -34,7 +62,6 @@ class FuturisticHomeAppBar extends StatefulWidget {
     this.onNotificationTap,
     this.onProfileTap,
   });
-
   @override
   State<FuturisticHomeAppBar> createState() => _FuturisticHomeAppBarState();
 }
@@ -46,22 +73,23 @@ class _FuturisticHomeAppBarState extends State<FuturisticHomeAppBar>
   late AnimationController _notificationController;
   late AnimationController _particleController;
   late AnimationController _waveController;
-
   late Animation<double> _logoRotation;
   late Animation<double> _glowAnimation;
   late Animation<double> _notificationAnimation;
   late Animation<double> _waveAnimation;
-
   bool _isLocationPressed = false;
   bool _isNotificationPressed = false;
   final bool _isProfilePressed = false;
-
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
   }
 
+  /// يهيئ كل الحركات الدائمة التي تمنح الشريط إحساسه الحيوي من دون ربط
+  /// الواجهة بمنطق الأعمال.
+  /// Initializes the long-lived animations that give the bar its ambient
+  /// motion without coupling the widget to business logic.
   void _initializeAnimations() {
     _logoAnimationController = AnimationController(
       duration: const Duration(seconds: 20),
@@ -133,7 +161,8 @@ class _FuturisticHomeAppBarState extends State<FuturisticHomeAppBar>
 
   @override
   Widget build(BuildContext context) {
-    // تأثيرات انتقال خفيفة
+    // Arabic: انتقالات خفيفة مرتبطة بالتمرير.
+    // English: Subtle transitions driven by scroll.
     final opacity = 1.0 - (widget.scrollOffset / 300).clamp(0.0, 0.1); // ~0.9
     final scale = 1.0 - (widget.scrollOffset / 400).clamp(0.0, 0.05); // ~0.95
     final blur = (widget.scrollOffset / 20).clamp(0.0, 10.0);
@@ -148,7 +177,8 @@ class _FuturisticHomeAppBarState extends State<FuturisticHomeAppBar>
       elevation: 0,
       shadowColor: Colors.transparent,
 
-      // الفارق المطلوب: 90 مقابل 73
+      // Arabic: فرق الارتفاع بين الوضعين المضغوط والموسع.
+      // English: Height difference between collapsed and expanded states.
       toolbarHeight: 73,
       collapsedHeight: 73,
       expandedHeight: 90,
@@ -170,7 +200,8 @@ class _FuturisticHomeAppBarState extends State<FuturisticHomeAppBar>
             ),
             child: Stack(
               children: [
-                // Animated wave background
+                // Arabic: خلفية موجية متحركة تضيف عمقًا بصريًا.
+                // English: Animated wave background that adds visual depth.
                 Positioned.fill(
                   child: CustomPaint(
                     painter: _WaveBackgroundPainter(
@@ -180,7 +211,8 @@ class _FuturisticHomeAppBarState extends State<FuturisticHomeAppBar>
                   ),
                 ),
 
-                // Grid pattern overlay
+                // Arabic: طبقة شبكة خفيفة فوق الخلفية.
+                // English: Light grid overlay above the background.
                 Positioned.fill(
                   child: CustomPaint(
                     painter: _GridOverlayPainter(
@@ -190,7 +222,8 @@ class _FuturisticHomeAppBarState extends State<FuturisticHomeAppBar>
                   ),
                 ),
 
-                // المحتوى الرئيسي بدون حدود سفلية + Blur داخل المساحة فقط
+                // Arabic: المحتوى الرئيسي مع blur داخل المساحة فقط.
+                // English: Main content with blur confined to the app-bar area.
                 ClipRect(
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
@@ -217,7 +250,9 @@ class _FuturisticHomeAppBarState extends State<FuturisticHomeAppBar>
         _buildFuturisticLogo(scale),
         const SizedBox(width: 10),
 
-        // اسم التطبيق دائماً ظاهر بتأثير خفيف
+        // Arabic: اسم التطبيق يبقى ظاهرًا بتأثير خفيف حتى عند التمرير.
+        // English: The app name remains visible with a subtle effect while
+        // scrolling.
         AnimatedOpacity(
           opacity: opacity,
           duration: const Duration(milliseconds: 200),
@@ -251,7 +286,8 @@ class _FuturisticHomeAppBarState extends State<FuturisticHomeAppBar>
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // Glow effect
+              // Arabic: تأثير الوهج حول الشعار.
+              // English: Glow effect around the logo.
               Container(
                 width: 36 * scale,
                 height: 36 * scale,
@@ -683,12 +719,10 @@ class _FuturisticHomeAppBarState extends State<FuturisticHomeAppBar>
 class _WaveBackgroundPainter extends CustomPainter {
   final double animation;
   final Color color;
-
   _WaveBackgroundPainter({
     required this.animation,
     required this.color,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -719,12 +753,10 @@ class _WaveBackgroundPainter extends CustomPainter {
 class _GridOverlayPainter extends CustomPainter {
   final double animation;
   final double opacity;
-
   _GridOverlayPainter({
     required this.animation,
     required this.opacity,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()

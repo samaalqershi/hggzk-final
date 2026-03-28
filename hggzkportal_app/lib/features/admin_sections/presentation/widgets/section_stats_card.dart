@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../domain/entities/section.dart';
 import '../../../../core/enums/section_type.dart';
 import '../../../../core/enums/section_target.dart';
@@ -12,9 +11,13 @@ import '../../../../core/enums/section_content_type.dart';
 import '../../../../core/enums/section_display_style.dart';
 
 class SectionStatsCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `sections`.
   final List<Section> sections;
+
   final int totalCount;
+
   final VoidCallback? onRefresh;
+
   final Function(String)? onStatTap;
 
   const SectionStatsCard({
@@ -32,7 +35,9 @@ class SectionStatsCard extends StatefulWidget {
 class _SectionStatsCardState extends State<SectionStatsCard>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
+
   late AnimationController _pulseController;
+
   late List<Animation<double>> _cardAnimations;
   final ScrollController _scrollController = ScrollController();
 
@@ -717,6 +722,7 @@ class _SectionStatsCardState extends State<SectionStatsCard>
 
 // Custom painters for visual effects
 class _StatsBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
 
   _StatsBackgroundPainter({required this.animationValue});
@@ -768,7 +774,9 @@ class _StatsBackgroundPainter extends CustomPainter {
 }
 
 class _GlowPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `color`.
   final Color color;
+
   final double animationValue;
 
   _GlowPainter({required this.color, required this.animationValue});
@@ -804,7 +812,9 @@ class _GlowPainter extends CustomPainter {
 }
 
 class _SparklinePainter extends CustomPainter {
+  /// العربية: يخزن القيمة `data`.
   final List<double> data;
+
   final Gradient gradient;
 
   _SparklinePainter({required this.data, required this.gradient});

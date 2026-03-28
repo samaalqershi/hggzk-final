@@ -13,7 +13,11 @@ import '../models/attachment_model.dart';
 import '../models/conversation_model.dart';
 import '../models/message_model.dart';
 
+/// يعرّف الكلاس المجرد `ChatRemoteDataSource`.
+/// Describes the abstract `ChatRemoteDataSource` class.
 abstract class ChatRemoteDataSource {
+  /// Builds the conversation.
+  /// العربية: ينشئ conversation.
   Future<ConversationModel> createConversation({
     required List<String> participantIds,
     required String conversationType,
@@ -22,19 +26,31 @@ abstract class ChatRemoteDataSource {
     String? propertyId,
   });
 
+  /// ينفذ العملية `getConversations`.
+  /// Runs the `getConversations` operation.
   Future<List<ConversationModel>> getConversations({
     required int pageNumber,
     required int pageSize,
   });
 
+  /// ينفذ العملية `getConversationById`.
+  /// Runs the `getConversationById` operation.
   Future<ConversationModel> getConversationById(String conversationId);
 
+  /// ينفذ العملية `archiveConversation`.
+  /// Runs the `archiveConversation` operation.
   Future<void> archiveConversation(String conversationId);
 
+  /// ينفذ العملية `unarchiveConversation`.
+  /// Runs the `unarchiveConversation` operation.
   Future<void> unarchiveConversation(String conversationId);
 
+  /// ينفذ العملية `deleteConversation`.
+  /// Runs the `deleteConversation` operation.
   Future<void> deleteConversation(String conversationId);
 
+  /// ينفذ العملية `getMessages`.
+  /// Runs the `getMessages` operation.
   Future<List<MessageModel>> getMessages({
     required String conversationId,
     required int pageNumber,
@@ -42,6 +58,8 @@ abstract class ChatRemoteDataSource {
     String? beforeMessageId,
   });
 
+  /// ينفذ العملية `sendMessage`.
+  /// Runs the `sendMessage` operation.
   Future<MessageModel> sendMessage({
     required String conversationId,
     required String messageType,
@@ -51,33 +69,47 @@ abstract class ChatRemoteDataSource {
     List<String>? attachmentIds,
   });
 
+  /// ينفذ العملية `editMessage`.
+  /// Runs the `editMessage` operation.
   Future<MessageModel> editMessage({
     required String messageId,
     required String content,
   });
 
+  /// ينفذ العملية `deleteMessage`.
+  /// Runs the `deleteMessage` operation.
   Future<void> deleteMessage(String messageId);
 
+  /// ينفذ العملية `markAsRead`.
+  /// Runs the `markAsRead` operation.
   Future<void> markAsRead({
     required String conversationId,
     required List<String> messageIds,
   });
 
+  /// ينفذ العملية `addReaction`.
+  /// Runs the `addReaction` operation.
   Future<void> addReaction({
     required String messageId,
     required String reactionType,
   });
 
+  /// ينفذ العملية `removeReaction`.
+  /// Runs the `removeReaction` operation.
   Future<void> removeReaction({
     required String messageId,
     required String reactionType,
   });
 
+  /// ينفذ العملية `updateMessageStatus`.
+  /// Runs the `updateMessageStatus` operation.
   Future<void> updateMessageStatus({
     required String messageId,
     required String status,
   });
 
+  /// ينفذ العملية `uploadAttachment`.
+  /// Runs the `uploadAttachment` operation.
   Future<AttachmentModel> uploadAttachment({
     required String conversationId,
     required String filePath,
@@ -86,6 +118,8 @@ abstract class ChatRemoteDataSource {
     ProgressCallback? onSendProgress,
   });
 
+  /// ينفذ العملية `searchChats`.
+  /// Runs the `searchChats` operation.
   Future<SearchResult> searchChats({
     required String query,
     String? conversationId,
@@ -97,17 +131,27 @@ abstract class ChatRemoteDataSource {
     required int limit,
   });
 
+  /// ينفذ العملية `getAvailableUsers`.
+  /// Runs the `getAvailableUsers` operation.
   Future<List<ChatUserModel>> getAvailableUsers({
     String? userType,
     String? propertyId,
   });
 
+  /// ينفذ العملية `getAdminUsers`.
+  /// Runs the `getAdminUsers` operation.
   Future<List<ChatUserModel>> getAdminUsers();
 
+  /// ينفذ العملية `updateUserStatus`.
+  /// Runs the `updateUserStatus` operation.
   Future<void> updateUserStatus(String status);
 
+  /// ينفذ العملية `getChatSettings`.
+  /// Runs the `getChatSettings` operation.
   Future<ChatSettingsModel> getChatSettings();
 
+  /// ينفذ العملية `updateChatSettings`.
+  /// Runs the `updateChatSettings` operation.
   Future<ChatSettingsModel> updateChatSettings({
     bool? notificationsEnabled,
     bool? soundEnabled,
@@ -120,11 +164,19 @@ abstract class ChatRemoteDataSource {
   });
 }
 
+/// يعرّف الكلاس `ChatRemoteDataSourceImpl`.
+/// Describes the `ChatRemoteDataSourceImpl` class.
 class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
+  /// Holds the `apiClient` value.
+  /// العربية: يخزن القيمة `apiClient`.
   final ApiClient apiClient;
 
+  /// ينشئ مثيلاً من `ChatRemoteDataSourceImpl`.
+  /// Builds an instance of `ChatRemoteDataSourceImpl`.
   ChatRemoteDataSourceImpl({required this.apiClient});
 
+  /// ينفذ العملية `createConversation`.
+  /// Runs the `createConversation` operation.
   @override
   Future<ConversationModel> createConversation({
     required List<String> participantIds,
@@ -202,6 +254,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `getConversations`.
+  /// Runs the `getConversations` operation.
   @override
   Future<List<ConversationModel>> getConversations({
     required int pageNumber,
@@ -240,6 +294,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `getConversationById`.
+  /// Runs the `getConversationById` operation.
   @override
   Future<ConversationModel> getConversationById(String conversationId) async {
     const requestName = 'chat.getConversationById';
@@ -267,6 +323,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `archiveConversation`.
+  /// Runs the `archiveConversation` operation.
   @override
   Future<void> archiveConversation(String conversationId) async {
     const requestName = 'chat.archiveConversation';
@@ -291,6 +349,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `unarchiveConversation`.
+  /// Runs the `unarchiveConversation` operation.
   @override
   Future<void> unarchiveConversation(String conversationId) async {
     const requestName = 'chat.unarchiveConversation';
@@ -316,6 +376,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `deleteConversation`.
+  /// Runs the `deleteConversation` operation.
   @override
   Future<void> deleteConversation(String conversationId) async {
     const requestName = 'chat.deleteConversation';
@@ -354,6 +416,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `getMessages`.
+  /// Runs the `getMessages` operation.
   @override
   Future<List<MessageModel>> getMessages({
     required String conversationId,
@@ -396,6 +460,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `sendMessage`.
+  /// Runs the `sendMessage` operation.
   @override
   Future<MessageModel> sendMessage({
     required String conversationId,
@@ -506,6 +572,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `editMessage`.
+  /// Runs the `editMessage` operation.
   @override
   Future<MessageModel> editMessage({
     required String messageId,
@@ -537,6 +605,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `deleteMessage`.
+  /// Runs the `deleteMessage` operation.
   @override
   Future<void> deleteMessage(String messageId) async {
     const requestName = 'chat.deleteMessage';
@@ -561,6 +631,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `markAsRead`.
+  /// Runs the `markAsRead` operation.
   @override
   Future<void> markAsRead({
     required String conversationId,
@@ -591,6 +663,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `addReaction`.
+  /// Runs the `addReaction` operation.
   @override
   Future<void> addReaction({
     required String messageId,
@@ -624,6 +698,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `removeReaction`.
+  /// Runs the `removeReaction` operation.
   @override
   Future<void> removeReaction({
     required String messageId,
@@ -654,6 +730,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `updateMessageStatus`.
+  /// Runs the `updateMessageStatus` operation.
   @override
   Future<void> updateMessageStatus({
     required String messageId,
@@ -681,6 +759,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `uploadAttachment`.
+  /// Runs the `uploadAttachment` operation.
   @override
   Future<AttachmentModel> uploadAttachment({
     required String conversationId,
@@ -755,6 +835,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `searchChats`.
+  /// Runs the `searchChats` operation.
   @override
   Future<SearchResult> searchChats({
     required String query,
@@ -822,6 +904,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `getAvailableUsers`.
+  /// Runs the `getAvailableUsers` operation.
   @override
   Future<List<ChatUserModel>> getAvailableUsers({
     String? userType,
@@ -860,6 +944,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `getAdminUsers`.
+  /// Runs the `getAdminUsers` operation.
   @override
   Future<List<ChatUserModel>> getAdminUsers() async {
     const requestName = 'chat.getAdminUsers';
@@ -888,6 +974,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `updateUserStatus`.
+  /// Runs the `updateUserStatus` operation.
   @override
   Future<void> updateUserStatus(String status) async {
     const requestName = 'chat.updateUserStatus';
@@ -915,6 +1003,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `getChatSettings`.
+  /// Runs the `getChatSettings` operation.
   @override
   Future<ChatSettingsModel> getChatSettings() async {
     const requestName = 'chat.getChatSettings';
@@ -980,6 +1070,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `updateChatSettings`.
+  /// Runs the `updateChatSettings` operation.
   @override
   Future<ChatSettingsModel> updateChatSettings({
     bool? notificationsEnabled,

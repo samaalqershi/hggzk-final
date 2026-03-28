@@ -23,14 +23,17 @@ abstract class NotificationRemoteDataSource {
 
   Future<Map<String, bool>> getNotificationSettings({String? userId});
 
-  Future<void> updateNotificationSettings(Map<String, bool> settings, {String? userId});
+  Future<void> updateNotificationSettings(Map<String, bool> settings,
+      {String? userId});
 
   Future<int> getUnreadCount({String? userId});
 }
 
 class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
   final ApiClient apiClient;
+
   final LocalStorageService? localStorage;
+
   final AuthLocalDataSource? authLocalDataSource;
 
   NotificationRemoteDataSourceImpl({
@@ -40,10 +43,12 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
   });
 
   Future<String?> _resolveUserId({String? explicitUserId}) async {
-    if (explicitUserId != null && explicitUserId.isNotEmpty) return explicitUserId;
+    if (explicitUserId != null && explicitUserId.isNotEmpty)
+      return explicitUserId;
     try {
       final cachedUser = await authLocalDataSource?.getCachedUser();
-      if (cachedUser != null && cachedUser.userId.isNotEmpty) return cachedUser.userId;
+      if (cachedUser != null && cachedUser.userId.isNotEmpty)
+        return cachedUser.userId;
     } catch (_) {}
     try {
       final stored = localStorage?.getData(StorageConstants.userId)?.toString();
@@ -79,7 +84,8 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.statusCode == 200) {
-        final result = ResultDto.fromJson(response.data as Map<String, dynamic>, (map) => map);
+        final result = ResultDto.fromJson(
+            response.data as Map<String, dynamic>, (map) => map);
         final dynamic rawData = result.data;
         final Map<String, dynamic> dataMap =
             rawData is Map<String, dynamic> ? rawData : <String, dynamic>{};
@@ -112,7 +118,8 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
         );
       }
 
-      return const PaginatedResult(items: [], pageNumber: 1, pageSize: 20, totalCount: 0);
+      return const PaginatedResult(
+          items: [], pageNumber: 1, pageSize: 20, totalCount: 0);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       rethrow;
@@ -192,10 +199,17 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       );
       logRequestSuccess(requestName, statusCode: response.statusCode);
       if (response.statusCode == 200) {
-        final result = ResultDto.fromJson(response.data as Map<String, dynamic>, (raw) => raw);
-        final data = (result.data is Map<String, dynamic>) ? result.data as Map<String, dynamic> : <String, dynamic>{};
-        final remote = (data['notificationSettings'] as Map<String, dynamic>?) ?? <String, dynamic>{};
-        final additional = (data['additionalSettings'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+        final result = ResultDto.fromJson(
+            response.data as Map<String, dynamic>, (raw) => raw);
+        final data = (result.data is Map<String, dynamic>)
+            ? result.data as Map<String, dynamic>
+            : <String, dynamic>{};
+        final remote =
+            (data['notificationSettings'] as Map<String, dynamic>?) ??
+                <String, dynamic>{};
+        final additional =
+            (data['additionalSettings'] as Map<String, dynamic>?) ??
+                <String, dynamic>{};
 
         final cached = await _getCachedUiSettings();
 
@@ -222,7 +236,7 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
           'biometric_enabled': (additional['biometricEnabled'] == true),
         };
       }
-    return {};
+      return {};
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       rethrow;
@@ -230,7 +244,8 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
   }
 
   @override
-  Future<void> updateNotificationSettings(Map<String, bool> settings, {String? userId}) async {
+  Future<void> updateNotificationSettings(Map<String, bool> settings,
+      {String? userId}) async {
     const requestName = 'notifications.updateNotificationSettings';
     final resolvedUserId = await _resolveUserId(explicitUserId: userId);
     logRequestStart(requestName, details: {'userId': resolvedUserId ?? ''});
@@ -300,10 +315,14 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     return {
       'bookingNotifications': bookingGroup,
       'promotionalNotifications': promoGroup,
-      'reviewResponseNotifications': getVal(['reviewResponseNotifications', 'reviewResponses'], true),
-      'emailNotifications': getVal(['emailNotifications', 'email', 'email_notifications'], true),
-      'smsNotifications': getVal(['smsNotifications', 'sms', 'sms_notifications'], false),
-      'pushNotifications': getVal(['pushNotifications', 'push', 'push_notifications'], true),
+      'reviewResponseNotifications':
+          getVal(['reviewResponseNotifications', 'reviewResponses'], true),
+      'emailNotifications':
+          getVal(['emailNotifications', 'email', 'email_notifications'], true),
+      'smsNotifications':
+          getVal(['smsNotifications', 'sms', 'sms_notifications'], false),
+      'pushNotifications':
+          getVal(['pushNotifications', 'push', 'push_notifications'], true),
     };
   }
 
@@ -326,7 +345,8 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       }
       if (raw is String && raw.isNotEmpty) {
         try {
-          final Map<String, dynamic> m = jsonDecode(raw) as Map<String, dynamic>;
+          final Map<String, dynamic> m =
+              jsonDecode(raw) as Map<String, dynamic>;
           return m.map((key, value) => MapEntry(key, value == true));
         } catch (_) {}
       }

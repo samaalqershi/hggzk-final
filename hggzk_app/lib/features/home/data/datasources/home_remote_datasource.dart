@@ -8,7 +8,7 @@ import '../models/section_model.dart';
 import '../models/property_type_model.dart';
 import '../models/unit_type_model.dart';
 import '../models/property_type_with_units_model.dart';
-import 'package:hggzk/services/local_storage_service.dart';
+import 'package:hggzk/core/services/local_storage_service.dart';
 
 abstract class HomeRemoteDataSource {
   // Analytics
@@ -49,10 +49,8 @@ abstract class HomeRemoteDataSource {
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   final ApiClient apiClient;
   final LocalStorageService localStorage;
-
   HomeRemoteDataSourceImpl(
       {required this.apiClient, required this.localStorage});
-
   @override
   Future<void> recordSectionImpression({required String sectionId}) async {
     const requestName = 'recordSectionImpression';
@@ -414,7 +412,8 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     logRequestStart(requestName);
 
     try {
-      final response = await apiClient.get('/api/client/property-types/with-units');
+      final response =
+          await apiClient.get('/api/client/property-types/with-units');
 
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
@@ -426,22 +425,27 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
           final dataField = responseData['data'];
           if (dataField is List) {
             listJson = dataField;
-          } else if (dataField is Map<String, dynamic> && dataField['items'] is List) {
+          } else if (dataField is Map<String, dynamic> &&
+              dataField['items'] is List) {
             listJson = dataField['items'] as List<dynamic>;
           } else {
-            throw const ServerException('Invalid response structure for property types with units');
+            throw const ServerException(
+                'Invalid response structure for property types with units');
           }
         } else if (responseData is List) {
           listJson = responseData;
         } else {
-          throw const ServerException('Invalid response structure for property types with units');
+          throw const ServerException(
+              'Invalid response structure for property types with units');
         }
 
         return listJson
-            .map((json) => PropertyTypeWithUnitsModel.fromJson(json as Map<String, dynamic>))
+            .map((json) => PropertyTypeWithUnitsModel.fromJson(
+                json as Map<String, dynamic>))
             .toList();
       } else {
-        throw ServerException(response.data['message'] ?? 'Failed to load property types with units');
+        throw ServerException(response.data['message'] ??
+            'Failed to load property types with units');
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);

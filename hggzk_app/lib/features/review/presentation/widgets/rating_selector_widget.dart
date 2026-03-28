@@ -2,12 +2,27 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 
+/// Lets the user choose a star rating while keeping the visual state compact.
+/// يتيح للمستخدم اختيار تقييم نجوم مع الحفاظ على واجهة مضغوطة.
 class RatingSelectorWidget extends StatelessWidget {
+  /// Currently selected rating value.
+  /// قيمة التقييم المختارة حاليًا.
   final int rating;
+
+  /// Notifies the parent when the user selects a different star count.
+  /// يُبلغ الأب عندما يختار المستخدم عدد نجوم مختلفًا.
   final Function(int) onRatingChanged;
+
+  /// Controls the size of each star icon.
+  /// يتحكم في حجم أيقونة كل نجمة.
   final double starSize;
+
+  /// Aligns the row inside its horizontal scroll container.
+  /// يحدد محاذاة الصف داخل الحاوية الأفقية القابلة للتمرير.
   final MainAxisAlignment alignment;
 
+  /// Builds the interactive star row used by review forms and cards.
+  /// ينشئ صف النجوم التفاعلي المستخدم في نماذج المراجعة والبطاقات.
   const RatingSelectorWidget({
     super.key,
     required this.rating,
@@ -16,6 +31,8 @@ class RatingSelectorWidget extends StatelessWidget {
     this.alignment = MainAxisAlignment.start,
   });
 
+  /// Renders the tappable stars and highlights the selected range.
+  /// يرسم النجوم القابلة للنقر ويبرز النطاق المحدد.
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(

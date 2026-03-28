@@ -1,10 +1,15 @@
 import '../../domain/entities/section_item.dart' as domain;
 
 class SectionItemModel {
+  /// العربية: يخزن القيمة `id`.
   final String id;
+
   final String sectionId;
+
   final String? propertyId;
+
   final String? unitId;
+
   final int sortOrder;
 
   const SectionItemModel({
@@ -43,4 +48,3 @@ class SectionItemModel {
         sortOrder: sortOrder,
       );
 }
-

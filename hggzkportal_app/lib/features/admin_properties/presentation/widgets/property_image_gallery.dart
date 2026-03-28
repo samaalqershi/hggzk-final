@@ -12,9 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:hggzkportal/core/theme/app_colors.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:reorderables/reorderables.dart';
@@ -24,6 +22,7 @@ import '../bloc/property_images/property_images_event.dart';
 import '../bloc/property_images/property_images_state.dart';
 
 class PropertyImageGallery extends StatefulWidget {
+  /// العربية: يخزن القيمة `propertyId`.
   final String? propertyId;
   final String? tempKey;
   final bool isReadOnly;
@@ -33,7 +32,6 @@ class PropertyImageGallery extends StatefulWidget {
   final Function(List<String>)? onLocalImagesChanged;
   final List<PropertyImage>? initialImages;
   final List<String>? initialLocalImages;
-
   const PropertyImageGallery({
     super.key,
     this.propertyId,
@@ -46,7 +44,6 @@ class PropertyImageGallery extends StatefulWidget {
     this.initialImages,
     this.initialLocalImages,
   });
-
   @override
   State<PropertyImageGallery> createState() => PropertyImageGalleryState();
 }
@@ -75,7 +72,6 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
   final Map<String, File?> _uploadingFileObjects = {};
   final Map<String, String> _uploadingFileTypes =
       {}; // تتبع نوع الملف (image/video)
-
   int? _hoveredIndex;
   bool _isDragging = false;
   bool _isSelectionMode = false;
@@ -86,7 +82,6 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
   final Set<int> _selectedLocalIndices = {};
   int? _primaryImageIndex = 0;
   int? _primaryLocalImageIndex = 0;
-
   bool get _isLocalMode =>
       (widget.propertyId == null || widget.propertyId!.isEmpty) &&
       (widget.tempKey == null || widget.tempKey!.isEmpty);
@@ -99,7 +94,6 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
       _localImages.where((path) => !AppConstants.isVideoFile(path)).length;
   int get _localVideoCount =>
       _localImages.where((path) => AppConstants.isVideoFile(path)).length;
-
   @override
   void initState() {
     super.initState();
@@ -304,7 +298,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.3),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -323,13 +317,13 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.8),
+                color: AppTheme.darkCard.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(
                 Icons.drag_indicator_rounded,
                 size: 16,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
               ),
             ),
           ),
@@ -342,7 +336,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.9),
+                color: AppTheme.darkCard.withValues(alpha: 0.9),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -366,7 +360,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.warning.withOpacity(0.9),
+                  color: AppTheme.warning.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -445,7 +439,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                   Text(
                     'صور: $_localImageCount/${widget.maxImages} • فيديو: $_localVideoCount/${widget.maxVideos}',
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.textMuted.withOpacity(0.7),
+                      color: AppTheme.textMuted.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w300,
                     ),
                   ),
@@ -460,10 +454,10 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
               margin: const EdgeInsets.only(top: 12),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.1),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: AppTheme.primaryBlue.withOpacity(0.2),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 ),
               ),
               child: Row(
@@ -473,7 +467,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                         ? Icons.info_outline_rounded
                         : Icons.drag_indicator_rounded,
                     size: 14,
-                    color: AppTheme.primaryBlue.withOpacity(0.7),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -481,7 +475,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                         ? 'اضغط على الوسائط لتحديدها'
                         : 'اسحب الوسائط لإعادة ترتيبها',
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.primaryBlue.withOpacity(0.8),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.8),
                       fontSize: 11,
                     ),
                   ),
@@ -493,10 +487,10 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
               margin: const EdgeInsets.only(top: 12),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: AppTheme.warning.withOpacity(0.1),
+                color: AppTheme.warning.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: AppTheme.warning.withOpacity(0.3),
+                  color: AppTheme.warning.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -638,14 +632,14 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected
-                  ? AppTheme.primaryBlue.withOpacity(0.6)
-                  : AppTheme.darkBorder.withOpacity(0.1),
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.6)
+                  : AppTheme.darkBorder.withValues(alpha: 0.1),
               width: isSelected ? 2.5 : 1,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.2),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                       blurRadius: 8,
                       spreadRadius: 1,
                     ),
@@ -669,8 +663,9 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(
-                            isHovered || _isLocalSelectionMode ? 0.6 : 0.3),
+                        Colors.black.withValues(
+                            alpha:
+                                isHovered || _isLocalSelectionMode ? 0.6 : 0.3),
                       ],
                     ),
                   ),
@@ -680,7 +675,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkCard.withOpacity(0.7),
+                        color: AppTheme.darkCard.withValues(alpha: 0.7),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -714,8 +709,8 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: isVideo
-                          ? AppTheme.info.withOpacity(0.8)
-                          : AppTheme.darkCard.withOpacity(0.8),
+                          ? AppTheme.info.withValues(alpha: 0.8)
+                          : AppTheme.darkCard.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(
@@ -730,7 +725,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                         Text(
                           isVideo ? 'فيديو' : '${index + 1}',
                           style: AppTextStyles.caption.copyWith(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
                           ),
@@ -747,11 +742,11 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.warning.withOpacity(0.9),
+                        color: AppTheme.warning.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(6),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.warning.withOpacity(0.3),
+                            color: AppTheme.warning.withValues(alpha: 0.3),
                             blurRadius: 6,
                             spreadRadius: 1,
                           ),
@@ -788,15 +783,15 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppTheme.primaryBlue
-                            : AppTheme.darkCard.withOpacity(0.8),
+                            : AppTheme.darkCard.withValues(alpha: 0.8),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           width: 2,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 4,
                           ),
                         ],
@@ -817,7 +812,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: AppTheme.warning.withOpacity(0.8),
+                        color: AppTheme.warning.withValues(alpha: 0.8),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -853,11 +848,11 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
 
   Widget buildVideoPlaceholder() {
     return Container(
-      color: AppTheme.darkCard.withOpacity(0.3),
+      color: AppTheme.darkCard.withValues(alpha: 0.3),
       child: Center(
         child: Icon(
           Icons.videocam_outlined,
-          color: AppTheme.textMuted.withOpacity(0.5),
+          color: AppTheme.textMuted.withValues(alpha: 0.5),
           size: 32,
         ),
       ),
@@ -914,13 +909,13 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
               filterQuality: FilterQuality.low,
             ),
             placeholder: (context, url) => Container(
-              color: AppTheme.darkCard.withOpacity(0.3),
+              color: AppTheme.darkCard.withValues(alpha: 0.3),
             ),
             errorWidget: (context, url, error) => Container(
-              color: AppTheme.darkCard.withOpacity(0.3),
+              color: AppTheme.darkCard.withValues(alpha: 0.3),
               child: Icon(
                 Icons.image_not_supported_outlined,
-                color: AppTheme.textMuted.withOpacity(0.3),
+                color: AppTheme.textMuted.withValues(alpha: 0.3),
                 size: 24,
               ),
             ),
@@ -933,10 +928,10 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
             cacheWidth: targetWidth,
             errorBuilder: (context, error, stackTrace) {
               return Container(
-                color: AppTheme.darkCard.withOpacity(0.3),
+                color: AppTheme.darkCard.withValues(alpha: 0.3),
                 child: Icon(
                   Icons.image_not_supported_outlined,
-                  color: AppTheme.textMuted.withOpacity(0.3),
+                  color: AppTheme.textMuted.withValues(alpha: 0.3),
                   size: 24,
                 ),
               );
@@ -1350,7 +1345,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.3),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -1368,13 +1363,13 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.8),
+                color: AppTheme.darkCard.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(
                 Icons.drag_indicator_rounded,
                 size: 16,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
               ),
             ),
           ),
@@ -1385,7 +1380,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.9),
+                color: AppTheme.darkCard.withValues(alpha: 0.9),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -1407,7 +1402,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.warning.withOpacity(0.9),
+                  color: AppTheme.warning.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -1522,17 +1517,17 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: isDestructive
-              ? AppTheme.error.withOpacity(0.1)
+              ? AppTheme.error.withValues(alpha: 0.1)
               : isActive
-                  ? AppTheme.primaryBlue.withOpacity(0.15)
-                  : Colors.white.withOpacity(0.05),
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.15)
+                  : Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isDestructive
-                ? AppTheme.error.withOpacity(0.3)
+                ? AppTheme.error.withValues(alpha: 0.3)
                 : isActive
-                    ? AppTheme.primaryBlue.withOpacity(0.3)
-                    : Colors.white.withOpacity(0.1),
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                    : Colors.white.withValues(alpha: 0.1),
           ),
         ),
         child: Row(
@@ -1545,7 +1540,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                   ? AppTheme.error
                   : isActive
                       ? AppTheme.primaryBlue
-                      : Colors.white.withOpacity(0.6),
+                      : Colors.white.withValues(alpha: 0.6),
             ),
             const SizedBox(width: 4),
             Text(
@@ -1555,7 +1550,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                     ? AppTheme.error
                     : isActive
                         ? AppTheme.primaryBlue
-                        : Colors.white.withOpacity(0.7),
+                        : Colors.white.withValues(alpha: 0.7),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
@@ -1600,7 +1595,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
     return Container(
       height: 180,
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.1),
+        color: AppTheme.darkCard.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Center(
@@ -1613,14 +1608,14 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                    AppTheme.primaryBlue.withOpacity(0.5)),
+                    AppTheme.primaryBlue.withValues(alpha: 0.5)),
               ),
             ),
             const SizedBox(height: 16),
             Text(
               'جاري التحميل...',
               style: AppTextStyles.caption.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
                 fontWeight: FontWeight.w300,
               ),
             ),
@@ -1635,10 +1630,10 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
     return Container(
       height: 180,
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.05),
+        color: AppTheme.darkCard.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.1),
+          color: AppTheme.darkBorder.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -1648,14 +1643,14 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
           children: [
             Icon(
               Icons.image_not_supported_outlined,
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
               size: 32,
             ),
             const SizedBox(height: 12),
             Text(
               'لا توجد وسائط',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
                 fontWeight: FontWeight.w300,
               ),
             ),
@@ -1694,7 +1689,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.3),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -1713,13 +1708,13 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.8),
+                color: AppTheme.darkCard.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(
                 Icons.drag_indicator_rounded,
                 size: 16,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
               ),
             ),
           ),
@@ -1730,7 +1725,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.9),
+                color: AppTheme.darkCard.withValues(alpha: 0.9),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -1752,7 +1747,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.warning.withOpacity(0.9),
+                  color: AppTheme.warning.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -1948,13 +1943,13 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
             filterQuality: FilterQuality.low,
           ),
           placeholder: (context, url) => Container(
-            color: AppTheme.darkCard.withOpacity(0.3),
+            color: AppTheme.darkCard.withValues(alpha: 0.3),
           ),
           errorWidget: (context, url, error) => Container(
-            color: AppTheme.darkCard.withOpacity(0.3),
+            color: AppTheme.darkCard.withValues(alpha: 0.3),
             child: Icon(
               Icons.image_not_supported_outlined,
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
               size: 24,
             ),
           ),
@@ -1983,13 +1978,13 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
               filterQuality: FilterQuality.low,
             ),
             placeholder: (context, url) => Container(
-              color: AppTheme.darkCard.withOpacity(0.3),
+              color: AppTheme.darkCard.withValues(alpha: 0.3),
             ),
             errorWidget: (context, url, error) => Container(
-              color: AppTheme.darkCard.withOpacity(0.3),
+              color: AppTheme.darkCard.withValues(alpha: 0.3),
               child: Icon(
                 Icons.image_not_supported_outlined,
-                color: AppTheme.textMuted.withOpacity(0.3),
+                color: AppTheme.textMuted.withValues(alpha: 0.3),
                 size: 24,
               ),
             ),
@@ -2002,10 +1997,10 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
             cacheWidth: targetWidth,
             errorBuilder: (context, error, stackTrace) {
               return Container(
-                color: AppTheme.darkCard.withOpacity(0.3),
+                color: AppTheme.darkCard.withValues(alpha: 0.3),
                 child: Icon(
                   Icons.image_not_supported_outlined,
-                  color: AppTheme.textMuted.withOpacity(0.3),
+                  color: AppTheme.textMuted.withValues(alpha: 0.3),
                   size: 24,
                 ),
               );
@@ -2028,17 +2023,18 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
         width: 28,
         height: 28,
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withOpacity(0.95),
+          color: AppTheme.darkCard.withValues(alpha: 0.95),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color:
-                color?.withOpacity(0.3) ?? AppTheme.darkBorder.withOpacity(0.2),
+            color: color?.withValues(alpha: 0.3) ??
+                AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
         child: Icon(
           icon,
-          color: color?.withOpacity(0.9) ?? AppTheme.textWhite.withOpacity(0.8),
+          color: color?.withValues(alpha: 0.9) ??
+              AppTheme.textWhite.withValues(alpha: 0.8),
           size: 14,
         ),
       ),
@@ -2141,7 +2137,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
             color: Colors.white,
           ),
         ),
-        backgroundColor: AppTheme.success.withOpacity(0.9),
+        backgroundColor: AppTheme.success.withValues(alpha: 0.9),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -2163,7 +2159,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
             color: Colors.white,
           ),
         ),
-        backgroundColor: AppTheme.error.withOpacity(0.9),
+        backgroundColor: AppTheme.error.withValues(alpha: 0.9),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -2209,7 +2205,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                   Text(
                     'صور: $_imageCount/${widget.maxImages} • فيديو: $_videoCount/${widget.maxVideos}',
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.textMuted.withOpacity(0.7),
+                      color: AppTheme.textMuted.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w300,
                     ),
                   ),
@@ -2224,10 +2220,10 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
               margin: const EdgeInsets.only(top: 12),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.1),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: AppTheme.primaryBlue.withOpacity(0.2),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 ),
               ),
               child: Row(
@@ -2237,7 +2233,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                         ? Icons.info_outline_rounded
                         : Icons.drag_indicator_rounded,
                     size: 14,
-                    color: AppTheme.primaryBlue.withOpacity(0.7),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -2245,7 +2241,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                         ? 'اضغط على الوسائط لتحديدها'
                         : 'اسحب الوسائط لإعادة ترتيبها',
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.primaryBlue.withOpacity(0.8),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.8),
                       fontSize: 11,
                     ),
                   ),
@@ -2285,22 +2281,22 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppTheme.darkCard.withOpacity(0.4),
-                AppTheme.darkCard.withOpacity(0.2),
+                AppTheme.darkCard.withValues(alpha: 0.4),
+                AppTheme.darkCard.withValues(alpha: 0.2),
               ],
             ),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isComplete
-                  ? AppTheme.success.withOpacity(0.3)
-                  : AppTheme.primaryBlue.withOpacity(0.2),
+                  ? AppTheme.success.withValues(alpha: 0.3)
+                  : AppTheme.primaryBlue.withValues(alpha: 0.2),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
                 color: isComplete
-                    ? AppTheme.success.withOpacity(0.1)
-                    : AppTheme.primaryBlue.withOpacity(0.1),
+                    ? AppTheme.success.withValues(alpha: 0.1)
+                    : AppTheme.primaryBlue.withValues(alpha: 0.1),
                 blurRadius: 10,
                 spreadRadius: 2,
               ),
@@ -2321,7 +2317,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.2),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.2),
                         ),
                       ),
                       child: ClipRRect(
@@ -2341,14 +2337,16 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                               Icon(
                                 isVideo ? Icons.videocam : Icons.image,
                                 size: 14,
-                                color: AppTheme.primaryBlue.withOpacity(0.7),
+                                color:
+                                    AppTheme.primaryBlue.withValues(alpha: 0.7),
                               ),
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
                                   fileName,
                                   style: AppTextStyles.bodySmall.copyWith(
-                                    color: AppTheme.textWhite.withOpacity(0.9),
+                                    color: AppTheme.textWhite
+                                        .withValues(alpha: 0.9),
                                     fontWeight: FontWeight.w400,
                                   ),
                                   maxLines: 1,
@@ -2363,8 +2361,8 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                                         key: const ValueKey('complete'),
                                         padding: const EdgeInsets.all(4),
                                         decoration: BoxDecoration(
-                                          color:
-                                              AppTheme.success.withOpacity(0.2),
+                                          color: AppTheme.success
+                                              .withValues(alpha: 0.2),
                                           shape: BoxShape.circle,
                                         ),
                                         child: Icon(
@@ -2382,9 +2380,11 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
                                               color: AppTheme.primaryBlue
-                                                  .withOpacity(0.1 +
-                                                      (_pulseController.value *
-                                                          0.1)),
+                                                  .withValues(
+                                                      alpha: 0.1 +
+                                                          (_pulseController
+                                                                  .value *
+                                                              0.1)),
                                             ),
                                             child: Icon(
                                               Icons.cloud_upload_outlined,
@@ -2405,7 +2405,8 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                               Container(
                                 height: 4,
                                 decoration: BoxDecoration(
-                                  color: AppTheme.darkBorder.withOpacity(0.1),
+                                  color: AppTheme.darkBorder
+                                      .withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
@@ -2420,21 +2421,23 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                                     colors: isComplete
                                         ? [
                                             AppTheme.success,
-                                            AppTheme.success.withOpacity(0.7)
+                                            AppTheme.success
+                                                .withValues(alpha: 0.7)
                                           ]
                                         : [
                                             AppTheme.primaryBlue,
                                             AppTheme.primaryBlue
-                                                .withOpacity(0.7)
+                                                .withValues(alpha: 0.7)
                                           ],
                                   ),
                                   borderRadius: BorderRadius.circular(2),
                                   boxShadow: [
                                     BoxShadow(
                                       color: isComplete
-                                          ? AppTheme.success.withOpacity(0.3)
+                                          ? AppTheme.success
+                                              .withValues(alpha: 0.3)
                                           : AppTheme.primaryBlue
-                                              .withOpacity(0.3),
+                                              .withValues(alpha: 0.3),
                                       blurRadius: 4,
                                       spreadRadius: 0,
                                     ),
@@ -2451,8 +2454,8 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                                 : 'جاري الرفع... ${(progress * 100).toInt()}%',
                             style: AppTextStyles.caption.copyWith(
                               color: isComplete
-                                  ? AppTheme.success.withOpacity(0.8)
-                                  : AppTheme.textMuted.withOpacity(0.7),
+                                  ? AppTheme.success.withValues(alpha: 0.8)
+                                  : AppTheme.textMuted.withValues(alpha: 0.7),
                               fontSize: 11,
                             ),
                           ),
@@ -2472,10 +2475,10 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
   Widget buildUploadThumbnail(File? file, bool isVideo) {
     if (file == null) {
       return Container(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         child: Icon(
           isVideo ? Icons.videocam_outlined : Icons.image_outlined,
-          color: AppTheme.textMuted.withOpacity(0.5),
+          color: AppTheme.textMuted.withValues(alpha: 0.5),
           size: 24,
         ),
       );
@@ -2498,10 +2501,10 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
         return Container(
-          color: AppTheme.darkCard.withOpacity(0.5),
+          color: AppTheme.darkCard.withValues(alpha: 0.5),
           child: Icon(
             Icons.image_outlined,
-            color: AppTheme.textMuted.withOpacity(0.5),
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
             size: 24,
           ),
         );
@@ -2639,14 +2642,14 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected
-                  ? AppTheme.primaryBlue.withOpacity(0.6)
-                  : AppTheme.darkBorder.withOpacity(0.1),
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.6)
+                  : AppTheme.darkBorder.withValues(alpha: 0.1),
               width: isSelected ? 2.5 : 1,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.2),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                       blurRadius: 8,
                       spreadRadius: 1,
                     ),
@@ -2673,8 +2676,8 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(
-                            isHovered || isSelectionMode ? 0.6 : 0.3),
+                        Colors.black.withValues(
+                            alpha: isHovered || isSelectionMode ? 0.6 : 0.3),
                       ],
                     ),
                   ),
@@ -2686,7 +2689,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkCard.withOpacity(0.7),
+                        color: AppTheme.darkCard.withValues(alpha: 0.7),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -2723,8 +2726,8 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: isVideo
-                          ? AppTheme.info.withOpacity(0.8)
-                          : AppTheme.darkCard.withOpacity(0.8),
+                          ? AppTheme.info.withValues(alpha: 0.8)
+                          : AppTheme.darkCard.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(
@@ -2739,7 +2742,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                         Text(
                           isVideo ? media.durationFormatted : '${index + 1}',
                           style: AppTextStyles.caption.copyWith(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
                           ),
@@ -2758,11 +2761,11 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.warning.withOpacity(0.9),
+                        color: AppTheme.warning.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(6),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.warning.withOpacity(0.3),
+                            color: AppTheme.warning.withValues(alpha: 0.3),
                             blurRadius: 6,
                             spreadRadius: 1,
                           ),
@@ -2802,15 +2805,15 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppTheme.primaryBlue
-                            : AppTheme.darkCard.withOpacity(0.8),
+                            : AppTheme.darkCard.withValues(alpha: 0.8),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           width: 2,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 4,
                           ),
                         ],
@@ -2866,13 +2869,13 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
         height: 140,
         decoration: BoxDecoration(
           color: _isDragging
-              ? AppTheme.primaryBlue.withOpacity(0.05)
-              : AppTheme.darkCard.withOpacity(0.1),
+              ? AppTheme.primaryBlue.withValues(alpha: 0.05)
+              : AppTheme.darkCard.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: _isDragging
-                ? AppTheme.primaryBlue.withOpacity(0.3)
-                : AppTheme.darkBorder.withOpacity(0.1),
+                ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                : AppTheme.darkBorder.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
@@ -2898,8 +2901,8 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                         ? Icons.file_download_outlined
                         : Icons.add_photo_alternate_outlined,
                     color: _isDragging
-                        ? AppTheme.primaryBlue.withOpacity(0.8)
-                        : AppTheme.textMuted.withOpacity(0.5),
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.8)
+                        : AppTheme.textMuted.withValues(alpha: 0.5),
                     size: 32,
                   ),
                   const SizedBox(height: 12),
@@ -2908,7 +2911,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                         ? 'أفلت الملفات هنا'
                         : 'اضغط أو اسحب لإضافة صور أو فيديو',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppTheme.textMuted.withOpacity(0.7),
+                      color: AppTheme.textMuted.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w300,
                     ),
                   ),
@@ -2917,7 +2920,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                     Text(
                       'وصلت للحد الأقصى',
                       style: AppTextStyles.caption.copyWith(
-                        color: AppTheme.error.withOpacity(0.5),
+                        color: AppTheme.error.withValues(alpha: 0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w300,
                       ),
@@ -2926,7 +2929,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
                     Text(
                       'صور: PNG, JPG • فيديو: MP4, MOV • Max ${AppConstants.maxVideoUploadSize ~/ (1024 * 1024)}MB',
                       style: AppTextStyles.caption.copyWith(
-                        color: AppTheme.textMuted.withOpacity(0.5),
+                        color: AppTheme.textMuted.withValues(alpha: 0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w300,
                       ),
@@ -3016,7 +3019,6 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
   }
 
   // بقية الدوال كما هي مع الدوال المساعدة...
-
   void previewImage(PropertyImage image) {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -3055,7 +3057,7 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
             color: Colors.white,
           ),
         ),
-        backgroundColor: AppTheme.success.withOpacity(0.9),
+        backgroundColor: AppTheme.success.withValues(alpha: 0.9),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -3144,14 +3146,13 @@ class PropertyImageGalleryState extends State<PropertyImageGallery>
 
 // Video Preview Screen
 class _VideoPreviewScreen extends StatelessWidget {
+  /// العربية: يخزن القيمة `videoUrl`.
   final String videoUrl;
   final bool isLocal;
-
   const _VideoPreviewScreen({
     required this.videoUrl,
     required this.isLocal,
   });
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -3174,12 +3175,12 @@ class _VideoPreviewScreen extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.7),
+                  color: AppTheme.darkCard.withValues(alpha: 0.7),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.close,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   size: 20,
                 ),
               ),
@@ -3193,6 +3194,7 @@ class _VideoPreviewScreen extends StatelessWidget {
 
 // Local Media Options Sheet
 class _LocalMediaOptionsSheet extends StatelessWidget {
+  /// العربية: يخزن القيمة `mediaPath`.
   final String mediaPath;
   final int index;
   final bool isVideo;
@@ -3200,7 +3202,6 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
   final VoidCallback? onSetPrimary;
   final VoidCallback onDelete;
   final VoidCallback onView;
-
   const _LocalMediaOptionsSheet({
     required this.mediaPath,
     required this.index,
@@ -3210,7 +3211,6 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
     required this.onDelete,
     required this.onView,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -3221,7 +3221,7 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
         right: 20,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.95),
+        color: AppTheme.darkCard.withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -3231,7 +3231,7 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
             width: 32,
             height: 3,
             decoration: BoxDecoration(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(1.5),
             ),
           ),
@@ -3282,29 +3282,30 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: color?.withOpacity(0.1) ?? AppTheme.darkCard.withOpacity(0.3),
+          color: color?.withValues(alpha: 0.1) ??
+              AppTheme.darkCard.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           children: [
             Icon(
               icon,
-              color: color?.withOpacity(0.8) ??
-                  AppTheme.primaryBlue.withOpacity(0.8),
+              color: color?.withValues(alpha: 0.8) ??
+                  AppTheme.primaryBlue.withValues(alpha: 0.8),
               size: 20,
             ),
             const SizedBox(width: 12),
             Text(
               title,
               style: AppTextStyles.bodySmall.copyWith(
-                color: color ?? AppTheme.textWhite.withOpacity(0.9),
+                color: color ?? AppTheme.textWhite.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w300,
               ),
             ),
             const Spacer(),
             Icon(
               Icons.arrow_forward_ios,
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
               size: 14,
             ),
           ],
@@ -3315,14 +3316,13 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
 }
 
 class _DeleteConfirmationDialog extends StatelessWidget {
+  /// العربية: يخزن القيمة `count`.
   final int count;
   final VoidCallback onConfirm;
-
   const _DeleteConfirmationDialog({
     required this.count,
     required this.onConfirm,
   });
-
   @override
   Widget build(BuildContext context) {
     return BackdropFilter(
@@ -3332,10 +3332,10 @@ class _DeleteConfirmationDialog extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppTheme.darkCard.withOpacity(0.95),
+            color: AppTheme.darkCard.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: AppTheme.error.withOpacity(0.3),
+              color: AppTheme.error.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -3347,11 +3347,11 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                 height: 64,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppTheme.error.withOpacity(0.1),
+                  color: AppTheme.error.withValues(alpha: 0.1),
                 ),
                 child: Icon(
                   Icons.delete_outline_rounded,
-                  color: AppTheme.error.withOpacity(0.8),
+                  color: AppTheme.error.withValues(alpha: 0.8),
                   size: 32,
                 ),
               ),
@@ -3383,7 +3383,7 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: AppTheme.darkBorder.withOpacity(0.3),
+                            color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -3405,7 +3405,7 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: AppTheme.error.withOpacity(0.9),
+                          color: AppTheme.error.withValues(alpha: 0.9),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -3432,18 +3432,17 @@ class _DeleteConfirmationDialog extends StatelessWidget {
 
 // 29. _MinimalistImagePickerSheet
 class _MinimalistImagePickerSheet extends StatelessWidget {
+  /// العربية: يخزن القيمة `onCameraSelected`.
   final VoidCallback? onCameraSelected;
   final VoidCallback? onGallerySelected;
   final VoidCallback? onMultipleSelected;
   final VoidCallback? onVideoSelected;
-
   const _MinimalistImagePickerSheet({
     this.onCameraSelected,
     this.onGallerySelected,
     this.onMultipleSelected,
     this.onVideoSelected,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -3454,7 +3453,7 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
         right: 20,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.95),
+        color: AppTheme.darkCard.withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -3464,7 +3463,7 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
             width: 32,
             height: 3,
             decoration: BoxDecoration(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(1.5),
             ),
           ),
@@ -3518,8 +3517,8 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: disabled
-              ? AppTheme.darkCard.withOpacity(0.1)
-              : AppTheme.darkCard.withOpacity(0.3),
+              ? AppTheme.darkCard.withValues(alpha: 0.1)
+              : AppTheme.darkCard.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
@@ -3527,8 +3526,8 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
             Icon(
               icon,
               color: disabled
-                  ? AppTheme.textMuted.withOpacity(0.3)
-                  : AppTheme.primaryBlue.withOpacity(0.8),
+                  ? AppTheme.textMuted.withValues(alpha: 0.3)
+                  : AppTheme.primaryBlue.withValues(alpha: 0.8),
               size: 20,
             ),
             const SizedBox(width: 12),
@@ -3536,8 +3535,8 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
               title,
               style: AppTextStyles.bodySmall.copyWith(
                 color: disabled
-                    ? AppTheme.textMuted.withOpacity(0.5)
-                    : AppTheme.textWhite.withOpacity(0.9),
+                    ? AppTheme.textMuted.withValues(alpha: 0.5)
+                    : AppTheme.textWhite.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w300,
               ),
             ),
@@ -3545,8 +3544,8 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios,
               color: disabled
-                  ? AppTheme.textMuted.withOpacity(0.2)
-                  : AppTheme.textMuted.withOpacity(0.3),
+                  ? AppTheme.textMuted.withValues(alpha: 0.2)
+                  : AppTheme.textMuted.withValues(alpha: 0.3),
               size: 14,
             ),
           ],
@@ -3558,10 +3557,9 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
 
 // 31. _MinimalistLocalImagePreview
 class _MinimalistLocalImagePreview extends StatelessWidget {
+  /// العربية: يخزن القيمة `imagePath`.
   final String imagePath;
-
   const _MinimalistLocalImagePreview({required this.imagePath});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -3582,12 +3580,12 @@ class _MinimalistLocalImagePreview extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.7),
+                  color: AppTheme.darkCard.withValues(alpha: 0.7),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.close,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   size: 20,
                 ),
               ),
@@ -3601,6 +3599,7 @@ class _MinimalistLocalImagePreview extends StatelessWidget {
 
 // 33. _MediaOptionsSheet
 class _MediaOptionsSheet extends StatelessWidget {
+  /// العربية: يخزن القيمة `media`.
   final PropertyImage media;
   final int index;
   final bool isPrimary;
@@ -3608,7 +3607,6 @@ class _MediaOptionsSheet extends StatelessWidget {
   final VoidCallback? onSetPrimary;
   final VoidCallback onDelete;
   final VoidCallback onView;
-
   const _MediaOptionsSheet({
     required this.media,
     required this.index,
@@ -3618,7 +3616,6 @@ class _MediaOptionsSheet extends StatelessWidget {
     required this.onDelete,
     required this.onView,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -3629,7 +3626,7 @@ class _MediaOptionsSheet extends StatelessWidget {
         right: 20,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.95),
+        color: AppTheme.darkCard.withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -3639,7 +3636,7 @@ class _MediaOptionsSheet extends StatelessWidget {
             width: 32,
             height: 3,
             decoration: BoxDecoration(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(1.5),
             ),
           ),
@@ -3690,29 +3687,30 @@ class _MediaOptionsSheet extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: color?.withOpacity(0.1) ?? AppTheme.darkCard.withOpacity(0.3),
+          color: color?.withValues(alpha: 0.1) ??
+              AppTheme.darkCard.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           children: [
             Icon(
               icon,
-              color: color?.withOpacity(0.8) ??
-                  AppTheme.primaryBlue.withOpacity(0.8),
+              color: color?.withValues(alpha: 0.8) ??
+                  AppTheme.primaryBlue.withValues(alpha: 0.8),
               size: 20,
             ),
             const SizedBox(width: 12),
             Text(
               title,
               style: AppTextStyles.bodySmall.copyWith(
-                color: color ?? AppTheme.textWhite.withOpacity(0.9),
+                color: color ?? AppTheme.textWhite.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w300,
               ),
             ),
             const Spacer(),
             Icon(
               Icons.arrow_forward_ios,
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
               size: 14,
             ),
           ],
@@ -3723,10 +3721,9 @@ class _MediaOptionsSheet extends StatelessWidget {
 }
 
 class _MinimalistImagePreview extends StatelessWidget {
+  /// العربية: يخزن القيمة `image`.
   final PropertyImage image;
-
   const _MinimalistImagePreview({required this.image});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -3748,12 +3745,12 @@ class _MinimalistImagePreview extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.7),
+                  color: AppTheme.darkCard.withValues(alpha: 0.7),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.close,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   size: 20,
                 ),
               ),

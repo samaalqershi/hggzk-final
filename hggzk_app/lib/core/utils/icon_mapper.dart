@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
+/// يترجم أسماء الأيقونات الواردة من البيانات إلى `IconData` داخل Flutter.
+/// Maps backend icon names to Flutter `IconData` values.
 class IconMapper {
+  /// يعيد أيقونة مناسبة مع fallback آمن عندما لا يتعرف على الاسم.
+  /// Returns a matching icon and falls back safely when the name is unknown.
   static IconData getIconFromString(String? iconName) {
     if (iconName == null) return Icons.home_rounded;
 

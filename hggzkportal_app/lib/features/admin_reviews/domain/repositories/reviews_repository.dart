@@ -5,8 +5,8 @@ import 'package:hggzkportal/core/error/failures.dart';
 import 'package:hggzkportal/core/models/paginated_result.dart';
 import '../entities/review.dart';
 import '../entities/review_response.dart';
-
 abstract class ReviewsRepository {
+  /// العربية: يعيد all reviews.
   Future<Either<Failure, PaginatedResult<Review>>> getAllReviews({
     String? status,
     double? minRating,
@@ -21,25 +21,18 @@ abstract class ReviewsRepository {
     int? pageSize,
     bool? includeStats,
   });
-  
   Future<Either<Failure, Review>> getReviewDetails(String reviewId);
-  
   Future<Either<Failure, bool>> approveReview(String reviewId);
-  
   Future<Either<Failure, bool>> rejectReview(String reviewId);
-  
   Future<Either<Failure, bool>> deleteReview(String reviewId);
-  
   Future<Either<Failure, bool>> disableReview(String reviewId);
-  
   Future<Either<Failure, ReviewResponse>> respondToReview({
     required String reviewId,
     required String responseText,
     required String respondedBy,
   });
-  
-  Future<Either<Failure, List<ReviewResponse>>> getReviewResponses(String reviewId);
-  
+  Future<Either<Failure, List<ReviewResponse>>> getReviewResponses(
+      String reviewId);
   Future<Either<Failure, bool>> deleteReviewResponse(String responseId);
 
   /// احضر تقييم الحجز إن وجد

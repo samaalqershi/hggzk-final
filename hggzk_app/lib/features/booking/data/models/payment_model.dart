@@ -1,6 +1,8 @@
 import '../../domain/entities/payment.dart';
 
+/// العربية: يمثل نموذج البيانات `PaymentModel`.
 class PaymentModel extends Payment {
+  /// العربية: ينشئ مثيلًا جديدًا من `PaymentModel`.
   const PaymentModel({
     required super.id,
     required super.bookingId,
@@ -14,6 +16,7 @@ class PaymentModel extends Payment {
     super.notes,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `PaymentModel.fromJson`.
   factory PaymentModel.fromJson(Map<String, dynamic> json) {
     return PaymentModel(
       id: json['id'] ?? '',
@@ -22,13 +25,15 @@ class PaymentModel extends Payment {
       currency: json['currency'] ?? 'YER',
       paymentMethod: json['paymentMethod'] ?? '',
       status: _parsePaymentStatus(json['status']),
-      paymentDate: DateTime.parse(json['paymentDate'] ?? DateTime.now().toIso8601String()),
+      paymentDate: DateTime.parse(
+          json['paymentDate'] ?? DateTime.now().toIso8601String()),
       transactionId: json['transactionId'],
       receiptUrl: json['receiptUrl'],
       notes: json['notes'],
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -44,9 +49,10 @@ class PaymentModel extends Payment {
     };
   }
 
+  /// العربية: يحلل payment status.
   static PaymentStatus _parsePaymentStatus(dynamic status) {
     if (status == null) return PaymentStatus.pending;
-    
+
     final statusStr = status.toString().toLowerCase();
     switch (statusStr) {
       case 'pending':

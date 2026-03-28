@@ -6,25 +6,48 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/formatters.dart';
 import '../bloc/bookings_list/bookings_list_state.dart';
 
+/// يعرض لوحة فلاتر للحجوزات تشمل التاريخ والحالة والبحث والفرز السريع.
+/// Shows a booking filters panel with date, status, search, and quick selections.
 class BookingFiltersWidget extends StatefulWidget {
+  /// الفلاتر الابتدائية التي تُستخدم لتهيئة الواجهة عند الفتح.
+  /// Initial filters used to seed the UI when the panel opens.
   final BookingFilters? initialFilters;
+
+  /// يستدعى عند تغيير أي قيمة داخل لوحة الفلاتر.
+  /// Called whenever any filter value changes.
   final Function(BookingFilters) onFiltersChanged;
 
+  /// ينشئ لوحة الفلاتر مع القيم الابتدائية والرد على التغييرات.
+  /// Creates the filters panel with initial values and change notifications.
   const BookingFiltersWidget({
     super.key,
     this.initialFilters,
     required this.onFiltersChanged,
   });
 
+  /// ينشئ الحالة التي تدير قيم الفلاتر وحقول الإدخال.
+  /// Creates the state that manages filter values and text inputs.
   @override
   State<BookingFiltersWidget> createState() => _BookingFiltersWidgetState();
 }
 
+/// يدير تفاعل المستخدم مع الفلاتر والبحث والتحديد السريع.
+/// Manages user interaction with filters, search, and quick selection.
 class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
+  /// يحتفظ بالحالة الحالية للفلاتر المطبقة.
+  /// Holds the currently applied filter state.
   late BookingFilters _filters;
+
+  /// يتحكم في نص البحث المكتوب من المستخدم.
+  /// Controls the search text entered by the user.
   final TextEditingController _searchController = TextEditingController();
+
+  /// يحدد ما إذا كانت الخيارات الإضافية موسعة أم لا.
+  /// Indicates whether the advanced options are expanded.
   bool _isExpanded = false;
 
+  /// يهيئ الفلاتر الداخلية من القيم الابتدائية أو الافتراضية.
+  /// Initializes the internal filters from the initial or default values.
   @override
   void initState() {
     super.initState();
@@ -32,12 +55,16 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     _searchController.text = _filters.guestNameOrEmail ?? '';
   }
 
+  /// يحرر متحكم البحث عند مغادرة الودجت للشجرة.
+  /// Disposes the search controller when the widget leaves the tree.
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
 
+  /// يبني الواجهة المناسبة بحسب عرض الشاشة: مضغوطة أو كاملة.
+  /// Builds the appropriate layout based on screen width: compact or full.
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -60,6 +87,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
+  /// يبني نسخة مضغوطة من الفلاتر للشاشات الصغيرة.
+  /// Builds a compact version of the filters for small screens.
   Widget _buildCompactFilters() {
     return Column(
       children: [
@@ -78,6 +107,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
+  /// يبني النسخة الكاملة من الفلاتر للشاشات الأوسع.
+  /// Builds the full filter layout for wider screens.
   Widget _buildFullFilters() {
     return Column(
       children: [
@@ -92,6 +123,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
+  /// يبني زر إظهار أو إخفاء الفلاتر الإضافية.
+  /// Builds the button that expands or collapses advanced filters.
   Widget _buildExpandButton() {
     return GestureDetector(
       onTap: () => setState(() => _isExpanded = !_isExpanded),
@@ -129,6 +162,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
+  /// يبني منتقي التاريخ المضغوط المستخدم في الشاشات الصغيرة.
+  /// Builds the compact date selector used on small screens.
   Widget _buildCompactDateSelector() {
     return Container(
       decoration: BoxDecoration(
@@ -167,6 +202,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
+  /// يبني منتقي نطاق التاريخ الكامل للوضع المكتبي.
+  /// Builds the full date-range selector for wider layouts.
   Widget _buildDateRangeSelector() {
     return Container(
       decoration: BoxDecoration(
@@ -218,6 +255,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
+  /// يبني زرًا يعرض التاريخ الحالي ويتيح تغييره.
+  /// Builds a button that displays the current date and lets the user change it.
   Widget _buildDateButton({
     required String label,
     DateTime? date,
@@ -279,6 +318,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
+  /// يجمع البحث مع الحالة العامة وحالة الدفع في صف واحد.
+  /// Combines search, booking status, and payment status in one row.
   Widget _buildSearchAndStatusRow() {
     return Row(
       children: [
@@ -298,6 +339,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
+  /// يبني حقل البحث بالنمط المناسب للشاشة الحالية.
+  /// Builds the search field using the current screen density.
   Widget _buildSearchField({bool isCompact = false}) {
     return Container(
       height: isCompact ? 40 : null,
@@ -341,6 +384,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
+  /// يبني قائمة منسدلة لحالة الحجز.
+  /// Builds the dropdown used for booking status filtering.
   Widget _buildStatusDropdown({bool isCompact = false}) {
     return Container(
       height: isCompact ? 40 : null,
@@ -391,6 +436,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
+  /// يعرض أزرار التصفية السريعة مثل اليوم والأسبوع والشهر.
+  /// Shows quick filter chips such as today, week, and month.
   Widget _buildQuickFilters({bool isCompact = false}) {
     return SizedBox(
       height: isCompact ? 32 : 36,
@@ -451,6 +498,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
+  /// يبني شريحة فلتر سريعة مع حالة التحديد أو الإجراء.
+  /// Builds a quick filter chip with selected or action styling.
   Widget _buildQuickFilterChip({
     required String label,
     required bool isSelected,
@@ -505,7 +554,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
-  // باقي الدوال كما هي...
+  /// يفتح منتقي التاريخ ويحدّث بداية أو نهاية النطاق.
+  /// Opens the date picker and updates either the start or end boundary.
   void _selectDate(bool isStartDate) async {
     final picked = await showDatePicker(
       context: context,
@@ -541,6 +591,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     }
   }
 
+  /// يحدد ما إذا كان الفلتر الحالي يطابق نطاق اليوم.
+  /// Checks whether the current filter matches today's range.
   bool _isToday() {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -548,6 +600,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
         _filters.endDate == today.add(const Duration(days: 1));
   }
 
+  /// يحدد ما إذا كانت الفلاتر تمثل الأسبوع الحالي.
+  /// Checks whether the current filter represents this week.
   bool _isThisWeek() {
     final now = DateTime.now();
     final weekStart = now.subtract(Duration(days: now.weekday - 1));
@@ -555,6 +609,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     return _filters.startDate == weekStart && _filters.endDate == weekEnd;
   }
 
+  /// يحدد ما إذا كانت الفلاتر تمثل الشهر الحالي.
+  /// Checks whether the current filter represents this month.
   bool _isThisMonth() {
     final now = DateTime.now();
     final monthStart = DateTime(now.year, now.month, 1);
@@ -562,6 +618,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     return _filters.startDate == monthStart && _filters.endDate == monthEnd;
   }
 
+  /// يطبق سريعًا نطاق اليوم الحالي.
+  /// Quickly applies today's date range.
   void _selectToday() {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -574,6 +632,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     _applyFilters();
   }
 
+  /// يطبق سريعًا نطاق الأسبوع الحالي.
+  /// Quickly applies the current week range.
   void _selectThisWeek() {
     final now = DateTime.now();
     final weekStart = now.subtract(Duration(days: now.weekday - 1));
@@ -587,6 +647,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     _applyFilters();
   }
 
+  /// يطبق سريعًا نطاق الشهر الحالي.
+  /// Quickly applies the current month range.
   void _selectThisMonth() {
     final now = DateTime.now();
     final monthStart = DateTime(now.year, now.month, 1);
@@ -600,6 +662,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     _applyFilters();
   }
 
+  /// يعيد كل الفلاتر إلى حالتها الافتراضية.
+  /// Resets all filters back to their defaults.
   void _clearFilters() {
     setState(() {
       _filters = const BookingFilters();
@@ -610,11 +674,14 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     _applyFilters();
   }
 
+  /// يرسل الحالة الحالية إلى الطبقة الأعلى لتحديث القائمة.
+  /// Sends the current state upward so the list can refresh.
   void _applyFilters() {
     widget.onFiltersChanged(_filters);
   }
 
-  // فلتر حالة الدفع
+  /// يبني قائمة منسدلة لحالة الدفع الخاصة بالحجز.
+  /// Builds the dropdown used for payment-status filtering.
   Widget _buildPaymentStatusDropdown({bool isCompact = false}) {
     return Container(
       height: isCompact ? 40 : null,
@@ -664,7 +731,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
-  // صف الفلاتر المتقدمة
+  /// يجمع حقول السعر والضيوف ومصدر الحجز في صف متقدم.
+  /// Combines price, guests, and booking source in one advanced row.
   Widget _buildAdvancedFiltersRow() {
     return Row(
       children: [
@@ -677,9 +745,16 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
+  /// يتحكم في قيمة الحد الأدنى للسعر المكتوبة يدويًا.
+  /// Controls the manually entered minimum price value.
   final TextEditingController _minPriceController = TextEditingController();
+
+  /// يتحكم في قيمة الحد الأدنى لعدد الضيوف.
+  /// Controls the manually entered minimum guest count.
   final TextEditingController _minGuestsController = TextEditingController();
 
+  /// يبني حقل الحد الأدنى للسعر ويحوّله إلى فلتر فعلي.
+  /// Builds the minimum price field and converts input into an active filter.
   Widget _buildMinPriceField() {
     return Container(
       decoration: BoxDecoration(
@@ -721,6 +796,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
+  /// يبني حقل الحد الأدنى لعدد الضيوف ويحدّث الفلتر مباشرة.
+  /// Builds the minimum guest-count field and updates the filter immediately.
   Widget _buildMinGuestsField() {
     return Container(
       decoration: BoxDecoration(
@@ -762,6 +839,8 @@ class _BookingFiltersWidgetState extends State<BookingFiltersWidget> {
     );
   }
 
+  /// يبني قائمة منسدلة لمصدر الحجز المستخدم في التصفية.
+  /// Builds the booking-source dropdown used for filtering.
   Widget _buildBookingSourceDropdown() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),

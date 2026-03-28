@@ -11,17 +11,15 @@ import 'services_state.dart';
 
 /// 🎯 BLoC للخدمات
 class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
+  /// العربية: يخزن القيمة `createServiceUseCase`.
   final CreateServiceUseCase createServiceUseCase;
   final UpdateServiceUseCase updateServiceUseCase;
   final DeleteServiceUseCase deleteServiceUseCase;
   final GetServicesByPropertyUseCase getServicesByPropertyUseCase;
   final GetServiceDetailsUseCase getServiceDetailsUseCase;
   final GetServicesByTypeUseCase getServicesByTypeUseCase;
-
   String? _selectedPropertyId;
-  String? _currentSearchQuery;
   String? _currentServiceType;
-
   ServicesBloc({
     required this.createServiceUseCase,
     required this.updateServiceUseCase,
@@ -39,7 +37,6 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
     on<SelectPropertyEvent>(_onSelectProperty);
     on<SearchServicesEvent>(_onSearchServices);
   }
-
   Future<void> _onLoadServices(
     LoadServicesEvent event,
     Emitter<ServicesState> emit,
@@ -50,11 +47,12 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       if (event.propertyId != null) {
         // Load services by property
         final result = await getServicesByPropertyUseCase(event.propertyId!);
-        
+
         result.fold(
           (failure) => emit(ServicesError(failure.message)),
           (services) {
-            final paidServices = services.where((s) => s.price.amount > 0).length;
+            final paidServices =
+                services.where((s) => s.price.amount > 0).length;
             emit(ServicesLoaded(
               services: services,
               selectedPropertyId: event.propertyId,
@@ -73,13 +71,12 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
           ),
         );
         _currentServiceType = event.serviceType;
-        
+
         result.fold(
           (failure) => emit(ServicesError(failure.message)),
           (paginatedResult) {
-            final paidServices = paginatedResult.items
-                .where((s) => s.price.amount > 0)
-                .length;
+            final paidServices =
+                paginatedResult.items.where((s) => s.price.amount > 0).length;
             emit(ServicesLoaded(
               services: paginatedResult.items,
               paginatedServices: paginatedResult,
@@ -96,7 +93,6 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       emit(ServicesError(e.toString()));
     }
   }
-
   Future<void> _onLoadMoreServices(
     LoadMoreServicesEvent event,
     Emitter<ServicesState> emit,
@@ -148,7 +144,6 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       },
     );
   }
-
   Future<void> _onCreateService(
     CreateServiceEvent event,
     Emitter<ServicesState> emit,
@@ -175,7 +170,6 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       },
     );
   }
-
   Future<void> _onUpdateService(
     UpdateServiceEvent event,
     Emitter<ServicesState> emit,
@@ -204,7 +198,6 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       },
     );
   }
-
   Future<void> _onDeleteService(
     DeleteServiceEvent event,
     Emitter<ServicesState> emit,
@@ -224,7 +217,6 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       },
     );
   }
-
   Future<void> _onLoadServiceDetails(
     LoadServiceDetailsEvent event,
     Emitter<ServicesState> emit,
@@ -238,7 +230,6 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       (serviceDetails) => emit(ServiceDetailsLoaded(serviceDetails)),
     );
   }
-
   Future<void> _onSelectProperty(
     SelectPropertyEvent event,
     Emitter<ServicesState> emit,
@@ -248,25 +239,23 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       add(LoadServicesEvent(propertyId: event.propertyId));
     } else {
       _currentServiceType = 'all';
-      add(const LoadServicesEvent(serviceType: 'all', pageNumber: 1, pageSize: 20));
+      add(const LoadServicesEvent(
+          serviceType: 'all', pageNumber: 1, pageSize: 20));
     }
   }
-
   Future<void> _onSearchServices(
     SearchServicesEvent event,
     Emitter<ServicesState> emit,
   ) async {
-    _currentSearchQuery = event.query;
-    
     if (state is ServicesLoaded) {
       final currentState = state as ServicesLoaded;
-      
+
       final filteredServices = currentState.services.where((service) {
         final query = event.query.toLowerCase();
         return service.name.toLowerCase().contains(query) ||
-               service.propertyName.toLowerCase().contains(query);
+            service.propertyName.toLowerCase().contains(query);
       }).toList();
-      
+
       emit(currentState.copyWith(
         services: filteredServices,
         searchQuery: event.query,

@@ -5,9 +5,13 @@ import '../repositories/daily_schedule_repository.dart';
 
 /// معاملات حذف الجدول
 class DeleteScheduleParams {
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
+
   final DateTime startDate;
+
   final DateTime endDate;
+
   final bool forceDelete;
 
   const DeleteScheduleParams({
@@ -20,6 +24,7 @@ class DeleteScheduleParams {
 
 /// Use case لحذف الجدول
 class DeleteScheduleUseCase implements UseCase<int, DeleteScheduleParams> {
+  /// العربية: يخزن القيمة `repository`.
   final DailyScheduleRepository repository;
 
   DeleteScheduleUseCase(this.repository);

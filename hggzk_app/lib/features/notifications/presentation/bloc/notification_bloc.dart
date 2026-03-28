@@ -10,19 +10,53 @@ import '../../domain/usecases/update_notification_settings_usecase.dart';
 import 'notification_event.dart';
 import 'notification_state.dart';
 
+/// يدير تحميل الإشعارات وتحديث حالتها وتفضيلاتها داخل طبقة العرض.
+/// Manages notification loading, state updates, and preferences in the
+/// presentation layer.
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
+  /// يحمّل صفحات الإشعارات من طبقة الدومين عند الطلب.
+  /// Loads notification pages from the domain layer on demand.
   final GetNotificationsUseCase? getNotificationsUseCase;
+
+  /// يعلّم إشعارًا واحدًا أو مجموعة إشعارات كمقروءة عند تنفيذ الإجراء.
+  /// Marks one notification or a batch as read when triggered.
   final MarkAsReadUseCase? markAsReadUseCase;
+
+  /// يزيل الإشعار من الواجهة ومن الحالة المحلية بعد تنفيذ الإخفاء.
+  /// Removes a notification from the UI and local state after dismissal.
   final DismissNotificationUseCase? dismissNotificationUseCase;
+
+  /// يحدّث إعدادات الإشعارات المخزنة مثل التنبيهات والتفضيلات المرتبطة.
+  /// Updates stored notification settings such as alerts and related
+  /// preferences.
   final UpdateNotificationSettingsUseCase? updateNotificationSettingsUseCase;
+
+  /// يجلب عدد الإشعارات غير المقروءة حتى تبقى الشارة متزامنة.
+  /// Fetches the unread count so badges stay in sync.
   final GetUnreadCountUseCase? getUnreadCountUseCase;
+
+  /// يسترجع إعدادات الإشعارات المحفوظة لعرضها أو تعديلها.
+  /// Retrieves saved notification settings for display or editing.
   final GetNotificationSettingsUseCase? getNotificationSettingsUseCase;
 
+  /// نسخة محلية من الإشعارات لتقليل الطلبات المتكررة أثناء التصفح.
+  /// Local notification cache used to reduce repeated requests while browsing.
   List<NotificationEntity> _cachedNotifications = [];
+
+  /// رقم الصفحة الجاري تحميلها أو عرضه من الخادم.
+  /// The page number currently being loaded or displayed from the server.
   int _currentPage = 1;
+
+  /// يوضح ما إذا كانت كل الصفحات المتاحة قد جرى الوصول إليها.
+  /// Indicates whether all available pages have already been reached.
   bool _hasReachedMax = false;
+
+  /// عدد الإشعارات غير المقروءة المحسوب من المصدر المحلي أو البعيد.
+  /// The unread count computed from either local or remote data.
   int _unreadCount = 0;
 
+  /// ينشئ منطق الإشعارات ويربطه بأحداث التحميل والتحديث المختلفة.
+  /// Creates the notifications bloc and wires it to loading and update events.
   NotificationBloc({
     this.getNotificationsUseCase,
     this.markAsReadUseCase,
@@ -40,6 +74,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     on<LoadNotificationSettingsEvent>(_onLoadNotificationSettings);
   }
 
+  /// يجلب صفحة جديدة من الإشعارات مع دعم التحديث الكامل أو التحميل التدريجي.
+  /// Fetches a new notification page with support for full refresh or
+  /// incremental loading.
   Future<void> _onLoadNotifications(
     LoadNotificationsEvent event,
     Emitter<NotificationState> emit,
@@ -79,6 +116,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     );
   }
 
+  /// يرسل طلب التعليم كمقروء ثم يحدّث الحالة المحلية والشارة.
+  /// Sends the mark-as-read request, then updates local state and badges.
   Future<void> _onMarkAsRead(
     MarkNotificationAsReadEvent event,
     Emitter<NotificationState> emit,
@@ -109,6 +148,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     );
   }
 
+  /// يعلّم جميع الإشعارات كمقروءة ويعيد مزامنة العدّاد والقائمة.
+  /// Marks all notifications as read and re-syncs the counter and list.
   Future<void> _onMarkAllAsRead(
     MarkAllNotificationsAsReadEvent event,
     Emitter<NotificationState> emit,
@@ -137,6 +178,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     );
   }
 
+  /// يخفي الإشعار المحدد من الخادم ثم يزيله من الحالة المحلية.
+  /// Dismisses the selected notification from the server and local state.
   Future<void> _onDismissNotification(
     DismissNotificationEvent event,
     Emitter<NotificationState> emit,
@@ -166,6 +209,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     );
   }
 
+  /// يحدّث إعدادات الإشعارات ويبلّغ الواجهة بنتيجة العملية.
+  /// Updates notification settings and reports the operation result to the
+  /// UI.
   Future<void> _onUpdateSettings(
     UpdateNotificationSettingsEvent event,
     Emitter<NotificationState> emit,
@@ -187,6 +233,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     );
   }
 
+  /// يجلب إعدادات الإشعارات المخزنة لعرضها في شاشة التفضيلات.
+  /// Loads the stored notification settings for the preferences screen.
   Future<void> _onLoadNotificationSettings(
     LoadNotificationSettingsEvent event,
     Emitter<NotificationState> emit,
@@ -209,6 +257,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     );
   }
 
+  /// يزامن عدّاد غير المقروء مع المصدر البعيد أو مع الحالة المحلية كبديل.
+  /// Syncs the unread counter with the remote source or falls back to the
+  /// local state.
   Future<void> _onLoadUnreadCount(
     LoadUnreadCountEvent event,
     Emitter<NotificationState> emit,
@@ -238,6 +289,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     );
   }
 
+  /// يحول أنواع الفشل الشائعة إلى رسائل مفهومة للمستخدم.
+  /// Maps common failure types to user-friendly messages.
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
       case ServerFailure:
@@ -249,6 +302,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     }
   }
 
+  /// يدمج البيانات الجديدة مع النسخة المحلية ويعيد حساب العدد غير المقروء.
+  /// Merges new data into the local cache and recalculates the unread count.
   void _updateCachedNotifications(
     List<NotificationEntity> freshNotifications, {
     required bool refresh,
@@ -273,6 +328,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         .length;
   }
 
+  /// ينشئ نسخة من الإشعار مع ضبطه كمقروء إذا كان ما زال غير مقروء.
+  /// Builds a copy of a notification marked as read when it is still unread.
   NotificationEntity _markNotificationAsRead(NotificationEntity notification) {
     if (notification.isRead) {
       return notification;
@@ -290,6 +347,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     );
   }
 
+  /// يعيد جلب العدّاد غير المقروء أو يحسبه محليًا إذا تعذر الوصول للمصدر.
+  /// Refreshes the unread counter or falls back to local counting if the
+  /// source is unavailable.
   Future<void> _refreshUnreadCount() async {
     if (getUnreadCountUseCase == null) {
       _unreadCount = _cachedNotifications
@@ -312,6 +372,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     );
   }
 
+  /// يرسل حالة التحميل النهائية إلى الواجهة مع كل البيانات المحسوبة.
+  /// Emits the final loaded state to the UI with all computed data.
   void _emitLoadedState(Emitter<NotificationState> emit) {
     emit(NotificationLoaded(
       notifications:

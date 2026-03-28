@@ -5,7 +5,9 @@ import '../../../../core/theme/app_text_styles.dart';
 enum BadgeSize { small, medium, large }
 
 class SectionStatusBadge extends StatelessWidget {
+  /// العربية: يحدد ما إذا كانت القيمة `isActive` مفعلة.
   final bool isActive;
+
   final BadgeSize size;
 
   const SectionStatusBadge({

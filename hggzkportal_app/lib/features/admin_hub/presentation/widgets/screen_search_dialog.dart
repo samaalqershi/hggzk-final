@@ -12,19 +12,16 @@ import '../../domain/models/searchable_screen.dart';
 import '../../data/services/screen_search_service.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
-
 class ScreenSearchDialog extends StatefulWidget {
+  /// العربية: يخزن القيمة `searchService`.
   final ScreenSearchService searchService;
-
   const ScreenSearchDialog({
     super.key,
     required this.searchService,
   });
-
   @override
   State<ScreenSearchDialog> createState() => _ScreenSearchDialogState();
 }
-
 class _ScreenSearchDialogState extends State<ScreenSearchDialog>
     with TickerProviderStateMixin {
   // Controllers
@@ -44,7 +41,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
   List<String> _searchHistory = [];
   bool _isSearching = false;
   String _selectedCategory = '';
-
   @override
   void initState() {
     super.initState();
@@ -52,7 +48,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
     _initializeControllers();
     _loadInitialData();
   }
-
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
@@ -90,7 +85,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
 
     _animationController.forward();
   }
-
   void _initializeControllers() {
     _searchController = TextEditingController();
     _searchFocusNode = FocusNode();
@@ -102,14 +96,15 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
       _searchFocusNode.requestFocus();
     });
   }
-
   void _loadInitialData() async {
     final (isAdmin, isOwner) = context.select((AuthBloc bloc) {
       final s = bloc.state;
       if (s is AuthAuthenticated) return (s.user.isAdmin, s.user.isOwner);
       if (s is AuthLoginSuccess) return (s.user.isAdmin, s.user.isOwner);
-      if (s is AuthProfileUpdateSuccess) return (s.user.isAdmin, s.user.isOwner);
-      if (s is AuthProfileImageUploadSuccess) return (s.user.isAdmin, s.user.isOwner);
+      if (s is AuthProfileUpdateSuccess)
+        return (s.user.isAdmin, s.user.isOwner);
+      if (s is AuthProfileImageUploadSuccess)
+        return (s.user.isAdmin, s.user.isOwner);
       return (false, false);
     });
 
@@ -124,7 +119,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
       _searchHistory = searchHistory;
     });
   }
-
   void _onSearchChanged() {
     final query = _searchController.text;
 
@@ -137,8 +131,10 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
           final s = bloc.state;
           if (s is AuthAuthenticated) return (s.user.isAdmin, s.user.isOwner);
           if (s is AuthLoginSuccess) return (s.user.isAdmin, s.user.isOwner);
-          if (s is AuthProfileUpdateSuccess) return (s.user.isAdmin, s.user.isOwner);
-          if (s is AuthProfileImageUploadSuccess) return (s.user.isAdmin, s.user.isOwner);
+          if (s is AuthProfileUpdateSuccess)
+            return (s.user.isAdmin, s.user.isOwner);
+          if (s is AuthProfileImageUploadSuccess)
+            return (s.user.isAdmin, s.user.isOwner);
           return (false, false);
         });
         final results = widget.searchService.searchScreens(query);
@@ -150,7 +146,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
       }
     });
   }
-
   void _navigateToScreen(SearchableScreen screen) async {
     HapticFeedback.lightImpact();
 
@@ -166,14 +161,12 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
       context.push(screen.path);
     }
   }
-
   void _searchFromHistory(String query) {
     _searchController.text = query;
     _searchController.selection = TextSelection.fromPosition(
       TextPosition(offset: query.length),
     );
   }
-
   void _filterByCategory(String category) {
     setState(() {
       _selectedCategory = _selectedCategory == category ? '' : category;
@@ -182,8 +175,10 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
           final s = bloc.state;
           if (s is AuthAuthenticated) return (s.user.isAdmin, s.user.isOwner);
           if (s is AuthLoginSuccess) return (s.user.isAdmin, s.user.isOwner);
-          if (s is AuthProfileUpdateSuccess) return (s.user.isAdmin, s.user.isOwner);
-          if (s is AuthProfileImageUploadSuccess) return (s.user.isAdmin, s.user.isOwner);
+          if (s is AuthProfileUpdateSuccess)
+            return (s.user.isAdmin, s.user.isOwner);
+          if (s is AuthProfileImageUploadSuccess)
+            return (s.user.isAdmin, s.user.isOwner);
           return (false, false);
         });
         final base = widget.searchService.searchScreens('');
@@ -200,7 +195,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
       }
     });
   }
-
   @override
   void dispose() {
     _animationController.dispose();
@@ -209,7 +203,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
     _searchFocusNode.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -244,7 +237,7 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
                       colors: [
                         AppTheme.darkBackground,
                         AppTheme.darkBackground2,
-                        AppTheme.darkBackground3.withOpacity(0.5),
+                        AppTheme.darkBackground3.withValues(alpha: 0.5),
                       ],
                     ),
                   ),
@@ -267,9 +260,12 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
                                     shape: BoxShape.circle,
                                     gradient: RadialGradient(
                                       colors: [
-                                        AppTheme.primaryBlue.withOpacity(0.2),
-                                        AppTheme.primaryBlue.withOpacity(0.05),
-                                        AppTheme.primaryBlue.withOpacity(0.01),
+                                        AppTheme.primaryBlue
+                                            .withValues(alpha: 0.2),
+                                        AppTheme.primaryBlue
+                                            .withValues(alpha: 0.05),
+                                        AppTheme.primaryBlue
+                                            .withValues(alpha: 0.01),
                                       ],
                                     ),
                                   ),
@@ -286,9 +282,12 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
                                     shape: BoxShape.circle,
                                     gradient: RadialGradient(
                                       colors: [
-                                        AppTheme.primaryPurple.withOpacity(0.15),
-                                        AppTheme.primaryPurple.withOpacity(0.04),
-                                        AppTheme.primaryPurple.withOpacity(0.01),
+                                        AppTheme.primaryPurple
+                                            .withValues(alpha: 0.15),
+                                        AppTheme.primaryPurple
+                                            .withValues(alpha: 0.04),
+                                        AppTheme.primaryPurple
+                                            .withValues(alpha: 0.01),
                                       ],
                                     ),
                                   ),
@@ -307,8 +306,10 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
                                       shape: BoxShape.circle,
                                       gradient: RadialGradient(
                                         colors: [
-                                          AppTheme.primaryViolet.withOpacity(0.1),
-                                          AppTheme.primaryViolet.withOpacity(0.02),
+                                          AppTheme.primaryViolet
+                                              .withValues(alpha: 0.1),
+                                          AppTheme.primaryViolet
+                                              .withValues(alpha: 0.02),
                                           Colors.transparent,
                                         ],
                                       ),
@@ -335,22 +336,22 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppTheme.darkCard.withOpacity(0.6),
-                        AppTheme.darkCard.withOpacity(0.3),
+                        AppTheme.darkCard.withValues(alpha: 0.6),
+                        AppTheme.darkCard.withValues(alpha: 0.3),
                       ],
                     ),
                     border: Border.all(
-                      color: AppTheme.glowBlue.withOpacity(0.1),
+                      color: AppTheme.glowBlue.withValues(alpha: 0.1),
                       width: 0.5,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                         blurRadius: 30,
                         spreadRadius: 5,
                       ),
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -378,14 +379,13 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
       ),
     );
   }
-
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
             width: 0.5,
           ),
         ),
@@ -404,8 +404,8 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(
-                        0.3 + (0.2 * _pulseController.value),
+                      color: AppTheme.primaryBlue.withValues(
+                        alpha: 0.3 + (0.2 * _pulseController.value),
                       ),
                       blurRadius: 20,
                       spreadRadius: 2,
@@ -436,7 +436,7 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
                 Text(
                   'ابحث عن أي شاشة في النظام',
                   style: AppTextStyles.caption.copyWith(
-                    color: AppTheme.textMuted.withOpacity(0.7),
+                    color: AppTheme.textMuted.withValues(alpha: 0.7),
                   ),
                 ),
               ],
@@ -452,7 +452,7 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.inputBackground.withOpacity(0.3),
+                color: AppTheme.inputBackground.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
@@ -466,7 +466,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
       ),
     );
   }
-
   Widget _buildSearchBar() {
     return Container(
       margin: const EdgeInsets.all(20),
@@ -474,20 +473,20 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
         borderRadius: BorderRadius.circular(16),
         gradient: LinearGradient(
           colors: [
-            AppTheme.inputBackground.withOpacity(0.5),
-            AppTheme.inputBackground.withOpacity(0.3),
+            AppTheme.inputBackground.withValues(alpha: 0.5),
+            AppTheme.inputBackground.withValues(alpha: 0.3),
           ],
         ),
         border: Border.all(
           color: _searchFocusNode.hasFocus
-              ? AppTheme.primaryBlue.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.2),
+              ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 1,
         ),
         boxShadow: _searchFocusNode.hasFocus
             ? [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.1),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -503,7 +502,7 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
         decoration: InputDecoration(
           hintText: 'ابحث عن شاشة، صفحة، أو ميزة...',
           hintStyle: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textMuted.withOpacity(0.5),
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
           ),
           prefixIcon: Icon(
             Icons.search_rounded,
@@ -532,7 +531,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
       ),
     );
   }
-
   Widget _buildCategories() {
     final categories = [
       {'name': ScreenCategory.financial, 'icon': Icons.account_balance_rounded},
@@ -577,18 +575,19 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
                         gradient: isSelected ? AppTheme.primaryGradient : null,
                         color: isSelected
                             ? null
-                            : AppTheme.darkCard.withOpacity(0.5),
+                            : AppTheme.darkCard.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: isSelected
-                              ? AppTheme.primaryBlue.withOpacity(0.5)
-                              : AppTheme.darkBorder.withOpacity(0.2),
+                              ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                              : AppTheme.darkBorder.withValues(alpha: 0.2),
                           width: 1,
                         ),
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: AppTheme.primaryBlue.withOpacity(0.2),
+                                  color: AppTheme.primaryBlue
+                                      .withValues(alpha: 0.2),
                                   blurRadius: 10,
                                   spreadRadius: 1,
                                 ),
@@ -628,7 +627,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
       ),
     );
   }
-
   Widget _buildContent() {
     if (_isSearching) {
       return _buildSearchResults();
@@ -636,7 +634,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
       return _buildSuggestions();
     }
   }
-
   Widget _buildSearchResults() {
     if (_searchResults.isEmpty) {
       return _buildEmptyState();
@@ -664,7 +661,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
       ),
     );
   }
-
   Widget _buildSuggestions() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -741,10 +737,10 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: AppTheme.inputBackground.withOpacity(0.3),
+                      color: AppTheme.inputBackground.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: AppTheme.darkBorder.withOpacity(0.2),
+                        color: AppTheme.darkBorder.withValues(alpha: 0.2),
                         width: 0.5,
                       ),
                     ),
@@ -774,7 +770,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
       ),
     );
   }
-
   Widget _buildSectionTitle(String title, IconData icon) {
     return Row(
       children: [
@@ -783,8 +778,8 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.2),
-                AppTheme.primaryCyan.withOpacity(0.2),
+                AppTheme.primaryBlue.withValues(alpha: 0.2),
+                AppTheme.primaryCyan.withValues(alpha: 0.2),
               ],
             ),
             borderRadius: BorderRadius.circular(8),
@@ -806,7 +801,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
       ],
     );
   }
-
   Widget _buildScreenTile(SearchableScreen screen) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -814,12 +808,12 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
         borderRadius: BorderRadius.circular(16),
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.6),
-            AppTheme.darkCard.withOpacity(0.4),
+            AppTheme.darkCard.withValues(alpha: 0.6),
+            AppTheme.darkCard.withValues(alpha: 0.4),
           ],
         ),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.1),
+          color: AppTheme.darkBorder.withValues(alpha: 0.1),
           width: 0.5,
         ),
       ),
@@ -841,7 +835,7 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: screen.gradientColors[0].withOpacity(0.3),
+                        color: screen.gradientColors[0].withValues(alpha: 0.3),
                         blurRadius: 12,
                         spreadRadius: 1,
                       ),
@@ -885,10 +879,12 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: AppTheme.primaryBlue.withOpacity(0.1),
+                                color:
+                                    AppTheme.primaryBlue.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: AppTheme.primaryBlue.withOpacity(0.3),
+                                  color: AppTheme.primaryBlue
+                                      .withValues(alpha: 0.3),
                                   width: 0.5,
                                 ),
                               ),
@@ -932,7 +928,8 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color: AppTheme.inputBackground.withOpacity(0.3),
+                              color: AppTheme.inputBackground
+                                  .withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -948,7 +945,8 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
                             child: Text(
                               screen.path,
                               style: AppTextStyles.caption.copyWith(
-                                color: AppTheme.textMuted.withOpacity(0.5),
+                                color:
+                                    AppTheme.textMuted.withValues(alpha: 0.5),
                                 fontSize: 11,
                               ),
                               maxLines: 1,
@@ -964,7 +962,7 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
                 // Arrow
                 Icon(
                   Icons.arrow_forward_ios_rounded,
-                  color: AppTheme.textMuted.withOpacity(0.5),
+                  color: AppTheme.textMuted.withValues(alpha: 0.5),
                   size: 16,
                 ),
               ],
@@ -974,7 +972,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
       ),
     );
   }
-
   Widget _buildQuickSuggestionCard(SearchableScreen screen) {
     return GestureDetector(
       onTap: () => _navigateToScreen(screen),
@@ -988,13 +985,13 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              screen.gradientColors[0].withOpacity(0.1),
-              screen.gradientColors[1].withOpacity(0.05),
+              screen.gradientColors[0].withValues(alpha: 0.1),
+              screen.gradientColors[1].withValues(alpha: 0.05),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: screen.gradientColors[0].withOpacity(0.2),
+            color: screen.gradientColors[0].withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -1050,7 +1047,6 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
       ),
     );
   }
-
   Widget _buildEmptyState() {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -1073,8 +1069,8 @@ class _ScreenSearchDialogState extends State<ScreenSearchDialog>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppTheme.primaryBlue.withOpacity(0.1),
-                          AppTheme.primaryCyan.withOpacity(0.1),
+                          AppTheme.primaryBlue.withValues(alpha: 0.1),
+                          AppTheme.primaryCyan.withValues(alpha: 0.1),
                         ],
                       ),
                       shape: BoxShape.circle,

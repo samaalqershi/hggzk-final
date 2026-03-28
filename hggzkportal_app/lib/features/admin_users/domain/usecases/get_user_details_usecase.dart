@@ -5,7 +5,8 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/user_details.dart';
 import '../repositories/users_repository.dart';
 
-class GetUserDetailsUseCase implements UseCase<UserDetails, GetUserDetailsParams> {
+class GetUserDetailsUseCase
+    implements UseCase<UserDetails, GetUserDetailsParams> {
   final UsersRepository repository;
 
   GetUserDetailsUseCase(this.repository);

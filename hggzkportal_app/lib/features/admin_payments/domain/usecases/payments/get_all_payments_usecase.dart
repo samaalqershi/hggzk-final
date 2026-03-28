@@ -10,9 +10,7 @@ import '../../repositories/payments_repository.dart';
 class GetAllPaymentsUseCase
     implements UseCase<PaginatedResult<Payment>, GetAllPaymentsParams> {
   final PaymentsRepository repository;
-
   GetAllPaymentsUseCase(this.repository);
-
   @override
   Future<Either<Failure, PaginatedResult<Payment>>> call(
     GetAllPaymentsParams params,
@@ -35,6 +33,7 @@ class GetAllPaymentsUseCase
 }
 
 class GetAllPaymentsParams extends Equatable {
+  /// العربية: يخزن القيمة `status`.
   final PaymentStatus? status;
   final PaymentMethod? method;
   final String? bookingId;
@@ -47,7 +46,6 @@ class GetAllPaymentsParams extends Equatable {
   final DateTime? endDate;
   final int? pageNumber;
   final int? pageSize;
-
   const GetAllPaymentsParams({
     this.status,
     this.method,
@@ -62,7 +60,6 @@ class GetAllPaymentsParams extends Equatable {
     this.pageNumber,
     this.pageSize,
   });
-
   @override
   List<Object?> get props => [
         status,

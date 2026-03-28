@@ -33,13 +33,20 @@ class UserModel extends User {
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: (json['id'] ?? json['userId'] ?? '').toString(),
-      name: (json['name'] ?? json['fullName'] ?? json['userName'] ?? '').toString(),
-      role: (json['role'] ?? json['roleName'] ?? json['accountRole'] ?? '').toString(),
+      name: (json['name'] ?? json['fullName'] ?? json['userName'] ?? '')
+          .toString(),
+      role: (json['role'] ?? json['roleName'] ?? json['accountRole'] ?? '')
+          .toString(),
       email: (json['email'] ?? '').toString(),
       phone: (json['phone'] ?? json['phoneNumber'] ?? '').toString(),
       profileImage: (json['profileImage'] ?? json['avatarUrl']) as String?,
-      createdAt: DateTime.tryParse((json['createdAt'] ?? json['registeredAt'] ?? DateTime.now().toIso8601String()).toString()) ?? DateTime.now(),
-      isActive: (json['isActive'] as bool?) ?? (json['active'] as bool?) ?? true,
+      createdAt: DateTime.tryParse((json['createdAt'] ??
+                  json['registeredAt'] ??
+                  DateTime.now().toIso8601String())
+              .toString()) ??
+          DateTime.now(),
+      isActive:
+          (json['isActive'] as bool?) ?? (json['active'] as bool?) ?? true,
       settings: json['settingsJson'] != null
           ? jsonDecode(json['settingsJson'] as String) as Map<String, dynamic>?
           : null,

@@ -6,48 +6,89 @@ import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
-import '../../../../core/widgets/loading_widget.dart';
 import '../../domain/entities/conversation.dart';
 import '../bloc/chat_bloc.dart';
 import '../widgets/media_grid_widget.dart';
 import '../widgets/participant_item_widget.dart';
 
+/// يعرّف الكلاس `ChatSettingsPage`.
+/// Describes the `ChatSettingsPage` class.
 class ChatSettingsPage extends StatefulWidget {
+  /// Holds the `conversation` value.
+  /// العربية: يخزن القيمة `conversation`.
   final Conversation conversation;
 
+  /// ينشئ مثيلاً من `ChatSettingsPage`.
+  /// Builds an instance of `ChatSettingsPage`.
   const ChatSettingsPage({
     super.key,
     required this.conversation,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<ChatSettingsPage> createState() => _ChatSettingsPageState();
 }
 
+/// يعرّف الكلاس `_ChatSettingsPageState`.
+/// Describes the `_ChatSettingsPageState` class.
 class _ChatSettingsPageState extends State<ChatSettingsPage>
     with TickerProviderStateMixin {
   // Controllers
+  /// يخزن العضو `_tabController`.
+  /// Holds the `_tabController` member.
   late TabController _tabController;
+
+  /// يخزن العضو `_fadeController`.
+  /// Holds the `_fadeController` member.
   late AnimationController _fadeController;
+
+  /// يخزن العضو `_slideController`.
+  /// Holds the `_slideController` member.
   late AnimationController _slideController;
+
+  /// يخزن العضو `_glowController`.
+  /// Holds the `_glowController` member.
   late AnimationController _glowController;
+
+  /// يخزن العضو `_headerController`.
+  /// Holds the `_headerController` member.
   late AnimationController _headerController;
+
+  /// يخزن العضو `_floatingController`.
+  /// Holds the `_floatingController` member.
   late AnimationController _floatingController;
 
   // Animations
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
+
+  /// يخزن العضو `_slideAnimation`.
+  /// Holds the `_slideAnimation` member.
   late Animation<Offset> _slideAnimation;
+
+  /// يخزن العضو `_glowAnimation`.
+  /// Holds the `_glowAnimation` member.
   late Animation<double> _glowAnimation;
+
+  /// يخزن العضو `_headerAnimation`.
+  /// Holds the `_headerAnimation` member.
   late Animation<double> _headerAnimation;
+
+  /// يخزن العضو `_floatingAnimation`.
+  /// Holds the `_floatingAnimation` member.
   late Animation<double> _floatingAnimation;
 
   // Scroll Controller
   final ScrollController _scrollController = ScrollController();
 
   // Data
+  /// يعيد قيمة `currentUserId`.
+  /// Exposes the `currentUserId` value.
   String get currentUserId {
     final authState = context.read<AuthBloc>().state;
     if (authState is AuthAuthenticated && authState.user.userId.isNotEmpty) {
@@ -56,17 +97,34 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     return 'current_user';
   }
 
+  /// يخزن العضو `_notificationsEnabled`.
+  /// Holds the `_notificationsEnabled` member.
   bool _notificationsEnabled = true;
+
+  /// يخزن العضو `_showReadReceipts`.
+  /// Holds the `_showReadReceipts` member.
   bool _showReadReceipts = true;
+
+  /// يخزن العضو `_theme`.
+  /// Holds the `_theme` member.
   String _theme = 'default';
 
   // UI State
+  /// يخزن العضو `_headerOpacity`.
+  /// Holds the `_headerOpacity` member.
   double _headerOpacity = 1.0;
+
+  /// يخزن العضو `_isHeaderExpanded`.
+  /// Holds the `_isHeaderExpanded` member.
   bool _isHeaderExpanded = true;
 
   // Background elements
+  /// يخزن العضو `_floatingOrbs`.
+  /// Holds the `_floatingOrbs` member.
   final List<_FloatingOrb> _floatingOrbs = [];
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -77,6 +135,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     _scrollController.addListener(_onScroll);
   }
 
+  /// ينفذ العملية `_initializeControllers`.
+  /// Runs the `_initializeControllers` operation.
   void _initializeControllers() {
     _tabController = TabController(length: 3, vsync: this);
 
@@ -106,6 +166,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     )..repeat();
   }
 
+  /// ينفذ العملية `_initializeAnimations`.
+  /// Runs the `_initializeAnimations` operation.
   void _initializeAnimations() {
     _fadeAnimation = CurvedAnimation(
       parent: _fadeController,
@@ -147,12 +209,16 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     _headerController.forward();
   }
 
+  /// ينفذ العملية `_generateFloatingOrbs`.
+  /// Runs the `_generateFloatingOrbs` operation.
   void _generateFloatingOrbs() {
     for (int i = 0; i < 5; i++) {
       _floatingOrbs.add(_FloatingOrb());
     }
   }
 
+  /// ينفذ العملية `_onScroll`.
+  /// Runs the `_onScroll` operation.
   void _onScroll() {
     final offset = _scrollController.offset;
     setState(() {
@@ -161,6 +227,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     });
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _tabController.dispose();
@@ -173,10 +241,14 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     super.dispose();
   }
 
+  /// ينفذ العملية `_loadSettings`.
+  /// Runs the `_loadSettings` operation.
   void _loadSettings() {
     context.read<ChatBloc>().add(const LoadChatSettingsEvent());
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -225,6 +297,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_buildPremiumBackground`.
+  /// Runs the `_buildPremiumBackground` operation.
   Widget _buildPremiumBackground() {
     return AnimatedBuilder(
       animation: _floatingAnimation,
@@ -252,6 +326,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_buildFloatingOrbs`.
+  /// Runs the `_buildFloatingOrbs` operation.
   Widget _buildFloatingOrbs() {
     return AnimatedBuilder(
       animation: _floatingController,
@@ -267,6 +343,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_buildPremiumSliverAppBar`.
+  /// Runs the `_buildPremiumSliverAppBar` operation.
   Widget _buildPremiumSliverAppBar() {
     final displayImage = widget.conversation.avatar ??
         widget.conversation.getOtherParticipant(currentUserId)?.profileImage;
@@ -459,6 +537,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_buildGlassIconButton`.
+  /// Runs the `_buildGlassIconButton` operation.
   Widget _buildGlassIconButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -499,6 +579,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_buildPremiumInfoSection`.
+  /// Runs the `_buildPremiumInfoSection` operation.
   Widget _buildPremiumInfoSection() {
     return Container(
       margin: const EdgeInsets.all(12),
@@ -573,6 +655,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_buildPremiumTabBar`.
+  /// Runs the `_buildPremiumTabBar` operation.
   Widget _buildPremiumTabBar() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12),
@@ -624,6 +708,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_buildPremiumMediaTab`.
+  /// Runs the `_buildPremiumMediaTab` operation.
   Widget _buildPremiumMediaTab() {
     return BlocBuilder<ChatBloc, ChatState>(
       builder: (context, state) {
@@ -655,6 +741,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_buildPremiumParticipantsTab`.
+  /// Runs the `_buildPremiumParticipantsTab` operation.
   Widget _buildPremiumParticipantsTab() {
     if (widget.conversation.isDirectChat) {
       final otherParticipant =
@@ -718,6 +806,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_buildAddParticipantButton`.
+  /// Runs the `_buildAddParticipantButton` operation.
   Widget _buildAddParticipantButton() {
     return Container(
       margin: const EdgeInsets.all(12),
@@ -784,6 +874,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_buildPremiumSettingsTab`.
+  /// Runs the `_buildPremiumSettingsTab` operation.
   Widget _buildPremiumSettingsTab() {
     return BlocBuilder<ChatBloc, ChatState>(
       builder: (context, state) {
@@ -885,6 +977,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_buildPremiumSettingSection`.
+  /// Runs the `_buildPremiumSettingSection` operation.
   Widget _buildPremiumSettingSection({
     required String title,
     required IconData icon,
@@ -959,6 +1053,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_buildPremiumSwitch`.
+  /// Runs the `_buildPremiumSwitch` operation.
   Widget _buildPremiumSwitch({
     required String title,
     required String subtitle,
@@ -1007,6 +1103,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_buildPremiumListTile`.
+  /// Runs the `_buildPremiumListTile` operation.
   Widget _buildPremiumListTile({
     required IconData icon,
     required String title,
@@ -1086,6 +1184,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_buildPremiumLoadingState`.
+  /// Runs the `_buildPremiumLoadingState` operation.
   Widget _buildPremiumLoadingState() {
     return Center(
       child: Container(
@@ -1117,6 +1217,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_buildPremiumEmptyMediaState`.
+  /// Runs the `_buildPremiumEmptyMediaState` operation.
   Widget _buildPremiumEmptyMediaState() {
     return Center(
       child: TweenAnimationBuilder<double>(
@@ -1187,6 +1289,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_showMoreOptions`.
+  /// Runs the `_showMoreOptions` operation.
   void _showMoreOptions() {
     HapticFeedback.selectionClick();
     showModalBottomSheet(
@@ -1202,6 +1306,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
+  /// ينفذ العملية `_updateSettings`.
+  /// Runs the `_updateSettings` operation.
   void _updateSettings() {
     context.read<ChatBloc>().add(
           UpdateChatSettingsEvent(
@@ -1212,71 +1318,99 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
         );
   }
 
+  /// ينفذ العملية `_viewParticipantProfile`.
+  /// Runs the `_viewParticipantProfile` operation.
   void _viewParticipantProfile(ChatUser participant) {
     HapticFeedback.selectionClick();
     // Navigate to participant profile
   }
 
+  /// ينفذ العملية `_addParticipant`.
+  /// Runs the `_addParticipant` operation.
   void _addParticipant() {
     HapticFeedback.selectionClick();
     // Show add participant dialog
   }
 
+  /// ينفذ العملية `_removeParticipant`.
+  /// Runs the `_removeParticipant` operation.
   void _removeParticipant(ChatUser participant) {
     HapticFeedback.selectionClick();
     // Show confirmation and remove participant
   }
 
+  /// ينفذ العملية `_changeNotificationSound`.
+  /// Runs the `_changeNotificationSound` operation.
   void _changeNotificationSound() {
     HapticFeedback.selectionClick();
     // Show notification sound picker
   }
 
+  /// ينفذ العملية `_blockUser`.
+  /// Runs the `_blockUser` operation.
   void _blockUser() {
     HapticFeedback.selectionClick();
     // Show block user confirmation
   }
 
+  /// ينفذ العملية `_changeChatTheme`.
+  /// Runs the `_changeChatTheme` operation.
   void _changeChatTheme() {
     HapticFeedback.selectionClick();
     // Show theme picker
   }
 
+  /// ينفذ العملية `_changeFontSize`.
+  /// Runs the `_changeFontSize` operation.
   void _changeFontSize() {
     HapticFeedback.selectionClick();
     // Show font size picker
   }
 
+  /// ينفذ العملية `_configureAutoDownload`.
+  /// Runs the `_configureAutoDownload` operation.
   void _configureAutoDownload() {
     HapticFeedback.selectionClick();
     // Show auto download settings
   }
 
+  /// ينفذ العملية `_clearCache`.
+  /// Runs the `_clearCache` operation.
   void _clearCache() {
     HapticFeedback.selectionClick();
     // Show clear cache confirmation
   }
 
+  /// ينفذ العملية `_searchInChat`.
+  /// Runs the `_searchInChat` operation.
   void _searchInChat() {
     HapticFeedback.selectionClick();
     // Navigate to search page
   }
 
+  /// ينفذ العملية `_exportChat`.
+  /// Runs the `_exportChat` operation.
   void _exportChat() {
     HapticFeedback.selectionClick();
     // Export chat history
   }
 
+  /// ينفذ العملية `_leaveGroup`.
+  /// Runs the `_leaveGroup` operation.
   void _leaveGroup() {
     HapticFeedback.selectionClick();
     // Show leave group confirmation
   }
 
+  /// ينفذ العملية `_clearChat`.
+  /// Runs the `_clearChat` operation.
   void _clearChat() {
     HapticFeedback.selectionClick();
     // Show clear chat confirmation
   }
 
+  /// ينفذ العملية `_getInitials`.
+  /// Runs the `_getInitials` operation.
   String _getInitials(String name) {
     final parts = name.trim().split(' ');
     if (parts.isEmpty) return '';
@@ -1286,12 +1420,27 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
 }
 
 // Premium Info Item
+/// يعرّف الكلاس `_PremiumInfoItem`.
+/// Describes the `_PremiumInfoItem` class.
 class _PremiumInfoItem extends StatelessWidget {
+  /// Holds the `icon` value.
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
+
+  /// يخزن العضو `label`.
+  /// Holds the `label` member.
   final String label;
+
+  /// يخزن العضو `value`.
+  /// Holds the `value` member.
   final String value;
+
+  /// يخزن العضو `animation`.
+  /// Holds the `animation` member.
   final Animation<double> animation;
 
+  /// ينشئ مثيلاً من `_PremiumInfoItem`.
+  /// Builds an instance of `_PremiumInfoItem`.
   const _PremiumInfoItem({
     required this.icon,
     required this.label,
@@ -1299,6 +1448,8 @@ class _PremiumInfoItem extends StatelessWidget {
     required this.animation,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -1359,12 +1510,27 @@ class _PremiumInfoItem extends StatelessWidget {
 }
 
 // Premium Options Sheet
+/// يعرّف الكلاس `_PremiumOptionsSheet`.
+/// Describes the `_PremiumOptionsSheet` class.
 class _PremiumOptionsSheet extends StatelessWidget {
+  /// Holds the `onSearch` value.
+  /// العربية: يخزن القيمة `onSearch`.
   final VoidCallback onSearch;
+
+  /// يخزن العضو `onExport`.
+  /// Holds the `onExport` member.
   final VoidCallback onExport;
+
+  /// يخزن العضو `onLeave`.
+  /// Holds the `onLeave` member.
   final VoidCallback? onLeave;
+
+  /// يخزن العضو `onClear`.
+  /// Holds the `onClear` member.
   final VoidCallback onClear;
 
+  /// ينشئ مثيلاً من `_PremiumOptionsSheet`.
+  /// Builds an instance of `_PremiumOptionsSheet`.
   const _PremiumOptionsSheet({
     required this.onSearch,
     required this.onExport,
@@ -1372,6 +1538,8 @@ class _PremiumOptionsSheet extends StatelessWidget {
     required this.onClear,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1455,6 +1623,8 @@ class _PremiumOptionsSheet extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildOption`.
+  /// Runs the `_buildOption` operation.
   Widget _buildOption({
     required IconData icon,
     required String title,
@@ -1502,12 +1672,17 @@ class _PremiumOptionsSheet extends StatelessWidget {
 }
 
 // Floating Orb Model
+/// يعرّف الكلاس `_FloatingOrb`.
+/// Describes the `_FloatingOrb` class.
 class _FloatingOrb {
   double x = math.Random().nextDouble();
   double y = math.Random().nextDouble();
   double radius = math.Random().nextDouble() * 50 + 30;
   double opacity = math.Random().nextDouble() * 0.03 + 0.01;
   double speed = math.Random().nextDouble() * 0.0001 + 0.00005;
+
+  /// يخزن العضو `color`.
+  /// Holds the `color` member.
   Color color = [
     AppTheme.primaryBlue,
     AppTheme.primaryPurple,
@@ -1516,11 +1691,19 @@ class _FloatingOrb {
 }
 
 // Painters
+/// يعرّف الكلاس `_PremiumBackgroundPainter`.
+/// Describes the `_PremiumBackgroundPainter` class.
 class _PremiumBackgroundPainter extends CustomPainter {
+  /// Holds the `animation` value.
+  /// العربية: يخزن القيمة `animation`.
   final double animation;
 
+  /// ينشئ مثيلاً من `_PremiumBackgroundPainter`.
+  /// Builds an instance of `_PremiumBackgroundPainter`.
   _PremiumBackgroundPainter({required this.animation});
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1553,19 +1736,32 @@ class _PremiumBackgroundPainter extends CustomPainter {
     }
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+/// يعرّف الكلاس `_FloatingOrbsPainter`.
+/// Describes the `_FloatingOrbsPainter` class.
 class _FloatingOrbsPainter extends CustomPainter {
+  /// Holds the `orbs` value.
+  /// العربية: يخزن القيمة `orbs`.
   final List<_FloatingOrb> orbs;
+
+  /// يخزن العضو `animation`.
+  /// Holds the `animation` member.
   final double animation;
 
+  /// ينشئ مثيلاً من `_FloatingOrbsPainter`.
+  /// Builds an instance of `_FloatingOrbsPainter`.
   _FloatingOrbsPainter({
     required this.orbs,
     required this.animation,
   });
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     for (var orb in orbs) {
@@ -1591,6 +1787,8 @@ class _FloatingOrbsPainter extends CustomPainter {
     }
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

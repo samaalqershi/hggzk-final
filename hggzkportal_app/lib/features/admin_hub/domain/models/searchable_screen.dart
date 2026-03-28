@@ -1,7 +1,6 @@
 // lib/features/admin_hub/domain/models/searchable_screen.dart
 
 import 'package:flutter/material.dart';
-
 class SearchableScreen {
   final String id;
   final String titleAr;
@@ -18,7 +17,6 @@ class SearchableScreen {
   final bool isPinned;
   final bool adminOnly;
   final bool visibleForOwner;
-
   SearchableScreen({
     required this.id,
     required this.titleAr,
@@ -36,7 +34,6 @@ class SearchableScreen {
     this.adminOnly = false,
     this.visibleForOwner = false,
   });
-
   SearchableScreen copyWith({
     String? id,
     String? titleAr,
@@ -72,47 +69,47 @@ class SearchableScreen {
       visibleForOwner: visibleForOwner ?? this.visibleForOwner,
     );
   }
-
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'titleAr': titleAr,
-    'titleEn': titleEn,
-    'descriptionAr': descriptionAr,
-    'descriptionEn': descriptionEn,
-    'path': path,
-    'icon': icon.codePoint,
-    'gradientColors': gradientColors.map((c) => c.value).toList(),
-    'searchKeywords': searchKeywords,
-    'category': category,
-    'visitCount': visitCount,
-    'lastVisitedAt': lastVisitedAt?.toIso8601String(),
-    'isPinned': isPinned,
-    'adminOnly': adminOnly,
-    'visibleForOwner': visibleForOwner,
-  };
-
-  factory SearchableScreen.fromJson(Map<String, dynamic> json) => SearchableScreen(
-    id: json['id'],
-    titleAr: json['titleAr'],
-    titleEn: json['titleEn'],
-    descriptionAr: json['descriptionAr'],
-    descriptionEn: json['descriptionEn'],
-    path: json['path'],
-    icon: IconData(json['icon'], fontFamily: 'MaterialIcons'),
-    gradientColors: (json['gradientColors'] as List).map((c) => Color(c)).toList(),
-    searchKeywords: List<String>.from(json['searchKeywords']),
-    category: json['category'],
-    visitCount: json['visitCount'] ?? 0,
-    lastVisitedAt: json['lastVisitedAt'] != null 
-        ? DateTime.parse(json['lastVisitedAt']) 
-        : null,
-    isPinned: json['isPinned'] ?? false,
-    adminOnly: json['adminOnly'] ?? false,
-    visibleForOwner: json['visibleForOwner'] ?? false,
-  );
+        'id': id,
+        'titleAr': titleAr,
+        'titleEn': titleEn,
+        'descriptionAr': descriptionAr,
+        'descriptionEn': descriptionEn,
+        'path': path,
+        'icon': icon.codePoint,
+        'gradientColors': gradientColors.map((c) => c.value).toList(),
+        'searchKeywords': searchKeywords,
+        'category': category,
+        'visitCount': visitCount,
+        'lastVisitedAt': lastVisitedAt?.toIso8601String(),
+        'isPinned': isPinned,
+        'adminOnly': adminOnly,
+        'visibleForOwner': visibleForOwner,
+      };
+  factory SearchableScreen.fromJson(Map<String, dynamic> json) =>
+      SearchableScreen(
+        id: json['id'],
+        titleAr: json['titleAr'],
+        titleEn: json['titleEn'],
+        descriptionAr: json['descriptionAr'],
+        descriptionEn: json['descriptionEn'],
+        path: json['path'],
+        icon: IconData(json['icon'], fontFamily: 'MaterialIcons'),
+        gradientColors:
+            (json['gradientColors'] as List).map((c) => Color(c)).toList(),
+        searchKeywords: List<String>.from(json['searchKeywords']),
+        category: json['category'],
+        visitCount: json['visitCount'] ?? 0,
+        lastVisitedAt: json['lastVisitedAt'] != null
+            ? DateTime.parse(json['lastVisitedAt'])
+            : null,
+        isPinned: json['isPinned'] ?? false,
+        adminOnly: json['adminOnly'] ?? false,
+        visibleForOwner: json['visibleForOwner'] ?? false,
+      );
 }
-
 class ScreenCategory {
+  /// العربية: يخزن القيمة `financial`.
   static const String financial = 'المالية';
   static const String bookings = 'الحجوزات';
   static const String properties = 'العقارات';

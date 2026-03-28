@@ -2,7 +2,6 @@
 
 import 'package:equatable/equatable.dart';
 import 'review_image.dart';
-
 class Review extends Equatable {
   final String id;
   final String bookingId;
@@ -32,7 +31,6 @@ class Review extends Equatable {
   final int? guestsCount;
   final String? bookingStatus;
   final String? bookingSource;
-  
   const Review({
     required this.id,
     required this.bookingId,
@@ -62,18 +60,36 @@ class Review extends Equatable {
     this.bookingStatus,
     this.bookingSource,
   });
-  
   double get averageRating => (cleanliness + service + location + value) / 4;
-  
   bool get hasResponse => responseText != null && responseText!.isNotEmpty;
-  
   @override
   List<Object?> get props => [
-    id, bookingId, propertyName, unitName, userName,
-    cleanliness, service, location, value,
-    comment, createdAt, images, isApproved,
-    isPending, isDisabled, responseText, responseDate, respondedBy,
-    propertyCity, propertyAddress, userEmail, userPhone,
-    bookingCheckIn, bookingCheckOut, guestsCount, bookingStatus, bookingSource,
-  ];
+        id,
+        bookingId,
+        propertyName,
+        unitName,
+        userName,
+        cleanliness,
+        service,
+        location,
+        value,
+        comment,
+        createdAt,
+        images,
+        isApproved,
+        isPending,
+        isDisabled,
+        responseText,
+        responseDate,
+        respondedBy,
+        propertyCity,
+        propertyAddress,
+        userEmail,
+        userPhone,
+        bookingCheckIn,
+        bookingCheckOut,
+        guestsCount,
+        bookingStatus,
+        bookingSource,
+      ];
 }

@@ -6,7 +6,9 @@ import '../../../domain/entities/section.dart';
 import '../../../domain/repositories/sections_repository.dart';
 
 class GetSectionByIdUseCase implements UseCase<Section, GetSectionByIdParams> {
+  /// العربية: يخزن القيمة `repository`.
   final SectionsRepository repository;
+
   GetSectionByIdUseCase(this.repository);
 
   @override
@@ -16,10 +18,11 @@ class GetSectionByIdUseCase implements UseCase<Section, GetSectionByIdParams> {
 }
 
 class GetSectionByIdParams extends Equatable {
+  /// العربية: يخزن القيمة `sectionId`.
   final String sectionId;
+
   const GetSectionByIdParams(this.sectionId);
 
   @override
   List<Object?> get props => [sectionId];
 }
-

@@ -3,6 +3,7 @@
 import '../../domain/entities/policy.dart';
 
 class PolicyModel extends Policy {
+  /// العربية: ينشئ مثيلًا جديدًا من `PolicyModel`.
   const PolicyModel({
     required String id,
     required String propertyId,
@@ -20,7 +21,6 @@ class PolicyModel extends Policy {
           isActive: isActive,
           effectiveDate: effectiveDate,
         );
-
   factory PolicyModel.fromJson(Map<String, dynamic> json) {
     return PolicyModel(
       id: json['id'] as String? ?? '',
@@ -36,7 +36,6 @@ class PolicyModel extends Policy {
           : null,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,

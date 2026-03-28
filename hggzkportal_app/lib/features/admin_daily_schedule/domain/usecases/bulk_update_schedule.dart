@@ -19,6 +19,7 @@ class BulkUpdateScheduleUseCase
   @override
   Future<Either<Failure, int>> call(BulkUpdateScheduleParams params) async {
     final bool isAvailabilityUpdate = params.status != null;
+
     final bool isPricingUpdate = params.priceAmount != null;
 
     if (!isAvailabilityUpdate && !isPricingUpdate) {
@@ -39,13 +40,14 @@ class BulkUpdateScheduleUseCase
     }
 
     final List<int>? weekdays = params.weekdays;
+
     final bool filterByWeekdays = weekdays != null && weekdays.isNotEmpty;
 
     int totalAffected = 0;
 
     for (final day in days) {
       // إذا تم تحديد أيام أسبوع معينة، نتجاهل الأيام غير المطابقة
-      if (filterByWeekdays && !weekdays!.contains(day.weekday)) {
+      if (filterByWeekdays && !weekdays.contains(day.weekday)) {
         continue;
       }
 

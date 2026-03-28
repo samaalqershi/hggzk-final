@@ -4,7 +4,11 @@ import 'package:hggzkportal/core/constants/api_constants.dart';
 import 'package:hggzkportal/core/constants/app_constants.dart';
 import '../../domain/entities/unit_image.dart';
 
+/// يمثل هذا الكلاس UnitImageModel البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitImageModel in the admin unit workflow.
 class UnitImageModel extends UnitImage {
+  /// This constructor creates a new UnitImageModel instance.
+  /// ينشئ مثيلًا جديدًا من UnitImageModel.
   const UnitImageModel({
     required super.id,
     required super.url,
@@ -29,6 +33,8 @@ class UnitImageModel extends UnitImage {
     super.videoThumbnail,
   });
 
+  /// ينفذ هذا الأسلوب عملية _validateUrl ضمن مسار إدارة الوحدات.
+  /// This method performs the _validateUrl operation in the admin unit workflow.
   static String _validateUrl(String? url) {
     if (url == null || url.isEmpty) {
       return 'https://via.placeholder.com/400x300?text=No+Image';
@@ -44,6 +50,8 @@ class UnitImageModel extends UnitImage {
     return url;
   }
 
+  /// ينفذ هذا الأسلوب عملية _detectMediaType ضمن مسار إدارة الوحدات.
+  /// This method performs the _detectMediaType operation in the admin unit workflow.
   static MediaType _detectMediaType(Map<String, dynamic> json) {
     // التحقق من mediaType المباشر
     if (json['mediaType'] != null) {
@@ -65,6 +73,8 @@ class UnitImageModel extends UnitImage {
     return MediaType.image;
   }
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitImageModel.
+  /// This constructor creates an instance of UnitImageModel.
   factory UnitImageModel.fromJson(Map<String, dynamic> json) {
     List<String> parsedTags = [];
     if (json['tags'] != null) {
@@ -120,6 +130,8 @@ class UnitImageModel extends UnitImage {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _parseThumbnails ضمن مسار إدارة الوحدات.
+  /// This method performs the _parseThumbnails operation in the admin unit workflow.
   static ImageThumbnails _parseThumbnails(
       dynamic thumbnailsData, String fallbackUrl) {
     if (thumbnailsData == null) {
@@ -153,6 +165,8 @@ class UnitImageModel extends UnitImage {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية toJson ضمن مسار إدارة الوحدات.
+  /// This method performs the toJson operation in the admin unit workflow.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -179,6 +193,8 @@ class UnitImageModel extends UnitImage {
     };
   }
 
+  /// ينفذ هذا الأسلوب عملية _parseImageCategory ضمن مسار إدارة الوحدات.
+  /// This method performs the _parseImageCategory operation in the admin unit workflow.
   static ImageCategory _parseImageCategory(String value) {
     switch (value.toLowerCase()) {
       case 'exterior':
@@ -203,6 +219,8 @@ class UnitImageModel extends UnitImage {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _imageCategoryToString ضمن مسار إدارة الوحدات.
+  /// This method performs the _imageCategoryToString operation in the admin unit workflow.
   static String _imageCategoryToString(ImageCategory category) {
     switch (category) {
       case ImageCategory.exterior:
@@ -226,6 +244,8 @@ class UnitImageModel extends UnitImage {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _parseProcessingStatus ضمن مسار إدارة الوحدات.
+  /// This method performs the _parseProcessingStatus operation in the admin unit workflow.
   static ProcessingStatus _parseProcessingStatus(String value) {
     switch (value.toLowerCase()) {
       case 'uploading':
@@ -243,6 +263,8 @@ class UnitImageModel extends UnitImage {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _processingStatusToString ضمن مسار إدارة الوحدات.
+  /// This method performs the _processingStatusToString operation in the admin unit workflow.
   static String _processingStatusToString(ProcessingStatus status) {
     switch (status) {
       case ProcessingStatus.uploading:
@@ -258,6 +280,8 @@ class UnitImageModel extends UnitImage {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _parseMediaType ضمن مسار إدارة الوحدات.
+  /// This method performs the _parseMediaType operation in the admin unit workflow.
   static MediaType _parseMediaType(String value) {
     switch (value.toLowerCase()) {
       case 'video':
@@ -268,6 +292,8 @@ class UnitImageModel extends UnitImage {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _mediaTypeToString ضمن مسار إدارة الوحدات.
+  /// This method performs the _mediaTypeToString operation in the admin unit workflow.
   static String _mediaTypeToString(MediaType type) {
     switch (type) {
       case MediaType.video:
@@ -278,7 +304,11 @@ class UnitImageModel extends UnitImage {
   }
 }
 
+/// يمثل هذا الكلاس ImageThumbnailsModel البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for ImageThumbnailsModel in the admin unit workflow.
 class ImageThumbnailsModel extends ImageThumbnails {
+  /// This constructor creates a new ImageThumbnailsModel instance.
+  /// ينشئ مثيلًا جديدًا من ImageThumbnailsModel.
   const ImageThumbnailsModel({
     required super.small,
     required super.medium,
@@ -286,6 +316,8 @@ class ImageThumbnailsModel extends ImageThumbnails {
     required super.hd,
   });
 
+  /// ينشئ هذا المُنشئ مثيلاً من ImageThumbnailsModel.
+  /// This constructor creates an instance of ImageThumbnailsModel.
   factory ImageThumbnailsModel.fromJson(Map<String, dynamic> json,
       [String? fallbackUrl]) {
     final fallback =
@@ -301,6 +333,8 @@ class ImageThumbnailsModel extends ImageThumbnails {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية toJson ضمن مسار إدارة الوحدات.
+  /// This method performs the toJson operation in the admin unit workflow.
   Map<String, dynamic> toJson() {
     return {
       'small': small,

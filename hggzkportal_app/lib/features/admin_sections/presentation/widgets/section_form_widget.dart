@@ -3,9 +3,7 @@ import 'dart:convert';
 import 'package:hggzkportal/features/admin_sections/domain/entities/section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/enums/section_type.dart';
@@ -16,33 +14,48 @@ import '../bloc/section_form/section_form_bloc.dart';
 import '../bloc/section_form/section_form_event.dart';
 import '../bloc/section_form/section_form_state.dart';
 import 'section_content_type_toggle.dart';
-import 'section_filter_criteria_editor.dart';
-import 'section_sort_criteria_editor.dart';
 import 'section_metadata_editor.dart';
 import 'section_schedule_picker.dart';
 import 'section_preview_widget.dart';
-import '../../../../core/enums/section_class.dart';
 import 'section_ui_type_picker.dart';
 
+/// العربية: يجمع إعدادات إنشاء القسم أو تعديله في نموذج واحد يغطي نوع
+/// المحتوى، الترتيب، الظهور، والجدولة.
+/// content type, ordering, visibility, and scheduling.
 class SectionFormWidget extends StatefulWidget {
+  /// العربية: يحدد ما إذا كانت الشاشة تعمل في وضع التعديل بدل الإنشاء.
   final bool isEditing;
+
+  /// العربية: معرف القسم الجاري تحريره عند التعديل.
   final String? sectionId;
 
+  /// العربية: يبني نموذج القسم مع دعم وضع الإنشاء أو التعديل.
   const SectionFormWidget({
     super.key,
     required this.isEditing,
     this.sectionId,
   });
 
+  /// العربية: ينشئ حالة النموذج التي تدير التبويبات والحقول وطلبات الحفظ.
+  /// requests.
   @override
   State<SectionFormWidget> createState() => _SectionFormWidgetState();
 }
 
+/// العربية: تدير هذه الحالة دورة حياة النموذج الكامل وتربط بين حقول الإدخال
+/// والـ Bloc والملخص البصري للقسم.
+/// visual preview together.
 class _SectionFormWidgetState extends State<SectionFormWidget>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
+
+  /// العربية: يتحكم في التنقل بين تبويبات إعداد القسم.
   late TabController _tabController;
+
+  /// العربية: يشغل الحركة الافتتاحية للتبويبات والمحتوى.
   late AnimationController _tabAnimationController;
+
+  /// العربية: يحتفظ بمنحنيات الظهور المتدرجة لكل تبويب.
   late List<Animation<double>> _tabAnimations;
 
   // Controllers
@@ -60,24 +73,56 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
   final _backgroundImageController = TextEditingController();
 
   // State with default values
+  /// العربية: نوع القسم المختار حاليًا.
   SectionTypeEnum _selectedType = SectionTypeEnum.grid;
+
+  /// العربية: نوع المحتوى الذي سيعرضه القسم.
   SectionContentType _selectedContentType = SectionContentType.properties;
+
+  /// العربية: نمط العرض المرئي للقسم.
   SectionDisplayStyle _selectedDisplayStyle = SectionDisplayStyle.grid;
+
+  /// العربية: الوجهة التي يرتبط بها القسم.
   SectionTarget _selectedTarget = SectionTarget.properties;
-  SectionClass _selectedClass = SectionClass.classD;
+
+  /// العربية: نوع الواجهة المستخدم لتجسيد القسم بصريًا.
   SectionTypeEnum? _selectedUIType;
+
+  /// العربية: يحدد إن كان القسم مفعّلًا داخل الواجهة العامة.
   bool _isActive = true;
+
+  /// العربية: يحدد ما إذا كان القسم ظاهرًا للزوار غير المسجلين.
   bool _isVisibleToGuests = true;
+
+  /// العربية: يحدد ما إذا كان القسم ظاهرًا للمستخدمين المسجلين.
   bool _isVisibleToRegistered = true;
+
+  /// العربية: اسم الصلاحية المطلوبة لعرض هذا القسم عند تقييده.
+  /// restricted.
   String? _requiresPermission;
+
+  /// العربية: بداية الفترة الزمنية التي يكون فيها القسم صالحًا.
   DateTime? _startDate;
+
+  /// العربية: نهاية الفترة الزمنية التي يكون فيها القسم صالحًا.
   DateTime? _endDate;
+
+  /// العربية: قواعد التصفية التي تحدد ما يدخل إلى هذا القسم.
   Map<String, dynamic> _filterCriteria = {};
+
+  /// العربية: قواعد الترتيب التي تضبط ظهور العناصر داخل القسم.
   Map<String, dynamic> _sortCriteria = {};
+
+  /// العربية: الحمولة الوصفية الإضافية التي قد ترافق القسم.
   String _metadata = '';
+
+  /// العربية: يحدد ما إذا كانت المعاينة الحية معروضة داخل النموذج.
   bool _showPreview = false;
+
+  /// العربية: يوضح ما إذا كانت هناك عناصر مرتبطة بالقسم بالفعل.
   bool _hasAssignedItems = false;
 
+  /// العربية: يجهز الحقول والتبويبات والحالة الابتدائية للنموذج.
   @override
   void initState() {
     super.initState();
@@ -106,136 +151,7 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
     }
   }
 
-  Widget _buildClassSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'فئة القسم',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textWhite,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: _buildClassOption(
-                label: 'Class A',
-                value: SectionClass.classA,
-                isSelected: _selectedClass == SectionClass.classA,
-                onTap: () {
-                  setState(() => _selectedClass = SectionClass.classA);
-                  context.read<SectionFormBloc>().add(
-                        const UpdateSectionConfigEvent(
-                            categoryClass: SectionClass.classA),
-                      );
-                },
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildClassOption(
-                label: 'Class B',
-                value: SectionClass.classB,
-                isSelected: _selectedClass == SectionClass.classB,
-                onTap: () {
-                  setState(() => _selectedClass = SectionClass.classB);
-                  context.read<SectionFormBloc>().add(
-                        const UpdateSectionConfigEvent(
-                            categoryClass: SectionClass.classB),
-                      );
-                },
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildClassOption(
-                label: 'Class C',
-                value: SectionClass.classC,
-                isSelected: _selectedClass == SectionClass.classC,
-                onTap: () {
-                  setState(() => _selectedClass = SectionClass.classC);
-                  context.read<SectionFormBloc>().add(
-                        const UpdateSectionConfigEvent(
-                            categoryClass: SectionClass.classC),
-                      );
-                },
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildClassOption(
-                label: 'Class D',
-                value: SectionClass.classD,
-                isSelected: _selectedClass == SectionClass.classD,
-                onTap: () {
-                  setState(() => _selectedClass = SectionClass.classD);
-                  context.read<SectionFormBloc>().add(
-                        const UpdateSectionConfigEvent(
-                            categoryClass: SectionClass.classD),
-                      );
-                },
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildClassOption({
-    required String label,
-    required SectionClass value,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppTheme.darkCard.withValues(alpha: isSelected ? 0.7 : 0.5),
-              AppTheme.darkCard.withValues(alpha: isSelected ? 0.5 : 0.3),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected
-                ? AppTheme.primaryBlue
-                : AppTheme.darkBorder.withValues(alpha: 0.3),
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.layers,
-              size: 18,
-              color: isSelected ? AppTheme.primaryBlue : AppTheme.textMuted,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textWhite,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
+  /// العربية: يبني حركات الظهور المتدرجة الخاصة بالتبويبات.
   void _setupTabAnimations() {
     _tabAnimations = List.generate(4, (index) {
       return Tween<double>(
@@ -254,6 +170,7 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
     });
   }
 
+  /// العربية: يحرر المتحكمات عند إزالة النموذج من الشجرة.
   @override
   void dispose() {
     _tabController.dispose();
@@ -273,6 +190,9 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
     super.dispose();
   }
 
+  /// العربية: يبني واجهة النموذج ويعيدها بحسب حالات الـ Bloc أثناء التعديل
+  /// أو الحفظ.
+  /// flows.
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<SectionFormBloc, SectionFormState>(
@@ -619,76 +539,6 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
     );
   }
 
-  Widget _buildFiltersAndSortingTab() {
-    if (_selectedContentType == SectionContentType.none) {
-      return _buildScrollableContent(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildSectionHeader('الفلترة والترتيب', CupertinoIcons.slider_horizontal_3),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.darkBorder.withValues(alpha: 0.2)),
-                ),
-                child: Text(
-                  'هذا القسم لا يحتوي على عناصر (عقارات/وحدات)، لذلك لا توجد إعدادات فلترة أو ترتيب.',
-                  style: AppTextStyles.caption.copyWith(color: AppTheme.textMuted),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    return _buildScrollableContent(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionHeader('الفلترة والترتيب', CupertinoIcons.slider_horizontal_3),
-            const SizedBox(height: 20),
-            SectionFilterCriteriaEditor(
-              initialCriteria: _filterCriteria,
-              onCriteriaChanged: (criteria) {
-                setState(() => _filterCriteria = criteria);
-                context.read<SectionFormBloc>().add(
-                      UpdateSectionFiltersEvent(
-                        filterCriteriaJson: criteria.toString(),
-                        cityName: criteria['cityName'],
-                        propertyTypeId: criteria['propertyTypeId'],
-                        unitTypeId: criteria['unitTypeId'],
-                        minPrice: criteria['minPrice'],
-                        maxPrice: criteria['maxPrice'],
-                        minRating: criteria['minRating'],
-                      ),
-                    );
-              },
-            ),
-            const SizedBox(height: 30),
-            SectionSortCriteriaEditor(
-              initialCriteria: _sortCriteria,
-              onCriteriaChanged: (criteria) {
-                setState(() => _sortCriteria = criteria);
-                context.read<SectionFormBloc>().add(
-                      UpdateSectionFiltersEvent(
-                        sortCriteriaJson: criteria.toString(),
-                      ),
-                    );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildAdvancedTab() {
     return _buildScrollableContent(
       child: Padding(
@@ -727,95 +577,6 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildVisibilitySettings() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.darkCard.withValues(alpha: 0.5),
-            AppTheme.darkCard.withValues(alpha: 0.3),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppTheme.darkBorder.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'إعدادات الظهور',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textWhite,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _buildVisibilitySwitch(
-            label: 'مرئي للزوار',
-            value: _isVisibleToGuests,
-            onChanged: (value) {
-              setState(() => _isVisibleToGuests = value);
-              context.read<SectionFormBloc>().add(
-                    UpdateSectionVisibilityEvent(isVisibleToGuests: value),
-                  );
-            },
-          ),
-          const SizedBox(height: 12),
-          _buildVisibilitySwitch(
-            label: 'مرئي للمسجلين',
-            value: _isVisibleToRegistered,
-            onChanged: (value) {
-              setState(() => _isVisibleToRegistered = value);
-              context.read<SectionFormBloc>().add(
-                    UpdateSectionVisibilityEvent(isVisibleToRegistered: value),
-                  );
-            },
-          ),
-          const SizedBox(height: 16),
-          _buildInputField(
-            controller: TextEditingController(text: _requiresPermission),
-            label: 'الصلاحية المطلوبة',
-            hint: 'اسم الصلاحية (اختياري)',
-            icon: Icons.lock_outline,
-            onChanged: (value) {
-              setState(() => _requiresPermission = value);
-              context.read<SectionFormBloc>().add(
-                    UpdateSectionVisibilityEvent(requiresPermission: value),
-                  );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildVisibilitySwitch({
-    required String label,
-    required bool value,
-    required Function(bool) onChanged,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textWhite,
-          ),
-        ),
-        CupertinoSwitch(
-          value: value,
-          onChanged: onChanged,
-          activeTrackColor: AppTheme.primaryBlue,
-        ),
-      ],
     );
   }
 
@@ -967,99 +728,6 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildTargetSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'الهدف',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textWhite,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: _buildTargetOption(
-                label: 'العقارات',
-                value: SectionTarget.properties,
-                isSelected: _selectedTarget == SectionTarget.properties,
-                onTap: () {
-                  setState(() => _selectedTarget = SectionTarget.properties);
-                  context.read<SectionFormBloc>().add(
-                        const UpdateSectionConfigEvent(
-                            target: SectionTarget.properties),
-                      );
-                },
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildTargetOption(
-                label: 'الوحدات',
-                value: SectionTarget.units,
-                isSelected: _selectedTarget == SectionTarget.units,
-                onTap: () {
-                  setState(() => _selectedTarget = SectionTarget.units);
-                  context.read<SectionFormBloc>().add(
-                        const UpdateSectionConfigEvent(
-                            target: SectionTarget.units),
-                      );
-                },
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTargetOption({
-    required String label,
-    required SectionTarget value,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          gradient: isSelected ? AppTheme.primaryGradient : null,
-          color: isSelected ? null : AppTheme.darkCard.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected
-                ? Colors.transparent
-                : AppTheme.darkBorder.withValues(alpha: 0.3),
-            width: 1,
-          ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppTheme.primaryBlue.withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: isSelected ? Colors.white : AppTheme.textMuted,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -1232,10 +900,6 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
   }
 
   void _populateForm(SectionFormReady state) {
-    print('📝 Populating form with data');
-    print('  - Name: ${state.name}');
-    print('  - Title: ${state.title}');
-
     // تعبئة الحقول النصية
     if (state.name != null && state.name!.isNotEmpty) {
       _nameController.text = state.name!;
@@ -1276,7 +940,6 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
       _selectedContentType = state.contentType ?? SectionContentType.properties;
       _selectedDisplayStyle = state.displayStyle ?? SectionDisplayStyle.grid;
       _selectedTarget = state.target ?? SectionTarget.properties;
-      _selectedClass = state.categoryClass ?? _selectedClass;
       _isActive = state.isActive ?? true;
       _isVisibleToGuests = state.isVisibleToGuests ?? true;
       _isVisibleToRegistered = state.isVisibleToRegistered ?? true;
@@ -1291,9 +954,8 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
               state.filterCriteriaJson is String
                   ? jsonDecode(state.filterCriteriaJson!)
                   : state.filterCriteriaJson);
-        } catch (e) {
-          print('Error parsing filter criteria: $e');
-        }
+          // ignore: empty_catches
+        } catch (e) {}
       }
 
       if (state.sortCriteriaJson != null &&
@@ -1303,9 +965,8 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
               state.sortCriteriaJson is String
                   ? jsonDecode(state.sortCriteriaJson!)
                   : state.sortCriteriaJson);
-        } catch (e) {
-          print('Error parsing sort criteria: $e');
-        }
+          // ignore: empty_catches
+        } catch (e) {}
       }
 
       _metadata = state.metadataJson ?? '';
@@ -1381,19 +1042,15 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
             UpdateSectionMetadataEvent(metadataJson: _metadata),
           );
     } catch (e) {
-      print('Error updating UI type in metadata: $e');
+      if (!mounted) return;
     }
   }
 
   void _submitForm() async {
-    print('🔵 _submitForm called'); // نقطة تشخيص 1
-
     // التحقق من الـ form validation
     final isValid = _formKey.currentState?.validate() ?? false;
-    print('🔵 Form validation result: $isValid'); // نقطة تشخيص 2
 
     if (!isValid) {
-      print('❌ Form validation failed');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('يرجى ملء جميع الحقول المطلوبة'),
@@ -1403,15 +1060,12 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
       return;
     }
 
-    print('🔵 Form is valid, proceeding...'); // نقطة تشخيص 3
-
     // التحقق من الحقول المطلوبة
     if (_nameController.text.isEmpty) {
       _nameController.text = _titleController.text;
     }
 
     if (_titleController.text.isEmpty) {
-      print('❌ Title is empty');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('عنوان القسم مطلوب'),
@@ -1421,15 +1075,9 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
       return;
     }
 
-    print('🔵 Title: ${_titleController.text}'); // نقطة تشخيص 4
-    print('🔵 Name: ${_nameController.text}');
-    print('🔵 Type: $_selectedType');
-    print('🔵 Target: $_selectedTarget');
-
     try {
       // التحقق من وجود الـ Bloc
       final bloc = context.read<SectionFormBloc>();
-      print('✅ SectionFormBloc found'); // نقطة تشخيص 5
 
       // تحديث البيانات الأساسية
       bloc.add(UpdateSectionBasicInfoEvent(
@@ -1444,7 +1092,6 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
             ? null
             : _shortDescriptionController.text,
       ));
-      print('🔵 Basic info event sent'); // نقطة تشخيص 6
 
       await Future.delayed(const Duration(milliseconds: 100));
 
@@ -1459,16 +1106,13 @@ class _SectionFormWidgetState extends State<SectionFormWidget>
         columnsCount: int.tryParse(_columnsCountController.text) ?? 2,
         isActive: _isActive,
       ));
-      print('🔵 Config event sent'); // نقطة تشخيص 7
 
       await Future.delayed(const Duration(milliseconds: 100));
 
       // إرسال الطلب النهائي
-      print('🔵 Sending SubmitSectionFormEvent...'); // نقطة تشخيص 8
       bloc.add(SubmitSectionFormEvent());
-    } catch (e, stackTrace) {
-      print('❌ Error in _submitForm: $e');
-      print('❌ StackTrace: $stackTrace');
+    } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('خطأ: ${e.toString()}'),

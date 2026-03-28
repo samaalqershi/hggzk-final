@@ -10,6 +10,7 @@ import '../../domain/entities/currency.dart';
 
 class ExchangeRateIndicator extends StatefulWidget {
   final Currency baseCurrency;
+
   final List<Currency> currencies;
 
   const ExchangeRateIndicator({
@@ -25,7 +26,9 @@ class ExchangeRateIndicator extends StatefulWidget {
 class _ExchangeRateIndicatorState extends State<ExchangeRateIndicator>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
+
   late AnimationController _scrollController;
+
   late PageController _pageController;
 
   int _currentIndex = 0;

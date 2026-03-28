@@ -5,14 +5,20 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/notification_channel.dart';
 
+/// يتمكن المشرف من الفهم والتنفيذ من مكان واحد.
+/// actions so an admin can understand and operate from one place.
 class ChannelCard extends StatelessWidget {
   final NotificationChannel channel;
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final VoidCallback? onManageUsers;
+
+  /// channel.
   final VoidCallback? onSendNotification;
 
+  /// التنقل والحذف والإرسال.
+  /// from navigation, deletion, and sending logic.
   const ChannelCard({
     super.key,
     required this.channel,
@@ -23,6 +29,8 @@ class ChannelCard extends StatelessWidget {
     this.onSendNotification,
   });
 
+  /// للقراءة السريعة.
+  /// quick-to-scan block.
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -33,17 +41,17 @@ class ChannelCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppTheme.darkCard.withOpacity(0.5),
+            color: AppTheme.darkCard.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: channel.isActive
-                  ? AppTheme.primaryBlue.withOpacity(0.2)
-                  : AppTheme.darkBorder.withOpacity(0.3),
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.2)
+                  : AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -66,6 +74,8 @@ class ChannelCard extends StatelessWidget {
     );
   }
 
+  /// والهوية والحالة فورًا.
+  /// sees and it must expose name, identity, and status immediately.
   Widget _buildHeader() {
     return Row(
       children: [
@@ -75,8 +85,8 @@ class ChannelCard extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                _getChannelColor().withOpacity(0.8),
-                _getChannelColor().withOpacity(0.4),
+                _getChannelColor().withValues(alpha: 0.8),
+                _getChannelColor().withValues(alpha: 0.4),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -124,14 +134,16 @@ class ChannelCard extends StatelessWidget {
     );
   }
 
+  /// مخصصة أو مبنية على دور.
+  /// it is system, custom, or role based.
   Widget _buildTypeBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: _getTypeColor().withOpacity(0.2),
+        color: _getTypeColor().withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: _getTypeColor().withOpacity(0.4),
+          color: _getTypeColor().withValues(alpha: 0.4),
         ),
       ),
       child: Text(
@@ -144,6 +156,8 @@ class ChannelCard extends StatelessWidget {
     );
   }
 
+  /// نص إضافي مزدحم.
+  /// instead of adding more text clutter.
   Widget _buildStatusIndicator() {
     return Container(
       width: 12,
@@ -154,7 +168,7 @@ class ChannelCard extends StatelessWidget {
         boxShadow: channel.isActive
             ? [
                 BoxShadow(
-                  color: AppTheme.success.withOpacity(0.4),
+                  color: AppTheme.success.withValues(alpha: 0.4),
                   blurRadius: 8,
                 ),
               ]
@@ -163,6 +177,8 @@ class ChannelCard extends StatelessWidget {
     );
   }
 
+  /// مساحة البطاقة على محتوى فارغ.
+  /// does not waste space on empty content.
   Widget _buildDescription() {
     if (channel.description == null || channel.description!.isEmpty) {
       return const SizedBox.shrink();
@@ -179,11 +195,13 @@ class ChannelCard extends StatelessWidget {
     );
   }
 
+  /// تقييم القناة قبل فتح التفاصيل.
+  /// admin judge the channel before opening details.
   Widget _buildStatistics() {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.5),
+        color: AppTheme.darkBackground.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -197,7 +215,7 @@ class ChannelCard extends StatelessWidget {
           Container(
             width: 1,
             height: 30,
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             margin: const EdgeInsets.symmetric(horizontal: 16),
           ),
           _buildStatItem(
@@ -209,7 +227,7 @@ class ChannelCard extends StatelessWidget {
           Container(
             width: 1,
             height: 30,
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             margin: const EdgeInsets.symmetric(horizontal: 16),
           ),
           _buildStatItem(
@@ -223,6 +241,8 @@ class ChannelCard extends StatelessWidget {
     );
   }
 
+  /// المشتركين والإشعارات والنشاط الأخير.
+  /// notifications, and last activity.
   Widget _buildStatItem({
     required IconData icon,
     required String label,
@@ -256,6 +276,8 @@ class ChannelCard extends StatelessWidget {
     );
   }
 
+  /// يظهر للمشرف زر غير صالح.
+  /// admin never sees an invalid button.
   Widget _buildActions() {
     return Row(
       children: [
@@ -298,6 +320,8 @@ class ChannelCard extends StatelessWidget {
     );
   }
 
+  /// متشابهة بصريًا.
+  /// controls stay visually consistent.
   Widget _buildActionButton({
     required IconData icon,
     required String label,
@@ -313,10 +337,10 @@ class ChannelCard extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: color.withOpacity(0.3),
+                color: color.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -343,6 +367,8 @@ class ChannelCard extends StatelessWidget {
     );
   }
 
+  /// الافتراضي عندما لا يكون هناك لون مخصص.
+  /// the default color when none is provided.
   Color _getChannelColor() {
     if (channel.color != null && channel.color!.isNotEmpty) {
       try {
@@ -352,6 +378,7 @@ class ChannelCard extends StatelessWidget {
     return AppTheme.primaryBlue;
   }
 
+  /// them quickly.
   Color _getTypeColor() {
     switch (channel.type) {
       case 'SYSTEM':
@@ -367,13 +394,15 @@ class ChannelCard extends StatelessWidget {
     }
   }
 
+  /// خفيفة ومفهومة.
+  /// card stays light and readable.
   String _getLastActivityText() {
     if (channel.lastNotificationAt == null) {
       return 'لا يوجد';
     }
 
     final difference = DateTime.now().difference(channel.lastNotificationAt!);
-    
+
     if (difference.inDays > 0) {
       return 'منذ ${difference.inDays} يوم';
     } else if (difference.inHours > 0) {

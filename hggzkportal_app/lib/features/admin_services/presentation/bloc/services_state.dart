@@ -5,8 +5,8 @@ import '../../domain/entities/service_details.dart';
 
 /// 📊 States للخدمات
 abstract class ServicesState extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `ServicesState`.
   const ServicesState();
-
   @override
   List<Object?> get props => [];
 }
@@ -19,6 +19,7 @@ class ServicesLoading extends ServicesState {}
 
 /// حالة النجاح في تحميل الخدمات
 class ServicesLoaded extends ServicesState {
+  /// العربية: يخزن القيمة `services`.
   final List<Service> services;
   final PaginatedResult<Service>? paginatedServices;
   final String? selectedPropertyId;
@@ -26,7 +27,6 @@ class ServicesLoaded extends ServicesState {
   final int totalServices;
   final int paidServices;
   final bool isLoadingMore;
-
   const ServicesLoaded({
     required this.services,
     this.paginatedServices,
@@ -36,7 +36,6 @@ class ServicesLoaded extends ServicesState {
     this.paidServices = 0,
     this.isLoadingMore = false,
   });
-
   @override
   List<Object?> get props => [
         services,
@@ -47,7 +46,6 @@ class ServicesLoaded extends ServicesState {
         paidServices,
         isLoadingMore,
       ];
-
   ServicesLoaded copyWith({
     List<Service>? services,
     PaginatedResult<Service>? paginatedServices,
@@ -71,10 +69,9 @@ class ServicesLoaded extends ServicesState {
 
 /// حالة الخطأ
 class ServicesError extends ServicesState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
-
   const ServicesError(this.message);
-
   @override
   List<Object> get props => [message];
 }
@@ -84,23 +81,20 @@ class ServiceOperationInProgress extends ServicesState {}
 
 /// حالة نجاح العملية
 class ServiceOperationSuccess extends ServicesState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
-
   const ServiceOperationSuccess(this.message);
-
   @override
   List<Object> get props => [message];
 }
 
 /// ⏳ حالات خاصة بالحذف لإظهار اللودر المستقبلي والنتيجة
 class ServicesDeleting extends ServicesState {}
-
 class ServicesDeleteSuccess extends ServicesState {}
-
 class ServicesDeleteFailed extends ServicesState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
   const ServicesDeleteFailed(this.message);
-
   @override
   List<Object> get props => [message];
 }
@@ -110,10 +104,9 @@ class ServiceDetailsLoading extends ServicesState {}
 
 /// حالة نجاح تحميل التفاصيل
 class ServiceDetailsLoaded extends ServicesState {
+  /// العربية: يخزن القيمة `serviceDetails`.
   final ServiceDetails serviceDetails;
-
   const ServiceDetailsLoaded(this.serviceDetails);
-
   @override
   List<Object> get props => [serviceDetails];
 }

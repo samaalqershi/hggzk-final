@@ -9,9 +9,11 @@ import '../../domain/entities/currency.dart';
 
 class CurrencyStatsCard extends StatelessWidget {
   final List<Currency> currencies;
+
   final Map<String, dynamic>?
       stats; // backend-provided stats, similar to reviews
   final DateTime? startDate;
+
   final DateTime? endDate;
 
   const CurrencyStatsCard({
@@ -28,8 +30,6 @@ class CurrencyStatsCard extends StatelessWidget {
     final total = _asInt(stats?['totalCurrencies']) ?? computed['total'] as int;
     final defCode = (stats?['defaultCurrencyCode'] as String?) ??
         (computed['default'] as String);
-    final withRate = _asInt(stats?['currenciesWithExchangeRate']) ??
-        (computed['withRate'] as int);
     final avgRate = _asDouble(stats?['averageExchangeRate']) ??
         double.parse(computed['avgRate'] as String);
     final lastUpdateStr =

@@ -12,16 +12,25 @@ import 'unit_in_section_images_state.dart';
 class UnitInSectionImagesBloc
     extends Bloc<UnitInSectionImagesEvent, UnitInSectionImagesState> {
   final UploadUnitInSectionImageUseCase uploadImage;
+
   final UploadMultipleUnitInSectionImagesUseCase uploadMultipleImages;
+
   final GetUnitInSectionImagesUseCase getImages;
+
   final UpdateUnitInSectionImageUseCase updateImage;
+
   final DeleteUnitInSectionImageUseCase deleteImage;
+
   final DeleteMultipleUnitInSectionImagesUseCase deleteMultipleImages;
+
   final ReorderUnitInSectionImagesUseCase reorderImages;
+
   final SetPrimaryUnitInSectionImageUseCase setPrimaryImage;
 
   List<SectionImage> _current = [];
+
   Set<String> _selected = {};
+
   String? _unitInSectionId;
 
   UnitInSectionImagesBloc({
@@ -45,6 +54,7 @@ class UnitInSectionImagesBloc
     on<ToggleSelectUnitInSectionImageEvent>(_onToggleSelect);
     on<SelectAllUnitInSectionImagesEvent>(_onSelectAll);
     on<ClearUnitInSectionSelectionEvent>(_onClearSelection);
+    on<_ProgressEvent>(_onProgress);
   }
 
   Future<void> _onLoad(LoadUnitInSectionImagesEvent e,
@@ -290,14 +300,17 @@ class UnitInSectionImagesBloc
   }
 
   String _msg(Failure f) {
-    if (f is ServerFailure) return f.message ?? 'Server Error';
+    if (f is ServerFailure) return f.message;
     if (f is NetworkFailure) return 'Network error';
     return 'Unexpected error';
   }
 }
 
 class _ProgressEvent extends UnitInSectionImagesEvent {
+  /// العربية: يخزن القيمة `unitInSectionId`.
   final String unitInSectionId;
+
   final double progress;
+
   const _ProgressEvent(this.unitInSectionId, this.progress);
 }

@@ -8,9 +8,7 @@ import '../../repositories/payments_repository.dart';
 class GetPaymentAnalyticsUseCase
     implements UseCase<PaymentAnalytics, GetPaymentAnalyticsParams> {
   final PaymentsRepository repository;
-
   GetPaymentAnalyticsUseCase(this.repository);
-
   @override
   Future<Either<Failure, PaymentAnalytics>> call(
     GetPaymentAnalyticsParams params,
@@ -24,16 +22,15 @@ class GetPaymentAnalyticsUseCase
 }
 
 class GetPaymentAnalyticsParams extends Equatable {
+  /// العربية: يخزن القيمة `startDate`.
   final DateTime? startDate;
   final DateTime? endDate;
   final String? propertyId;
-
   const GetPaymentAnalyticsParams({
     this.startDate,
     this.endDate,
     this.propertyId,
   });
-
   @override
   List<Object?> get props => [startDate, endDate, propertyId];
 }

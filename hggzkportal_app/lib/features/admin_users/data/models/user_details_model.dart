@@ -14,7 +14,8 @@ class UserWalletAccountModel extends UserWalletAccount {
     final walletTypeRaw = json['walletType'] ?? json['WalletType'];
     PaymentMethod parsedWalletType;
     if (walletTypeRaw is num) {
-      parsedWalletType = PaymentMethodExtension.fromBackendValue(walletTypeRaw.toInt());
+      parsedWalletType =
+          PaymentMethodExtension.fromBackendValue(walletTypeRaw.toInt());
     } else if (walletTypeRaw is String) {
       final asInt = int.tryParse(walletTypeRaw);
       parsedWalletType = asInt != null
@@ -31,7 +32,8 @@ class UserWalletAccountModel extends UserWalletAccount {
     } else if (rawIsDefault is num) {
       parsedIsDefault = rawIsDefault.toInt() == 1;
     } else if (rawIsDefault is String) {
-      parsedIsDefault = rawIsDefault.toLowerCase() == 'true' || rawIsDefault == '1';
+      parsedIsDefault =
+          rawIsDefault.toLowerCase() == 'true' || rawIsDefault == '1';
     } else {
       parsedIsDefault = false;
     }

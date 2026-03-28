@@ -1,5 +1,3 @@
-/// features/payment/data/datasources/payment_remote_datasource.dart
-
 import 'package:dio/dio.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/models/paginated_result.dart';
@@ -8,6 +6,9 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/request_logger.dart';
 import '../models/transaction_model.dart';
 
+/// يعرّف العمليات الشبكية الخاصة بمعالجة الدفع وجلب سجل المعاملات.
+/// Declares the remote operations used to process payments and fetch
+/// transaction history.
 abstract class PaymentRemoteDataSource {
   Future<ResultDto<TransactionModel>> processPayment({
     required String bookingId,
@@ -19,7 +20,6 @@ abstract class PaymentRemoteDataSource {
     String? walletId,
     Map<String, dynamic>? paymentData,
   });
-
   Future<ResultDto<PaginatedResult<TransactionModel>>> getPaymentHistory({
     required String userId,
     int pageNumber = 1,
@@ -33,11 +33,13 @@ abstract class PaymentRemoteDataSource {
   });
 }
 
+/// ينفذ طلبات الدفع عبر `ApiClient` ويترجم الاستجابات إلى نماذج معاملات
+/// موحدة.
+/// Implements payment requests through `ApiClient` and maps responses into
+/// normalized transaction models.
 class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
   final ApiClient apiClient;
-
   PaymentRemoteDataSourceImpl({required this.apiClient});
-
   @override
   Future<ResultDto<TransactionModel>> processPayment({
     required String bookingId,
@@ -160,7 +162,8 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
 
       if (status != null) queryParams['status'] = status;
       if (paymentMethod != null) queryParams['paymentMethod'] = paymentMethod;
-      if (fromDate != null) queryParams['fromDate'] = fromDate.toIso8601String();
+      if (fromDate != null)
+        queryParams['fromDate'] = fromDate.toIso8601String();
       if (toDate != null) queryParams['toDate'] = toDate.toIso8601String();
       if (minAmount != null) queryParams['minAmount'] = minAmount;
       if (maxAmount != null) queryParams['maxAmount'] = maxAmount;
@@ -181,7 +184,8 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
           ),
         );
       } else {
-        throw ServerException(response.data['message'] ?? 'فشل في جلب سجل المدفوعات');
+        throw ServerException(
+            response.data['message'] ?? 'فشل في جلب سجل المدفوعات');
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);

@@ -4,6 +4,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class FuturisticSettingsItem extends StatefulWidget {
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
   final String title;
   final String? subtitle;
@@ -12,7 +13,6 @@ class FuturisticSettingsItem extends StatefulWidget {
   final Gradient gradient;
   final bool isDestructive;
   final bool enabled;
-
   const FuturisticSettingsItem({
     super.key,
     required this.icon,
@@ -24,7 +24,6 @@ class FuturisticSettingsItem extends StatefulWidget {
     this.isDestructive = false,
     this.enabled = true,
   });
-
   @override
   State<FuturisticSettingsItem> createState() => _FuturisticSettingsItemState();
 }
@@ -34,7 +33,6 @@ class _FuturisticSettingsItemState extends State<FuturisticSettingsItem>
   late AnimationController _hoverController;
   late Animation<double> _hoverAnimation;
   bool _isHovered = false;
-
   @override
   void initState() {
     super.initState();
@@ -96,25 +94,26 @@ class _FuturisticSettingsItemState extends State<FuturisticSettingsItem>
                   end: Alignment.bottomRight,
                   colors: _isHovered
                       ? [
-                          widget.gradient.colors[0].withOpacity(0.15),
-                          widget.gradient.colors[1].withOpacity(0.1),
+                          widget.gradient.colors[0].withValues(alpha: 0.15),
+                          widget.gradient.colors[1].withValues(alpha: 0.1),
                         ]
                       : [
-                          AppTheme.darkCard.withOpacity(0.3),
-                          AppTheme.darkCard.withOpacity(0.2),
+                          AppTheme.darkCard.withValues(alpha: 0.3),
+                          AppTheme.darkCard.withValues(alpha: 0.2),
                         ],
                 ),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: _isHovered
-                      ? widget.gradient.colors[0].withOpacity(0.5)
-                      : AppTheme.darkBorder.withOpacity(0.2),
+                      ? widget.gradient.colors[0].withValues(alpha: 0.5)
+                      : AppTheme.darkBorder.withValues(alpha: 0.2),
                   width: 1,
                 ),
                 boxShadow: _isHovered
                     ? [
                         BoxShadow(
-                          color: widget.gradient.colors[0].withOpacity(0.2),
+                          color:
+                              widget.gradient.colors[0].withValues(alpha: 0.2),
                           blurRadius: 20,
                           spreadRadius: 2,
                         ),
@@ -133,8 +132,10 @@ class _FuturisticSettingsItemState extends State<FuturisticSettingsItem>
                     child: InkWell(
                       onTap: widget.enabled ? widget.onTap : null,
                       borderRadius: BorderRadius.circular(16),
-                      splashColor: widget.gradient.colors[0].withOpacity(0.2),
-                      highlightColor: widget.gradient.colors[1].withOpacity(0.1),
+                      splashColor:
+                          widget.gradient.colors[0].withValues(alpha: 0.2),
+                      highlightColor:
+                          widget.gradient.colors[1].withValues(alpha: 0.1),
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Row(
@@ -149,15 +150,18 @@ class _FuturisticSettingsItemState extends State<FuturisticSettingsItem>
                                     ? widget.gradient
                                     : LinearGradient(
                                         colors: [
-                                          widget.gradient.colors[0].withOpacity(0.3),
-                                          widget.gradient.colors[1].withOpacity(0.2),
+                                          widget.gradient.colors[0]
+                                              .withValues(alpha: 0.3),
+                                          widget.gradient.colors[1]
+                                              .withValues(alpha: 0.2),
                                         ],
                                       ),
                                 borderRadius: BorderRadius.circular(14),
                                 boxShadow: _isHovered
                                     ? [
                                         BoxShadow(
-                                          color: widget.gradient.colors[0].withOpacity(0.4),
+                                          color: widget.gradient.colors[0]
+                                              .withValues(alpha: 0.4),
                                           blurRadius: 12,
                                           spreadRadius: 1,
                                         ),
@@ -173,9 +177,9 @@ class _FuturisticSettingsItemState extends State<FuturisticSettingsItem>
                                 ),
                               ),
                             ),
-                            
+
                             const SizedBox(width: 16),
-                            
+
                             // Title and Subtitle
                             Expanded(
                               child: Column(
@@ -205,7 +209,7 @@ class _FuturisticSettingsItemState extends State<FuturisticSettingsItem>
                                 ],
                               ),
                             ),
-                            
+
                             // Trailing Widget
                             if (widget.trailing != null)
                               widget.trailing!
@@ -240,6 +244,7 @@ class _FuturisticSettingsItemState extends State<FuturisticSettingsItem>
 
 // Futuristic Toggle Item
 class FuturisticSettingsToggle extends StatefulWidget {
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
   final String title;
   final String? subtitle;
@@ -247,7 +252,6 @@ class FuturisticSettingsToggle extends StatefulWidget {
   final ValueChanged<bool>? onChanged;
   final Gradient gradient;
   final bool enabled;
-
   const FuturisticSettingsToggle({
     super.key,
     required this.icon,
@@ -258,16 +262,15 @@ class FuturisticSettingsToggle extends StatefulWidget {
     required this.gradient,
     this.enabled = true,
   });
-
   @override
-  State<FuturisticSettingsToggle> createState() => _FuturisticSettingsToggleState();
+  State<FuturisticSettingsToggle> createState() =>
+      _FuturisticSettingsToggleState();
 }
 
 class _FuturisticSettingsToggleState extends State<FuturisticSettingsToggle>
     with SingleTickerProviderStateMixin {
   late AnimationController _toggleController;
   late Animation<double> _toggleAnimation;
-
   @override
   void initState() {
     super.initState();
@@ -309,9 +312,8 @@ class _FuturisticSettingsToggleState extends State<FuturisticSettingsToggle>
       gradient: widget.gradient,
       enabled: widget.enabled,
       trailing: GestureDetector(
-        onTap: widget.enabled
-            ? () => widget.onChanged?.call(!widget.value)
-            : null,
+        onTap:
+            widget.enabled ? () => widget.onChanged?.call(!widget.value) : null,
         child: AnimatedBuilder(
           animation: _toggleAnimation,
           builder: (context, child) {
@@ -323,21 +325,22 @@ class _FuturisticSettingsToggleState extends State<FuturisticSettingsToggle>
                     ? widget.gradient
                     : LinearGradient(
                         colors: [
-                          AppTheme.darkCard.withOpacity(0.5),
-                          AppTheme.darkCard.withOpacity(0.3),
+                          AppTheme.darkCard.withValues(alpha: 0.5),
+                          AppTheme.darkCard.withValues(alpha: 0.3),
                         ],
                       ),
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(
                   color: widget.value
                       ? Colors.transparent
-                      : AppTheme.darkBorder.withOpacity(0.3),
+                      : AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
                 boxShadow: widget.value
                     ? [
                         BoxShadow(
-                          color: widget.gradient.colors[0].withOpacity(0.4),
+                          color:
+                              widget.gradient.colors[0].withValues(alpha: 0.4),
                           blurRadius: 10,
                           spreadRadius: 1,
                         ),
@@ -359,7 +362,7 @@ class _FuturisticSettingsToggleState extends State<FuturisticSettingsToggle>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -373,9 +376,8 @@ class _FuturisticSettingsToggleState extends State<FuturisticSettingsToggle>
           },
         ),
       ),
-      onTap: widget.enabled
-          ? () => widget.onChanged?.call(!widget.value)
-          : null,
+      onTap:
+          widget.enabled ? () => widget.onChanged?.call(!widget.value) : null,
     );
   }
 }

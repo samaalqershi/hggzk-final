@@ -1,10 +1,9 @@
 import 'package:hggzkportal/core/enums/payment_method_enum.dart';
-
-import '../../domain/entities/payment.dart' hide PaymentStatusExtension;
 import '../../domain/entities/payment_analytics.dart';
 import 'money_model.dart';
 
 class PaymentAnalyticsModel extends PaymentAnalytics {
+  /// العربية: ينشئ مثيلًا جديدًا من `PaymentAnalyticsModel`.
   const PaymentAnalyticsModel({
     required super.summary,
     required super.trends,
@@ -14,7 +13,6 @@ class PaymentAnalyticsModel extends PaymentAnalytics {
     required super.startDate,
     required super.endDate,
   });
-
   factory PaymentAnalyticsModel.fromJson(Map<String, dynamic> json) {
     return PaymentAnalyticsModel(
       summary: PaymentSummaryModel.fromJson(json['summary'] ?? {}),
@@ -29,7 +27,6 @@ class PaymentAnalyticsModel extends PaymentAnalytics {
       endDate: DateTime.parse(json['endDate']),
     );
   }
-
   static Map<PaymentMethod, MethodAnalytics> _parseMethodAnalytics(
       dynamic data) {
     final Map<PaymentMethod, MethodAnalytics> result = {};
@@ -59,12 +56,11 @@ class PaymentAnalyticsModel extends PaymentAnalytics {
       'summary': (summary as PaymentSummaryModel).toJson(),
       'trends': trends.map((t) => (t as PaymentTrendModel).toJson()).toList(),
       'methodAnalytics': methodAnalytics.map(
-        (k, v) => MapEntry(k.backendValue.toString(),
-            (v as MethodAnalyticsModel).toJson()),
+        (k, v) => MapEntry(
+            k.backendValue.toString(), (v as MethodAnalyticsModel).toJson()),
       ),
       'statusAnalytics': statusAnalytics.map(
-        (k, v) => MapEntry(
-            k.backendKey, (v as StatusAnalyticsModel).toJson()),
+        (k, v) => MapEntry(k.backendKey, (v as StatusAnalyticsModel).toJson()),
       ),
       'refundAnalytics': (refundAnalytics as RefundAnalyticsModel).toJson(),
       'startDate': startDate.toIso8601String(),
@@ -74,6 +70,7 @@ class PaymentAnalyticsModel extends PaymentAnalytics {
 }
 
 class PaymentSummaryModel extends PaymentSummary {
+  /// العربية: ينشئ مثيلًا جديدًا من `PaymentSummaryModel`.
   const PaymentSummaryModel({
     required super.totalTransactions,
     required super.totalAmount,
@@ -85,7 +82,6 @@ class PaymentSummaryModel extends PaymentSummary {
     required super.totalRefunded,
     required super.refundCount,
   });
-
   factory PaymentSummaryModel.fromJson(Map<String, dynamic> json) {
     return PaymentSummaryModel(
       totalTransactions: json['totalTransactions'] ?? 0,
@@ -100,7 +96,6 @@ class PaymentSummaryModel extends PaymentSummary {
       refundCount: json['refundCount'] ?? 0,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'totalTransactions': totalTransactions,
@@ -118,6 +113,7 @@ class PaymentSummaryModel extends PaymentSummary {
 }
 
 class PaymentTrendModel extends PaymentTrend {
+  /// العربية: ينشئ مثيلًا جديدًا من `PaymentTrendModel`.
   const PaymentTrendModel({
     required super.date,
     required super.transactionCount,
@@ -125,7 +121,6 @@ class PaymentTrendModel extends PaymentTrend {
     required super.successRate,
     required super.methodBreakdown,
   });
-
   factory PaymentTrendModel.fromJson(Map<String, dynamic> json) {
     return PaymentTrendModel(
       date: DateTime.parse(json['date']),
@@ -135,7 +130,6 @@ class PaymentTrendModel extends PaymentTrend {
       methodBreakdown: _parseMethodBreakdown(json['methodBreakdown']),
     );
   }
-
   static Map<PaymentMethod, int> _parseMethodBreakdown(dynamic data) {
     final Map<PaymentMethod, int> result = {};
     if (data is Map) {
@@ -161,6 +155,7 @@ class PaymentTrendModel extends PaymentTrend {
 }
 
 class MethodAnalyticsModel extends MethodAnalytics {
+  /// العربية: ينشئ مثيلًا جديدًا من `MethodAnalyticsModel`.
   const MethodAnalyticsModel({
     required super.method,
     required super.transactionCount,
@@ -169,7 +164,6 @@ class MethodAnalyticsModel extends MethodAnalytics {
     required super.successRate,
     required super.averageAmount,
   });
-
   factory MethodAnalyticsModel.fromJson(Map<String, dynamic> json) {
     return MethodAnalyticsModel(
       method: PaymentMethodExtension.fromString(json['method'] ?? 'cash'),
@@ -180,7 +174,6 @@ class MethodAnalyticsModel extends MethodAnalytics {
       averageAmount: MoneyModel.fromJson(json['averageAmount'] ?? {}),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'method': method.displayNameEn,
@@ -194,13 +187,13 @@ class MethodAnalyticsModel extends MethodAnalytics {
 }
 
 class StatusAnalyticsModel extends StatusAnalytics {
+  /// العربية: ينشئ مثيلًا جديدًا من `StatusAnalyticsModel`.
   const StatusAnalyticsModel({
     required super.status,
     required super.count,
     required super.totalAmount,
     required super.percentage,
   });
-
   factory StatusAnalyticsModel.fromJson(Map<String, dynamic> json) {
     return StatusAnalyticsModel(
       status: PaymentStatusExtension.fromString(json['status'] ?? 'pending'),
@@ -209,7 +202,6 @@ class StatusAnalyticsModel extends StatusAnalytics {
       percentage: (json['percentage'] ?? 0).toDouble(),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'status': status.displayNameEn,
@@ -221,6 +213,7 @@ class StatusAnalyticsModel extends StatusAnalytics {
 }
 
 class RefundAnalyticsModel extends RefundAnalytics {
+  /// العربية: ينشئ مثيلًا جديدًا من `RefundAnalyticsModel`.
   const RefundAnalyticsModel({
     required super.totalRefunds,
     required super.totalRefundedAmount,
@@ -229,7 +222,6 @@ class RefundAnalyticsModel extends RefundAnalytics {
     required super.refundReasons,
     required super.trends,
   });
-
   factory RefundAnalyticsModel.fromJson(Map<String, dynamic> json) {
     return RefundAnalyticsModel(
       totalRefunds: json['totalRefunds'] ?? 0,
@@ -243,7 +235,6 @@ class RefundAnalyticsModel extends RefundAnalytics {
           .toList(),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'totalRefunds': totalRefunds,
@@ -257,12 +248,12 @@ class RefundAnalyticsModel extends RefundAnalytics {
 }
 
 class RefundTrendModel extends RefundTrend {
+  /// العربية: ينشئ مثيلًا جديدًا من `RefundTrendModel`.
   const RefundTrendModel({
     required super.date,
     required super.refundCount,
     required super.refundedAmount,
   });
-
   factory RefundTrendModel.fromJson(Map<String, dynamic> json) {
     return RefundTrendModel(
       date: DateTime.parse(json['date']),
@@ -270,7 +261,6 @@ class RefundTrendModel extends RefundTrend {
       refundedAmount: MoneyModel.fromJson(json['refundedAmount'] ?? {}),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'date': date.toIso8601String(),

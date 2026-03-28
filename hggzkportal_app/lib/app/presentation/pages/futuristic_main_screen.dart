@@ -8,31 +8,69 @@ import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:hggzkportal/features/admin_hub/presentation/pages/admin_hub_page.dart';
 import 'package:hggzkportal/features/auth/presentation/pages/profile_page.dart';
 
+/// غلاف تنقل رئيسي يثبت واجهة الإدارة والحساب ضمن هيكل واحد متحرك.
+/// Primary shell that keeps the admin hub and profile area inside one animated navigation scaffold.
 class MainScreen extends StatefulWidget {
+  /// ينشئ الغلاف الرئيسي الذي يضم صفحات التنقل الأساسية في التطبيق.
+  /// Creates the main shell that hosts the app's primary navigation pages.
   const MainScreen({super.key});
 
   @override
+
+  /// ينشئ كائن الحالة الذي يدير الصفحة النشطة وحركات شريط التنقل.
+  /// Creates the state object that manages the active page and nav motion.
   State<MainScreen> createState() => _MainScreenState();
 }
 
+/// يدير الصفحة النشطة، والانتقال بين التبويبات، وحركات شريط التنقل.
+/// Owns the active page, tab transitions, and nav-bar motion state.
 class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
+  /// المؤشر الحالي داخل شريط التنقل السفلي.
+  /// The currently selected tab index in the bottom navigation bar.
   int _currentIndex = 0;
+
+  /// يتحكم في الانتقال بين صفحات الغلاف بدون إعادة بناء غير لازمة.
+  /// Controls page switching without forcing unnecessary rebuilds.
   late PageController _pageController;
 
-  // Animation Controllers
+  /// يتحكم في حركة الانتقال الأساسية بين حالات شريط التنقل.
+  /// Drives the core transition motion for the navigation bar.
   late AnimationController _navAnimationController;
+
+  /// يدير موجة اللمعان التي تتحرك فوق الشريط السفلي.
+  /// Drives the glow sweep that passes over the bottom bar.
   late AnimationController _glowAnimationController;
+
+  /// يدير نبضات العناصر البصرية الدقيقة في الشريط.
+  /// Controls the subtle particle motion used by the navigation chrome.
   late AnimationController _particleAnimationController;
+
+  /// يتحكم في حركة الموجة التي تتبع التبويب النشط.
+  /// Controls the wave motion that follows the active tab.
   late AnimationController _waveAnimationController;
+
+  /// يطبق حركة النبض على العناصر المختارة لإبرازها بصريًا.
+  /// Applies a pulsing motion to selected items for visual emphasis.
   late AnimationController _pulseAnimationController;
 
-  // Animations
+  /// القيمة المتحركة التي تحدد شدة اللمعان فوق الشريط.
+  /// Animated value that controls the glow intensity above the bar.
   late Animation<double> _glowAnimation;
+
+  /// القيمة المتحركة التي تحدد شكل الموجة المتبدلة مع التبويب النشط.
+  /// Animated value that shapes the wave tied to the active tab.
   late Animation<double> _waveAnimation;
+
+  /// القيمة المتحركة التي تضبط مقدار تكبير العنصر النشط.
+  /// Animated value that adjusts how much the active item scales.
   late Animation<double> _pulseAnimation;
 
-  // Individual item animations
+  /// حركات مستقلة لكل عنصر حتى يمكن إدخال كل تبويب على حدة.
+  /// Independent animations per item so each tab can enter separately.
   final Map<int, AnimationController> _itemAnimations = {};
+
+  /// قيم التحجيم الناتجة لكل عنصر لتغذية تأثير الدخول المتدرج.
+  /// Derived scale values per item used for the staggered entrance effect.
   final Map<int, Animation<double>> _itemScaleAnimations = {};
 
   // List<Widget> get _pages => [
@@ -42,10 +80,15 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   //   const ConversationsPage(),
   //   const ProfilePage(),
   // ];
+  /// Keeps the shell pages in a stable order so tab indexes remain predictable.
+  /// يثبت صفحات الغلاف بترتيب ثابت حتى يبقى ربط المؤشر بالصفحة واضحًا.
   List<Widget> get _pages => [
         const NavigationPage(child: AdminHubPage()),
         const NavigationPage(child: ProfilePage()),
       ];
+
+  /// Metadata for the bottom navigation items, including icon states and accent colors.
+  /// بيانات عناصر التنقل السفلي: الأيقونات والحالات النشطة والتدرجات اللونية.
   final List<_NavItem> _navItems = [
     _NavItem(
       icon: Icons.dashboard_customize_outlined,
@@ -66,19 +109,19 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   ];
 
   @override
+
+  /// يهيئ وحدات التحكم والحركات ويبدأ تسلسل الظهور عند فتح الشاشة.
+  /// Initializes controllers and animations, then starts the entrance
+  /// sequence when the screen opens.
   void initState() {
     super.initState();
-    // If we have initial search params, start on the Search tab (index 1)
-    // if (widget.initialSearchParams != null) {
-    //   _currentIndex = 1;
-    // }
     _initializeControllers();
     _initializeAnimations();
     _startAnimations();
-
-    // Notifications removed
   }
 
+  /// Creates the controllers that coordinate page switching and nav-bar motion.
+  /// ينشئ وحدات التحكم التي تنسق الانتقال بين الصفحات وحركة شريط التنقل.
   void _initializeControllers() {
     _pageController = PageController(initialPage: _currentIndex);
 
@@ -107,7 +150,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       vsync: this,
     );
 
-    // Initialize item animations
     for (int i = 0; i < _navItems.length; i++) {
       _itemAnimations[i] = AnimationController(
         duration: const Duration(milliseconds: 300),
@@ -124,6 +166,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
   }
 
+  /// Maps controller output into the glow, wave, and pulse curves used by the shell.
+  /// يحول خرج وحدات التحكم إلى منحنيات اللمعان والموجة والنَّبض في الغلاف.
   void _initializeAnimations() {
     _glowAnimation = Tween<double>(
       begin: 0.0,
@@ -150,13 +194,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     ));
   }
 
+  /// Starts the perpetual shell motion and staggers the item intro animations.
+  /// يبدأ الحركة المستمرة للغلاف ويُدخل عناصر التنقل بتتابع متدرج.
   void _startAnimations() {
     _glowAnimationController.repeat(reverse: true);
     _particleAnimationController.repeat();
     _waveAnimationController.repeat();
     _pulseAnimationController.repeat(reverse: true);
 
-    // Start initial item animation
     Future.delayed(const Duration(milliseconds: 100), () {
       for (int i = 0; i < _navItems.length; i++) {
         Future.delayed(Duration(milliseconds: i * 50), () {
@@ -169,6 +214,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   @override
+
+  /// يفك الموارد المرتبطة بالصفحات والحركات حتى لا تبقى مؤشرات عالقة.
+  /// Releases the page and animation resources so no tickers remain attached.
   void dispose() {
     _pageController.dispose();
     _navAnimationController.dispose();
@@ -184,6 +232,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  /// يبدّل التبويب النشط ويشغّل حركة الانتقال بين الصفحات.
+  /// Switches the active tab and triggers the page transition animation.
   void _onTabTapped(int index) {
     if (_currentIndex != index) {
       // Haptic feedback
@@ -207,6 +257,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   @override
+
+  /// يبني الغلاف الكامل مع صفحة محتوى ثابتة وشريط تنقل سفلي متحرك.
+  /// Builds the full shell with a stable content page and animated bottom bar.
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
@@ -237,6 +290,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
   }
 
+  /// يبني الشريط السفلي المخصص بما يشمل الخلفية الزجاجية والضوء والموجة.
+  /// Builds the custom bottom bar with glass background, glow, and wave
+  /// effects.
   Widget _buildFuturisticBottomBar() {
     // حساب الارتفاع الكلي بشكل ديناميكي يشمل SafeArea
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
@@ -262,6 +318,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
   }
 
+  /// يرسم خلفية زجاجية شفافة تمنح الشريط عمقًا بصريًا خفيفًا.
+  /// Draws a translucent glass background that gives the bar visual depth.
   Widget _buildGlassBackground(double totalHeight) {
     return Positioned(
       bottom: 0,
@@ -294,6 +352,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
   }
 
+  /// يرسم موجة لونية تتحرك مع التبويب النشط لتوضيح موقعه بصريًا.
+  /// Paints a moving color wave that visually tracks the active tab.
   Widget _buildWaveEffect(double totalHeight) {
     return Positioned(
       bottom: 0,
@@ -315,6 +375,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
   }
 
+  /// يرسم خط اللمعان العلوي الذي يزداد حضوره مع الحركة الحالية.
+  /// Draws the top glow line that intensifies with the current motion.
   Widget _buildGlowLine() {
     return AnimatedBuilder(
       animation: _glowAnimation,
@@ -356,6 +418,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
   }
 
+  /// يصف صف عناصر التنقل نفسه بحيث يحتفظ كل عنصر بمكانه وحركته.
+  /// Lays out the navigation items so each item keeps its own position and
+  /// motion.
   Widget _buildNavigationItems() {
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
     return Positioned(
@@ -376,6 +441,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
   }
 
+  /// يبني عنصر التنقل الفردي مع الأيقونة والوسم وتأثيرات التحديد.
+  /// Builds a single navigation item with icon, label, and selection effects.
   Widget _buildCompactNavItem(int index) {
     final isSelected = _currentIndex == index;
     final item = _navItems[index];
@@ -524,12 +591,28 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 }
 
 // Navigation Item Model
+/// يصف عنصر تنقل واحدًا مع حالته العادية والنشطة ولونه المميز.
+/// Describes a single navigation item with inactive/active icons, label, and
+/// accent gradient.
 class _NavItem {
+  /// الأيقونة المستخدمة عندما يكون العنصر غير محدد.
+  /// Icon shown when the item is not selected.
   final IconData icon;
+
+  /// الأيقونة المستخدمة عندما يصبح العنصر هو التبويب النشط.
+  /// Icon shown when the item becomes the active tab.
   final IconData activeIcon;
+
+  /// النص الظاهر أسفل الأيقونة في شريط التنقل.
+  /// The label displayed under the icon in the navigation bar.
   final String label;
+
+  /// التدرج اللوني الذي يغذي الخلفية والوهج الخاصين بالعنصر.
+  /// Accent gradient used by the item's background and glow effects.
   final LinearGradient gradient;
 
+  /// ينشئ بيانات عنصر التنقل مع كل مكوناته المرئية.
+  /// Creates navigation item metadata with all visual components.
   _NavItem({
     required this.icon,
     required this.activeIcon,
@@ -539,18 +622,34 @@ class _NavItem {
 }
 
 // Wave Effect Painter
+/// يرسم الموجة السفلية التي تلتف حول التبويب النشط أسفل الشريط.
+/// Paints the bottom wave that wraps around the active tab under the bar.
 class _WaveEffectPainter extends CustomPainter {
+  /// قيمة الحركة الحالية التي تحدد شكل الموجة في هذه اللحظة.
+  /// The current animation value that shapes the wave at this moment.
   final double animation;
+
+  /// فهرس التبويب النشط الذي يجب أن تتركز حوله الموجة.
+  /// Index of the active tab that the wave should center on.
   final int currentIndex;
+
+  /// الألوان الممثلة لكل عنصر تنقل وتستخدم في التدرج المرسوم.
+  /// Colors representing each navigation item and used by the painted gradient.
   final List<Color> itemColors;
 
+  /// ينشئ الرسام مع القيم التي يحتاجها لتلوين الموجة وتحريكها.
+  /// Creates the painter with the values required to color and animate the
+  /// wave.
   _WaveEffectPainter({
     required this.animation,
     required this.currentIndex,
     required this.itemColors,
   });
-
   @override
+
+  /// يرسم الموجة الملوّنة بناءً على العنصر النشط وقيمة الحركة الحالية.
+  /// Paints the colored wave based on the active item and current animation
+  /// value.
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..style = PaintingStyle.fill
@@ -586,18 +685,32 @@ class _WaveEffectPainter extends CustomPainter {
   }
 
   @override
+
+  /// يعيد دائمًا true لأن الرسام يعتمد مباشرة على قيمة الحركة المتغيرة.
+  /// Always returns true because the painter depends directly on the changing
+  /// animation value.
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+/// يضيف الحشو السفلي اللازم حتى لا يغطي شريط التنقل محتوى الصفحة.
+/// Adds the bottom padding needed so the navigation bar does not cover page
+/// content.
 class NavigationPage extends StatelessWidget {
+  /// المحتوى الذي يجب أن يبقى فوق شريط التنقل السفلي.
+  /// The page content that must remain above the bottom navigation bar.
   final Widget child;
 
+  /// ينشئ غلافًا بسيطًا يرفع الصفحة فوق المساحة التي يشغلها الشريط السفلي.
+  /// Creates a simple wrapper that lifts the page above the bottom bar area.
   const NavigationPage({
     super.key,
     required this.child,
   });
-
   @override
+
+  /// يعرض المحتوى مع حشو سفلي محسوب من ارتفاع شريط التنقل وSafeArea.
+  /// Renders the content with bottom padding derived from the nav bar height
+  /// and SafeArea.
   Widget build(BuildContext context) {
     // حساب الارتفاع الكلي لشريط التنقل مع SafeArea
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;

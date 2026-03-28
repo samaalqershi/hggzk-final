@@ -8,26 +8,46 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/audit_log.dart';
 
+/// جدول سجلات تدقيق عصري يدعم الفرز والعرض المختصر والمكتبي.
+/// Futuristic audit-log table that supports sorting and compact or desktop layouts.
 class FuturisticAuditLogsTable extends StatefulWidget {
+  /// السجلات المطلوب عرضها داخل الجدول.
+  /// Audit logs to display inside the table.
   final List<AuditLog> auditLogs;
+
+  /// يستدعى عند اختيار سجل من الجدول.
+  /// Called when a log is selected from the table.
   final Function(AuditLog) onLogTap;
 
+  /// ينشئ الجدول مع البيانات ورد النقر.
   const FuturisticAuditLogsTable({
     super.key,
     required this.auditLogs,
     required this.onLogTap,
   });
 
+  /// ينشئ حالة الجدول المسؤولة عن الفرز والعرض التفاعلي.
   @override
   State<FuturisticAuditLogsTable> createState() =>
       _FuturisticAuditLogsTableState();
 }
 
+/// تدير هذه الحالة الفرز المحلي وتبديل العرض بين المختصر والمكتبي.
+/// Manages local sorting and switches between compact and desktop table views.
 class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
+  /// الصف الحالي الذي يمر عليه المؤشر.
+  /// Currently hovered row index.
   int? _hoveredIndex;
+
+  /// العمود المستخدم حاليًا في الفرز.
+  /// Column currently used for sorting.
   String _sortColumn = 'timestamp';
+
+  /// يحدد اتجاه الفرز الحالي.
+  /// Indicates the current sorting direction.
   bool _sortAscending = false;
 
+  /// يبني الجدول ويختار العرض المناسب وفق العرض المتاح.
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -61,6 +81,7 @@ class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
     );
   }
 
+  /// يبني رأس الجدول مع عداد السجلات وخيار الفرز.
   Widget _buildHeader(bool isCompact) {
     return Container(
       padding: EdgeInsets.all(isCompact ? 16 : 20),
@@ -115,6 +136,7 @@ class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
     );
   }
 
+  /// يبني قائمة منسدلة لاختيار عمود الفرز واتجاهه.
   Widget _buildSortDropdown(bool isCompact) {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -196,6 +218,7 @@ class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
     );
   }
 
+  /// يبني العرض المدمج الذي يعرض السجلات كبطاقات عمودية.
   Widget _buildCompactView() {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -284,6 +307,7 @@ class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
     );
   }
 
+  /// يبني العرض المكتبي الجدولي مع تمرير أفقي عند الحاجة.
   Widget _buildTableView(BoxConstraints constraints) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -306,6 +330,7 @@ class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
     );
   }
 
+  /// يبني رأس أعمدة الجدول المكتبي.
   Widget _buildTableHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -332,6 +357,7 @@ class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
     );
   }
 
+  /// يبني خلية رأس واحدة بعرض محدد.
   Widget _buildHeaderCell(String text, double width) {
     return SizedBox(
       width: width,
@@ -345,6 +371,7 @@ class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
     );
   }
 
+  /// يبني صفًا واحدًا داخل الجدول المكتبي مع تفاعل hover.
   Widget _buildTableRow(int index, AuditLog log) {
     final isHovered = _hoveredIndex == index;
 
@@ -425,6 +452,7 @@ class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
     );
   }
 
+  /// يبني خلية نصية موحدة داخل الصفوف المكتبية.
   Widget _buildCell(String text, double width, {TextStyle? style}) {
     return SizedBox(
       width: width,
@@ -440,6 +468,7 @@ class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
     );
   }
 
+  /// يبني شارة عملية ملوّنة مع أيقونة ونص.
   Widget _buildActionBadge(String action) {
     final color = _getActionColor(action);
     final icon = _getActionIcon(action);
@@ -477,6 +506,7 @@ class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
     );
   }
 
+  /// يبني مؤشرًا صغيرًا يوضح أن العملية بطيئة.
   Widget _buildSlowIndicator() {
     return Tooltip(
       message: 'عملية بطيئة',
@@ -495,6 +525,7 @@ class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
     );
   }
 
+  /// يبني زر أيقوني صغير لفتح تفاصيل السجل.
   Widget _buildActionIcon({
     required IconData icon,
     required VoidCallback onTap,
@@ -526,6 +557,7 @@ class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
     );
   }
 
+  /// يختار لون الواجهة وفق نوع العملية.
   Color _getActionColor(String action) {
     switch (action.toLowerCase()) {
       case 'create':
@@ -543,6 +575,7 @@ class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
     }
   }
 
+  /// يختار الأيقونة المناسبة لنوع العملية.
   IconData _getActionIcon(String action) {
     switch (action.toLowerCase()) {
       case 'create':
@@ -560,6 +593,7 @@ class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
     }
   }
 
+  /// يعيد وسمًا عربيًا موجزًا يصف نوع العملية.
   String _getActionLabel(String action) {
     switch (action.toLowerCase()) {
       case 'create':
@@ -577,6 +611,7 @@ class _FuturisticAuditLogsTableState extends State<FuturisticAuditLogsTable> {
     }
   }
 
+  /// يعيد ترتيب السجلات محليًا وفق العمود والاتجاه المختارين.
   void _sortLogs() {
     widget.auditLogs.sort((a, b) {
       int result;

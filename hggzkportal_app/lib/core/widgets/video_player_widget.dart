@@ -7,30 +7,83 @@ import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:hggzkportal/core/theme/app_theme.dart';
-import 'package:hggzkportal/core/theme/app_text_styles.dart';
 
-/// Premium Minimalist Video Player Widget
-/// Responsive design for all screens
+/// مشغل فيديو متقدم يدعم المصادر المحلية والبعيدة مع واجهة مناسبة للشاشة.
+/// Premium video player that supports local and remote sources with a screen-friendly UI.
 class VideoPlayerWidget extends StatefulWidget {
+  /// مسار الفيديو المحلي أو البعيد بحسب قيمة [isLocal].
   final String videoPath;
+
+  /// يحدد ما إذا كان المصدر ملفًا محليًا أم رابطًا بعيدًا.
+  /// Indicates whether the source is a local file or a remote URL.
   final bool isLocal;
+
+  /// استدعاء اختياري عند حذف الفيديو من الواجهة أو من المصدر.
+  /// Optional callback invoked when the video is removed from the UI or source.
   final VoidCallback? onDelete;
+
+  /// نسبة العرض إلى الارتفاع المفضلة عند تهيئة المشغل.
+  /// Preferred aspect ratio used when initialising the player.
   final double? aspectRatio;
+
+  /// يحدد إن كان التشغيل يبدأ تلقائيًا بعد التحميل.
+  /// Controls whether playback starts automatically after initialization.
   final bool autoPlay;
+
+  /// يحدد ما إذا كان الفيديو يعيد نفسه بعد الانتهاء.
+  /// Controls whether playback loops after completion.
   final bool looping;
+
+  /// نقطة بداية اختيارية داخل الفيديو.
+  /// Optional start position inside the video.
   final Duration? startAt;
+
+  /// مسار صورة مصغرة اختيارية للعرض قبل التهيئة.
+  /// Optional thumbnail path shown before the player is ready.
   final String? thumbnailPath;
+
+  /// عنصر بديل يظهر قبل اكتمال التهيئة.
+  /// Placeholder widget shown until initialization completes.
   final Widget? placeholder;
+
+  /// طبقة فوقية اختيارية لعرض معلومات أو أفعال سريعة.
+  /// Optional overlay for metadata or quick actions.
   final Widget? overlay;
+
+  /// يفعّل أو يعطّل وضع ملء الشاشة.
+  /// Enables or disables fullscreen mode.
   final bool allowFullScreen;
+
+  /// يفعّل أو يعطّل كتم الصوت من أدوات التحكم.
+  /// Enables or disables muting from the controls.
   final bool allowMuting;
+
+  /// يفعّل أو يعطّل تغيير سرعة التشغيل.
+  /// Enables or disables playback speed changes.
   final bool allowPlaybackSpeedChanging;
+
+  /// يحدد ما إذا كانت أدوات التحكم مرئية أصلًا.
+  /// Controls whether playback controls are visible.
   final bool showControls;
+
+  /// يحدد ما إذا كانت أدوات التحكم تظهر منذ بداية التهيئة.
+  /// Controls whether controls are visible immediately after initialization.
   final bool showControlsOnInitialize;
+
+  /// السرعات المسموح بها عند تغيير سرعة التشغيل.
+  /// Allowed playback speeds when the user changes speed.
   final List<double>? playbackSpeeds;
+
+  /// المسافة الخارجية الخاصة بأدوات التحكم.
+  /// External margin around the controls.
   final EdgeInsets? controlsMargin;
+
+  /// لون الخلفية للحاوية الخارجية للمشغل.
+  /// Background color for the outer player container.
   final Color? backgroundColor;
 
+  /// ينشئ مشغلًا مرنًا يصلح للشاشات العامة وشاشات الإدارة.
+  /// Creates a flexible player suitable for both public and admin screens.
   const VideoPlayerWidget({
     super.key,
     required this.videoPath,
@@ -52,7 +105,6 @@ class VideoPlayerWidget extends StatefulWidget {
     this.controlsMargin,
     this.backgroundColor,
   });
-
   @override
   State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
 }
@@ -62,22 +114,27 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
 
-  // Animation controllers
+  /// متحكمات الحركة المستخدمة لتلطيف ظهور المشغل.
   late AnimationController _fadeInController;
   late AnimationController _scaleController;
   late Animation<double> _fadeInAnimation;
   late Animation<double> _scaleAnimation;
 
-  // State variables
+  /// حالة التهيئة الحالية للمشغل.
   bool _isInitializing = true;
+
+  /// يوضح ما إذا حدث خطأ أثناء التحميل أو الإعداد.
   bool _hasError = false;
+
+  /// رسالة الخطأ القابلة للعرض للمستخدم أو للمطور.
   String? _errorMessage;
 
-  // Responsive breakpoints
+  /// يحدد إن كانت الشاشة أقرب إلى جهاز لوحي.
   bool get isTablet => MediaQuery.of(context).size.shortestSide >= 600;
+
+  /// يحدد إن كان الاتجاه الحالي أفقيًا.
   bool get isLandscape =>
       MediaQuery.of(context).orientation == Orientation.landscape;
-
   @override
   void initState() {
     super.initState();
@@ -166,8 +223,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
         materialProgressColors: ChewieProgressColors(
           playedColor: AppTheme.primaryBlue,
           handleColor: AppTheme.primaryBlue,
-          backgroundColor: Colors.white.withOpacity(0.1),
-          bufferedColor: AppTheme.primaryBlue.withOpacity(0.3),
+          backgroundColor: Colors.white.withValues(alpha: 0.1),
+          bufferedColor: AppTheme.primaryBlue.withValues(alpha: 0.3),
         ),
 
         // Auto hide controls
@@ -241,8 +298,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
       progressColors: ChewieProgressColors(
         playedColor: AppTheme.primaryBlue,
         handleColor: AppTheme.primaryBlue,
-        backgroundColor: Colors.white.withOpacity(0.15),
-        bufferedColor: AppTheme.primaryBlue.withOpacity(0.3),
+        backgroundColor: Colors.white.withValues(alpha: 0.15),
+        bufferedColor: AppTheme.primaryBlue.withValues(alpha: 0.3),
       ),
       onDelete: widget.onDelete,
       isTablet: isTablet,
@@ -257,8 +314,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.black.withOpacity(0.8),
-            Colors.black.withOpacity(0.6),
+            Colors.black.withValues(alpha: 0.8),
+            Colors.black.withValues(alpha: 0.6),
           ],
         ),
       ),
@@ -269,12 +326,12 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
             Container(
               padding: EdgeInsets.all(isTablet ? 24 : 16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.play_arrow_rounded,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
                 size: isTablet ? 48 : 36,
               ),
             ),
@@ -283,7 +340,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
               Text(
                 'اضغط للتشغيل',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   fontSize: isTablet ? 16 : 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -302,8 +359,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Colors.black.withOpacity(0.9),
-            AppTheme.error.withOpacity(0.2),
+            Colors.black.withValues(alpha: 0.9),
+            AppTheme.error.withValues(alpha: 0.2),
           ],
         ),
       ),
@@ -315,7 +372,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
             children: [
               Icon(
                 Icons.error_outline_rounded,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
                 size: isTablet ? 64 : 48,
               ),
               SizedBox(height: isTablet ? 24 : 16),
@@ -332,7 +389,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
               Text(
                 errorMessage ?? _errorMessage ?? 'تحقق من اتصالك بالإنترنت',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   fontSize: isTablet ? 14 : 12,
                 ),
                 textAlign: TextAlign.center,
@@ -359,7 +416,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
           ),
           decoration: BoxDecoration(
             border: Border.all(
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
               width: 1.5,
             ),
             borderRadius: BorderRadius.circular(30),
@@ -439,7 +496,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
                 borderRadius: borderRadius,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: isTablet ? 30 : 20,
                     offset: Offset(0, isTablet ? 15 : 10),
                   ),
@@ -493,8 +550,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.black.withOpacity(0.9),
-            Colors.black.withOpacity(0.7),
+            Colors.black.withValues(alpha: 0.9),
+            Colors.black.withValues(alpha: 0.7),
           ],
         ),
       ),
@@ -508,7 +565,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
               child: CircularProgressIndicator(
                 strokeWidth: isTablet ? 3 : 2.5,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  Colors.white.withOpacity(0.8),
+                  Colors.white.withValues(alpha: 0.8),
                 ),
               ),
             ),
@@ -516,7 +573,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
             Text(
               'جاري التحميل...',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 fontSize: isTablet ? 15 : 13,
                 fontWeight: FontWeight.w500,
                 letterSpacing: 0.5,
@@ -537,7 +594,6 @@ class _PremiumMinimalistControls extends StatefulWidget {
   final VoidCallback? onDelete;
   final bool isTablet;
   final bool isLandscape;
-
   const _PremiumMinimalistControls({
     this.backgroundColor,
     required this.iconColor,
@@ -546,7 +602,6 @@ class _PremiumMinimalistControls extends StatefulWidget {
     required this.isTablet,
     required this.isLandscape,
   });
-
   @override
   State<_PremiumMinimalistControls> createState() =>
       _PremiumMinimalistControlsState();
@@ -557,14 +612,10 @@ class _PremiumMinimalistControlsState extends State<_PremiumMinimalistControls>
   late VideoPlayerController controller;
   late AnimationController _animationController;
   late Animation<double> _animation;
-
   bool _hideControls = false;
-  bool _displayTapped = false;
   Timer? _hideTimer;
-
   VideoPlayerValue get videoValue => controller.value;
   bool get isPlaying => videoValue.isPlaying;
-
   @override
   void initState() {
     super.initState();
@@ -591,7 +642,6 @@ class _PremiumMinimalistControlsState extends State<_PremiumMinimalistControls>
     _startHideTimer();
     setState(() {
       _hideControls = false;
-      _displayTapped = true;
     });
     _animationController.forward();
   }
@@ -645,11 +695,11 @@ class _PremiumMinimalistControlsState extends State<_PremiumMinimalistControls>
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withOpacity(0.6),
+                    Colors.black.withValues(alpha: 0.6),
                     Colors.transparent,
                     Colors.transparent,
                     Colors.transparent,
-                    Colors.black.withOpacity(0.7),
+                    Colors.black.withValues(alpha: 0.7),
                   ],
                   stops: const [0.0, 0.2, 0.5, 0.8, 1.0],
                 ),
@@ -724,10 +774,10 @@ class _PremiumMinimalistControlsState extends State<_PremiumMinimalistControls>
                     width: bigIconSize + 20,
                     height: bigIconSize + 20,
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.4),
+                      color: Colors.black.withValues(alpha: 0.4),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 1.5,
                       ),
                     ),
@@ -773,8 +823,9 @@ class _PremiumMinimalistControlsState extends State<_PremiumMinimalistControls>
                         padding: EdgeInsets.zero,
                         colors: VideoProgressColors(
                           playedColor: AppTheme.primaryBlue,
-                          bufferedColor: AppTheme.primaryBlue.withOpacity(0.3),
-                          backgroundColor: Colors.white.withOpacity(0.15),
+                          bufferedColor:
+                              AppTheme.primaryBlue.withValues(alpha: 0.3),
+                          backgroundColor: Colors.white.withValues(alpha: 0.15),
                         ),
                       ),
                     ),

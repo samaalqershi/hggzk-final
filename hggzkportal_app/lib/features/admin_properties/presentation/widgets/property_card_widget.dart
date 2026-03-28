@@ -4,18 +4,17 @@ import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
-import 'package:hggzkportal/core/theme/app_colors.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import '../../domain/entities/property.dart';
 import '../../../../core/widgets/property_identity_card_tooltip.dart';
 
 class PropertyCardWidget extends StatefulWidget {
+  /// العربية: يخزن القيمة `property`.
   final Property property;
   final VoidCallback onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final bool showActions;
-  
   const PropertyCardWidget({
     super.key,
     required this.property,
@@ -24,7 +23,6 @@ class PropertyCardWidget extends StatefulWidget {
     this.onDelete,
     this.showActions = true,
   });
-  
   @override
   State<PropertyCardWidget> createState() => _PropertyCardWidgetState();
 }
@@ -36,7 +34,6 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
   late Animation<double> _scaleAnimation;
   bool _isHovered = false;
   bool _isPressed = false;
-  
   @override
   void initState() {
     super.initState();
@@ -44,7 +41,7 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: 1.05,
@@ -53,18 +50,18 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
       curve: Curves.easeOut,
     ));
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-  
+
   void _showPropertyCard() {
     setState(() => _isPressed = true);
-    
+
     HapticFeedback.mediumImpact();
-    
+
     final property = widget.property;
     PropertyIdentityCardTooltip.show(
       context: context,
@@ -76,7 +73,9 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
       address: property.address,
       city: property.city,
       starRating: property.starRating,
-      coverImage: property.images.isNotEmpty ? property.images.first.thumbnails.large : null,
+      coverImage: property.images.isNotEmpty
+          ? property.images.first.thumbnails.large
+          : null,
       isApproved: property.isApproved,
       isFeatured: property.isFeatured,
       createdAt: property.createdAt,
@@ -89,12 +88,12 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
       policiesCount: property.policies.length,
       unitsCount: property.stats?.totalBookings ?? 0,
     );
-    
+
     Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted) setState(() => _isPressed = false);
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
@@ -164,7 +163,7 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
                             fit: BoxFit.cover,
                           ),
                         ),
-                      
+
                       // Gradient Overlay
                       Positioned.fill(
                         child: Container(
@@ -182,7 +181,7 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
                           ),
                         ),
                       ),
-                      
+
                       // Glass Effect
                       Positioned.fill(
                         child: BackdropFilter(
@@ -192,7 +191,7 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
                           ),
                         ),
                       ),
-                      
+
                       // Content
                       Padding(
                         padding: const EdgeInsets.all(16),
@@ -211,18 +210,24 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
                                   ),
                                   decoration: BoxDecoration(
                                     color: widget.property.isApproved
-                                        ? AppTheme.success.withValues(alpha: 0.2)
-                                        : AppTheme.warning.withValues(alpha: 0.2),
+                                        ? AppTheme.success
+                                            .withValues(alpha: 0.2)
+                                        : AppTheme.warning
+                                            .withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
                                       color: widget.property.isApproved
-                                          ? AppTheme.success.withValues(alpha: 0.5)
-                                          : AppTheme.warning.withValues(alpha: 0.5),
+                                          ? AppTheme.success
+                                              .withValues(alpha: 0.5)
+                                          : AppTheme.warning
+                                              .withValues(alpha: 0.5),
                                       width: 0.5,
                                     ),
                                   ),
                                   child: Text(
-                                    widget.property.isApproved ? 'معتمد' : 'قيد المراجعة',
+                                    widget.property.isApproved
+                                        ? 'معتمد'
+                                        : 'قيد المراجعة',
                                     style: AppTextStyles.caption.copyWith(
                                       color: widget.property.isApproved
                                           ? AppTheme.success
@@ -231,7 +236,7 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
                                     ),
                                   ),
                                 ),
-                                
+
                                 // Actions
                                 if (widget.showActions && _isHovered)
                                   Row(
@@ -253,9 +258,9 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
                                   ),
                               ],
                             ),
-                            
+
                             const Spacer(),
-                            
+
                             // Property Name
                             Text(
                               widget.property.name,
@@ -266,16 +271,17 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            
+
                             const SizedBox(height: 4),
-                            
+
                             // Location
                             Row(
                               children: [
                                 Icon(
                                   Icons.location_on_rounded,
                                   size: 14,
-                                  color: AppTheme.primaryBlue.withValues(alpha: 0.7),
+                                  color: AppTheme.primaryBlue
+                                      .withValues(alpha: 0.7),
                                 ),
                                 const SizedBox(width: 4),
                                 Expanded(
@@ -290,9 +296,9 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
                                 ),
                               ],
                             ),
-                            
+
                             const SizedBox(height: 8),
-                            
+
                             // Bottom Row
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -309,7 +315,7 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
                                     );
                                   }),
                                 ),
-                                
+
                                 // Type Badge
                                 Container(
                                   padding: const EdgeInsets.symmetric(
@@ -317,7 +323,8 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+                                    color: AppTheme.primaryBlue
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
@@ -343,7 +350,7 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
       ),
     );
   }
-  
+
   Widget _buildActionButton(
     IconData icon,
     VoidCallback onTap, {

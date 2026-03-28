@@ -6,33 +6,63 @@ import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 
+/// يعرّف الكلاس `ChatFAB`.
+/// Describes the `ChatFAB` class.
 class ChatFAB extends StatefulWidget {
+  /// Holds the `onPressed` value.
+  /// العربية: يخزن القيمة `onPressed`.
   final VoidCallback onPressed;
 
+  /// ينشئ مثيلاً من `ChatFAB`.
+  /// Builds an instance of `ChatFAB`.
   const ChatFAB({
     super.key,
     required this.onPressed,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<ChatFAB> createState() => _ChatFABState();
 }
 
+/// يعرّف الكلاس `_ChatFABState`.
+/// Describes the `_ChatFABState` class.
 class _ChatFABState extends State<ChatFAB> with TickerProviderStateMixin {
+  /// Holds the `scaleController` value.
+  /// العربية: يخزن القيمة `scaleController`.
   late AnimationController _scaleController;
+
+  /// يخزن العضو `_rotationController`.
+  /// Holds the `_rotationController` member.
   late AnimationController _rotationController;
+
+  /// يخزن العضو `_pulseController`.
+  /// Holds the `_pulseController` member.
   late AnimationController _pulseController;
-  
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
+
+  /// يخزن العضو `_rotationAnimation`.
+  /// Holds the `_rotationAnimation` member.
   late Animation<double> _rotationAnimation;
+
+  /// يخزن العضو `_pulseAnimation`.
+  /// Holds the `_pulseAnimation` member.
   late Animation<double> _pulseAnimation;
-  
+
+  /// يخزن العضو `_isPressed`.
+  /// Holds the `_isPressed` member.
   bool _isPressed = false;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
-    
+
     _scaleController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -75,6 +105,8 @@ class _ChatFABState extends State<ChatFAB> with TickerProviderStateMixin {
     _scaleController.forward();
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _scaleController.dispose();
@@ -83,12 +115,16 @@ class _ChatFABState extends State<ChatFAB> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  /// ينفذ العملية `_handleTap`.
+  /// Runs the `_handleTap` operation.
   void _handleTap() {
     HapticFeedback.lightImpact();
     _rotationController.forward(from: 0);
     widget.onPressed();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -122,14 +158,15 @@ class _ChatFABState extends State<ChatFAB> with TickerProviderStateMixin {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.primaryBlue.withValues(alpha: _isPressed ? 0.3 : 0.15),
+                          color: AppTheme.primaryBlue
+                              .withValues(alpha: _isPressed ? 0.3 : 0.15),
                           blurRadius: _isPressed ? 20 : 15,
                           spreadRadius: _isPressed ? 2 : 0,
                         ),
                       ],
                     ),
                   ),
-                  
+
                   // Ultra minimal glass FAB
                   ClipOval(
                     child: BackdropFilter(
@@ -165,7 +202,7 @@ class _ChatFABState extends State<ChatFAB> with TickerProviderStateMixin {
                       ),
                     ),
                   ),
-                  
+
                   // Ultra subtle pulse ring
                   if (!_isPressed)
                     Transform.scale(
@@ -176,8 +213,8 @@ class _ChatFABState extends State<ChatFAB> with TickerProviderStateMixin {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: AppTheme.primaryBlue.withValues(alpha: 0.1 * (1 - _pulseAnimation.value)
-                            ),
+                            color: AppTheme.primaryBlue.withValues(
+                                alpha: 0.1 * (1 - _pulseAnimation.value)),
                             width: 1,
                           ),
                         ),

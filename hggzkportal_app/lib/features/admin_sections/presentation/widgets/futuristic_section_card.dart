@@ -19,12 +19,19 @@ enum CardDisplayMode {
 }
 
 class FuturisticSectionCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `section`.
   final Section section;
+
   final VoidCallback? onTap;
+
   final VoidCallback? onEdit;
+
   final VoidCallback? onDelete;
+
   final VoidCallback? onToggleStatus;
+
   final VoidCallback? onManageItems;
+
   final CardDisplayMode cardMode;
 
   const FuturisticSectionCard({
@@ -45,7 +52,9 @@ class FuturisticSectionCard extends StatefulWidget {
 class _FuturisticSectionCardState extends State<FuturisticSectionCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   bool _isHovered = false;
+
   bool _showActions = false;
 
   @override
@@ -194,8 +203,8 @@ class _FuturisticSectionCardState extends State<FuturisticSectionCard>
             boxShadow: [
               BoxShadow(
                 color: widget.section.isActive
-                    ? AppTheme.primaryBlue.withOpacity(0.15)
-                    : AppTheme.shadowDark.withOpacity(0.08),
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.15)
+                    : AppTheme.shadowDark.withValues(alpha: 0.08),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
                 spreadRadius: widget.section.isActive ? 1 : 0,
@@ -211,19 +220,19 @@ class _FuturisticSectionCardState extends State<FuturisticSectionCard>
                   end: Alignment.bottomRight,
                   colors: widget.section.isActive
                       ? [
-                          AppTheme.primaryBlue.withOpacity(0.1),
-                          AppTheme.primaryPurple.withOpacity(0.05),
+                          AppTheme.primaryBlue.withValues(alpha: 0.1),
+                          AppTheme.primaryPurple.withValues(alpha: 0.05),
                         ]
                       : [
-                          AppTheme.darkCard.withOpacity(0.9),
-                          AppTheme.darkCard.withOpacity(0.7),
+                          AppTheme.darkCard.withValues(alpha: 0.9),
+                          AppTheme.darkCard.withValues(alpha: 0.7),
                         ],
                 ),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: widget.section.isActive
-                      ? AppTheme.primaryBlue.withOpacity(0.3)
-                      : AppTheme.darkBorder.withOpacity(0.15),
+                      ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                      : AppTheme.darkBorder.withValues(alpha: 0.15),
                   width: 1,
                 ),
               ),
@@ -419,7 +428,8 @@ class _FuturisticSectionCardState extends State<FuturisticSectionCard>
               ),
             ],
           ),
-          if (widget.onManageItems != null && widget.section.contentType != SectionContentType.none) ...[
+          if (widget.onManageItems != null &&
+              widget.section.contentType != SectionContentType.none) ...[
             const SizedBox(height: 8),
             _buildFullWidthActionButton(
               icon: CupertinoIcons.square_stack_3d_down_right,
@@ -609,7 +619,7 @@ class _FuturisticSectionCardState extends State<FuturisticSectionCard>
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppTheme.darkBackground.withOpacity(0.3),
+              color: AppTheme.darkBackground.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Column(
@@ -743,10 +753,10 @@ class _FuturisticSectionCardState extends State<FuturisticSectionCard>
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppTheme.darkCard.withOpacity(0.2),
+            color: AppTheme.darkCard.withValues(alpha: 0.2),
             border: Border(
               bottom: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.1),
+                color: AppTheme.darkBorder.withValues(alpha: 0.1),
                 width: 0.5,
               ),
             ),
@@ -797,10 +807,10 @@ class _FuturisticSectionCardState extends State<FuturisticSectionCard>
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppTheme.darkBackground.withOpacity(0.3),
+            color: AppTheme.darkBackground.withValues(alpha: 0.3),
             border: Border(
               top: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.1),
+                color: AppTheme.darkBorder.withValues(alpha: 0.1),
                 width: 0.5,
               ),
             ),
@@ -817,13 +827,13 @@ class _FuturisticSectionCardState extends State<FuturisticSectionCard>
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: widget.section.isActive
-            ? AppTheme.success.withOpacity(0.15)
-            : AppTheme.textMuted.withOpacity(0.1),
+            ? AppTheme.success.withValues(alpha: 0.15)
+            : AppTheme.textMuted.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
           color: widget.section.isActive
-              ? AppTheme.success.withOpacity(0.3)
-              : AppTheme.textMuted.withOpacity(0.2),
+              ? AppTheme.success.withValues(alpha: 0.3)
+              : AppTheme.textMuted.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -862,10 +872,10 @@ class _FuturisticSectionCardState extends State<FuturisticSectionCard>
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(size * 0.2),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -919,10 +929,10 @@ class _FuturisticSectionCardState extends State<FuturisticSectionCard>
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             width: 0.5,
           ),
         ),
@@ -996,10 +1006,10 @@ class _FuturisticSectionCardState extends State<FuturisticSectionCard>
       child: Container(
         height: 32,
         decoration: BoxDecoration(
-          color: buttonColor.withOpacity(0.12),
+          color: buttonColor.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: buttonColor.withOpacity(0.25),
+            color: buttonColor.withValues(alpha: 0.25),
             width: 0.5,
           ),
         ),
@@ -1088,10 +1098,10 @@ class _FuturisticSectionCardState extends State<FuturisticSectionCard>
       child: Container(
         height: 26,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
+          color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: color.withOpacity(0.25),
+            color: color.withValues(alpha: 0.25),
             width: 0.5,
           ),
         ),
@@ -1150,7 +1160,7 @@ class _FuturisticSectionCardState extends State<FuturisticSectionCard>
   }) {
     return Row(
       children: [
-        Icon(icon, size: 12, color: AppTheme.textMuted.withOpacity(0.7)),
+        Icon(icon, size: 12, color: AppTheme.textMuted.withValues(alpha: 0.7)),
         const SizedBox(width: 6),
         Text(
           label,
@@ -1175,14 +1185,14 @@ class _FuturisticSectionCardState extends State<FuturisticSectionCard>
   Widget _buildMiniInfo(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 11, color: AppTheme.textMuted.withOpacity(0.7)),
+        Icon(icon, size: 11, color: AppTheme.textMuted.withValues(alpha: 0.7)),
         const SizedBox(width: 6),
         Expanded(
           child: Text(
             text,
             style: TextStyle(
               fontSize: 10,
-              color: AppTheme.textWhite.withOpacity(0.9),
+              color: AppTheme.textWhite.withValues(alpha: 0.9),
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

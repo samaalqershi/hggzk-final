@@ -2,23 +2,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'dart:ui';
 import 'package:flutter/services.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-
 class NotificationFiltersBar extends StatelessWidget {
+  /// العربية: يخزن القيمة `selectedType`.
   final String? selectedType;
   final String? selectedStatus;
   final Function(String?, String?) onFiltersChanged;
-
   const NotificationFiltersBar({
     super.key,
     this.selectedType,
     this.selectedStatus,
     required this.onFiltersChanged,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -61,7 +58,6 @@ class NotificationFiltersBar extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildFilterDropdown({
     required String label,
     required String? value,
@@ -123,7 +119,6 @@ class NotificationFiltersBar extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildClearButton() {
     return GestureDetector(
       onTap: () {

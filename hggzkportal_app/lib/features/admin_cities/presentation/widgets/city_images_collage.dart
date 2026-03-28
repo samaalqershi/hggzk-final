@@ -2,20 +2,52 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 
+/// Displays a city image collage with layouts that adapt to the number of files.
+///
+/// يعرض تجميعًا لصور المدينة بتخطيطات تتكيف مع عدد الملفات.
 class CityImagesCollage extends StatefulWidget {
+  /// Image URLs that will be arranged into the collage.
+  ///
+  /// روابط الصور التي ستُرتب داخل التجميع.
   final List<String> images;
+
+  /// Collage height used by the parent card or gallery.
+  ///
+  /// ارتفاع التجميع المستخدم من البطاقة أو المعرض الأب.
   final double height;
+
+  /// Optional width override for the collage container.
+  ///
+  /// عرض اختياري لحاوية التجميع.
   final double? width;
+
+  /// Optional rounded-rectangle shape applied to the collage.
+  ///
+  /// شكل حواف مستديرة اختياري يُطبق على التجميع.
   final BorderRadius? borderRadius;
+
+  /// Tap callback used when the collage should open a deeper view.
+  ///
+  /// دالة النقر المستخدمة عند فتح عرض أعمق.
   final VoidCallback? onTap;
+
+  /// Toggles the overlay count badge when more than one image exists.
+  ///
+  /// يبدّل شارة العدد عندما يوجد أكثر من صورة.
   final bool showImageCount;
+
+  /// Enables the hover animation and shadow response.
+  ///
+  /// يفعّل حركة التحويم واستجابة الظل.
   final bool enableHoverEffect;
 
+  /// Creates a collage from the provided city image URLs.
+  ///
+  /// ينشئ تجميعًا من روابط صور المدينة الممررة.
   const CityImagesCollage({
     super.key,
     required this.images,
@@ -26,16 +58,20 @@ class CityImagesCollage extends StatefulWidget {
     this.showImageCount = true,
     this.enableHoverEffect = true,
   });
-
   @override
   State<CityImagesCollage> createState() => _CityImagesCollageState();
 }
 
+/// يدير حركة التحويم واختيار التخطيط المناسب بحسب عدد الصور.
+/// Manages hover motion and chooses the proper layout based on image count.
 class _CityImagesCollageState extends State<CityImagesCollage>
     with SingleTickerProviderStateMixin {
+  /// متحكم الحركة الذي يفعّل تأثير التكبير والظل عند التحويم.
+  /// Animation controller that drives the hover scale and shadow effect.
   late AnimationController _animationController;
-  bool _isHovered = false;
 
+  /// يهيئ متحكم الحركة قبل عرض التجميع لأول مرة.
+  /// Initializes the animation controller before the collage is first shown.
   @override
   void initState() {
     super.initState();
@@ -45,12 +81,16 @@ class _CityImagesCollageState extends State<CityImagesCollage>
     );
   }
 
+  /// يحرر متحكم الحركة عند إزالة الودجت من الشجرة.
+  /// Disposes the animation controller when the widget leaves the tree.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// يبني التجميع مع معالجة حالة الفراغ والتمرير والنقر.
+  /// Builds the collage while handling empty state, hover, and tap interactions.
   @override
   Widget build(BuildContext context) {
     if (widget.images.isEmpty) {
@@ -78,8 +118,8 @@ class _CityImagesCollageState extends State<CityImagesCollage>
                   boxShadow: widget.enableHoverEffect
                       ? [
                           BoxShadow(
-                            color: AppTheme.shadowDark.withOpacity(
-                              0.2 + (_animationController.value * 0.1),
+                            color: AppTheme.shadowDark.withValues(
+                              alpha: 0.2 + (_animationController.value * 0.1),
                             ),
                             blurRadius: 20 + (_animationController.value * 10),
                             offset: Offset(
@@ -101,9 +141,10 @@ class _CityImagesCollageState extends State<CityImagesCollage>
     );
   }
 
+  /// يطلق أو يوقف تأثير التحويم بحسب حالة المؤشر.
+  /// Starts or stops the hover effect depending on pointer state.
   void _onHover(bool isHovered) {
     if (!widget.enableHoverEffect) return;
-    setState(() => _isHovered = isHovered);
     if (isHovered) {
       _animationController.forward();
     } else {
@@ -111,6 +152,8 @@ class _CityImagesCollageState extends State<CityImagesCollage>
     }
   }
 
+  /// يختار التخطيط الأنسب بحسب عدد الصور داخل التجميع.
+  /// Chooses the most suitable layout based on the number of images.
   Widget _buildLayout() {
     final imageCount = widget.images.length;
 
@@ -134,6 +177,8 @@ class _CityImagesCollageState extends State<CityImagesCollage>
   }
 
   // تخطيط صورة واحدة
+  /// يبني تخطيط صورة واحدة مع طبقة تدرج خفيفة.
+  /// Builds the single-image layout with a subtle gradient overlay.
   Widget _buildSingleImage() {
     return Stack(
       fit: StackFit.expand,
@@ -145,6 +190,8 @@ class _CityImagesCollageState extends State<CityImagesCollage>
   }
 
   // تخطيط صورتين (جنب بعض)
+  /// يبني تخطيطًا لصورتين جنبًا إلى جنب.
+  /// Builds a side-by-side layout for two images.
   Widget _buildTwoImages() {
     return Stack(
       children: [
@@ -161,6 +208,8 @@ class _CityImagesCollageState extends State<CityImagesCollage>
   }
 
   // تخطيط 3 صور (واحدة كبيرة يسار واثنتين صغيرتين يمين)
+  /// يبني تخطيطًا من ثلاث صور يبرز صورة رئيسية وصورتين ثانويتين.
+  /// Builds a three-image layout with one dominant image and two supporting ones.
   Widget _buildThreeImages() {
     return Stack(
       children: [
@@ -188,6 +237,8 @@ class _CityImagesCollageState extends State<CityImagesCollage>
   }
 
   // تخطيط 4 صور (شبكة 2×2)
+  /// يبني شبكة 2×2 لأربع صور.
+  /// Builds a 2x2 grid for four images.
   Widget _buildFourImages() {
     return Stack(
       children: [
@@ -220,6 +271,8 @@ class _CityImagesCollageState extends State<CityImagesCollage>
   }
 
   // تخطيط 5 صور (صورتين فوق و3 تحت)
+  /// يبني تخطيطًا لخمس صور مع صف علوي وصف سفلي.
+  /// Builds a five-image layout with one top row and one bottom row.
   Widget _buildFiveImages() {
     return Stack(
       children: [
@@ -256,6 +309,8 @@ class _CityImagesCollageState extends State<CityImagesCollage>
   }
 
   // تخطيط 6 صور (شبكة 3×2)
+  /// يبني تخطيطًا من ست صور على صفوف متوازنة.
+  /// Builds a six-image layout with balanced rows.
   Widget _buildSixImages() {
     return Stack(
       children: [
@@ -292,6 +347,8 @@ class _CityImagesCollageState extends State<CityImagesCollage>
   }
 
   // تخطيط للصور الكثيرة (عرض أول 4 مع عداد)
+  /// يبني تخطيط الصور الزائدة ويعرض عدد الباقي فوق آخر خانة.
+  /// Builds the overflow layout and shows the remaining count on the last tile.
   Widget _buildManyImages() {
     final displayImages = widget.images.take(4).toList();
     final remainingCount = widget.images.length - 4;
@@ -323,7 +380,7 @@ class _CityImagesCollageState extends State<CityImagesCollage>
                         if (remainingCount > 0)
                           Container(
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.7),
+                              color: Colors.black.withValues(alpha: 0.7),
                             ),
                             child: Center(
                               child: Text(
@@ -348,6 +405,8 @@ class _CityImagesCollageState extends State<CityImagesCollage>
     );
   }
 
+  /// يبني عنصر صورة واحدًا مع التحميل والتغطية والتقاط الأخطاء.
+  /// Builds a single image tile with loading, overlay, and error handling.
   Widget _buildImage(String imageUrl) {
     return CachedImageWidget(
       imageUrl: imageUrl,
@@ -355,6 +414,8 @@ class _CityImagesCollageState extends State<CityImagesCollage>
     );
   }
 
+  /// يضيف طبقة تدرج لتحسين قابلية قراءة العدد أو النص فوق الصور.
+  /// Adds a gradient overlay to improve text and count legibility.
   Widget _buildGradientOverlay() {
     if (!widget.showImageCount || widget.images.length <= 1) {
       return const SizedBox.shrink();
@@ -366,7 +427,7 @@ class _CityImagesCollageState extends State<CityImagesCollage>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.7),
+          color: Colors.black.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -391,6 +452,8 @@ class _CityImagesCollageState extends State<CityImagesCollage>
     );
   }
 
+  /// يعرض حالة فارغة عندما لا تتوفر أي صور للمدينة.
+  /// Shows the empty state when no city images are available.
   Widget _buildEmptyState() {
     return Container(
       height: widget.height,
@@ -401,12 +464,12 @@ class _CityImagesCollageState extends State<CityImagesCollage>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -417,13 +480,13 @@ class _CityImagesCollageState extends State<CityImagesCollage>
             Icon(
               CupertinoIcons.photo,
               size: 32,
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 8),
             Text(
               'لا توجد صور',
               style: AppTextStyles.caption.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
             ),
           ],

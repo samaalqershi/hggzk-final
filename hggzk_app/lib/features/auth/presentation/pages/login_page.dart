@@ -3,14 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:math' as math;
-import '../../../../injection_container.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import '../../../../core/constants/storage_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../../../core/widgets/app_logo_widget.dart';
-import '../../../../services/biometric_auth_service.dart';
-import '../../../../services/local_storage_service.dart';
+import 'package:hggzk/core/services/biometric_auth_service.dart';
+import 'package:hggzk/core/services/local_storage_service.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../../../settings/presentation/bloc/settings_event.dart';
 import '../../../settings/presentation/bloc/settings_state.dart';
@@ -20,9 +20,14 @@ import '../bloc/auth_state.dart';
 import '../widgets/login_form.dart';
 import '../widgets/social_login_buttons.dart';
 
+/// تعرض شاشة تسجيل الدخول الرئيسية مع النموذج التقليدي وخيارات الدخول
+/// الاجتماعي وحالة الاسترجاع البيومتري عند توفرها.
+/// Presents the main sign-in screen with the classic form, social login
+/// options, and biometric restoration when available.
 class LoginPage extends StatefulWidget {
+  /// ينشئ شاشة تسجيل الدخول.
+  /// Creates the login screen.
   const LoginPage({super.key});
-
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
@@ -50,7 +55,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final BiometricAuthService _biometric = BiometricAuthService();
   bool _biometricAvailable = false;
   bool _biometricEnabled = false;
-
   @override
   void initState() {
     super.initState();
@@ -242,7 +246,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   // ============ Background Widgets ============
-
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: _rotationAnimation,
@@ -287,7 +290,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   // ============ Header Section ============
-
   Widget _buildHeader() {
     return Column(
       children: [
@@ -401,7 +403,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   // ============ Login Form Card ============
-
   Widget _buildLoginFormCard() {
     return Container(
       padding: const EdgeInsets.all(_cardPadding),
@@ -581,7 +582,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   // ============ Divider ============
-
   Widget _buildDivider() {
     return Row(
       children: [
@@ -635,13 +635,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   // ============ Social Login ============
-
   Widget _buildSocialLogin() {
     return const SocialLoginButtons();
   }
 
   // ============ Register Link ============
-
   Widget _buildRegisterLink() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -686,7 +684,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   // ============ Auth State Handler ============
-
   void _handleAuthState(BuildContext context, AuthState state) {
     if (state is AuthLoginSuccess) {
       final user = state.user;
@@ -798,16 +795,13 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 }
 
 // ============ Background Pattern Painter ============
-
 class _BackgroundPatternPainter extends CustomPainter {
   final double rotation;
   final double glowIntensity;
-
   _BackgroundPatternPainter({
     required this.rotation,
     required this.glowIntensity,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -844,7 +838,6 @@ class _BackgroundPatternPainter extends CustomPainter {
 }
 
 // ============ Floating Particle Model ============
-
 class _FloatingParticle {
   late double x;
   late double y;
@@ -853,11 +846,9 @@ class _FloatingParticle {
   late double radius;
   late double opacity;
   late Color color;
-
   _FloatingParticle() {
     reset();
   }
-
   void reset() {
     final random = math.Random();
     x = random.nextDouble();
@@ -885,16 +876,13 @@ class _FloatingParticle {
 }
 
 // ============ Particle Painter ============
-
 class _ParticlePainter extends CustomPainter {
   final List<_FloatingParticle> particles;
   final double animationValue;
-
   _ParticlePainter({
     required this.particles,
     required this.animationValue,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {

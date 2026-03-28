@@ -2,72 +2,127 @@ import 'package:equatable/equatable.dart';
 
 /// 📋 Entity للسياسة
 class Policy extends Equatable {
+  /// العربية: يخزن القيمة `id`.
   final String id;
+
   final String propertyId;
+
   final String? propertyName;
+
   final PolicyType type;
+
   final String description;
+
   final String? rules;
+
   final int cancellationWindowDays;
+
   final bool requireFullPaymentBeforeConfirmation;
+
   final double minimumDepositPercentage;
+
   final int minHoursBeforeCheckIn;
 
   final bool? cancellationFreeCancel;
+
   final bool? cancellationFullRefund;
+
   final int? cancellationRefundPercentage;
+
   final int? cancellationDaysBeforeCheckIn;
+
   final int? cancellationHoursBeforeCheckIn;
+
   final bool? cancellationNonRefundable;
+
   final String? cancellationPenaltyAfterDeadline;
 
   final bool? paymentDepositRequired;
+
   final bool? paymentFullPaymentRequired;
+
   final double? paymentDepositPercentage;
+
   final bool? paymentAcceptCash;
+
   final bool? paymentAcceptCard;
+
   final bool? paymentPayAtProperty;
+
   final bool? paymentCashPreferred;
+
   final List<String>? paymentAcceptedMethods;
 
   final String? checkInTime;
+
   final String? checkOutTime;
+
   final String? checkInFrom;
+
   final String? checkInUntil;
+
   final bool? checkInFlexible;
+
   final bool? checkInFlexibleCheckIn;
+
   final bool? checkInRequiresCoordination;
+
   final bool? checkInContactOwner;
+
   final String? checkInEarlyCheckInNote;
+
   final String? checkInLateCheckOutNote;
+
   final String? checkInLateCheckOutFee;
 
   final bool? childrenAllowed;
+
   final int? childrenFreeUnderAge;
+
   final int? childrenHalfPriceUnderAge;
+
   final int? childrenMaxChildrenPerRoom;
+
   final int? childrenMaxChildren;
+
   final String? childrenCribsNote;
+
   final bool? childrenPlaygroundAvailable;
+
   final bool? childrenKidsMenuAvailable;
 
   final bool? petsAllowed;
+
   final String? petsReason;
+
   final double? petsFeeAmount;
+
   final String? petsMaxWeight;
+
   final bool? petsRequiresApproval;
+
   final bool? petsNoFees;
+
   final bool? petsPetFriendly;
+
   final bool? petsOutdoorSpace;
+
   final bool? petsStrict;
 
   final bool? modificationAllowed;
+
   final int? modificationFreeModificationHours;
+
   final String? modificationFeesAfter;
+
   final bool? modificationFlexible;
+
   final String? modificationReason;
+
   final DateTime? createdAt;
+
   final DateTime? updatedAt;
+
   final bool? isActive;
 
   const Policy({
@@ -81,7 +136,6 @@ class Policy extends Equatable {
     this.requireFullPaymentBeforeConfirmation = false,
     this.minimumDepositPercentage = 0.0,
     this.minHoursBeforeCheckIn = 0,
-
     this.cancellationFreeCancel,
     this.cancellationFullRefund,
     this.cancellationRefundPercentage,
@@ -89,7 +143,6 @@ class Policy extends Equatable {
     this.cancellationHoursBeforeCheckIn,
     this.cancellationNonRefundable,
     this.cancellationPenaltyAfterDeadline,
-
     this.paymentDepositRequired,
     this.paymentFullPaymentRequired,
     this.paymentDepositPercentage,
@@ -98,7 +151,6 @@ class Policy extends Equatable {
     this.paymentPayAtProperty,
     this.paymentCashPreferred,
     this.paymentAcceptedMethods,
-
     this.checkInTime,
     this.checkOutTime,
     this.checkInFrom,
@@ -110,7 +162,6 @@ class Policy extends Equatable {
     this.checkInEarlyCheckInNote,
     this.checkInLateCheckOutNote,
     this.checkInLateCheckOutFee,
-
     this.childrenAllowed,
     this.childrenFreeUnderAge,
     this.childrenHalfPriceUnderAge,
@@ -119,7 +170,6 @@ class Policy extends Equatable {
     this.childrenCribsNote,
     this.childrenPlaygroundAvailable,
     this.childrenKidsMenuAvailable,
-
     this.petsAllowed,
     this.petsReason,
     this.petsFeeAmount,
@@ -129,7 +179,6 @@ class Policy extends Equatable {
     this.petsPetFriendly,
     this.petsOutdoorSpace,
     this.petsStrict,
-
     this.modificationAllowed,
     this.modificationFreeModificationHours,
     this.modificationFeesAfter,
@@ -151,7 +200,6 @@ class Policy extends Equatable {
     bool? requireFullPaymentBeforeConfirmation,
     double? minimumDepositPercentage,
     int? minHoursBeforeCheckIn,
-
     bool? cancellationFreeCancel,
     bool? cancellationFullRefund,
     int? cancellationRefundPercentage,
@@ -159,7 +207,6 @@ class Policy extends Equatable {
     int? cancellationHoursBeforeCheckIn,
     bool? cancellationNonRefundable,
     String? cancellationPenaltyAfterDeadline,
-
     bool? paymentDepositRequired,
     bool? paymentFullPaymentRequired,
     double? paymentDepositPercentage,
@@ -168,7 +215,6 @@ class Policy extends Equatable {
     bool? paymentPayAtProperty,
     bool? paymentCashPreferred,
     List<String>? paymentAcceptedMethods,
-
     String? checkInTime,
     String? checkOutTime,
     String? checkInFrom,
@@ -180,7 +226,6 @@ class Policy extends Equatable {
     String? checkInEarlyCheckInNote,
     String? checkInLateCheckOutNote,
     String? checkInLateCheckOutFee,
-
     bool? childrenAllowed,
     int? childrenFreeUnderAge,
     int? childrenHalfPriceUnderAge,
@@ -189,7 +234,6 @@ class Policy extends Equatable {
     String? childrenCribsNote,
     bool? childrenPlaygroundAvailable,
     bool? childrenKidsMenuAvailable,
-
     bool? petsAllowed,
     String? petsReason,
     double? petsFeeAmount,
@@ -199,7 +243,6 @@ class Policy extends Equatable {
     bool? petsPetFriendly,
     bool? petsOutdoorSpace,
     bool? petsStrict,
-
     bool? modificationAllowed,
     int? modificationFreeModificationHours,
     String? modificationFeesAfter,
@@ -216,49 +259,69 @@ class Policy extends Equatable {
       type: type ?? this.type,
       description: description ?? this.description,
       rules: rules ?? this.rules,
-      cancellationWindowDays: cancellationWindowDays ?? this.cancellationWindowDays,
-      requireFullPaymentBeforeConfirmation: requireFullPaymentBeforeConfirmation ?? this.requireFullPaymentBeforeConfirmation,
-      minimumDepositPercentage: minimumDepositPercentage ?? this.minimumDepositPercentage,
-      minHoursBeforeCheckIn: minHoursBeforeCheckIn ?? this.minHoursBeforeCheckIn,
-
-      cancellationFreeCancel: cancellationFreeCancel ?? this.cancellationFreeCancel,
-      cancellationFullRefund: cancellationFullRefund ?? this.cancellationFullRefund,
-      cancellationRefundPercentage: cancellationRefundPercentage ?? this.cancellationRefundPercentage,
-      cancellationDaysBeforeCheckIn: cancellationDaysBeforeCheckIn ?? this.cancellationDaysBeforeCheckIn,
-      cancellationHoursBeforeCheckIn: cancellationHoursBeforeCheckIn ?? this.cancellationHoursBeforeCheckIn,
-      cancellationNonRefundable: cancellationNonRefundable ?? this.cancellationNonRefundable,
-      cancellationPenaltyAfterDeadline: cancellationPenaltyAfterDeadline ?? this.cancellationPenaltyAfterDeadline,
-
-      paymentDepositRequired: paymentDepositRequired ?? this.paymentDepositRequired,
-      paymentFullPaymentRequired: paymentFullPaymentRequired ?? this.paymentFullPaymentRequired,
-      paymentDepositPercentage: paymentDepositPercentage ?? this.paymentDepositPercentage,
+      cancellationWindowDays:
+          cancellationWindowDays ?? this.cancellationWindowDays,
+      requireFullPaymentBeforeConfirmation:
+          requireFullPaymentBeforeConfirmation ??
+              this.requireFullPaymentBeforeConfirmation,
+      minimumDepositPercentage:
+          minimumDepositPercentage ?? this.minimumDepositPercentage,
+      minHoursBeforeCheckIn:
+          minHoursBeforeCheckIn ?? this.minHoursBeforeCheckIn,
+      cancellationFreeCancel:
+          cancellationFreeCancel ?? this.cancellationFreeCancel,
+      cancellationFullRefund:
+          cancellationFullRefund ?? this.cancellationFullRefund,
+      cancellationRefundPercentage:
+          cancellationRefundPercentage ?? this.cancellationRefundPercentage,
+      cancellationDaysBeforeCheckIn:
+          cancellationDaysBeforeCheckIn ?? this.cancellationDaysBeforeCheckIn,
+      cancellationHoursBeforeCheckIn:
+          cancellationHoursBeforeCheckIn ?? this.cancellationHoursBeforeCheckIn,
+      cancellationNonRefundable:
+          cancellationNonRefundable ?? this.cancellationNonRefundable,
+      cancellationPenaltyAfterDeadline: cancellationPenaltyAfterDeadline ??
+          this.cancellationPenaltyAfterDeadline,
+      paymentDepositRequired:
+          paymentDepositRequired ?? this.paymentDepositRequired,
+      paymentFullPaymentRequired:
+          paymentFullPaymentRequired ?? this.paymentFullPaymentRequired,
+      paymentDepositPercentage:
+          paymentDepositPercentage ?? this.paymentDepositPercentage,
       paymentAcceptCash: paymentAcceptCash ?? this.paymentAcceptCash,
       paymentAcceptCard: paymentAcceptCard ?? this.paymentAcceptCard,
       paymentPayAtProperty: paymentPayAtProperty ?? this.paymentPayAtProperty,
       paymentCashPreferred: paymentCashPreferred ?? this.paymentCashPreferred,
-      paymentAcceptedMethods: paymentAcceptedMethods ?? this.paymentAcceptedMethods,
-
+      paymentAcceptedMethods:
+          paymentAcceptedMethods ?? this.paymentAcceptedMethods,
       checkInTime: checkInTime ?? this.checkInTime,
       checkOutTime: checkOutTime ?? this.checkOutTime,
       checkInFrom: checkInFrom ?? this.checkInFrom,
       checkInUntil: checkInUntil ?? this.checkInUntil,
       checkInFlexible: checkInFlexible ?? this.checkInFlexible,
-      checkInFlexibleCheckIn: checkInFlexibleCheckIn ?? this.checkInFlexibleCheckIn,
-      checkInRequiresCoordination: checkInRequiresCoordination ?? this.checkInRequiresCoordination,
+      checkInFlexibleCheckIn:
+          checkInFlexibleCheckIn ?? this.checkInFlexibleCheckIn,
+      checkInRequiresCoordination:
+          checkInRequiresCoordination ?? this.checkInRequiresCoordination,
       checkInContactOwner: checkInContactOwner ?? this.checkInContactOwner,
-      checkInEarlyCheckInNote: checkInEarlyCheckInNote ?? this.checkInEarlyCheckInNote,
-      checkInLateCheckOutNote: checkInLateCheckOutNote ?? this.checkInLateCheckOutNote,
-      checkInLateCheckOutFee: checkInLateCheckOutFee ?? this.checkInLateCheckOutFee,
-
+      checkInEarlyCheckInNote:
+          checkInEarlyCheckInNote ?? this.checkInEarlyCheckInNote,
+      checkInLateCheckOutNote:
+          checkInLateCheckOutNote ?? this.checkInLateCheckOutNote,
+      checkInLateCheckOutFee:
+          checkInLateCheckOutFee ?? this.checkInLateCheckOutFee,
       childrenAllowed: childrenAllowed ?? this.childrenAllowed,
       childrenFreeUnderAge: childrenFreeUnderAge ?? this.childrenFreeUnderAge,
-      childrenHalfPriceUnderAge: childrenHalfPriceUnderAge ?? this.childrenHalfPriceUnderAge,
-      childrenMaxChildrenPerRoom: childrenMaxChildrenPerRoom ?? this.childrenMaxChildrenPerRoom,
+      childrenHalfPriceUnderAge:
+          childrenHalfPriceUnderAge ?? this.childrenHalfPriceUnderAge,
+      childrenMaxChildrenPerRoom:
+          childrenMaxChildrenPerRoom ?? this.childrenMaxChildrenPerRoom,
       childrenMaxChildren: childrenMaxChildren ?? this.childrenMaxChildren,
       childrenCribsNote: childrenCribsNote ?? this.childrenCribsNote,
-      childrenPlaygroundAvailable: childrenPlaygroundAvailable ?? this.childrenPlaygroundAvailable,
-      childrenKidsMenuAvailable: childrenKidsMenuAvailable ?? this.childrenKidsMenuAvailable,
-
+      childrenPlaygroundAvailable:
+          childrenPlaygroundAvailable ?? this.childrenPlaygroundAvailable,
+      childrenKidsMenuAvailable:
+          childrenKidsMenuAvailable ?? this.childrenKidsMenuAvailable,
       petsAllowed: petsAllowed ?? this.petsAllowed,
       petsReason: petsReason ?? this.petsReason,
       petsFeeAmount: petsFeeAmount ?? this.petsFeeAmount,
@@ -268,10 +331,11 @@ class Policy extends Equatable {
       petsPetFriendly: petsPetFriendly ?? this.petsPetFriendly,
       petsOutdoorSpace: petsOutdoorSpace ?? this.petsOutdoorSpace,
       petsStrict: petsStrict ?? this.petsStrict,
-
       modificationAllowed: modificationAllowed ?? this.modificationAllowed,
-      modificationFreeModificationHours: modificationFreeModificationHours ?? this.modificationFreeModificationHours,
-      modificationFeesAfter: modificationFeesAfter ?? this.modificationFeesAfter,
+      modificationFreeModificationHours: modificationFreeModificationHours ??
+          this.modificationFreeModificationHours,
+      modificationFeesAfter:
+          modificationFeesAfter ?? this.modificationFeesAfter,
       modificationFlexible: modificationFlexible ?? this.modificationFlexible,
       modificationReason: modificationReason ?? this.modificationReason,
       createdAt: createdAt ?? this.createdAt,
@@ -292,7 +356,6 @@ class Policy extends Equatable {
         requireFullPaymentBeforeConfirmation,
         minimumDepositPercentage,
         minHoursBeforeCheckIn,
-
         cancellationFreeCancel,
         cancellationFullRefund,
         cancellationRefundPercentage,
@@ -300,7 +363,6 @@ class Policy extends Equatable {
         cancellationHoursBeforeCheckIn,
         cancellationNonRefundable,
         cancellationPenaltyAfterDeadline,
-
         paymentDepositRequired,
         paymentFullPaymentRequired,
         paymentDepositPercentage,
@@ -309,7 +371,6 @@ class Policy extends Equatable {
         paymentPayAtProperty,
         paymentCashPreferred,
         paymentAcceptedMethods,
-
         checkInTime,
         checkOutTime,
         checkInFrom,
@@ -321,7 +382,6 @@ class Policy extends Equatable {
         checkInEarlyCheckInNote,
         checkInLateCheckOutNote,
         checkInLateCheckOutFee,
-
         childrenAllowed,
         childrenFreeUnderAge,
         childrenHalfPriceUnderAge,
@@ -330,7 +390,6 @@ class Policy extends Equatable {
         childrenCribsNote,
         childrenPlaygroundAvailable,
         childrenKidsMenuAvailable,
-
         petsAllowed,
         petsReason,
         petsFeeAmount,
@@ -340,7 +399,6 @@ class Policy extends Equatable {
         petsPetFriendly,
         petsOutdoorSpace,
         petsStrict,
-
         modificationAllowed,
         modificationFreeModificationHours,
         modificationFeesAfter,
@@ -417,10 +475,15 @@ enum PolicyType {
 
 /// 📊 Entity لإحصائيات السياسات
 class PolicyStats {
+  /// العربية: يخزن القيمة `totalPolicies`.
   final int totalPolicies;
+
   final int activePolicies;
+
   final int policiesByType;
+
   final Map<String, int> policyTypeDistribution;
+
   final double averageCancellationWindow;
 
   const PolicyStats({

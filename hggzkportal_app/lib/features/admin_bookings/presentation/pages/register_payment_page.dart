@@ -16,35 +16,77 @@ import '../bloc/booking_details/booking_details_state.dart';
 import '../bloc/booking_details/booking_details_event.dart';
 import '../widgets/booking_status_badge.dart';
 
+/// Arabic: صفحة تسجيل دفعة جديدة مرتبطة بحجز محدد.
+/// English: Page for registering a new payment against a specific booking.
 class RegisterPaymentPage extends StatefulWidget {
+  /// Arabic: معرّف الحجز الذي ستُسجل له الدفعة الجديدة.
+  /// English: The booking identifier that will receive the new payment.
   final String bookingId;
 
+  /// Arabic: ينشئ صفحة تسجيل الدفعة للحجز المحدد.
+  /// English: Creates the payment registration page for the selected booking.
   const RegisterPaymentPage({
     super.key,
     required this.bookingId,
   });
-
   @override
   State<RegisterPaymentPage> createState() => _RegisterPaymentPageState();
 }
 
+/// Arabic: يدير نموذج تسجيل الدفعة، بما في ذلك تحميل بيانات الحجز والتحقق من المدخلات.
+/// English: Manages the payment form, including booking data loading and input validation.
 class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     with TickerProviderStateMixin {
+  /// Arabic: يتحكم في حركة الدخول الأولى لعناصر الصفحة.
+  /// English: Drives the initial page entrance animation.
   late AnimationController _animationController;
+
+  /// Arabic: المفتاح المسؤول عن التحقق من صحة النموذج قبل الإرسال.
+  /// English: The form key used to validate the payment form before submission.
   final _formKey = GlobalKey<FormState>();
+
+  /// Arabic: يتحكم في حقل مبلغ الدفعة.
+  /// English: Controls the payment amount field.
   final _amountController = TextEditingController();
+
+  /// Arabic: يتحكم في حقل رقم المعاملة الاختياري.
+  /// English: Controls the optional transaction ID field.
   final _transactionIdController = TextEditingController();
+
+  /// Arabic: يتحكم في حقل الملاحظات الإضافية.
+  /// English: Controls the additional notes field.
   final _notesController = TextEditingController();
 
+  /// Arabic: طريقة الدفع المختارة حاليًا.
+  /// English: The currently selected payment method.
   PaymentMethod _selectedPaymentMethod = PaymentMethod.cash;
+
+  /// Arabic: تاريخ الدفعة الذي سيُرسل مع العملية.
+  /// English: The payment date that will be submitted with the transaction.
   DateTime _selectedDate = DateTime.now();
+
+  /// Arabic: العملة المستخدمة لعرض المبالغ وإرسالها.
+  /// English: The currency code used to display and submit amounts.
   String _currency = 'YER';
 
+  /// Arabic: بيانات الحجز المحملة لعرض الملخص والنطاق المتبقي.
+  /// English: Loaded booking data used for the summary and remaining amount.
   Booking? _booking;
+
+  /// Arabic: إجمالي قيمة الحجز قبل أي دفعات.
+  /// English: The total booking amount before any payments.
   double _totalAmount = 0;
+
+  /// Arabic: إجمالي الدفعات المسجلة حتى الآن.
+  /// English: The sum of payments recorded so far.
   double _paidAmount = 0;
+
+  /// Arabic: المبلغ الذي ما يزال مطلوبًا سداده.
+  /// English: The amount still remaining to be paid.
   double _remainingAmount = 0;
 
+  /// Arabic: يهيئ الحركة ثم يؤجل تحميل بيانات الحجز حتى يكتمل بناء الواجهة.
+  /// English: Initializes the animation and defers booking loading until the first frame is ready.
   @override
   void initState() {
     super.initState();
@@ -59,6 +101,8 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     });
   }
 
+  /// Arabic: يقرأ بيانات الحجز من الحالة الحالية ويضبط القيم الافتراضية للنموذج.
+  /// English: Reads the booking data from the current state and primes the form defaults.
   void _loadBookingData() {
     if (!mounted) return;
 
@@ -110,6 +154,8 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     }
   }
 
+  /// Arabic: يحرر المتحكمات النصية والحركية قبل إزالة الصفحة.
+  /// English: Disposes text and animation controllers before the page is removed.
   @override
   void dispose() {
     _animationController.dispose();
@@ -119,6 +165,8 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     super.dispose();
   }
 
+  /// Arabic: يرسل الدفعة الجديدة بعد التأكد من صحة النموذج.
+  /// English: Submits the new payment after validating the form.
   void _submitPayment() {
     if (_formKey.currentState?.validate() ?? false) {
       final amount = double.tryParse(_amountController.text) ?? 0;
@@ -141,6 +189,8 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     }
   }
 
+  /// Arabic: يعرض رسالة نجاح واضحة مع خيار العودة بعد تسجيل الدفعة.
+  /// English: Shows a success dialog with a clear return path after registering the payment.
   void _showSuccessDialog(Payment payment) {
     final navigator = Navigator.of(context);
     BookingDetailsBloc? detailsBloc;
@@ -160,7 +210,7 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.success.withOpacity(0.3),
+                color: AppTheme.success.withValues(alpha: 0.3),
                 blurRadius: 30,
                 spreadRadius: 5,
               ),
@@ -173,7 +223,7 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: AppTheme.success.withOpacity(0.1),
+                  color: AppTheme.success.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -234,6 +284,8 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     );
   }
 
+  /// Arabic: يعرض خطأً عابرًا أسفل الشاشة عندما تفشل عملية التسجيل.
+  /// English: Shows a transient snackbar error when the registration fails.
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -265,6 +317,8 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     );
   }
 
+  /// Arabic: يفتح منتقي التاريخ لتعديل تاريخ تسجيل الدفعة.
+  /// English: Opens the date picker to adjust the payment date.
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -292,6 +346,8 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     }
   }
 
+  /// Arabic: يختار الأيقونة الأنسب لتمثيل طريقة الدفع.
+  /// English: Selects the icon that best represents the payment method.
   IconData _getPaymentMethodIcon(PaymentMethod method) {
     switch (method) {
       case PaymentMethod.cash:
@@ -305,6 +361,8 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     }
   }
 
+  /// Arabic: ينشئ الخلفية المتدرجة الخاصة بصفحة التسجيل.
+  /// English: Builds the page-specific gradient background.
   Widget _buildBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -313,7 +371,7 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
           end: Alignment.bottomRight,
           colors: [
             AppTheme.darkBackground,
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.5),
             AppTheme.darkBackground,
           ],
         ),
@@ -321,6 +379,8 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     );
   }
 
+  /// Arabic: يضيف طبقة حجب أثناء تنفيذ تسجيل الدفعة.
+  /// English: Adds a blocking overlay while the payment is being submitted.
   Widget _buildLoadingOverlay() {
     return Positioned.fill(
       child: AbsorbPointer(
@@ -338,6 +398,8 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     );
   }
 
+  /// Arabic: يبني الصفحة الكاملة مع نموذج الدفع وملخص الحجز.
+  /// English: Builds the full page with the payment form and booking summary.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -395,14 +457,16 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     );
   }
 
+  /// Arabic: يعرض ملخص معلومات الحجز المرتبط بالدفعة.
+  /// English: Shows a summary of the booking tied to the payment.
   Widget _buildBookingInfoCard() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.8),
+        color: AppTheme.darkCard.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.3),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -431,18 +495,20 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     );
   }
 
+  /// Arabic: يلخص المبلغ الإجمالي والمدفوع والمتبقي.
+  /// English: Summarizes the total, paid, and remaining amounts.
   Widget _buildPaymentSummaryCard() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.warning.withOpacity(0.15),
-            AppTheme.warning.withOpacity(0.05),
+            AppTheme.warning.withValues(alpha: 0.15),
+            AppTheme.warning.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.warning.withOpacity(0.3)),
+        border: Border.all(color: AppTheme.warning.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -456,11 +522,13 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     );
   }
 
+  /// Arabic: يبني الحقول التي يحتاجها المستخدم قبل إرسال الدفعة.
+  /// English: Builds the fields the user needs before submitting the payment.
   Widget _buildPaymentForm() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.8),
+        color: AppTheme.darkCard.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -485,7 +553,7 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
               suffix:
                   Text(_currency, style: TextStyle(color: AppTheme.warning)),
               filled: true,
-              fillColor: AppTheme.darkBackground.withOpacity(0.5),
+              fillColor: AppTheme.darkBackground.withValues(alpha: 0.5),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -515,7 +583,7 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-              color: AppTheme.darkBackground.withOpacity(0.5),
+              color: AppTheme.darkBackground.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
             ),
             child: DropdownButtonFormField<PaymentMethod>(
@@ -564,7 +632,7 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
               prefixIcon:
                   Icon(CupertinoIcons.number, color: AppTheme.primaryBlue),
               filled: true,
-              fillColor: AppTheme.darkBackground.withOpacity(0.5),
+              fillColor: AppTheme.darkBackground.withValues(alpha: 0.5),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -588,7 +656,7 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.darkBackground.withOpacity(0.5),
+                color: AppTheme.darkBackground.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -608,6 +676,8 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     );
   }
 
+  /// Arabic: يعرض أزرار الإرسال والإلغاء بحسب حالة التحميل.
+  /// English: Shows the submit and cancel actions according to the loading state.
   Widget _buildActionButtons(bool isLoading) {
     return Row(
       children: [
@@ -654,6 +724,8 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     );
   }
 
+  /// Arabic: يعرض سطرًا بسيطًا لعنصر معلومات واحد.
+  /// English: Renders a simple row for one information item.
   Widget _buildInfoRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -667,6 +739,8 @@ class _RegisterPaymentPageState extends State<RegisterPaymentPage>
     );
   }
 
+  /// Arabic: يعرض سطر مبلغ بتنسيق مرئي يبرز القيمة المالية.
+  /// English: Renders a formatted amount row that emphasizes the monetary value.
   Widget _buildAmountRow(String label, double amount, Color color) {
     return Row(
       children: [

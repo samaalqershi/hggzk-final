@@ -8,26 +8,25 @@ abstract class NotificationState extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Initial state when the notification bloc is first created
 class NotificationInitial extends NotificationState {
   const NotificationInitial();
 }
 
-/// State when any notification operation is in progress
 class NotificationLoading extends NotificationState {
   const NotificationLoading();
 }
 
-/// State when notification settings are being loaded
 class NotificationSettingsLoading extends NotificationState {
   const NotificationSettingsLoading();
 }
 
-/// State when notifications are successfully loaded
 class NotificationLoaded extends NotificationState {
   final List<NotificationEntity> notifications;
+
   final bool hasReachedMax;
+
   final int currentPage;
+
   final int unreadCount;
 
   const NotificationLoaded({
@@ -56,7 +55,6 @@ class NotificationLoaded extends NotificationState {
   }
 }
 
-/// State when only unread count is loaded/refreshed
 class NotificationUnreadCountLoaded extends NotificationState {
   final int unreadCount;
 
@@ -66,7 +64,6 @@ class NotificationUnreadCountLoaded extends NotificationState {
   List<Object?> get props => [unreadCount];
 }
 
-/// State when notification settings are loaded
 class NotificationSettingsLoaded extends NotificationState {
   final Map<String, bool> settings;
 
@@ -76,7 +73,6 @@ class NotificationSettingsLoaded extends NotificationState {
   List<Object> get props => [settings];
 }
 
-/// State when a notification operation is successful
 class NotificationOperationSuccess extends NotificationState {
   final String message;
 
@@ -86,7 +82,6 @@ class NotificationOperationSuccess extends NotificationState {
   List<Object> get props => [message];
 }
 
-/// State when an error occurs
 class NotificationError extends NotificationState {
   final String message;
 

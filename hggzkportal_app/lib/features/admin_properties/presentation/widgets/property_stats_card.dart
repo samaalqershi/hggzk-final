@@ -3,10 +3,10 @@
 import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import '../../../../core/widgets/glassmorphic_tooltip.dart';
 
 class PropertyStatsCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `title`.
   final String title;
   final String value;
   final IconData icon;
@@ -15,7 +15,6 @@ class PropertyStatsCard extends StatefulWidget {
   final bool isPositive;
   final String? detailedDescription;
   final Map<String, dynamic>? additionalStats;
-
   const PropertyStatsCard({
     super.key,
     required this.title,
@@ -27,7 +26,6 @@ class PropertyStatsCard extends StatefulWidget {
     this.detailedDescription,
     this.additionalStats,
   });
-
   @override
   State<PropertyStatsCard> createState() => _PropertyStatsCardState();
 }
@@ -40,7 +38,6 @@ class _PropertyStatsCardState extends State<PropertyStatsCard>
   late Animation<double> _fadeAnimation;
   bool _isHovered = false;
   bool _isPressed = false;
-
   @override
   void initState() {
     super.initState();
@@ -145,21 +142,21 @@ class _PropertyStatsCardState extends State<PropertyStatsCard>
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              widget.color.withOpacity(0.1),
-                              widget.color.withOpacity(0.05),
+                              widget.color.withValues(alpha: 0.1),
+                              widget.color.withValues(alpha: 0.05),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: _isPressed
-                                ? widget.color.withOpacity(0.6)
-                                : widget.color.withOpacity(0.2),
+                                ? widget.color.withValues(alpha: 0.6)
+                                : widget.color.withValues(alpha: 0.2),
                             width: _isPressed ? 2 : 1,
                           ),
                           boxShadow: [
                             BoxShadow(
                               color: widget.color
-                                  .withOpacity(_isHovered ? 0.2 : 0.1),
+                                  .withValues(alpha: _isHovered ? 0.2 : 0.1),
                               blurRadius: _isHovered ? 25 : 20,
                               offset: const Offset(0, 4),
                             ),
@@ -192,8 +189,10 @@ class _PropertyStatsCardState extends State<PropertyStatsCard>
                                           decoration: BoxDecoration(
                                             gradient: LinearGradient(
                                               colors: [
-                                                widget.color.withOpacity(0.3),
-                                                widget.color.withOpacity(0.1),
+                                                widget.color
+                                                    .withValues(alpha: 0.3),
+                                                widget.color
+                                                    .withValues(alpha: 0.1),
                                               ],
                                             ),
                                             borderRadius:
@@ -224,9 +223,11 @@ class _PropertyStatsCardState extends State<PropertyStatsCard>
                                                 decoration: BoxDecoration(
                                                   color: widget.isPositive
                                                       ? AppTheme.success
-                                                          .withOpacity(0.1)
+                                                          .withValues(
+                                                              alpha: 0.1)
                                                       : AppTheme.error
-                                                          .withOpacity(0.1),
+                                                          .withValues(
+                                                              alpha: 0.1),
                                                   borderRadius:
                                                       BorderRadius.circular(8),
                                                 ),

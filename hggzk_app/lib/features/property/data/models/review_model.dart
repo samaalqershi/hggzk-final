@@ -1,6 +1,10 @@
 import '../../domain/repositories/property_repository.dart';
 
+/// Describes the ReviewModel data model used to parse and emit property API payloads.
+/// العربية: يمثل نموذج البيانات `ReviewModel`.
 class ReviewModel extends PropertyReview {
+  /// Constructs the ReviewModel value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewModel`.
   const ReviewModel({
     required super.id,
     required super.bookingId,
@@ -21,6 +25,8 @@ class ReviewModel extends PropertyReview {
     super.isDisabled,
   });
 
+  /// Constructs the ReviewModel.fromJson value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewModel.fromJson`.
   factory ReviewModel.fromJson(Map<String, dynamic> json) {
     final managementReply = json['managementReply'] is Map<String, dynamic>
         ? json['managementReply']
@@ -61,6 +67,8 @@ class ReviewModel extends PropertyReview {
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -84,7 +92,11 @@ class ReviewModel extends PropertyReview {
   }
 }
 
+/// Describes the ReviewImageModel data model used to parse and emit property API payloads.
+/// العربية: يمثل نموذج البيانات `ReviewImageModel`.
 class ReviewImageModel extends ReviewImage {
+  /// Constructs the ReviewImageModel value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewImageModel`.
   const ReviewImageModel({
     required super.id,
     required super.reviewId,
@@ -98,6 +110,8 @@ class ReviewImageModel extends ReviewImage {
     required super.uploadedAt,
   });
 
+  /// Constructs the ReviewImageModel.fromJson value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewImageModel.fromJson`.
   factory ReviewImageModel.fromJson(Map<String, dynamic> json) {
     final rawSize = json['sizeBytes'];
     final sizeBytes = rawSize is int
@@ -124,6 +138,8 @@ class ReviewImageModel extends ReviewImage {
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,

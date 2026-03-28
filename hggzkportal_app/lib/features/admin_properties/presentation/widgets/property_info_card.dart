@@ -8,15 +8,14 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/property.dart';
 
 class PropertyInfoCard extends StatelessWidget {
+  /// العربية: يخزن القيمة `property`.
   final Property property;
   final VoidCallback? onOwnerTap;
-
   const PropertyInfoCard({
     super.key,
     required this.property,
     this.onOwnerTap,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(

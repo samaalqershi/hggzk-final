@@ -7,51 +7,84 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/error_widget.dart';
-import '../../../../injection_container.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import '../bloc/review_bloc.dart';
 import '../bloc/review_event.dart';
 import '../bloc/review_state.dart';
 import '../widgets/review_card_widget.dart';
 
+/// Shows the paginated review feed together with filter controls.
+/// تعرض موجز المراجعات المقسم إلى صفحات مع أدوات الفلترة.
 class ReviewsListPage extends StatefulWidget {
+  /// Property whose reviews should be listed.
+  /// العقار الذي يجب سرد مراجعاته.
   final String propertyId;
+
+  /// Property name shown in the header.
+  /// اسم العقار الظاهر في الترويسة.
   final String propertyName;
 
+  /// Builds the page used to browse property reviews.
+  /// ينشئ الصفحة المستخدمة لتصفح مراجعات العقار.
   const ReviewsListPage({
     super.key,
     required this.propertyId,
     required this.propertyName,
   });
 
+  /// Creates the state object that manages filters and pagination.
+  /// ينشئ كائن الحالة الذي يدير الفلاتر والترقيم.
   @override
   State<ReviewsListPage> createState() => _ReviewsListPageState();
 }
 
+/// Coordinates filtering, scrolling, and pagination for the review feed.
+/// ينسق الفلترة والتمرير والترقيم لموجز المراجعات.
 class _ReviewsListPageState extends State<ReviewsListPage> {
   final ScrollController _scrollController = ScrollController();
+
+  /// Optional rating filter currently selected by the user.
+  /// فلتر التقييم الاختياري المحدد حاليًا من المستخدم.
   int? _selectedRating;
+
+  /// True when the feed should include only reviews with images.
+  /// تكون صحيحة عندما يجب أن يحتوي الموجز على مراجعات بصور فقط.
   bool _withImagesOnly = false;
+
+  /// Sort field applied to the review feed.
+  /// حقل الترتيب المطبق على موجز المراجعات.
   String _sortBy = 'CreatedAt';
+
+  /// Sort direction applied to the review feed.
+  /// اتجاه الترتيب المطبق على موجز المراجعات.
   String _sortDirection = 'Desc';
 
+  /// Hooks the scroll listener used for infinite pagination.
+  /// يربط مستمع التمرير المستخدم للترقيم اللانهائي.
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
   }
 
+  /// Releases the scroll controller owned by the page.
+  /// يحرر متحكم التمرير المملوك للصفحة.
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
   }
 
+  /// Triggers pagination when the list approaches the bottom.
+  /// يطلق الترقيم عندما تقترب القائمة من النهاية.
   void _onScroll() {
     if (_isBottom) {
       context.read<ReviewBloc>().add(const LoadMoreReviewsEvent());
     }
   }
 
+  /// True when the user has scrolled close enough to request more reviews.
+  /// تكون صحيحة عندما يقترب المستخدم من أسفل القائمة بما يكفي لطلب المزيد.
   bool get _isBottom {
     if (!_scrollController.hasClients) return false;
     final maxScroll = _scrollController.position.maxScrollExtent;
@@ -59,6 +92,8 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
     return currentScroll >= (maxScroll * 0.9);
   }
 
+  /// Renders the review feed with filters, loading states, and cards.
+  /// يرسم موجز المراجعات مع الفلاتر وحالات التحميل والبطاقات.
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -189,6 +224,8 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
     );
   }
 
+  /// Builds the futuristic background.
+  /// العربية: يبني futuristic background.
   Widget _buildFuturisticBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -205,6 +242,8 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
     );
   }
 
+  /// Builds the app bar.
+  /// العربية: يبني app bar.
   AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: Colors.transparent,
@@ -270,6 +309,8 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
     );
   }
 
+  /// Builds the filters section.
+  /// العربية: يبني filters section.
   Widget _buildFiltersSection() {
     return Container(
       decoration: BoxDecoration(
@@ -456,6 +497,8 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
     );
   }
 
+  /// Builds the filter chip.
+  /// العربية: يبني filter chip.
   Widget _buildFilterChip({
     required String label,
     IconData? icon,
@@ -517,6 +560,8 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
     );
   }
 
+  /// Builds the empty state.
+  /// العربية: يبني empty state.
   Widget _buildEmptyState() {
     return Center(
       child: Container(
@@ -599,6 +644,8 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
     );
   }
 
+  /// Exposes the sort label.
+  /// العربية: يعيد sort label.
   String _getSortLabel() {
     if (_sortBy == 'CreatedAt' && _sortDirection == 'Desc') {
       return 'الأحدث';
@@ -612,6 +659,8 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
     return 'ترتيب';
   }
 
+  /// Processes `applyFilters`.
+  /// العربية: يعالج `applyFilters`.
   void _applyFilters() {
     context.read<ReviewBloc>().add(
           FilterReviewsEvent(

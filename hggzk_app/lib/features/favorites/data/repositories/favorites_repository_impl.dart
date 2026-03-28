@@ -4,31 +4,46 @@ import 'package:hggzk/core/error/failures.dart';
 import 'package:hggzk/core/network/network_info.dart';
 import 'package:hggzk/core/network/api_client.dart';
 import 'package:hggzk/core/utils/request_logger.dart';
-import 'package:hggzk/services/local_storage_service.dart';
+import 'package:hggzk/core/services/local_storage_service.dart';
 import 'package:hggzk/core/constants/storage_constants.dart';
 import '../../../favorites/domain/repositories/favorites_repository.dart';
 import '../../../favorites/domain/entities/favorite.dart';
 
 /// Temporary implementation of FavoritesRepository.
 /// NOTE: Replace endpoints and mapping once backend contract is finalized.
+/// Provides repository behavior for `FavoritesRepositoryImpl`.
+/// العربية: يوفر سلوك المستودع الخاص بـ `FavoritesRepositoryImpl`.
 class FavoritesRepositoryImpl implements FavoritesRepository {
+  /// Keeps the `apiClient` value.
+  /// العربية: يخزن القيمة `apiClient`.
   final ApiClient apiClient;
+
+  /// Keeps the `networkInfo` value.
+  /// العربية: يخزن القيمة `networkInfo`.
   final NetworkInfo networkInfo;
+
+  /// Keeps the `localStorage` value.
+  /// العربية: يخزن القيمة `localStorage`.
   final LocalStorageService localStorage;
 
+  /// Builds a new `FavoritesRepositoryImpl` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `FavoritesRepositoryImpl`.
   FavoritesRepositoryImpl({
     required this.apiClient,
     required this.networkInfo,
     required this.localStorage,
   });
 
+  /// Exposes the favorites.
+  /// العربية: يعيد favorites.
   @override
   Future<Either<Failure, List<Favorite>>> getFavorites() async {
     if (await networkInfo.isConnected) {
       try {
         const requestName = 'favorites.getFavorites';
         logRequestStart(requestName);
-        final uid = (localStorage.getData(StorageConstants.userId) ?? '').toString();
+        final uid =
+            (localStorage.getData(StorageConstants.userId) ?? '').toString();
         if (uid.isEmpty) {
           return const Left(AuthenticationFailure('يجب تسجيل الدخول'));
         }
@@ -75,6 +90,8 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
   }
 
+  /// Processes `addToFavorites`.
+  /// العربية: يعالج `addToFavorites`.
   @override
   Future<Either<Failure, bool>> addToFavorites({
     required String propertyId,
@@ -87,7 +104,8 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
           'propertyId': propertyId,
           'userId': userId,
         });
-        final uid = (localStorage.getData(StorageConstants.userId) ?? userId).toString();
+        final uid = (localStorage.getData(StorageConstants.userId) ?? userId)
+            .toString();
         final response = await apiClient.post(
           '/api/client/favorites',
           data: {
@@ -97,7 +115,9 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
         );
         logRequestSuccess(requestName, statusCode: response.statusCode);
         final data = response.data;
-        final topSuccess = (data is Map && data['success'] is bool) ? data['success'] as bool : true;
+        final topSuccess = (data is Map && data['success'] is bool)
+            ? data['success'] as bool
+            : true;
         return Right(topSuccess);
       } catch (e) {
         logRequestError('favorites.add', e);
@@ -107,6 +127,8 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
   }
 
+  /// Removes the from favorites.
+  /// العربية: يزيل from favorites.
   @override
   Future<Either<Failure, void>> removeFromFavorites({
     required String propertyId,
@@ -119,7 +141,8 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
           'propertyId': propertyId,
           'userId': userId,
         });
-        final uid = (localStorage.getData(StorageConstants.userId) ?? userId).toString();
+        final uid = (localStorage.getData(StorageConstants.userId) ?? userId)
+            .toString();
         await apiClient.delete(
           '/api/client/favorites',
           data: {
@@ -137,6 +160,8 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
   }
 
+  /// Checks the favorite status.
+  /// العربية: يتحقق من favorite status.
   @override
   Future<Either<Failure, bool>> checkFavoriteStatus({
     required String propertyId,
@@ -149,7 +174,8 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
           'propertyId': propertyId,
           'userId': userId,
         });
-        final uid = (localStorage.getData(StorageConstants.userId) ?? userId).toString();
+        final uid = (localStorage.getData(StorageConstants.userId) ?? userId)
+            .toString();
         final response = await apiClient.get(
           '/api/client/properties/$propertyId',
           queryParameters: {
@@ -171,6 +197,8 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
   }
 
+  /// Maps the favorite.
+  /// العربية: يحّول favorite.
   Favorite _mapFavorite(Map<String, dynamic> json) {
     // Provide safe defaults for missing fields
     DateTime parseDate(dynamic v) {

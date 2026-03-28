@@ -8,19 +8,19 @@ import '../../../../core/utils/request_logger.dart';
 import '../models/auth_response_model.dart';
 import '../models/user_model.dart';
 
-/// Arabic: عقد مصدر البيانات البعيد الخاص بعمليات المصادقة والتفويض.
-/// English: Defines the remote authentication contract used by repositories.
+/// عقد مصدر البيانات البعيد الخاص بعمليات المصادقة والتفويض.
+/// Describes the remote authentication contract used by repositories.
 abstract class AuthRemoteDataSource {
-  /// Arabic: يسجل دخول المستخدم باستخدام البريد الإلكتروني أو رقم الهاتف.
-  /// English: Signs the user in using an email address or phone number.
+  /// يسجل دخول المستخدم باستخدام البريد الإلكتروني أو رقم الهاتف.
+  /// Signs the user in using an email address or phone number.
   Future<AuthResponseModel> login({
     required String emailOrPhone,
     required String password,
     required bool rememberMe,
   });
 
-  /// Arabic: ينشئ حساب مستخدم جديد عبر واجهة التسجيل العامة.
-  /// English: Creates a new user account through the public registration flow.
+  /// ينشئ حساب مستخدم جديد عبر واجهة التسجيل العامة.
+  /// Initializes a new user account through the public registration flow.
   Future<AuthResponseModel> register({
     required String name,
     required String email,
@@ -29,33 +29,33 @@ abstract class AuthRemoteDataSource {
     required String passwordConfirmation,
   });
 
-  /// Arabic: ينهي الجلسة الحالية أو جميع الجلسات المرتبطة بالمستخدم.
-  /// English: Logs the user out from the current session or all sessions.
+  /// ينهي الجلسة الحالية أو جميع الجلسات المرتبطة بالمستخدم.
+  /// Logs the user out from the current session or all sessions.
   Future<void> logout({
     required String userId,
     required String refreshToken,
     bool logoutFromAllDevices = false,
   });
 
-  /// Arabic: يطلب بدء عملية إعادة تعيين كلمة المرور.
-  /// English: Requests the password reset flow for the provided identity.
+  /// يطلب بدء عملية إعادة تعيين كلمة المرور.
+  /// Requests the password reset flow for the provided identity.
   Future<void> resetPassword({
     required String emailOrPhone,
   });
 
-  /// Arabic: يجدد رموز الوصول والتحديث للجلسة الحالية.
-  /// English: Refreshes the session access and refresh tokens.
+  /// يجدد رموز الوصول والتحديث للجلسة الحالية.
+  /// Refreshes the session access and refresh tokens.
   Future<AuthResponseModel> refreshToken({
     required String accessToken,
     required String refreshToken,
   });
 
-  /// Arabic: يجلب المستخدم الحالي من الخادم.
-  /// English: Fetches the currently authenticated user from the backend.
+  /// يجلب المستخدم الحالي من الخادم.
+  /// Fetches the currently authenticated user from the backend.
   Future<UserModel> getCurrentUser();
 
-  /// Arabic: يحدث الملف الشخصي وبيانات العقار المرافقة عند الحاجة.
-  /// English: Updates the user profile and optional property-related fields.
+  /// يحدث الملف الشخصي وبيانات العقار المرافقة عند الحاجة.
+  /// Updates the user profile and optional property-related fields.
   Future<void> updateProfile({
     required String userId,
     required String name,
@@ -75,8 +75,8 @@ abstract class AuthRemoteDataSource {
     double? propertyLongitude,
   });
 
-  /// Arabic: يغير كلمة مرور المستخدم الحالية.
-  /// English: Changes the current user's password.
+  /// يغير كلمة مرور المستخدم الحالية.
+  /// Changes the current user's password.
   Future<void> changePassword({
     required String userId,
     required String currentPassword,
@@ -84,28 +84,28 @@ abstract class AuthRemoteDataSource {
     String? newPasswordConfirmation,
   });
 
-  /// Arabic: يرفع صورة الملف الشخصي ويعيد بيانات المستخدم المحدثة.
-  /// English: Uploads a profile image and returns the updated user model.
+  /// يرفع صورة الملف الشخصي ويعيد بيانات المستخدم المحدثة.
+  /// Uploads a profile image and returns the updated user model.
   Future<UserModel> uploadProfileImage({
     required String imagePath,
   });
 
-  /// Arabic: يؤكد البريد الإلكتروني باستخدام رمز التحقق المستلم.
-  /// English: Verifies the email address using the submitted verification code.
+  /// يؤكد البريد الإلكتروني باستخدام رمز التحقق المستلم.
+  /// Verifies the email address using the submitted verification code.
   Future<bool> verifyEmail({
     required String userId,
     required String code,
   });
 
-  /// Arabic: يعيد إرسال رمز التحقق للبريد الإلكتروني.
-  /// English: Resends the email verification code and returns cooldown seconds.
+  /// يعيد إرسال رمز التحقق للبريد الإلكتروني.
+  /// Resends the email verification code and returns cooldown seconds.
   Future<int?> resendEmailVerification({
     required String userId,
     required String email,
   });
 
-  /// Arabic: يسجل مالك عقار جديداً مع إنشاء عقار مرتبط بالحساب.
-  /// English: Registers a new property owner and creates the linked property.
+  /// يسجل مالك عقار جديداً مع إنشاء عقار مرتبط بالحساب.
+  /// Registers a new property owner and creates the linked property.
   Future<AuthResponseModel> registerOwnerWithProperty({
     required String name,
     required String email,
@@ -123,8 +123,8 @@ abstract class AuthRemoteDataSource {
     List<Map<String, dynamic>>? walletAccounts,
   });
 
-  /// Arabic: يسجل الدخول الاجتماعي المخصص لتطبيق البوابة.
-  /// English: Performs the portal-specific social login flow.
+  /// يسجل الدخول الاجتماعي المخصص لتطبيق البوابة.
+  /// Performs the portal-specific social login flow.
   Future<AuthResponseModel> portalSocialLogin({
     required String provider,
     required String token,
@@ -132,8 +132,8 @@ abstract class AuthRemoteDataSource {
     String? name,
   });
 
-  /// Arabic: يكمل بيانات مالك العقار بعد التسجيل أو الدخول الاجتماعي.
-  /// English: Completes the owner profile after sign-up or social login.
+  /// يكمل بيانات مالك العقار بعد التسجيل أو الدخول الاجتماعي.
+  /// Completes the owner profile after sign-up or social login.
   Future<AuthResponseModel> completeOwnerProfile({
     required String name,
     required String phone,
@@ -149,8 +149,8 @@ abstract class AuthRemoteDataSource {
     List<Map<String, dynamic>>? walletAccounts,
   });
 
-  /// Arabic: يحذف حساب مالك العقار مع تمرير بيانات التأكيد المطلوبة.
-  /// English: Deletes the owner account with the required confirmation data.
+  /// يحذف حساب مالك العقار مع تمرير بيانات التأكيد المطلوبة.
+  /// Deletes the owner account with the required confirmation data.
   Future<void> deleteOwnerAccount({
     String? password,
     String? socialProvider,
@@ -160,17 +160,19 @@ abstract class AuthRemoteDataSource {
   });
 }
 
-/// Arabic: تنفيذ API لعمليات المصادقة المعتمدة على `ApiClient`.
-/// English: API-backed implementation of the authentication remote datasource.
+/// تنفيذ API لعمليات المصادقة المعتمدة على `ApiClient`.
+/// API-backed implementation of the authentication remote datasource.
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  /// Arabic: عميل HTTP الموحد للتعامل مع واجهات الخادم.
-  /// English: Shared HTTP client used to talk to backend endpoints.
+  /// عميل HTTP الموحد للتعامل مع واجهات الخادم.
+  /// Shared HTTP client used to talk to backend endpoints.
   final ApiClient apiClient;
 
-  /// Arabic: ينشئ مصدر بيانات مصادقة عن بعد اعتماداً على عميل API موحد.
-  /// English: Creates the remote auth datasource with the shared API client.
+  /// ينشئ مصدر بيانات مصادقة عن بعد اعتماداً على عميل API موحد.
+  /// Builds the remote auth datasource with the shared API client.
   AuthRemoteDataSourceImpl({required this.apiClient});
 
+  /// ينفذ العملية `deleteOwnerAccount`.
+  /// Runs the `deleteOwnerAccount` operation.
   @override
   Future<void> deleteOwnerAccount({
     String? password,
@@ -221,6 +223,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `login`.
+  /// Runs the `login` operation.
   @override
   Future<AuthResponseModel> login({
     required String emailOrPhone,
@@ -290,6 +294,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `verifyEmail`.
+  /// Runs the `verifyEmail` operation.
   @override
   Future<bool> verifyEmail({
     required String userId,
@@ -334,6 +340,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `resendEmailVerification`.
+  /// Runs the `resendEmailVerification` operation.
   @override
   Future<int?> resendEmailVerification({
     required String userId,
@@ -383,6 +391,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `register`.
+  /// Runs the `register` operation.
   @override
   Future<AuthResponseModel> register({
     required String name,
@@ -440,6 +450,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `portalSocialLogin`.
+  /// Runs the `portalSocialLogin` operation.
   @override
   Future<AuthResponseModel> portalSocialLogin({
     required String provider,
@@ -494,6 +506,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `completeOwnerProfile`.
+  /// Runs the `completeOwnerProfile` operation.
   @override
   Future<AuthResponseModel> completeOwnerProfile({
     required String name,
@@ -567,6 +581,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `logout`.
+  /// Runs the `logout` operation.
   @override
   Future<void> logout({
     required String userId,
@@ -613,6 +629,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `resetPassword`.
+  /// Runs the `resetPassword` operation.
   @override
   Future<void> resetPassword({required String emailOrPhone}) async {
     const requestName = 'auth.resetPassword';
@@ -650,6 +668,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `refreshToken`.
+  /// Runs the `refreshToken` operation.
   @override
   Future<AuthResponseModel> refreshToken({
     required String accessToken,
@@ -703,6 +723,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `getCurrentUser`.
+  /// Runs the `getCurrentUser` operation.
   @override
   Future<UserModel> getCurrentUser() async {
     const requestName = 'auth.getCurrentUser';
@@ -741,6 +763,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `updateProfile`.
+  /// Runs the `updateProfile` operation.
   @override
   Future<void> updateProfile({
     required String userId,
@@ -822,6 +846,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `changePassword`.
+  /// Runs the `changePassword` operation.
   @override
   Future<void> changePassword({
     required String userId,
@@ -866,6 +892,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `uploadProfileImage`.
+  /// Runs the `uploadProfileImage` operation.
   @override
   Future<UserModel> uploadProfileImage({
     required String imagePath,
@@ -910,6 +938,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  /// ينفذ العملية `registerOwnerWithProperty`.
+  /// Runs the `registerOwnerWithProperty` operation.
   @override
   Future<AuthResponseModel> registerOwnerWithProperty({
     required String name,

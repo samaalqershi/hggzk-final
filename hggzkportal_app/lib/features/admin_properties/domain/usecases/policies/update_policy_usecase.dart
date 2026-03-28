@@ -7,18 +7,17 @@ import '../../entities/policy.dart';
 import '../../repositories/policies_repository.dart';
 
 class UpdatePolicyParams {
+  /// العربية: يخزن القيمة `policyId`.
   final String policyId;
   final PolicyType? policyType;
   final String? description;
   final String? rules;
-  
   UpdatePolicyParams({
     required this.policyId,
     this.policyType,
     this.description,
     this.rules,
   });
-  
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
     if (policyType != null) data['policyType'] = policyType!.index.toString();
@@ -29,10 +28,9 @@ class UpdatePolicyParams {
 }
 
 class UpdatePolicyUseCase implements UseCase<bool, UpdatePolicyParams> {
+  /// العربية: يخزن القيمة `repository`.
   final PoliciesRepository repository;
-  
   UpdatePolicyUseCase(this.repository);
-  
   @override
   Future<Either<Failure, bool>> call(UpdatePolicyParams params) async {
     return await repository.updatePolicy(params.policyId, params.toJson());

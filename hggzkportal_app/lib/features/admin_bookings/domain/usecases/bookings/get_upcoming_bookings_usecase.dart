@@ -7,14 +7,22 @@ import '../../entities/booking.dart';
 import '../../repositories/bookings_repository.dart';
 import '../../../../../../core/enums/booking_status.dart';
 
-/// Use case to get upcoming (future) bookings within a horizon window
+/// Retrieves upcoming bookings within a configurable horizon window.
+/// يسترجع الحجوزات القادمة ضمن نافذة زمنية قابلة للضبط.
 class GetUpcomingBookingsUseCase
     extends UseCase<PaginatedResult<Booking>, GetUpcomingBookingsParams> {
+  /// Repository used to query either property-based or date-range bookings.
+  /// المستودع المستخدم للاستعلام عن الحجوزات حسب العقار أو النطاق الزمني.
   final BookingsRepository repository;
 
+  /// Creates the use case with the bookings repository dependency.
+  /// ينشئ حالة الاستخدام مع اعتماد مستودع الحجوزات.
   GetUpcomingBookingsUseCase(this.repository);
 
   @override
+
+  /// Chooses the correct repository query for upcoming bookings and forwards all optional filters.
+  /// يختار استعلام المستودع المناسب للحجوزات القادمة ويمرر جميع الفلاتر الاختيارية.
   Future<Either<Failure, PaginatedResult<Booking>>> call(
     GetUpcomingBookingsParams params,
   ) async {
@@ -53,25 +61,71 @@ class GetUpcomingBookingsUseCase
   }
 }
 
+/// Parameters for loading upcoming bookings.
+/// معاملات تحميل الحجوزات القادمة.
 class GetUpcomingBookingsParams extends Equatable {
+  /// Number of days ahead to treat as the upcoming horizon.
+  /// عدد الأيام للأمام الذي يمثل نافذة الحجوزات القادمة.
   final int horizonDays;
+
+  /// Optional reference timestamp used instead of the current time.
+  /// مرجع زمني اختياري يستخدم بدل الوقت الحالي.
   final DateTime? now;
+
+  /// Optional page number for pagination.
+  /// رقم الصفحة الاختياري للتصفح.
   final int? pageNumber;
+
+  /// Optional page size for pagination.
+  /// حجم الصفحة الاختياري للتصفح.
   final int? pageSize;
 
-  // Optional filters
+  /// Optional property scope for property-based queries.
+  /// نطاق عقار اختياري للاستعلامات المرتبطة بعقار.
   final String? propertyId;
+
+  /// Optional user scope for date-range queries.
+  /// نطاق مستخدم اختياري لاستعلامات النطاق الزمني.
   final String? userId;
+
+  /// Optional unit scope for date-range queries.
+  /// نطاق وحدة اختياري لاستعلامات النطاق الزمني.
   final String? unitId;
+
+  /// Optional guest-name search text.
+  /// نص بحث اختياري باسم الضيف.
   final String? guestNameOrEmail;
+
+  /// Optional booking source filter.
+  /// فلتر اختياري لمصدر الحجز.
   final String? bookingSource;
+
+  /// Optional booking status filter.
+  /// فلتر اختياري لحالة الحجز.
   final BookingStatus? status;
+
+  /// Optional payment status filter.
+  /// فلتر اختياري لحالة الدفع.
   final String? paymentStatus;
+
+  /// Optional flag limiting results to walk-in bookings.
+  /// علم اختياري يقصر النتائج على الحجوزات المباشرة.
   final bool? isWalkIn;
+
+  /// Optional minimum total price filter.
+  /// فلتر اختياري للحد الأدنى من السعر الإجمالي.
   final double? minTotalPrice;
+
+  /// Optional minimum guests-count filter.
+  /// فلتر اختياري للحد الأدنى من عدد الضيوف.
   final int? minGuestsCount;
+
+  /// Optional sort expression applied by the backend.
+  /// تعبير فرز اختياري يطبقه الخادم.
   final String? sortBy;
 
+  /// Creates an upcoming-bookings query with optional paging and filters.
+  /// ينشئ استعلام الحجوزات القادمة مع خيارات التصفح والفلاتر.
   const GetUpcomingBookingsParams({
     this.horizonDays = 30,
     this.now,
@@ -91,6 +145,9 @@ class GetUpcomingBookingsParams extends Equatable {
   });
 
   @override
+
+  /// Comparison keys for the horizon window and all active filters.
+  /// مفاتيح المقارنة لنافذة الأيام وكل الفلاتر النشطة.
   List<Object?> get props => [
         horizonDays,
         now,

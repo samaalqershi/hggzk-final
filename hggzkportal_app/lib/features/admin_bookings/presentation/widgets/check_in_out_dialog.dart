@@ -7,11 +7,23 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/formatters.dart';
 
+/// يعرض حوارًا لتسجيل وصول الضيف أو مغادرته مع خيارات تشغيل إضافية.
+/// Shows a dialog for guest check-in or check-out with extra options.
 class CheckInOutDialog extends StatefulWidget {
+  /// يحدد معرّف الحجز المرتبط بهذه العملية.
+  /// Identifies the booking tied to this action.
   final String bookingId;
+
+  /// يحدد ما إذا كانت العملية هي وصول أم مغادرة.
+  /// Indicates whether the action is check-in or check-out.
   final bool isCheckIn;
+
+  /// يستدعى عند تأكيد العملية بعد إدخال البيانات المطلوبة.
+  /// Called when the action is confirmed after required inputs are filled.
   final VoidCallback onConfirm;
 
+  /// ينشئ مربع الحوار مع نوع العملية والرد النهائي.
+  /// Creates the dialog with the action type and completion callback.
   const CheckInOutDialog({
     super.key,
     required this.bookingId,
@@ -19,22 +31,50 @@ class CheckInOutDialog extends StatefulWidget {
     required this.onConfirm,
   });
 
+  /// ينشئ الحالة المتحركة المسؤولة عن النموذج والانتقالات.
+  /// Creates the animated state that drives the form and transitions.
   @override
   State<CheckInOutDialog> createState() => _CheckInOutDialogState();
 }
 
+/// يدير تفاصيل الحوار بما في ذلك الحركة والخيارات وعدد الضيوف.
+/// Manages the dialog details including animation, options, and guest count.
 class _CheckInOutDialogState extends State<CheckInOutDialog>
     with SingleTickerProviderStateMixin {
+  /// متحكم الحركة الذي يطلق ظهور الحوار.
+  /// Animation controller that drives the dialog entrance.
   late AnimationController _animationController;
+
+  /// مقياس الظهور المستخدم في الانتقال المرئي.
+  /// Scale animation used for the visual entrance.
   late Animation<double> _scaleAnimation;
+
+  /// دوران خفيف يضيف إحساسًا بالحركة إلى الأيقونة أو الرأس.
+  /// Subtle rotation that adds motion to the icon or header.
   late Animation<double> _rotationAnimation;
 
+  /// يلتقط ملاحظات الموظف حول الوصول أو المغادرة.
+  /// Captures staff notes for the check-in or check-out action.
   final TextEditingController _notesController = TextEditingController();
+
+  /// يحدد وجود الأمتعة مع الضيف.
+  /// Indicates whether the guest has luggage.
   bool _hasLuggage = false;
+
+  /// يحدد الحاجة إلى المساعدة.
+  /// Indicates whether assistance is needed.
   bool _needsAssistance = false;
+
+  /// يحدد ما إذا كان الضيف ضمن فئة VIP.
+  /// Indicates whether the guest is treated as VIP.
   bool _isVIP = false;
+
+  /// عدد الضيوف المرتبطين بالحجز الجاري معالجته.
+  /// Number of guests associated with the booking being processed.
   int _guestsCount = 2;
 
+  /// يهيئ الحركة ويبدأ ظهور مربع الحوار بسلاسة.
+  /// Initializes the animations and starts the dialog entrance.
   @override
   void initState() {
     super.initState();
@@ -59,6 +99,8 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
     _animationController.forward();
   }
 
+  /// يحرر المتحكمات النصية والحركية عند إغلاق الحوار.
+  /// Disposes the text and animation controllers when the dialog closes.
   @override
   void dispose() {
     _animationController.dispose();
@@ -66,6 +108,8 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
     super.dispose();
   }
 
+  /// يبني واجهة الحوار الكاملة بما في ذلك الرأس والمحتوى والأزرار.
+  /// Builds the full dialog UI including header, content, and actions.
   @override
   Widget build(BuildContext context) {
     return ScaleTransition(
@@ -80,8 +124,8 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
             boxShadow: [
               BoxShadow(
                 color: widget.isCheckIn
-                    ? AppTheme.success.withOpacity(0.2)
-                    : AppTheme.warning.withOpacity(0.2),
+                    ? AppTheme.success.withValues(alpha: 0.2)
+                    : AppTheme.warning.withValues(alpha: 0.2),
                 blurRadius: 40,
                 offset: const Offset(0, 20),
               ),
@@ -97,15 +141,15 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppTheme.darkCard.withOpacity(0.95),
-                      AppTheme.darkCard.withOpacity(0.85),
+                      AppTheme.darkCard.withValues(alpha: 0.95),
+                      AppTheme.darkCard.withValues(alpha: 0.85),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(28),
                   border: Border.all(
                     color: widget.isCheckIn
-                        ? AppTheme.success.withOpacity(0.3)
-                        : AppTheme.warning.withOpacity(0.3),
+                        ? AppTheme.success.withValues(alpha: 0.3)
+                        : AppTheme.warning.withValues(alpha: 0.3),
                     width: 1.5,
                   ),
                 ),
@@ -130,6 +174,8 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
     );
   }
 
+  /// يبني رأس الحوار مع عنوان الإجراء والمؤشرات المرئية.
+  /// Builds the dialog header with the action title and visual indicators.
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -137,17 +183,17 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
         gradient: LinearGradient(
           colors: widget.isCheckIn
               ? [
-                  AppTheme.success.withOpacity(0.15),
-                  AppTheme.success.withOpacity(0.05),
+                  AppTheme.success.withValues(alpha: 0.15),
+                  AppTheme.success.withValues(alpha: 0.05),
                 ]
               : [
-                  AppTheme.warning.withOpacity(0.15),
-                  AppTheme.warning.withOpacity(0.05),
+                  AppTheme.warning.withValues(alpha: 0.15),
+                  AppTheme.warning.withValues(alpha: 0.05),
                 ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
           ),
         ),
       ),
@@ -165,19 +211,19 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
                       colors: widget.isCheckIn
                           ? [
                               AppTheme.success,
-                              AppTheme.success.withOpacity(0.7)
+                              AppTheme.success.withValues(alpha: 0.7)
                             ]
                           : [
                               AppTheme.warning,
-                              AppTheme.warning.withOpacity(0.7)
+                              AppTheme.warning.withValues(alpha: 0.7)
                             ],
                     ),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
                         color: widget.isCheckIn
-                            ? AppTheme.success.withOpacity(0.4)
-                            : AppTheme.warning.withOpacity(0.4),
+                            ? AppTheme.success.withValues(alpha: 0.4)
+                            : AppTheme.warning.withValues(alpha: 0.4),
                         blurRadius: 15,
                         spreadRadius: 2,
                       ),
@@ -242,7 +288,7 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
             onPressed: () => Navigator.of(context).pop(),
             icon: Icon(
               CupertinoIcons.xmark_circle_fill,
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
           ),
         ],
@@ -250,6 +296,8 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
     );
   }
 
+  /// يختار المحتوى الأنسب بين الوصول والمغادرة.
+  /// Chooses the appropriate content for check-in or check-out.
   Widget _buildContent() {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -270,14 +318,16 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
     );
   }
 
+  /// يعرض عدادًا لتعديل عدد الضيوف قبل تنفيذ العملية.
+  /// Displays a counter used to adjust the guest count before confirming.
   Widget _buildGuestsCounter() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.5),
+        color: AppTheme.darkBackground.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -300,7 +350,7 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -336,6 +386,8 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
     );
   }
 
+  /// يبني زرًا صغيرًا لزيادة أو إنقاص قيمة العداد.
+  /// Builds a small button that increments or decrements the counter.
   Widget _buildCounterButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -357,6 +409,8 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
     );
   }
 
+  /// يعرض مفاتيح الخيارات الإضافية مثل الأمتعة والمساعدة وVIP.
+  /// Shows extra toggles such as luggage, assistance, and VIP.
   Widget _buildOptions() {
     return Column(
       children: [
@@ -384,6 +438,8 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
     );
   }
 
+  /// يبني بطاقة خيار واحدة مع حالة التفعيل والنص والأيقونة.
+  /// Builds one option tile with icon, text, and active state.
   Widget _buildOptionTile({
     required IconData icon,
     required String title,
@@ -393,13 +449,13 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
     return Container(
       decoration: BoxDecoration(
         color: value
-            ? AppTheme.primaryBlue.withOpacity(0.05)
-            : AppTheme.darkBackground.withOpacity(0.3),
+            ? AppTheme.primaryBlue.withValues(alpha: 0.05)
+            : AppTheme.darkBackground.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: value
-              ? AppTheme.primaryBlue.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.2),
+              ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
       ),
       child: Material(
@@ -440,13 +496,15 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
     );
   }
 
+  /// يعرض حقل الملاحظات الذي يرافق عملية الوصول أو المغادرة.
+  /// Shows the notes field that accompanies the check-in or check-out flow.
   Widget _buildNotesField() {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.5),
+        color: AppTheme.darkBackground.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
         ),
       ),
       child: TextField(
@@ -475,19 +533,21 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
     );
   }
 
+  /// يعرض بطاقة توضيحية تلخص ما سيحدث عند تأكيد الوصول.
+  /// Shows an informational card summarizing what happens on check-in.
   Widget _buildCheckInInfo() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.info.withOpacity(0.1),
-            AppTheme.info.withOpacity(0.05),
+            AppTheme.info.withValues(alpha: 0.1),
+            AppTheme.info.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.info.withOpacity(0.3),
+          color: AppTheme.info.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -524,14 +584,16 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
     );
   }
 
+  /// يبني أزرار الإلغاء والتأكيد في نهاية الحوار.
+  /// Builds the cancel and confirm buttons at the end of the dialog.
   Widget _buildActions() {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.3),
+        color: AppTheme.darkBackground.withValues(alpha: 0.3),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
           ),
         ),
       ),
@@ -541,10 +603,10 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
             child: Container(
               height: 52,
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.5),
+                color: AppTheme.darkCard.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 ),
               ),
               child: Material(
@@ -573,11 +635,11 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
                 gradient: LinearGradient(
                   colors: widget.isCheckIn
                       ? [
-                          AppTheme.success.withOpacity(0.8),
+                          AppTheme.success.withValues(alpha: 0.8),
                           AppTheme.success,
                         ]
                       : [
-                          AppTheme.warning.withOpacity(0.8),
+                          AppTheme.warning.withValues(alpha: 0.8),
                           AppTheme.warning,
                         ],
                 ),
@@ -585,8 +647,8 @@ class _CheckInOutDialogState extends State<CheckInOutDialog>
                 boxShadow: [
                   BoxShadow(
                     color: widget.isCheckIn
-                        ? AppTheme.success.withOpacity(0.4)
-                        : AppTheme.warning.withOpacity(0.4),
+                        ? AppTheme.success.withValues(alpha: 0.4)
+                        : AppTheme.warning.withValues(alpha: 0.4),
                     blurRadius: 15,
                     offset: const Offset(0, 6),
                   ),

@@ -4,8 +4,10 @@ import '../../../../../core/error/failures.dart';
 import '../../../../../core/usecases/usecase.dart';
 import '../../../domain/repositories/sections_repository.dart';
 
-class ToggleSectionStatusUseCase implements UseCase<bool, ToggleSectionStatusParams> {
+class ToggleSectionStatusUseCase
+    implements UseCase<bool, ToggleSectionStatusParams> {
   final SectionsRepository repository;
+
   ToggleSectionStatusUseCase(this.repository);
 
   @override
@@ -15,11 +17,14 @@ class ToggleSectionStatusUseCase implements UseCase<bool, ToggleSectionStatusPar
 }
 
 class ToggleSectionStatusParams extends Equatable {
+  /// العربية: يخزن القيمة `sectionId`.
   final String sectionId;
+
   final bool isActive;
-  const ToggleSectionStatusParams({required this.sectionId, required this.isActive});
+
+  const ToggleSectionStatusParams(
+      {required this.sectionId, required this.isActive});
 
   @override
   List<Object?> get props => [sectionId, isActive];
 }
-

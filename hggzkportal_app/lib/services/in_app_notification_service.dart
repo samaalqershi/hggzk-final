@@ -6,11 +6,22 @@ import 'package:hggzkportal/services/navigation_service.dart';
 import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 
+/// Shows polished in-app overlays for push notifications when the app is
+/// already open and the user should stay inside the portal.
+/// يعرض طبقات تنبيه داخل التطبيق عندما يكون المستخدم داخل البوابة بالفعل
+/// ولا نريد إخراجه من السياق.
 class InAppNotificationService {
+  /// Hidden constructor to keep the service static-only.
+  /// مُنشئ مخفي لإبقاء الخدمة ساكنة فقط.
   InAppNotificationService._();
 
+  /// Prevents multiple dialogs from being shown at the same time.
+  /// يمنع فتح أكثر من حوار في الوقت نفسه.
   static bool _isShowing = false;
 
+  /// Presents a foreground notification dialog with actions that keep the user
+  /// inside the app.
+  /// يعرض حوار إشعار أمامي مع إجراءات تُبقي المستخدم داخل التطبيق.
   static Future<void> showNotificationDialog({
     required String title,
     required String body,
@@ -22,7 +33,8 @@ class InAppNotificationService {
     for (int i = 0; i < 8; i++) {
       final context = NavigationService.rootNavigatorKey.currentContext;
       if (context != null) {
-        debugPrint('[InAppNotificationService] Showing dialog (attempt ${i + 1}) with title="$title"');
+        debugPrint(
+            '[InAppNotificationService] Showing dialog (attempt ${i + 1}) with title="$title"');
         _isShowing = true;
         try {
           await showGeneralDialog(
@@ -44,12 +56,12 @@ class InAppNotificationService {
                       color: AppTheme.darkCard,
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: color.withOpacity(0.3),
+                        color: color.withValues(alpha: 0.3),
                         width: 1,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: color.withOpacity(0.2),
+                          color: color.withValues(alpha: 0.2),
                           blurRadius: 30,
                           spreadRadius: 5,
                         ),
@@ -62,7 +74,7 @@ class InAppNotificationService {
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: color.withOpacity(0.1),
+                            color: color.withValues(alpha: 0.1),
                           ),
                           child: Icon(
                             Icons.notifications_active_rounded,
@@ -95,10 +107,12 @@ class InAppNotificationService {
                               child: TextButton(
                                 onPressed: () {
                                   HapticFeedback.lightImpact();
-                                  Navigator.of(context, rootNavigator: true).pop();
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop();
                                 },
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -116,13 +130,15 @@ class InAppNotificationService {
                               child: ElevatedButton(
                                 onPressed: () {
                                   HapticFeedback.mediumImpact();
-                                  Navigator.of(context, rootNavigator: true).pop();
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop();
                                   if (onOpen != null) onOpen();
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: color,
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -145,11 +161,14 @@ class InAppNotificationService {
               );
             },
             transitionBuilder: (context, anim, secondaryAnim, child) {
-              final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic);
+              final curved =
+                  CurvedAnimation(parent: anim, curve: Curves.easeOutCubic);
               return FadeTransition(
                 opacity: curved,
                 child: SlideTransition(
-                  position: Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero).animate(curved),
+                  position: Tween<Offset>(
+                          begin: const Offset(0, 0.05), end: Offset.zero)
+                      .animate(curved),
                   child: child,
                 ),
               );
@@ -163,9 +182,13 @@ class InAppNotificationService {
       }
       await Future.delayed(const Duration(milliseconds: 200));
     }
-    debugPrint('[InAppNotificationService] Failed to obtain context for dialog after retries');
+    debugPrint(
+        '[InAppNotificationService] Failed to obtain context for dialog after retries');
   }
-  /// FCM-styled booking confirmation dialog with three actions
+
+  /// Shows a booking-focused confirmation dialog with explicit accept, wait,
+  /// and cancel paths.
+  /// يعرض حوار تأكيد للحجز مع مسارات واضحة للقبول أو الانتظار أو الإلغاء.
   static Future<void> showBookingConfirmationDialog({
     required String title,
     required String body,
@@ -198,12 +221,12 @@ class InAppNotificationService {
                       color: AppTheme.darkCard,
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: color.withOpacity(0.3),
+                        color: color.withValues(alpha: 0.3),
                         width: 1,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: color.withOpacity(0.2),
+                          color: color.withValues(alpha: 0.2),
                           blurRadius: 30,
                           spreadRadius: 5,
                         ),
@@ -216,7 +239,7 @@ class InAppNotificationService {
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: color.withOpacity(0.1),
+                            color: color.withValues(alpha: 0.1),
                           ),
                           child: Icon(
                             Icons.event_available_rounded,
@@ -250,13 +273,15 @@ class InAppNotificationService {
                               child: ElevatedButton(
                                 onPressed: () {
                                   HapticFeedback.mediumImpact();
-                                  Navigator.of(context, rootNavigator: true).pop();
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop();
                                   onCancelRequest();
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppTheme.error,
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -264,7 +289,8 @@ class InAppNotificationService {
                                 ),
                                 child: Text(
                                   'إلغاء طلب الحجز',
-                                  style: AppTextStyles.buttonMedium.copyWith(color: Colors.white),
+                                  style: AppTextStyles.buttonMedium
+                                      .copyWith(color: Colors.white),
                                 ),
                               ),
                             ),
@@ -274,11 +300,13 @@ class InAppNotificationService {
                               child: TextButton(
                                 onPressed: () {
                                   HapticFeedback.lightImpact();
-                                  Navigator.of(context, rootNavigator: true).pop();
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop();
                                   onWait();
                                 },
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -297,13 +325,15 @@ class InAppNotificationService {
                               child: ElevatedButton(
                                 onPressed: () {
                                   HapticFeedback.mediumImpact();
-                                  Navigator.of(context, rootNavigator: true).pop();
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop();
                                   onConfirm();
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppTheme.success,
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -311,7 +341,8 @@ class InAppNotificationService {
                                 ),
                                 child: Text(
                                   'تأكيد',
-                                  style: AppTextStyles.buttonMedium.copyWith(color: Colors.white),
+                                  style: AppTextStyles.buttonMedium
+                                      .copyWith(color: Colors.white),
                                 ),
                               ),
                             ),
@@ -324,11 +355,14 @@ class InAppNotificationService {
               );
             },
             transitionBuilder: (context, anim, secondaryAnim, child) {
-              final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic);
+              final curved =
+                  CurvedAnimation(parent: anim, curve: Curves.easeOutCubic);
               return FadeTransition(
                 opacity: curved,
                 child: SlideTransition(
-                  position: Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero).animate(curved),
+                  position: Tween<Offset>(
+                          begin: const Offset(0, 0.05), end: Offset.zero)
+                      .animate(curved),
                   child: child,
                 ),
               );
@@ -343,6 +377,8 @@ class InAppNotificationService {
     }
   }
 
+  /// Maps a priority label to the accent color used by the dialog chrome.
+  /// يحول تسمية الأولوية إلى لون التمييز المستخدم في إطار الحوار.
   static Color _resolveAccent(String? priority) {
     final p = (priority ?? '').toLowerCase().trim();
     switch (p) {

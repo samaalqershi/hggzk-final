@@ -3,17 +3,17 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/route_constants.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class LegalDocumentsPage extends StatelessWidget {
+  /// العربية: يخزن القيمة `baseUrl`.
   final String baseUrl;
-
   const LegalDocumentsPage({
     super.key,
     required this.baseUrl,
   });
-
   List<_LegalItem> _items() {
     return [
       _LegalItem(
@@ -88,7 +88,7 @@ class LegalDocumentsPage extends StatelessWidget {
                         color: item.color,
                         onTap: () {
                           if (item.path == '/support') {
-                            context.push('/legal/webview',
+                            context.push(RouteConstants.legalWebView,
                                 extra: <String, dynamic>{
                                   'title': "المساعدة والدعم",
                                   'url': 'https://www.hggzk.com/support',
@@ -97,7 +97,7 @@ class LegalDocumentsPage extends StatelessWidget {
                           }
                           final url = _normalizeUrl(baseUrl, item.path);
                           context.push(
-                            '/legal/webview',
+                            RouteConstants.legalWebView,
                             extra: <String, dynamic>{
                               'title': item.title,
                               'url': url,
@@ -125,11 +125,11 @@ class LegalDocumentsPage extends StatelessWidget {
 }
 
 class _LegalItem {
+  /// العربية: يخزن القيمة `title`.
   final String title;
   final String path;
   final IconData icon;
   final Color color;
-
   _LegalItem({
     required this.title,
     required this.path,
@@ -158,14 +158,13 @@ class _LegalBackground extends StatelessWidget {
 }
 
 class _LegalHeader extends StatelessWidget {
+  /// العربية: يخزن القيمة `title`.
   final String title;
   final VoidCallback onBack;
-
   const _LegalHeader({
     required this.title,
     required this.onBack,
   });
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -226,18 +225,17 @@ class _LegalHeader extends StatelessWidget {
 }
 
 class _LegalListItem extends StatelessWidget {
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
   final String title;
   final Color color;
   final VoidCallback onTap;
-
   const _LegalListItem({
     required this.icon,
     required this.title,
     required this.color,
     required this.onTap,
   });
-
   @override
   Widget build(BuildContext context) {
     return Material(

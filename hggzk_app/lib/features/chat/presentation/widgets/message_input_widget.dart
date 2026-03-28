@@ -12,18 +12,54 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/message.dart';
 import '../bloc/chat_bloc.dart';
 
+/// Composer anchored at the bottom of the chat screen for text, reply, edit,
+/// attachment, and voice-note flows.
+/// محرر مثبت أسفل شاشة الدردشة لكتابة النص والرد والتعديل والمرفقات
+/// والملاحظات الصوتية.
 class MessageInputWidget extends StatefulWidget {
+  /// Live draft text controlled by the parent screen.
+  /// المسودة النصية الحية التي تتحكم بها الشاشة الأب.
   final TextEditingController controller;
+
+  /// Focus node that keeps the keyboard attached to the composer.
+  /// عقدة التركيز التي تبقي لوحة المفاتيح مرتبطة بالمحرر.
   final FocusNode focusNode;
+
+  /// Conversation that receives the outgoing message.
+  /// المحادثة التي تستقبل الرسالة الصادرة.
   final String conversationId;
+
+  /// Optional message id when the composer is replying.
+  /// معرّف الرسالة الاختياري عندما يكون المحرر في وضع الرد.
   final String? replyToMessageId;
+
+  /// Original message used when the composer edits an existing message.
+  /// الرسالة الأصلية المستخدمة عند تعديل رسالة موجودة.
   final Message? editingMessage;
+
+  /// Sends the cleaned message payload to the conversation bloc.
+  /// يرسل الحمولة النصية المنظفة إلى bloc المحادثة.
   final Function(String) onSend;
+
+  /// Opens the attachment flow from the surrounding chat screen.
+  /// يفتح مسار المرفقات من شاشة الدردشة المحيطة.
   final VoidCallback? onAttachment;
+
+  /// Starts location sharing when the host screen supports it.
+  /// يبدأ مشاركة الموقع عندما تدعم الشاشة المضيفة ذلك.
   final VoidCallback? onLocation;
+
+  /// Returns the composer from reply mode back to a normal draft flow.
+  /// يعيد المحرر من وضع الرد إلى كتابة عادية.
   final VoidCallback? onCancelReply;
+
+  /// Cancels edit mode without submitting a replacement message.
+  /// يلغي وضع التعديل دون إرسال رسالة بديلة.
   final VoidCallback? onCancelEdit;
 
+  /// Builds a composer that can send text, replies, attachments, or voice
+  /// notes.
+  /// ينشئ محررًا قادرًا على إرسال النصوص والردود والمرفقات والرسائل الصوتية.
   const MessageInputWidget({
     super.key,
     required this.controller,
@@ -38,6 +74,8 @@ class MessageInputWidget extends StatefulWidget {
     this.onCancelEdit,
   });
 
+  /// Convenience constructor for screens that already wire bloc callbacks.
+  /// مُنشئ مساعد للشاشات التي تربط callbacks الخاصة بالـ bloc مسبقًا.
   static MessageInputWidget createWithBloc({
     Key? key,
     required TextEditingController controller,
@@ -66,24 +104,44 @@ class MessageInputWidget extends StatefulWidget {
     );
   }
 
+  /// Creates the mutable composer state that drives animation and recording.
+  /// ينشئ حالة المحرر المتغيرة التي تدير الحركة والتسجيل.
   @override
   State<MessageInputWidget> createState() => _MessageInputWidgetState();
 }
 
+/// Owns the transient UI state for the chat composer.
+/// يملك الحالة المؤقتة لواجهة محرر الرسائل.
 class _MessageInputWidgetState extends State<MessageInputWidget>
     with SingleTickerProviderStateMixin {
+  /// Drives the send-button and recording hint transitions.
+  /// يقود انتقالات زر الإرسال ومؤشر التسجيل.
   late AnimationController _animationController;
+
+  /// Expands the send affordance when the draft contains text.
   late Animation<double> _sendButtonAnimation;
+
+  /// Soft pulse used to show that audio capture is active.
   late Animation<double> _recordAnimation;
 
   final AudioRecorder _audioRecorder = AudioRecorder();
+
+  /// Tracks whether the recorder is currently capturing audio.
   bool _isRecording = false;
+
+  /// Controls the visibility of the inline attachment menu.
   bool _showAttachmentOptions = false;
+
+  /// Temporary path for the currently recorded audio file.
   String _recordingPath = '';
+
+  /// Measures the live recording length shown in the composer.
   Duration _recordingDuration = Duration.zero;
 
+  /// Reads the chat bloc from the surrounding provider tree.
   ChatBloc? get _chatBloc => context.read<ChatBloc>();
 
+  /// Sets up the composer animations and draft listener.
   @override
   void initState() {
     super.initState();
@@ -105,10 +163,11 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
-    
+
     widget.controller.addListener(_onTextChanged);
   }
 
+  /// Releases animation, recorder, and listener resources.
   @override
   void dispose() {
     _animationController.dispose();
@@ -116,14 +175,17 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     super.dispose();
   }
 
+  /// Toggles the send animation based on whether the draft is empty.
   void _onTextChanged() {
     if (widget.controller.text.isNotEmpty && _sendButtonAnimation.value == 0) {
       _animationController.forward();
-    } else if (widget.controller.text.isEmpty && _sendButtonAnimation.value == 1) {
+    } else if (widget.controller.text.isEmpty &&
+        _sendButtonAnimation.value == 1) {
       _animationController.reverse();
     }
   }
 
+  /// Builds the composer shell and its inline action zones.
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -155,8 +217,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (_showAttachmentOptions) 
-                _buildMinimalAttachmentOptions(),
+              if (_showAttachmentOptions) _buildMinimalAttachmentOptions(),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -174,6 +235,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// Builds the horizontal row of quick attachment actions.
   Widget _buildMinimalAttachmentOptions() {
     return Container(
       height: 64,
@@ -237,6 +299,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// Builds the button that opens or closes the attachment strip.
   Widget _buildMinimalAttachmentButton() {
     return GestureDetector(
       onTap: () {
@@ -274,8 +337,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
           turns: _showAttachmentOptions ? 0.125 : 0,
           child: Icon(
             Icons.add_rounded,
-            color: _showAttachmentOptions 
-                ? Colors.white 
+            color: _showAttachmentOptions
+                ? Colors.white
                 : AppTheme.textMuted.withOpacity(0.5),
             size: 18,
           ),
@@ -284,6 +347,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// Builds the compact multiline text field used for chat drafts.
   Widget _buildMinimalInputField() {
     return Container(
       constraints: const BoxConstraints(
@@ -359,12 +423,13 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// Builds the primary send/mic action and its recording state.
   Widget _buildMinimalActionButton() {
     return AnimatedBuilder(
       animation: _sendButtonAnimation,
       builder: (context, child) {
         final showSend = _sendButtonAnimation.value > 0.5;
-        
+
         return GestureDetector(
           onTap: showSend ? _sendMessage : null,
           onLongPress: !showSend ? _startRecording : null,
@@ -417,9 +482,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
                 child: _isRecording
                     ? _buildMinimalRecordingIndicator()
                     : Icon(
-                        showSend
-                            ? Icons.send_rounded
-                            : Icons.mic_rounded,
+                        showSend ? Icons.send_rounded : Icons.mic_rounded,
                         color: showSend || _isRecording
                             ? Colors.white
                             : AppTheme.textMuted.withOpacity(0.5),
@@ -434,6 +497,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// Builds the pulsing indicator shown while audio capture is active.
   Widget _buildMinimalRecordingIndicator() {
     return AnimatedBuilder(
       animation: _animationController,
@@ -465,6 +529,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// Sends the trimmed text draft through the chat bloc.
   void _sendMessage() {
     final text = widget.controller.text.trim();
     if (text.isNotEmpty) {
@@ -473,46 +538,50 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     }
   }
 
+  /// Starts microphone capture after checking runtime permission.
   Future<void> _startRecording() async {
     HapticFeedback.mediumImpact();
-    
+
     final permission = await Permission.microphone.request();
     if (!permission.isGranted) return;
 
     if (await _audioRecorder.hasPermission()) {
       final directory = Directory.systemTemp;
-      _recordingPath = '${directory.path}/audio_${DateTime.now().millisecondsSinceEpoch}.m4a';
-      
+      _recordingPath =
+          '${directory.path}/audio_${DateTime.now().millisecondsSinceEpoch}.m4a';
+
       await _audioRecorder.start(
         const RecordConfig(),
         path: _recordingPath,
       );
-      
+
       setState(() {
         _isRecording = true;
       });
-      
+
       _animationController.repeat(reverse: true);
     }
   }
 
+  /// Stops microphone capture and hands the file path to the chat bloc.
   Future<void> _stopRecording() async {
     if (!_isRecording) return;
-    
+
     HapticFeedback.mediumImpact();
     _animationController.stop();
-    
+
     final path = await _audioRecorder.stop();
-    
+
     setState(() {
       _isRecording = false;
     });
-    
+
     if (path != null) {
       _sendAudioMessage(path);
     }
   }
 
+  /// Wraps the recorded file into the dedicated chat event.
   void _sendAudioMessage(String path) async {
     try {
       // Upload the audio file as part of the message sending process
@@ -523,6 +592,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     }
   }
 
+  /// Picks a compressed image from the chosen source and closes the sheet.
   Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
     final image = await picker.pickImage(
@@ -531,7 +601,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
       maxHeight: 1920,
       imageQuality: 85,
     );
-    
+
     if (image != null) {
       setState(() {
         _showAttachmentOptions = false;
@@ -540,13 +610,14 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     }
   }
 
+  /// Picks a short video from the gallery and collapses the sheet.
   Future<void> _pickVideo() async {
     final picker = ImagePicker();
     final video = await picker.pickVideo(
       source: ImageSource.gallery,
       maxDuration: const Duration(minutes: 5),
     );
-    
+
     if (video != null) {
       setState(() {
         _showAttachmentOptions = false;
@@ -555,6 +626,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     }
   }
 
+  /// Closes the attachment sheet before handing off to a file picker.
   void _pickFile() {
     setState(() {
       _showAttachmentOptions = false;
@@ -562,11 +634,13 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     // Implement file picker
   }
 
+  /// Triggers the emoji affordance and provides immediate tactile feedback.
   void _insertEmoji() {
     HapticFeedback.lightImpact();
     // Show emoji picker
   }
 
+  /// Sends the recorded audio path through the chat bloc.
   Future<void> _sendMessageWithAudioFile(String filePath) async {
     if (_chatBloc == null) {
       print('ChatBloc not available');
@@ -580,19 +654,27 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
         filePath: filePath,
         replyToMessageId: widget.replyToMessageId,
       ));
-
     } catch (e) {
       print('Error sending audio message: $e');
     }
   }
 }
 
+/// Small action tile used inside the attachment sheet.
 class _MinimalAttachmentOption extends StatelessWidget {
+  /// Icon shown inside the attachment tile.
   final IconData icon;
+
+  /// Short label describing the action.
   final String label;
+
+  /// Gradient used to make the tile visually distinct.
   final List<Color> gradient;
+
+  /// Invoked when the user taps the tile.
   final VoidCallback onTap;
 
+  /// Builds one compact attachment action.
   const _MinimalAttachmentOption({
     required this.icon,
     required this.label,
@@ -600,6 +682,7 @@ class _MinimalAttachmentOption extends StatelessWidget {
     required this.onTap,
   });
 
+  /// Builds the tappable attachment action tile.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

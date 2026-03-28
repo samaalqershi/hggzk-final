@@ -1,12 +1,11 @@
-import 'package:equatable/equatable.dart';
 import 'service.dart';
 
 /// 📋 Entity لتفاصيل الخدمة
 class ServiceDetails extends Service {
+  /// العربية: يخزن القيمة `createdAt`.
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final String? description;
-
   const ServiceDetails({
     required super.id,
     required super.propertyId,
@@ -19,7 +18,6 @@ class ServiceDetails extends Service {
     this.updatedAt,
     this.description,
   });
-
   @override
   List<Object?> get props => [
         ...super.props,

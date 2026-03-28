@@ -4,12 +4,10 @@ import 'package:dartz/dartz.dart';
 import 'package:hggzkportal/core/error/failures.dart';
 import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../repositories/reviews_repository.dart';
-
 class DisableReviewUseCase implements UseCase<bool, String> {
+  /// العربية: يخزن القيمة `repository`.
   final ReviewsRepository repository;
-  
   DisableReviewUseCase(this.repository);
-  
   @override
   Future<Either<Failure, bool>> call(String reviewId) {
     return repository.disableReview(reviewId);

@@ -2,12 +2,22 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 
+/// يقرأ المنطقة الزمنية للجهاز ويقدمها بصيغ جاهزة للطلب أو العرض.
+/// Reads the device timezone and exposes it in API-friendly and UI-friendly forms.
 class TimezoneHelper {
+  /// اسم المنطقة الزمنية بعد أول قراءة ناجحة لتجنب إعادة الاستعلام.
+  /// Cached timezone name so we don't query the platform repeatedly.
   static String? _cachedTimezone;
+
+  /// فرق التوقيت بالدقائق المرتبط بالمنطقة الزمنية الحالية.
+  /// Cached offset in minutes for the current timezone.
   static int? _cachedOffset;
+
+  /// يمنع تهيئة حزم التوقيت أكثر من مرة.
+  /// Guards one-time initialization of the timezone packages.
   static bool _isInitialized = false;
 
-  /// تهيئة timezone
+  /// يهيئ بيانات المناطق الزمنية ويجلب المنطقة الحالية مبكرًا.
   static Future<void> initialize() async {
     if (_isInitialized) return;
 
@@ -22,7 +32,8 @@ class TimezoneHelper {
     }
   }
 
-  /// الحصول على المنطقة الزمنية للجهاز
+  /// يعيد اسم المنطقة الزمنية التي يعمل عليها الجهاز.
+  /// Exposes the device's timezone identifier so callers can read it without depending on implementation details.
   static Future<String> getDeviceTimezone() async {
     if (_cachedTimezone != null) return _cachedTimezone!;
 
@@ -51,7 +62,7 @@ class TimezoneHelper {
     }
   }
 
-  /// الحصول على offset المنطقة الزمنية بالدقائق
+  /// يعيد فرق التوقيت بالدقائق، مع حفظه عند أول قراءة.
   static int getTimezoneOffset() {
     if (_cachedOffset != null) return _cachedOffset!;
 
@@ -60,7 +71,7 @@ class TimezoneHelper {
     return _cachedOffset!;
   }
 
-  /// تنسيق الـ offset للعرض
+  /// يحول فرق التوقيت إلى صيغة `+03:00` أو `-05:30`.
   static String _formatOffset(Duration offset) {
     final hours = offset.inHours;
     final minutes = offset.inMinutes.remainder(60).abs();
@@ -73,13 +84,13 @@ class TimezoneHelper {
     }
   }
 
-  /// مسح الـ cache (للاستخدام عند تغيير timezone)
+  /// يمسح القيم المحفوظة عند الحاجة إلى إعادة اكتشاف المنطقة الزمنية.
   static void clearCache() {
     _cachedTimezone = null;
     _cachedOffset = null;
   }
 
-  /// الحصول على headers للـ API
+  /// يبني الرؤوس التي يحتاجها الخادم لمعالجة التواريخ بشكل صحيح.
   static Map<String, String> getTimezoneHeaders() {
     return {
       'X-TimeZone': _cachedTimezone ?? 'UTC',
@@ -87,7 +98,7 @@ class TimezoneHelper {
     };
   }
 
-  /// تحويل التوقيت من UTC إلى المحلي
+  /// يحول تاريخ UTC إلى التوقيت المحلي باستخدام الإزاحة المخزنة.
   static DateTime convertFromUtc(DateTime utcDateTime) {
     if (_cachedOffset == null) {
       getTimezoneOffset();
@@ -96,7 +107,7 @@ class TimezoneHelper {
     return utcDateTime.add(Duration(minutes: _cachedOffset ?? 0));
   }
 
-  /// تحويل التوقيت من المحلي إلى UTC
+  /// يحول التوقيت المحلي إلى UTC اعتمادًا على الإزاحة الحالية.
   static DateTime convertToUtc(DateTime localDateTime) {
     if (_cachedOffset == null) {
       getTimezoneOffset();

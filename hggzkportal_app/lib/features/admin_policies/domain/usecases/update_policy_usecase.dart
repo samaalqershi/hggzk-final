@@ -6,6 +6,7 @@ import '../entities/policy.dart';
 import '../repositories/policies_repository.dart';
 
 class UpdatePolicyUseCase implements UseCase<void, UpdatePolicyParams> {
+  /// العربية: يخزن القيمة `repository`.
   final PoliciesRepository repository;
 
   UpdatePolicyUseCase(this.repository);
@@ -18,10 +19,10 @@ class UpdatePolicyUseCase implements UseCase<void, UpdatePolicyParams> {
       description: params.description,
       rules: params.rules,
       cancellationWindowDays: params.cancellationWindowDays,
-      requireFullPaymentBeforeConfirmation: params.requireFullPaymentBeforeConfirmation,
+      requireFullPaymentBeforeConfirmation:
+          params.requireFullPaymentBeforeConfirmation,
       minimumDepositPercentage: params.minimumDepositPercentage,
       minHoursBeforeCheckIn: params.minHoursBeforeCheckIn,
-
       cancellationFreeCancel: params.cancellationFreeCancel,
       cancellationFullRefund: params.cancellationFullRefund,
       cancellationRefundPercentage: params.cancellationRefundPercentage,
@@ -29,7 +30,6 @@ class UpdatePolicyUseCase implements UseCase<void, UpdatePolicyParams> {
       cancellationHoursBeforeCheckIn: params.cancellationHoursBeforeCheckIn,
       cancellationNonRefundable: params.cancellationNonRefundable,
       cancellationPenaltyAfterDeadline: params.cancellationPenaltyAfterDeadline,
-
       paymentDepositRequired: params.paymentDepositRequired,
       paymentFullPaymentRequired: params.paymentFullPaymentRequired,
       paymentDepositPercentage: params.paymentDepositPercentage,
@@ -38,7 +38,6 @@ class UpdatePolicyUseCase implements UseCase<void, UpdatePolicyParams> {
       paymentPayAtProperty: params.paymentPayAtProperty,
       paymentCashPreferred: params.paymentCashPreferred,
       paymentAcceptedMethods: params.paymentAcceptedMethods,
-
       checkInTime: params.checkInTime,
       checkOutTime: params.checkOutTime,
       checkInFrom: params.checkInFrom,
@@ -50,7 +49,6 @@ class UpdatePolicyUseCase implements UseCase<void, UpdatePolicyParams> {
       checkInEarlyCheckInNote: params.checkInEarlyCheckInNote,
       checkInLateCheckOutNote: params.checkInLateCheckOutNote,
       checkInLateCheckOutFee: params.checkInLateCheckOutFee,
-
       childrenAllowed: params.childrenAllowed,
       childrenFreeUnderAge: params.childrenFreeUnderAge,
       childrenHalfPriceUnderAge: params.childrenHalfPriceUnderAge,
@@ -59,7 +57,6 @@ class UpdatePolicyUseCase implements UseCase<void, UpdatePolicyParams> {
       childrenCribsNote: params.childrenCribsNote,
       childrenPlaygroundAvailable: params.childrenPlaygroundAvailable,
       childrenKidsMenuAvailable: params.childrenKidsMenuAvailable,
-
       petsAllowed: params.petsAllowed,
       petsReason: params.petsReason,
       petsFeeAmount: params.petsFeeAmount,
@@ -69,9 +66,9 @@ class UpdatePolicyUseCase implements UseCase<void, UpdatePolicyParams> {
       petsPetFriendly: params.petsPetFriendly,
       petsOutdoorSpace: params.petsOutdoorSpace,
       petsStrict: params.petsStrict,
-
       modificationAllowed: params.modificationAllowed,
-      modificationFreeModificationHours: params.modificationFreeModificationHours,
+      modificationFreeModificationHours:
+          params.modificationFreeModificationHours,
       modificationFeesAfter: params.modificationFeesAfter,
       modificationFlexible: params.modificationFlexible,
       modificationReason: params.modificationReason,
@@ -80,67 +77,117 @@ class UpdatePolicyUseCase implements UseCase<void, UpdatePolicyParams> {
 }
 
 class UpdatePolicyParams extends Equatable {
+  /// العربية: يخزن القيمة `policyId`.
   final String policyId;
+
   final PolicyType type;
+
   final String description;
+
   final String? rules;
+
   final int? cancellationWindowDays;
+
   final bool? requireFullPaymentBeforeConfirmation;
+
   final double? minimumDepositPercentage;
+
   final int? minHoursBeforeCheckIn;
 
   final bool? cancellationFreeCancel;
+
   final bool? cancellationFullRefund;
+
   final int? cancellationRefundPercentage;
+
   final int? cancellationDaysBeforeCheckIn;
+
   final int? cancellationHoursBeforeCheckIn;
+
   final bool? cancellationNonRefundable;
+
   final String? cancellationPenaltyAfterDeadline;
 
   final bool? paymentDepositRequired;
+
   final bool? paymentFullPaymentRequired;
+
   final double? paymentDepositPercentage;
+
   final bool? paymentAcceptCash;
+
   final bool? paymentAcceptCard;
+
   final bool? paymentPayAtProperty;
+
   final bool? paymentCashPreferred;
+
   final List<String>? paymentAcceptedMethods;
 
   final String? checkInTime;
+
   final String? checkOutTime;
+
   final String? checkInFrom;
+
   final String? checkInUntil;
+
   final bool? checkInFlexible;
+
   final bool? checkInFlexibleCheckIn;
+
   final bool? checkInRequiresCoordination;
+
   final bool? checkInContactOwner;
+
   final String? checkInEarlyCheckInNote;
+
   final String? checkInLateCheckOutNote;
+
   final String? checkInLateCheckOutFee;
 
   final bool? childrenAllowed;
+
   final int? childrenFreeUnderAge;
+
   final int? childrenHalfPriceUnderAge;
+
   final int? childrenMaxChildrenPerRoom;
+
   final int? childrenMaxChildren;
+
   final String? childrenCribsNote;
+
   final bool? childrenPlaygroundAvailable;
+
   final bool? childrenKidsMenuAvailable;
 
   final bool? petsAllowed;
+
   final String? petsReason;
+
   final double? petsFeeAmount;
+
   final String? petsMaxWeight;
+
   final bool? petsRequiresApproval;
+
   final bool? petsNoFees;
+
   final bool? petsPetFriendly;
+
   final bool? petsOutdoorSpace;
+
   final bool? petsStrict;
 
   final bool? modificationAllowed;
+
   final int? modificationFreeModificationHours;
+
   final String? modificationFeesAfter;
+
   final bool? modificationFlexible;
+
   final String? modificationReason;
 
   const UpdatePolicyParams({
@@ -152,7 +199,6 @@ class UpdatePolicyParams extends Equatable {
     this.requireFullPaymentBeforeConfirmation,
     this.minimumDepositPercentage,
     this.minHoursBeforeCheckIn,
-
     this.cancellationFreeCancel,
     this.cancellationFullRefund,
     this.cancellationRefundPercentage,
@@ -160,7 +206,6 @@ class UpdatePolicyParams extends Equatable {
     this.cancellationHoursBeforeCheckIn,
     this.cancellationNonRefundable,
     this.cancellationPenaltyAfterDeadline,
-
     this.paymentDepositRequired,
     this.paymentFullPaymentRequired,
     this.paymentDepositPercentage,
@@ -169,7 +214,6 @@ class UpdatePolicyParams extends Equatable {
     this.paymentPayAtProperty,
     this.paymentCashPreferred,
     this.paymentAcceptedMethods,
-
     this.checkInTime,
     this.checkOutTime,
     this.checkInFrom,
@@ -181,7 +225,6 @@ class UpdatePolicyParams extends Equatable {
     this.checkInEarlyCheckInNote,
     this.checkInLateCheckOutNote,
     this.checkInLateCheckOutFee,
-
     this.childrenAllowed,
     this.childrenFreeUnderAge,
     this.childrenHalfPriceUnderAge,
@@ -190,7 +233,6 @@ class UpdatePolicyParams extends Equatable {
     this.childrenCribsNote,
     this.childrenPlaygroundAvailable,
     this.childrenKidsMenuAvailable,
-
     this.petsAllowed,
     this.petsReason,
     this.petsFeeAmount,
@@ -200,7 +242,6 @@ class UpdatePolicyParams extends Equatable {
     this.petsPetFriendly,
     this.petsOutdoorSpace,
     this.petsStrict,
-
     this.modificationAllowed,
     this.modificationFreeModificationHours,
     this.modificationFeesAfter,
@@ -218,7 +259,6 @@ class UpdatePolicyParams extends Equatable {
         requireFullPaymentBeforeConfirmation,
         minimumDepositPercentage,
         minHoursBeforeCheckIn,
-
         cancellationFreeCancel,
         cancellationFullRefund,
         cancellationRefundPercentage,
@@ -226,7 +266,6 @@ class UpdatePolicyParams extends Equatable {
         cancellationHoursBeforeCheckIn,
         cancellationNonRefundable,
         cancellationPenaltyAfterDeadline,
-
         paymentDepositRequired,
         paymentFullPaymentRequired,
         paymentDepositPercentage,
@@ -235,7 +274,6 @@ class UpdatePolicyParams extends Equatable {
         paymentPayAtProperty,
         paymentCashPreferred,
         paymentAcceptedMethods,
-
         checkInTime,
         checkOutTime,
         checkInFrom,
@@ -247,7 +285,6 @@ class UpdatePolicyParams extends Equatable {
         checkInEarlyCheckInNote,
         checkInLateCheckOutNote,
         checkInLateCheckOutFee,
-
         childrenAllowed,
         childrenFreeUnderAge,
         childrenHalfPriceUnderAge,
@@ -256,7 +293,6 @@ class UpdatePolicyParams extends Equatable {
         childrenCribsNote,
         childrenPlaygroundAvailable,
         childrenKidsMenuAvailable,
-
         petsAllowed,
         petsReason,
         petsFeeAmount,
@@ -266,7 +302,6 @@ class UpdatePolicyParams extends Equatable {
         petsPetFriendly,
         petsOutdoorSpace,
         petsStrict,
-
         modificationAllowed,
         modificationFreeModificationHours,
         modificationFeesAfter,

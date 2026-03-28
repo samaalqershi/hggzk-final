@@ -21,6 +21,7 @@ class AddCurrencyEvent extends CurrenciesEvent {
 
 class UpdateCurrencyEvent extends CurrenciesEvent {
   final Currency currency;
+
   final String oldCode;
 
   const UpdateCurrencyEvent({
@@ -52,6 +53,7 @@ class SetDefaultCurrencyEvent extends CurrenciesEvent {
 
 class UpdateExchangeRateEvent extends CurrenciesEvent {
   final String code;
+
   final double rate;
 
   const UpdateExchangeRateEvent({

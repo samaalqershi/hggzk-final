@@ -17,26 +17,30 @@ import '../../../../../core/error/failures.dart';
 part 'daily_schedule_event.dart';
 part 'daily_schedule_state.dart';
 
-/// BLoC لإدارة الجدول اليومي الموحد (الإتاحة والتسعير)
-/// 
-/// يتعامل مع جميع العمليات المتعلقة بالجدول اليومي:
-/// - تحميل الجدول الشهري
-/// - تحديث يوم واحد أو فترة
-/// - التحديث الجماعي بناءً على أيام الأسبوع
-/// - التحقق من التوفر
-/// - حساب السعر الإجمالي
-/// - نسخ وحذف الجداول
-/// - التصفية والتنقل بين الأشهر
+/// يدير تدفق الجدول اليومي من التحميل حتى التحديث والتحقق والنسخ والحذف.
 class DailyScheduleBloc extends Bloc<DailyScheduleEvent, DailyScheduleState> {
-  // ===== Dependencies =====
+  /// يجلب الجدول الشهري من طبقة الاستخدامات.
   final GetMonthlyScheduleUseCase getMonthlyScheduleUseCase;
+
+  /// يحدث إتاحة أو تسعير يوم أو فترة محددة.
   final UpdateScheduleUseCase updateScheduleUseCase;
+
+  /// ينفذ التحديثات الجماعية على نطاق أيام متكرر.
   final BulkUpdateScheduleUseCase bulkUpdateScheduleUseCase;
+
+  /// يتحقق من توفر الوحدة في فترة محددة.
   final CheckAvailabilityUseCase checkAvailabilityUseCase;
+
+  /// يحسب السعر الإجمالي بناءً على أيام ونوع التسعير.
   final CalculateTotalPriceUseCase calculateTotalPriceUseCase;
+
+  /// ينسخ جدولًا من نطاق إلى نطاق آخر.
   final CloneScheduleUseCase cloneScheduleUseCase;
+
+  /// يحذف جدولًا يوميًا محددًا.
   final DeleteScheduleUseCase deleteScheduleUseCase;
 
+  /// يبني البلوك مع الاعتماديات التي يحتاجها لتنفيذ أوامر الجدول.
   DailyScheduleBloc({
     required this.getMonthlyScheduleUseCase,
     required this.updateScheduleUseCase,
@@ -63,9 +67,7 @@ class DailyScheduleBloc extends Bloc<DailyScheduleEvent, DailyScheduleState> {
 
   // ===== Event Handlers =====
 
-  /// معالج حدث تحميل الجدول الشهري
-  /// 
-  /// يقوم بتحميل جدول شهر كامل من الخادم
+  /// يحمّل جدول الشهر المطلوب ويحوّل النتيجة إلى حالة جاهزة للعرض.
   Future<void> _onLoadMonthlySchedule(
     LoadMonthlyScheduleEvent event,
     Emitter<DailyScheduleState> emit,
@@ -109,9 +111,7 @@ class DailyScheduleBloc extends Bloc<DailyScheduleEvent, DailyScheduleState> {
     );
   }
 
-  /// معالج حدث تغيير الشهر
-  /// 
-  /// يقوم بتحميل جدول شهر جديد للوحدة الحالية
+  /// يعيد تحميل الجدول عند الانتقال إلى شهر آخر.
   Future<void> _onChangeMonth(
     ChangeMonthEvent event,
     Emitter<DailyScheduleState> emit,
@@ -135,9 +135,7 @@ class DailyScheduleBloc extends Bloc<DailyScheduleEvent, DailyScheduleState> {
     }
   }
 
-  /// معالج حدث اختيار وحدة
-  /// 
-  /// يقوم بتحميل جدول الشهر الحالي للوحدة الجديدة
+  /// يبدل الوحدة الحالية ثم يحمّل جدولها الشهري.
   Future<void> _onSelectUnit(
     SelectUnitEvent event,
     Emitter<DailyScheduleState> emit,
@@ -160,9 +158,7 @@ class DailyScheduleBloc extends Bloc<DailyScheduleEvent, DailyScheduleState> {
     ));
   }
 
-  /// معالج حدث تحديث يوم واحد
-  /// 
-  /// يقوم بتحديث إتاحة و/أو تسعير يوم واحد فقط
+  /// يحدث يومًا واحدًا ثم يعيد مزامنة الجدول.
   Future<void> _onUpdateSingleDay(
     UpdateSingleDayEvent event,
     Emitter<DailyScheduleState> emit,
@@ -208,7 +204,7 @@ class DailyScheduleBloc extends Bloc<DailyScheduleEvent, DailyScheduleState> {
   }
 
   /// معالج حدث تحديث فترة
-  /// 
+  ///
   /// يقوم بتحديث إتاحة و/أو تسعير فترة زمنية محددة
   Future<void> _onUpdateDateRange(
     UpdateDateRangeEvent event,
@@ -238,7 +234,7 @@ class DailyScheduleBloc extends Bloc<DailyScheduleEvent, DailyScheduleState> {
   }
 
   /// معالج حدث التحديث الجماعي
-  /// 
+  ///
   /// يقوم بالتحديث الجماعي بناءً على أيام الأسبوع المحددة
   Future<void> _onBulkUpdateSchedule(
     BulkUpdateScheduleEvent event,
@@ -270,7 +266,7 @@ class DailyScheduleBloc extends Bloc<DailyScheduleEvent, DailyScheduleState> {
   }
 
   /// معالج حدث التحقق من التوفر
-  /// 
+  ///
   /// يقوم بالتحقق من توفر الوحدة لفترة محددة
   Future<void> _onCheckAvailability(
     CheckAvailabilityEvent event,
@@ -302,7 +298,7 @@ class DailyScheduleBloc extends Bloc<DailyScheduleEvent, DailyScheduleState> {
   }
 
   /// معالج حدث حساب السعر الإجمالي
-  /// 
+  ///
   /// يقوم بحساب السعر الإجمالي لفترة محددة
   Future<void> _onCalculateTotalPrice(
     CalculateTotalPriceEvent event,
@@ -340,7 +336,7 @@ class DailyScheduleBloc extends Bloc<DailyScheduleEvent, DailyScheduleState> {
   }
 
   /// معالج حدث نسخ الجدول
-  /// 
+  ///
   /// يقوم بنسخ جدول من فترة إلى فترة أخرى
   Future<void> _onCloneSchedule(
     CloneScheduleEvent event,
@@ -372,7 +368,7 @@ class DailyScheduleBloc extends Bloc<DailyScheduleEvent, DailyScheduleState> {
   }
 
   /// معالج حدث حذف الجدول
-  /// 
+  ///
   /// يقوم بحذف جدول لفترة محددة
   Future<void> _onDeleteSchedule(
     DeleteScheduleEvent event,
@@ -404,7 +400,7 @@ class DailyScheduleBloc extends Bloc<DailyScheduleEvent, DailyScheduleState> {
   }
 
   /// معالج حدث إعادة تعيين حالة الأخطاء
-  /// 
+  ///
   /// يعيد BLoC إلى الحالة الأولية
   Future<void> _onResetError(
     ResetErrorEvent event,
@@ -414,7 +410,7 @@ class DailyScheduleBloc extends Bloc<DailyScheduleEvent, DailyScheduleState> {
   }
 
   /// معالج حدث تصفية الجدول
-  /// 
+  ///
   /// يقوم بتصفية الجدول حسب حالة الإتاحة
   Future<void> _onFilterSchedule(
     FilterScheduleEvent event,
@@ -441,9 +437,7 @@ class DailyScheduleBloc extends Bloc<DailyScheduleEvent, DailyScheduleState> {
     } else if (failure is NetworkFailure) {
       return 'لا يوجد اتصال بالإنترنت';
     } else if (failure is ValidationFailure) {
-      return failure.message.isNotEmpty
-          ? failure.message
-          : 'بيانات غير صالحة';
+      return failure.message.isNotEmpty ? failure.message : 'بيانات غير صالحة';
     } else if (failure is CacheFailure) {
       return 'حدث خطأ في التخزين المؤقت';
     } else if (failure is UnauthorizedFailure) {

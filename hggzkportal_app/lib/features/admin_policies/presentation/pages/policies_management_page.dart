@@ -5,9 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get_it/get_it.dart';
 import 'dart:ui';
-import 'package:flutter/services.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/error_widget.dart';
@@ -23,6 +21,7 @@ import '../widgets/policy_filters_widget.dart';
 import '../widgets/policy_stats_card.dart';
 
 class PoliciesManagementPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `PoliciesManagementPage`.
   const PoliciesManagementPage({super.key});
 
   @override
@@ -32,14 +31,19 @@ class PoliciesManagementPage extends StatefulWidget {
 class _PoliciesManagementPageState extends State<PoliciesManagementPage>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
+
   late AnimationController _pulseAnimationController;
+
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
   final _storage = GetIt.I<LocalStorageService>();
 
   bool _isGridView = false;
+
   bool _showFilters = false;
+
   final List<Policy> _selectedPolicies = [];
+
   String? _userPropertyId;
 
   // أنواع السياسات المستخدمة في التبويبات (بدون سياسات الحيوانات الأليفة)
@@ -66,7 +70,9 @@ class _PoliciesManagementPageState extends State<PoliciesManagementPage>
 
     // تبويب "الكل" + أنواع (إلغاء، دخول، أطفال، دفع، تعديل) بدون تبويب الحيوانات
     _tabController = TabController(length: 6, vsync: this);
+
     _checkUserRoleAndLoadPolicies();
+
     _setupScrollListener();
   }
 
@@ -178,12 +184,12 @@ class _PoliciesManagementPageState extends State<PoliciesManagementPage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.warning.withOpacity(0.4),
+                color: AppTheme.warning.withValues(alpha: 0.4),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.warning.withOpacity(0.2),
+                  color: AppTheme.warning.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -196,7 +202,7 @@ class _PoliciesManagementPageState extends State<PoliciesManagementPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.warning.withOpacity(0.1),
+                    color: AppTheme.warning.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.shield_moon_rounded,
@@ -249,6 +255,7 @@ class _PoliciesManagementPageState extends State<PoliciesManagementPage>
   }
 
   bool _isDeleting = false;
+
   void _showDeletingDialog() {
     if (_isDeleting) return;
     _isDeleting = true;
@@ -341,8 +348,7 @@ class _PoliciesManagementPageState extends State<PoliciesManagementPage>
             }
 
             if (selectedType == null) {
-              _showSnack(
-                  'الرجاء اختيار نوع السياسة من التبويبات قبل الإضافة',
+              _showSnack('الرجاء اختيار نوع السياسة من التبويبات قبل الإضافة',
                   AppTheme.warning);
               return;
             }
@@ -778,216 +784,6 @@ class _PoliciesManagementPageState extends State<PoliciesManagementPage>
   }
 
   // بناء كارت السياسة (مشابه لكروت الحجوزات)
-  Widget _buildPolicyCard(Policy policy) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.shadowDark.withValues(alpha: 0.1),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppTheme.darkCard.withValues(alpha: 0.95),
-                AppTheme.darkCard.withValues(alpha: 0.8),
-              ],
-            ),
-            border: Border.all(
-              color: _getPolicyTypeColor(policy.type).withValues(alpha: 0.3),
-              width: 1,
-            ),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {},
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // رأس الكارت
-                    Row(
-                      children: [
-                        // أيقونة النوع
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                _getPolicyTypeColor(policy.type),
-                                _getPolicyTypeColor(policy.type)
-                                    .withValues(alpha: 0.7),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            _getPolicyTypeIcon(policy.type),
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        // النوع والعقار
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _getPolicyTypeLabel(policy.type),
-                                style: AppTextStyles.bodyLarge.copyWith(
-                                  color: AppTheme.textWhite,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              if (policy.propertyName != null)
-                                Text(
-                                  policy.propertyName!,
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: AppTheme.textMuted,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        // Actions
-                        PopupMenuButton(
-                          icon:
-                              Icon(Icons.more_vert, color: AppTheme.textMuted),
-                          color: AppTheme.darkSurface,
-                          itemBuilder: (context) => [
-                            PopupMenuItem(
-                              onTap: () => _navigateToEditPolicy(policy.id),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.edit,
-                                      size: 18, color: AppTheme.primaryBlue),
-                                  const SizedBox(width: 8),
-                                  Text('تعديل',
-                                      style:
-                                          TextStyle(color: AppTheme.textWhite)),
-                                ],
-                              ),
-                            ),
-                            PopupMenuItem(
-                              onTap: () => _showDeleteConfirmation(policy),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.delete,
-                                      size: 18, color: AppTheme.error),
-                                  const SizedBox(width: 8),
-                                  Text('حذف',
-                                      style:
-                                          TextStyle(color: AppTheme.textWhite)),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // الوصف
-                    Text(
-                      policy.description,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppTheme.textMuted,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // معلومات إضافية
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        if (policy.cancellationWindowDays > 0)
-                          _buildInfoChip(
-                            icon: Icons.event_busy_rounded,
-                            label: '${policy.cancellationWindowDays} يوم',
-                            color: AppTheme.error,
-                          ),
-                        if (policy.minimumDepositPercentage > 0)
-                          _buildInfoChip(
-                            icon: Icons.percent_rounded,
-                            label: '${policy.minimumDepositPercentage}%',
-                            color: AppTheme.warning,
-                          ),
-                        if (policy.minHoursBeforeCheckIn > 0)
-                          _buildInfoChip(
-                            icon: Icons.access_time_rounded,
-                            label: '${policy.minHoursBeforeCheckIn} ساعة',
-                            color: AppTheme.primaryBlue,
-                          ),
-                        if (policy.requireFullPaymentBeforeConfirmation)
-                          _buildInfoChip(
-                            icon: Icons.payment_rounded,
-                            label: 'دفع كامل',
-                            color: AppTheme.success,
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoChip({
-    required IconData icon,
-    required String label,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: AppTextStyles.caption.copyWith(
-              color: color,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _navigateToDetails(String policyId) {
-    context.push('/admin/policies/$policyId');
-  }
-
   Future<void> _navigateToEditPolicy(String policyId) async {
     final result = await context.push('/admin/policies/$policyId/edit');
     if (result is Map && result['refresh'] == true) {
@@ -1020,12 +816,12 @@ class _PoliciesManagementPageState extends State<PoliciesManagementPage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.error.withOpacity(0.3),
+                color: AppTheme.error.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.error.withOpacity(0.2),
+                  color: AppTheme.error.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -1038,7 +834,7 @@ class _PoliciesManagementPageState extends State<PoliciesManagementPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.error.withOpacity(0.1),
+                    color: AppTheme.error.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.delete_outline,
@@ -1113,45 +909,6 @@ class _PoliciesManagementPageState extends State<PoliciesManagementPage>
         ),
       ),
     );
-  }
-
-  // Helper methods for policy type styling
-  Color _getPolicyTypeColor(PolicyType type) {
-    switch (type) {
-      case PolicyType.cancellation:
-        return AppTheme.error;
-      case PolicyType.checkIn:
-        return AppTheme.primaryBlue;
-      case PolicyType.children:
-        return AppTheme.warning;
-      case PolicyType.pets:
-        return AppTheme.primaryViolet;
-      case PolicyType.payment:
-        return AppTheme.success;
-      case PolicyType.modification:
-        return AppTheme.primaryPurple;
-    }
-  }
-
-  IconData _getPolicyTypeIcon(PolicyType type) {
-    switch (type) {
-      case PolicyType.cancellation:
-        return CupertinoIcons.xmark_circle;
-      case PolicyType.checkIn:
-        return CupertinoIcons.arrow_right_square;
-      case PolicyType.children:
-        return CupertinoIcons.person_2;
-      case PolicyType.pets:
-        return CupertinoIcons.paw;
-      case PolicyType.payment:
-        return CupertinoIcons.money_dollar_circle;
-      case PolicyType.modification:
-        return CupertinoIcons.pencil_circle;
-    }
-  }
-
-  String _getPolicyTypeLabel(PolicyType type) {
-    return type.displayName;
   }
 
   String _translatePolicyType(String type) {

@@ -5,14 +5,13 @@ import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-
 class RatingBreakdownWidget extends StatefulWidget {
+  /// العربية: يخزن القيمة `cleanliness`.
   final double cleanliness;
   final double service;
   final double location;
   final double value;
   final bool isDesktop;
-  
   const RatingBreakdownWidget({
     super.key,
     required this.cleanliness,
@@ -21,17 +20,14 @@ class RatingBreakdownWidget extends StatefulWidget {
     required this.value,
     required this.isDesktop,
   });
-  
   @override
   State<RatingBreakdownWidget> createState() => _RatingBreakdownWidgetState();
 }
-
 class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late List<Animation<double>> _progressAnimations;
   late Animation<double> _fadeAnimation;
-  
   @override
   void initState() {
     super.initState();
@@ -39,7 +35,7 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    
+
     _progressAnimations = [
       Tween<double>(begin: 0.0, end: widget.cleanliness / 5.0).animate(
         CurvedAnimation(
@@ -66,7 +62,7 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
         ),
       ),
     ];
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -74,25 +70,26 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
       parent: _animationController,
       curve: const Interval(0.0, 0.3, curve: Curves.easeOut),
     ));
-    
+
     _animationController.forward();
   }
-  
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-  
   double get _overallRating {
-    return (widget.cleanliness + widget.service + widget.location + widget.value) / 4;
+    return (widget.cleanliness +
+            widget.service +
+            widget.location +
+            widget.value) /
+        4;
   }
-  
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isTablet = size.width > 600;
-    
+
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
@@ -103,17 +100,17 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppTheme.darkCard.withOpacity(0.7),
-              AppTheme.darkCard.withOpacity(0.5),
+              AppTheme.darkCard.withValues(alpha: 0.7),
+              AppTheme.darkCard.withValues(alpha: 0.5),
             ],
           ),
           border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.2),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
             width: 0.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.1),
               blurRadius: 20,
               spreadRadius: 2,
             ),
@@ -142,12 +139,13 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
                             gradient: RadialGradient(
                               colors: [
                                 _getRatingColor(value),
-                                _getRatingColor(value).withOpacity(0.3),
+                                _getRatingColor(value).withValues(alpha: 0.3),
                               ],
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: _getRatingColor(value).withOpacity(0.5),
+                                color: _getRatingColor(value)
+                                    .withValues(alpha: 0.5),
                                 blurRadius: 20,
                                 spreadRadius: 5,
                               ),
@@ -182,7 +180,8 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
                                   Text(
                                     'من 5',
                                     style: AppTextStyles.caption.copyWith(
-                                      color: Colors.white.withOpacity(0.8),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.8),
                                     ),
                                   ),
                                 ],
@@ -192,9 +191,9 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
                         );
                       },
                     ),
-                    
+
                     const SizedBox(width: 24),
-                    
+
                     // نص التقييم والنجوم
                     Expanded(
                       child: Column(
@@ -211,12 +210,14 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
                           Row(
                             children: List.generate(5, (index) {
                               final filled = index < _overallRating.floor();
-                              final halfFilled = index == _overallRating.floor() && 
-                                  _overallRating % 1 >= 0.5;
-                              
+                              final halfFilled =
+                                  index == _overallRating.floor() &&
+                                      _overallRating % 1 >= 0.5;
+
                               return TweenAnimationBuilder<double>(
                                 tween: Tween(begin: 0.0, end: 1.0),
-                                duration: Duration(milliseconds: 300 + (index * 100)),
+                                duration:
+                                    Duration(milliseconds: 300 + (index * 100)),
                                 curve: Curves.elasticOut,
                                 builder: (context, value, child) {
                                   return Transform.scale(
@@ -240,9 +241,9 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // فئات التقييم
                 if (widget.isDesktop || isTablet)
                   Row(
@@ -284,9 +285,9 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
                       ),
                     ],
                   ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 if (widget.isDesktop || isTablet)
                   Row(
                     children: [
@@ -334,7 +335,6 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
       ),
     );
   }
-  
   Widget _buildRatingCategory(
     String label,
     double rating,
@@ -348,9 +348,9 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            color: AppTheme.inputBackground.withOpacity(0.3),
+            color: AppTheme.inputBackground.withValues(alpha: 0.3),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.1),
+              color: AppTheme.darkBorder.withValues(alpha: 0.1),
               width: 0.5,
             ),
           ),
@@ -360,7 +360,7 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color: _getRatingColor(rating).withOpacity(0.2),
+                  color: _getRatingColor(rating).withValues(alpha: 0.2),
                 ),
                 child: Icon(
                   icon,
@@ -398,7 +398,8 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
                       child: LinearProgressIndicator(
                         value: animation.value,
                         minHeight: 6,
-                        backgroundColor: AppTheme.darkBorder.withOpacity(0.2),
+                        backgroundColor:
+                            AppTheme.darkBorder.withValues(alpha: 0.2),
                         valueColor: AlwaysStoppedAnimation<Color>(
                           _getRatingColor(rating),
                         ),
@@ -413,14 +414,12 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
       },
     );
   }
-  
   Color _getRatingColor(double rating) {
     if (rating >= 4.5) return AppTheme.success;
     if (rating >= 3.5) return AppTheme.warning;
     if (rating >= 2.5) return Colors.orange;
     return AppTheme.error;
   }
-  
   String _getRatingText(double rating) {
     if (rating >= 4.5) return 'ممتاز';
     if (rating >= 4.0) return 'جيد جداً';
@@ -433,37 +432,36 @@ class _RatingBreakdownWidgetState extends State<RatingBreakdownWidget>
 
 // رسام دائرة التقدم المخصصة
 class CircularProgressPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `progress`.
   final double progress;
   final Color color;
   final double strokeWidth;
-  
   CircularProgressPainter({
     required this.progress,
     required this.color,
     required this.strokeWidth,
   });
-  
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width - strokeWidth) / 2;
-    
+
     // دائرة الخلفية
     final backgroundPaint = Paint()
-      ..color = color.withOpacity(0.2)
+      ..color = color.withValues(alpha: 0.2)
       ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
-    
+
     canvas.drawCircle(center, radius, backgroundPaint);
-    
+
     // قوس التقدم
     final progressPaint = Paint()
       ..color = color
       ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
-    
+
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       -math.pi / 2,
@@ -472,7 +470,6 @@ class CircularProgressPainter extends CustomPainter {
       progressPaint,
     );
   }
-  
   @override
   bool shouldRepaint(CircularProgressPainter oldDelegate) {
     return oldDelegate.progress != progress;

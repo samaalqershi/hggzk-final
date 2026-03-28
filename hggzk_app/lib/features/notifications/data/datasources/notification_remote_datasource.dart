@@ -4,46 +4,85 @@ import '../../../../core/models/result_dto.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/request_logger.dart';
 import '../../../../core/constants/storage_constants.dart';
-import '../../../../services/local_storage_service.dart';
+import 'package:hggzk/core/services/local_storage_service.dart';
 import '../../../auth/data/datasources/auth_local_datasource.dart';
 import '../models/notification_model.dart';
 
+/// يعرّف العمليات الشبكية الخاصة بجلب الإشعارات وتحديث حالتها وتفضيلاتها.
+/// Declares the remote operations used to fetch notifications and update their
+/// state or related preferences.
 abstract class NotificationRemoteDataSource {
+  /// يجلب صفحة من الإشعارات مع دعم التصفية حسب النوع.
+  /// Fetches one page of notifications with optional type filtering.
   Future<PaginatedResult<NotificationModel>> getNotifications({
     int page = 1,
     int limit = 20,
     String? type,
   });
 
+  /// يعلّم إشعارًا واحدًا على أنه مقروء.
+  /// Marks a single notification as read.
   Future<void> markAsRead(String notificationId);
 
+  /// يعلّم جميع الإشعارات على أنها مقروءة.
+  /// Marks all notifications as read.
   Future<void> markAllAsRead({String? userId});
 
+  /// يخفي إشعارًا من قائمة العرض.
+  /// Dismisses a notification from the visible list.
   Future<void> dismissNotification(String notificationId);
 
+  /// يجلب إعدادات الإشعارات الحالية من الخادم.
+  /// Fetches the current notification settings from the backend.
   Future<Map<String, bool>> getNotificationSettings({String? userId});
 
-  Future<void> updateNotificationSettings(Map<String, bool> settings, {String? userId});
+  /// يحدّث إعدادات الإشعارات على الخادم.
+  /// Updates notification settings on the backend.
+  Future<void> updateNotificationSettings(Map<String, bool> settings,
+      {String? userId});
 
+  /// يعيد عدد الإشعارات غير المقروءة.
+  /// Returns the number of unread notifications.
   Future<int> getUnreadCount({String? userId});
 }
 
+/// ينفذ طلبات الإشعارات عبر `ApiClient` مع تطبيع الاستجابات بين واجهة
+/// الإعدادات وواجهة قائمة الإشعارات.
+/// Implements notification requests through `ApiClient`, normalizing
+/// responses across settings and list endpoints.
 class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
+  /// عميل الشبكة المركزي المستخدم في طلبات الإشعارات.
+  /// Shared API client used for notification requests.
   final ApiClient apiClient;
+
+  /// خدمة تخزين محلية اختيارية للمساعدة في استنتاج المستخدم الحالي.
+  /// Optional local storage used to help resolve the current user.
   final LocalStorageService? localStorage;
+
+  /// مصدر مصادقة محلي اختياري لتحديد المستخدم الحالي من الكاش.
+  /// Optional local auth source used to resolve the current cached user.
   final AuthLocalDataSource? authLocalDataSource;
 
+  /// ينشئ المصدر البعيد مع الاعتماديات المطلوبة لتحديد المستخدم وتنفيذ الطلب.
+  /// Creates the remote data source with the dependencies needed to resolve
+  /// the user and perform requests.
   NotificationRemoteDataSourceImpl({
     required this.apiClient,
     this.localStorage,
     this.authLocalDataSource,
   });
 
+  /// Resolves the active user id from the explicit argument, the cached auth
+  /// user, or shared storage so notification requests stay tied to one account.
+  /// يحل معرّف المستخدم النشط من الوسيط المباشر أو مستخدم المصادقة المخزن أو
+  /// التخزين المشترك حتى تبقى طلبات الإشعارات مرتبطة بحساب واحد.
   Future<String?> _resolveUserId({String? explicitUserId}) async {
-    if (explicitUserId != null && explicitUserId.isNotEmpty) return explicitUserId;
+    if (explicitUserId != null && explicitUserId.isNotEmpty)
+      return explicitUserId;
     try {
       final cachedUser = await authLocalDataSource?.getCachedUser();
-      if (cachedUser != null && cachedUser.userId.isNotEmpty) return cachedUser.userId;
+      if (cachedUser != null && cachedUser.userId.isNotEmpty)
+        return cachedUser.userId;
     } catch (_) {}
     try {
       final stored = localStorage?.getData(StorageConstants.userId)?.toString();
@@ -52,6 +91,10 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     return null;
   }
 
+  /// Fetches one page of notifications and normalizes the response shape used
+  /// by the backend into the paginated model consumed by the UI.
+  /// يجلب صفحة واحدة من الإشعارات ويحوّل شكل الاستجابة الذي يستخدمه الخادم
+  /// إلى النموذج المقسم إلى صفحات الذي تستهلكه الواجهة.
   @override
   Future<PaginatedResult<NotificationModel>> getNotifications({
     int page = 1,
@@ -79,7 +122,8 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.statusCode == 200) {
-        final result = ResultDto.fromJson(response.data as Map<String, dynamic>, (map) => map);
+        final result = ResultDto.fromJson(
+            response.data as Map<String, dynamic>, (map) => map);
         final dynamic rawData = result.data;
         final Map<String, dynamic> dataMap =
             rawData is Map<String, dynamic> ? rawData : <String, dynamic>{};
@@ -112,13 +156,16 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
         );
       }
 
-      return const PaginatedResult(items: [], pageNumber: 1, pageSize: 20, totalCount: 0);
+      return const PaginatedResult(
+          items: [], pageNumber: 1, pageSize: 20, totalCount: 0);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       rethrow;
     }
   }
 
+  /// Marks one notification as read for the resolved user context.
+  /// يعلّم إشعارًا واحدًا كمقروء ضمن سياق المستخدم الذي تم حله.
   @override
   Future<void> markAsRead(String notificationId) async {
     const requestName = 'notifications.markAsRead';
@@ -139,6 +186,8 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     }
   }
 
+  /// Marks all notifications as read for the resolved user.
+  /// يعلّم جميع الإشعارات كمقروءة للمستخدم الذي تم حله.
   @override
   Future<void> markAllAsRead({String? userId}) async {
     const requestName = 'notifications.markAllAsRead';
@@ -158,6 +207,9 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     }
   }
 
+  /// Dismisses one notification from the visible feed without deleting the
+  /// underlying record.
+  /// يخفي إشعارًا واحدًا من الموجز الظاهر من دون حذف السجل الأساسي.
   @override
   Future<void> dismissNotification(String notificationId) async {
     const requestName = 'notifications.dismissNotification';
@@ -178,6 +230,10 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     }
   }
 
+  /// Loads backend notification settings and merges them with any locally
+  /// cached UI toggles so the settings screen stays stable.
+  /// يحمل إعدادات الإشعارات من الخادم ويمزجها مع أي مفاتيح واجهة مخزنة
+  /// محليًا حتى تبقى شاشة الإعدادات مستقرة.
   @override
   Future<Map<String, bool>> getNotificationSettings({String? userId}) async {
     const requestName = 'notifications.getNotificationSettings';
@@ -192,10 +248,17 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       );
       logRequestSuccess(requestName, statusCode: response.statusCode);
       if (response.statusCode == 200) {
-        final result = ResultDto.fromJson(response.data as Map<String, dynamic>, (raw) => raw);
-        final data = (result.data is Map<String, dynamic>) ? result.data as Map<String, dynamic> : <String, dynamic>{};
-        final remote = (data['notificationSettings'] as Map<String, dynamic>?) ?? <String, dynamic>{};
-        final additional = (data['additionalSettings'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+        final result = ResultDto.fromJson(
+            response.data as Map<String, dynamic>, (raw) => raw);
+        final data = (result.data is Map<String, dynamic>)
+            ? result.data as Map<String, dynamic>
+            : <String, dynamic>{};
+        final remote =
+            (data['notificationSettings'] as Map<String, dynamic>?) ??
+                <String, dynamic>{};
+        final additional =
+            (data['additionalSettings'] as Map<String, dynamic>?) ??
+                <String, dynamic>{};
 
         final cached = await _getCachedUiSettings();
 
@@ -222,15 +285,20 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
           'biometric_enabled': (additional['biometricEnabled'] == true),
         };
       }
-    return {};
+      return {};
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       rethrow;
     }
   }
 
+  /// Converts the UI settings map into the smaller command payload expected by
+  /// the notification settings endpoint.
+  /// يحول خريطة إعدادات الواجهة إلى حمولة أمر أصغر يتوقعها مسار إعدادات
+  /// الإشعارات.
   @override
-  Future<void> updateNotificationSettings(Map<String, bool> settings, {String? userId}) async {
+  Future<void> updateNotificationSettings(Map<String, bool> settings,
+      {String? userId}) async {
     const requestName = 'notifications.updateNotificationSettings';
     final resolvedUserId = await _resolveUserId(explicitUserId: userId);
     logRequestStart(requestName, details: {'userId': resolvedUserId ?? ''});
@@ -250,6 +318,10 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     }
   }
 
+  /// Returns the unread notification count for the resolved user, defaulting
+  /// to zero when the backend does not provide a usable value.
+  /// يعيد عدد الإشعارات غير المقروءة للمستخدم الذي تم حله، ويعود إلى الصفر
+  /// عندما لا يوفّر الخادم قيمة قابلة للاستخدام.
   @override
   Future<int> getUnreadCount({String? userId}) async {
     const requestName = 'notifications.getUnreadCount';
@@ -275,6 +347,10 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     }
   }
 
+  /// Collapses granular UI toggles into the command payload used by the
+  /// backend settings endpoint.
+  /// يختصر مفاتيح الواجهة التفصيلية إلى حمولة أمر يستخدمها مسار الإعدادات
+  /// في الخادم.
   Map<String, dynamic> _mapSettingsToCommand(Map<String, bool> settings) {
     bool getVal(List<String> keys, bool fallback) {
       for (final k in keys) {
@@ -300,13 +376,21 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     return {
       'bookingNotifications': bookingGroup,
       'promotionalNotifications': promoGroup,
-      'reviewResponseNotifications': getVal(['reviewResponseNotifications', 'reviewResponses'], true),
-      'emailNotifications': getVal(['emailNotifications', 'email', 'email_notifications'], true),
-      'smsNotifications': getVal(['smsNotifications', 'sms', 'sms_notifications'], false),
-      'pushNotifications': getVal(['pushNotifications', 'push', 'push_notifications'], true),
+      'reviewResponseNotifications':
+          getVal(['reviewResponseNotifications', 'reviewResponses'], true),
+      'emailNotifications':
+          getVal(['emailNotifications', 'email', 'email_notifications'], true),
+      'smsNotifications':
+          getVal(['smsNotifications', 'sms', 'sms_notifications'], false),
+      'pushNotifications':
+          getVal(['pushNotifications', 'push', 'push_notifications'], true),
     };
   }
 
+  /// Normalizes a notification type filter so broad categories stay local and
+  /// only specific backend filters are sent to the API.
+  /// يوحّد فلتر نوع الإشعار حتى تبقى الفئات العامة محلية ولا تُرسل إلى API
+  /// إلا الفلاتر المحددة.
   String? _normalizeTypeFilter(String? type) {
     if (type == null) return null;
     final l = type.trim().toLowerCase();
@@ -318,6 +402,9 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     return type;
   }
 
+  /// Reads cached UI notification settings from local storage and converts
+  /// them into a typed boolean map.
+  /// يقرأ إعدادات الإشعارات المخزنة محليًا ويحوّلها إلى خريطة منطقية typed.
   Future<Map<String, bool>> _getCachedUiSettings() async {
     try {
       final raw = localStorage?.getData('notification_settings');
@@ -326,7 +413,8 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       }
       if (raw is String && raw.isNotEmpty) {
         try {
-          final Map<String, dynamic> m = jsonDecode(raw) as Map<String, dynamic>;
+          final Map<String, dynamic> m =
+              jsonDecode(raw) as Map<String, dynamic>;
           return m.map((key, value) => MapEntry(key, value == true));
         } catch (_) {}
       }

@@ -8,13 +8,33 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/conversation.dart';
 
+/// Row item used in the conversation inbox to show identity, last message,
+/// unread state, and typing hints.
+/// صف عنصر يستخدم في صندوق المحادثات لعرض الهوية وآخر رسالة وحالة غير
+/// المقروء ومؤشر الكتابة.
 class ConversationItemWidget extends StatelessWidget {
+  /// Conversation data shown in the inbox row.
+  /// بيانات المحادثة المعروضة في صف الصندوق الوارد.
   final Conversation conversation;
+
+  /// Current user id used to resolve the other participant and ownership.
+  /// معرّف المستخدم الحالي المستخدم لتحديد الطرف الآخر وملكية الرسائل.
   final String currentUserId;
+
+  /// Users currently typing in this conversation.
+  /// المستخدمون الذين يكتبون الآن داخل هذه المحادثة.
   final List<String> typingUserIds;
+
+  /// Opens the conversation when the row is selected.
+  /// يفتح المحادثة عند اختيار الصف.
   final VoidCallback onTap;
+
+  /// Opens contextual actions for the conversation when available.
+  /// يفتح إجراءات سياقية للمحادثة عندما تكون متاحة.
   final VoidCallback? onLongPress;
 
+  /// Builds one inbox row for a conversation thread.
+  /// ينشئ صفًا واحدًا للمحادثة داخل الصندوق الوارد.
   const ConversationItemWidget({
     super.key,
     required this.conversation,
@@ -24,18 +44,18 @@ class ConversationItemWidget extends StatelessWidget {
     this.onLongPress,
   });
 
+  /// Renders the inbox row with avatar, status, preview, and timestamps.
+  /// يرسم صف الصندوق الوارد مع الصورة والحالة والمعاينة والوقت.
   @override
   Widget build(BuildContext context) {
     final otherParticipant = conversation.isDirectChat
         ? conversation.getOtherParticipant(currentUserId)
         : null;
 
-    final displayName = conversation.title ??
-        otherParticipant?.name ??
-        'محادثة';
+    final displayName =
+        conversation.title ?? otherParticipant?.name ?? 'محادثة';
 
-    final displayImage = conversation.avatar ??
-        otherParticipant?.profileImage;
+    final displayImage = conversation.avatar ?? otherParticipant?.profileImage;
 
     final isTyping = typingUserIds.isNotEmpty;
 
@@ -46,10 +66,12 @@ class ConversationItemWidget extends StatelessWidget {
           HapticFeedback.selectionClick();
           onTap();
         },
-        onLongPress: onLongPress != null ? () {
-          HapticFeedback.lightImpact();
-          onLongPress!();
-        } : null,
+        onLongPress: onLongPress != null
+            ? () {
+                HapticFeedback.lightImpact();
+                onLongPress!();
+              }
+            : null,
         borderRadius: BorderRadius.circular(0),
         child: Container(
           padding: const EdgeInsets.symmetric(
@@ -83,8 +105,7 @@ class ConversationItemWidget extends StatelessWidget {
                                   : FontWeight.w500,
                               fontSize: 13,
                               color: AppTheme.textWhite.withOpacity(
-                                conversation.hasUnreadMessages ? 0.95 : 0.8
-                              ),
+                                  conversation.hasUnreadMessages ? 0.95 : 0.8),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -120,7 +141,8 @@ class ConversationItemWidget extends StatelessWidget {
                       children: [
                         if (conversation.lastMessage != null &&
                             conversation.lastMessage!.senderId == currentUserId)
-                          _buildUltraMinimalStatus(conversation.lastMessage!.status),
+                          _buildUltraMinimalStatus(
+                              conversation.lastMessage!.status),
                         Expanded(
                           child: isTyping
                               ? _buildUltraMinimalTyping()
@@ -140,6 +162,8 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
+  /// Builds the compact avatar and presence badge for the thread.
+  /// ينشئ الصورة المدمجة وشارة الحضور الخاصة بالسلسلة.
   Widget _buildUltraMinimalAvatar(String? imageUrl, String name) {
     return Stack(
       children: [
@@ -188,7 +212,8 @@ class ConversationItemWidget extends StatelessWidget {
                   ),
           ),
         ),
-        if (conversation.isDirectChat && conversation.getOtherParticipant(currentUserId)?.isOnline == true)
+        if (conversation.isDirectChat &&
+            conversation.getOtherParticipant(currentUserId)?.isOnline == true)
           Positioned(
             bottom: 1,
             right: 1,
@@ -209,6 +234,7 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
+  /// العربية: يبني ultra minimal status.
   Widget _buildUltraMinimalStatus(String status) {
     IconData icon;
     Color color;
@@ -248,6 +274,7 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
+  /// العربية: يبني ultra minimal last message.
   Widget _buildUltraMinimalLastMessage() {
     if (conversation.lastMessage == null) {
       return Text(
@@ -270,28 +297,28 @@ class ConversationItemWidget extends StatelessWidget {
         messageText = conversation.lastMessage!.content ?? '';
         break;
       case 'image':
-        prefix = Icon(Icons.image, size: 12, 
-            color: AppTheme.textMuted.withOpacity(0.3));
+        prefix = Icon(Icons.image,
+            size: 12, color: AppTheme.textMuted.withOpacity(0.3));
         messageText = 'صورة';
         break;
       case 'video':
-        prefix = Icon(Icons.videocam, size: 12,
-            color: AppTheme.textMuted.withOpacity(0.3));
+        prefix = Icon(Icons.videocam,
+            size: 12, color: AppTheme.textMuted.withOpacity(0.3));
         messageText = 'فيديو';
         break;
       case 'audio':
-        prefix = Icon(Icons.mic, size: 12,
-            color: AppTheme.textMuted.withOpacity(0.3));
+        prefix = Icon(Icons.mic,
+            size: 12, color: AppTheme.textMuted.withOpacity(0.3));
         messageText = 'رسالة صوتية';
         break;
       case 'document':
-        prefix = Icon(Icons.attach_file, size: 12,
-            color: AppTheme.textMuted.withOpacity(0.3));
+        prefix = Icon(Icons.attach_file,
+            size: 12, color: AppTheme.textMuted.withOpacity(0.3));
         messageText = 'مستند';
         break;
       case 'location':
-        prefix = Icon(Icons.location_on, size: 12,
-            color: AppTheme.textMuted.withOpacity(0.3));
+        prefix = Icon(Icons.location_on,
+            size: 12, color: AppTheme.textMuted.withOpacity(0.3));
         messageText = 'موقع';
         break;
     }
@@ -319,6 +346,7 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
+  /// العربية: يبني ultra minimal typing.
   Widget _buildUltraMinimalTyping() {
     return Row(
       children: [
@@ -360,6 +388,7 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
+  /// العربية: يبني ultra minimal badge.
   Widget _buildUltraMinimalBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -394,6 +423,7 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
+  /// العربية: ينسق time.
   String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -409,13 +439,22 @@ class ConversationItemWidget extends StatelessWidget {
     } else if (messageDate == yesterday) {
       return 'أمس';
     } else if (now.difference(dateTime).inDays < 7) {
-      final days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+      final days = [
+        'الأحد',
+        'الإثنين',
+        'الثلاثاء',
+        'الأربعاء',
+        'الخميس',
+        'الجمعة',
+        'السبت'
+      ];
       return days[dateTime.weekday % 7];
     } else {
       return '${dateTime.day}/${dateTime.month}';
     }
   }
 
+  /// العربية: يعيد initials.
   String _getInitials(String name) {
     final parts = name.trim().split(' ');
     if (parts.isEmpty) return '؟';

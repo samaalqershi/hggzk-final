@@ -8,7 +8,11 @@ import 'package:hggzkportal/core/utils/media_file_safety.dart';
 import 'package:hggzkportal/core/utils/video_utils.dart';
 import '../models/unit_image_model.dart';
 
+/// يمثل هذا الكلاس المجرد UnitImagesRemoteDataSource العقد المشترك لمسار إدارة الوحدات.
+/// This abstract class defines the shared contract for UnitImagesRemoteDataSource in the admin unit workflow.
 abstract class UnitImagesRemoteDataSource {
+  /// Uploads a single unit image through the remote API and returns its DTO model.
+  /// يرفع صورة الوحدة عبر واجهة الـ API البعيدة ويُرجع النموذج المنقول بعد الحفظ.
   Future<UnitImageModel> uploadImage({
     String? unitId,
     String? sectionId,
@@ -24,21 +28,46 @@ abstract class UnitImagesRemoteDataSource {
     ProgressCallback? onSendProgress,
   });
 
+  /// ينفذ هذا الأسلوب عملية getUnitImages ضمن مسار إدارة الوحدات.
+  /// This method performs the getUnitImages operation in the admin unit workflow.
   Future<List<UnitImageModel>> getUnitImages(String? unitId, {String? tempKey});
+
+  /// ينفذ هذا الأسلوب عملية updateImage ضمن مسار إدارة الوحدات.
+  /// This method performs the updateImage operation in the admin unit workflow.
   Future<bool> updateImage(String imageId, Map<String, dynamic> data);
+
+  /// ينفذ هذا الأسلوب عملية deleteImage ضمن مسار إدارة الوحدات.
+  /// This method performs the deleteImage operation in the admin unit workflow.
   Future<bool> deleteImage(String imageId);
+
+  /// ينفذ هذا الأسلوب عملية reorderImages ضمن مسار إدارة الوحدات.
+  /// This method performs the reorderImages operation in the admin unit workflow.
   Future<bool> reorderImages(
       String? unitId, String? tempKey, List<String> imageIds);
+
+  /// ينفذ هذا الأسلوب عملية setAsPrimaryImage ضمن مسار إدارة الوحدات.
+  /// This method performs the setAsPrimaryImage operation in the admin unit workflow.
   Future<bool> setAsPrimaryImage(
       String? unitId, String? tempKey, String imageId);
 }
 
+/// يمثل هذا الكلاس UnitImagesRemoteDataSourceImpl البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitImagesRemoteDataSourceImpl in the admin unit workflow.
 class UnitImagesRemoteDataSourceImpl implements UnitImagesRemoteDataSource {
+  /// This field keeps the apiClient value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة apiClient التي يعتمد عليها مسار إدارة الوحدات.
   final ApiClient apiClient;
+
+  /// يحتفظ هذا الحقل بقيمة _imagesEndpoint التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _imagesEndpoint value used by the admin unit workflow.
   static const String _imagesEndpoint = '/api/images';
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitImagesRemoteDataSourceImpl.
+  /// This constructor creates an instance of UnitImagesRemoteDataSourceImpl.
   UnitImagesRemoteDataSourceImpl({required this.apiClient});
 
+  /// ينفذ هذا الأسلوب عملية uploadImage ضمن مسار إدارة الوحدات.
+  /// This method performs the uploadImage operation in the admin unit workflow.
   @override
   Future<UnitImageModel> uploadImage({
     String? unitId,
@@ -124,6 +153,8 @@ class UnitImagesRemoteDataSourceImpl implements UnitImagesRemoteDataSource {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية getUnitImages ضمن مسار إدارة الوحدات.
+  /// This method performs the getUnitImages operation in the admin unit workflow.
   @override
   Future<List<UnitImageModel>> getUnitImages(String? unitId,
       {String? tempKey}) async {
@@ -150,6 +181,8 @@ class UnitImagesRemoteDataSourceImpl implements UnitImagesRemoteDataSource {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية updateImage ضمن مسار إدارة الوحدات.
+  /// This method performs the updateImage operation in the admin unit workflow.
   @override
   Future<bool> updateImage(String imageId, Map<String, dynamic> data) async {
     try {
@@ -165,6 +198,8 @@ class UnitImagesRemoteDataSourceImpl implements UnitImagesRemoteDataSource {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية deleteImage ضمن مسار إدارة الوحدات.
+  /// This method performs the deleteImage operation in the admin unit workflow.
   @override
   Future<bool> deleteImage(String imageId) async {
     try {
@@ -176,6 +211,8 @@ class UnitImagesRemoteDataSourceImpl implements UnitImagesRemoteDataSource {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية reorderImages ضمن مسار إدارة الوحدات.
+  /// This method performs the reorderImages operation in the admin unit workflow.
   @override
   Future<bool> reorderImages(
       String? unitId, String? tempKey, List<String> imageIds) async {
@@ -195,6 +232,8 @@ class UnitImagesRemoteDataSourceImpl implements UnitImagesRemoteDataSource {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية setAsPrimaryImage ضمن مسار إدارة الوحدات.
+  /// This method performs the setAsPrimaryImage operation in the admin unit workflow.
   @override
   Future<bool> setAsPrimaryImage(
       String? unitId, String? tempKey, String imageId) async {

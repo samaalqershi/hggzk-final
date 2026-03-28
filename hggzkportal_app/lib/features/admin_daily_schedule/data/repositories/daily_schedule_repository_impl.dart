@@ -7,17 +7,15 @@ import '../../domain/entities/monthly_schedule.dart';
 import '../../domain/repositories/daily_schedule_repository.dart';
 import '../../domain/entities/schedule_params.dart';
 
-
-
 import '../datasources/daily_schedule_remote_datasource.dart';
-import '../models/daily_schedule_model.dart';
-import '../models/monthly_schedule_model.dart';
 
 /// تطبيق Repository للجدول اليومي
 /// يربط بين Domain layer و Data layer
 /// يتعامل مع الأخطاء ويحولها إلى Failures
 class DailyScheduleRepositoryImpl implements DailyScheduleRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final DailyScheduleRemoteDataSource remoteDataSource;
+
   final NetworkInfo networkInfo;
 
   DailyScheduleRepositoryImpl({
@@ -33,7 +31,7 @@ class DailyScheduleRepositoryImpl implements DailyScheduleRepository {
   }) async {
     // التحقق من وجود اتصال بالإنترنت
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -77,7 +75,7 @@ class DailyScheduleRepositoryImpl implements DailyScheduleRepository {
   }) async {
     // التحقق من وجود اتصال بالإنترنت
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -106,7 +104,7 @@ class DailyScheduleRepositoryImpl implements DailyScheduleRepository {
   }) async {
     // التحقق من وجود اتصال بالإنترنت
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -134,7 +132,7 @@ class DailyScheduleRepositoryImpl implements DailyScheduleRepository {
   }) async {
     // التحقق من وجود اتصال بالإنترنت
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -162,7 +160,7 @@ class DailyScheduleRepositoryImpl implements DailyScheduleRepository {
   }) async {
     // التحقق من وجود اتصال بالإنترنت
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -190,7 +188,7 @@ class DailyScheduleRepositoryImpl implements DailyScheduleRepository {
   }) async {
     // التحقق من وجود اتصال بالإنترنت
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -218,7 +216,7 @@ class DailyScheduleRepositoryImpl implements DailyScheduleRepository {
   }) async {
     // التحقق من وجود اتصال بالإنترنت
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -245,7 +243,7 @@ class DailyScheduleRepositoryImpl implements DailyScheduleRepository {
     required CheckAvailabilityParams params,
   }) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -271,7 +269,7 @@ class DailyScheduleRepositoryImpl implements DailyScheduleRepository {
   }) async {
     // التحقق من وجود اتصال بالإنترنت
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -304,7 +302,7 @@ class DailyScheduleRepositoryImpl implements DailyScheduleRepository {
   }) async {
     // التحقق من وجود اتصال بالإنترنت
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -337,7 +335,7 @@ class DailyScheduleRepositoryImpl implements DailyScheduleRepository {
   }) async {
     // التحقق من وجود اتصال بالإنترنت
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -366,7 +364,7 @@ class DailyScheduleRepositoryImpl implements DailyScheduleRepository {
     int? month,
   }) async {
     // TODO: Implement export functionality
-    return Left(ServerFailure('وظيفة التصدير قيد التطوير'));
+    return const Left(ServerFailure('وظيفة التصدير قيد التطوير'));
   }
 
   @override
@@ -376,6 +374,6 @@ class DailyScheduleRepositoryImpl implements DailyScheduleRepository {
     bool overwriteExisting = false,
   }) async {
     // TODO: Implement import functionality
-    return Left(ServerFailure('وظيفة الاستيراد قيد التطوير'));
+    return const Left(ServerFailure('وظيفة الاستيراد قيد التطوير'));
   }
 }

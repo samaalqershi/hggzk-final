@@ -5,6 +5,7 @@ import 'package:hggzkportal/core/constants/app_constants.dart';
 import 'package:hggzkportal/features/admin_sections/domain/entities/section_image.dart';
 
 class SectionImageModel extends SectionImage {
+  /// العربية: ينشئ مثيلًا جديدًا من `SectionImageModel`.
   const SectionImageModel({
     required super.id,
     required super.url,
@@ -282,6 +283,7 @@ class SectionImageModel extends SectionImage {
 }
 
 class ImageThumbnailsModel extends ImageThumbnails {
+  /// العربية: ينشئ مثيلًا جديدًا من `ImageThumbnailsModel`.
   const ImageThumbnailsModel({
     required super.small,
     required super.medium,

@@ -6,6 +6,7 @@ import '../entities/amenity.dart';
 /// 📦 Repository interface للمرافق
 abstract class AmenitiesRepository {
   /// إنشاء مرفق جديد
+  /// العربية: ينشئ amenity.
   Future<Either<Failure, String>> createAmenity({
     required String name,
     required String description,

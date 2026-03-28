@@ -8,6 +8,7 @@ import '../utils/service_icons.dart';
 
 /// 📊 Premium Services Table
 class FuturisticServicesTable extends StatefulWidget {
+  /// العربية: يخزن القيمة `services`.
   final List<Service> services;
   final Function(Service) onServiceTap;
   final Function(Service)? onEdit;
@@ -19,7 +20,6 @@ class FuturisticServicesTable extends StatefulWidget {
   // When embedded inside a parent CustomScrollView (Slivers), disable internal scrolling
   // and rely on the parent for scrolling and bottom loader.
   final bool embeddedInScrollView;
-
   const FuturisticServicesTable({
     super.key,
     required this.services,
@@ -32,22 +32,19 @@ class FuturisticServicesTable extends StatefulWidget {
     this.controller,
     this.embeddedInScrollView = false,
   });
-
   @override
-  State<FuturisticServicesTable> createState() => _FuturisticServicesTableState();
+  State<FuturisticServicesTable> createState() =>
+      _FuturisticServicesTableState();
 }
-
 class _FuturisticServicesTableState extends State<FuturisticServicesTable>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
   int? _hoveredIndex;
   String _sortBy = 'none';
   bool _isAscending = true;
   late final ScrollController _scrollController;
   bool _ownsController = false;
-
   @override
   void initState() {
     super.initState();
@@ -55,7 +52,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -63,7 +60,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       parent: _animationController,
       curve: Curves.easeOutCubic,
     ));
-    
+
     _animationController.forward();
 
     _scrollController = widget.controller ?? ScrollController();
@@ -72,7 +69,6 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       _scrollController.addListener(_handleScroll);
     }
   }
-
   @override
   void dispose() {
     _animationController.dispose();
@@ -85,7 +81,6 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
     }
     super.dispose();
   }
-
   void _handleScroll() {
     if (widget.onLoadMore == null || widget.hasReachedMax) return;
     if (!_scrollController.hasClients) return;
@@ -94,7 +89,6 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       widget.onLoadMore!.call();
     }
   }
-
   List<Service> get _sortedServices {
     if (_sortBy == 'none') {
       return List<Service>.from(widget.services);
@@ -120,28 +114,27 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
     });
     return sorted;
   }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isMobile = size.width < 600;
-    final isTablet = size.width >= 600 && size.width < 1200;
-    
+
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Container(
         decoration: BoxDecoration(
-          color: AppTheme.isDark 
-            ? AppTheme.darkCard.withOpacity(0.6)
-            : Colors.white,
+          color: AppTheme.isDark
+              ? AppTheme.darkCard.withValues(alpha: 0.6)
+              : Colors.white,
           borderRadius: BorderRadius.circular(isMobile ? 16 : 20),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(AppTheme.isDark ? 0.2 : 0.05),
+              color:
+                  Colors.black.withValues(alpha: AppTheme.isDark ? 0.2 : 0.05),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -156,9 +149,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
               (isMobile ? _buildMobileList() : _buildDesktopTable())
             else
               Expanded(
-                child: isMobile 
-                  ? _buildMobileList() 
-                  : _buildDesktopTable(),
+                child: isMobile ? _buildMobileList() : _buildDesktopTable(),
               ),
             // Inline loader only when not embedded (standalone usage)
             if (widget.isLoadingMore && !widget.embeddedInScrollView) ...[
@@ -182,17 +173,16 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       ),
     );
   }
-
   Widget _buildDesktopHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        color: AppTheme.isDark 
-          ? AppTheme.darkSurface.withOpacity(0.3)
-          : AppTheme.lightBackground.withOpacity(0.5),
+        color: AppTheme.isDark
+            ? AppTheme.darkSurface.withValues(alpha: 0.3)
+            : AppTheme.lightBackground.withValues(alpha: 0.5),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
@@ -222,17 +212,16 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       ),
     );
   }
-
   Widget _buildMobileHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppTheme.isDark 
-          ? AppTheme.darkSurface.withOpacity(0.3)
-          : AppTheme.lightBackground.withOpacity(0.5),
+        color: AppTheme.isDark
+            ? AppTheme.darkSurface.withValues(alpha: 0.3)
+            : AppTheme.lightBackground.withValues(alpha: 0.5),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
@@ -278,8 +267,8 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       ),
     );
   }
-
-  PopupMenuItem<String> _buildSortMenuItem(String value, String label, IconData icon) {
+  PopupMenuItem<String> _buildSortMenuItem(
+      String value, String label, IconData icon) {
     final isActive = _sortBy == value;
     return PopupMenuItem(
       value: value,
@@ -310,7 +299,6 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       ),
     );
   }
-
   Widget _buildHeaderCell(
     String title,
     String sortKey, {
@@ -318,7 +306,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
     IconData? icon,
   }) {
     final isActive = _sortBy == sortKey;
-    
+
     return Expanded(
       flex: flex,
       child: Material(
@@ -358,14 +346,14 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                 const SizedBox(width: 4),
                 Icon(
                   isActive
-                    ? (_isAscending
-                        ? Icons.arrow_upward_rounded
-                        : Icons.arrow_downward_rounded)
-                    : Icons.unfold_more_rounded,
+                      ? (_isAscending
+                          ? Icons.arrow_upward_rounded
+                          : Icons.arrow_downward_rounded)
+                      : Icons.unfold_more_rounded,
                   size: 14,
-                  color: isActive 
-                    ? AppTheme.primaryBlue 
-                    : AppTheme.textMuted.withOpacity(0.5),
+                  color: isActive
+                      ? AppTheme.primaryBlue
+                      : AppTheme.textMuted.withValues(alpha: 0.5),
                 ),
               ],
             ),
@@ -374,7 +362,6 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       ),
     );
   }
-
   Widget _buildDesktopTable() {
     final sortedServices = _sortedServices;
     if (widget.embeddedInScrollView) {
@@ -386,7 +373,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
         itemBuilder: (context, index) {
           final service = sortedServices[index];
           final isHovered = _hoveredIndex == index;
-          
+
           return MouseRegion(
             onEnter: (_) => setState(() => _hoveredIndex = index),
             onExit: (_) => setState(() => _hoveredIndex = null),
@@ -409,15 +396,15 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                   ),
                   decoration: BoxDecoration(
                     color: isHovered
-                      ? AppTheme.primaryBlue.withOpacity(0.05)
-                      : Colors.transparent,
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.05)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(12),
-                    border: isHovered 
-                      ? Border.all(
-                          color: AppTheme.primaryBlue.withOpacity(0.2),
-                          width: 1,
-                        )
-                      : null,
+                    border: isHovered
+                        ? Border.all(
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
+                            width: 1,
+                          )
+                        : null,
                   ),
                   child: Row(
                     children: [
@@ -430,7 +417,8 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                color: AppTheme.primaryBlue.withOpacity(0.1),
+                                color:
+                                    AppTheme.primaryBlue.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Icon(
@@ -466,7 +454,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                           ],
                         ),
                       ),
-                      
+
                       // Property
                       Expanded(
                         flex: 2,
@@ -479,7 +467,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                           ),
                         ),
                       ),
-                      
+
                       // Price
                       Expanded(
                         flex: 2,
@@ -502,7 +490,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                           ],
                         ),
                       ),
-                      
+
                       // Actions
                       SizedBox(
                         width: 100,
@@ -531,7 +519,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                                 icon: Icon(
                                   Icons.delete_outline,
                                   size: 18,
-                                  color: AppTheme.error.withOpacity(0.8),
+                                  color: AppTheme.error.withValues(alpha: 0.8),
                                 ),
                                 tooltip: 'حذف',
                               ),
@@ -547,7 +535,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
         },
       );
     }
-    
+
     return Scrollbar(
       controller: _scrollController,
       child: ListView.builder(
@@ -557,7 +545,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
         itemBuilder: (context, index) {
           final service = sortedServices[index];
           final isHovered = _hoveredIndex == index;
-          
+
           return MouseRegion(
             onEnter: (_) => setState(() => _hoveredIndex = index),
             onExit: (_) => setState(() => _hoveredIndex = null),
@@ -580,15 +568,15 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                   ),
                   decoration: BoxDecoration(
                     color: isHovered
-                      ? AppTheme.primaryBlue.withOpacity(0.05)
-                      : Colors.transparent,
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.05)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(12),
-                    border: isHovered 
-                      ? Border.all(
-                          color: AppTheme.primaryBlue.withOpacity(0.2),
-                          width: 1,
-                        )
-                      : null,
+                    border: isHovered
+                        ? Border.all(
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
+                            width: 1,
+                          )
+                        : null,
                   ),
                   child: Row(
                     children: [
@@ -601,7 +589,8 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                color: AppTheme.primaryBlue.withOpacity(0.1),
+                                color:
+                                    AppTheme.primaryBlue.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Icon(
@@ -637,7 +626,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                           ],
                         ),
                       ),
-                      
+
                       // Property
                       Expanded(
                         flex: 2,
@@ -650,7 +639,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                           ),
                         ),
                       ),
-                      
+
                       // Price
                       Expanded(
                         flex: 2,
@@ -673,7 +662,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                           ],
                         ),
                       ),
-                      
+
                       // Actions
                       SizedBox(
                         width: 100,
@@ -702,7 +691,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                                 icon: Icon(
                                   Icons.delete_outline,
                                   size: 18,
-                                  color: AppTheme.error.withOpacity(0.8),
+                                  color: AppTheme.error.withValues(alpha: 0.8),
                                 ),
                                 tooltip: 'حذف',
                               ),
@@ -719,7 +708,6 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       ),
     );
   }
-
   Widget _buildMobileList() {
     final sortedServices = _sortedServices;
     if (widget.embeddedInScrollView) {
@@ -730,7 +718,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
         itemCount: sortedServices.length,
         itemBuilder: (context, index) {
           final service = sortedServices[index];
-          
+
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Material(
@@ -745,11 +733,11 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: AppTheme.isDark
-                      ? AppTheme.darkSurface.withOpacity(0.3)
-                      : AppTheme.lightSurface,
+                        ? AppTheme.darkSurface.withValues(alpha: 0.3)
+                        : AppTheme.lightSurface,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.1),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.1),
                       width: 1,
                     ),
                   ),
@@ -761,7 +749,8 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryBlue.withOpacity(0.1),
+                              color:
+                                  AppTheme.primaryBlue.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Icon(
@@ -802,7 +791,9 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              color: AppTheme.isDark ? AppTheme.darkCard : Colors.white,
+                              color: AppTheme.isDark
+                                  ? AppTheme.darkCard
+                                  : Colors.white,
                               onSelected: (value) {
                                 HapticFeedback.selectionClick();
                                 if (value == 'edit') {
@@ -825,7 +816,8 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                                         const SizedBox(width: 12),
                                         Text(
                                           'تعديل',
-                                          style: AppTextStyles.bodyMedium.copyWith(
+                                          style:
+                                              AppTextStyles.bodyMedium.copyWith(
                                             color: AppTheme.textWhite,
                                           ),
                                         ),
@@ -845,7 +837,8 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                                         const SizedBox(width: 12),
                                         Text(
                                           'حذف',
-                                          style: AppTextStyles.bodyMedium.copyWith(
+                                          style:
+                                              AppTextStyles.bodyMedium.copyWith(
                                             color: AppTheme.error,
                                           ),
                                         ),
@@ -863,7 +856,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.success.withOpacity(0.1),
+                          color: AppTheme.success.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(
@@ -894,14 +887,14 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
         },
       );
     }
-    
+
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.all(16),
       itemCount: sortedServices.length,
       itemBuilder: (context, index) {
         final service = sortedServices[index];
-        
+
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: Material(
@@ -916,11 +909,11 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: AppTheme.isDark
-                    ? AppTheme.darkSurface.withOpacity(0.3)
-                    : AppTheme.lightSurface,
+                      ? AppTheme.darkSurface.withValues(alpha: 0.3)
+                      : AppTheme.lightSurface,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: AppTheme.darkBorder.withOpacity(0.1),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.1),
                     width: 1,
                   ),
                 ),
@@ -932,7 +925,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryBlue.withOpacity(0.1),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(
@@ -973,7 +966,9 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            color: AppTheme.isDark ? AppTheme.darkCard : Colors.white,
+                            color: AppTheme.isDark
+                                ? AppTheme.darkCard
+                                : Colors.white,
                             onSelected: (value) {
                               HapticFeedback.selectionClick();
                               if (value == 'edit') {
@@ -996,7 +991,8 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                                       const SizedBox(width: 12),
                                       Text(
                                         'تعديل',
-                                        style: AppTextStyles.bodyMedium.copyWith(
+                                        style:
+                                            AppTextStyles.bodyMedium.copyWith(
                                           color: AppTheme.textWhite,
                                         ),
                                       ),
@@ -1016,7 +1012,8 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                                       const SizedBox(width: 12),
                                       Text(
                                         'حذف',
-                                        style: AppTextStyles.bodyMedium.copyWith(
+                                        style:
+                                            AppTextStyles.bodyMedium.copyWith(
                                           color: AppTheme.error,
                                         ),
                                       ),
@@ -1034,7 +1031,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.success.withOpacity(0.1),
+                        color: AppTheme.success.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(

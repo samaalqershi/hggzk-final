@@ -7,9 +7,9 @@ import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../../repositories/amenities_repository.dart';
 
 class UnassignAmenityParams {
+  /// العربية: يخزن القيمة `amenityId`.
   final String amenityId;
   final String propertyId;
-
   UnassignAmenityParams({
     required this.amenityId,
     required this.propertyId,
@@ -19,9 +19,7 @@ class UnassignAmenityParams {
 class UnassignAmenityFromPropertyUseCase
     implements UseCase<bool, UnassignAmenityParams> {
   final AmenitiesRepository repository;
-
   UnassignAmenityFromPropertyUseCase(this.repository);
-
   @override
   Future<Either<Failure, bool>> call(UnassignAmenityParams params) async {
     return await repository.unassignAmenityFromProperty(

@@ -6,21 +6,21 @@ import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../../repositories/property_images_repository.dart';
 
 class ReorderImagesUseCase implements UseCase<bool, ReorderImagesParams> {
+  /// العربية: يخزن القيمة `repository`.
   final PropertyImagesRepository repository;
-
   ReorderImagesUseCase(this.repository);
-
   @override
   Future<Either<Failure, bool>> call(ReorderImagesParams params) async {
-    return await repository.reorderImages(params.propertyId, params.tempKey, params.imageIds);
+    return await repository.reorderImages(
+        params.propertyId, params.tempKey, params.imageIds);
   }
 }
 
 class ReorderImagesParams {
+  /// العربية: يخزن القيمة `propertyId`.
   final String? propertyId;
   final String? tempKey;
   final List<String> imageIds;
-
   ReorderImagesParams({
     this.propertyId,
     this.tempKey,

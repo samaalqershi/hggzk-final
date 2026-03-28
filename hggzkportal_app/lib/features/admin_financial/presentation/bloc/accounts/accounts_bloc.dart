@@ -8,10 +8,8 @@ import '../../../domain/repositories/financial_repository.dart';
 part 'accounts_event.dart';
 part 'accounts_state.dart';
 
-/// 📊 Bloc لإدارة دليل الحسابات
 class AccountsBloc extends Bloc<AccountsEvent, AccountsState> {
   final FinancialRepository repository;
-
   AccountsBloc({
     required this.repository,
   }) : super(AccountsInitial()) {
@@ -20,7 +18,6 @@ class AccountsBloc extends Bloc<AccountsEvent, AccountsState> {
     on<FilterAccountsByType>(_onFilterAccountsByType);
     on<LoadMainAccounts>(_onLoadMainAccounts);
   }
-
   Future<void> _onLoadChartOfAccounts(
     LoadChartOfAccounts event,
     Emitter<AccountsState> emit,
@@ -34,7 +31,6 @@ class AccountsBloc extends Bloc<AccountsEvent, AccountsState> {
       (accounts) => emit(AccountsLoaded(accounts: accounts)),
     );
   }
-
 
   Future<void> _onSearchAccounts(
     SearchAccounts event,
@@ -70,7 +66,6 @@ class AccountsBloc extends Bloc<AccountsEvent, AccountsState> {
     );
   }
 
-
   Future<void> _onLoadMainAccounts(
     LoadMainAccounts event,
     Emitter<AccountsState> emit,
@@ -86,10 +81,5 @@ class AccountsBloc extends Bloc<AccountsEvent, AccountsState> {
         showMainOnly: true,
       )),
     );
-  }
-
-  List<ChartOfAccount> _sortAccounts(List<ChartOfAccount> accounts) {
-    accounts.sort((a, b) => a.accountNumber.compareTo(b.accountNumber));
-    return accounts;
   }
 }

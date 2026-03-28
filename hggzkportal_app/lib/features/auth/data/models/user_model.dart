@@ -3,7 +3,11 @@ import 'package:hggzkportal/core/enums/payment_method_enum.dart';
 import 'package:hggzkportal/features/admin_users/domain/entities/user_details.dart'
     show UserWalletAccount;
 
+/// يعرّف الكلاس `UserModel`.
+/// Describes the `UserModel` class.
 class UserModel extends User {
+  /// Initializes a new `UserModel` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `UserModel`.
   const UserModel({
     required super.userId,
     required super.name,
@@ -23,6 +27,8 @@ class UserModel extends User {
     required super.updatedAt,
   });
 
+  /// ينشئ مثيلاً من `UserModel`.
+  /// Builds an instance of `UserModel`.
   factory UserModel.fromJson(Map<String, dynamic> json) {
     final accountsJson = json['walletAccounts'];
     final walletAccounts = (accountsJson is List)
@@ -103,6 +109,8 @@ class UserModel extends User {
     );
   }
 
+  /// ينفذ العملية `toJson`.
+  /// Runs the `toJson` operation.
   Map<String, dynamic> toJson() {
     return {
       'userId': userId,
@@ -131,6 +139,8 @@ class UserModel extends User {
     };
   }
 
+  /// ينشئ مثيلاً من `UserModel`.
+  /// Builds an instance of `UserModel`.
   factory UserModel.fromEntity(User user) {
     return UserModel(
       userId: user.userId,

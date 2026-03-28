@@ -17,32 +17,73 @@ import '../widgets/guest_selector_widget.dart';
 import '../widgets/services_selector_widget.dart';
 import '../../../property/domain/entities/property_detail.dart';
 import '../../../property/domain/entities/property_policy.dart';
-import '../../../../injection_container.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import '../../../property/domain/usecases/get_property_details_usecase.dart';
 import '../../../property/presentation/widgets/policies_widget.dart';
 
+/// العربية: يمثل عنصر الصفحة `BookingFormPage`.
 class BookingFormPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
+
+  /// العربية: يخزن القيمة `propertyName`.
   final String propertyName;
+
+  /// العربية: يخزن القيمة `unitId`.
   final String? unitId;
+
+  /// العربية: يخزن القيمة `pricePerNight`.
   final double? pricePerNight;
+
+  /// العربية: يخزن القيمة `unitName`.
   final String? unitName;
+
+  /// العربية: يخزن القيمة `unitImages`.
   final List<String>? unitImages;
+
+  /// العربية: يخزن القيمة `unitTypeName`.
   final String? unitTypeName;
+
+  /// العربية: يخزن القيمة `adultsCapacity`.
   final int? adultsCapacity;
+
+  /// العربية: يخزن القيمة `childrenCapacity`.
   final int? childrenCapacity;
+
+  /// العربية: يخزن القيمة `customFeatures`.
   final String? customFeatures;
+
+  /// العربية: يخزن القيمة `currency`.
   final String? currency;
+
+  /// العربية: يخزن القيمة `initialCheckIn`.
   final DateTime? initialCheckIn;
+
+  /// العربية: يخزن القيمة `initialCheckOut`.
   final DateTime? initialCheckOut;
+
+  /// العربية: يخزن القيمة `initialAdults`.
   final int? initialAdults;
+
+  /// العربية: يخزن القيمة `initialChildren`.
   final int? initialChildren;
+
+  /// العربية: يخزن القيمة `propertyServices`.
   final List<PropertyService>? propertyServices;
+
+  /// العربية: يخزن القيمة `propertyPolicies`.
   final List<PropertyPolicy>? propertyPolicies;
+
+  /// العربية: يحدد ما إذا كانت القيمة `isEditMode` مفعلة.
   final bool isEditMode;
+
+  /// العربية: يخزن القيمة `bookingId`.
   final String? bookingId;
+
+  /// العربية: يخزن القيمة `initialSelectedServices`.
   final List<Map<String, dynamic>>? initialSelectedServices;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingFormPage`.
   const BookingFormPage({
     super.key,
     required this.propertyId,
@@ -67,35 +108,65 @@ class BookingFormPage extends StatefulWidget {
     this.initialSelectedServices,
   });
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<BookingFormPage> createState() => _BookingFormPageState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `BookingFormPageState`.
 class _BookingFormPageState extends State<BookingFormPage>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _specialRequestsController = TextEditingController();
+
+  /// العربية: يخزن القيمة `controller`.
   late AnimationController _controller;
 
   // Booking Data
+  /// العربية: يخزن القيمة `checkInDate`.
   DateTime? _checkInDate;
+
+  /// العربية: يخزن القيمة `checkOutDate`.
   DateTime? _checkOutDate;
+
+  /// العربية: يخزن القيمة `adultsCount`.
   int _adultsCount = 1;
+
+  /// العربية: يخزن القيمة `childrenCount`.
   int _childrenCount = 0;
+
+  /// العربية: يخزن القيمة `selectedServices`.
   List<Map<String, dynamic>> _selectedServices = [];
+
+  /// العربية: يخزن القيمة `resolvedPricePerNight`.
   double? _resolvedPricePerNight;
+
+  /// العربية: يخزن القيمة `resolvedCurrency`.
   String? _resolvedCurrency;
+
+  /// العربية: يخزن القيمة `existingBookingId`.
   String? _existingBookingId;
+
+  /// العربية: يخزن القيمة `effectivePropertyServices`.
   List<PropertyService>? _effectivePropertyServices;
+
+  /// العربية: يخزن القيمة `initialSelectedServices`.
   List<Map<String, dynamic>>? _initialSelectedServices;
 
   // Edit preview state
+  /// العربية: يخزن القيمة `showEditPreview`.
   bool _showEditPreview = false;
+
+  /// العربية: يخزن القيمة `nightsAmountFromAvailability`.
   double? _nightsAmountFromAvailability;
+
+  /// العربية: يخزن القيمة `nightsCountFromAvailability`.
   int? _nightsCountFromAvailability;
 
+  /// العربية: يخزن القيمة `calendarLoading`.
   bool _calendarLoading = false;
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -117,6 +188,7 @@ class _BookingFormPageState extends State<BookingFormPage>
     }
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _controller.dispose();
@@ -124,8 +196,10 @@ class _BookingFormPageState extends State<BookingFormPage>
     super.dispose();
   }
 
+  /// العربية: يعالج `dateOnly`.
   DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 
+  /// العربية: يفتح availability calendar.
   Future<void> _openAvailabilityCalendar() async {
     if (_calendarLoading) return;
 
@@ -194,6 +268,7 @@ class _BookingFormPageState extends State<BookingFormPage>
     }
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -213,6 +288,7 @@ class _BookingFormPageState extends State<BookingFormPage>
     );
   }
 
+  /// العربية: يعالج booking state.
   void _handleBookingState(BuildContext context, BookingState state) {
     if (state is AvailabilityChecked) {
       if (state.isAvailable) {
@@ -243,6 +319,7 @@ class _BookingFormPageState extends State<BookingFormPage>
   // ═══════════════════════════════════════════════════════════════
   // AppBar
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني app bar.
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       backgroundColor: AppTheme.darkCard.withOpacity(0.5),
@@ -286,6 +363,7 @@ class _BookingFormPageState extends State<BookingFormPage>
     );
   }
 
+  /// العربية: يبني back button.
   Widget _buildBackButton() {
     return Container(
       margin: const EdgeInsets.all(8),
@@ -308,6 +386,7 @@ class _BookingFormPageState extends State<BookingFormPage>
   // ═══════════════════════════════════════════════════════════════
   // محتوى النموذج
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني form content.
   Widget _buildFormContent() {
     return Form(
       key: _formKey,
@@ -362,6 +441,7 @@ class _BookingFormPageState extends State<BookingFormPage>
   // ═══════════════════════════════════════════════════════════════
   // معاينة الوحدة
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني unit preview.
   Widget _buildUnitPreview() {
     final images = widget.unitImages ?? const <String>[];
     final hasImages = images.isNotEmpty;
@@ -470,6 +550,7 @@ class _BookingFormPageState extends State<BookingFormPage>
   // ═══════════════════════════════════════════════════════════════
   // عنوان القسم
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني section title.
   Widget _buildSectionTitle(String title, IconData icon, int index) {
     return Row(
       children: [
@@ -512,6 +593,7 @@ class _BookingFormPageState extends State<BookingFormPage>
   // ═══════════════════════════════════════════════════════════════
   // اختيار التواريخ
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني date selection.
   Widget _buildDateSelection() {
     return _buildCard(
       child: Column(
@@ -556,6 +638,7 @@ class _BookingFormPageState extends State<BookingFormPage>
   // ═══════════════════════════════════════════════════════════════
   // اختيار الضيوف
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني guest selection.
   Widget _buildGuestSelection() {
     return _buildCard(
       child: Column(
@@ -590,6 +673,7 @@ class _BookingFormPageState extends State<BookingFormPage>
   // ═══════════════════════════════════════════════════════════════
   // اختيار الخدمات
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني services selection.
   Widget _buildServicesSelection() {
     return ServicesSelectorWidget(
       key: ValueKey(
@@ -608,6 +692,7 @@ class _BookingFormPageState extends State<BookingFormPage>
   // ═══════════════════════════════════════════════════════════════
   // الطلبات الخاصة
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني special requests.
   Widget _buildSpecialRequests() {
     return _buildCard(
       child: TextFormField(
@@ -632,6 +717,7 @@ class _BookingFormPageState extends State<BookingFormPage>
   // ═══════════════════════════════════════════════════════════════
   // زر المتابعة
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني continue button.
   Widget _buildContinueButton() {
     final isValid = _checkInDate != null && _checkOutDate != null;
 
@@ -684,6 +770,7 @@ class _BookingFormPageState extends State<BookingFormPage>
   // ═══════════════════════════════════════════════════════════════
   // شريط معاينة التعديل
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني edit preview bar.
   Widget _buildEditPreviewBar() {
     final servicesTotal = _selectedServices.fold<double>(
       0.0,
@@ -749,6 +836,7 @@ class _BookingFormPageState extends State<BookingFormPage>
     );
   }
 
+  /// العربية: يبني price row.
   Widget _buildPriceRow(String label, double amount, String currency,
       {bool isBold = false}) {
     return Row(
@@ -775,6 +863,7 @@ class _BookingFormPageState extends State<BookingFormPage>
   // ═══════════════════════════════════════════════════════════════
   // مكونات مساعدة
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني card.
   Widget _buildCard({required Widget child}) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -794,6 +883,7 @@ class _BookingFormPageState extends State<BookingFormPage>
     );
   }
 
+  /// العربية: يبني divider.
   Widget _buildDivider() {
     return Container(
       height: 1,
@@ -810,6 +900,7 @@ class _BookingFormPageState extends State<BookingFormPage>
     );
   }
 
+  /// العربية: يبني loading state.
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -849,6 +940,7 @@ class _BookingFormPageState extends State<BookingFormPage>
   // ═══════════════════════════════════════════════════════════════
   // Dialogs
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يعرض policies dialog.
   void _showPoliciesDialog() {
     final policies = widget.propertyPolicies ?? const <PropertyPolicy>[];
 
@@ -954,6 +1046,7 @@ class _BookingFormPageState extends State<BookingFormPage>
     );
   }
 
+  /// العربية: يعرض unavailable dialog.
   void _showUnavailableDialog() {
     HapticFeedback.heavyImpact();
     showDialog(
@@ -1026,6 +1119,7 @@ class _BookingFormPageState extends State<BookingFormPage>
   // ═══════════════════════════════════════════════════════════════
   // دوال مساعدة
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني capacity text.
   String _buildCapacityText() {
     final parts = <String>[];
     if (widget.adultsCapacity != null && widget.adultsCapacity! > 0) {
@@ -1037,6 +1131,7 @@ class _BookingFormPageState extends State<BookingFormPage>
     return parts.isEmpty ? '' : parts.join('، ');
   }
 
+  /// العربية: يعالج `onContinue`.
   void _onContinue() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -1083,6 +1178,7 @@ class _BookingFormPageState extends State<BookingFormPage>
     }
   }
 
+  /// العربية: يعالج `confirmEditSave`.
   void _confirmEditSave() {
     if (!(widget.isEditMode && widget.bookingId != null)) return;
 
@@ -1104,6 +1200,7 @@ class _BookingFormPageState extends State<BookingFormPage>
     setState(() => _showEditPreview = false);
   }
 
+  /// العربية: ينتقل إلى to summary.
   Future<void> _navigateToSummary() async {
     final formData = {
       'propertyId': widget.propertyId,
@@ -1133,6 +1230,7 @@ class _BookingFormPageState extends State<BookingFormPage>
     }
   }
 
+  /// العربية: يعالج `maybeLoadPropertyServices`.
   Future<void> _maybeLoadPropertyServices() async {
     try {
       final authState = context.read<AuthBloc>().state;
@@ -1154,6 +1252,7 @@ class _BookingFormPageState extends State<BookingFormPage>
     } catch (_) {}
   }
 
+  /// العربية: يعرض snack bar.
   void _showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

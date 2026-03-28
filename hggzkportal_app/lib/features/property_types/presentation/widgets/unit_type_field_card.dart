@@ -6,8 +6,11 @@ import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import '../../domain/entities/unit_type_field.dart';
 
 class UnitTypeFieldCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `field`.
   final UnitTypeField field;
+
   final VoidCallback onEdit;
+
   final VoidCallback onDelete;
 
   const UnitTypeFieldCard({
@@ -24,7 +27,9 @@ class UnitTypeFieldCard extends StatefulWidget {
 class _UnitTypeFieldCardState extends State<UnitTypeFieldCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   late Animation<double> _scaleAnimation;
+
   bool _isHovered = false;
 
   @override
@@ -85,7 +90,7 @@ class _UnitTypeFieldCardState extends State<UnitTypeFieldCard>
   Widget build(BuildContext context) {
     final fieldColor = _getFieldTypeColor(widget.field.fieldTypeId);
     final isSmall = MediaQuery.of(context).size.width < 600;
-    
+
     return MouseRegion(
       onEnter: (_) {
         setState(() => _isHovered = true);
@@ -107,25 +112,25 @@ class _UnitTypeFieldCardState extends State<UnitTypeFieldCard>
                 gradient: LinearGradient(
                   colors: _isHovered
                       ? [
-                          fieldColor.withOpacity(0.15),
-                          fieldColor.withOpacity(0.08),
+                          fieldColor.withValues(alpha: 0.15),
+                          fieldColor.withValues(alpha: 0.08),
                         ]
                       : [
-                          AppTheme.darkCard.withOpacity(0.5),
-                          AppTheme.darkCard.withOpacity(0.3),
+                          AppTheme.darkCard.withValues(alpha: 0.5),
+                          AppTheme.darkCard.withValues(alpha: 0.3),
                         ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: _isHovered
-                      ? fieldColor.withOpacity(0.4)
-                      : AppTheme.darkBorder.withOpacity(0.3),
+                      ? fieldColor.withValues(alpha: 0.4)
+                      : AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
                 boxShadow: _isHovered
                     ? [
                         BoxShadow(
-                          color: fieldColor.withOpacity(0.2),
+                          color: fieldColor.withValues(alpha: 0.2),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -147,7 +152,7 @@ class _UnitTypeFieldCardState extends State<UnitTypeFieldCard>
                             gradient: LinearGradient(
                               colors: [
                                 fieldColor,
-                                fieldColor.withOpacity(0.7),
+                                fieldColor.withValues(alpha: 0.7),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(8),
@@ -182,7 +187,8 @@ class _UnitTypeFieldCardState extends State<UnitTypeFieldCard>
                                         vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: AppTheme.error.withOpacity(0.1),
+                                        color: AppTheme.error
+                                            .withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
@@ -199,7 +205,8 @@ class _UnitTypeFieldCardState extends State<UnitTypeFieldCard>
                               Text(
                                 widget.field.fieldName,
                                 style: AppTextStyles.caption.copyWith(
-                                  color: AppTheme.textMuted.withOpacity(0.7),
+                                  color:
+                                      AppTheme.textMuted.withValues(alpha: 0.7),
                                   fontFamily: 'monospace',
                                 ),
                               ),
@@ -275,8 +282,7 @@ class _UnitTypeFieldCardState extends State<UnitTypeFieldCard>
                               size: 18,
                             ),
                           ),
-                        ]
-                        else if (isSmall) ...[
+                        ] else if (isSmall) ...[
                           PopupMenuButton<String>(
                             color: AppTheme.darkCard,
                             onSelected: (value) {
@@ -291,7 +297,8 @@ class _UnitTypeFieldCardState extends State<UnitTypeFieldCard>
                                 value: 'edit',
                                 child: Row(
                                   children: [
-                                    Icon(Icons.edit_rounded, color: fieldColor, size: 18),
+                                    Icon(Icons.edit_rounded,
+                                        color: fieldColor, size: 18),
                                     const SizedBox(width: 8),
                                     const Text('تعديل'),
                                   ],
@@ -301,14 +308,16 @@ class _UnitTypeFieldCardState extends State<UnitTypeFieldCard>
                                 value: 'delete',
                                 child: Row(
                                   children: [
-                                    Icon(Icons.delete_rounded, color: AppTheme.error, size: 18),
+                                    Icon(Icons.delete_rounded,
+                                        color: AppTheme.error, size: 18),
                                     const SizedBox(width: 8),
                                     const Text('حذف'),
                                   ],
                                 ),
                               ),
                             ],
-                            icon: Icon(Icons.more_vert_rounded, color: AppTheme.textMuted),
+                            icon: Icon(Icons.more_vert_rounded,
+                                color: AppTheme.textMuted),
                           ),
                         ],
                       ],
@@ -327,10 +336,10 @@ class _UnitTypeFieldCardState extends State<UnitTypeFieldCard>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),

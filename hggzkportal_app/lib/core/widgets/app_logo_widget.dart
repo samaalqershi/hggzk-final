@@ -1,14 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+/// عنصر شعار موحّد يختار نسخة SVG المناسبة ويضبطها لواجهات البداية والرؤوس والبطاقات.
+/// Shared logo renderer that picks the right SVG variant and fits it into splash screens, headers, and cards.
 class AppLogoWidget extends StatelessWidget {
+  /// العرض المستهدف للشعار داخل الواجهة.
+  /// Target width for the logo inside the current layout.
   final double width;
+
+  /// ارتفاع اختياري عندما لا يكون الشعار مربعًا داخل السياق الحالي.
+  /// Optional height when the logo should not use a square footprint.
   final double? height;
+
+  /// طريقة ملاءمة الصورة داخل الإطار المخصص لها.
+  /// How the SVG should fit inside its allotted box.
   final BoxFit fit;
+
+  /// يفرض استخدام نسخة الشعار الفاتحة بدل الاعتماد على سطوع الثيم.
+  /// Forces the light logo variant instead of deriving the choice from theme brightness.
   final bool? useLightVersion;
+
+  /// يضيف خلفية متدرجة وحدودًا ناعمة عندما يحتاج الشعار إلى حضانة بصرية أوضح.
+  /// Adds a branded background treatment when the logo needs more visual separation.
   final bool showAdaptiveBackground;
+
+  /// وصف وصولي يقرأه قارئ الشاشة عندما يكون الشعار عنصرًا ذا معنى دلالي.
+  /// Accessibility label announced by screen readers when the logo conveys meaning.
   final String? semanticsLabel;
 
+  /// Creates a logo widget sized for splash screens, headers, and branded containers.
+  /// ينشئ عنصر شعار مناسبًا لشاشات البداية والرؤوس والحاويات ذات الهوية البصرية.
   const AppLogoWidget({
     super.key,
     required this.width,
@@ -19,6 +40,8 @@ class AppLogoWidget extends StatelessWidget {
     this.semanticsLabel,
   });
 
+  /// Resolves the correct asset for the current theme and optionally wraps it in a branded frame.
+  /// يحدد الملف المناسب للثيم الحالي ويمكن أن يحيطه بإطار بصري يحمل الهوية.
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;

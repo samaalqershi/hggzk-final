@@ -1,9 +1,7 @@
 // lib/features/admin_properties/presentation/bloc/properties/properties_bloc.dart
 
-import 'package:hggzkportal/features/admin_amenities/domain/entities/amenity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hggzkportal/core/models/paginated_result.dart';
 import '../../../domain/entities/property.dart';
 import '../../../domain/usecases/properties/get_all_properties_usecase.dart';
 import '../../../domain/usecases/properties/get_property_details_usecase.dart';
@@ -17,6 +15,7 @@ part 'properties_event.dart';
 part 'properties_state.dart';
 
 class PropertiesBloc extends Bloc<PropertiesEvent, PropertiesState> {
+  /// العربية: يخزن القيمة `getAllProperties`.
   final GetAllPropertiesUseCase getAllProperties;
   final GetPropertyDetailsUseCase getPropertyDetails;
   final CreatePropertyUseCase createProperty;
@@ -24,7 +23,6 @@ class PropertiesBloc extends Bloc<PropertiesEvent, PropertiesState> {
   final DeletePropertyUseCase deleteProperty;
   final ApprovePropertyUseCase approveProperty;
   final RejectPropertyUseCase rejectProperty;
-
   PropertiesBloc({
     required this.getAllProperties,
     required this.getPropertyDetails,
@@ -45,7 +43,6 @@ class PropertiesBloc extends Bloc<PropertiesEvent, PropertiesState> {
     on<FilterPropertiesEvent>(_onFilterProperties);
     on<SearchPropertiesEvent>(_onSearchProperties);
   }
-
   Future<void> _onLoadProperties(
     LoadPropertiesEvent event,
     Emitter<PropertiesState> emit,
@@ -312,7 +309,9 @@ class PropertiesBloc extends Bloc<PropertiesEvent, PropertiesState> {
         totalPages: paginatedResult.totalPages,
         hasNextPage: paginatedResult.hasNextPage,
         hasPreviousPage: paginatedResult.hasPreviousPage,
-        stats: (paginatedResult.metadata is Map<String, dynamic>) ? (paginatedResult.metadata as Map<String, dynamic>) : null,
+        stats: (paginatedResult.metadata is Map<String, dynamic>)
+            ? (paginatedResult.metadata as Map<String, dynamic>)
+            : null,
         activeFilters: {
           if (event.propertyTypeId != null)
             'propertyTypeId': event.propertyTypeId!,
@@ -356,7 +355,9 @@ class PropertiesBloc extends Bloc<PropertiesEvent, PropertiesState> {
         hasNextPage: paginatedResult.hasNextPage,
         hasPreviousPage: paginatedResult.hasPreviousPage,
         searchTerm: event.searchTerm,
-        stats: (paginatedResult.metadata is Map<String, dynamic>) ? (paginatedResult.metadata as Map<String, dynamic>) : null,
+        stats: (paginatedResult.metadata is Map<String, dynamic>)
+            ? (paginatedResult.metadata as Map<String, dynamic>)
+            : null,
         activeFilters: null,
       )),
     );

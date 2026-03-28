@@ -5,10 +5,9 @@ import '../../../../core/usecases/usecase.dart';
 import '../repositories/settings_repository.dart';
 
 class UpdateThemeUseCase implements UseCase<bool, UpdateThemeParams> {
+  /// العربية: يخزن القيمة `repository`.
   final SettingsRepository repository;
-
   UpdateThemeUseCase(this.repository);
-
   @override
   Future<Either<Failure, bool>> call(UpdateThemeParams params) async {
     return await repository.updateTheme(params.isDarkMode);
@@ -16,10 +15,9 @@ class UpdateThemeUseCase implements UseCase<bool, UpdateThemeParams> {
 }
 
 class UpdateThemeParams extends Equatable {
+  /// العربية: يحدد ما إذا كانت القيمة `isDarkMode` مفعلة.
   final bool isDarkMode;
-
   const UpdateThemeParams({required this.isDarkMode});
-
   @override
   List<Object> get props => [isDarkMode];
 }

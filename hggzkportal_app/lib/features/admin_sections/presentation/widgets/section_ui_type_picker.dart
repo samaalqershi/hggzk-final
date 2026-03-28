@@ -4,8 +4,11 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/enums/section_type.dart';
 
 class SectionUITypePicker extends StatelessWidget {
+  /// العربية: يخزن القيمة `selectedType`.
   final SectionTypeEnum? selectedType;
+
   final Function(SectionTypeEnum) onTypeSelected;
+
   final bool showCustomTypes;
 
   const SectionUITypePicker({
@@ -35,7 +38,7 @@ class SectionUITypePicker extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.2),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -55,7 +58,6 @@ class SectionUITypePicker extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-
         if (showCustomTypes) ...[
           // Custom Types Only
           _buildSection('الانواع المخصصة فقط', _getCustomTypes()),
@@ -112,22 +114,22 @@ class SectionUITypePicker extends StatelessWidget {
                     )
                   : AppTheme.primaryGradient
               : null,
-          color: isSelected ? null : AppTheme.darkCard.withOpacity(0.5),
+          color: isSelected ? null : AppTheme.darkCard.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
                 ? Colors.transparent
                 : isCustom
-                    ? AppTheme.primaryPurple.withOpacity(0.3)
-                    : AppTheme.darkBorder.withOpacity(0.3),
+                    ? AppTheme.primaryPurple.withValues(alpha: 0.3)
+                    : AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
                     color: isCustom
-                        ? AppTheme.primaryPurple.withOpacity(0.3)
-                        : AppTheme.primaryBlue.withOpacity(0.3),
+                        ? AppTheme.primaryPurple.withValues(alpha: 0.3)
+                        : AppTheme.primaryBlue.withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -158,14 +160,6 @@ class SectionUITypePicker extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  List<SectionTypeEnum> _getStandardTypes() {
-    return [
-      SectionTypeEnum.grid,
-      SectionTypeEnum.bigCards,
-      SectionTypeEnum.list,
-    ];
   }
 
   List<SectionTypeEnum> _getCustomTypes() {

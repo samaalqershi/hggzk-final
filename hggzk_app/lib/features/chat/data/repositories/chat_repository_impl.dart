@@ -12,19 +12,27 @@ import '../datasources/chat_remote_datasource.dart';
 import '../models/conversation_model.dart';
 import '../models/message_model.dart';
 
+/// العربية: يوفر سلوك المستودع الخاص بـ `ChatRepositoryImpl`.
 class ChatRepositoryImpl implements ChatRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final ChatRemoteDataSource remoteDataSource;
+
+  /// العربية: يخزن القيمة `localDataSource`.
   final ChatLocalDataSource localDataSource;
+
+  /// العربية: يخزن القيمة `internetConnectionChecker`.
   final InternetConnectionChecker internetConnectionChecker;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `ChatRepositoryImpl`.
   ChatRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
     required this.internetConnectionChecker,
   });
 
+  /// العربية: ينشئ conversation.
   @override
-Future<Either<Failure, Conversation>> createConversation({
+  Future<Either<Failure, Conversation>> createConversation({
     required List<String> participantIds,
     required String conversationType,
     String? title,
@@ -40,7 +48,7 @@ Future<Either<Failure, Conversation>> createConversation({
         description: description,
         propertyId: propertyId,
       );
-      
+
       // حفظ في الكاش وإشعار عبر WebSocket إن لزم
       try {
         await localDataSource.cacheConversations([conversationModel]);
@@ -48,7 +56,7 @@ Future<Either<Failure, Conversation>> createConversation({
       try {
         // من الممكن لاحقًا استخدام خدمة FCM/WebSocket
       } catch (_) {}
-      
+
       // تحويل من Model إلى Entity
       return Right(conversationModel);
     } catch (e) {
@@ -56,6 +64,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يعيد conversations.
   Future<Either<Failure, List<Conversation>>> getConversations({
     required int pageNumber,
     required int pageSize,
@@ -69,7 +78,8 @@ Future<Either<Failure, Conversation>> createConversation({
         await localDataSource.cacheConversations(conversations);
         return Right(conversations);
       } else {
-        final cachedConversations = await localDataSource.getCachedConversations();
+        final cachedConversations =
+            await localDataSource.getCachedConversations();
         if (cachedConversations != null && cachedConversations.isNotEmpty) {
           return Right(cachedConversations);
         }
@@ -80,10 +90,13 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يعيد conversation by id.
   @override
-  Future<Either<Failure, Conversation>> getConversationById(String conversationId) async {
+  Future<Either<Failure, Conversation>> getConversationById(
+      String conversationId) async {
     if (!await internetConnectionChecker.hasConnection) {
-      final cached = await localDataSource.getCachedConversationById(conversationId);
+      final cached =
+          await localDataSource.getCachedConversationById(conversationId);
       if (cached != null) {
         return Right(cached);
       }
@@ -91,15 +104,18 @@ Future<Either<Failure, Conversation>> createConversation({
     }
 
     try {
-      final conversation = await remoteDataSource.getConversationById(conversationId);
+      final conversation =
+          await remoteDataSource.getConversationById(conversationId);
       return Right(conversation);
     } catch (e) {
       return ErrorHandler.handle(e);
     }
   }
 
+  /// العربية: يعالج `archiveConversation`.
   @override
-  Future<Either<Failure, void>> archiveConversation(String conversationId) async {
+  Future<Either<Failure, void>> archiveConversation(
+      String conversationId) async {
     if (!await internetConnectionChecker.hasConnection) {
       return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
@@ -112,8 +128,10 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يعالج `unarchiveConversation`.
   @override
-  Future<Either<Failure, void>> unarchiveConversation(String conversationId) async {
+  Future<Either<Failure, void>> unarchiveConversation(
+      String conversationId) async {
     if (!await internetConnectionChecker.hasConnection) {
       return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
@@ -126,8 +144,10 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يحذف conversation.
   @override
-  Future<Either<Failure, void>> deleteConversation(String conversationId) async {
+  Future<Either<Failure, void>> deleteConversation(
+      String conversationId) async {
     if (!await internetConnectionChecker.hasConnection) {
       return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
@@ -141,6 +161,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يعيد messages.
   @override
   Future<Either<Failure, List<Message>>> getMessages({
     required String conversationId,
@@ -156,14 +177,15 @@ Future<Either<Failure, Conversation>> createConversation({
           pageSize: pageSize,
           beforeMessageId: beforeMessageId,
         );
-        
+
         if (pageNumber == 1) {
           await localDataSource.cacheMessages(conversationId, messages);
         }
-        
+
         return Right(messages);
       } else {
-        final cachedMessages = await localDataSource.getCachedMessages(conversationId);
+        final cachedMessages =
+            await localDataSource.getCachedMessages(conversationId);
         if (cachedMessages != null && cachedMessages.isNotEmpty) {
           return Right(cachedMessages);
         }
@@ -174,6 +196,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يرسل message.
   @override
   Future<Either<Failure, Message>> sendMessage({
     required String conversationId,
@@ -193,7 +216,8 @@ Future<Either<Failure, Conversation>> createConversation({
         replyToMessageId: replyToMessageId,
         attachmentIds: attachmentIds,
       );
-      return const Left(NetworkFailure('الرسالة في قائمة الانتظار وسيتم إرسالها عند توفر الاتصال'));
+      return const Left(NetworkFailure(
+          'الرسالة في قائمة الانتظار وسيتم إرسالها عند توفر الاتصال'));
     }
 
     try {
@@ -205,16 +229,17 @@ Future<Either<Failure, Conversation>> createConversation({
         replyToMessageId: replyToMessageId,
         attachmentIds: attachmentIds,
       );
-      
+
       // Update local cache
       await localDataSource.addMessageToCache(conversationId, message);
-      
+
       return Right(message);
     } catch (e) {
       return ErrorHandler.handle(e);
     }
   }
 
+  /// العربية: يعالج `editMessage`.
   @override
   Future<Either<Failure, Message>> editMessage({
     required String messageId,
@@ -235,6 +260,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يحذف message.
   @override
   Future<Either<Failure, void>> deleteMessage(String messageId) async {
     if (!await internetConnectionChecker.hasConnection) {
@@ -249,6 +275,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يعالج `markAsRead`.
   @override
   Future<Either<Failure, void>> markAsRead({
     required String conversationId,
@@ -269,6 +296,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يعالج `addReaction`.
   @override
   Future<Either<Failure, void>> addReaction({
     required String messageId,
@@ -289,6 +317,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يزيل reaction.
   @override
   Future<Either<Failure, void>> removeReaction({
     required String messageId,
@@ -309,6 +338,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يعالج `uploadAttachment`.
   @override
   Future<Either<Failure, Attachment>> uploadAttachment({
     required String conversationId,
@@ -333,6 +363,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يعالج `uploadMultipleAttachments`.
   @override
   Future<Either<Failure, List<Attachment>>> uploadMultipleAttachments({
     required String conversationId,
@@ -361,6 +392,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يعالج `searchChats`.
   @override
   Future<Either<Failure, SearchResult>> searchChats({
     required String query,
@@ -393,6 +425,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يعيد available users.
   @override
   Future<Either<Failure, List<ChatUser>>> getAvailableUsers({
     String? userType,
@@ -413,6 +446,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يعيد admin users.
   @override
   Future<Either<Failure, List<ChatUser>>> getAdminUsers() async {
     if (!await internetConnectionChecker.hasConnection) {
@@ -427,6 +461,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يحدّث user status.
   @override
   Future<Either<Failure, void>> updateUserStatus(String status) async {
     if (!await internetConnectionChecker.hasConnection) {
@@ -441,6 +476,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يعيد chat settings.
   @override
   Future<Either<Failure, ChatSettings>> getChatSettings() async {
     try {
@@ -468,6 +504,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يحدّث chat settings.
   @override
   Future<Either<Failure, ChatSettings>> updateChatSettings({
     bool? notificationsEnabled,
@@ -501,6 +538,7 @@ Future<Either<Failure, Conversation>> createConversation({
     }
   }
 
+  /// العربية: يعالج `cacheConversations`.
   @override
   Future<void> cacheConversations(List<Conversation> conversations) async {
     await localDataSource.cacheConversations(
@@ -508,24 +546,29 @@ Future<Either<Failure, Conversation>> createConversation({
     );
   }
 
+  /// العربية: يعيد cached conversations.
   @override
   Future<List<Conversation>?> getCachedConversations() async {
     return await localDataSource.getCachedConversations();
   }
 
+  /// العربية: يعالج `cacheMessages`.
   @override
-  Future<void> cacheMessages(String conversationId, List<Message> messages) async {
+  Future<void> cacheMessages(
+      String conversationId, List<Message> messages) async {
     await localDataSource.cacheMessages(
       conversationId,
       messages.map((m) => MessageModel.fromEntity(m)).toList(),
     );
   }
 
+  /// العربية: يعيد cached messages.
   @override
   Future<List<Message>?> getCachedMessages(String conversationId) async {
     return await localDataSource.getCachedMessages(conversationId);
   }
 
+  /// العربية: يعالج `clearChatCache`.
   @override
   Future<void> clearChatCache() async {
     await localDataSource.clearAllCache();

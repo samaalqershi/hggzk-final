@@ -4,13 +4,23 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/property_repository.dart';
 
-class GetPropertyReviewsUseCase implements UseCase<List<PropertyReview>, GetPropertyReviewsParams> {
+/// Executes the `GetPropertyReviewsUseCase` use case.
+/// العربية: ينفذ حالة الاستخدام `GetPropertyReviewsUseCase`.
+class GetPropertyReviewsUseCase
+    implements UseCase<List<PropertyReview>, GetPropertyReviewsParams> {
+  /// Keeps the repository value available to this object.
+  /// العربية: يخزن القيمة `repository`.
   final PropertyRepository repository;
 
+  /// Constructs the GetPropertyReviewsUseCase value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `GetPropertyReviewsUseCase`.
   GetPropertyReviewsUseCase({required this.repository});
 
+  /// Executes the main behavior exposed by this callable object.
+  /// العربية: ينفذ السلوك الرئيسي الذي يقدمه هذا الكائن القابل للاستدعاء.
   @override
-  Future<Either<Failure, List<PropertyReview>>> call(GetPropertyReviewsParams params) async {
+  Future<Either<Failure, List<PropertyReview>>> call(
+      GetPropertyReviewsParams params) async {
     return await repository.getPropertyReviews(
       propertyId: params.propertyId,
       pageNumber: params.pageNumber,
@@ -23,15 +33,39 @@ class GetPropertyReviewsUseCase implements UseCase<List<PropertyReview>, GetProp
   }
 }
 
+/// Describes the GetPropertyReviewsParams type used in the property feature.
+/// العربية: يمثل `GetPropertyReviewsParams`.
 class GetPropertyReviewsParams extends Equatable {
+  /// Keeps the propertyId value available to this object.
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
+
+  /// Keeps the pageNumber value available to this object.
+  /// العربية: يخزن القيمة `pageNumber`.
   final int pageNumber;
+
+  /// Keeps the pageSize value available to this object.
+  /// العربية: يخزن القيمة `pageSize`.
   final int pageSize;
+
+  /// Keeps the sortBy value available to this object.
+  /// العربية: يخزن القيمة `sortBy`.
   final String? sortBy;
+
+  /// Keeps the sortDirection value available to this object.
+  /// العربية: يخزن القيمة `sortDirection`.
   final String? sortDirection;
+
+  /// Keeps the withImagesOnly value available to this object.
+  /// العربية: يخزن القيمة `withImagesOnly`.
   final bool withImagesOnly;
+
+  /// Keeps the userId value available to this object.
+  /// العربية: يخزن القيمة `userId`.
   final String? userId;
 
+  /// Constructs the GetPropertyReviewsParams value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `GetPropertyReviewsParams`.
   const GetPropertyReviewsParams({
     required this.propertyId,
     this.pageNumber = 1,
@@ -42,6 +76,8 @@ class GetPropertyReviewsParams extends Equatable {
     this.userId,
   });
 
+  /// Exposes the equality properties for this instance.
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object?> get props => [
         propertyId,

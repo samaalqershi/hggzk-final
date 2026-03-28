@@ -3,7 +3,6 @@ import 'package:hggzkportal/features/admin_payments/presentation/bloc/payment_an
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:ui';
 import '../bloc/payment_analytics/payment_analytics_state.dart';
 import '../widgets/payment_stats_cards.dart';
 import '../widgets/revenue_chart_widget.dart';
@@ -11,13 +10,12 @@ import '../widgets/payment_trends_graph.dart';
 import '../widgets/payment_breakdown_pie_chart.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../../../../core/theme/app_text_styles.dart';
-import '../../../../../../core/theme/app_dimensions.dart';
 import '../../../../../../core/widgets/loading_widget.dart';
 import '../../../../../../core/widgets/error_widget.dart';
 
 class PaymentAnalyticsPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `PaymentAnalyticsPage`.
   const PaymentAnalyticsPage({super.key});
-
   @override
   State<PaymentAnalyticsPage> createState() => _PaymentAnalyticsPageState();
 }
@@ -27,7 +25,6 @@ class _PaymentAnalyticsPageState extends State<PaymentAnalyticsPage>
   late AnimationController _animationController;
   late TabController _tabController;
   AnalyticsPeriod _selectedPeriod = AnalyticsPeriod.month;
-
   @override
   void initState() {
     super.initState();

@@ -6,23 +6,37 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/search_result.dart';
-import 'package:hggzk/injection_container.dart';
-import 'package:hggzk/services/local_storage_service.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
+import 'package:hggzk/core/services/local_storage_service.dart';
 import 'package:hggzk/core/constants/storage_constants.dart';
 import '../../../favorites/domain/repositories/favorites_repository.dart';
 import 'property_mismatch_badge_widget.dart';
 import 'package:hggzk/core/enums/search_relaxation_level.dart';
 
+/// العربية: يعرّف القيم المتاحة للنوع `CardDisplayType`.
 enum CardDisplayType { list, grid, compact }
 
+/// العربية: يمثل العنصر `SearchResultCardWidget`.
 class SearchResultCardWidget extends StatefulWidget {
+  /// العربية: يخزن القيمة `result`.
   final SearchResult result;
+
+  /// العربية: يخزن القيمة `onTap`.
   final VoidCallback? onTap;
+
+  /// العربية: يخزن القيمة `onFavoriteToggle`.
   final VoidCallback? onFavoriteToggle;
+
+  /// العربية: يخزن القيمة `displayType`.
   final CardDisplayType displayType;
+
+  /// العربية: يخزن القيمة `showDistance`.
   final bool showDistance;
+
+  /// العربية: يخزن القيمة `relaxationLevel`.
   final SearchRelaxationLevel? relaxationLevel;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchResultCardWidget`.
   const SearchResultCardWidget({
     super.key,
     required this.result,
@@ -33,17 +47,27 @@ class SearchResultCardWidget extends StatefulWidget {
     this.relaxationLevel,
   });
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<SearchResultCardWidget> createState() => _SearchResultCardWidgetState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `SearchResultCardWidgetState`.
 class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     with SingleTickerProviderStateMixin {
+  /// العربية: يخزن القيمة `controller`.
   late AnimationController _controller;
+
+  /// العربية: يخزن القيمة `scaleAnimation`.
   late Animation<double> _scaleAnimation;
+
+  /// العربية: يحدد ما إذا كانت القيمة `isPressed` مفعلة.
   bool _isPressed = false;
+
+  /// العربية: يحدد ما إذا كانت القيمة `isFavorite` مفعلة.
   bool _isFavorite = false;
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -62,6 +86,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     _isFavorite = widget.result.isFavorite;
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _controller.dispose();
@@ -69,6 +94,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
   }
 
   /// الحصول على اللون حسب مستوى التخفيف
+  /// العربية: يعيد color for level.
   Color _getColorForLevel() {
     final level = widget.relaxationLevel ?? SearchRelaxationLevel.exact;
     switch (level) {
@@ -86,6 +112,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
   }
 
   /// الحصول على الأيقونة حسب مستوى التخفيف
+  /// العربية: يعيد icon for level.
   IconData _getIconForLevel() {
     final level = widget.relaxationLevel ?? SearchRelaxationLevel.exact;
     switch (level) {
@@ -103,6 +130,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
   }
 
   /// الحصول على الاسم العربي لمستوى التخفيف
+  /// العربية: يعيد display name.
   String _getDisplayName() {
     final level = widget.relaxationLevel ?? SearchRelaxationLevel.exact;
     switch (level) {
@@ -119,6 +147,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     }
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     // Debug: Print mismatches info
@@ -140,6 +169,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     }
   }
 
+  /// العربية: يعالج `defaultToggleFavorite`.
   Future<void> _defaultToggleFavorite() async {
     try {
       final uid =
@@ -171,6 +201,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     } catch (_) {}
   }
 
+  /// العربية: يبني minimal list card.
   Widget _buildMinimalListCard() {
     return AnimatedBuilder(
       animation: _scaleAnimation,
@@ -231,6 +262,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
+  /// العربية: يبني minimal grid card.
   Widget _buildMinimalGridCard() {
     return AnimatedBuilder(
       animation: _scaleAnimation,
@@ -348,6 +380,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
+  /// العربية: يبني minimal compact card.
   Widget _buildMinimalCompactCard() {
     return AnimatedBuilder(
       animation: _scaleAnimation,
@@ -584,6 +617,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
+  /// العربية: يبني minimal image section.
   Widget _buildMinimalImageSection({double? height}) {
     final radius = Radius.circular(
       widget.displayType == CardDisplayType.grid ? 14 : 16,
@@ -671,6 +705,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
+  /// العربية: يبني minimal favorite button.
   Widget _buildMinimalFavoriteButton() {
     return GestureDetector(
       onTap: () {
@@ -700,6 +735,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
+  /// العربية: يبني compact favorite button.
   Widget _buildCompactFavoriteButton() {
     return GestureDetector(
       onTap: () {
@@ -729,6 +765,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
+  /// العربية: يبني title.
   Widget _buildTitle() {
     return Row(
       children: [
@@ -781,6 +818,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
+  /// العربية: يبني location row.
   Widget _buildLocationRow() {
     return Row(
       children: [
@@ -834,6 +872,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
+  /// العربية: يبني info row.
   Widget _buildInfoRow() {
     return Row(
       children: [
@@ -901,6 +940,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
+  /// العربية: يبني price row.
   Widget _buildPriceRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -6,6 +6,7 @@ import '../../../../../core/enums/section_display_style.dart';
 import '../../../../../core/enums/section_class.dart';
 
 abstract class SectionFormEvent extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `SectionFormEvent`.
   const SectionFormEvent();
 
   @override
@@ -13,21 +14,31 @@ abstract class SectionFormEvent extends Equatable {
 }
 
 class InitializeSectionFormEvent extends SectionFormEvent {
+  /// العربية: يخزن القيمة `sectionId`.
   final String? sectionId;
+
   const InitializeSectionFormEvent({this.sectionId});
 }
 
 class AttachSectionTempKeyEvent extends SectionFormEvent {
+  /// العربية: يخزن القيمة `tempKey`.
   final String tempKey;
+
   const AttachSectionTempKeyEvent({required this.tempKey});
 }
 
 class UpdateSectionBasicInfoEvent extends SectionFormEvent {
+  /// العربية: يخزن القيمة `name`.
   final String? name;
+
   final String? title;
+
   final String? subtitle;
+
   final String? description;
+
   final String? shortDescription;
+
   const UpdateSectionBasicInfoEvent({
     this.name,
     this.title,
@@ -38,16 +49,27 @@ class UpdateSectionBasicInfoEvent extends SectionFormEvent {
 }
 
 class UpdateSectionConfigEvent extends SectionFormEvent {
+  /// العربية: يخزن القيمة `type`.
   final SectionTypeEnum? type;
+
   final SectionContentType? contentType;
+
   final SectionDisplayStyle? displayStyle;
+
   final SectionTarget? target;
+
   final int? displayOrder;
+
   final int? columnsCount;
+
   final int? itemsToShow;
+
   final bool? isActive;
+
   final SectionClass? categoryClass;
+
   final int? homeItemsCount;
+
   const UpdateSectionConfigEvent({
     this.type,
     this.contentType,
@@ -63,21 +85,35 @@ class UpdateSectionConfigEvent extends SectionFormEvent {
 }
 
 class UpdateSectionAppearanceEvent extends SectionFormEvent {
+  /// العربية: يخزن القيمة `icon`.
   final String? icon;
+
   final String? colorTheme;
+
   final String? backgroundImage;
-  const UpdateSectionAppearanceEvent({this.icon, this.colorTheme, this.backgroundImage});
+
+  const UpdateSectionAppearanceEvent(
+      {this.icon, this.colorTheme, this.backgroundImage});
 }
 
 class UpdateSectionFiltersEvent extends SectionFormEvent {
+  /// العربية: يخزن القيمة `filterCriteriaJson`.
   final String? filterCriteriaJson;
+
   final String? sortCriteriaJson;
+
   final String? cityName;
+
   final String? propertyTypeId;
+
   final String? unitTypeId;
+
   final double? minPrice;
+
   final double? maxPrice;
+
   final double? minRating;
+
   const UpdateSectionFiltersEvent({
     this.filterCriteriaJson,
     this.sortCriteriaJson,
@@ -91,11 +127,17 @@ class UpdateSectionFiltersEvent extends SectionFormEvent {
 }
 
 class UpdateSectionVisibilityEvent extends SectionFormEvent {
+  /// العربية: يحدد ما إذا كانت القيمة `isVisibleToGuests` مفعلة.
   final bool? isVisibleToGuests;
+
   final bool? isVisibleToRegistered;
+
   final String? requiresPermission;
+
   final DateTime? startDate;
+
   final DateTime? endDate;
+
   const UpdateSectionVisibilityEvent({
     this.isVisibleToGuests,
     this.isVisibleToRegistered,
@@ -106,9 +148,10 @@ class UpdateSectionVisibilityEvent extends SectionFormEvent {
 }
 
 class UpdateSectionMetadataEvent extends SectionFormEvent {
+  /// العربية: يخزن القيمة `metadataJson`.
   final String? metadataJson;
+
   const UpdateSectionMetadataEvent({this.metadataJson});
 }
 
 class SubmitSectionFormEvent extends SectionFormEvent {}
-

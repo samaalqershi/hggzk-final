@@ -19,27 +19,23 @@ import '../widgets/admin_notifications_table.dart';
 import '../widgets/notification_filters_bar.dart';
 import '../widgets/notifications_stats_card.dart';
 import '../../../helpers/presentation/utils/search_navigation_helper.dart';
-
 class AdminNotificationsPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `AdminNotificationsPage`.
   const AdminNotificationsPage({super.key});
-
   @override
   State<AdminNotificationsPage> createState() => _AdminNotificationsPageState();
 }
-
 class _AdminNotificationsPageState extends State<AdminNotificationsPage>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late AnimationController _pulseAnimationController;
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
-
   bool _showFilters = false;
   String? _selectedType;
   String? _selectedStatus;
   int _currentPage = 1;
   final int _pageSize = 20;
-
   @override
   void initState() {
     super.initState();
@@ -54,12 +50,10 @@ class _AdminNotificationsPageState extends State<AdminNotificationsPage>
     )..repeat(reverse: true);
 
     _tabController = TabController(length: 3, vsync: this);
-
     _loadNotifications();
     _loadStats();
     _setupScrollListener();
   }
-
   void _loadNotifications() {
     context.read<AdminNotificationsBloc>().add(
           LoadSystemNotificationsEvent(
@@ -70,13 +64,11 @@ class _AdminNotificationsPageState extends State<AdminNotificationsPage>
           ),
         );
   }
-
   void _loadStats() {
     context.read<AdminNotificationsBloc>().add(
           const LoadAdminNotificationsStatsEvent(),
         );
   }
-
   void _setupScrollListener() {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -90,7 +82,6 @@ class _AdminNotificationsPageState extends State<AdminNotificationsPage>
       }
     });
   }
-
   @override
   void dispose() {
     _animationController.dispose();
@@ -99,7 +90,6 @@ class _AdminNotificationsPageState extends State<AdminNotificationsPage>
     _scrollController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,7 +108,6 @@ class _AdminNotificationsPageState extends State<AdminNotificationsPage>
       ),
     );
   }
-
   Widget _buildSliverAppBar() {
     return SliverAppBar(
       expandedHeight: 140,
@@ -270,7 +259,6 @@ class _AdminNotificationsPageState extends State<AdminNotificationsPage>
       ],
     );
   }
-
   Widget _buildActionButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -309,7 +297,6 @@ class _AdminNotificationsPageState extends State<AdminNotificationsPage>
       ),
     );
   }
-
   Widget _buildStatsSection() {
     return SliverToBoxAdapter(
       child: BlocBuilder<AdminNotificationsBloc, AdminNotificationsState>(
@@ -378,7 +365,6 @@ class _AdminNotificationsPageState extends State<AdminNotificationsPage>
       ),
     );
   }
-
   Widget _buildFilterSection() {
     return SliverToBoxAdapter(
       child: AnimatedContainer(
@@ -401,14 +387,12 @@ class _AdminNotificationsPageState extends State<AdminNotificationsPage>
       ),
     );
   }
-
   String? _normalizeAdminTypeFilter(String? category) {
     if (category == null) return null;
     // High-level categories should not be sent to backend; leave null to get all and filter server-side by exact types if needed
     // Admin API expects exact Type values; here we keep it null to avoid mismatches.
     return null;
   }
-
   Widget _buildNotificationsList() {
     return BlocBuilder<AdminNotificationsBloc, AdminNotificationsState>(
       builder: (context, state) {
@@ -484,51 +468,42 @@ class _AdminNotificationsPageState extends State<AdminNotificationsPage>
   }
 
   // Removed FAB: Add action moved to AppBar
-
   void _navigateToCreateNotification() {
     HapticFeedback.lightImpact();
     context.push('/admin/notifications/create');
   }
-
   void _navigateToUserNotifications() {
     HapticFeedback.lightImpact();
     _showUserSelectionDialog();
   }
-
   Future<void> _showUserSelectionDialog() async {
     final user = await SearchNavigationHelper.searchSingleUser(context);
     if (user != null && mounted) {
       context.push('/admin/notifications/user/${user.id}');
     }
   }
-
   void _showBroadcastDialog() {
     HapticFeedback.lightImpact();
     context.push('/admin/notifications/broadcast');
   }
-
   void _navigateToNotificationChannels() {
     HapticFeedback.lightImpact();
     context.push('/admin/notification-channels');
   }
-
   void _viewNotificationDetails(String notificationId) {
     HapticFeedback.lightImpact();
     // يمكن إضافة صفحة تفاصيل الإشعار إذا لزم الأمر
   }
-
   void _resendNotification(String notificationId) {
     HapticFeedback.mediumImpact();
     context.read<AdminNotificationsBloc>().add(
           ResendAdminNotificationEvent(notificationId),
         );
   }
-
   void _deleteNotification(String notificationId) {
     HapticFeedback.mediumImpact();
     _showDeleteConfirmationDialog(notificationId);
   }
-
   void _showDeleteConfirmationDialog(String notificationId) {
     showDialog(
       context: context,

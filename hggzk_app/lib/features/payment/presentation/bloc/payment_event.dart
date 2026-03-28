@@ -1,11 +1,10 @@
-/// features/payment/presentation/bloc/payment_event.dart
-
 import 'package:equatable/equatable.dart';
 import '../../../../core/enums/payment_method_enum.dart';
 
+/// يمثل جميع الأحداث التي يمكن أن تطلقها واجهات الدفع نحو `PaymentBloc`.
+/// Represents every event payment UI surfaces can send to `PaymentBloc`.
 abstract class PaymentEvent extends Equatable {
   const PaymentEvent();
-
   @override
   List<Object?> get props => [];
 }
@@ -17,7 +16,6 @@ class ProcessPaymentEvent extends PaymentEvent {
   final PaymentMethod paymentMethod;
   final String currency;
   final Map<String, dynamic>? paymentDetails;
-
   const ProcessPaymentEvent({
     required this.bookingId,
     required this.userId,
@@ -26,7 +24,6 @@ class ProcessPaymentEvent extends PaymentEvent {
     required this.currency,
     this.paymentDetails,
   });
-
   @override
   List<Object?> get props => [
         bookingId,
@@ -48,7 +45,6 @@ class GetPaymentHistoryEvent extends PaymentEvent {
   final DateTime? toDate;
   final double? minAmount;
   final double? maxAmount;
-
   const GetPaymentHistoryEvent({
     required this.userId,
     this.pageNumber = 1,
@@ -60,7 +56,6 @@ class GetPaymentHistoryEvent extends PaymentEvent {
     this.minAmount,
     this.maxAmount,
   });
-
   @override
   List<Object?> get props => [
         userId,
@@ -84,7 +79,6 @@ class LoadMorePaymentHistoryEvent extends PaymentEvent {
   final DateTime? toDate;
   final double? minAmount;
   final double? maxAmount;
-
   const LoadMorePaymentHistoryEvent({
     required this.userId,
     this.pageSize = 10,
@@ -95,7 +89,6 @@ class LoadMorePaymentHistoryEvent extends PaymentEvent {
     this.minAmount,
     this.maxAmount,
   });
-
   @override
   List<Object?> get props => [
         userId,
@@ -111,9 +104,7 @@ class LoadMorePaymentHistoryEvent extends PaymentEvent {
 
 class SelectPaymentMethodEvent extends PaymentEvent {
   final PaymentMethod paymentMethod;
-
   const SelectPaymentMethodEvent({required this.paymentMethod});
-
   @override
   List<Object> get props => [paymentMethod];
 }
@@ -126,7 +117,6 @@ class ValidatePaymentDetailsEvent extends PaymentEvent {
   final String? cvv;
   final String? walletNumber;
   final String? walletPin;
-
   const ValidatePaymentDetailsEvent({
     required this.paymentMethod,
     this.cardNumber,
@@ -136,7 +126,6 @@ class ValidatePaymentDetailsEvent extends PaymentEvent {
     this.walletNumber,
     this.walletPin,
   });
-
   @override
   List<Object?> get props => [
         paymentMethod,
@@ -158,14 +147,12 @@ class RefundPaymentEvent extends PaymentEvent {
   final String userId;
   final double amount;
   final String reason;
-
   const RefundPaymentEvent({
     required this.transactionId,
     required this.userId,
     required this.amount,
     required this.reason,
   });
-
   @override
   List<Object> get props => [transactionId, userId, amount, reason];
 }

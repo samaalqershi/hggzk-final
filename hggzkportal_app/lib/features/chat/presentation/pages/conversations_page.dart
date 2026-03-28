@@ -6,7 +6,6 @@ import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/conversation.dart';
 import '../bloc/chat_bloc.dart';
@@ -15,45 +14,101 @@ import '../widgets/chat_fab.dart';
 import 'chat_page.dart';
 import 'new_conversation_page.dart';
 
+/// يعرّف الكلاس `ConversationsPage`.
+/// Describes the `ConversationsPage` class.
 class ConversationsPage extends StatefulWidget {
+  /// Initializes a new `ConversationsPage` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ConversationsPage`.
   const ConversationsPage({super.key});
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<ConversationsPage> createState() => _ConversationsPageState();
 }
 
+/// يعرّف الكلاس `_ConversationsPageState`.
+/// Describes the `_ConversationsPageState` class.
 class _ConversationsPageState extends State<ConversationsPage>
     with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
 
+  /// يخزن العضو `_fadeController`.
+  /// Holds the `_fadeController` member.
   late AnimationController _fadeController;
+
+  /// يخزن العضو `_slideController`.
+  /// Holds the `_slideController` member.
   late AnimationController _slideController;
+
+  /// يخزن العضو `_shimmerController`.
+  /// Holds the `_shimmerController` member.
   late AnimationController _shimmerController;
+
+  /// يخزن العضو `_backgroundController`.
+  /// Holds the `_backgroundController` member.
   late AnimationController _backgroundController;
+
+  /// يخزن العضو `_pulseController`.
+  /// Holds the `_pulseController` member.
   late AnimationController _pulseController;
 
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
+
+  /// يخزن العضو `_slideAnimation`.
+  /// Holds the `_slideAnimation` member.
   late Animation<Offset> _slideAnimation;
+
+  /// يخزن العضو `_shimmerAnimation`.
+  /// Holds the `_shimmerAnimation` member.
   late Animation<double> _shimmerAnimation;
+
+  /// يخزن العضو `_backgroundAnimation`.
+  /// Holds the `_backgroundAnimation` member.
   late Animation<double> _backgroundAnimation;
+
+  /// يخزن العضو `_pulseAnimation`.
+  /// Holds the `_pulseAnimation` member.
   late Animation<double> _pulseAnimation;
 
+  /// يخزن العضو `_isSearching`.
+  /// Holds the `_isSearching` member.
   bool _isSearching = false;
+
+  /// يخزن العضو `_searchQuery`.
+  /// Holds the `_searchQuery` member.
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
 
+  /// يخزن العضو `_particles`.
+  /// Holds the `_particles` member.
   final List<_MinimalParticle> _particles = [];
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
+
+    /// ينفذ العملية `_initializeAnimations`.
+    /// Runs the `_initializeAnimations` operation.
     _initializeAnimations();
+
+    /// ينفذ العملية `_generateParticles`.
+    /// Runs the `_generateParticles` operation.
     _generateParticles();
+
+    /// ينفذ العملية `_loadConversations`.
+    /// Runs the `_loadConversations` operation.
     _loadConversations();
     _scrollController.addListener(_onScroll);
   }
 
+  /// ينفذ العملية `_initializeAnimations`.
+  /// Runs the `_initializeAnimations` operation.
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -118,12 +173,16 @@ class _ConversationsPageState extends State<ConversationsPage>
     _slideController.forward();
   }
 
+  /// ينفذ العملية `_generateParticles`.
+  /// Runs the `_generateParticles` operation.
   void _generateParticles() {
     for (int i = 0; i < 5; i++) {
       _particles.add(_MinimalParticle());
     }
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _scrollController.dispose();
@@ -137,10 +196,14 @@ class _ConversationsPageState extends State<ConversationsPage>
     super.dispose();
   }
 
+  /// ينفذ العملية `_loadConversations`.
+  /// Runs the `_loadConversations` operation.
   void _loadConversations() {
     context.read<ChatBloc>().add(const InitializeChatEvent());
   }
 
+  /// ينفذ العملية `_onScroll`.
+  /// Runs the `_onScroll` operation.
   void _onScroll() {
     if (_isBottom) {
       final state = context.read<ChatBloc>().state;
@@ -154,6 +217,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     }
   }
 
+  /// يعيد قيمة `_isBottom`.
+  /// Exposes the `_isBottom` value.
   bool get _isBottom {
     if (!_scrollController.hasClients) return false;
     final maxScroll = _scrollController.position.maxScrollExtent;
@@ -161,6 +226,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     return currentScroll >= (maxScroll * 0.9);
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -193,6 +260,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_buildUltraMinimalBackground`.
+  /// Runs the `_buildUltraMinimalBackground` operation.
   Widget _buildUltraMinimalBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -221,6 +290,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_buildSubtleParticles`.
+  /// Runs the `_buildSubtleParticles` operation.
   Widget _buildSubtleParticles() {
     return AnimatedBuilder(
       animation: _backgroundController,
@@ -236,6 +307,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_buildUltraPremiumHeader`.
+  /// Runs the `_buildUltraPremiumHeader` operation.
   Widget _buildUltraPremiumHeader() {
     return SizedBox(
       height: _isSearching ? 110 : 60,
@@ -280,6 +353,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalHeaderContent`.
+  /// Runs the `_buildMinimalHeaderContent` operation.
   Widget _buildMinimalHeaderContent() {
     return Container(
       height: 60,
@@ -354,6 +429,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalIconButton`.
+  /// Runs the `_buildMinimalIconButton` operation.
   Widget _buildMinimalIconButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -380,6 +457,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_buildUltraMinimalSearch`.
+  /// Runs the `_buildUltraMinimalSearch` operation.
   Widget _buildUltraMinimalSearch() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -433,6 +512,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_buildConversationsList`.
+  /// Runs the `_buildConversationsList` operation.
   Widget _buildConversationsList() {
     return BlocBuilder<ChatBloc, ChatState>(
       builder: (context, state) {
@@ -460,6 +541,8 @@ class _ConversationsPageState extends State<ConversationsPage>
   }
 
   // المهمة 6: Placeholders احترافية
+  /// ينفذ العملية `_buildUltraMinimalLoading`.
+  /// Runs the `_buildUltraMinimalLoading` operation.
   Widget _buildUltraMinimalLoading() {
     return ListView.builder(
       padding: const EdgeInsets.only(top: 4, bottom: 80),
@@ -578,6 +661,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_buildShimmerLine`.
+  /// Runs the `_buildShimmerLine` operation.
   Widget _buildShimmerLine({
     required double width,
     required double height,
@@ -624,6 +709,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_buildUltraMinimalError`.
+  /// Runs the `_buildUltraMinimalError` operation.
   Widget _buildUltraMinimalError(String message) {
     return Center(
       child: Container(
@@ -685,6 +772,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_buildUltraMinimalEmpty`.
+  /// Runs the `_buildUltraMinimalEmpty` operation.
   Widget _buildUltraMinimalEmpty() {
     return Center(
       child: TweenAnimationBuilder<double>(
@@ -795,6 +884,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_buildUltraPremiumList`.
+  /// Runs the `_buildUltraPremiumList` operation.
   Widget _buildUltraPremiumList(
     List<Conversation> conversations,
     ChatLoaded state,
@@ -858,6 +949,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalLoadMore`.
+  /// Runs the `_buildMinimalLoadMore` operation.
   Widget _buildMinimalLoadMore() {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -876,6 +969,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_filterConversations`.
+  /// Runs the `_filterConversations` operation.
   List<Conversation> _filterConversations(List<Conversation> conversations) {
     if (_searchQuery.isEmpty) return conversations;
 
@@ -888,6 +983,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     }).toList();
   }
 
+  /// ينفذ العملية `_openChat`.
+  /// Runs the `_openChat` operation.
   void _openChat(Conversation conversation) {
     HapticFeedback.selectionClick();
     Navigator.push(
@@ -918,6 +1015,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_startNewConversation`.
+  /// Runs the `_startNewConversation` operation.
   void _startNewConversation() {
     HapticFeedback.lightImpact();
     Navigator.push(
@@ -948,6 +1047,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_showMinimalOptions`.
+  /// Runs the `_showMinimalOptions` operation.
   void _showMinimalOptions() {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
@@ -961,6 +1062,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_showConversationOptions`.
+  /// Runs the `_showConversationOptions` operation.
   void _showConversationOptions(Conversation conversation) {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
@@ -986,6 +1089,8 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// ينفذ العملية `_confirmDelete`.
+  /// Runs the `_confirmDelete` operation.
   void _confirmDelete(Conversation conversation) {
     HapticFeedback.lightImpact();
     showDialog(
@@ -1008,15 +1113,26 @@ class _ConversationsPageState extends State<ConversationsPage>
   }
 }
 
+/// يعرّف الكلاس `_UltraMinimalOptionsSheet`.
+/// Describes the `_UltraMinimalOptionsSheet` class.
 class _UltraMinimalOptionsSheet extends StatelessWidget {
+  /// Holds the `onArchiveAll` value.
+  /// العربية: يخزن القيمة `onArchiveAll`.
   final VoidCallback onArchiveAll;
+
+  /// يخزن العضو `onSettings`.
+  /// Holds the `onSettings` member.
   final VoidCallback onSettings;
 
+  /// ينشئ مثيلاً من `_UltraMinimalOptionsSheet`.
+  /// Builds an instance of `_UltraMinimalOptionsSheet`.
   const _UltraMinimalOptionsSheet({
     required this.onArchiveAll,
     required this.onSettings,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1071,6 +1187,8 @@ class _UltraMinimalOptionsSheet extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildMinimalOption`.
+  /// Runs the `_buildMinimalOption` operation.
   Widget _buildMinimalOption({
     required IconData icon,
     required String title,
@@ -1103,12 +1221,27 @@ class _UltraMinimalOptionsSheet extends StatelessWidget {
   }
 }
 
+/// يعرّف الكلاس `_UltraMinimalConversationSheet`.
+/// Describes the `_UltraMinimalConversationSheet` class.
 class _UltraMinimalConversationSheet extends StatelessWidget {
+  /// Holds the `conversation` value.
+  /// العربية: يخزن القيمة `conversation`.
   final Conversation conversation;
+
+  /// يخزن العضو `onArchive`.
+  /// Holds the `onArchive` member.
   final VoidCallback onArchive;
+
+  /// يخزن العضو `onDelete`.
+  /// Holds the `onDelete` member.
   final VoidCallback onDelete;
+
+  /// يخزن العضو `onMute`.
+  /// Holds the `onMute` member.
   final VoidCallback onMute;
 
+  /// ينشئ مثيلاً من `_UltraMinimalConversationSheet`.
+  /// Builds an instance of `_UltraMinimalConversationSheet`.
   const _UltraMinimalConversationSheet({
     required this.conversation,
     required this.onArchive,
@@ -1116,6 +1249,8 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
     required this.onMute,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1183,6 +1318,8 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildOption`.
+  /// Runs the `_buildOption` operation.
   Widget _buildOption({
     required IconData icon,
     required String title,
@@ -1216,13 +1353,31 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
   }
 }
 
+/// يعرّف الكلاس `_UltraMinimalDialog`.
+/// Describes the `_UltraMinimalDialog` class.
 class _UltraMinimalDialog extends StatelessWidget {
+  /// Holds the `title` value.
+  /// العربية: يخزن القيمة `title`.
   final String title;
+
+  /// يخزن العضو `message`.
+  /// Holds the `message` member.
   final String message;
+
+  /// يخزن العضو `confirmText`.
+  /// Holds the `confirmText` member.
   final String confirmText;
+
+  /// يخزن العضو `isDestructive`.
+  /// Holds the `isDestructive` member.
   final bool isDestructive;
+
+  /// يخزن العضو `onConfirm`.
+  /// Holds the `onConfirm` member.
   final VoidCallback onConfirm;
 
+  /// ينشئ مثيلاً من `_UltraMinimalDialog`.
+  /// Builds an instance of `_UltraMinimalDialog`.
   const _UltraMinimalDialog({
     required this.title,
     required this.message,
@@ -1231,6 +1386,8 @@ class _UltraMinimalDialog extends StatelessWidget {
     this.isDestructive = false,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -1361,27 +1518,43 @@ class _UltraMinimalDialog extends StatelessWidget {
   }
 }
 
+/// يعرّف الكلاس `_MinimalParticle`.
+/// Describes the `_MinimalParticle` class.
 class _MinimalParticle {
   double x = math.Random().nextDouble();
   double y = math.Random().nextDouble();
   double size = math.Random().nextDouble() * 60 + 20;
   double opacity = math.Random().nextDouble() * 0.02 + 0.01;
   double speed = math.Random().nextDouble() * 0.00005 + 0.00001;
+
+  /// يخزن العضو `color`.
+  /// Holds the `color` member.
   Color color = [
     AppTheme.primaryBlue,
     AppTheme.primaryPurple,
   ][math.Random().nextInt(2)];
 }
 
+/// يعرّف الكلاس `_UltraMinimalGradientPainter`.
+/// Describes the `_UltraMinimalGradientPainter` class.
 class _UltraMinimalGradientPainter extends CustomPainter {
+  /// Holds the `animation` value.
+  /// العربية: يخزن القيمة `animation`.
   final double animation;
+
+  /// يخزن العضو `pulseAnimation`.
+  /// Holds the `pulseAnimation` member.
   final double pulseAnimation;
 
+  /// ينشئ مثيلاً من `_UltraMinimalGradientPainter`.
+  /// Builds an instance of `_UltraMinimalGradientPainter`.
   _UltraMinimalGradientPainter({
     required this.animation,
     required this.pulseAnimation,
   });
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1409,19 +1582,32 @@ class _UltraMinimalGradientPainter extends CustomPainter {
     }
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+/// يعرّف الكلاس `_SubtleParticlePainter`.
+/// Describes the `_SubtleParticlePainter` class.
 class _SubtleParticlePainter extends CustomPainter {
+  /// Holds the `particles` value.
+  /// العربية: يخزن القيمة `particles`.
   final List<_MinimalParticle> particles;
+
+  /// يخزن العضو `animation`.
+  /// Holds the `animation` member.
   final double animation;
 
+  /// ينشئ مثيلاً من `_SubtleParticlePainter`.
+  /// Builds an instance of `_SubtleParticlePainter`.
   _SubtleParticlePainter({
     required this.particles,
     required this.animation,
   });
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
@@ -1444,6 +1630,8 @@ class _SubtleParticlePainter extends CustomPainter {
     }
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

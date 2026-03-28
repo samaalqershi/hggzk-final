@@ -1,10 +1,6 @@
 // lib/features/admin_policies/presentation/pages/create_policy_page.dart
 
-import 'dart:ui';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:get_it/get_it.dart';
@@ -18,8 +14,11 @@ import '../bloc/policies_event.dart';
 import '../bloc/policies_state.dart';
 
 class CreatePolicyPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `initialPropertyId`.
   final String? initialPropertyId;
+
   final PolicyType? initialType;
+
   const CreatePolicyPage({super.key, this.initialPropertyId, this.initialType});
 
   @override
@@ -30,8 +29,11 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
     with TickerProviderStateMixin {
   // Controllers
   late AnimationController _animationController;
+
   late AnimationController _glowController;
+
   late Animation<double> _fadeAnimation;
+
   late Animation<Offset> _slideAnimation;
 
   // Form Controllers
@@ -73,39 +75,63 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
 
   // State
   PolicyType _selectedType = PolicyType.cancellation;
+
   bool _requireFullPayment = false;
+
   bool? _cancellationFreeCancel;
+
   bool? _cancellationFullRefund;
+
   bool? _cancellationNonRefundable;
 
   bool? _paymentDepositRequired;
+
   bool? _paymentFullPaymentRequired;
+
   bool? _paymentAcceptCash;
+
   bool? _paymentAcceptCard;
+
   bool? _paymentPayAtProperty;
+
   bool? _paymentCashPreferred;
 
   bool? _checkInFlexible;
+
   bool? _checkInFlexibleCheckIn;
+
   bool? _checkInRequiresCoordination;
+
   bool? _checkInContactOwner;
 
   bool? _childrenAllowed;
+
   bool? _childrenPlaygroundAvailable;
+
   bool? _childrenKidsMenuAvailable;
 
   bool? _petsAllowed;
+
   bool? _petsRequiresApproval;
+
   bool? _petsNoFees;
+
   bool? _petsPetFriendly;
+
   bool? _petsOutdoorSpace;
+
   bool? _petsStrict;
 
   bool? _modificationAllowed;
+
   bool? _modificationFlexible;
+
   String? _selectedPropertyId;
+
   String? _selectedPropertyName;
+
   bool _isAdmin = false;
+
   int _currentStep = 0;
 
   static const Set<PolicyType> _disabledPolicyTypes = {
@@ -217,14 +243,14 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
     return BlocListener<PoliciesBloc, PoliciesState>(
       listener: (context, state) {
         if (state is PolicyOperationSuccess) {
+          final router = GoRouter.of(context);
           _showSuccessMessage('تم إنشاء السياسة بنجاح');
           Future.delayed(const Duration(milliseconds: 500), () {
-            if (mounted) {
-              context.pop({
-                'refresh': true,
-                'propertyId': _selectedPropertyId,
-              });
-            }
+            if (!mounted) return;
+            router.pop({
+              'refresh': true,
+              'propertyId': _selectedPropertyId,
+            });
           });
         } else if (state is PolicyOperationFailure) {
           _showErrorMessage(state.message);
@@ -280,8 +306,8 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -303,13 +329,13 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: _getPolicyTypeColor(_selectedType).withOpacity(0.3),
+            color: _getPolicyTypeColor(_selectedType).withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -325,13 +351,13 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -354,7 +380,7 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
                   shaderCallback: (bounds) => LinearGradient(
                     colors: [
                       _getPolicyTypeColor(_selectedType),
-                      _getPolicyTypeColor(_selectedType).withOpacity(0.7),
+                      _getPolicyTypeColor(_selectedType).withValues(alpha: 0.7),
                     ],
                   ).createShader(bounds),
                   child: Text(
@@ -405,25 +431,26 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
                             colors: [
                               _getPolicyTypeColor(_selectedType),
                               _getPolicyTypeColor(_selectedType)
-                                  .withOpacity(0.7),
+                                  .withValues(alpha: 0.7),
                             ],
                           )
                         : null,
                     color: !isActive
-                        ? AppTheme.darkSurface.withOpacity(0.5)
+                        ? AppTheme.darkSurface.withValues(alpha: 0.5)
                         : null,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isActive
-                          ? _getPolicyTypeColor(_selectedType).withOpacity(0.5)
-                          : AppTheme.darkBorder.withOpacity(0.3),
+                          ? _getPolicyTypeColor(_selectedType)
+                              .withValues(alpha: 0.5)
+                          : AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                     boxShadow: isActive
                         ? [
                             BoxShadow(
                               color: _getPolicyTypeColor(_selectedType)
-                                  .withOpacity(0.3),
+                                  .withValues(alpha: 0.3),
                               blurRadius: 10,
                             ),
                           ]
@@ -459,12 +486,12 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
                                 colors: [
                                   _getPolicyTypeColor(_selectedType),
                                   _getPolicyTypeColor(_selectedType)
-                                      .withOpacity(0.5),
+                                      .withValues(alpha: 0.5),
                                 ],
                               )
                             : null,
                         color: !isCompleted
-                            ? AppTheme.darkBorder.withOpacity(0.2)
+                            ? AppTheme.darkBorder.withValues(alpha: 0.2)
                             : null,
                         borderRadius: BorderRadius.circular(1),
                       ),
@@ -541,13 +568,14 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  _getPolicyTypeColor(_selectedType).withOpacity(0.1),
-                  _getPolicyTypeColor(_selectedType).withOpacity(0.05),
+                  _getPolicyTypeColor(_selectedType).withValues(alpha: 0.1),
+                  _getPolicyTypeColor(_selectedType).withValues(alpha: 0.05),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: _getPolicyTypeColor(_selectedType).withOpacity(0.3),
+                color:
+                    _getPolicyTypeColor(_selectedType).withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -560,7 +588,8 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
                     gradient: LinearGradient(
                       colors: [
                         _getPolicyTypeColor(_selectedType),
-                        _getPolicyTypeColor(_selectedType).withOpacity(0.7),
+                        _getPolicyTypeColor(_selectedType)
+                            .withValues(alpha: 0.7),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(10),
@@ -638,123 +667,6 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
     );
   }
 
-  Widget _buildTypeSelector() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'نوع السياسة',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textWhite,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: PolicyType.values.map((type) {
-              final isSelected = _selectedType == type;
-              final isDisabled = _isPolicyTypeDisabled(type);
-              return GestureDetector(
-                onTap: isDisabled
-                    ? null
-                    : () {
-                        setState(() => _selectedType = type);
-                        HapticFeedback.lightImpact();
-                      },
-                child: Opacity(
-                  opacity: isDisabled ? 0.45 : 1,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(
-                      gradient: isSelected && !isDisabled
-                          ? LinearGradient(
-                              colors: [
-                                _getPolicyTypeColor(type),
-                                _getPolicyTypeColor(type).withOpacity(0.7),
-                              ],
-                            )
-                          : null,
-                      color: isSelected && !isDisabled
-                          ? null
-                          : AppTheme.darkCard.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isSelected && !isDisabled
-                            ? _getPolicyTypeColor(type).withOpacity(0.5)
-                            : AppTheme.darkBorder.withOpacity(0.3),
-                        width: 1,
-                      ),
-                      boxShadow: isSelected && !isDisabled
-                          ? [
-                              BoxShadow(
-                                color:
-                                    _getPolicyTypeColor(type).withOpacity(0.3),
-                                blurRadius: 8,
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          _getPolicyIcon(type),
-                          color: isSelected && !isDisabled
-                              ? Colors.white
-                              : AppTheme.textMuted,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          type.displayName,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: isSelected && !isDisabled
-                                ? Colors.white
-                                : AppTheme.textMuted,
-                            fontWeight: isSelected && !isDisabled
-                                ? FontWeight.w600
-                                : FontWeight.normal,
-                          ),
-                        ),
-                        if (isDisabled) ...[
-                          const SizedBox(width: 6),
-                          Icon(
-                            Icons.lock_outline_rounded,
-                            size: 14,
-                            color: AppTheme.textMuted,
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildPropertySelector() {
     // للـ Admin: اختيار العقار
     if (_isAdmin) {
@@ -789,15 +701,16 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkCard.withOpacity(0.5),
-                    AppTheme.darkCard.withOpacity(0.3),
+                    AppTheme.darkCard.withValues(alpha: 0.5),
+                    AppTheme.darkCard.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: _selectedPropertyId != null
-                      ? _getPolicyTypeColor(_selectedType).withOpacity(0.3)
-                      : AppTheme.darkBorder.withOpacity(0.3),
+                      ? _getPolicyTypeColor(_selectedType)
+                          .withValues(alpha: 0.3)
+                      : AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -807,7 +720,7 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
                     Icons.apartment_rounded,
                     color: _selectedPropertyId != null
                         ? _getPolicyTypeColor(_selectedType)
-                        : AppTheme.textMuted.withOpacity(0.5),
+                        : AppTheme.textMuted.withValues(alpha: 0.5),
                     size: 20,
                   ),
                   const SizedBox(width: 12),
@@ -816,14 +729,15 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
                       _selectedPropertyName ?? 'اختر العقار',
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: _selectedPropertyName == null
-                            ? AppTheme.textMuted.withOpacity(0.5)
+                            ? AppTheme.textMuted.withValues(alpha: 0.5)
                             : AppTheme.textWhite,
                       ),
                     ),
                   ),
                   Icon(
                     Icons.search,
-                    color: _getPolicyTypeColor(_selectedType).withOpacity(0.7),
+                    color: _getPolicyTypeColor(_selectedType)
+                        .withValues(alpha: 0.7),
                     size: 20,
                   ),
                 ],
@@ -900,15 +814,15 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkCard.withOpacity(0.5),
-                    AppTheme.darkCard.withOpacity(0.3),
+                    AppTheme.darkCard.withValues(alpha: 0.5),
+                    AppTheme.darkCard.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: _requireFullPayment
-                      ? AppTheme.success.withOpacity(0.3)
-                      : AppTheme.darkBorder.withOpacity(0.3),
+                      ? AppTheme.success.withValues(alpha: 0.3)
+                      : AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -920,8 +834,8 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
                       height: 32,
                       decoration: BoxDecoration(
                         color: _requireFullPayment
-                            ? AppTheme.success.withOpacity(0.2)
-                            : AppTheme.darkSurface.withOpacity(0.5),
+                            ? AppTheme.success.withValues(alpha: 0.2)
+                            : AppTheme.darkSurface.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -962,7 +876,7 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
                   });
                 },
                 activeThumbColor: AppTheme.success,
-                activeTrackColor: AppTheme.success.withOpacity(0.3),
+                activeTrackColor: AppTheme.success.withValues(alpha: 0.3),
               ),
             ),
             const SizedBox(height: 16),
@@ -1058,7 +972,8 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
             _buildBooleanTile(
               title: 'يتطلب تنسيق',
               value: _checkInRequiresCoordination ?? false,
-              onChanged: (v) => setState(() => _checkInRequiresCoordination = v),
+              onChanged: (v) =>
+                  setState(() => _checkInRequiresCoordination = v),
             ),
             _buildBooleanTile(
               title: 'التواصل مع المالك',
@@ -1142,7 +1057,8 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
             _buildBooleanTile(
               title: 'ساحة لعب',
               value: _childrenPlaygroundAvailable ?? false,
-              onChanged: (v) => setState(() => _childrenPlaygroundAvailable = v),
+              onChanged: (v) =>
+                  setState(() => _childrenPlaygroundAvailable = v),
             ),
             _buildBooleanTile(
               title: 'قائمة أطفال',
@@ -1249,9 +1165,6 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
             const SizedBox.shrink(),
           ],
         );
-
-      default:
-        return const SizedBox.shrink();
     }
   }
 
@@ -1265,13 +1178,13 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1286,7 +1199,8 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
         value: value,
         onChanged: onChanged,
         activeThumbColor: _getPolicyTypeColor(_selectedType),
-        activeTrackColor: _getPolicyTypeColor(_selectedType).withOpacity(0.3),
+        activeTrackColor:
+            _getPolicyTypeColor(_selectedType).withValues(alpha: 0.3),
       ),
     );
   }
@@ -1316,13 +1230,13 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1337,13 +1251,13 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: maxLines == 1
                   ? Icon(
                       icon,
-                      color:
-                          _getPolicyTypeColor(_selectedType).withOpacity(0.7),
+                      color: _getPolicyTypeColor(_selectedType)
+                          .withValues(alpha: 0.7),
                       size: 20,
                     )
                   : null,
@@ -1367,13 +1281,13 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1386,7 +1300,7 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [color, color.withOpacity(0.7)],
+                    colors: [color, color.withValues(alpha: 0.7)],
                   ),
                   borderRadius: BorderRadius.circular(6),
                 ),
@@ -1449,13 +1363,13 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1472,13 +1386,13 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -1507,14 +1421,14 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
                   gradient: LinearGradient(
                     colors: [
                       _getPolicyTypeColor(_selectedType),
-                      _getPolicyTypeColor(_selectedType).withOpacity(0.7),
+                      _getPolicyTypeColor(_selectedType).withValues(alpha: 0.7),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color:
-                          _getPolicyTypeColor(_selectedType).withOpacity(0.3),
+                      color: _getPolicyTypeColor(_selectedType)
+                          .withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -1628,7 +1542,6 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
                   double.tryParse(_depositPercentageController.text) ?? 0,
               minHoursBeforeCheckIn:
                   int.tryParse(_minHoursController.text) ?? 0,
-
               cancellationFreeCancel: _cancellationFreeCancel,
               cancellationFullRefund: _cancellationFullRefund,
               cancellationRefundPercentage:
@@ -1642,7 +1555,6 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
                   _cancellationPenaltyAfterDeadlineController.text.isEmpty
                       ? null
                       : _cancellationPenaltyAfterDeadlineController.text,
-
               paymentDepositRequired: _paymentDepositRequired,
               paymentFullPaymentRequired: _paymentFullPaymentRequired,
               paymentDepositPercentage:
@@ -1659,7 +1571,6 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
                           .map((e) => e.trim())
                           .where((e) => e.isNotEmpty)
                           .toList(),
-
               checkInTime: _checkInTimeController.text.isEmpty
                   ? null
                   : _checkInTimeController.text,
@@ -1676,16 +1587,18 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
               checkInFlexibleCheckIn: _checkInFlexibleCheckIn,
               checkInRequiresCoordination: _checkInRequiresCoordination,
               checkInContactOwner: _checkInContactOwner,
-              checkInEarlyCheckInNote: _checkInEarlyCheckInNoteController.text.isEmpty
-                  ? null
-                  : _checkInEarlyCheckInNoteController.text,
-              checkInLateCheckOutNote: _checkInLateCheckOutNoteController.text.isEmpty
-                  ? null
-                  : _checkInLateCheckOutNoteController.text,
-              checkInLateCheckOutFee: _checkInLateCheckOutFeeController.text.isEmpty
-                  ? null
-                  : _checkInLateCheckOutFeeController.text,
-
+              checkInEarlyCheckInNote:
+                  _checkInEarlyCheckInNoteController.text.isEmpty
+                      ? null
+                      : _checkInEarlyCheckInNoteController.text,
+              checkInLateCheckOutNote:
+                  _checkInLateCheckOutNoteController.text.isEmpty
+                      ? null
+                      : _checkInLateCheckOutNoteController.text,
+              checkInLateCheckOutFee:
+                  _checkInLateCheckOutFeeController.text.isEmpty
+                      ? null
+                      : _checkInLateCheckOutFeeController.text,
               childrenAllowed: _childrenAllowed,
               childrenFreeUnderAge:
                   int.tryParse(_childrenFreeUnderAgeController.text),
@@ -1693,13 +1606,13 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
                   int.tryParse(_childrenHalfPriceUnderAgeController.text),
               childrenMaxChildrenPerRoom:
                   int.tryParse(_childrenMaxChildrenPerRoomController.text),
-              childrenMaxChildren: int.tryParse(_childrenMaxChildrenController.text),
+              childrenMaxChildren:
+                  int.tryParse(_childrenMaxChildrenController.text),
               childrenCribsNote: _childrenCribsNoteController.text.isEmpty
                   ? null
                   : _childrenCribsNoteController.text,
               childrenPlaygroundAvailable: _childrenPlaygroundAvailable,
               childrenKidsMenuAvailable: _childrenKidsMenuAvailable,
-
               petsAllowed: _petsAllowed,
               petsReason: _petsReasonController.text.isEmpty
                   ? null
@@ -1713,13 +1626,13 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
               petsPetFriendly: _petsPetFriendly,
               petsOutdoorSpace: _petsOutdoorSpace,
               petsStrict: _petsStrict,
-
               modificationAllowed: _modificationAllowed,
-              modificationFreeModificationHours:
-                  int.tryParse(_modificationFreeModificationHoursController.text),
-              modificationFeesAfter: _modificationFeesAfterController.text.isEmpty
-                  ? null
-                  : _modificationFeesAfterController.text,
+              modificationFreeModificationHours: int.tryParse(
+                  _modificationFreeModificationHoursController.text),
+              modificationFeesAfter:
+                  _modificationFeesAfterController.text.isEmpty
+                      ? null
+                      : _modificationFeesAfterController.text,
               modificationFlexible: _modificationFlexible,
               modificationReason: _modificationReasonController.text.isEmpty
                   ? null
@@ -1753,6 +1666,18 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
           'value': '${_depositPercentageController.text}%',
         });
         break;
+      case PolicyType.children:
+        items.add({
+          'label': 'السماح بالأطفال',
+          'value': (_childrenAllowed ?? false) ? 'نعم' : 'لا',
+        });
+        break;
+      case PolicyType.pets:
+        items.add({
+          'label': 'السماح بالحيوانات الأليفة',
+          'value': (_petsAllowed ?? false) ? 'نعم' : 'لا',
+        });
+        break;
       case PolicyType.checkIn:
       case PolicyType.modification:
         items.add({
@@ -1760,11 +1685,6 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
           'value': '${_minHoursController.text} ساعة',
         });
         break;
-      default:
-        items.add({
-          'label': 'إعدادات افتراضية',
-          'value': 'لا توجد إعدادات خاصة',
-        });
     }
 
     return items;
@@ -1851,7 +1771,9 @@ class _CreatePolicyPageState extends State<CreatePolicyPage>
 
 // Background Painter
 class _CreatePolicyBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
+
   final PolicyType policyType;
 
   _CreatePolicyBackgroundPainter({
@@ -1869,8 +1791,8 @@ class _CreatePolicyBackgroundPainter extends CustomPainter {
     // Draw glowing orbs
     paint.shader = RadialGradient(
       colors: [
-        color.withOpacity(0.1 * glowIntensity),
-        color.withOpacity(0.05 * glowIntensity),
+        color.withValues(alpha: 0.1 * glowIntensity),
+        color.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -1886,8 +1808,8 @@ class _CreatePolicyBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryPurple.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryPurple.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(

@@ -12,27 +12,23 @@ import '../bloc/admin_notifications_bloc.dart';
 import '../bloc/admin_notifications_event.dart';
 import '../bloc/admin_notifications_state.dart';
 import '../widgets/admin_notification_form.dart';
-
 class CreateAdminNotificationPage extends StatefulWidget {
+  /// العربية: يحدد ما إذا كانت القيمة `isBroadcast` مفعلة.
   final bool isBroadcast;
-
   const CreateAdminNotificationPage({
     super.key,
     this.isBroadcast = false,
   });
-
   @override
   State<CreateAdminNotificationPage> createState() =>
       _CreateAdminNotificationPageState();
 }
-
 class _CreateAdminNotificationPageState
     extends State<CreateAdminNotificationPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
   @override
   void initState() {
     super.initState();
@@ -59,13 +55,11 @@ class _CreateAdminNotificationPageState
 
     _animationController.forward();
   }
-
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<AdminNotificationsBloc, AdminNotificationsState>(
@@ -129,7 +123,6 @@ class _CreateAdminNotificationPageState
       ),
     );
   }
-
   Widget _buildAnimatedBackground() {
     return Stack(
       children: [
@@ -182,7 +175,6 @@ class _CreateAdminNotificationPageState
       ],
     );
   }
-
   Widget _buildAppBar() {
     return SliverAppBar(
       expandedHeight: 120,
@@ -220,7 +212,6 @@ class _CreateAdminNotificationPageState
       ),
     );
   }
-
   Widget _buildBackButton() {
     return Container(
       margin: const EdgeInsets.all(8),
@@ -245,7 +236,6 @@ class _CreateAdminNotificationPageState
       ),
     );
   }
-
   void _handleSubmit(Map<String, dynamic> formData) {
     if (widget.isBroadcast) {
       context.read<AdminNotificationsBloc>().add(
@@ -271,7 +261,6 @@ class _CreateAdminNotificationPageState
           );
     }
   }
-
   void _showSuccessDialog(String message) {
     HapticFeedback.mediumImpact();
     showDialog(
@@ -369,7 +358,6 @@ class _CreateAdminNotificationPageState
       ),
     );
   }
-
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

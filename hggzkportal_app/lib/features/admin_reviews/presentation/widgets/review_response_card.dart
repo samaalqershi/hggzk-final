@@ -6,34 +6,29 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/review_response.dart';
-
 class ReviewResponseCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `response`.
   final ReviewResponse response;
   final VoidCallback onDelete;
-
   const ReviewResponseCard({
     super.key,
     required this.response,
     required this.onDelete,
   });
-
   @override
   State<ReviewResponseCard> createState() => _ReviewResponseCardState();
 }
-
 class _ReviewResponseCardState extends State<ReviewResponseCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _expandAnimation;
   bool _isExpanded = false;
   bool _isHovered = false;
-
   TextDirection _getTextDirection(String? text) {
     if (text == null || text.trim().isEmpty) return TextDirection.ltr;
     final arabicRegex = RegExp(r'[\u0600-\u06FF]');
     return arabicRegex.hasMatch(text) ? TextDirection.rtl : TextDirection.ltr;
   }
-
   @override
   void initState() {
     super.initState();
@@ -47,13 +42,11 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
       curve: Curves.easeOutCubic,
     );
   }
-
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
@@ -68,21 +61,21 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppTheme.darkCard.withOpacity(_isHovered ? 0.9 : 0.7),
-              AppTheme.darkCard.withOpacity(_isHovered ? 0.7 : 0.5),
+              AppTheme.darkCard.withValues(alpha: _isHovered ? 0.9 : 0.7),
+              AppTheme.darkCard.withValues(alpha: _isHovered ? 0.7 : 0.5),
             ],
           ),
           border: Border.all(
             color: _isHovered
-                ? AppTheme.primaryBlue.withOpacity(0.3)
-                : AppTheme.darkBorder.withOpacity(0.2),
+                ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                : AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 0.5,
           ),
           boxShadow: [
             BoxShadow(
               color: _isHovered
-                  ? AppTheme.primaryBlue.withOpacity(0.1)
-                  : Colors.black.withOpacity(0.1),
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.1),
               blurRadius: _isHovered ? 20 : 10,
               spreadRadius: _isHovered ? 2 : 0,
             ),
@@ -130,8 +123,8 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color:
-                                        AppTheme.primaryBlue.withOpacity(0.3),
+                                    color: AppTheme.primaryBlue
+                                        .withValues(alpha: 0.3),
                                     blurRadius: 12,
                                     spreadRadius: 2,
                                   ),
@@ -170,11 +163,11 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(8),
-                                          color:
-                                              AppTheme.success.withOpacity(0.1),
+                                          color: AppTheme.success
+                                              .withValues(alpha: 0.1),
                                           border: Border.all(
                                             color: AppTheme.success
-                                                .withOpacity(0.3),
+                                                .withValues(alpha: 0.3),
                                             width: 0.5,
                                           ),
                                         ),
@@ -211,7 +204,7 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
                                           style: AppTextStyles.caption.copyWith(
                                             fontStyle: FontStyle.italic,
                                             color: AppTheme.textMuted
-                                                .withOpacity(0.7),
+                                                .withValues(alpha: 0.7),
                                           ),
                                         ),
                                       ],
@@ -249,11 +242,16 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
                         // معاينة نص الرد
                         SelectableText(
                           widget.response.responseText,
-                          textDirection: _getTextDirection(widget.response.responseText),
+                          textDirection:
+                              _getTextDirection(widget.response.responseText),
                           style: AppTextStyles.bodySmall.copyWith(
                             height: 1.5,
                             color: AppTheme.textLight,
-                            fontFamilyFallback: const ['Amiri','Noto Naskh Arabic','Roboto'],
+                            fontFamilyFallback: const [
+                              'Amiri',
+                              'Noto Naskh Arabic',
+                              'Roboto'
+                            ],
                           ),
                           maxLines: _isExpanded ? null : 2,
                           onTap: () {},
@@ -270,7 +268,7 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
                     decoration: BoxDecoration(
                       border: Border(
                         top: BorderSide(
-                          color: AppTheme.darkBorder.withOpacity(0.1),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.1),
                           width: 0.5,
                         ),
                       ),
@@ -316,7 +314,6 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
       ),
     );
   }
-
   Widget _buildActionButton({
     required IconData icon,
     required Color color,
@@ -331,9 +328,9 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           border: Border.all(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             width: 0.5,
           ),
         ),
@@ -345,7 +342,6 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
       ),
     );
   }
-
   Widget _buildDetailRow({
     required IconData icon,
     required String label,
@@ -357,7 +353,7 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6),
-            color: AppTheme.primaryBlue.withOpacity(0.1),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
           ),
           child: Icon(
             icon,
@@ -390,7 +386,6 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
       ],
     );
   }
-
   void _showDeleteConfirmation(BuildContext context) {
     HapticFeedback.mediumImpact();
     showDialog(
@@ -407,7 +402,7 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: AppTheme.error.withOpacity(0.3),
+                color: AppTheme.error.withValues(alpha: 0.3),
                 width: 0.5,
               ),
             ),
@@ -418,7 +413,7 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.error.withOpacity(0.1),
+                    color: AppTheme.error.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.delete_outline,
@@ -488,7 +483,6 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
       ),
     );
   }
-
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
@@ -509,7 +503,6 @@ class _ReviewResponseCardState extends State<ReviewResponseCard>
       return '${date.day}/${date.month}/${date.year}';
     }
   }
-
   String _formatFullDate(DateTime date) {
     final months = [
       'يناير',

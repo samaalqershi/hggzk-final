@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import '../../domain/entities/policy.dart';
 
 abstract class PoliciesEvent extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `PoliciesEvent`.
   const PoliciesEvent();
 
   @override
@@ -10,10 +11,15 @@ abstract class PoliciesEvent extends Equatable {
 
 /// تحميل السياسات
 class LoadPoliciesEvent extends PoliciesEvent {
+  /// العربية: يخزن القيمة `pageNumber`.
   final int pageNumber;
+
   final int pageSize;
+
   final String? searchTerm;
+
   final String? propertyId;
+
   final PolicyType? policyType;
 
   const LoadPoliciesEvent({
@@ -25,72 +31,123 @@ class LoadPoliciesEvent extends PoliciesEvent {
   });
 
   @override
-  List<Object?> get props => [pageNumber, pageSize, searchTerm, propertyId, policyType];
+  List<Object?> get props =>
+      [pageNumber, pageSize, searchTerm, propertyId, policyType];
 }
 
 /// إنشاء سياسة جديدة
 class CreatePolicyEvent extends PoliciesEvent {
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
+
   final PolicyType type;
+
   final String description;
+
   final String? rules;
+
   final int cancellationWindowDays;
+
   final bool requireFullPaymentBeforeConfirmation;
+
   final double minimumDepositPercentage;
+
   final int minHoursBeforeCheckIn;
 
   final bool? cancellationFreeCancel;
+
   final bool? cancellationFullRefund;
+
   final int? cancellationRefundPercentage;
+
   final int? cancellationDaysBeforeCheckIn;
+
   final int? cancellationHoursBeforeCheckIn;
+
   final bool? cancellationNonRefundable;
+
   final String? cancellationPenaltyAfterDeadline;
 
   final bool? paymentDepositRequired;
+
   final bool? paymentFullPaymentRequired;
+
   final double? paymentDepositPercentage;
+
   final bool? paymentAcceptCash;
+
   final bool? paymentAcceptCard;
+
   final bool? paymentPayAtProperty;
+
   final bool? paymentCashPreferred;
+
   final List<String>? paymentAcceptedMethods;
 
   final String? checkInTime;
+
   final String? checkOutTime;
+
   final String? checkInFrom;
+
   final String? checkInUntil;
+
   final bool? checkInFlexible;
+
   final bool? checkInFlexibleCheckIn;
+
   final bool? checkInRequiresCoordination;
+
   final bool? checkInContactOwner;
+
   final String? checkInEarlyCheckInNote;
+
   final String? checkInLateCheckOutNote;
+
   final String? checkInLateCheckOutFee;
 
   final bool? childrenAllowed;
+
   final int? childrenFreeUnderAge;
+
   final int? childrenHalfPriceUnderAge;
+
   final int? childrenMaxChildrenPerRoom;
+
   final int? childrenMaxChildren;
+
   final String? childrenCribsNote;
+
   final bool? childrenPlaygroundAvailable;
+
   final bool? childrenKidsMenuAvailable;
 
   final bool? petsAllowed;
+
   final String? petsReason;
+
   final double? petsFeeAmount;
+
   final String? petsMaxWeight;
+
   final bool? petsRequiresApproval;
+
   final bool? petsNoFees;
+
   final bool? petsPetFriendly;
+
   final bool? petsOutdoorSpace;
+
   final bool? petsStrict;
 
   final bool? modificationAllowed;
+
   final int? modificationFreeModificationHours;
+
   final String? modificationFeesAfter;
+
   final bool? modificationFlexible;
+
   final String? modificationReason;
 
   const CreatePolicyEvent({
@@ -102,7 +159,6 @@ class CreatePolicyEvent extends PoliciesEvent {
     this.requireFullPaymentBeforeConfirmation = false,
     this.minimumDepositPercentage = 0.0,
     this.minHoursBeforeCheckIn = 0,
-
     this.cancellationFreeCancel,
     this.cancellationFullRefund,
     this.cancellationRefundPercentage,
@@ -110,7 +166,6 @@ class CreatePolicyEvent extends PoliciesEvent {
     this.cancellationHoursBeforeCheckIn,
     this.cancellationNonRefundable,
     this.cancellationPenaltyAfterDeadline,
-
     this.paymentDepositRequired,
     this.paymentFullPaymentRequired,
     this.paymentDepositPercentage,
@@ -119,7 +174,6 @@ class CreatePolicyEvent extends PoliciesEvent {
     this.paymentPayAtProperty,
     this.paymentCashPreferred,
     this.paymentAcceptedMethods,
-
     this.checkInTime,
     this.checkOutTime,
     this.checkInFrom,
@@ -131,7 +185,6 @@ class CreatePolicyEvent extends PoliciesEvent {
     this.checkInEarlyCheckInNote,
     this.checkInLateCheckOutNote,
     this.checkInLateCheckOutFee,
-
     this.childrenAllowed,
     this.childrenFreeUnderAge,
     this.childrenHalfPriceUnderAge,
@@ -140,7 +193,6 @@ class CreatePolicyEvent extends PoliciesEvent {
     this.childrenCribsNote,
     this.childrenPlaygroundAvailable,
     this.childrenKidsMenuAvailable,
-
     this.petsAllowed,
     this.petsReason,
     this.petsFeeAmount,
@@ -150,7 +202,6 @@ class CreatePolicyEvent extends PoliciesEvent {
     this.petsPetFriendly,
     this.petsOutdoorSpace,
     this.petsStrict,
-
     this.modificationAllowed,
     this.modificationFreeModificationHours,
     this.modificationFeesAfter,
@@ -168,7 +219,6 @@ class CreatePolicyEvent extends PoliciesEvent {
         requireFullPaymentBeforeConfirmation,
         minimumDepositPercentage,
         minHoursBeforeCheckIn,
-
         cancellationFreeCancel,
         cancellationFullRefund,
         cancellationRefundPercentage,
@@ -176,7 +226,6 @@ class CreatePolicyEvent extends PoliciesEvent {
         cancellationHoursBeforeCheckIn,
         cancellationNonRefundable,
         cancellationPenaltyAfterDeadline,
-
         paymentDepositRequired,
         paymentFullPaymentRequired,
         paymentDepositPercentage,
@@ -185,7 +234,6 @@ class CreatePolicyEvent extends PoliciesEvent {
         paymentPayAtProperty,
         paymentCashPreferred,
         paymentAcceptedMethods,
-
         checkInTime,
         checkOutTime,
         checkInFrom,
@@ -197,7 +245,6 @@ class CreatePolicyEvent extends PoliciesEvent {
         checkInEarlyCheckInNote,
         checkInLateCheckOutNote,
         checkInLateCheckOutFee,
-
         childrenAllowed,
         childrenFreeUnderAge,
         childrenHalfPriceUnderAge,
@@ -206,7 +253,6 @@ class CreatePolicyEvent extends PoliciesEvent {
         childrenCribsNote,
         childrenPlaygroundAvailable,
         childrenKidsMenuAvailable,
-
         petsAllowed,
         petsReason,
         petsFeeAmount,
@@ -216,7 +262,6 @@ class CreatePolicyEvent extends PoliciesEvent {
         petsPetFriendly,
         petsOutdoorSpace,
         petsStrict,
-
         modificationAllowed,
         modificationFreeModificationHours,
         modificationFeesAfter,
@@ -227,67 +272,117 @@ class CreatePolicyEvent extends PoliciesEvent {
 
 /// تحديث سياسة
 class UpdatePolicyEvent extends PoliciesEvent {
+  /// العربية: يخزن القيمة `policyId`.
   final String policyId;
+
   final PolicyType type;
+
   final String description;
+
   final String? rules;
+
   final int? cancellationWindowDays;
+
   final bool? requireFullPaymentBeforeConfirmation;
+
   final double? minimumDepositPercentage;
+
   final int? minHoursBeforeCheckIn;
 
   final bool? cancellationFreeCancel;
+
   final bool? cancellationFullRefund;
+
   final int? cancellationRefundPercentage;
+
   final int? cancellationDaysBeforeCheckIn;
+
   final int? cancellationHoursBeforeCheckIn;
+
   final bool? cancellationNonRefundable;
+
   final String? cancellationPenaltyAfterDeadline;
 
   final bool? paymentDepositRequired;
+
   final bool? paymentFullPaymentRequired;
+
   final double? paymentDepositPercentage;
+
   final bool? paymentAcceptCash;
+
   final bool? paymentAcceptCard;
+
   final bool? paymentPayAtProperty;
+
   final bool? paymentCashPreferred;
+
   final List<String>? paymentAcceptedMethods;
 
   final String? checkInTime;
+
   final String? checkOutTime;
+
   final String? checkInFrom;
+
   final String? checkInUntil;
+
   final bool? checkInFlexible;
+
   final bool? checkInFlexibleCheckIn;
+
   final bool? checkInRequiresCoordination;
+
   final bool? checkInContactOwner;
+
   final String? checkInEarlyCheckInNote;
+
   final String? checkInLateCheckOutNote;
+
   final String? checkInLateCheckOutFee;
 
   final bool? childrenAllowed;
+
   final int? childrenFreeUnderAge;
+
   final int? childrenHalfPriceUnderAge;
+
   final int? childrenMaxChildrenPerRoom;
+
   final int? childrenMaxChildren;
+
   final String? childrenCribsNote;
+
   final bool? childrenPlaygroundAvailable;
+
   final bool? childrenKidsMenuAvailable;
 
   final bool? petsAllowed;
+
   final String? petsReason;
+
   final double? petsFeeAmount;
+
   final String? petsMaxWeight;
+
   final bool? petsRequiresApproval;
+
   final bool? petsNoFees;
+
   final bool? petsPetFriendly;
+
   final bool? petsOutdoorSpace;
+
   final bool? petsStrict;
 
   final bool? modificationAllowed;
+
   final int? modificationFreeModificationHours;
+
   final String? modificationFeesAfter;
+
   final bool? modificationFlexible;
+
   final String? modificationReason;
 
   const UpdatePolicyEvent({
@@ -299,7 +394,6 @@ class UpdatePolicyEvent extends PoliciesEvent {
     this.requireFullPaymentBeforeConfirmation,
     this.minimumDepositPercentage,
     this.minHoursBeforeCheckIn,
-
     this.cancellationFreeCancel,
     this.cancellationFullRefund,
     this.cancellationRefundPercentage,
@@ -307,7 +401,6 @@ class UpdatePolicyEvent extends PoliciesEvent {
     this.cancellationHoursBeforeCheckIn,
     this.cancellationNonRefundable,
     this.cancellationPenaltyAfterDeadline,
-
     this.paymentDepositRequired,
     this.paymentFullPaymentRequired,
     this.paymentDepositPercentage,
@@ -316,7 +409,6 @@ class UpdatePolicyEvent extends PoliciesEvent {
     this.paymentPayAtProperty,
     this.paymentCashPreferred,
     this.paymentAcceptedMethods,
-
     this.checkInTime,
     this.checkOutTime,
     this.checkInFrom,
@@ -328,7 +420,6 @@ class UpdatePolicyEvent extends PoliciesEvent {
     this.checkInEarlyCheckInNote,
     this.checkInLateCheckOutNote,
     this.checkInLateCheckOutFee,
-
     this.childrenAllowed,
     this.childrenFreeUnderAge,
     this.childrenHalfPriceUnderAge,
@@ -337,7 +428,6 @@ class UpdatePolicyEvent extends PoliciesEvent {
     this.childrenCribsNote,
     this.childrenPlaygroundAvailable,
     this.childrenKidsMenuAvailable,
-
     this.petsAllowed,
     this.petsReason,
     this.petsFeeAmount,
@@ -347,7 +437,6 @@ class UpdatePolicyEvent extends PoliciesEvent {
     this.petsPetFriendly,
     this.petsOutdoorSpace,
     this.petsStrict,
-
     this.modificationAllowed,
     this.modificationFreeModificationHours,
     this.modificationFeesAfter,
@@ -365,7 +454,6 @@ class UpdatePolicyEvent extends PoliciesEvent {
         requireFullPaymentBeforeConfirmation,
         minimumDepositPercentage,
         minHoursBeforeCheckIn,
-
         cancellationFreeCancel,
         cancellationFullRefund,
         cancellationRefundPercentage,
@@ -373,7 +461,6 @@ class UpdatePolicyEvent extends PoliciesEvent {
         cancellationHoursBeforeCheckIn,
         cancellationNonRefundable,
         cancellationPenaltyAfterDeadline,
-
         paymentDepositRequired,
         paymentFullPaymentRequired,
         paymentDepositPercentage,
@@ -382,7 +469,6 @@ class UpdatePolicyEvent extends PoliciesEvent {
         paymentPayAtProperty,
         paymentCashPreferred,
         paymentAcceptedMethods,
-
         checkInTime,
         checkOutTime,
         checkInFrom,
@@ -394,7 +480,6 @@ class UpdatePolicyEvent extends PoliciesEvent {
         checkInEarlyCheckInNote,
         checkInLateCheckOutNote,
         checkInLateCheckOutFee,
-
         childrenAllowed,
         childrenFreeUnderAge,
         childrenHalfPriceUnderAge,
@@ -403,7 +488,6 @@ class UpdatePolicyEvent extends PoliciesEvent {
         childrenCribsNote,
         childrenPlaygroundAvailable,
         childrenKidsMenuAvailable,
-
         petsAllowed,
         petsReason,
         petsFeeAmount,
@@ -413,7 +497,6 @@ class UpdatePolicyEvent extends PoliciesEvent {
         petsPetFriendly,
         petsOutdoorSpace,
         petsStrict,
-
         modificationAllowed,
         modificationFreeModificationHours,
         modificationFeesAfter,
@@ -424,6 +507,7 @@ class UpdatePolicyEvent extends PoliciesEvent {
 
 /// حذف سياسة
 class DeletePolicyEvent extends PoliciesEvent {
+  /// العربية: يخزن القيمة `policyId`.
   final String policyId;
 
   const DeletePolicyEvent({required this.policyId});
@@ -434,6 +518,7 @@ class DeletePolicyEvent extends PoliciesEvent {
 
 /// تفعيل/تعطيل سياسة
 class TogglePolicyStatusEvent extends PoliciesEvent {
+  /// العربية: يخزن القيمة `policyId`.
   final String policyId;
 
   const TogglePolicyStatusEvent({required this.policyId});
@@ -444,12 +529,15 @@ class TogglePolicyStatusEvent extends PoliciesEvent {
 
 /// تحميل إحصائيات السياسات
 class LoadPolicyStatsEvent extends PoliciesEvent {
+  /// العربية: ينشئ مثيلًا جديدًا من `LoadPolicyStatsEvent`.
   const LoadPolicyStatsEvent();
 }
 
 /// البحث عن السياسات
 class SearchPoliciesEvent extends PoliciesEvent {
+  /// العربية: يخزن القيمة `searchTerm`.
   final String searchTerm;
+
   final PolicyType? type;
 
   const SearchPoliciesEvent({
@@ -463,6 +551,7 @@ class SearchPoliciesEvent extends PoliciesEvent {
 
 /// اختيار سياسة
 class SelectPolicyEvent extends PoliciesEvent {
+  /// العربية: يخزن القيمة `policyId`.
   final String policyId;
 
   const SelectPolicyEvent({required this.policyId});
@@ -473,16 +562,19 @@ class SelectPolicyEvent extends PoliciesEvent {
 
 /// إلغاء اختيار السياسة
 class DeselectPolicyEvent extends PoliciesEvent {
+  /// العربية: ينشئ مثيلًا جديدًا من `DeselectPolicyEvent`.
   const DeselectPolicyEvent();
 }
 
 /// تحديث الصفحة
 class RefreshPoliciesEvent extends PoliciesEvent {
+  /// العربية: ينشئ مثيلًا جديدًا من `RefreshPoliciesEvent`.
   const RefreshPoliciesEvent();
 }
 
 /// تغيير الصفحة
 class ChangePageEvent extends PoliciesEvent {
+  /// العربية: يخزن القيمة `pageNumber`.
   final int pageNumber;
 
   const ChangePageEvent({required this.pageNumber});
@@ -493,6 +585,7 @@ class ChangePageEvent extends PoliciesEvent {
 
 /// تغيير حجم الصفحة
 class ChangePageSizeEvent extends PoliciesEvent {
+  /// العربية: يخزن القيمة `pageSize`.
   final int pageSize;
 
   const ChangePageSizeEvent({required this.pageSize});
@@ -503,7 +596,9 @@ class ChangePageSizeEvent extends PoliciesEvent {
 
 /// تطبيق الفلاتر
 class ApplyFiltersEvent extends PoliciesEvent {
+  /// العربية: يخزن القيمة `propertyId`.
   final String? propertyId;
+
   final PolicyType? policyType;
 
   const ApplyFiltersEvent({
@@ -517,11 +612,13 @@ class ApplyFiltersEvent extends PoliciesEvent {
 
 /// مسح الفلاتر
 class ClearFiltersEvent extends PoliciesEvent {
+  /// العربية: ينشئ مثيلًا جديدًا من `ClearFiltersEvent`.
   const ClearFiltersEvent();
 }
 
 /// تحميل سياسة بالمعرف
 class LoadPolicyByIdEvent extends PoliciesEvent {
+  /// العربية: يخزن القيمة `policyId`.
   final String policyId;
 
   const LoadPolicyByIdEvent({required this.policyId});
@@ -532,6 +629,7 @@ class LoadPolicyByIdEvent extends PoliciesEvent {
 
 /// تحميل سياسات عقار معين
 class LoadPoliciesByPropertyEvent extends PoliciesEvent {
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
 
   const LoadPoliciesByPropertyEvent({required this.propertyId});
@@ -542,8 +640,11 @@ class LoadPoliciesByPropertyEvent extends PoliciesEvent {
 
 /// تحميل سياسات حسب النوع
 class LoadPoliciesByTypeEvent extends PoliciesEvent {
+  /// العربية: يخزن القيمة `type`.
   final PolicyType type;
+
   final int pageNumber;
+
   final int pageSize;
 
   const LoadPoliciesByTypeEvent({

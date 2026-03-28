@@ -15,8 +15,11 @@ import '../bloc/section_items/section_items_bloc.dart';
 import '../bloc/section_items/section_items_event.dart';
 
 class AddItemsDialog extends StatefulWidget {
+  /// العربية: يخزن القيمة `sectionId`.
   final String sectionId;
+
   final SectionTarget target;
+
   final VoidCallback? onItemsAdded;
 
   const AddItemsDialog({
@@ -33,15 +36,22 @@ class AddItemsDialog extends StatefulWidget {
 class _AddItemsDialogState extends State<AddItemsDialog> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+
   final List<String> _selectedIds = [];
+
   bool _isLoading = false;
+
   bool _isLoadingMore = false;
+
   bool _hasError = false;
+
   String? _errorMessage;
+
   Timer? _debounce;
 
   // Pagination
   int _currentPage = 1;
+
   int _totalPages = 1;
 
   // Data

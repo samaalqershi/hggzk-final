@@ -3,7 +3,13 @@ import 'package:dio/dio.dart';
 import 'exceptions.dart';
 import 'failures.dart';
 
+/// يحوّل الاستثناءات المتناثرة في طبقة البيانات إلى فشل موحد يمكن
+/// لباقي التطبيق التعامل معه دون معرفة التفاصيل التقنية.
+/// Converts scattered data-layer exceptions into a single failure
+/// vocabulary the rest of the app can consume.
 class ErrorHandler {
+  /// يترجم أي خطأ معروف إلى `Failure` مناسب للسياق.
+  /// Translates known exceptions into the most appropriate failure.
   static Either<Failure, T> handle<T>(dynamic error) {
     if (error is DioException) {
       return Left(_handleDioError(error));
@@ -39,6 +45,10 @@ class ErrorHandler {
     }
   }
 
+  /// يقرأ تفاصيل `DioException` ويحوّلها إلى فشل أعلى يطابق طبيعة
+  /// المشكلة مثل المهلة أو الشبكة أو الرد غير الصالح.
+  /// Interprets `DioException` and maps it to a higher-level failure
+  /// such as timeout, network, or invalid response.
   static Failure _handleDioError(DioException error) {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
@@ -59,6 +69,10 @@ class ErrorHandler {
     }
   }
 
+  /// يفسر ردود HTTP غير الناجحة ويعيدها إلى فشل محدد بحسب رمز
+  /// الحالة ومحتوى الرسالة.
+  /// Interprets non-successful HTTP responses and turns them into a
+  /// specific failure based on status code and payload message.
   static Failure _handleBadResponse(Response? response) {
     if (response == null) {
       return const ServerFailure('لا توجد استجابة من الخادم');
@@ -89,12 +103,13 @@ class ErrorHandler {
         if (data is Map<String, dynamic> && data.containsKey('errors')) {
           errors = Map<String, List<String>>.from(
             data['errors'].map((key, value) => MapEntry(
-              key,
-              value is List ? List<String>.from(value) : [value.toString()],
-            )),
+                  key,
+                  value is List ? List<String>.from(value) : [value.toString()],
+                )),
           );
         }
-        return ValidationFailureWithErrors(message: message, errors: errors ?? {});
+        return ValidationFailureWithErrors(
+            message: message, errors: errors ?? {});
       case 500:
       case 502:
       case 503:
@@ -104,6 +119,8 @@ class ErrorHandler {
     }
   }
 
+  /// يترجم `ApiException` الخام إلى فشل domain مناسب للحالة.
+  /// Converts a raw `ApiException` into the matching domain failure.
   static Failure _handleApiException(ApiException error) {
     if (error.statusCode == 401) {
       return UnauthorizedFailure(error.message);
@@ -120,19 +137,20 @@ class ErrorHandler {
         error.type == DioExceptionType.sendTimeout) {
       return TimeoutFailure(error.message);
     } else {
-      return ServerFailure(
-        error.message
-      );
+      return ServerFailure(error.message);
     }
   }
 
   // Helper method to extract error message
+  /// يستخرج الرسالة الأكثر فائدة لعرضها أو تسجيلها، مع دمج أخطاء
+  /// التحقق عندما تكون متاحة.
+  /// Extracts the most useful message for display or logging, merging
+  /// validation details when they exist.
   static String getErrorMessage(Failure failure) {
     if (failure is ValidationFailure && failure.errors != null) {
       // Join all validation errors
-      final allErrors = failure.errors!.values
-          .expand((errors) => errors)
-          .join('\n');
+      final allErrors =
+          failure.errors!.values.expand((errors) => errors).join('\n');
       return allErrors.isNotEmpty ? allErrors : failure.message;
     }
     return failure.message;

@@ -5,13 +5,17 @@ import '../models/user_model.dart';
 
 abstract class UsersLocalDataSource {
   Future<List<UserModel>> getCachedUsers();
+
   Future<void> cacheUsers(List<UserModel> users);
+
   Future<void> clearCache();
 }
 
 class UsersLocalDataSourceImpl implements UsersLocalDataSource {
   final SharedPreferences sharedPreferences;
+
   static const String _cachedUsersKey = 'CACHED_USERS';
+
   static const String _cacheTimestampKey = 'USERS_CACHE_TIMESTAMP';
   static const Duration _cacheValidDuration = Duration(hours: 1);
 
@@ -48,7 +52,7 @@ class UsersLocalDataSourceImpl implements UsersLocalDataSource {
     try {
       final jsonList = users.map((user) => user.toJson()).toList();
       final jsonString = json.encode(jsonList);
-      
+
       await sharedPreferences.setString(_cachedUsersKey, jsonString);
       await sharedPreferences.setInt(
         _cacheTimestampKey,

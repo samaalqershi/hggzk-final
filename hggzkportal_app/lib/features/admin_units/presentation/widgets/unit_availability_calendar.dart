@@ -7,29 +7,52 @@ import 'package:table_calendar/table_calendar.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// يمثل هذا الكلاس UnitAvailabilityCalendar البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitAvailabilityCalendar in the admin unit workflow.
 class UnitAvailabilityCalendar extends StatefulWidget {
+  /// This field keeps the unitId value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة unitId التي يعتمد عليها مسار إدارة الوحدات.
   final String unitId;
+
+  /// ينفذ هذا الأسلوب عملية Function ضمن مسار إدارة الوحدات.
+  /// This method performs the Function operation in the admin unit workflow.
   final Function(DateTime) onDateSelected;
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitAvailabilityCalendar.
+  /// This constructor creates an instance of UnitAvailabilityCalendar.
   const UnitAvailabilityCalendar({
     super.key,
     required this.unitId,
     required this.onDateSelected,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<UnitAvailabilityCalendar> createState() =>
       _UnitAvailabilityCalendarState();
 }
 
+/// يمثل هذا الكلاس _UnitAvailabilityCalendarState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _UnitAvailabilityCalendarState in the admin unit workflow.
 class _UnitAvailabilityCalendarState extends State<UnitAvailabilityCalendar>
     with SingleTickerProviderStateMixin {
+  /// يحتفظ هذا الحقل بقيمة _animationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _animationController value used by the admin unit workflow.
   late AnimationController _animationController;
+
+  /// يحتفظ هذا الحقل بقيمة _calendarFormat التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _calendarFormat value used by the admin unit workflow.
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
+
+  /// يحتفظ هذا الحقل بقيمة _selectedDay التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectedDay value used by the admin unit workflow.
   DateTime? _selectedDay;
 
   // Mock booked dates - Replace with actual data
+  /// يحتفظ هذا الحقل بقيمة _bookedDates التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _bookedDates value used by the admin unit workflow.
   final Set<DateTime> _bookedDates = {
     DateTime.now().add(const Duration(days: 2)),
     DateTime.now().add(const Duration(days: 3)),
@@ -39,6 +62,8 @@ class _UnitAvailabilityCalendarState extends State<UnitAvailabilityCalendar>
     DateTime.now().add(const Duration(days: 12)),
   };
 
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
@@ -49,12 +74,16 @@ class _UnitAvailabilityCalendarState extends State<UnitAvailabilityCalendar>
     _selectedDay = _focusedDay;
   }
 
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -74,6 +103,8 @@ class _UnitAvailabilityCalendarState extends State<UnitAvailabilityCalendar>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildCalendarHeader ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildCalendarHeader operation in the admin unit workflow.
   Widget _buildCalendarHeader() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -117,6 +148,8 @@ class _UnitAvailabilityCalendarState extends State<UnitAvailabilityCalendar>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildCalendarFormatToggle ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildCalendarFormatToggle operation in the admin unit workflow.
   Widget _buildCalendarFormatToggle() {
     return Container(
       decoration: BoxDecoration(
@@ -143,6 +176,8 @@ class _UnitAvailabilityCalendarState extends State<UnitAvailabilityCalendar>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFormatButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFormatButton operation in the admin unit workflow.
   Widget _buildFormatButton({
     required IconData icon,
     required CalendarFormat format,
@@ -182,6 +217,8 @@ class _UnitAvailabilityCalendarState extends State<UnitAvailabilityCalendar>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildCalendar ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildCalendar operation in the admin unit workflow.
   Widget _buildCalendar() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -362,6 +399,8 @@ class _UnitAvailabilityCalendarState extends State<UnitAvailabilityCalendar>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildLegend ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildLegend operation in the admin unit workflow.
   Widget _buildLegend() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -400,6 +439,8 @@ class _UnitAvailabilityCalendarState extends State<UnitAvailabilityCalendar>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildLegendItem ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildLegendItem operation in the admin unit workflow.
   Widget _buildLegendItem({
     Color? color,
     Gradient? gradient,

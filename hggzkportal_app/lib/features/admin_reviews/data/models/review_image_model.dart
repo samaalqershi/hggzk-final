@@ -1,8 +1,8 @@
 // lib/features/admin_reviews/data/models/review_image_model.dart
 
 import 'package:hggzkportal/features/admin_reviews/domain/entities/review_image.dart';
-
 class ReviewImageModel extends ReviewImage {
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewImageModel`.
   const ReviewImageModel({
     required super.id,
     required super.reviewId,
@@ -15,7 +15,6 @@ class ReviewImageModel extends ReviewImage {
     required super.altText,
     required super.uploadedAt,
   });
-  
   factory ReviewImageModel.fromJson(Map<String, dynamic> json) {
     return ReviewImageModel(
       id: json['id'] as String,
@@ -30,7 +29,6 @@ class ReviewImageModel extends ReviewImage {
       uploadedAt: DateTime.parse(json['uploadedAt'] as String),
     );
   }
-  
   static ImageCategory _parseCategory(dynamic value) {
     // Backend serializes enums as strings (JsonStringEnumConverter)
     if (value is String) {
@@ -64,7 +62,6 @@ class ReviewImageModel extends ReviewImage {
     }
     return ImageCategory.gallery;
   }
-  
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -80,7 +77,6 @@ class ReviewImageModel extends ReviewImage {
       'uploadedAt': uploadedAt.toIso8601String(),
     };
   }
-
   static String _categoryToString(ImageCategory category) {
     switch (category) {
       case ImageCategory.exterior:

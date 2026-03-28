@@ -5,11 +5,11 @@ import '../../../../../../core/theme/app_text_styles.dart';
 import '../../../../../../core/enums/payment_method_enum.dart';
 
 class PaymentMethodIcon extends StatelessWidget {
+  /// العربية: يخزن القيمة `method`.
   final PaymentMethod method;
   final double size;
   final bool showLabel;
   final Color? color;
-
   const PaymentMethodIcon({
     super.key,
     required this.method,
@@ -17,7 +17,6 @@ class PaymentMethodIcon extends StatelessWidget {
     this.showLabel = true,
     this.color,
   });
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -82,9 +81,6 @@ class PaymentMethodIcon extends StatelessWidget {
         return CupertinoIcons.money_dollar_circle_fill;
       case PaymentMethod.paypal:
         return Icons.paypal;
-      // Fallback
-      default:
-        return Icons.payment;
     }
   }
 
@@ -104,8 +100,6 @@ class PaymentMethodIcon extends StatelessWidget {
         return AppTheme.success;
       case PaymentMethod.paypal:
         return const Color(0xFF00457C);
-      default:
-        return AppTheme.textMuted;
     }
   }
 
@@ -131,8 +125,6 @@ class PaymentMethodIcon extends StatelessWidget {
         return 'نقدي';
       case PaymentMethod.paypal:
         return 'PayPal';
-      default:
-        return 'أخرى';
     }
   }
 }

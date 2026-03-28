@@ -8,15 +8,24 @@ import '../../domain/entities/unit.dart' as entity;
 import '../../domain/entities/property_availability.dart';
 import '../datasources/property_remote_datasource.dart' as ds;
 
+/// Provides repository behavior for `PropertyRepositoryImpl`.
+/// العربية: يوفر سلوك المستودع الخاص بـ `PropertyRepositoryImpl`.
 class PropertyRepositoryImpl implements PropertyRepository {
   final ds.PropertyRemoteDataSource remoteDataSource;
+
+  /// Keeps the networkInfo value available to this object.
+  /// العربية: يخزن القيمة `networkInfo`.
   final NetworkInfo networkInfo;
 
+  /// Constructs the PropertyRepositoryImpl value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyRepositoryImpl`.
   PropertyRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
 
+  /// Processes the addToFavorites flow and maps it into the property feature behavior.
+  /// العربية: يعالج `addToFavorites`.
   @override
   Future<Either<Failure, bool>> addToFavorites({
     required String propertyId,
@@ -45,6 +54,8 @@ class PropertyRepositoryImpl implements PropertyRepository {
     }
   }
 
+  /// Removes the from favorites.
+  /// العربية: يزيل from favorites.
   @override
   Future<Either<Failure, bool>> removeFromFavorites({
     required String propertyId,
@@ -65,6 +76,8 @@ class PropertyRepositoryImpl implements PropertyRepository {
     }
   }
 
+  /// Updates the view count.
+  /// العربية: يحدّث view count.
   @override
   Future<Either<Failure, bool>> updateViewCount({
     required String propertyId,
@@ -82,6 +95,8 @@ class PropertyRepositoryImpl implements PropertyRepository {
     }
   }
 
+  /// Exposes the property reviews.
+  /// العربية: يعيد property reviews.
   @override
   Future<Either<Failure, List<PropertyReview>>> getPropertyReviews({
     required String propertyId,
@@ -113,6 +128,8 @@ class PropertyRepositoryImpl implements PropertyRepository {
     }
   }
 
+  /// Exposes the property details.
+  /// العربية: يعيد property details.
   @override
   Future<Either<Failure, PropertyDetail>> getPropertyDetails({
     required String propertyId,
@@ -159,6 +176,8 @@ class PropertyRepositoryImpl implements PropertyRepository {
     }
   }
 
+  /// Checks the property availability.
+  /// العربية: يتحقق من property availability.
   @override
   Future<Either<Failure, PropertyAvailability>> checkPropertyAvailability({
     required String propertyId,

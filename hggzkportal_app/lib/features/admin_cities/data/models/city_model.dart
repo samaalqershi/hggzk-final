@@ -1,7 +1,12 @@
 import '../../domain/entities/city.dart';
 
-/// 🏙️ City Model for API communication
+/// Transport model that adapts the city entity to the API payload shape.
+///
+/// نموذج نقل يكيّف كيان المدينة مع شكل الحمولة المتوقع من الـ API.
 class CityModel extends City {
+  /// Creates a model instance ready for JSON exchange with the backend.
+  ///
+  /// ينشئ نموذجًا جاهزًا لتبادل JSON مع الخادم.
   const CityModel({
     required super.name,
     required super.country,
@@ -13,7 +18,9 @@ class CityModel extends City {
     super.metadata,
   });
 
-  /// تحويل من JSON
+  /// Builds a model from backend JSON while discarding unsupported image paths.
+  ///
+  /// ينشئ النموذج من JSON الخادم مع إسقاط مسارات الصور غير الصالحة.
   factory CityModel.fromJson(Map<String, dynamic> json) {
     List<String> rawImages = [];
     if (json['images'] != null) {
@@ -22,22 +29,22 @@ class CityModel extends City {
       } catch (_) {}
     }
     final sanitized = rawImages.where((u) {
-      final val = (u ?? '').toString().trim();
+      final val = u.trim();
       if (val.isEmpty) return false;
       final lower = val.toLowerCase();
-      // Keep only web/relative server paths; drop android local cache paths
+      // Preserve only paths that the admin portal can render or upload again.
       if (lower.startsWith('http://') || lower.startsWith('https://'))
         return true;
       if (lower.startsWith('/uploads') || lower.startsWith('uploads/'))
         return true;
-      // Also accept known public folders
+      // Accept the backend's public media folders as reusable gallery sources.
       if (lower.startsWith('/images') || lower.startsWith('images/'))
         return true;
-      // Drop local device paths like /data/user/0/... or file:// or content://
+      // Reject local-device paths because they are not portable outside Android.
       if (lower.startsWith('/data/') ||
           lower.startsWith('file://') ||
           lower.startsWith('content://')) return false;
-      // Fallback: drop anything else to avoid broken URLs
+      // Skip anything else so the UI never receives a broken or private URL.
       return false;
     }).toList(growable: false);
 
@@ -55,7 +62,9 @@ class CityModel extends City {
     );
   }
 
-  /// تحويل إلى JSON
+  /// Serializes the model back into the API contract used by the backend.
+  ///
+  /// يحول النموذج إلى الصيغة التي يعتمدها الخادم.
   Map<String, dynamic> toJson() {
     return {
       'name': name,
@@ -69,7 +78,9 @@ class CityModel extends City {
     };
   }
 
-  /// تحويل من Entity
+  /// Wraps a domain entity into the transport model without changing values.
+  ///
+  /// يغلّف الكيان المعماري داخل نموذج النقل من دون تغيير القيم.
   factory CityModel.fromEntity(City city) {
     return CityModel(
       name: city.name,

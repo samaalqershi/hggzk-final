@@ -4,61 +4,59 @@ import 'package:equatable/equatable.dart';
 import 'dart:math' as math;
 
 class Coordinates extends Equatable {
+  /// العربية: يخزن القيمة `latitude`.
   final double latitude;
   final double longitude;
-  
   const Coordinates({
     required this.latitude,
     required this.longitude,
   });
-  
   double distanceTo(Coordinates other) {
     // Haversine formula for distance calculation
     const double earthRadius = 6371; // km
     final double dLat = _toRadians(other.latitude - latitude);
     final double dLon = _toRadians(other.longitude - longitude);
-    
-    final double a = 
-      math.sin(dLat / 2) * math.sin(dLat / 2) +
-      math.cos(_toRadians(latitude)) * 
-      math.cos(_toRadians(other.latitude)) *
-      math.sin(dLon / 2) * math.sin(dLon / 2);
-    
+
+    final double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_toRadians(latitude)) *
+            math.cos(_toRadians(other.latitude)) *
+            math.sin(dLon / 2) *
+            math.sin(dLon / 2);
+
     final double c = 2 * math.asin(math.sqrt(a));
     return earthRadius * c;
   }
-  
+
   double _toRadians(double degree) {
     return degree * (3.141592653589793 / 180);
   }
-  
+
   @override
   List<Object> get props => [latitude, longitude];
 }
 
 class GeoBounds extends Equatable {
+  /// العربية: يخزن القيمة `northeast`.
   final Coordinates northeast;
   final Coordinates southwest;
-  
   const GeoBounds({
     required this.northeast,
     required this.southwest,
   });
-  
   bool contains(Coordinates point) {
     return point.latitude >= southwest.latitude &&
-           point.latitude <= northeast.latitude &&
-           point.longitude >= southwest.longitude &&
-           point.longitude <= northeast.longitude;
+        point.latitude <= northeast.latitude &&
+        point.longitude >= southwest.longitude &&
+        point.longitude <= northeast.longitude;
   }
-  
+
   Coordinates get center {
     return Coordinates(
       latitude: (northeast.latitude + southwest.latitude) / 2,
       longitude: (northeast.longitude + southwest.longitude) / 2,
     );
   }
-  
+
   @override
   List<Object> get props => [northeast, southwest];
 }
@@ -66,6 +64,7 @@ class GeoBounds extends Equatable {
 enum MarkerType { property, unit, amenity, custom }
 
 class MapMarker extends Equatable {
+  /// العربية: يخزن القيمة `id`.
   final String id;
   final Coordinates coordinates;
   final String name;
@@ -79,7 +78,6 @@ class MapMarker extends Equatable {
   final MarkerPrice? price;
   final double? rating;
   final bool isAvailable;
-  
   const MapMarker({
     required this.id,
     required this.coordinates,
@@ -95,26 +93,33 @@ class MapMarker extends Equatable {
     this.rating,
     this.isAvailable = true,
   });
-  
   @override
   List<Object?> get props => [
-    id, coordinates, name, address, description,
-    icon, color, type, isSelected, isFeatured,
-    price, rating, isAvailable,
-  ];
+        id,
+        coordinates,
+        name,
+        address,
+        description,
+        icon,
+        color,
+        type,
+        isSelected,
+        isFeatured,
+        price,
+        rating,
+        isAvailable,
+      ];
 }
 
 class MarkerPrice extends Equatable {
+  /// العربية: يخزن القيمة `amount`.
   final double amount;
   final String currency;
-  
   const MarkerPrice({
     required this.amount,
     required this.currency,
   });
-  
   String get formatted => '$currency ${amount.toStringAsFixed(2)}';
-  
   @override
   List<Object> get props => [amount, currency];
 }

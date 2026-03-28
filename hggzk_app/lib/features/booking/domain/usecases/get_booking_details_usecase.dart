@@ -5,11 +5,16 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/booking.dart';
 import '../repositories/booking_repository.dart';
 
-class GetBookingDetailsUseCase implements UseCase<Booking, GetBookingDetailsParams> {
+/// العربية: ينفذ حالة الاستخدام `GetBookingDetailsUseCase`.
+class GetBookingDetailsUseCase
+    implements UseCase<Booking, GetBookingDetailsParams> {
+  /// العربية: يخزن القيمة `repository`.
   final BookingRepository repository;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `GetBookingDetailsUseCase`.
   GetBookingDetailsUseCase(this.repository);
 
+  /// العربية: ينفذ السلوك الرئيسي الذي يقدمه هذا الكائن القابل للاستدعاء.
   @override
   Future<Either<Failure, Booking>> call(GetBookingDetailsParams params) async {
     return await repository.getBookingDetails(
@@ -19,15 +24,21 @@ class GetBookingDetailsUseCase implements UseCase<Booking, GetBookingDetailsPara
   }
 }
 
+/// العربية: يمثل `GetBookingDetailsParams`.
 class GetBookingDetailsParams extends Equatable {
+  /// العربية: يخزن القيمة `bookingId`.
   final String bookingId;
+
+  /// العربية: يخزن القيمة `userId`.
   final String userId;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `GetBookingDetailsParams`.
   const GetBookingDetailsParams({
     required this.bookingId,
     required this.userId,
   });
 
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object> get props => [bookingId, userId];
 }

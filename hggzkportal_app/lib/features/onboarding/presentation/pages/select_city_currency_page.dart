@@ -13,62 +13,137 @@ import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_logo_widget.dart';
 import '../bloc/onboarding_bloc.dart';
 import '../bloc/onboarding_event.dart';
 import '../bloc/onboarding_state.dart';
 
+/// يعرّف الكلاس `SelectCityCurrencyPage`.
+/// Describes the `SelectCityCurrencyPage` class.
 class SelectCityCurrencyPage extends StatefulWidget {
+  /// Initializes a new `SelectCityCurrencyPage` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `SelectCityCurrencyPage`.
   const SelectCityCurrencyPage({super.key});
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<SelectCityCurrencyPage> createState() => _SelectCityCurrencyPageState();
 }
 
+/// يعرّف الكلاس `_SelectCityCurrencyPageState`.
+/// Describes the `_SelectCityCurrencyPageState` class.
 class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     with TickerProviderStateMixin {
   // Animation Controllers
+  /// يخزن العضو `_backgroundAnimationController`.
+  /// Holds the `_backgroundAnimationController` member.
   late AnimationController _backgroundAnimationController;
+
+  /// يخزن العضو `_contentAnimationController`.
+  /// Holds the `_contentAnimationController` member.
   late AnimationController _contentAnimationController;
+
+  /// يخزن العضو `_particleController`.
+  /// Holds the `_particleController` member.
   late AnimationController _particleController;
+
+  /// يخزن العضو `_glowController`.
+  /// Holds the `_glowController` member.
   late AnimationController _glowController;
+
+  /// يخزن العضو `_waveController`.
+  /// Holds the `_waveController` member.
   late AnimationController _waveController;
+
+  /// يخزن العضو `_buttonAnimationController`.
+  /// Holds the `_buttonAnimationController` member.
   late AnimationController _buttonAnimationController;
 
   // Animations
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
+
+  /// يخزن العضو `_slideAnimation`.
+  /// Holds the `_slideAnimation` member.
   late Animation<Offset> _slideAnimation;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
+
+  /// يخزن العضو `_rotationAnimation`.
+  /// Holds the `_rotationAnimation` member.
   late Animation<double> _rotationAnimation;
+
+  /// يخزن العضو `_glowAnimation`.
+  /// Holds the `_glowAnimation` member.
   late Animation<double> _glowAnimation;
+
+  /// يخزن العضو `_waveAnimation`.
+  /// Holds the `_waveAnimation` member.
   late Animation<double> _waveAnimation;
+
+  /// يخزن العضو `_buttonScaleAnimation`.
+  /// Holds the `_buttonScaleAnimation` member.
   late Animation<double> _buttonScaleAnimation;
 
   // State
+  /// يخزن العضو `_selectedCity`.
+  /// Holds the `_selectedCity` member.
   String? _selectedCity;
+
+  /// يخزن العضو `_selectedCurrency`.
+  /// Holds the `_selectedCurrency` member.
   String? _selectedCurrency;
   final _searchCityController = TextEditingController();
   final _searchCurrencyController = TextEditingController();
+
+  /// يخزن العضو `_citySearchQuery`.
+  /// Holds the `_citySearchQuery` member.
   String _citySearchQuery = '';
+
+  /// يخزن العضو `_currencySearchQuery`.
+  /// Holds the `_currencySearchQuery` member.
   String _currencySearchQuery = '';
+
+  /// يخزن العضو `_currentStep`.
+  /// Holds the `_currentStep` member.
   int _currentStep = 0; // 0: city, 1: currency
+  /// يخزن العضو `_isButtonPressed`.
+  /// Holds the `_isButtonPressed` member.
   bool _isButtonPressed = false;
 
   // Particles
+  /// يخزن العضو `_particles`.
+  /// Holds the `_particles` member.
   final List<_FloatingParticle> _particles = [];
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
+
+    /// ينفذ العملية `_initializeAnimations`.
+    /// Runs the `_initializeAnimations` operation.
     _initializeAnimations();
+
+    /// ينفذ العملية `_generateParticles`.
+    /// Runs the `_generateParticles` operation.
     _generateParticles();
+
+    /// ينفذ العملية `_startAnimations`.
+    /// Runs the `_startAnimations` operation.
     _startAnimations();
 
     // Load reference data
     context.read<ReferenceBloc>().add(const LoadReferenceDataEvent());
   }
 
+  /// ينفذ العملية `_initializeAnimations`.
+  /// Runs the `_initializeAnimations` operation.
   void _initializeAnimations() {
     _backgroundAnimationController = AnimationController(
       duration: const Duration(seconds: 20),
@@ -157,12 +232,16 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     ));
   }
 
+  /// ينفذ العملية `_generateParticles`.
+  /// Runs the `_generateParticles` operation.
   void _generateParticles() {
     for (int i = 0; i < 20; i++) {
       _particles.add(_FloatingParticle());
     }
   }
 
+  /// ينفذ العملية `_startAnimations`.
+  /// Runs the `_startAnimations` operation.
   void _startAnimations() {
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
@@ -171,6 +250,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     });
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _backgroundAnimationController.dispose();
@@ -184,6 +265,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -211,6 +294,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildAnimatedBackground`.
+  /// Runs the `_buildAnimatedBackground` operation.
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: Listenable.merge([_rotationAnimation, _waveAnimation]),
@@ -233,7 +318,7 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
               CustomPaint(
                 painter: _WavePatternPainter(
                   animation: _waveAnimation.value,
-                  color: AppTheme.primaryBlue.withOpacity(0.03),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.03),
                 ),
                 size: Size.infinite,
               ),
@@ -253,6 +338,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildFloatingParticles`.
+  /// Runs the `_buildFloatingParticles` operation.
   Widget _buildFloatingParticles() {
     return AnimatedBuilder(
       animation: _particleController,
@@ -268,6 +355,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildMainContent`.
+  /// Runs the `_buildMainContent` operation.
   Widget _buildMainContent() {
     return SafeArea(
       child: FadeTransition(
@@ -299,6 +388,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildLoadingState`.
+  /// Runs the `_buildLoadingState` operation.
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -316,8 +407,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
                   gradient: AppTheme.primaryGradient,
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(
-                        0.3 + 0.2 * _glowAnimation.value,
+                      color: AppTheme.primaryBlue.withValues(
+                        alpha: 0.3 + 0.2 * _glowAnimation.value,
                       ),
                       blurRadius: 20 + 10 * _glowAnimation.value,
                       spreadRadius: 2,
@@ -351,6 +442,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildErrorState`.
+  /// Runs the `_buildErrorState` operation.
   Widget _buildErrorState(String message) {
     return Center(
       child: Padding(
@@ -364,8 +457,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
+                    AppTheme.error.withValues(alpha: 0.2),
+                    AppTheme.error.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -373,7 +466,7 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
               child: Icon(
                 Icons.error_outline_rounded,
                 size: 32,
-                color: AppTheme.error.withOpacity(0.8),
+                color: AppTheme.error.withValues(alpha: 0.8),
               ),
             ),
             const SizedBox(height: 20),
@@ -388,7 +481,7 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
             Text(
               message,
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.7),
+                color: AppTheme.textMuted.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
             ),
@@ -400,6 +493,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildRetryButton`.
+  /// Runs the `_buildRetryButton` operation.
   Widget _buildRetryButton() {
     return GestureDetector(
       onTap: () {
@@ -413,7 +508,7 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryBlue.withOpacity(0.3),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -441,6 +536,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildContentLayout`.
+  /// Runs the `_buildContentLayout` operation.
   Widget _buildContentLayout(ReferenceDataLoaded state) {
     return Column(
       children: [
@@ -483,6 +580,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildCompactHeader`.
+  /// Runs the `_buildCompactHeader` operation.
   Widget _buildCompactHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -500,8 +599,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(
-                        0.3 + 0.1 * _glowAnimation.value,
+                      color: AppTheme.primaryBlue.withValues(
+                        alpha: 0.3 + 0.1 * _glowAnimation.value,
                       ),
                       blurRadius: 12 + 4 * _glowAnimation.value,
                       spreadRadius: 1,
@@ -544,7 +643,7 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
                       ? 'حدد موقعك للحصول على أفضل العروض'
                       : 'اختر العملة المفضلة للعرض',
                   style: AppTextStyles.caption.copyWith(
-                    color: AppTheme.textMuted.withOpacity(0.7),
+                    color: AppTheme.textMuted.withValues(alpha: 0.7),
                     fontSize: 11,
                   ),
                 ),
@@ -565,10 +664,10 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.3),
+                  color: AppTheme.darkCard.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: AppTheme.darkBorder.withOpacity(0.2),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.2),
                     width: 0.5,
                   ),
                 ),
@@ -586,6 +685,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildProgressIndicator`.
+  /// Runs the `_buildProgressIndicator` operation.
   Widget _buildProgressIndicator() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -605,8 +706,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
             width: 24,
             height: 1,
             color: _currentStep > 0
-                ? AppTheme.primaryBlue.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.2),
+                ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                : AppTheme.darkBorder.withValues(alpha: 0.2),
           ),
 
           // Step 2
@@ -622,6 +723,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildStepIndicator`.
+  /// Runs the `_buildStepIndicator` operation.
   Widget _buildStepIndicator({
     required bool isActive,
     required bool isCompleted,
@@ -635,13 +738,13 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
           decoration: BoxDecoration(
             gradient: isActive || isCompleted ? AppTheme.primaryGradient : null,
             color: !isActive && !isCompleted
-                ? AppTheme.darkBorder.withOpacity(0.2)
+                ? AppTheme.darkBorder.withValues(alpha: 0.2)
                 : null,
             borderRadius: BorderRadius.circular(2),
             boxShadow: isActive
                 ? [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -655,7 +758,7 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
           style: AppTextStyles.caption.copyWith(
             color: isActive
                 ? AppTheme.primaryBlue
-                : AppTheme.textMuted.withOpacity(0.5),
+                : AppTheme.textMuted.withValues(alpha: 0.5),
             fontSize: 10,
             fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
           ),
@@ -664,6 +767,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildCitySelection`.
+  /// Runs the `_buildCitySelection` operation.
   Widget _buildCitySelection(List<City> cities) {
     final filteredCities = _citySearchQuery.isEmpty
         ? cities
@@ -728,6 +833,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildCurrencySelection`.
+  /// Runs the `_buildCurrencySelection` operation.
   Widget _buildCurrencySelection(List<Currency> currencies) {
     final filteredCurrencies = _currencySearchQuery.isEmpty
         ? currencies
@@ -789,6 +896,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildSearchField`.
+  /// Runs the `_buildSearchField` operation.
   Widget _buildSearchField({
     required TextEditingController controller,
     required String hint,
@@ -799,13 +908,13 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.15),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.15),
           width: 0.5,
         ),
       ),
@@ -822,12 +931,12 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.caption.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
                 fontSize: 12,
               ),
               prefixIcon: Icon(
                 Icons.search_rounded,
-                color: AppTheme.primaryBlue.withOpacity(0.5),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                 size: 18,
               ),
               border: InputBorder.none,
@@ -843,6 +952,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildEmptySearchState`.
+  /// Runs the `_buildEmptySearchState` operation.
   Widget _buildEmptySearchState() {
     return Center(
       child: Column(
@@ -851,20 +962,20 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
           Icon(
             Icons.search_off_rounded,
             size: 48,
-            color: AppTheme.textMuted.withOpacity(0.2),
+            color: AppTheme.textMuted.withValues(alpha: 0.2),
           ),
           const SizedBox(height: 12),
           Text(
             'لا توجد نتائج',
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
               fontSize: 14,
             ),
           ),
           Text(
             'جرب البحث بكلمات أخرى',
             style: AppTextStyles.caption.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
               fontSize: 11,
             ),
           ),
@@ -873,6 +984,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildBottomActions`.
+  /// Runs the `_buildBottomActions` operation.
   Widget _buildBottomActions() {
     final canProceed = _currentStep == 0
         ? _selectedCity != null
@@ -885,8 +998,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            AppTheme.darkBackground.withOpacity(0),
-            AppTheme.darkBackground.withOpacity(0.9),
+            AppTheme.darkBackground.withValues(alpha: 0),
+            AppTheme.darkBackground.withValues(alpha: 0.9),
             AppTheme.darkBackground,
           ],
         ),
@@ -934,6 +1047,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildSecondaryButton`.
+  /// Runs the `_buildSecondaryButton` operation.
   Widget _buildSecondaryButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -947,10 +1062,10 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
         width: 42,
         height: 42,
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withOpacity(0.5),
+          color: AppTheme.darkCard.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
@@ -963,6 +1078,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     );
   }
 
+  /// ينفذ العملية `_buildPrimaryButton`.
+  /// Runs the `_buildPrimaryButton` operation.
   Widget _buildPrimaryButton({
     required bool enabled,
     required VoidCallback onTap,
@@ -1005,21 +1122,21 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
                     ? AppTheme.primaryGradient
                     : LinearGradient(
                         colors: [
-                          AppTheme.darkCard.withOpacity(0.3),
-                          AppTheme.darkCard.withOpacity(0.2),
+                          AppTheme.darkCard.withValues(alpha: 0.3),
+                          AppTheme.darkCard.withValues(alpha: 0.2),
                         ],
                       ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: enabled
-                      ? AppTheme.primaryBlue.withOpacity(0.3)
-                      : AppTheme.darkBorder.withOpacity(0.1),
+                      ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                      : AppTheme.darkBorder.withValues(alpha: 0.1),
                   width: 0.5,
                 ),
                 boxShadow: enabled
                     ? [
                         BoxShadow(
-                          color: AppTheme.primaryBlue.withOpacity(0.3),
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                           blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
@@ -1035,7 +1152,7 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
                       style: AppTextStyles.buttonMedium.copyWith(
                         color: enabled
                             ? Colors.white
-                            : AppTheme.textMuted.withOpacity(0.3),
+                            : AppTheme.textMuted.withValues(alpha: 0.3),
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1047,7 +1164,7 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
                           : Icons.check_rounded,
                       color: enabled
                           ? Colors.white
-                          : AppTheme.textMuted.withOpacity(0.3),
+                          : AppTheme.textMuted.withValues(alpha: 0.3),
                       size: 16,
                     ),
                   ],
@@ -1062,12 +1179,27 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
 }
 
 // Compact City Card Widget
+/// يعرّف الكلاس `_CompactCityCard`.
+/// Describes the `_CompactCityCard` class.
 class _CompactCityCard extends StatefulWidget {
+  /// Holds the `city` value.
+  /// العربية: يخزن القيمة `city`.
   final City city;
+
+  /// يخزن العضو `isSelected`.
+  /// Holds the `isSelected` member.
   final bool isSelected;
+
+  /// يخزن العضو `onTap`.
+  /// Holds the `onTap` member.
   final VoidCallback onTap;
+
+  /// يخزن العضو `animationDelay`.
+  /// Holds the `animationDelay` member.
   final Duration animationDelay;
 
+  /// ينشئ مثيلاً من `_CompactCityCard`.
+  /// Builds an instance of `_CompactCityCard`.
   const _CompactCityCard({
     required this.city,
     required this.isSelected,
@@ -1075,16 +1207,30 @@ class _CompactCityCard extends StatefulWidget {
     required this.animationDelay,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<_CompactCityCard> createState() => _CompactCityCardState();
 }
 
+/// يعرّف الكلاس `_CompactCityCardState`.
+/// Describes the `_CompactCityCardState` class.
 class _CompactCityCardState extends State<_CompactCityCard>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_controller`.
+  /// Holds the `_controller` member.
   late AnimationController _controller;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
+
+  /// يخزن العضو `_isPressed`.
+  /// Holds the `_isPressed` member.
   bool _isPressed = false;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -1108,12 +1254,16 @@ class _CompactCityCardState extends State<_CompactCityCard>
     });
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return ScaleTransition(
@@ -1131,21 +1281,21 @@ class _CompactCityCardState extends State<_CompactCityCard>
                 ? AppTheme.primaryGradient
                 : LinearGradient(
                     colors: [
-                      AppTheme.darkCard.withOpacity(0.5),
-                      AppTheme.darkCard.withOpacity(0.3),
+                      AppTheme.darkCard.withValues(alpha: 0.5),
+                      AppTheme.darkCard.withValues(alpha: 0.3),
                     ],
                   ),
             borderRadius: BorderRadius.circular(11),
             border: Border.all(
               color: widget.isSelected
-                  ? AppTheme.primaryBlue.withOpacity(0.5)
-                  : AppTheme.darkBorder.withOpacity(0.15),
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                  : AppTheme.darkBorder.withValues(alpha: 0.15),
               width: widget.isSelected ? 1 : 0.5,
             ),
             boxShadow: widget.isSelected
                 ? [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.2),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                       blurRadius: 10,
                       offset: const Offset(0, 3),
                     ),
@@ -1171,7 +1321,7 @@ class _CompactCityCardState extends State<_CompactCityCard>
                               )
                             : null,
                         color: !widget.isSelected
-                            ? AppTheme.primaryBlue.withOpacity(0.15)
+                            ? AppTheme.primaryBlue.withValues(alpha: 0.15)
                             : null,
                         shape: BoxShape.circle,
                       ),
@@ -1180,7 +1330,7 @@ class _CompactCityCardState extends State<_CompactCityCard>
                         size: 12,
                         color: widget.isSelected
                             ? Colors.white
-                            : AppTheme.primaryBlue.withOpacity(0.6),
+                            : AppTheme.primaryBlue.withValues(alpha: 0.6),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -1194,7 +1344,7 @@ class _CompactCityCardState extends State<_CompactCityCard>
                             style: AppTextStyles.caption.copyWith(
                               color: widget.isSelected
                                   ? Colors.white
-                                  : AppTheme.textWhite.withOpacity(0.9),
+                                  : AppTheme.textWhite.withValues(alpha: 0.9),
                               fontWeight: widget.isSelected
                                   ? FontWeight.w600
                                   : FontWeight.w500,
@@ -1207,8 +1357,8 @@ class _CompactCityCardState extends State<_CompactCityCard>
                             widget.city.country,
                             style: AppTextStyles.caption.copyWith(
                               color: widget.isSelected
-                                  ? Colors.white.withOpacity(0.8)
-                                  : AppTheme.textMuted.withOpacity(0.5),
+                                  ? Colors.white.withValues(alpha: 0.8)
+                                  : AppTheme.textMuted.withValues(alpha: 0.5),
                               fontSize: 9,
                             ),
                             maxLines: 1,
@@ -1222,7 +1372,7 @@ class _CompactCityCardState extends State<_CompactCityCard>
                         width: 16,
                         height: 16,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -1243,12 +1393,27 @@ class _CompactCityCardState extends State<_CompactCityCard>
 }
 
 // Compact Currency Card Widget
+/// يعرّف الكلاس `_CompactCurrencyCard`.
+/// Describes the `_CompactCurrencyCard` class.
 class _CompactCurrencyCard extends StatefulWidget {
+  /// Holds the `currency` value.
+  /// العربية: يخزن القيمة `currency`.
   final Currency currency;
+
+  /// يخزن العضو `isSelected`.
+  /// Holds the `isSelected` member.
   final bool isSelected;
+
+  /// يخزن العضو `onTap`.
+  /// Holds the `onTap` member.
   final VoidCallback onTap;
+
+  /// يخزن العضو `animationDelay`.
+  /// Holds the `animationDelay` member.
   final Duration animationDelay;
 
+  /// ينشئ مثيلاً من `_CompactCurrencyCard`.
+  /// Builds an instance of `_CompactCurrencyCard`.
   const _CompactCurrencyCard({
     required this.currency,
     required this.isSelected,
@@ -1256,16 +1421,30 @@ class _CompactCurrencyCard extends StatefulWidget {
     required this.animationDelay,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<_CompactCurrencyCard> createState() => _CompactCurrencyCardState();
 }
 
+/// يعرّف الكلاس `_CompactCurrencyCardState`.
+/// Describes the `_CompactCurrencyCardState` class.
 class _CompactCurrencyCardState extends State<_CompactCurrencyCard>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_controller`.
+  /// Holds the `_controller` member.
   late AnimationController _controller;
+
+  /// يخزن العضو `_slideAnimation`.
+  /// Holds the `_slideAnimation` member.
   late Animation<double> _slideAnimation;
+
+  /// يخزن العضو `_isPressed`.
+  /// Holds the `_isPressed` member.
   bool _isPressed = false;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -1289,12 +1468,16 @@ class _CompactCurrencyCardState extends State<_CompactCurrencyCard>
     });
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -1318,21 +1501,21 @@ class _CompactCurrencyCardState extends State<_CompactCurrencyCard>
                       ? AppTheme.primaryGradient
                       : LinearGradient(
                           colors: [
-                            AppTheme.darkCard.withOpacity(0.5),
-                            AppTheme.darkCard.withOpacity(0.3),
+                            AppTheme.darkCard.withValues(alpha: 0.5),
+                            AppTheme.darkCard.withValues(alpha: 0.3),
                           ],
                         ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: widget.isSelected
-                        ? AppTheme.primaryBlue.withOpacity(0.5)
-                        : AppTheme.darkBorder.withOpacity(0.15),
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                        : AppTheme.darkBorder.withValues(alpha: 0.15),
                     width: widget.isSelected ? 1 : 0.5,
                   ),
                   boxShadow: widget.isSelected
                       ? [
                           BoxShadow(
-                            color: AppTheme.primaryBlue.withOpacity(0.2),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -1357,7 +1540,8 @@ class _CompactCurrencyCardState extends State<_CompactCurrencyCard>
                                     )
                                   : null,
                               color: !widget.isSelected
-                                  ? AppTheme.primaryPurple.withOpacity(0.15)
+                                  ? AppTheme.primaryPurple
+                                      .withValues(alpha: 0.15)
                                   : null,
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -1367,7 +1551,8 @@ class _CompactCurrencyCardState extends State<_CompactCurrencyCard>
                                 style: AppTextStyles.bodyMedium.copyWith(
                                   color: widget.isSelected
                                       ? Colors.white
-                                      : AppTheme.primaryPurple.withOpacity(0.7),
+                                      : AppTheme.primaryPurple
+                                          .withValues(alpha: 0.7),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
                                 ),
@@ -1387,7 +1572,7 @@ class _CompactCurrencyCardState extends State<_CompactCurrencyCard>
                                         color: widget.isSelected
                                             ? Colors.white
                                             : AppTheme.textWhite
-                                                .withOpacity(0.9),
+                                                .withValues(alpha: 0.9),
                                         fontWeight: FontWeight.w600,
                                         fontSize: 13,
                                       ),
@@ -1400,18 +1585,20 @@ class _CompactCurrencyCardState extends State<_CompactCurrencyCard>
                                       ),
                                       decoration: BoxDecoration(
                                         color: widget.isSelected
-                                            ? Colors.white.withOpacity(0.15)
+                                            ? Colors.white
+                                                .withValues(alpha: 0.15)
                                             : AppTheme.darkBorder
-                                                .withOpacity(0.1),
+                                                .withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
                                         widget.currency.name,
                                         style: AppTextStyles.caption.copyWith(
                                           color: widget.isSelected
-                                              ? Colors.white.withOpacity(0.9)
+                                              ? Colors.white
+                                                  .withValues(alpha: 0.9)
                                               : AppTheme.textMuted
-                                                  .withOpacity(0.5),
+                                                  .withValues(alpha: 0.5),
                                           fontSize: 9,
                                         ),
                                       ),
@@ -1423,8 +1610,9 @@ class _CompactCurrencyCardState extends State<_CompactCurrencyCard>
                                   widget.currency.arabicName,
                                   style: AppTextStyles.caption.copyWith(
                                     color: widget.isSelected
-                                        ? Colors.white.withOpacity(0.8)
-                                        : AppTheme.textMuted.withOpacity(0.6),
+                                        ? Colors.white.withValues(alpha: 0.8)
+                                        : AppTheme.textMuted
+                                            .withValues(alpha: 0.6),
                                     fontSize: 11,
                                   ),
                                 ),
@@ -1436,7 +1624,7 @@ class _CompactCurrencyCardState extends State<_CompactCurrencyCard>
                               width: 20,
                               height: 20,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.white.withValues(alpha: 0.9),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -1460,17 +1648,37 @@ class _CompactCurrencyCardState extends State<_CompactCurrencyCard>
 }
 
 // Floating Particle Model
+/// يعرّف الكلاس `_FloatingParticle`.
+/// Describes the `_FloatingParticle` class.
 class _FloatingParticle {
+  /// Holds the `y` value.
+  /// العربية: يخزن القيمة `y`.
   late double x, y;
+
+  /// يخزن العضو `vy`.
+  /// Holds the `vy` member.
   late double vx, vy;
+
+  /// يخزن العضو `radius`.
+  /// Holds the `radius` member.
   late double radius;
+
+  /// يخزن العضو `opacity`.
+  /// Holds the `opacity` member.
   late double opacity;
+
+  /// يخزن العضو `color`.
+  /// Holds the `color` member.
   late Color color;
 
+  /// ينشئ مثيلاً من `_FloatingParticle`.
+  /// Builds an instance of `_FloatingParticle`.
   _FloatingParticle() {
     reset();
   }
 
+  /// ينفذ العملية `reset`.
+  /// Runs the `reset` operation.
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -1488,6 +1696,8 @@ class _FloatingParticle {
     color = colors[math.Random().nextInt(colors.length)];
   }
 
+  /// ينفذ العملية `update`.
+  /// Runs the `update` operation.
   void update() {
     x += vx;
     y += vy;
@@ -1498,22 +1708,33 @@ class _FloatingParticle {
 }
 
 // Custom Painters
+/// يعرّف الكلاس `_ParticlePainter`.
+/// Describes the `_ParticlePainter` class.
 class _ParticlePainter extends CustomPainter {
+  /// Holds the `particles` value.
+  /// العربية: يخزن القيمة `particles`.
   final List<_FloatingParticle> particles;
+
+  /// يخزن العضو `animationValue`.
+  /// Holds the `animationValue` member.
   final double animationValue;
 
+  /// ينشئ مثيلاً من `_ParticlePainter`.
+  /// Builds an instance of `_ParticlePainter`.
   _ParticlePainter({
     required this.particles,
     required this.animationValue,
   });
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
       particle.update();
 
       final paint = Paint()
-        ..color = particle.color.withOpacity(particle.opacity)
+        ..color = particle.color.withValues(alpha: particle.opacity)
         ..style = PaintingStyle.fill
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
 
@@ -1525,19 +1746,32 @@ class _ParticlePainter extends CustomPainter {
     }
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+/// يعرّف الكلاس `_WavePatternPainter`.
+/// Describes the `_WavePatternPainter` class.
 class _WavePatternPainter extends CustomPainter {
+  /// Holds the `animation` value.
+  /// العربية: يخزن القيمة `animation`.
   final double animation;
+
+  /// يخزن العضو `color`.
+  /// Holds the `color` member.
   final Color color;
 
+  /// ينشئ مثيلاً من `_WavePatternPainter`.
+  /// Builds an instance of `_WavePatternPainter`.
   _WavePatternPainter({
     required this.animation,
     required this.color,
   });
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1560,23 +1794,36 @@ class _WavePatternPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+/// يعرّف الكلاس `_GridPatternPainter`.
+/// Describes the `_GridPatternPainter` class.
 class _GridPatternPainter extends CustomPainter {
+  /// Holds the `rotation` value.
+  /// العربية: يخزن القيمة `rotation`.
   final double rotation;
+
+  /// يخزن العضو `opacity`.
+  /// Holds the `opacity` member.
   final double opacity;
 
+  /// ينشئ مثيلاً من `_GridPatternPainter`.
+  /// Builds an instance of `_GridPatternPainter`.
   _GridPatternPainter({
     required this.rotation,
     required this.opacity,
   });
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppTheme.primaryBlue.withOpacity(opacity)
+      ..color = AppTheme.primaryBlue.withValues(alpha: opacity)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.2;
 
@@ -1606,6 +1853,8 @@ class _GridPatternPainter extends CustomPainter {
     canvas.restore();
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

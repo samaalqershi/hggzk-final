@@ -6,20 +6,21 @@ import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../../entities/property_image.dart';
 import '../../repositories/property_images_repository.dart';
 
-class GetPropertyImagesUseCase implements UseCase<List<PropertyImage>, GetImagesParams> {
+class GetPropertyImagesUseCase
+    implements UseCase<List<PropertyImage>, GetImagesParams> {
   final PropertyImagesRepository repository;
-
   GetPropertyImagesUseCase(this.repository);
-
   @override
-  Future<Either<Failure, List<PropertyImage>>> call(GetImagesParams params) async {
-    return await repository.getPropertyImages(params.propertyId, tempKey: params.tempKey);
+  Future<Either<Failure, List<PropertyImage>>> call(
+      GetImagesParams params) async {
+    return await repository.getPropertyImages(params.propertyId,
+        tempKey: params.tempKey);
   }
 }
 
 class GetImagesParams {
+  /// العربية: يخزن القيمة `propertyId`.
   final String? propertyId;
   final String? tempKey;
-
   GetImagesParams({this.propertyId, this.tempKey});
 }

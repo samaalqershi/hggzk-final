@@ -5,8 +5,11 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class ImportExportDialog extends StatefulWidget {
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
+
   final Function() onExport;
+
   final Function() onImport;
 
   const ImportExportDialog({
@@ -39,7 +42,9 @@ class ImportExportDialog extends StatefulWidget {
 class _ImportExportDialogState extends State<ImportExportDialog>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   late Animation<double> _scaleAnimation;
+
   late Animation<double> _fadeAnimation;
 
   int _selectedTab = 0;
@@ -47,6 +52,7 @@ class _ImportExportDialogState extends State<ImportExportDialog>
   @override
   void initState() {
     super.initState();
+
     _initializeAnimations();
   }
 
@@ -97,18 +103,18 @@ class _ImportExportDialogState extends State<ImportExportDialog>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.95),
-                  AppTheme.darkCard.withOpacity(0.85),
+                  AppTheme.darkCard.withValues(alpha: 0.95),
+                  AppTheme.darkCard.withValues(alpha: 0.85),
                 ],
               ),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.primaryCyan.withOpacity(0.3),
+                color: AppTheme.primaryCyan.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryCyan.withOpacity(0.2),
+                  color: AppTheme.primaryCyan.withValues(alpha: 0.2),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -199,7 +205,7 @@ class _ImportExportDialogState extends State<ImportExportDialog>
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.6),
+        color: AppTheme.darkSurface.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -283,13 +289,13 @@ class _ImportExportDialogState extends State<ImportExportDialog>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryCyan.withOpacity(0.1),
-            AppTheme.primaryBlue.withOpacity(0.1),
+            AppTheme.primaryCyan.withValues(alpha: 0.1),
+            AppTheme.primaryBlue.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.primaryCyan.withOpacity(0.3),
+          color: AppTheme.primaryCyan.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -346,10 +352,10 @@ class _ImportExportDialogState extends State<ImportExportDialog>
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.info.withOpacity(0.1),
+              color: AppTheme.info.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppTheme.info.withOpacity(0.3),
+                color: AppTheme.info.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -379,13 +385,13 @@ class _ImportExportDialogState extends State<ImportExportDialog>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryCyan.withOpacity(0.1),
-            AppTheme.primaryBlue.withOpacity(0.1),
+            AppTheme.primaryCyan.withValues(alpha: 0.1),
+            AppTheme.primaryBlue.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.primaryCyan.withOpacity(0.3),
+          color: AppTheme.primaryCyan.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -418,10 +424,10 @@ class _ImportExportDialogState extends State<ImportExportDialog>
             child: Container(
               padding: const EdgeInsets.all(40),
               decoration: BoxDecoration(
-                color: AppTheme.darkSurface.withOpacity(0.6),
+                color: AppTheme.darkSurface.withValues(alpha: 0.6),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: AppTheme.primaryCyan.withOpacity(0.3),
+                  color: AppTheme.primaryCyan.withValues(alpha: 0.3),
                   width: 2,
                   style: BorderStyle.solid,
                 ),
@@ -463,10 +469,10 @@ class _ImportExportDialogState extends State<ImportExportDialog>
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.warning.withOpacity(0.1),
+              color: AppTheme.warning.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppTheme.warning.withOpacity(0.3),
+                color: AppTheme.warning.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -503,10 +509,10 @@ class _ImportExportDialogState extends State<ImportExportDialog>
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.darkSurface.withOpacity(0.6),
+          color: AppTheme.darkSurface.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -514,7 +520,7 @@ class _ImportExportDialogState extends State<ImportExportDialog>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
+                color: color.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: color, size: 24),

@@ -24,8 +24,11 @@ class SearchUsersEvent extends UsersListEvent {
 
 class FilterUsersEvent extends UsersListEvent {
   final String? roleId;
+
   final bool? isActive;
+
   final DateTime? createdAfter;
+
   final DateTime? createdBefore;
 
   const FilterUsersEvent({
@@ -41,6 +44,7 @@ class FilterUsersEvent extends UsersListEvent {
 
 class ToggleUserStatusEvent extends UsersListEvent {
   final String userId;
+
   final bool activate;
 
   const ToggleUserStatusEvent({
@@ -54,6 +58,7 @@ class ToggleUserStatusEvent extends UsersListEvent {
 
 class SortUsersEvent extends UsersListEvent {
   final String sortBy;
+
   final bool isAscending;
 
   const SortUsersEvent({
@@ -67,13 +72,21 @@ class SortUsersEvent extends UsersListEvent {
 
 class CreateUserEvent extends UsersListEvent {
   final String name;
+
   final String email;
+
   final String password;
+
   final String phone;
+
   final String? roleId;
+
   final String? profileImage;
+
   final bool emailConfirmed;
+
   final bool phoneNumberConfirmed;
+
   final List<Map<String, dynamic>>? walletAccounts;
 
   const CreateUserEvent({
@@ -104,13 +117,21 @@ class CreateUserEvent extends UsersListEvent {
 
 class UpdateUserEvent extends UsersListEvent {
   final String userId;
+
   final String? name;
+
   final String? email;
+
   final String? phone;
+
   final String? profileImage;
+
   final String? roleId;
+
   final bool? emailConfirmed;
+
   final bool? phoneNumberConfirmed;
+
   final List<Map<String, dynamic>>? walletAccounts;
 
   const UpdateUserEvent({
@@ -138,7 +159,6 @@ class UpdateUserEvent extends UsersListEvent {
         walletAccounts,
       ];
 }
-
 
 class DeleteUserEvent extends UsersListEvent {
   final String userId;

@@ -7,15 +7,14 @@ import '../bloc/settings_bloc.dart';
 import '../bloc/settings_event.dart';
 
 class FuturisticThemeToggle extends StatefulWidget {
+  /// العربية: يحدد ما إذا كانت القيمة `isDarkMode` مفعلة.
   final bool isDarkMode;
   final Function(bool)? onChanged;
-
   const FuturisticThemeToggle({
     super.key,
     required this.isDarkMode,
     this.onChanged,
   });
-
   @override
   State<FuturisticThemeToggle> createState() => _FuturisticThemeToggleState();
 }
@@ -26,27 +25,26 @@ class _FuturisticThemeToggleState extends State<FuturisticThemeToggle>
   late AnimationController _switchController;
   late Animation<double> _rotationAnimation;
   late Animation<double> _switchAnimation;
-
   @override
   void initState() {
     super.initState();
-    
+
     _rotationController = AnimationController(
       duration: const Duration(seconds: 10),
       vsync: this,
     )..repeat();
-    
+
     _switchController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
       value: widget.isDarkMode ? 1.0 : 0.0,
     );
-    
+
     _rotationAnimation = Tween<double>(
       begin: 0,
       end: 2 * math.pi,
     ).animate(_rotationController);
-    
+
     _switchAnimation = CurvedAnimation(
       parent: _switchController,
       curve: Curves.easeInOut,
@@ -97,15 +95,15 @@ class _FuturisticThemeToggleState extends State<FuturisticThemeToggle>
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: widget.isDarkMode
-                    ? AppTheme.primaryBlue.withOpacity(0.3)
-                    : Colors.orange.withOpacity(0.3),
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                    : Colors.orange.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
                   color: widget.isDarkMode
-                      ? AppTheme.primaryBlue.withOpacity(0.3)
-                      : Colors.orange.withOpacity(0.3),
+                      ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                      : Colors.orange.withValues(alpha: 0.3),
                   blurRadius: 10,
                   spreadRadius: 1,
                 ),
@@ -122,7 +120,7 @@ class _FuturisticThemeToggleState extends State<FuturisticThemeToggle>
                       child: Icon(
                         Icons.star,
                         size: 4 + (index * 2),
-                        color: Colors.white.withOpacity(0.6),
+                        color: Colors.white.withValues(alpha: 0.6),
                       ),
                     );
                   })
@@ -133,11 +131,11 @@ class _FuturisticThemeToggleState extends State<FuturisticThemeToggle>
                       child: Icon(
                         Icons.wb_sunny,
                         size: 20,
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                       ),
                     ),
                   ),
-                
+
                 // Switch button
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 300),
@@ -163,8 +161,8 @@ class _FuturisticThemeToggleState extends State<FuturisticThemeToggle>
                       boxShadow: [
                         BoxShadow(
                           color: widget.isDarkMode
-                              ? Colors.black.withOpacity(0.3)
-                              : Colors.orange.withOpacity(0.3),
+                              ? Colors.black.withValues(alpha: 0.3)
+                              : Colors.orange.withValues(alpha: 0.3),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -195,7 +193,7 @@ class _FuturisticThemeToggleState extends State<FuturisticThemeToggle>
     } else {
       context.read<SettingsBloc>().add(UpdateThemeEvent(isDark));
     }
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Container(
@@ -231,7 +229,7 @@ class _FuturisticThemeToggleState extends State<FuturisticThemeToggle>
             ],
           ),
         ),
-        backgroundColor: AppTheme.darkCard.withOpacity(0.9),
+        backgroundColor: AppTheme.darkCard.withValues(alpha: 0.9),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -246,24 +244,23 @@ class _FuturisticThemeToggleState extends State<FuturisticThemeToggle>
 
 // Advanced Theme Selector with Preview
 class FuturisticThemeSelector extends StatefulWidget {
+  /// العربية: يحدد ما إذا كانت القيمة `isDarkMode` مفعلة.
   final bool isDarkMode;
   final Function(bool)? onChanged;
-
   const FuturisticThemeSelector({
     super.key,
     required this.isDarkMode,
     this.onChanged,
   });
-
   @override
-  State<FuturisticThemeSelector> createState() => _FuturisticThemeSelectorState();
+  State<FuturisticThemeSelector> createState() =>
+      _FuturisticThemeSelectorState();
 }
 
 class _FuturisticThemeSelectorState extends State<FuturisticThemeSelector>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  
   @override
   void initState() {
     super.initState();
@@ -279,7 +276,7 @@ class _FuturisticThemeSelectorState extends State<FuturisticThemeSelector>
       curve: Curves.easeInOut,
     ));
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -293,13 +290,13 @@ class _FuturisticThemeSelectorState extends State<FuturisticThemeSelector>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.6),
-            AppTheme.darkCard.withOpacity(0.4),
+            AppTheme.darkCard.withValues(alpha: 0.6),
+            AppTheme.darkCard.withValues(alpha: 0.4),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -329,7 +326,7 @@ class _FuturisticThemeSelectorState extends State<FuturisticThemeSelector>
       ),
     );
   }
-  
+
   Widget _buildThemeOption({
     required IconData icon,
     required String label,
@@ -356,13 +353,13 @@ class _FuturisticThemeSelectorState extends State<FuturisticThemeSelector>
               decoration: BoxDecoration(
                 gradient: isSelected ? gradient : null,
                 color: !isSelected
-                    ? AppTheme.darkCard.withOpacity(0.3)
+                    ? AppTheme.darkCard.withValues(alpha: 0.3)
                     : null,
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: gradient.colors[0].withOpacity(0.4),
+                          color: gradient.colors[0].withValues(alpha: 0.4),
                           blurRadius: 8,
                           spreadRadius: 1,
                         ),
@@ -374,20 +371,15 @@ class _FuturisticThemeSelectorState extends State<FuturisticThemeSelector>
                   Icon(
                     icon,
                     size: 20,
-                    color: isSelected
-                        ? Colors.white
-                        : AppTheme.textMuted,
+                    color: isSelected ? Colors.white : AppTheme.textMuted,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     label,
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: isSelected
-                          ? Colors.white
-                          : AppTheme.textMuted,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
+                      color: isSelected ? Colors.white : AppTheme.textMuted,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                 ],
@@ -398,7 +390,7 @@ class _FuturisticThemeSelectorState extends State<FuturisticThemeSelector>
       ),
     );
   }
-  
+
   void _handleThemeChange(bool isDark) {
     if (widget.onChanged != null) {
       widget.onChanged!(isDark);

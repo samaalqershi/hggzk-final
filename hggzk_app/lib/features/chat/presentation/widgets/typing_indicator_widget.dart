@@ -5,26 +5,49 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/conversation.dart';
 
+/// Shows who is currently composing a reply inside a conversation.
+/// يعرض من يكتب ردًا حاليًا داخل المحادثة.
 class TypingIndicatorWidget extends StatefulWidget {
+  /// Identifiers of the users who are typing right now.
+  /// معرّفات المستخدمين الذين يكتبون الآن.
   final List<String> typingUserIds;
+
+  /// Conversation used to resolve names and avatars for the indicator text.
+  /// المحادثة المستخدمة لاستخراج الأسماء والصور في نص المؤشر.
   final Conversation conversation;
 
+  /// Builds the live typing banner for the active conversation.
+  /// ينشئ شريط الكتابة الحي للمحادثة النشطة.
   const TypingIndicatorWidget({
     super.key,
     required this.typingUserIds,
     required this.conversation,
   });
 
+  /// Sets up the animation state that drives the typing dots and fade-in.
+  /// يهيئ حالة الحركة التي تقود نقاط الكتابة والظهور التدريجي.
   @override
   State<TypingIndicatorWidget> createState() => _TypingIndicatorWidgetState();
 }
 
+/// Animates the typing dots and keeps the banner in sync with the user list.
+/// يحرك نقاط الكتابة ويُبقي الشريط متزامنًا مع قائمة المستخدمين.
 class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
     with SingleTickerProviderStateMixin {
+  /// Drives the repeating typing animation.
+  /// يقود حركة الكتابة المتكررة.
   late AnimationController _animationController;
+
+  /// Staggers the three dots so the typing hint feels lively.
+  /// يوزع حركة النقاط الثلاث بتتابع يجعل الإشارة أكثر حيوية.
   late List<Animation<double>> _dotAnimations;
+
+  /// Fades the banner in when the typing state becomes active.
+  /// يُظهر الشريط تدريجيًا عند تفعيل حالة الكتابة.
   late Animation<double> _fadeAnimation;
 
+  /// Starts the looping dot animation as soon as the widget is inserted.
+  /// يبدأ حركة النقاط المتكررة فور إدراج العنصر.
   @override
   void initState() {
     super.initState();
@@ -58,12 +81,16 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
     });
   }
 
+  /// Disposes the animation controller used by the banner.
+  /// يحرر متحكم الحركة المستخدم بالشريط.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// Renders the typing text and animated dots for the active participants.
+  /// يرسم نص الكتابة والنقاط المتحركة للمشاركين النشطين.
   @override
   Widget build(BuildContext context) {
     if (widget.typingUserIds.isEmpty) {
@@ -133,6 +160,7 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
     );
   }
 
+  /// العربية: يبني minimal dots.
   Widget _buildMinimalDots() {
     return SizedBox(
       width: 24, // Reduced from 30
@@ -179,9 +207,11 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
     );
   }
 
+  /// Builds the localized label shown beneath the typing dots.
+  /// ينشئ النص المحلي الظاهر أسفل نقاط الكتابة.
   String _getTypingText(List<ChatUser> typingUsers) {
     if (typingUsers.isEmpty) return '';
-    
+
     if (typingUsers.length == 1) {
       return '${typingUsers.first.name} يكتب';
     } else if (typingUsers.length == 2) {

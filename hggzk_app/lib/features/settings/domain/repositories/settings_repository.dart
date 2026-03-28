@@ -2,6 +2,8 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 import '../entities/app_settings.dart';
 
+/// يحدد العقد الذي تعتمد عليه طبقة المجال لقراءة الإعدادات وتحديثها.
+/// Defines the contract used by the domain layer to read and update settings.
 abstract class SettingsRepository {
   Future<Either<Failure, AppSettings>> getSettings();
   Future<Either<Failure, bool>> updateLanguage(String languageCode);

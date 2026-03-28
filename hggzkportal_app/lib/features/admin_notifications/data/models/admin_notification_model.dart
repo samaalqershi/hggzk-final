@@ -1,6 +1,6 @@
 import '../../domain/entities/admin_notification.dart';
-
 class AdminNotificationModel extends AdminNotificationEntity {
+  /// العربية: ينشئ مثيلًا جديدًا من `AdminNotificationModel`.
   AdminNotificationModel({
     required super.id,
     required super.type,
@@ -16,7 +16,6 @@ class AdminNotificationModel extends AdminNotificationEntity {
     required super.createdAt,
     super.readAt,
   });
-
   factory AdminNotificationModel.fromJson(Map<String, dynamic> json) {
     return AdminNotificationModel(
       id: json['id'] as String,
@@ -31,8 +30,9 @@ class AdminNotificationModel extends AdminNotificationEntity {
       recipientPhone: json['recipientPhone'] as String?,
       isRead: json['isRead'] as bool? ?? false,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      readAt: json['readAt'] != null ? DateTime.tryParse(json['readAt'] as String) : null,
+      readAt: json['readAt'] != null
+          ? DateTime.tryParse(json['readAt'] as String)
+          : null,
     );
   }
 }
-

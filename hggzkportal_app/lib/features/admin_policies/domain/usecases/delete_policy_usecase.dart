@@ -4,6 +4,7 @@ import '../../../../core/usecases/usecase.dart';
 import '../repositories/policies_repository.dart';
 
 class DeletePolicyUseCase implements UseCase<void, String> {
+  /// العربية: يخزن القيمة `repository`.
   final PoliciesRepository repository;
 
   DeletePolicyUseCase(this.repository);

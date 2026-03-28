@@ -1,18 +1,10 @@
 import 'package:hggzkportal/features/admin_sections/presentation/bloc/section_images/section_images_bloc.dart';
 import 'package:hggzkportal/features/admin_sections/presentation/bloc/section_images/section_images_event.dart';
-import 'package:hggzkportal/features/admin_sections/domain/entities/section_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/enums/section_type.dart';
-import '../../../../core/enums/section_content_type.dart';
-import '../../../../core/enums/section_display_style.dart';
-import '../../../../core/enums/section_target.dart';
 import '../bloc/section_form/section_form_bloc.dart';
 import '../bloc/section_form/section_form_event.dart';
 import '../bloc/section_form/section_form_state.dart';
@@ -23,6 +15,7 @@ import 'package:hggzkportal/core/network/api_client.dart';
 import 'package:get_it/get_it.dart';
 
 class CreateSectionPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `CreateSectionPage`.
   const CreateSectionPage({super.key});
 
   @override
@@ -32,25 +25,33 @@ class CreateSectionPage extends StatefulWidget {
 class _CreateSectionPageState extends State<CreateSectionPage>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
+
   late AnimationController _glowController;
+
   late Animation<double> _fadeAnimation;
+
   late Animation<Offset> _slideAnimation;
 
   // Media gallery integration
   final GlobalKey<SectionImageGalleryState> _galleryKey = GlobalKey();
+
   String? _tempKey;
-  List<SectionImage> _selectedImages = [];
+
   List<String> _selectedLocalImages = [];
+
   String? _createdSectionId;
+
   bool _isDisposed = false;
 
   // Store the bloc instances
   late final SectionImagesBloc _imagesBloc;
+
   late final SectionFormBloc _formBloc; // إضافة هذا السطر
 
   @override
   void initState() {
     super.initState();
+
     _initializeAnimations();
 
     // Generate a temp key
@@ -160,7 +161,8 @@ class _CreateSectionPageState extends State<CreateSectionPage>
             // إن لم تكن هناك صورة رئيسية بعد الرفع، حاول تعيين أول صورة كصورة رئيسية
             Future.delayed(const Duration(milliseconds: 400), () {
               try {
-                _imagesBloc.add(RefreshSectionImagesEvent(sectionId: state.sectionId));
+                _imagesBloc
+                    .add(RefreshSectionImagesEvent(sectionId: state.sectionId));
               } catch (_) {}
             });
             // Clear tempKey after successful save
@@ -219,8 +221,8 @@ class _CreateSectionPageState extends State<CreateSectionPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -241,13 +243,13 @@ class _CreateSectionPageState extends State<CreateSectionPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -262,13 +264,13 @@ class _CreateSectionPageState extends State<CreateSectionPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -313,13 +315,13 @@ class _CreateSectionPageState extends State<CreateSectionPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryPurple.withOpacity(0.3),
-                    AppTheme.primaryViolet.withOpacity(0.2),
+                    AppTheme.primaryPurple.withValues(alpha: 0.3),
+                    AppTheme.primaryViolet.withValues(alpha: 0.2),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.primaryPurple.withOpacity(0.4),
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.4),
                 ),
               ),
               child: Row(
@@ -357,10 +359,10 @@ class _CreateSectionPageState extends State<CreateSectionPage>
           backgroundColor: Colors.transparent,
           child: Container(
             decoration: BoxDecoration(
-              color: AppTheme.darkCard.withOpacity(0.98),
+              color: AppTheme.darkCard.withValues(alpha: 0.98),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.2),
+                color: AppTheme.darkBorder.withValues(alpha: 0.2),
               ),
             ),
             padding: const EdgeInsets.all(12),
@@ -375,11 +377,6 @@ class _CreateSectionPageState extends State<CreateSectionPage>
                   isReadOnly: false,
                   maxImages: 20,
                   maxVideos: 5,
-                  onImagesChanged: (images) {
-                    _safeSetState(() {
-                      _selectedImages = images;
-                    });
-                  },
                   onLocalImagesChanged: (paths) {
                     _safeSetState(() {
                       _selectedLocalImages = paths;
@@ -448,6 +445,7 @@ class _CreateSectionPageState extends State<CreateSectionPage>
 }
 
 class _CreateSectionBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
 
   _CreateSectionBackgroundPainter({required this.glowIntensity});
@@ -458,8 +456,8 @@ class _CreateSectionBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryBlue.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryBlue.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryBlue.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryBlue.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -475,8 +473,8 @@ class _CreateSectionBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryPurple.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryPurple.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(

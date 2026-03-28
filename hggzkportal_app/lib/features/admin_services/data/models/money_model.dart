@@ -2,12 +2,12 @@ import '../../domain/entities/money.dart';
 
 /// 💰 Model للمبالغ المالية
 class MoneyModel extends Money {
+  /// العربية: ينشئ مثيلًا جديدًا من `MoneyModel`.
   const MoneyModel({
     required super.amount,
     required super.currency,
     super.formattedAmount,
   });
-
   factory MoneyModel.fromJson(Map<String, dynamic> json) {
     return MoneyModel(
       amount: (json['amount'] as num).toDouble(),
@@ -15,7 +15,6 @@ class MoneyModel extends Money {
       formattedAmount: json['formattedAmount'],
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'amount': amount,
@@ -23,7 +22,6 @@ class MoneyModel extends Money {
       if (formattedAmount != null) 'formattedAmount': formattedAmount,
     };
   }
-
   Money toEntity() => Money(
         amount: amount,
         currency: currency,

@@ -4,22 +4,24 @@ import 'package:hggzkportal/injection_container.dart';
 
 class AnalyticsService {
   static final AnalyticsService _instance = AnalyticsService._internal();
+
   factory AnalyticsService() => _instance;
+
   AnalyticsService._internal();
 
   late FirebaseAnalytics _analytics;
+
   late FirebaseAnalyticsObserver _observer;
 
   FirebaseAnalytics get analytics => _analytics;
+
   FirebaseAnalyticsObserver get observer => _observer;
 
-  // Initialize analytics
   void initialize() {
     _analytics = FirebaseAnalytics.instance;
     _observer = FirebaseAnalyticsObserver(analytics: _analytics);
   }
 
-  // Set user properties
   Future<void> setUserId(String userId) async {
     await _analytics.setUserId(id: userId);
   }
@@ -31,12 +33,10 @@ class AnalyticsService {
     await _analytics.setUserProperty(name: name, value: value);
   }
 
-  // Clear user data
   Future<void> resetAnalyticsData() async {
     await _analytics.setUserId(id: null);
   }
 
-  // Screen tracking
   Future<void> logScreenView({
     required String screenName,
     String? screenClass,
@@ -47,7 +47,6 @@ class AnalyticsService {
     );
   }
 
-  // Authentication events
   Future<void> logLogin({required String method}) async {
     await _analytics.logLogin(loginMethod: method);
   }

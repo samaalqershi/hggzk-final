@@ -9,9 +9,7 @@ import '../../repositories/payments_repository.dart';
 class GetPaymentsByUserUseCase
     implements UseCase<PaginatedResult<Payment>, GetPaymentsByUserParams> {
   final PaymentsRepository repository;
-
   GetPaymentsByUserUseCase(this.repository);
-
   @override
   Future<Either<Failure, PaginatedResult<Payment>>> call(
     GetPaymentsByUserParams params,
@@ -25,16 +23,15 @@ class GetPaymentsByUserUseCase
 }
 
 class GetPaymentsByUserParams extends Equatable {
+  /// العربية: يخزن القيمة `userId`.
   final String userId;
   final int? pageNumber;
   final int? pageSize;
-
   const GetPaymentsByUserParams({
     required this.userId,
     this.pageNumber,
     this.pageSize,
   });
-
   @override
   List<Object?> get props => [userId, pageNumber, pageSize];
 }

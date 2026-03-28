@@ -8,7 +8,6 @@ import 'package:hggzkportal/core/bloc/locale/locale_cubit.dart';
 // Core Blocs
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_event.dart';
-import '../../features/auth/presentation/bloc/auth_state.dart';
 import '../../features/settings/presentation/bloc/settings_bloc.dart';
 // Removed notifications, payment
 
@@ -17,25 +16,32 @@ import '../../features/chat/presentation/bloc/chat_bloc.dart';
 // Removed home, search, booking, property, review, favorites, splash, onboarding
 // Removed additional imports of removed features
 
-/// AppBloc - Centralized Bloc Management for Yemen Booking App
-///
-/// This class manages all the blocs used throughout the application,
-/// providing a centralized way to access and manage state across features.
-/// It follows the singleton pattern to ensure consistent state management.
+/// يجمع الـ blocs الأساسية والوظيفية في نقطة واحدة حتى يبقى إنشاءها وضبطها متسقًا.
+/// Central registry for the app's core and feature blocs so creation and disposal stay consistent.
 class AppBloc {
-  // Core Application Blocs
+  /// Shared auth bloc used by the portal shell and most authenticated flows.
+  /// bloc المصادقة المشترك المستخدم داخل غلاف البورتال ومعظم المسارات
+  /// المصادقة.
   static late final AuthBloc authBloc;
+
+  /// Shared settings bloc that survives across page changes in the shell.
+  /// bloc الإعدادات المشترك الذي يبقى حيًا عبر تنقل الصفحات داخل الغلاف.
   static late final SettingsBloc settingsBloc;
-  // Removed notifications, payment
+
+  /// Shared theme bloc that keeps the portal appearance synchronized.
+  /// bloc الثيم المشترك الذي يحافظ على اتساق مظهر البورتال.
   static late final ThemeBloc theme;
+
+  /// Shared locale cubit that drives runtime language switching.
+  /// cubit اللغة المشترك الذي يدير تبديل اللغة أثناء التشغيل.
   static late final LocaleCubit locale;
 
-  // Feature Blocs
+  /// Shared chat bloc used by shell-level chat experiences.
+  /// bloc الدردشة المشترك المستخدم في تجارب الدردشة على مستوى الغلاف.
   static late final ChatBloc chatBloc;
-  // Removed other feature blocs
 
-  /// Initialize all blocs with their dependencies
-  /// This method should be called after dependency injection is set up
+  /// Creates the long-lived bloc instances after dependency injection is ready.
+  /// ينشئ الـ blocs طويلة العمر بعد اكتمال تسجيل الاعتماديات.
   static void initialize() {
     // Core Application Blocs
     theme = ThemeBloc(prefs: sl());
@@ -57,11 +63,6 @@ class AppBloc {
       portalSocialLoginUseCase: sl(),
       completeOwnerProfileUseCase: sl(),
     );
-
-    // Removed initialization for notifications, payment
-
-    // Feature Blocs
-    // Removed other feature blocs
 
     chatBloc = ChatBloc(
       getConversationsUseCase: sl(),
@@ -88,12 +89,10 @@ class AppBloc {
       webSocketService: sl(),
       mediaPipeline: sl(),
     );
-
-    // Removed other feature blocs
   }
 
-  /// List of all BlocProviders for the application
-  /// This list is used in MultiBlocProvider to provide all blocs to the widget tree
+  /// Exposes the blocs to the widget tree through a stable provider list.
+  /// يعرّف قائمة مزوّدي الـ blocs التي يستهلكها MultiBlocProvider في شجرة الواجهات.
   static final List<BlocProvider> providers = [
     BlocProvider(
       create: (_) => theme,
@@ -107,62 +106,61 @@ class AppBloc {
     BlocProvider<AuthBloc>(
       create: (context) => authBloc,
     ),
-    // Feature Blocs
     BlocProvider<ChatBloc>(
       create: (context) => chatBloc,
     ),
   ];
 
-  /// Dispose all blocs to free up resources
-  /// This method should be called when the app is being terminated
+  /// Closes the shared blocs when the app is shutting down to avoid leaks.
+  /// يغلق الـ blocs المشتركة عند إنهاء التطبيق حتى لا تبقى موارد معلقة.
   static void dispose() {
-    // Core Application Blocs
     authBloc.close();
     settingsBloc.close();
-
-    // Feature Blocs
     chatBloc.close();
-    // Removed closures
   }
 
-  /// Initialize all blocs with their initial events
-  /// This method should be called when the app starts
+  /// Dispatches startup events that need to run before the first meaningful screen.
+  /// يرسل أحداث الإقلاع التي يجب أن تعمل قبل عرض أول شاشة مفيدة.
   static void initializeEvents() {
-    // Check authentication status on app start
     authBloc.add(const CheckAuthStatusEvent());
-    // Removed settings and notifications listeners
   }
 
-  /// Get a specific bloc instance
-  /// This method provides type-safe access to bloc instances
+  /// Returns a shared bloc instance with type-safe access for call sites that need it.
+  /// يعيد مثيل bloc مشتركًا بطريقة آمنة نوعيًا عندما تحتاجه بعض الطبقات مباشرة.
   static T getBloc<T>() {
-    switch (T) {
-      case SettingsBloc:
-        return settingsBloc as T;
-
-      case AuthBloc:
-        return authBloc as T;
-      // Removed other feature blocs
-      case ChatBloc:
-        return chatBloc as T;
-      default:
-        throw ArgumentError('Bloc type $T is not registered in AppBloc');
+    if (T == SettingsBloc) {
+      return settingsBloc as T;
     }
+    if (T == AuthBloc) {
+      return authBloc as T;
+    }
+    if (T == ChatBloc) {
+      return chatBloc as T;
+    }
+    throw ArgumentError('Bloc type $T is not registered in AppBloc');
   }
 
-  /// Singleton factory constructor
+  /// المثيل الأحادي الداخلي الذي يضمن وجود غلاف واحد فقط حول إدارة الـ blocs.
+  /// Internal singleton instance that guarantees only one wrapper exists for
+  /// bloc management.
   static final AppBloc _instance = AppBloc._internal();
 
+  /// Returns the singleton AppBloc wrapper used by the portal bootstrap.
+  /// يعيد الغلاف الأحادي لـ AppBloc المستخدم في تهيئة البورتال.
   factory AppBloc() {
     return _instance;
   }
 
+  /// Private singleton constructor that prevents creating extra wrappers.
+  /// مُنشئ خاص يمنع إنشاء أغلفة إضافية.
   AppBloc._internal();
 }
 
-/// Extension to provide easy access to dependency injection
-/// This allows us to use sl() function in the AppBloc class
+/// Convenience access to the service locator from within AppBloc helpers.
+/// وصول مساعد إلى محدد الخدمات داخل ملحقات AppBloc.
 extension ServiceLocatorExtension on AppBloc {
+  /// Reads a registered dependency from GetIt using the requested type.
+  /// يقرأ اعتمادًا مسجلًا من GetIt بحسب النوع المطلوب.
   static T sl<T extends Object>() {
     return GetIt.instance<T>();
   }

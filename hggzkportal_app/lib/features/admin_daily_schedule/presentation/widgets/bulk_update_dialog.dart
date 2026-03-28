@@ -20,6 +20,7 @@ import '../../domain/entities/schedule_params.dart';
 /// - تأثيرات أنيميشن متقدمة
 class BulkUpdateDialog extends StatefulWidget {
   /// معرف الوحدة
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
 
   /// تاريخ البداية الأولي
@@ -72,30 +73,44 @@ class BulkUpdateDialog extends StatefulWidget {
 class _BulkUpdateDialogState extends State<BulkUpdateDialog>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
+
   late AnimationController _glowController;
+
   late Animation<double> _scaleAnimation;
+
   late Animation<double> _fadeAnimation;
+
   late Animation<double> _glowAnimation;
 
   // Form controllers
   final _formKey = GlobalKey<FormState>();
+
   DateTime? _startDate;
+
   DateTime? _endDate;
+
   final List<int> _selectedWeekdays = [];
 
   // حقول الإتاحة
   ScheduleStatus _status = ScheduleStatus.available;
+
   String? _reason;
+
   String? _notes;
 
   // حقول التسعير
   double _price = 0;
+
   PricingTier _pricingTier = PricingTier.normal;
+
   PriceType _priceType = PriceType.base;
+
   double? _percentageChange;
+
   String? _currencyCode;
 
   bool _overwriteExisting = false;
+
   bool _isLoading = false;
 
   // علامات تبويب
@@ -104,6 +119,7 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
   @override
   void initState() {
     super.initState();
+
     _initializeAnimations();
     _startDate = widget.initialStartDate;
     _endDate = widget.initialEndDate ?? widget.initialStartDate;
@@ -176,20 +192,20 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.darkCard.withOpacity(0.95),
-                      AppTheme.darkCard.withOpacity(0.85),
+                      AppTheme.darkCard.withValues(alpha: 0.95),
+                      AppTheme.darkCard.withValues(alpha: 0.85),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
                     color: AppTheme.primaryBlue
-                        .withOpacity(0.2 + 0.1 * _glowAnimation.value),
+                        .withValues(alpha: 0.2 + 0.1 * _glowAnimation.value),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: AppTheme.primaryBlue
-                          .withOpacity(0.2 * _glowAnimation.value),
+                          .withValues(alpha: 0.2 * _glowAnimation.value),
                       blurRadius: 30,
                       spreadRadius: 5,
                     ),
@@ -233,13 +249,13 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryBlue.withOpacity(0.1),
-            AppTheme.primaryPurple.withOpacity(0.05),
+            AppTheme.primaryBlue.withValues(alpha: 0.1),
+            AppTheme.primaryPurple.withValues(alpha: 0.05),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -321,12 +337,13 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           gradient: isSelected ? AppTheme.primaryGradient : null,
-          color: !isSelected ? AppTheme.darkSurface.withOpacity(0.5) : null,
+          color:
+              !isSelected ? AppTheme.darkSurface.withValues(alpha: 0.5) : null,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
-                ? Colors.white.withOpacity(0.3)
-                : AppTheme.darkBorder.withOpacity(0.3),
+                ? Colors.white.withValues(alpha: 0.3)
+                : AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -426,13 +443,13 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkSurface.withOpacity(0.6),
-              AppTheme.darkSurface.withOpacity(0.4),
+              AppTheme.darkSurface.withValues(alpha: 0.6),
+              AppTheme.darkSurface.withValues(alpha: 0.4),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -534,13 +551,13 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
                 decoration: BoxDecoration(
                   gradient: isSelected ? AppTheme.primaryGradient : null,
                   color: !isSelected
-                      ? AppTheme.darkSurface.withOpacity(0.5)
+                      ? AppTheme.darkSurface.withValues(alpha: 0.5)
                       : null,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: isSelected
-                        ? Colors.white.withOpacity(0.3)
-                        : AppTheme.darkBorder.withOpacity(0.3),
+                        ? Colors.white.withValues(alpha: 0.3)
+                        : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -620,16 +637,19 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
               gradient: isSelected
                   ? LinearGradient(
                       colors: [
-                        item.$3.withOpacity(0.3),
-                        item.$3.withOpacity(0.1),
+                        item.$3.withValues(alpha: 0.3),
+                        item.$3.withValues(alpha: 0.1),
                       ],
                     )
                   : null,
-              color: !isSelected ? AppTheme.darkSurface.withOpacity(0.5) : null,
+              color: !isSelected
+                  ? AppTheme.darkSurface.withValues(alpha: 0.5)
+                  : null,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color:
-                    isSelected ? item.$3 : AppTheme.darkBorder.withOpacity(0.3),
+                color: isSelected
+                    ? item.$3
+                    : AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -693,7 +713,7 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
           decoration: InputDecoration(
             hintText: 'أدخل السعر',
             hintStyle: AppTextStyles.bodySmall.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             prefixIcon: Icon(
               Icons.attach_money_rounded,
@@ -705,23 +725,23 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
               color: AppTheme.textMuted,
             ),
             filled: true,
-            fillColor: AppTheme.darkSurface.withOpacity(0.5),
+            fillColor: AppTheme.darkSurface.withValues(alpha: 0.5),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.primaryBlue.withOpacity(0.5),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -773,19 +793,19 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
                   gradient: isSelected
                       ? LinearGradient(
                           colors: [
-                            item.$3.withOpacity(0.3),
-                            item.$3.withOpacity(0.1),
+                            item.$3.withValues(alpha: 0.3),
+                            item.$3.withValues(alpha: 0.1),
                           ],
                         )
                       : null,
                   color: !isSelected
-                      ? AppTheme.darkSurface.withOpacity(0.5)
+                      ? AppTheme.darkSurface.withValues(alpha: 0.5)
                       : null,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: isSelected
                         ? item.$3
-                        : AppTheme.darkBorder.withOpacity(0.3),
+                        : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -832,23 +852,23 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
           style: AppTextStyles.bodyMedium.copyWith(color: AppTheme.textWhite),
           decoration: InputDecoration(
             filled: true,
-            fillColor: AppTheme.darkSurface.withOpacity(0.5),
+            fillColor: AppTheme.darkSurface.withValues(alpha: 0.5),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.primaryBlue.withOpacity(0.5),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -888,7 +908,7 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
           decoration: InputDecoration(
             hintText: 'مثال: +20 أو -15',
             hintStyle: AppTextStyles.bodySmall.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             prefixIcon: Icon(
               Icons.percent_rounded,
@@ -900,23 +920,23 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
               color: AppTheme.textMuted,
             ),
             filled: true,
-            fillColor: AppTheme.darkSurface.withOpacity(0.5),
+            fillColor: AppTheme.darkSurface.withValues(alpha: 0.5),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.primaryPurple.withOpacity(0.5),
+                color: AppTheme.primaryPurple.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -937,26 +957,26 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
         labelStyle: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
         hintText: 'أدخل سبب عدم الإتاحة',
         hintStyle: AppTextStyles.bodySmall.copyWith(
-          color: AppTheme.textMuted.withOpacity(0.5),
+          color: AppTheme.textMuted.withValues(alpha: 0.5),
         ),
         filled: true,
-        fillColor: AppTheme.darkSurface.withOpacity(0.5),
+        fillColor: AppTheme.darkSurface.withValues(alpha: 0.5),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.5),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.5),
           ),
         ),
       ),
@@ -976,26 +996,26 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
         labelStyle: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
         hintText: 'أضف أي ملاحظات إضافية',
         hintStyle: AppTextStyles.bodySmall.copyWith(
-          color: AppTheme.textMuted.withOpacity(0.5),
+          color: AppTheme.textMuted.withValues(alpha: 0.5),
         ),
         filled: true,
-        fillColor: AppTheme.darkSurface.withOpacity(0.5),
+        fillColor: AppTheme.darkSurface.withValues(alpha: 0.5),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.5),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.5),
           ),
         ),
       ),
@@ -1012,10 +1032,10 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.warning.withOpacity(0.1),
+        color: AppTheme.warning.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1072,7 +1092,7 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1085,10 +1105,10 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
               child: Container(
                 height: 50,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkSurface.withOpacity(0.5),
+                  color: AppTheme.darkSurface.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.darkBorder.withOpacity(0.3),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -1115,7 +1135,7 @@ class _BulkUpdateDialogState extends State<BulkUpdateDialog>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),

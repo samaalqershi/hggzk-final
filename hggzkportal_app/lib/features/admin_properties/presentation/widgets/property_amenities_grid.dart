@@ -14,13 +14,11 @@ import '../../../../core/widgets/amenity_identity_card_tooltip.dart';
 class PropertyAmenitiesGrid extends StatefulWidget {
   final List<domain.Amenity> amenities;
   final bool isCompact;
-
   const PropertyAmenitiesGrid({
     super.key,
     required this.amenities,
     this.isCompact = false,
   });
-
   @override
   State<PropertyAmenitiesGrid> createState() => _PropertyAmenitiesGridState();
 }
@@ -31,7 +29,6 @@ class _PropertyAmenitiesGridState extends State<PropertyAmenitiesGrid>
   int? _hoveredIndex;
   String? _pressedAmenityId;
   final Map<String, GlobalKey> _amenityKeys = {};
-
   @override
   void initState() {
     super.initState();
@@ -285,13 +282,12 @@ class _PropertyAmenitiesGridState extends State<PropertyAmenitiesGrid>
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            if (amenity.description != null &&
-                                !widget.isCompact) ...[
+                            if (!widget.isCompact) ...[
                               const SizedBox(height: 1), // Reduced from 2 to 1
                               Flexible(
                                 // Wrapped in Flexible to prevent overflow
                                 child: Text(
-                                  amenity.description!,
+                                  amenity.description,
                                   style: AppTextStyles.caption.copyWith(
                                     color: AppTheme.textMuted.withValues(
                                       alpha: isHovered ? 0.9 : 0.7,
@@ -343,13 +339,13 @@ class _PropertyAmenitiesGridState extends State<PropertyAmenitiesGrid>
 
 // Amenity Entity Model (للمرجع)
 class Amenity {
+  /// العربية: يخزن القيمة `id`.
   final String id;
   final String name;
   final String? description;
   final String? icon;
   final String? category;
   final bool? isPremium;
-
   const Amenity({
     required this.id,
     required this.name,

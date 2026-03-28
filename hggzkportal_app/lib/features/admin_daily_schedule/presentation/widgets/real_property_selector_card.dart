@@ -7,9 +7,13 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../admin_properties/domain/entities/property.dart';
 
 class RealPropertySelectorCard extends StatelessWidget {
+  /// العربية: يخزن القيمة `selectedPropertyId`.
   final String? selectedPropertyId;
+
   final String? selectedPropertyName;
+
   final ValueChanged<Property> onPropertySelected;
+
   final bool isCompact;
 
   const RealPropertySelectorCard({
@@ -27,13 +31,13 @@ class RealPropertySelectorCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.2),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -85,7 +89,7 @@ class RealPropertySelectorCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.caption.copyWith(
                             color: selectedPropertyName == null
-                                ? AppTheme.textMuted.withOpacity(0.6)
+                                ? AppTheme.textMuted.withValues(alpha: 0.6)
                                 : AppTheme.textWhite,
                             fontWeight: FontWeight.w600,
                           ),
@@ -106,7 +110,7 @@ class RealPropertySelectorCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.caption.copyWith(
                                 color: selectedPropertyName == null
-                                    ? AppTheme.textMuted.withOpacity(0.5)
+                                    ? AppTheme.textMuted.withValues(alpha: 0.5)
                                     : AppTheme.textWhite,
                                 fontWeight: FontWeight.w600,
                               ),

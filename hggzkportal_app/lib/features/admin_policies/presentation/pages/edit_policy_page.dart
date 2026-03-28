@@ -16,7 +16,9 @@ import '../bloc/policies_event.dart';
 import '../bloc/policies_state.dart';
 
 class EditPolicyPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `policyId`.
   final String policyId;
+
   final Policy? initialPolicy;
 
   const EditPolicyPage({
@@ -33,10 +35,15 @@ class _EditPolicyPageState extends State<EditPolicyPage>
     with TickerProviderStateMixin {
   // Controllers
   late AnimationController _animationController;
+
   late AnimationController _glowController;
+
   late AnimationController _loadingAnimationController;
+
   late Animation<double> _fadeAnimation;
+
   late Animation<Offset> _slideAnimation;
+
   late Animation<double> _loadingRotation;
 
   // Form Controllers
@@ -78,51 +85,78 @@ class _EditPolicyPageState extends State<EditPolicyPage>
 
   // State
   PolicyType _selectedType = PolicyType.cancellation;
+
   bool _requireFullPayment = false;
+
   bool? _cancellationFreeCancel;
+
   bool? _cancellationFullRefund;
+
   bool? _cancellationNonRefundable;
 
   bool? _paymentDepositRequired;
+
   bool? _paymentFullPaymentRequired;
+
   bool? _paymentAcceptCash;
+
   bool? _paymentAcceptCard;
+
   bool? _paymentPayAtProperty;
+
   bool? _paymentCashPreferred;
 
   bool? _checkInFlexible;
+
   bool? _checkInFlexibleCheckIn;
+
   bool? _checkInRequiresCoordination;
+
   bool? _checkInContactOwner;
 
   bool? _childrenAllowed;
+
   bool? _childrenPlaygroundAvailable;
+
   bool? _childrenKidsMenuAvailable;
 
   bool? _petsAllowed;
+
   bool? _petsRequiresApproval;
+
   bool? _petsNoFees;
+
   bool? _petsPetFriendly;
+
   bool? _petsOutdoorSpace;
+
   bool? _petsStrict;
 
   bool? _modificationAllowed;
+
   bool? _modificationFlexible;
-  String? _propertyId;
+
   String? _propertyName;
+
   int _currentStep = 0;
 
   // Edit specific state
   Policy? _originalPolicy;
+
   bool _isDataLoaded = false;
+
   bool _hasChanges = false;
+
   bool _isAdmin = false;
 
   @override
   void initState() {
     super.initState();
+
     _initializeAnimations();
+
     _checkUserRole();
+
     _prefillOrLoad();
   }
 
@@ -179,7 +213,9 @@ class _EditPolicyPageState extends State<EditPolicyPage>
     if (initial != null) {
       _populateFormWithPolicyData(initial);
     } else {
-      context.read<PoliciesBloc>().add(LoadPolicyByIdEvent(policyId: widget.policyId));
+      context
+          .read<PoliciesBloc>()
+          .add(LoadPolicyByIdEvent(policyId: widget.policyId));
     }
   }
 
@@ -193,13 +229,13 @@ class _EditPolicyPageState extends State<EditPolicyPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -214,7 +250,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
         value: value,
         onChanged: onChanged,
         activeThumbColor: _getPolicyTypeColor(_selectedType),
-        activeTrackColor: _getPolicyTypeColor(_selectedType).withOpacity(0.3),
+        activeTrackColor:
+            _getPolicyTypeColor(_selectedType).withValues(alpha: 0.3),
       ),
     );
   }
@@ -229,13 +266,14 @@ class _EditPolicyPageState extends State<EditPolicyPage>
       // Populate controllers
       _selectedType = policy.type;
       _descriptionController.text = policy.description;
-      _propertyId = policy.propertyId;
       _propertyName = policy.propertyName;
 
       // Type-specific fields
-      _cancellationWindowController.text = policy.cancellationWindowDays.toString();
+      _cancellationWindowController.text =
+          policy.cancellationWindowDays.toString();
       _requireFullPayment = policy.requireFullPaymentBeforeConfirmation;
-      _depositPercentageController.text = policy.minimumDepositPercentage.toString();
+      _depositPercentageController.text =
+          policy.minimumDepositPercentage.toString();
       _minHoursController.text = policy.minHoursBeforeCheckIn.toString();
 
       _cancellationFreeCancel = policy.cancellationFreeCancel;
@@ -269,9 +307,12 @@ class _EditPolicyPageState extends State<EditPolicyPage>
       _checkInFlexibleCheckIn = policy.checkInFlexibleCheckIn;
       _checkInRequiresCoordination = policy.checkInRequiresCoordination;
       _checkInContactOwner = policy.checkInContactOwner;
-      _checkInEarlyCheckInNoteController.text = policy.checkInEarlyCheckInNote ?? '';
-      _checkInLateCheckOutNoteController.text = policy.checkInLateCheckOutNote ?? '';
-      _checkInLateCheckOutFeeController.text = policy.checkInLateCheckOutFee ?? '';
+      _checkInEarlyCheckInNoteController.text =
+          policy.checkInEarlyCheckInNote ?? '';
+      _checkInLateCheckOutNoteController.text =
+          policy.checkInLateCheckOutNote ?? '';
+      _checkInLateCheckOutFeeController.text =
+          policy.checkInLateCheckOutFee ?? '';
 
       _childrenAllowed = policy.childrenAllowed;
       _childrenFreeUnderAgeController.text =
@@ -280,7 +321,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
           policy.childrenHalfPriceUnderAge?.toString() ?? '';
       _childrenMaxChildrenPerRoomController.text =
           policy.childrenMaxChildrenPerRoom?.toString() ?? '';
-      _childrenMaxChildrenController.text = policy.childrenMaxChildren?.toString() ?? '';
+      _childrenMaxChildrenController.text =
+          policy.childrenMaxChildren?.toString() ?? '';
       _childrenCribsNoteController.text = policy.childrenCribsNote ?? '';
       _childrenPlaygroundAvailable = policy.childrenPlaygroundAvailable;
       _childrenKidsMenuAvailable = policy.childrenKidsMenuAvailable;
@@ -298,7 +340,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
       _modificationAllowed = policy.modificationAllowed;
       _modificationFreeModificationHoursController.text =
           policy.modificationFreeModificationHours?.toString() ?? '';
-      _modificationFeesAfterController.text = policy.modificationFeesAfter ?? '';
+      _modificationFeesAfterController.text =
+          policy.modificationFeesAfter ?? '';
       _modificationFlexible = policy.modificationFlexible;
       _modificationReasonController.text = policy.modificationReason ?? '';
     });
@@ -354,8 +397,13 @@ class _EditPolicyPageState extends State<EditPolicyPage>
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (!didPop && await _onWillPop() && mounted) {
+          context.pop();
+        }
+      },
       child: BlocListener<PoliciesBloc, PoliciesState>(
         listener: (context, state) {
           if (state is PolicyOperationSuccess) {
@@ -367,7 +415,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             });
           } else if (state is PolicyOperationFailure) {
             _showErrorMessage(state.message);
-          } else if (state is PolicyDetailsLoaded && widget.initialPolicy == null) {
+          } else if (state is PolicyDetailsLoaded &&
+              widget.initialPolicy == null) {
             _populateFormWithPolicyData(state.policy);
           }
         },
@@ -424,8 +473,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -460,15 +509,17 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        _getPolicyTypeColor(_selectedType).withOpacity(0.3),
-                        AppTheme.primaryPurple.withOpacity(0.2),
-                        _getPolicyTypeColor(_selectedType).withOpacity(0.1),
+                        _getPolicyTypeColor(_selectedType)
+                            .withValues(alpha: 0.3),
+                        AppTheme.primaryPurple.withValues(alpha: 0.2),
+                        _getPolicyTypeColor(_selectedType)
+                            .withValues(alpha: 0.1),
                       ],
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color:
-                            _getPolicyTypeColor(_selectedType).withOpacity(0.3),
+                        color: _getPolicyTypeColor(_selectedType)
+                            .withValues(alpha: 0.3),
                         blurRadius: 30,
                         spreadRadius: 10,
                       ),
@@ -500,7 +551,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             shaderCallback: (bounds) => LinearGradient(
               colors: [
                 _getPolicyTypeColor(_selectedType),
-                _getPolicyTypeColor(_selectedType).withOpacity(0.7),
+                _getPolicyTypeColor(_selectedType).withValues(alpha: 0.7),
               ],
             ).createShader(bounds),
             child: Text(
@@ -529,13 +580,13 @@ class _EditPolicyPageState extends State<EditPolicyPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: _getPolicyTypeColor(_selectedType).withOpacity(0.3),
+            color: _getPolicyTypeColor(_selectedType).withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -551,13 +602,13 @@ class _EditPolicyPageState extends State<EditPolicyPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -582,7 +633,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                       shaderCallback: (bounds) => LinearGradient(
                         colors: [
                           AppTheme.warning,
-                          AppTheme.warning.withOpacity(0.7),
+                          AppTheme.warning.withValues(alpha: 0.7),
                         ],
                       ).createShader(bounds),
                       child: Text(
@@ -599,10 +650,10 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.warning.withOpacity(0.2),
+                          color: AppTheme.warning.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppTheme.warning.withOpacity(0.5),
+                            color: AppTheme.warning.withValues(alpha: 0.5),
                             width: 1,
                           ),
                         ),
@@ -636,10 +687,10 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.error.withOpacity(0.1),
+                  color: AppTheme.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.error.withOpacity(0.3),
+                    color: AppTheme.error.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -681,35 +732,35 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                             colors: isModified
                                 ? [
                                     AppTheme.warning,
-                                    AppTheme.warning.withOpacity(0.7)
+                                    AppTheme.warning.withValues(alpha: 0.7)
                                   ]
                                 : [
                                     _getPolicyTypeColor(_selectedType),
                                     _getPolicyTypeColor(_selectedType)
-                                        .withOpacity(0.7),
+                                        .withValues(alpha: 0.7),
                                   ],
                           )
                         : null,
                     color: !isActive
-                        ? AppTheme.darkSurface.withOpacity(0.5)
+                        ? AppTheme.darkSurface.withValues(alpha: 0.5)
                         : null,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isModified
-                          ? AppTheme.warning.withOpacity(0.5)
+                          ? AppTheme.warning.withValues(alpha: 0.5)
                           : isActive
                               ? _getPolicyTypeColor(_selectedType)
-                                  .withOpacity(0.5)
-                              : AppTheme.darkBorder.withOpacity(0.3),
+                                  .withValues(alpha: 0.5)
+                              : AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: isModified ? 2 : 1,
                     ),
                     boxShadow: isActive
                         ? [
                             BoxShadow(
                               color: isModified
-                                  ? AppTheme.warning.withOpacity(0.3)
+                                  ? AppTheme.warning.withValues(alpha: 0.3)
                                   : _getPolicyTypeColor(_selectedType)
-                                      .withOpacity(0.3),
+                                      .withValues(alpha: 0.3),
                               blurRadius: 10,
                             ),
                           ]
@@ -746,16 +797,16 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                             ? isModified
                                 ? LinearGradient(colors: [
                                     AppTheme.warning,
-                                    AppTheme.warning.withOpacity(0.5)
+                                    AppTheme.warning.withValues(alpha: 0.5)
                                   ])
                                 : LinearGradient(colors: [
                                     _getPolicyTypeColor(_selectedType),
                                     _getPolicyTypeColor(_selectedType)
-                                        .withOpacity(0.5)
+                                        .withValues(alpha: 0.5)
                                   ])
                             : null,
                         color: !isCompleted
-                            ? AppTheme.darkBorder.withOpacity(0.2)
+                            ? AppTheme.darkBorder.withValues(alpha: 0.2)
                             : null,
                         borderRadius: BorderRadius.circular(1),
                       ),
@@ -856,15 +907,15 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  _getPolicyTypeColor(_selectedType).withOpacity(0.1),
-                  _getPolicyTypeColor(_selectedType).withOpacity(0.05),
+                  _getPolicyTypeColor(_selectedType).withValues(alpha: 0.1),
+                  _getPolicyTypeColor(_selectedType).withValues(alpha: 0.05),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _hasChangesInStep(1)
-                    ? AppTheme.warning.withOpacity(0.3)
-                    : _getPolicyTypeColor(_selectedType).withOpacity(0.3),
+                    ? AppTheme.warning.withValues(alpha: 0.3)
+                    : _getPolicyTypeColor(_selectedType).withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -882,7 +933,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                         (_hasChangesInStep(1)
                                 ? AppTheme.warning
                                 : _getPolicyTypeColor(_selectedType))
-                            .withOpacity(0.7),
+                            .withValues(alpha: 0.7),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(10),
@@ -923,7 +974,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppTheme.warning.withOpacity(0.2),
+                      color: AppTheme.warning.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -972,7 +1023,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                     gradient: LinearGradient(
                       colors: [
                         AppTheme.warning,
-                        AppTheme.warning.withOpacity(0.8),
+                        AppTheme.warning.withValues(alpha: 0.8),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
@@ -1101,18 +1152,18 @@ class _EditPolicyPageState extends State<EditPolicyPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkCard.withOpacity(0.5),
-                    AppTheme.darkCard.withOpacity(0.3),
+                    AppTheme.darkCard.withValues(alpha: 0.5),
+                    AppTheme.darkCard.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: _requireFullPayment !=
                           _originalPolicy?.requireFullPaymentBeforeConfirmation
-                      ? AppTheme.warning.withOpacity(0.3)
+                      ? AppTheme.warning.withValues(alpha: 0.3)
                       : _requireFullPayment
-                          ? AppTheme.success.withOpacity(0.3)
-                          : AppTheme.darkBorder.withOpacity(0.3),
+                          ? AppTheme.success.withValues(alpha: 0.3)
+                          : AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -1124,8 +1175,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                       height: 32,
                       decoration: BoxDecoration(
                         color: _requireFullPayment
-                            ? AppTheme.success.withOpacity(0.2)
-                            : AppTheme.darkSurface.withOpacity(0.5),
+                            ? AppTheme.success.withValues(alpha: 0.2)
+                            : AppTheme.darkSurface.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -1163,7 +1214,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.warning.withOpacity(0.2),
+                          color: AppTheme.warning.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -1185,7 +1236,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                   });
                 },
                 activeThumbColor: AppTheme.success,
-                activeTrackColor: AppTheme.success.withOpacity(0.3),
+                activeTrackColor: AppTheme.success.withValues(alpha: 0.3),
               ),
             ),
             const SizedBox(height: 16),
@@ -1194,7 +1245,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                     _originalPolicy!.minimumDepositPercentage)
               _buildOriginalValueIndicator(
                 'نسبة الدفعة المقدمة الأصلية',
-                '${_originalPolicy!.minimumDepositPercentage ?? 0}%',
+                '${_originalPolicy!.minimumDepositPercentage}%',
                 true,
               ),
             _buildInputField(
@@ -1298,7 +1349,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             _buildBooleanTile(
               title: 'يتطلب تنسيق',
               value: _checkInRequiresCoordination ?? false,
-              onChanged: (v) => setState(() => _checkInRequiresCoordination = v),
+              onChanged: (v) =>
+                  setState(() => _checkInRequiresCoordination = v),
             ),
             _buildBooleanTile(
               title: 'التواصل مع المالك',
@@ -1382,7 +1434,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             _buildBooleanTile(
               title: 'ساحة لعب',
               value: _childrenPlaygroundAvailable ?? false,
-              onChanged: (v) => setState(() => _childrenPlaygroundAvailable = v),
+              onChanged: (v) =>
+                  setState(() => _childrenPlaygroundAvailable = v),
             ),
             _buildBooleanTile(
               title: 'قائمة أطفال',
@@ -1489,27 +1542,6 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             const SizedBox.shrink(),
           ],
         );
-
-      default:
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppTheme.darkCard.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: _getPolicyTypeColor(_selectedType).withOpacity(0.3),
-              width: 1,
-            ),
-          ),
-          child: Center(
-            child: Text(
-              'لا توجد إعدادات خاصة لهذا النوع',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted,
-              ),
-            ),
-          ),
-        );
     }
   }
 
@@ -1549,7 +1581,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                 _originalPolicy?.minHoursBeforeCheckIn
           },
         ];
-      default:
+      case PolicyType.children:
+      case PolicyType.pets:
         return [];
     }
   }
@@ -1562,10 +1595,10 @@ class _EditPolicyPageState extends State<EditPolicyPage>
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.warning.withOpacity(0.1),
+        color: AppTheme.warning.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1591,7 +1624,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                   TextSpan(
                     text: value,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.warning.withOpacity(0.8),
+                      color: AppTheme.warning.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -1627,13 +1660,13 @@ class _EditPolicyPageState extends State<EditPolicyPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.3),
-                AppTheme.darkCard.withOpacity(0.2),
+                AppTheme.darkCard.withValues(alpha: 0.3),
+                AppTheme.darkCard.withValues(alpha: 0.2),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -1645,8 +1678,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      color.withOpacity(0.2),
-                      color.withOpacity(0.1),
+                      color.withValues(alpha: 0.2),
+                      color.withValues(alpha: 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(8),
@@ -1668,7 +1701,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
               ),
               Icon(
                 Icons.lock_outline_rounded,
-                color: AppTheme.textMuted.withOpacity(0.3),
+                color: AppTheme.textMuted.withValues(alpha: 0.3),
                 size: 16,
               ),
             ],
@@ -1686,13 +1719,13 @@ class _EditPolicyPageState extends State<EditPolicyPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.warning.withOpacity(0.1),
-            AppTheme.warning.withOpacity(0.05),
+            AppTheme.warning.withValues(alpha: 0.1),
+            AppTheme.warning.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1800,19 +1833,19 @@ class _EditPolicyPageState extends State<EditPolicyPage>
         gradient: LinearGradient(
           colors: hasChanges
               ? [
-                  AppTheme.warning.withOpacity(0.05),
-                  AppTheme.darkCard.withOpacity(0.4),
+                  AppTheme.warning.withValues(alpha: 0.05),
+                  AppTheme.darkCard.withValues(alpha: 0.4),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasChanges
-              ? AppTheme.warning.withOpacity(0.3)
-              : color.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1827,7 +1860,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                   gradient: LinearGradient(
                     colors: [
                       hasChanges ? AppTheme.warning : color,
-                      (hasChanges ? AppTheme.warning : color).withOpacity(0.7),
+                      (hasChanges ? AppTheme.warning : color)
+                          .withValues(alpha: 0.7),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(6),
@@ -1852,7 +1886,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.warning.withOpacity(0.2),
+                    color: AppTheme.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -1941,13 +1975,13 @@ class _EditPolicyPageState extends State<EditPolicyPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1962,13 +1996,13 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: maxLines == 1
                   ? Icon(
                       icon,
-                      color:
-                          _getPolicyTypeColor(_selectedType).withOpacity(0.7),
+                      color: _getPolicyTypeColor(_selectedType)
+                          .withValues(alpha: 0.7),
                       size: 20,
                     )
                   : null,
@@ -1989,13 +2023,13 @@ class _EditPolicyPageState extends State<EditPolicyPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2012,13 +2046,13 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -2047,18 +2081,20 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                   gradient: _hasChanges
                       ? LinearGradient(colors: [
                           AppTheme.warning,
-                          AppTheme.warning.withOpacity(0.8)
+                          AppTheme.warning.withValues(alpha: 0.8)
                         ])
                       : LinearGradient(colors: [
                           _getPolicyTypeColor(_selectedType),
-                          _getPolicyTypeColor(_selectedType).withOpacity(0.8)
+                          _getPolicyTypeColor(_selectedType)
+                              .withValues(alpha: 0.8)
                         ]),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
                       color: _hasChanges
-                          ? AppTheme.warning.withOpacity(0.3)
-                          : _getPolicyTypeColor(_selectedType).withOpacity(0.3),
+                          ? AppTheme.warning.withValues(alpha: 0.3)
+                          : _getPolicyTypeColor(_selectedType)
+                              .withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -2129,26 +2165,36 @@ class _EditPolicyPageState extends State<EditPolicyPage>
         _requireFullPayment != original.requireFullPaymentBeforeConfirmation ||
         double.tryParse(_depositPercentageController.text) !=
             original.minimumDepositPercentage ||
-        int.tryParse(_minHoursController.text) != original.minHoursBeforeCheckIn ||
-        (_cancellationFreeCancel ?? false) != (original.cancellationFreeCancel ?? false) ||
-        (_cancellationFullRefund ?? false) != (original.cancellationFullRefund ?? false) ||
+        int.tryParse(_minHoursController.text) !=
+            original.minHoursBeforeCheckIn ||
+        (_cancellationFreeCancel ?? false) !=
+            (original.cancellationFreeCancel ?? false) ||
+        (_cancellationFullRefund ?? false) !=
+            (original.cancellationFullRefund ?? false) ||
         int.tryParse(_cancellationRefundPercentageController.text) !=
             original.cancellationRefundPercentage ||
         int.tryParse(_cancellationDaysBeforeCheckInController.text) !=
             original.cancellationDaysBeforeCheckIn ||
         int.tryParse(_cancellationHoursBeforeCheckInController.text) !=
             original.cancellationHoursBeforeCheckIn ||
-        (_cancellationNonRefundable ?? false) != (original.cancellationNonRefundable ?? false) ||
+        (_cancellationNonRefundable ?? false) !=
+            (original.cancellationNonRefundable ?? false) ||
         _nullIfEmpty(_cancellationPenaltyAfterDeadlineController.text) !=
             original.cancellationPenaltyAfterDeadline ||
-        (_paymentDepositRequired ?? false) != (original.paymentDepositRequired ?? false) ||
-        (_paymentFullPaymentRequired ?? false) != (original.paymentFullPaymentRequired ?? false) ||
+        (_paymentDepositRequired ?? false) !=
+            (original.paymentDepositRequired ?? false) ||
+        (_paymentFullPaymentRequired ?? false) !=
+            (original.paymentFullPaymentRequired ?? false) ||
         double.tryParse(_paymentDepositPercentageController.text) !=
             original.paymentDepositPercentage ||
-        (_paymentAcceptCash ?? false) != (original.paymentAcceptCash ?? false) ||
-        (_paymentAcceptCard ?? false) != (original.paymentAcceptCard ?? false) ||
-        (_paymentPayAtProperty ?? false) != (original.paymentPayAtProperty ?? false) ||
-        (_paymentCashPreferred ?? false) != (original.paymentCashPreferred ?? false) ||
+        (_paymentAcceptCash ?? false) !=
+            (original.paymentAcceptCash ?? false) ||
+        (_paymentAcceptCard ?? false) !=
+            (original.paymentAcceptCard ?? false) ||
+        (_paymentPayAtProperty ?? false) !=
+            (original.paymentPayAtProperty ?? false) ||
+        (_paymentCashPreferred ?? false) !=
+            (original.paymentCashPreferred ?? false) ||
         _nullIfEmpty(_paymentAcceptedMethodsController.text) !=
             (original.paymentAcceptedMethods ?? []).join(', ') ||
         _nullIfEmpty(_checkInTimeController.text) != original.checkInTime ||
@@ -2156,10 +2202,12 @@ class _EditPolicyPageState extends State<EditPolicyPage>
         _nullIfEmpty(_checkInFromController.text) != original.checkInFrom ||
         _nullIfEmpty(_checkInUntilController.text) != original.checkInUntil ||
         (_checkInFlexible ?? false) != (original.checkInFlexible ?? false) ||
-        (_checkInFlexibleCheckIn ?? false) != (original.checkInFlexibleCheckIn ?? false) ||
+        (_checkInFlexibleCheckIn ?? false) !=
+            (original.checkInFlexibleCheckIn ?? false) ||
         (_checkInRequiresCoordination ?? false) !=
             (original.checkInRequiresCoordination ?? false) ||
-        (_checkInContactOwner ?? false) != (original.checkInContactOwner ?? false) ||
+        (_checkInContactOwner ?? false) !=
+            (original.checkInContactOwner ?? false) ||
         _nullIfEmpty(_checkInEarlyCheckInNoteController.text) !=
             original.checkInEarlyCheckInNote ||
         _nullIfEmpty(_checkInLateCheckOutNoteController.text) !=
@@ -2167,31 +2215,41 @@ class _EditPolicyPageState extends State<EditPolicyPage>
         _nullIfEmpty(_checkInLateCheckOutFeeController.text) !=
             original.checkInLateCheckOutFee ||
         (_childrenAllowed ?? false) != (original.childrenAllowed ?? false) ||
-        int.tryParse(_childrenFreeUnderAgeController.text) != original.childrenFreeUnderAge ||
-        int.tryParse(_childrenHalfPriceUnderAgeController.text) != original.childrenHalfPriceUnderAge ||
+        int.tryParse(_childrenFreeUnderAgeController.text) !=
+            original.childrenFreeUnderAge ||
+        int.tryParse(_childrenHalfPriceUnderAgeController.text) !=
+            original.childrenHalfPriceUnderAge ||
         int.tryParse(_childrenMaxChildrenPerRoomController.text) !=
             original.childrenMaxChildrenPerRoom ||
-        int.tryParse(_childrenMaxChildrenController.text) != original.childrenMaxChildren ||
-        _nullIfEmpty(_childrenCribsNoteController.text) != original.childrenCribsNote ||
+        int.tryParse(_childrenMaxChildrenController.text) !=
+            original.childrenMaxChildren ||
+        _nullIfEmpty(_childrenCribsNoteController.text) !=
+            original.childrenCribsNote ||
         (_childrenPlaygroundAvailable ?? false) !=
             (original.childrenPlaygroundAvailable ?? false) ||
         (_childrenKidsMenuAvailable ?? false) !=
             (original.childrenKidsMenuAvailable ?? false) ||
         (_petsAllowed ?? false) != (original.petsAllowed ?? false) ||
         _nullIfEmpty(_petsReasonController.text) != original.petsReason ||
-        double.tryParse(_petsFeeAmountController.text) != original.petsFeeAmount ||
+        double.tryParse(_petsFeeAmountController.text) !=
+            original.petsFeeAmount ||
         _nullIfEmpty(_petsMaxWeightController.text) != original.petsMaxWeight ||
-        (_petsRequiresApproval ?? false) != (original.petsRequiresApproval ?? false) ||
+        (_petsRequiresApproval ?? false) !=
+            (original.petsRequiresApproval ?? false) ||
         (_petsNoFees ?? false) != (original.petsNoFees ?? false) ||
         (_petsPetFriendly ?? false) != (original.petsPetFriendly ?? false) ||
         (_petsOutdoorSpace ?? false) != (original.petsOutdoorSpace ?? false) ||
         (_petsStrict ?? false) != (original.petsStrict ?? false) ||
-        (_modificationAllowed ?? false) != (original.modificationAllowed ?? false) ||
+        (_modificationAllowed ?? false) !=
+            (original.modificationAllowed ?? false) ||
         int.tryParse(_modificationFreeModificationHoursController.text) !=
             original.modificationFreeModificationHours ||
-        _nullIfEmpty(_modificationFeesAfterController.text) != original.modificationFeesAfter ||
-        (_modificationFlexible ?? false) != (original.modificationFlexible ?? false) ||
-        _nullIfEmpty(_modificationReasonController.text) != original.modificationReason;
+        _nullIfEmpty(_modificationFeesAfterController.text) !=
+            original.modificationFeesAfter ||
+        (_modificationFlexible ?? false) !=
+            (original.modificationFlexible ?? false) ||
+        _nullIfEmpty(_modificationReasonController.text) !=
+            original.modificationReason;
   }
 
   bool _hasChangesInStep(int step) {
@@ -2214,7 +2272,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
           case PolicyType.modification:
             return int.tryParse(_minHoursController.text) !=
                 _originalPolicy!.minHoursBeforeCheckIn;
-          default:
+          case PolicyType.children:
+          case PolicyType.pets:
             return false;
         }
       default:
@@ -2241,7 +2300,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             _originalPolicy!.cancellationWindowDays) {
           changes.add({
             'field': 'نافذة الإلغاء',
-            'oldValue': '${_originalPolicy!.cancellationWindowDays ?? 0} يوم',
+            'oldValue': '${_originalPolicy!.cancellationWindowDays} يوم',
             'newValue': '${_cancellationWindowController.text} يوم',
           });
         }
@@ -2262,7 +2321,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             _originalPolicy!.minimumDepositPercentage) {
           changes.add({
             'field': 'نسبة الدفعة المقدمة',
-            'oldValue': '${_originalPolicy!.minimumDepositPercentage ?? 0}%',
+            'oldValue': '${_originalPolicy!.minimumDepositPercentage}%',
             'newValue': '${_depositPercentageController.text}%',
           });
         }
@@ -2273,12 +2332,13 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             _originalPolicy!.minHoursBeforeCheckIn) {
           changes.add({
             'field': 'الحد الأدنى للساعات',
-            'oldValue': '${_originalPolicy!.minHoursBeforeCheckIn ?? 0} ساعة',
+            'oldValue': '${_originalPolicy!.minHoursBeforeCheckIn} ساعة',
             'newValue': '${_minHoursController.text} ساعة',
           });
         }
         break;
-      default:
+      case PolicyType.children:
+      case PolicyType.pets:
         break;
     }
 
@@ -2299,7 +2359,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             _cancellationWindowController.text =
                 _originalPolicy!.cancellationWindowDays.toString();
             _requireFullPayment =
-                _originalPolicy!.requireFullPaymentBeforeConfirmation ?? false;
+                _originalPolicy!.requireFullPaymentBeforeConfirmation;
             _depositPercentageController.text =
                 _originalPolicy!.minimumDepositPercentage.toString();
             _minHoursController.text =
@@ -2310,15 +2370,19 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             _cancellationRefundPercentageController.text =
                 _originalPolicy!.cancellationRefundPercentage?.toString() ?? '';
             _cancellationDaysBeforeCheckInController.text =
-                _originalPolicy!.cancellationDaysBeforeCheckIn?.toString() ?? '';
+                _originalPolicy!.cancellationDaysBeforeCheckIn?.toString() ??
+                    '';
             _cancellationHoursBeforeCheckInController.text =
-                _originalPolicy!.cancellationHoursBeforeCheckIn?.toString() ?? '';
-            _cancellationNonRefundable = _originalPolicy!.cancellationNonRefundable;
+                _originalPolicy!.cancellationHoursBeforeCheckIn?.toString() ??
+                    '';
+            _cancellationNonRefundable =
+                _originalPolicy!.cancellationNonRefundable;
             _cancellationPenaltyAfterDeadlineController.text =
                 _originalPolicy!.cancellationPenaltyAfterDeadline ?? '';
 
             _paymentDepositRequired = _originalPolicy!.paymentDepositRequired;
-            _paymentFullPaymentRequired = _originalPolicy!.paymentFullPaymentRequired;
+            _paymentFullPaymentRequired =
+                _originalPolicy!.paymentFullPaymentRequired;
             _paymentDepositPercentageController.text =
                 _originalPolicy!.paymentDepositPercentage?.toString() ?? '';
             _paymentAcceptCash = _originalPolicy!.paymentAcceptCash;
@@ -2334,7 +2398,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             _checkInUntilController.text = _originalPolicy!.checkInUntil ?? '';
             _checkInFlexible = _originalPolicy!.checkInFlexible;
             _checkInFlexibleCheckIn = _originalPolicy!.checkInFlexibleCheckIn;
-            _checkInRequiresCoordination = _originalPolicy!.checkInRequiresCoordination;
+            _checkInRequiresCoordination =
+                _originalPolicy!.checkInRequiresCoordination;
             _checkInContactOwner = _originalPolicy!.checkInContactOwner;
             _checkInEarlyCheckInNoteController.text =
                 _originalPolicy!.checkInEarlyCheckInNote ?? '';
@@ -2352,14 +2417,19 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                 _originalPolicy!.childrenMaxChildrenPerRoom?.toString() ?? '';
             _childrenMaxChildrenController.text =
                 _originalPolicy!.childrenMaxChildren?.toString() ?? '';
-            _childrenCribsNoteController.text = _originalPolicy!.childrenCribsNote ?? '';
-            _childrenPlaygroundAvailable = _originalPolicy!.childrenPlaygroundAvailable;
-            _childrenKidsMenuAvailable = _originalPolicy!.childrenKidsMenuAvailable;
+            _childrenCribsNoteController.text =
+                _originalPolicy!.childrenCribsNote ?? '';
+            _childrenPlaygroundAvailable =
+                _originalPolicy!.childrenPlaygroundAvailable;
+            _childrenKidsMenuAvailable =
+                _originalPolicy!.childrenKidsMenuAvailable;
 
             _petsAllowed = _originalPolicy!.petsAllowed;
             _petsReasonController.text = _originalPolicy!.petsReason ?? '';
-            _petsFeeAmountController.text = _originalPolicy!.petsFeeAmount?.toString() ?? '';
-            _petsMaxWeightController.text = _originalPolicy!.petsMaxWeight ?? '';
+            _petsFeeAmountController.text =
+                _originalPolicy!.petsFeeAmount?.toString() ?? '';
+            _petsMaxWeightController.text =
+                _originalPolicy!.petsMaxWeight ?? '';
             _petsRequiresApproval = _originalPolicy!.petsRequiresApproval;
             _petsNoFees = _originalPolicy!.petsNoFees;
             _petsPetFriendly = _originalPolicy!.petsPetFriendly;
@@ -2367,11 +2437,15 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             _petsStrict = _originalPolicy!.petsStrict;
 
             _modificationAllowed = _originalPolicy!.modificationAllowed;
-            _modificationFreeModificationHoursController.text =
-                _originalPolicy!.modificationFreeModificationHours?.toString() ?? '';
-            _modificationFeesAfterController.text = _originalPolicy!.modificationFeesAfter ?? '';
+            _modificationFreeModificationHoursController.text = _originalPolicy!
+                    .modificationFreeModificationHours
+                    ?.toString() ??
+                '';
+            _modificationFeesAfterController.text =
+                _originalPolicy!.modificationFeesAfter ?? '';
             _modificationFlexible = _originalPolicy!.modificationFlexible;
-            _modificationReasonController.text = _originalPolicy!.modificationReason ?? '';
+            _modificationReasonController.text =
+                _originalPolicy!.modificationReason ?? '';
             _hasChanges = false;
           });
 
@@ -2493,7 +2567,6 @@ class _EditPolicyPageState extends State<EditPolicyPage>
               minimumDepositPercentage:
                   double.tryParse(_depositPercentageController.text),
               minHoursBeforeCheckIn: int.tryParse(_minHoursController.text),
-
               cancellationFreeCancel: _cancellationFreeCancel,
               cancellationFullRefund: _cancellationFullRefund,
               cancellationRefundPercentage:
@@ -2507,7 +2580,6 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                   _cancellationPenaltyAfterDeadlineController.text.isEmpty
                       ? null
                       : _cancellationPenaltyAfterDeadlineController.text,
-
               paymentDepositRequired: _paymentDepositRequired,
               paymentFullPaymentRequired: _paymentFullPaymentRequired,
               paymentDepositPercentage:
@@ -2524,7 +2596,6 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                           .map((e) => e.trim())
                           .where((e) => e.isNotEmpty)
                           .toList(),
-
               checkInTime: _checkInTimeController.text.isEmpty
                   ? null
                   : _checkInTimeController.text,
@@ -2541,16 +2612,18 @@ class _EditPolicyPageState extends State<EditPolicyPage>
               checkInFlexibleCheckIn: _checkInFlexibleCheckIn,
               checkInRequiresCoordination: _checkInRequiresCoordination,
               checkInContactOwner: _checkInContactOwner,
-              checkInEarlyCheckInNote: _checkInEarlyCheckInNoteController.text.isEmpty
-                  ? null
-                  : _checkInEarlyCheckInNoteController.text,
-              checkInLateCheckOutNote: _checkInLateCheckOutNoteController.text.isEmpty
-                  ? null
-                  : _checkInLateCheckOutNoteController.text,
-              checkInLateCheckOutFee: _checkInLateCheckOutFeeController.text.isEmpty
-                  ? null
-                  : _checkInLateCheckOutFeeController.text,
-
+              checkInEarlyCheckInNote:
+                  _checkInEarlyCheckInNoteController.text.isEmpty
+                      ? null
+                      : _checkInEarlyCheckInNoteController.text,
+              checkInLateCheckOutNote:
+                  _checkInLateCheckOutNoteController.text.isEmpty
+                      ? null
+                      : _checkInLateCheckOutNoteController.text,
+              checkInLateCheckOutFee:
+                  _checkInLateCheckOutFeeController.text.isEmpty
+                      ? null
+                      : _checkInLateCheckOutFeeController.text,
               childrenAllowed: _childrenAllowed,
               childrenFreeUnderAge:
                   int.tryParse(_childrenFreeUnderAgeController.text),
@@ -2565,7 +2638,6 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                   : _childrenCribsNoteController.text,
               childrenPlaygroundAvailable: _childrenPlaygroundAvailable,
               childrenKidsMenuAvailable: _childrenKidsMenuAvailable,
-
               petsAllowed: _petsAllowed,
               petsReason: _petsReasonController.text.isEmpty
                   ? null
@@ -2579,13 +2651,13 @@ class _EditPolicyPageState extends State<EditPolicyPage>
               petsPetFriendly: _petsPetFriendly,
               petsOutdoorSpace: _petsOutdoorSpace,
               petsStrict: _petsStrict,
-
               modificationAllowed: _modificationAllowed,
-              modificationFreeModificationHours:
-                  int.tryParse(_modificationFreeModificationHoursController.text),
-              modificationFeesAfter: _modificationFeesAfterController.text.isEmpty
-                  ? null
-                  : _modificationFeesAfterController.text,
+              modificationFreeModificationHours: int.tryParse(
+                  _modificationFreeModificationHoursController.text),
+              modificationFeesAfter:
+                  _modificationFeesAfterController.text.isEmpty
+                      ? null
+                      : _modificationFeesAfterController.text,
               modificationFlexible: _modificationFlexible,
               modificationReason: _modificationReasonController.text.isEmpty
                   ? null
@@ -2698,6 +2770,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
 
 // Dialogs for Edit Page
 class _ResetConfirmationDialog extends StatelessWidget {
+  /// العربية: يخزن القيمة `onConfirm`.
   final VoidCallback onConfirm;
 
   const _ResetConfirmationDialog({required this.onConfirm});
@@ -2711,13 +2784,13 @@ class _ResetConfirmationDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.warning.withOpacity(0.3),
+            color: AppTheme.warning.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2730,8 +2803,8 @@ class _ResetConfirmationDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.warning.withOpacity(0.2),
-                    AppTheme.warning.withOpacity(0.1),
+                    AppTheme.warning.withValues(alpha: 0.2),
+                    AppTheme.warning.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -2767,10 +2840,10 @@ class _ResetConfirmationDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkSurface.withOpacity(0.5),
+                        color: AppTheme.darkSurface.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.3),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -2798,7 +2871,7 @@ class _ResetConfirmationDialog extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             AppTheme.warning,
-                            AppTheme.warning.withOpacity(0.8),
+                            AppTheme.warning.withValues(alpha: 0.8),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -2834,13 +2907,13 @@ class _UnsavedChangesDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.error.withOpacity(0.3),
+            color: AppTheme.error.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2853,8 +2926,8 @@ class _UnsavedChangesDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
+                    AppTheme.error.withValues(alpha: 0.2),
+                    AppTheme.error.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -2915,10 +2988,10 @@ class _UnsavedChangesDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.error.withOpacity(0.1),
+                        color: AppTheme.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.error.withOpacity(0.3),
+                          color: AppTheme.error.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -2944,7 +3017,9 @@ class _UnsavedChangesDialog extends StatelessWidget {
 }
 
 class _EditPolicyBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
+
   final PolicyType policyType;
 
   _EditPolicyBackgroundPainter({
@@ -2960,8 +3035,8 @@ class _EditPolicyBackgroundPainter extends CustomPainter {
     // Draw glowing orbs with policy type theme
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.warning.withOpacity(0.1 * glowIntensity),
-        AppTheme.warning.withOpacity(0.05 * glowIntensity),
+        AppTheme.warning.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.warning.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -2977,8 +3052,8 @@ class _EditPolicyBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        typeColor.withOpacity(0.1 * glowIntensity),
-        typeColor.withOpacity(0.05 * glowIntensity),
+        typeColor.withValues(alpha: 0.1 * glowIntensity),
+        typeColor.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(

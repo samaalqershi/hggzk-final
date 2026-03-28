@@ -3,18 +3,27 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// يعرض تقييمًا بصريًا لقوة كلمة المرور مع المتطلبات الأساسية عند الحاجة.
+/// Displays a visual assessment of password strength together with optional
+/// requirement hints.
 class PasswordStrengthIndicator extends StatefulWidget {
+  /// كلمة المرور الحالية المراد تحليل قوتها.
+  /// Current password whose strength should be analyzed.
   final String password;
+
+  /// يحدد ما إذا كان ينبغي عرض قائمة المتطلبات للمستخدم.
+  /// Controls whether the password requirements should be shown.
   final bool showRequirements;
-  
+
+  /// ينشئ المؤشر مع كلمة المرور الحالية وخيار إظهار المتطلبات.
+  /// Creates the indicator with the current password and requirement toggle.
   const PasswordStrengthIndicator({
     super.key,
     required this.password,
     this.showRequirements = true,
   });
-
   @override
-  State<PasswordStrengthIndicator> createState() => 
+  State<PasswordStrengthIndicator> createState() =>
       _PasswordStrengthIndicatorState();
 }
 
@@ -22,7 +31,6 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _strengthAnimation;
-  
   @override
   void initState() {
     super.initState();
@@ -39,13 +47,13 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
     ));
     _animationController.forward();
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-  
+
   @override
   void didUpdateWidget(PasswordStrengthIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -57,7 +65,7 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
   @override
   Widget build(BuildContext context) {
     final strength = _calculateStrength(widget.password);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -89,7 +97,8 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: strength.gradientColors[0].withOpacity(0.5),
+                              color:
+                                  strength.gradientColors[0].withOpacity(0.5),
                               blurRadius: 8,
                               spreadRadius: 1,
                             ),
@@ -121,7 +130,7 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
             ),
           ),
         ),
-        
+
         if (strength.text.isNotEmpty) ...[
           const SizedBox(height: 8),
           Row(
@@ -153,7 +162,7 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
             ],
           ),
         ],
-        
+
         if (widget.showRequirements && widget.password.isNotEmpty) ...[
           const SizedBox(height: 12),
           _buildFuturisticRequirements(),
@@ -161,7 +170,7 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
       ],
     );
   }
-  
+
   Widget _buildFuturisticRequirements() {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -208,7 +217,8 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
               ),
               _FuturisticRequirementChip(
                 label: 'رمز خاص',
-                isMet: widget.password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]')),
+                isMet:
+                    widget.password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]')),
                 icon: Icons.star,
               ),
             ],
@@ -217,7 +227,7 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
       ),
     );
   }
-  
+
   PasswordStrength _calculateStrength(String password) {
     if (password.isEmpty) {
       return PasswordStrength(
@@ -228,7 +238,7 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
     }
 
     int score = 0;
-    
+
     if (password.length >= 8) score++;
     if (password.length >= 12) score++;
     if (password.contains(RegExp(r'[A-Z]'))) score++;
@@ -268,15 +278,13 @@ class _FuturisticRequirementChip extends StatefulWidget {
   final String label;
   final bool isMet;
   final IconData icon;
-
   const _FuturisticRequirementChip({
     required this.label,
     required this.isMet,
     required this.icon,
   });
-
   @override
-  State<_FuturisticRequirementChip> createState() => 
+  State<_FuturisticRequirementChip> createState() =>
       _FuturisticRequirementChipState();
 }
 
@@ -284,7 +292,6 @@ class _FuturisticRequirementChipState extends State<_FuturisticRequirementChip>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  
   @override
   void initState() {
     super.initState();
@@ -299,12 +306,12 @@ class _FuturisticRequirementChipState extends State<_FuturisticRequirementChip>
       parent: _animationController,
       curve: Curves.elasticOut,
     ));
-    
+
     if (widget.isMet) {
       _animationController.forward();
     }
   }
-  
+
   @override
   void didUpdateWidget(_FuturisticRequirementChip oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -314,7 +321,7 @@ class _FuturisticRequirementChipState extends State<_FuturisticRequirementChip>
       _animationController.reverse();
     }
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -343,9 +350,7 @@ class _FuturisticRequirementChipState extends State<_FuturisticRequirementChip>
                       ],
                     )
                   : null,
-              color: !widget.isMet
-                  ? AppTheme.darkCard.withOpacity(0.2)
-                  : null,
+              color: !widget.isMet ? AppTheme.darkCard.withOpacity(0.2) : null,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: widget.isMet
@@ -380,7 +385,8 @@ class _FuturisticRequirementChipState extends State<_FuturisticRequirementChip>
                     color: widget.isMet
                         ? AppTheme.success
                         : AppTheme.textMuted.withOpacity(0.7),
-                    fontWeight: widget.isMet ? FontWeight.bold : FontWeight.normal,
+                    fontWeight:
+                        widget.isMet ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
               ],
@@ -396,7 +402,6 @@ class PasswordStrength {
   final double value;
   final List<Color> gradientColors;
   final String text;
-
   PasswordStrength({
     required this.value,
     required this.gradientColors,

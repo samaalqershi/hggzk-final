@@ -9,14 +9,18 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 
+/// يعرض شريطًا بصريًا بارزًا أعلى الصفحة الرئيسية لعرض الرسائل التسويقية أو
+/// العروض أو الوجهات التي نريد إبرازها قبل بقية المحتوى.
+/// Renders a prominent hero banner at the top of the home screen for featured
+/// messages, offers, or destinations that should lead the rest of the content.
 class HeroBanner extends StatefulWidget {
+  /// العناصر التي ستملأ الشرائح، ويمكن استبدالها ببيانات قادمة من الخادم.
+  /// Items used to fill the slides and optionally replaced by backend data.
   final List<BannerItem>? items;
-
   const HeroBanner({
     super.key,
     this.items,
   });
-
   @override
   State<HeroBanner> createState() => _HeroBannerState();
 }
@@ -27,15 +31,13 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
   late AnimationController _parallaxController;
   late AnimationController _glowController;
   late AnimationController _particleController;
-
   int _currentIndex = 0;
   Timer? _autoScrollTimer;
-
   final List<_BannerParticle> _particles = [];
 
-  // Default banner items if none provided
+  // Arabic: عناصر افتراضية جاهزة إذا لم يرسل الخادم أي بيانات.
+  // English: Default fallback items used when the backend provides none.
   late final List<BannerItem> _bannerItems;
-
   @override
   void initState() {
     super.initState();
@@ -45,6 +47,10 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
     _startAutoScroll();
   }
 
+  /// يجهز محتوى الشرائح مع مجموعة افتراضية تحافظ على استقرار الواجهة عندما
+  /// لا تصل بيانات من الخادم بعد.
+  /// Prepares slide content with a fallback set that keeps the widget stable
+  /// when backend data has not arrived yet.
   void _initializeBannerItems() {
     _bannerItems = widget.items ??
         [
@@ -72,6 +78,10 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
         ];
   }
 
+  /// يهيئ وحدات التحكم المسؤولة عن التمرير التلقائي والبارالاكس والوهج
+  /// وحركة الخلفية.
+  /// Initializes the controllers that drive auto paging, parallax, glow, and
+  /// background motion.
   void _initializeControllers() {
     _pageController = PageController(viewportFraction: 0.9);
 
@@ -96,12 +106,19 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
     )..repeat();
   }
 
+  /// ينشئ مجموعة الجسيمات التي تضيف للشريط عمقًا وحركة مستمرة خفيفة.
+  /// Creates the particle set that adds subtle depth and continuous motion to
+  /// the banner.
   void _generateParticles() {
     for (int i = 0; i < 15; i++) {
       _particles.add(_BannerParticle());
     }
   }
 
+  /// يبدأ دورة التنقل التلقائي بين الشرائح حتى يظل الشريط نشطًا من دون تدخل
+  /// المستخدم.
+  /// Starts the automatic paging cycle so the banner stays active even when
+  /// the user does not interact with it.
   void _startAutoScroll() {
     _autoScrollTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       if (_pageController.hasClients) {
@@ -429,24 +446,59 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
     );
   }
 
+  /// يعالج اختيار الشريحة الحالية ويشكل نقطة الربط المستقبلية مع التوجيه
+  /// أو تتبع النقرات.
+  /// Handles selection of the current slide and acts as the future integration
+  /// point for navigation or click tracking.
   void _handleBannerTap(BannerItem item) {
     HapticFeedback.mediumImpact();
     // Handle banner tap action
   }
 }
 
-// Banner Item Model
+/// يصف شريحة واحدة داخل الشريط مع كل ما تحتاجه الواجهة من نص وصورة وألوان
+/// وبيانات إجراء.
+/// Describes a single hero-banner slide with the text, image, colors, and
+/// action metadata required by the UI.
 class BannerItem {
+  /// معرّف ثابت يسهّل تتبع الشريحة أو استهدافها تحليليًا.
+  /// Stable identifier used for analytics, tracking, or addressing the slide.
   final String id;
-  final String title;
-  final String subtitle;
-  final String imageUrl;
-  final List<Color> gradient;
-  final String? badge;
-  final String? ctaText;
-  final String? action;
-  final Map<String, dynamic>? metadata;
 
+  /// العنوان الرئيسي الذي يقود الرسالة البصرية في الشريحة.
+  /// Main headline that carries the slide's primary marketing message.
+  final String title;
+
+  /// وصف أو جملة مساندة تمنح العنوان سياقًا إضافيًا.
+  /// Supporting line that adds context beneath the main title.
+  final String subtitle;
+
+  /// مصدر الصورة الخلفية التي تملأ مساحة الشريحة.
+  /// Source URL for the image that fills the slide background.
+  final String imageUrl;
+
+  /// تدرج الألوان الذي يحدد هوية الشريحة والتوهج المحيط بها.
+  /// Color gradient that defines the slide identity and surrounding glow.
+  final List<Color> gradient;
+
+  /// شارة قصيرة لإبراز حالة مثل "حصري" أو "جديد".
+  /// Short badge used to emphasize states such as "exclusive" or "new".
+  final String? badge;
+
+  /// نص زر الدعوة إلى الإجراء عندما تحتاج الشريحة هدفًا مباشرًا.
+  /// Call-to-action label when the slide should point to a direct next step.
+  final String? ctaText;
+
+  /// نوع الإجراء المتوقع عند الضغط، مثل فتح شاشة أو تطبيق فلتر.
+  /// Action type expected on tap, such as opening a screen or applying a
+  /// filter.
+  final String? action;
+
+  /// بيانات إضافية تسمح بتمرير سياق غني إلى الشاشة التالية أو إلى أنظمة
+  /// التتبع.
+  /// Extra metadata that passes richer context to the next screen or to
+  /// tracking systems.
+  final Map<String, dynamic>? metadata;
   BannerItem({
     required this.id,
     required this.title,
@@ -460,7 +512,10 @@ class BannerItem {
   });
 }
 
-// Banner Particle Model
+/// يمثّل جسيمًا بصريًا صغيرًا يتحرك في الخلفية ليمنح الشريط طبقة عمق وحياة
+/// من دون أن يطغى على الرسالة الأساسية.
+/// Represents a tiny visual particle that moves in the background to add
+/// depth and life without distracting from the main message.
 class _BannerParticle {
   late double x;
   late double y;
@@ -468,11 +523,9 @@ class _BannerParticle {
   late double speed;
   late double opacity;
   late Color color;
-
   _BannerParticle() {
     reset();
   }
-
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -497,16 +550,16 @@ class _BannerParticle {
   }
 }
 
-// Particles Painter
+/// يرسم الجسيمات المتحركة فوق خلفية الشريط لإضافة جو بصري حي ومتنفس.
+/// Paints the moving particles above the banner background to create a lively,
+/// atmospheric layer.
 class _ParticlesPainter extends CustomPainter {
   final List<_BannerParticle> particles;
   final double animationValue;
-
   _ParticlesPainter({
     required this.particles,
     required this.animationValue,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {

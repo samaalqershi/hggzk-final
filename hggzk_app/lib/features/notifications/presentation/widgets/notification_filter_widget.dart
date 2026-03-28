@@ -6,11 +6,24 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// Expandable filter panel that lets the user narrow notifications by type
+/// and unread state.
+/// لوحة فلاتر قابلة للفتح تضيق الإشعارات حسب النوع وحالة غير المقروء.
 class NotificationFilterWidget extends StatefulWidget {
+  /// Currently selected notification type filter.
+  /// نوع الفلتر الحالي للإشعارات.
   final String? selectedType;
+
+  /// Whether the list should show unread notifications only.
+  /// يحدد ما إذا كانت القائمة تعرض غير المقروء فقط.
   final bool? showUnreadOnly;
+
+  /// Notifies the host screen whenever the filter selection changes.
+  /// يبلغ الشاشة المضيفة عند تغيّر الفلتر.
   final Function(String?, bool?) onFilterChanged;
 
+  /// Builds the notification filter panel.
+  /// ينشئ لوحة فلترة الإشعارات.
   const NotificationFilterWidget({
     super.key,
     this.selectedType,
@@ -18,16 +31,30 @@ class NotificationFilterWidget extends StatefulWidget {
     required this.onFilterChanged,
   });
 
+  /// Creates the mutable filter state.
+  /// ينشئ حالة الفلتر القابلة للتغيير.
   @override
   State<NotificationFilterWidget> createState() =>
       _NotificationFilterWidgetState();
 }
 
+/// Tracks the expanded state and the active filter selections.
+/// يتتبع حالة الفتح والاختيارات النشطة للفلاتر.
 class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
+  /// Internal copy of the selected type.
+  /// نسخة داخلية من نوع الفلتر المختار.
   late String? _selectedType;
+
+  /// Internal toggle for unread-only mode.
+  /// مفتاح داخلي لوضع غير المقروء فقط.
   late bool _showUnreadOnly;
+
+  /// Whether the panel is currently expanded.
+  /// يحدد ما إذا كانت اللوحة مفتوحة الآن.
   bool _isExpanded = false;
 
+  /// Available filter choices shown to the user.
+  /// خيارات الفلاتر المتاحة للمستخدم.
   final List<FilterOption> _filterOptions = [
     FilterOption('all', 'الكل', CupertinoIcons.square_grid_2x2),
     FilterOption('booking', 'الحجوزات', CupertinoIcons.calendar),
@@ -36,6 +63,8 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
     FilterOption('system', 'النظام', CupertinoIcons.gear_solid),
   ];
 
+  /// Seeds the local state from the widget inputs.
+  /// يهيئ الحالة المحلية من مدخلات الواجهة.
   @override
   void initState() {
     super.initState();
@@ -43,6 +72,8 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
     _showUnreadOnly = widget.showUnreadOnly ?? false;
   }
 
+  /// Renders the compact header and the expanded filter options.
+  /// يرسم الرأس المضغوط وخيارات الفلتر عند التوسيع.
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -87,6 +118,8 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
     );
   }
 
+  /// Builds the tap target that toggles the filter panel.
+  /// ينشئ منطقة النقر التي تبدل فتح اللوحة وإغلاقها.
   Widget _buildHeader(bool isCompact) {
     return GestureDetector(
       onTap: () => setState(() => _isExpanded = !_isExpanded),
@@ -140,6 +173,8 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
     );
   }
 
+  /// Builds the compact layout used on narrow widths.
+  /// ينشئ التخطيط المضغوط المستخدم في الشاشات الضيقة.
   Widget _buildCompactFilters() {
     return Column(
       children: [
@@ -162,6 +197,8 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
     );
   }
 
+  /// Builds the wider layout used on larger screens.
+  /// ينشئ التخطيط الأوسع المستخدم في الشاشات الكبيرة.
   Widget _buildFullFilters() {
     return Column(
       children: [
@@ -189,6 +226,8 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
     );
   }
 
+  /// Builds one selectable notification type chip.
+  /// ينشئ شريحة اختيار واحدة لنوع الإشعار.
   Widget _buildFilterChip(FilterOption option) {
     final isSelected = _selectedType == option.value ||
         (option.value == 'all' && _selectedType == null);
@@ -242,6 +281,8 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
     );
   }
 
+  /// Builds the unread-only toggle switch-like control.
+  /// ينشئ عنصر التبديل لوضع غير المقروء فقط.
   Widget _buildUnreadToggle({required bool isCompact}) {
     return GestureDetector(
       onTap: () {
@@ -298,6 +339,8 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
     );
   }
 
+  /// Counts how many filters are currently active.
+  /// يحصي عدد الفلاتر النشطة حاليًا.
   int _getActiveFiltersCount() {
     int count = 0;
     if (_selectedType != null) count++;
@@ -306,10 +349,22 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
   }
 }
 
+/// Represents one selectable notification filter option.
+/// يمثل خيار فلترة واحدًا يمكن اختياره.
 class FilterOption {
+  /// Internal value used when the filter is applied.
+  /// القيمة الداخلية المستخدمة عند تطبيق الفلتر.
   final String value;
+
+  /// Localized label shown in the chip.
+  /// التسمية المحلية الظاهرة داخل الشريحة.
   final String label;
+
+  /// Icon used to visually distinguish the filter.
+  /// الأيقونة المستخدمة لتمييز الفلتر بصريًا.
   final IconData icon;
 
+  /// Builds one filter option descriptor.
+  /// ينشئ وصفًا لخيار فلترة واحد.
   FilterOption(this.value, this.label, this.icon);
 }

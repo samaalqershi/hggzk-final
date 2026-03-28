@@ -12,31 +12,74 @@ import 'package:hggzkportal/features/auth/presentation/bloc/auth_state.dart';
 import 'package:hggzkportal/injection_container.dart';
 import 'package:hggzkportal/services/local_storage_service.dart';
 
+/// شاشة بدء قصيرة تحسم الوجهة الأولى بعد قراءة التفضيل والحالة الحالية للمستخدم.
+/// Startup gate that decides the first route after reading onboarding and authentication state.
 class SplashScreen extends StatefulWidget {
+  /// ينشئ شاشة البداية التي تقرر مسار الدخول الأول للتطبيق.
+  /// Creates the splash screen that decides the app's initial entry route.
   const SplashScreen({super.key});
 
   @override
+
+  /// ينشئ كائن الحالة المسؤول عن الحركة ثم التوجيه بعد التأخير.
+  /// Creates the state object responsible for animation and delayed routing.
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
+/// يدير حركات الشعار ويحول المستخدم من شاشة البداية إلى المسار المناسب.
+/// Drives the splash animations and routes the user to the correct destination.
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
-  // Animation Controllers
+  /// يدير التلاشي التدريجي للعناصر المرئية أثناء الظهور الأول.
+  /// Controls the staged fade-in of the visible splash elements.
   late AnimationController _fadeController;
+
+  /// يدير تكبير الشعار الأولي قبل اكتمال عرض الشاشة.
+  /// Controls the initial logo scale-up before the splash settles.
   late AnimationController _scaleController;
+
+  /// يضيف تنفسًا بصريًا خفيفًا للشعار والخلفية أثناء البقاء على الشاشة.
+  /// Adds a subtle breathing motion to the logo and background while the
+  /// splash is visible.
   late AnimationController _breathController;
+
+  /// يحرك خط التحميل لإعطاء المستخدم إشارة واضحة على التقدم.
+  /// Drives the loading line to give the user a clear sense of progress.
   late AnimationController _progressController;
 
-  // Animations
+  /// قيمة التلاشي الأساسية التي تعتمد عليها عناصر المقدمة.
+  /// The base fade value used by the intro elements.
   late Animation<double> _fadeAnimation;
+
+  /// قيمة التحجيم التي تحدد حجم الشعار أثناء الافتتاح.
+  /// The scale value that sets the logo size during the intro.
   late Animation<double> _scaleAnimation;
+
+  /// قيمة التنفس التي تضبط التمدد الطفيف المتكرر للعناصر.
+  /// The breathing value that drives the slight repeated expansion.
   late Animation<double> _breathAnimation;
+
+  /// قيمة تقدم شريط التحميل المعروض في وسط الشاشة.
+  /// The progress value shown by the loading bar in the center.
   late Animation<double> _progressAnimation;
+
+  /// يحرك ظهور اسم التطبيق بالتزامن مع تلاشي الشعار.
+  /// Animates the app title as it appears alongside the logo fade.
   late Animation<double> _textFadeAnimation;
+
+  /// يحرك عنوان التطبيق من أسفل قليلًا إلى مكانه النهائي.
+  /// Slides the app title upward into its final position.
   late Animation<Offset> _textSlideAnimation;
+
+  /// يتحكم في ظهور الوصف السفلي بعد ظهور العنوان.
+  /// Controls the subtitle fade after the main title appears.
   late Animation<double> _subtitleFadeAnimation;
 
   @override
+
+  /// يجهز الحركات ثم يبدأ العد التنازلي للتوجيه بعد عرض الشاشة.
+  /// Prepares the animations and starts the delayed navigation countdown
+  /// after the splash appears.
   void initState() {
     super.initState();
     _initializeAnimations();
@@ -44,8 +87,9 @@ class _SplashScreenState extends State<SplashScreen>
     _navigateAfterDelay();
   }
 
+  /// Sets up the animation controllers and the curves that stage the splash reveal.
+  /// يهيئ وحدات التحكم والحركات التي تبني تسلسل الظهور في شاشة البداية.
   void _initializeAnimations() {
-    // Fade Controller
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
@@ -80,7 +124,6 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // Scale Controller
     _scaleController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
@@ -93,7 +136,6 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // Breath Controller
     _breathController = AnimationController(
       duration: const Duration(milliseconds: 3000),
       vsync: this,
@@ -106,7 +148,6 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // Progress Controller
     _progressController = AnimationController(
       duration: const Duration(milliseconds: 2500),
       vsync: this,
@@ -118,6 +159,8 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
+  /// Starts the staged intro after a small delay so the logo feels intentional.
+  /// يبدأ التسلسل المرئي بعد مهلة قصيرة ليظهر الشعار كجزء مقصود من التجربة.
   void _startAnimationSequence() async {
     await Future.delayed(const Duration(milliseconds: 200));
     if (!mounted) return;
@@ -132,6 +175,8 @@ class _SplashScreenState extends State<SplashScreen>
     _progressController.forward();
   }
 
+  /// Keeps the splash visible long enough before handing control to the next route.
+  /// يحافظ على ظهور شاشة البداية مدة كافية قبل تحويل المستخدم إلى المسار المناسب.
   void _navigateAfterDelay() {
     Timer(const Duration(seconds: 4), () {
       if (!mounted) return;
@@ -139,6 +184,8 @@ class _SplashScreenState extends State<SplashScreen>
     });
   }
 
+  /// Reads onboarding and auth state to decide whether to continue, verify, or log in.
+  /// يقرأ حالة البداية والمصادقة ليقرر هل نكمل للتطبيق أم نتحقق أم نذهب لتسجيل الدخول.
   void _checkAuthAndNavigate() {
     final localStorage = sl<LocalStorageService>();
     final isFirstRun = !localStorage.isOnboardingCompleted();
@@ -162,6 +209,8 @@ class _SplashScreenState extends State<SplashScreen>
     }
   }
 
+  /// Releases all animation controllers so the splash does not leak ticker resources.
+  /// يحرر وحدات التحكم في الحركة حتى لا تبقى موارد ticker معلقة.
   @override
   void dispose() {
     _fadeController.dispose();
@@ -171,6 +220,8 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
   }
 
+  /// Builds the animated branded splash layout with platform-aware system UI styling.
+  /// يبني واجهة البداية المعلّمة مع ضبط مظهر شريط النظام وفق سطوع الجهاز.
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
@@ -212,6 +263,8 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
+  /// يبني المحتوى المركزي للشاشة: الشعار والعنوان والتحميل والتذييل.
+  /// Builds the centered splash content: logo, title, loader, and footer.
   Widget _buildMainContent() {
     return SafeArea(
       child: SizedBox(
@@ -247,6 +300,9 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
+  /// يرسم خلفية محيطة مع أضواء ناعمة ونجوم خافتة لرفع الإحساس بالعمق.
+  /// Renders the ambient background with soft lights and faint stars for
+  /// depth.
   Widget _buildAmbientBackground(Size size) {
     return Stack(
       children: [
@@ -266,8 +322,8 @@ class _SplashScreenState extends State<SplashScreen>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        const Color(0xFF1E88E5).withOpacity(0.15),
-                        const Color(0xFF1E88E5).withOpacity(0.05),
+                        const Color(0xFF1E88E5).withValues(alpha: 0.15),
+                        const Color(0xFF1E88E5).withValues(alpha: 0.05),
                         Colors.transparent,
                       ],
                     ),
@@ -294,8 +350,8 @@ class _SplashScreenState extends State<SplashScreen>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        const Color(0xFF7C4DFF).withOpacity(0.12),
-                        const Color(0xFF7C4DFF).withOpacity(0.04),
+                        const Color(0xFF7C4DFF).withValues(alpha: 0.12),
+                        const Color(0xFF7C4DFF).withValues(alpha: 0.04),
                         Colors.transparent,
                       ],
                     ),
@@ -312,6 +368,8 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
+  /// ينشئ طبقة من النجوم العشوائية التي تتحرك معها شفافية الظهور.
+  /// Creates a layer of random stars whose opacity follows the fade-in.
   List<Widget> _buildStars(Size size) {
     return List.generate(20, (index) {
       final random = math.Random(index);
@@ -330,7 +388,7 @@ class _SplashScreenState extends State<SplashScreen>
             height: starSize,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withOpacity(opacity),
+              color: Colors.white.withValues(alpha: opacity),
             ),
           ),
         ),
@@ -338,6 +396,9 @@ class _SplashScreenState extends State<SplashScreen>
     });
   }
 
+  /// يعرض الشعار داخل دائرة زجاجية مضيئة ليعكس هوية التطبيق البصرية.
+  /// Displays the logo inside a glowing glass circle to reflect the app's
+  /// visual identity.
   Widget _buildElegantLogo() {
     return AnimatedBuilder(
       animation: Listenable.merge([
@@ -359,17 +420,17 @@ class _SplashScreenState extends State<SplashScreen>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    const Color(0xFF1E88E5).withOpacity(0.2),
-                    const Color(0xFF7C4DFF).withOpacity(0.2),
+                    const Color(0xFF1E88E5).withValues(alpha: 0.2),
+                    const Color(0xFF7C4DFF).withValues(alpha: 0.2),
                   ],
                 ),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF1E88E5).withOpacity(0.3),
+                    color: const Color(0xFF1E88E5).withValues(alpha: 0.3),
                     blurRadius: 40,
                     spreadRadius: 0,
                   ),
@@ -385,8 +446,8 @@ class _SplashScreenState extends State<SplashScreen>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.05),
+                          Colors.white.withValues(alpha: 0.1),
+                          Colors.white.withValues(alpha: 0.05),
                         ],
                       ),
                     ),
@@ -408,6 +469,8 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
+  /// يبني اسم التطبيق والوصف الافتتاحي بأسلوب متدرج الظهور والتحريك.
+  /// Builds the app name and opening subtitle with staged fade and motion.
   Widget _buildAppTitle() {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -449,7 +512,7 @@ class _SplashScreenState extends State<SplashScreen>
               fontSize: 16,
               fontWeight: FontWeight.w300,
               letterSpacing: 4,
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
             ),
           ),
         ),
@@ -457,6 +520,9 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
+  /// يعرض شريط التقدم والنص المصاحب له لإظهار أن النظام يستعد للدخول.
+  /// Shows the progress bar and its caption to signal that the app is
+  /// preparing.
   Widget _buildElegantLoader() {
     return FadeTransition(
       opacity: _subtitleFadeAnimation,
@@ -480,7 +546,7 @@ class _SplashScreenState extends State<SplashScreen>
                       height: 2,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(1),
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withValues(alpha: 0.1),
                       ),
                     ),
                     // الخط المتحرك
@@ -497,7 +563,8 @@ class _SplashScreenState extends State<SplashScreen>
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF64B5F6).withOpacity(0.5),
+                            color:
+                                const Color(0xFF64B5F6).withValues(alpha: 0.5),
                             blurRadius: 8,
                             spreadRadius: 0,
                           ),
@@ -515,7 +582,8 @@ class _SplashScreenState extends State<SplashScreen>
                           color: Colors.white,
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF64B5F6).withOpacity(0.8),
+                              color: const Color(0xFF64B5F6)
+                                  .withValues(alpha: 0.8),
                               blurRadius: 12,
                               spreadRadius: 2,
                             ),
@@ -541,7 +609,7 @@ class _SplashScreenState extends State<SplashScreen>
                   fontSize: 13,
                   fontWeight: FontWeight.w300,
                   letterSpacing: 2,
-                  color: Colors.white.withOpacity(0.4),
+                  color: Colors.white.withValues(alpha: 0.4),
                 ),
               );
             },
@@ -551,6 +619,8 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
+  /// يضيف التذييل النهائي الذي يبرز اسم الجهة أو العلامة المطورة.
+  /// Adds the final footer that highlights the developer or brand name.
   Widget _buildFooter() {
     return FadeTransition(
       opacity: _subtitleFadeAnimation,
@@ -565,7 +635,7 @@ class _SplashScreenState extends State<SplashScreen>
               gradient: LinearGradient(
                 colors: [
                   Colors.transparent,
-                  Colors.white.withOpacity(0.2),
+                  Colors.white.withValues(alpha: 0.2),
                   Colors.transparent,
                 ],
               ),
@@ -581,7 +651,7 @@ class _SplashScreenState extends State<SplashScreen>
               fontSize: 11,
               fontWeight: FontWeight.w500,
               letterSpacing: 4,
-              color: Colors.white.withOpacity(0.25),
+              color: Colors.white.withValues(alpha: 0.25),
             ),
           ),
         ],

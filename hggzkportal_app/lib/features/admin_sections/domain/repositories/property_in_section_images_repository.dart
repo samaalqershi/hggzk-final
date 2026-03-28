@@ -6,6 +6,7 @@ import '../../../../core/error/failures.dart';
 import '../entities/section_image.dart';
 
 abstract class PropertyInSectionImagesRepository {
+  /// العربية: يعالج `uploadImage`.
   Future<Either<Failure, SectionImage>> uploadImage({
     String? propertyInSectionId,
     String? tempKey,

@@ -4,7 +4,9 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/policy.dart';
 
 class PolicyFormWidget extends StatelessWidget {
+  /// العربية: يخزن القيمة `policy`.
   final Policy? policy;
+
   final VoidCallback? onSubmit;
 
   const PolicyFormWidget({

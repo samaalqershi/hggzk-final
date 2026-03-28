@@ -31,13 +31,15 @@ class CurrenciesManagementPage extends StatefulWidget {
 class _CurrenciesManagementPageState extends State<CurrenciesManagementPage>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
+
   late AnimationController _fabAnimationController;
+
   late AnimationController _refreshAnimationController;
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
 
   bool _isGridView = true;
-  final String _searchQuery = '';
+
   Currency? _selectedCurrency;
 
   @override
@@ -331,13 +333,15 @@ class _CurrenciesManagementPageState extends State<CurrenciesManagementPage>
                   CurrencyStatsCard(
                     currencies: state.currencies,
                     stats: state.stats,
-                    startDate: DateTime.now().subtract(const Duration(days: 30)),
+                    startDate:
+                        DateTime.now().subtract(const Duration(days: 30)),
                     endDate: DateTime.now(),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     'الاتجاهات محسوبة لآخر 30 يومًا',
-                    style: AppTextStyles.caption.copyWith(color: AppTheme.textMuted),
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppTheme.textMuted),
                   ),
                 ],
               ),
@@ -676,7 +680,7 @@ class _CurrenciesManagementPageState extends State<CurrenciesManagementPage>
                   Border.all(color: AppTheme.darkBorder.withValues(alpha: 0.3)),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.error.withOpacity(0.2),
+                  color: AppTheme.error.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -689,7 +693,7 @@ class _CurrenciesManagementPageState extends State<CurrenciesManagementPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.error.withOpacity(0.1),
+                    color: AppTheme.error.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.delete_outline,

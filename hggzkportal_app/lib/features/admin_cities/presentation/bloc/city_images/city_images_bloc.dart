@@ -16,20 +16,68 @@ import '../../../domain/usecases/city_images/set_primary_city_image_usecase.dart
 import 'city_images_event.dart';
 import 'city_images_state.dart';
 
+/// Manages the gallery lifecycle for city images: load, upload, reorder, and delete.
+///
+/// يدير دورة حياة معرض صور المدينة: التحميل، والرفع، وإعادة الترتيب، والحذف.
 class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
+  /// Use case that uploads a single media asset.
+  ///
+  /// use case الذي يرفع ملف وسائط واحدًا.
   final UploadCityImageUseCase uploadCityImage;
+
+  /// Use case that uploads multiple media assets in sequence.
+  ///
+  /// use case الذي يرفع عدة ملفات وسائط بالتتابع.
   final UploadMultipleCityImagesUseCase uploadMultipleImages;
+
+  /// Use case that loads the current gallery state.
+  ///
+  /// use case الذي يحمل حالة المعرض الحالية.
   final GetCityImagesUseCase getCityImages;
+
+  /// Use case that patches gallery metadata.
+  ///
+  /// use case الذي يعدل بيانات المعرض الوصفية.
   final UpdateCityImageUseCase updateCityImage;
+
+  /// Use case that deletes a single gallery item.
+  ///
+  /// use case الذي يحذف عنصرًا واحدًا من المعرض.
   final DeleteCityImageUseCase deleteCityImage;
+
+  /// Use case that deletes a batch of gallery items.
+  ///
+  /// use case الذي يحذف دفعة من عناصر المعرض.
   final DeleteMultipleCityImagesUseCase deleteMultipleImages;
+
+  /// Use case that persists the user-selected gallery order.
+  ///
+  /// use case الذي يحفظ ترتيب المعرض الذي اختاره المستخدم.
   final ReorderCityImagesUseCase reorderImages;
+
+  /// Use case that promotes one image to be the primary cover.
+  ///
+  /// use case الذي يرفع صورة لتصبح الغلاف الأساسي.
   final SetPrimaryCityImageUseCase setPrimaryImage;
 
+  /// Current gallery snapshot kept in memory to support optimistic updates.
+  ///
+  /// لقطة المعرض الحالية المحفوظة في الذاكرة لدعم التحديثات السريعة.
   List<CityImage> _currentImages = [];
+
+  /// IDs of currently selected images for batch actions.
+  ///
+  /// معرفات الصور المحددة حاليًا لعمليات الدفعة.
   Set<String> _selectedImageIds = {};
+
+  /// City context attached to the gallery state.
+  ///
+  /// سياق المدينة المرتبط بحالة المعرض.
   String? _currentCityId;
 
+  /// Wires gallery use cases into the event pipeline.
+  ///
+  /// يربط use cases الخاصة بالمعرض بخط معالجة الأحداث.
   CityImagesBloc({
     required this.uploadCityImage,
     required this.uploadMultipleImages,
@@ -55,6 +103,9 @@ class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
     on<DeselectAllCityImagesEvent>(_onDeselectAllCityImages);
   }
 
+  /// Loads the gallery when a saved city or temporary draft context is present.
+  ///
+  /// يحمل المعرض عند وجود مدينة محفوظة أو سياق مسودة مؤقتة.
   Future<void> _onLoadCityImages(
     LoadCityImagesEvent event,
     Emitter<CityImagesState> emit,
@@ -87,6 +138,9 @@ class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
     );
   }
 
+  /// Uploads one file and reflects live progress in the state stream.
+  ///
+  /// يرفع ملفًا واحدًا ويعرض التقدم الحي داخل تيار الحالة.
   Future<void> _onUploadCityImage(
     UploadCityImageEvent event,
     Emitter<CityImagesState> emit,
@@ -148,6 +202,9 @@ class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
     );
   }
 
+  /// Uploads several files and keeps the UI informed about progress per file.
+  ///
+  /// يرفع عدة ملفات ويُبقي الواجهة على اطلاع بتقدم كل ملف.
   Future<void> _onUploadMultipleImages(
     UploadMultipleCityImagesEvent event,
     Emitter<CityImagesState> emit,
@@ -202,6 +259,9 @@ class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
     );
   }
 
+  /// Patches an image and reloads the gallery when the server confirms success.
+  ///
+  /// يعدل صورة ثم يعيد تحميل المعرض عندما يؤكد الخادم النجاح.
   Future<void> _onUpdateCityImage(
     UpdateCityImageEvent event,
     Emitter<CityImagesState> emit,
@@ -236,6 +296,9 @@ class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
     );
   }
 
+  /// Deletes a single image and removes it from the in-memory snapshot.
+  ///
+  /// يحذف صورة واحدة ويزيلها من اللقطة الموجودة في الذاكرة.
   Future<void> _onDeleteCityImage(
     DeleteCityImageEvent event,
     Emitter<CityImagesState> emit,
@@ -264,6 +327,9 @@ class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
     );
   }
 
+  /// Deletes all selected gallery items in one operation.
+  ///
+  /// يحذف كل عناصر المعرض المحددة في عملية واحدة.
   Future<void> _onDeleteMultipleImages(
     DeleteMultipleCityImagesEvent event,
     Emitter<CityImagesState> emit,
@@ -292,6 +358,9 @@ class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
     );
   }
 
+  /// Persists the requested order and mirrors it locally on success.
+  ///
+  /// يحفظ الترتيب المطلوب ويعكسه محليًا عند النجاح.
   Future<void> _onReorderCityImages(
     ReorderCityImagesEvent event,
     Emitter<CityImagesState> emit,
@@ -330,6 +399,9 @@ class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
     );
   }
 
+  /// Promotes the selected image to primary and reloads the gallery afterward.
+  ///
+  /// يرقّي الصورة المحددة إلى أساسية ثم يعيد تحميل المعرض بعدها.
   Future<void> _onSetPrimaryCityImage(
     SetPrimaryCityImageEvent event,
     Emitter<CityImagesState> emit,
@@ -367,6 +439,9 @@ class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
     );
   }
 
+  /// Clears the gallery snapshot and selection metadata.
+  ///
+  /// يمسح لقطة المعرض وبيانات الاختيار.
   void _onClearCityImages(
     ClearCityImagesEvent event,
     Emitter<CityImagesState> emit,
@@ -377,6 +452,9 @@ class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
     emit(const CityImagesInitial());
   }
 
+  /// Refreshes the gallery without switching into the loading placeholder.
+  ///
+  /// يحدّث المعرض من دون الانتقال إلى شاشة التحميل.
   Future<void> _onRefreshCityImages(
     RefreshCityImagesEvent event,
     Emitter<CityImagesState> emit,
@@ -403,6 +481,9 @@ class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
     );
   }
 
+  /// Toggles one image in or out of the current selection set.
+  ///
+  /// يبدّل صورة واحدة داخل أو خارج مجموعة الاختيار الحالية.
   void _onToggleCityImageSelection(
     ToggleCityImageSelectionEvent event,
     Emitter<CityImagesState> emit,
@@ -421,6 +502,9 @@ class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
     ));
   }
 
+  /// Selects every visible image so batch actions can be applied.
+  ///
+  /// يحدد كل صورة ظاهرة حتى يمكن تطبيق عمليات الدفعة.
   void _onSelectAllCityImages(
     SelectAllCityImagesEvent event,
     Emitter<CityImagesState> emit,
@@ -435,6 +519,9 @@ class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
     ));
   }
 
+  /// Clears every selected image from the current gallery session.
+  ///
+  /// يزيل تحديد كل الصور من جلسة المعرض الحالية.
   void _onDeselectAllCityImages(
     DeselectAllCityImagesEvent event,
     Emitter<CityImagesState> emit,
@@ -449,6 +536,9 @@ class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
     ));
   }
 
+  /// Converts repository failures into strings the UI can safely show.
+  ///
+  /// يحول فشل المستودع إلى نصوص يمكن عرضها بأمان في الواجهة.
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
       case ServerFailure:
@@ -462,6 +552,8 @@ class CityImagesBloc extends Bloc<CityImagesEvent, CityImagesState> {
     }
   }
 
+  /// العربية: يفرغ حالة الذاكرة المؤقتة للمعرض قبل إغلاق الـ BLoC حتى لا تبقى بيانات عالقة.
+  /// English: Clears the in-memory gallery state before the bloc closes so no stale data remains.
   @override
   Future<void> close() {
     _currentImages = [];

@@ -8,13 +8,31 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/amenity_identity_card_tooltip.dart';
 import '../../domain/entities/amenity.dart';
 
+/// بطاقة مرئية عالية التفاعل تعرض مرفقًا واحدًا مع إجراءات سريعة.
+/// High-interaction amenity card that presents one amenity with quick actions.
 class FuturisticAmenityCard extends StatefulWidget {
+  /// المرفق الذي تعرضه البطاقة.
+  /// Amenity instance rendered by the card.
   final Amenity amenity;
+
+  /// يستدعى عند النقر على البطاقة.
+  /// Called when the card is tapped.
   final VoidCallback? onTap;
+
+  /// يستدعى عند طلب تعديل المرفق.
+  /// Called when edit is requested for the amenity.
   final VoidCallback? onEdit;
+
+  /// يستدعى عند طلب حذف المرفق.
+  /// Called when delete is requested for the amenity.
   final VoidCallback? onDelete;
+
+  /// يستدعى عند الضغط المطول على البطاقة.
+  /// Called when the card is long-pressed.
   final VoidCallback? onLongPress;
 
+  /// ينشئ البطاقة مع المرفق وإجراءاتها الاختيارية.
+  /// Creates the card with the amenity and its optional actions.
   const FuturisticAmenityCard({
     super.key,
     required this.amenity,
@@ -24,31 +42,63 @@ class FuturisticAmenityCard extends StatefulWidget {
     this.onLongPress,
   });
 
+  /// ينشئ الحالة المسؤولة عن الحركة والتفاعل داخل البطاقة.
+  /// Creates the state that manages the card animation and interaction.
   @override
   State<FuturisticAmenityCard> createState() => _FuturisticAmenityCardState();
 }
 
+/// تدير هذه الحالة الحركات واللمعان والضغط المؤقت وعرض التلميح.
+/// Manages the motion, shimmer, pressed state, and tooltip presentation.
 class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
     with TickerProviderStateMixin {
-  // Animation Controllers
+  /// متحكم تكبير البطاقة عند المرور عليها.
+  /// Controls the hover scale animation for the card.
   late AnimationController _hoverController;
+
+  /// متحكم اللمعان المتكرر الذي يمر فوق البطاقة.
+  /// Controls the repeating shimmer sweep.
   late AnimationController _shimmerController;
+
+  /// متحكم النبض الخفيف للعناصر البصرية.
+  /// Controls the subtle pulse used by visual accents.
   late AnimationController _pulseController;
 
+  /// قيمة التحجيم الناتجة عن حالة المرور.
+  /// Scale animation value derived from hover state.
   late Animation<double> _hoverAnimation;
+
+  /// قيمة اللمعان المستخدمة في الخلفية الشفافة.
+  /// Shimmer value used for the translucent overlay.
   late Animation<double> _shimmerAnimation;
+
+  /// قيمة النبض المستخدمة في الزخارف العلوية.
+  /// Pulse value used for the decorative accents.
   late Animation<double> _pulseAnimation;
 
+  /// يحدد ما إذا كان المؤشر فوق البطاقة الآن.
+  /// Indicates whether the pointer is currently hovering over the card.
   bool _isHovered = false;
+
+  /// يحدد ما إذا كانت البطاقة مضغوطة مؤقتًا.
+  /// Indicates whether the card is temporarily pressed.
   bool _isPressed = false;
+
+  /// المفتاح المستخدم لربط التلميح بموقع البطاقة.
+  /// Global key used to anchor the tooltip to the card position.
   final GlobalKey _cardKey = GlobalKey();
 
+  /// يهيئ متحكمات الحركة عند إنشاء الحالة.
+  /// Initializes the animation controllers when the state is created.
   @override
   void initState() {
     super.initState();
+
     _initializeAnimations();
   }
 
+  /// يضبط جميع الحركات المستخدمة في البطاقة المتحركة.
+  /// Sets up all animations used by the futuristic card.
   void _initializeAnimations() {
     _hoverController = AnimationController(
       duration: const Duration(milliseconds: 200),
@@ -90,6 +140,8 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
     ));
   }
 
+  /// يحرر المتحكمات لتجنب التسرب عند إزالة البطاقة.
+  /// Disposes the controllers to avoid leaks when the card is removed.
   @override
   void dispose() {
     _hoverController.dispose();
@@ -98,6 +150,8 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
     super.dispose();
   }
 
+  /// يبني البطاقة كاملة مع الخلفية الزخرفية والحالة والإجراءات.
+  /// Builds the full card with decorative background, status, and actions.
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
@@ -132,34 +186,34 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
                     end: Alignment.bottomRight,
                     colors: _isHovered
                         ? [
-                            AppTheme.primaryPurple.withOpacity(0.15),
-                            AppTheme.primaryBlue.withOpacity(0.08),
-                            const Color(0xFF1A0E2E).withOpacity(0.1),
+                            AppTheme.primaryPurple.withValues(alpha: 0.15),
+                            AppTheme.primaryBlue.withValues(alpha: 0.08),
+                            const Color(0xFF1A0E2E).withValues(alpha: 0.1),
                           ]
                         : [
-                            AppTheme.darkCard.withOpacity(0.7),
-                            AppTheme.darkCard.withOpacity(0.5),
-                            AppTheme.darkCard.withOpacity(0.4),
+                            AppTheme.darkCard.withValues(alpha: 0.7),
+                            AppTheme.darkCard.withValues(alpha: 0.5),
+                            AppTheme.darkCard.withValues(alpha: 0.4),
                           ],
                   ),
                   borderRadius: BorderRadius.circular(16), // زوايا حادة هادئة
                   border: Border.all(
                     color: _isHovered
-                        ? AppTheme.primaryPurple.withOpacity(0.5)
-                        : AppTheme.darkBorder.withOpacity(0.3),
+                        ? AppTheme.primaryPurple.withValues(alpha: 0.5)
+                        : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1.5,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: _isHovered
-                          ? AppTheme.primaryPurple.withOpacity(0.3)
-                          : Colors.black.withOpacity(0.1),
+                          ? AppTheme.primaryPurple.withValues(alpha: 0.3)
+                          : Colors.black.withValues(alpha: 0.1),
                       blurRadius: _isHovered ? 25 : 15,
                       offset: const Offset(0, 8),
                     ),
                     if (_isHovered)
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.2),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                         blurRadius: 30,
                         spreadRadius: -5,
                         offset: const Offset(0, -5),
@@ -216,18 +270,24 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
     );
   }
 
+  /// يعرض التلميح التفصيلي للمرفق الحالي عند النقر.
+  /// Shows the detailed tooltip for the current amenity when tapped.
   void _handleTap() {
     HapticFeedback.lightImpact();
     _showAmenityTooltip();
     // عرض التفاصيل فقط بدون الانتقال إلى صفحة جديدة
   }
 
+  /// يعرض التلميح ثم ينفذ رد الضغط المطول الاختياري.
+  /// Shows the tooltip and then invokes the optional long-press callback.
   void _handleLongPress() {
     HapticFeedback.mediumImpact();
     _showAmenityTooltip();
     widget.onLongPress?.call();
   }
 
+  /// يفتح بطاقة التعريف المرتبطة بهذا المرفق.
+  /// Opens the identity tooltip anchored to this amenity card.
   void _showAmenityTooltip() {
     AmenityIdentityCardTooltip.show(
       context: context,
@@ -244,17 +304,21 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
     );
   }
 
+  /// يرسم طبقة خلفية زخرفية تظهر فقط أثناء التمرير.
+  /// Draws a decorative background layer that appears only on hover.
   Widget _buildBackgroundPattern() {
     return Positioned.fill(
       child: CustomPaint(
         painter: _PatternPainter(
           animation: _shimmerAnimation.value,
-          color: AppTheme.primaryPurple.withOpacity(0.03),
+          color: AppTheme.primaryPurple.withValues(alpha: 0.03),
         ),
       ),
     );
   }
 
+  /// يرسم طبقة لمعان متحركة فوق البطاقة أثناء التفاعل.
+  /// Draws an animated shimmer layer over the card during interaction.
   Widget _buildShimmerOverlay() {
     return Positioned.fill(
       child: AnimatedBuilder(
@@ -267,7 +331,7 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
                 end: Alignment.bottomRight,
                 colors: [
                   Colors.transparent,
-                  AppTheme.primaryPurple.withOpacity(0.05),
+                  AppTheme.primaryPurple.withValues(alpha: 0.05),
                   Colors.transparent,
                 ],
                 stops: [
@@ -285,6 +349,8 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
     );
   }
 
+  /// يبني رأس البطاقة الذي يجمع الأيقونة والاسم والمعرف والحالة.
+  /// Builds the card header with the icon, name, ID, and status badge.
   Widget _buildHeader() {
     return Row(
       children: [
@@ -303,18 +369,18 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppTheme.primaryPurple.withOpacity(0.2),
-                      AppTheme.primaryBlue.withOpacity(0.1),
+                      AppTheme.primaryPurple.withValues(alpha: 0.2),
+                      AppTheme.primaryBlue.withValues(alpha: 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(14), // زوايا حادة هادئة
                   border: Border.all(
-                    color: AppTheme.primaryPurple.withOpacity(0.3),
+                    color: AppTheme.primaryPurple.withValues(alpha: 0.3),
                     width: 1.5,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryPurple.withOpacity(0.2),
+                      color: AppTheme.primaryPurple.withValues(alpha: 0.2),
                       blurRadius: 15,
                       offset: const Offset(0, 3),
                     ),
@@ -350,10 +416,10 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryPurple.withOpacity(0.1),
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: AppTheme.primaryPurple.withOpacity(0.2),
+                    color: AppTheme.primaryPurple.withValues(alpha: 0.2),
                     width: 0.5,
                   ),
                 ),
@@ -377,6 +443,8 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
     );
   }
 
+  /// يبني شارة الحالة التي توضّح ما إذا كان المرفق نشطًا.
+  /// Builds the status badge that shows whether the amenity is active.
   Widget _buildStatusBadge() {
     final isActive = widget.amenity.isActive == true;
 
@@ -387,25 +455,25 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
         gradient: LinearGradient(
           colors: isActive
               ? [
-                  AppTheme.success.withOpacity(0.2),
-                  AppTheme.neonGreen.withOpacity(0.1),
+                  AppTheme.success.withValues(alpha: 0.2),
+                  AppTheme.neonGreen.withValues(alpha: 0.1),
                 ]
               : [
-                  AppTheme.textMuted.withOpacity(0.2),
-                  AppTheme.textMuted.withOpacity(0.1),
+                  AppTheme.textMuted.withValues(alpha: 0.2),
+                  AppTheme.textMuted.withValues(alpha: 0.1),
                 ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isActive
-              ? AppTheme.success.withOpacity(0.5)
-              : AppTheme.textMuted.withOpacity(0.3),
+              ? AppTheme.success.withValues(alpha: 0.5)
+              : AppTheme.textMuted.withValues(alpha: 0.3),
           width: 1,
         ),
         boxShadow: isActive
             ? [
                 BoxShadow(
-                  color: AppTheme.success.withOpacity(0.2),
+                  color: AppTheme.success.withValues(alpha: 0.2),
                   blurRadius: 10,
                   spreadRadius: 1,
                 ),
@@ -424,7 +492,7 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
               boxShadow: isActive
                   ? [
                       BoxShadow(
-                        color: AppTheme.success.withOpacity(0.5),
+                        color: AppTheme.success.withValues(alpha: 0.5),
                         blurRadius: 4,
                         spreadRadius: 1,
                       ),
@@ -446,14 +514,16 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
     );
   }
 
+  /// يبني وصفًا مختصرًا للمرفق داخل صندوق واضح القراءة.
+  /// Builds a short amenity description inside a readable box.
   Widget _buildDescription() {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.3),
+        color: AppTheme.darkSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -469,6 +539,8 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
     );
   }
 
+  /// يبني صف الإحصاءات السريع الذي يعرض العقارات والتكلفة.
+  /// Builds the quick stats row for properties count and cost.
   Widget _buildStatsGrid() {
     return Row(
       children: [
@@ -496,6 +568,8 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
     );
   }
 
+  /// يبني بطاقة إحصاء صغيرة تعرض قيمة مع رمز ولون محددين.
+  /// Builds a compact stat tile that shows a value with its icon and color.
   Widget _buildStatItem({
     required IconData icon,
     required String label,
@@ -507,13 +581,13 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            color.withOpacity(0.1),
-            color.withOpacity(0.05),
+            color.withValues(alpha: 0.1),
+            color.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -544,6 +618,8 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
     );
   }
 
+  /// يبني تذييل البطاقة الذي يعرض التاريخ وأزرار الإجراءات.
+  /// Builds the card footer with the creation date and action buttons.
   Widget _buildFooter() {
     return Row(
       children: [
@@ -593,6 +669,8 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
     );
   }
 
+  /// يبني زر إجراء صغيرًا مناسبًا للتعديل أو الحذف.
+  /// Builds a small action button suited for edit or delete actions.
   Widget _buildActionButton({
     required IconData icon,
     required Color color,
@@ -607,10 +685,10 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
         width: 32,
         height: 32,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -623,26 +701,40 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
     );
   }
 
+  /// يحول تاريخ الإنشاء إلى نص قصير مناسب للعرض داخل البطاقة.
+  /// Formats the creation date into a short card-friendly string.
   String _formatDate(DateTime? date) {
     if (date == null) return '--';
     return '${date.day}/${date.month}/${date.year}';
   }
 
+  /// يحول اسم الأيقونة النصي إلى أيقونة Material مناسبة للمرفق.
+  /// Converts the textual icon name into a matching Material icon.
   IconData _getAmenityIcon(String iconName) {
     return AmenityIcons.getIconByName(iconName)?.icon ?? Icons.star_rounded;
   }
 }
 
-// Custom Pattern Painter
+/// يرسم نمطًا سداسيًا خفيفًا يعزز العمق خلف البطاقة.
+/// Draws a subtle hexagon pattern that adds depth behind the card.
 class _PatternPainter extends CustomPainter {
+  /// قيمة الحركة التي تحدد إزاحة النمط السداسي.
+  /// Animation value that controls the hexagon pattern offset.
   final double animation;
+
+  /// لون النمط السداسي المستخدم في الخلفية.
+  /// Color used for the hexagon pattern.
   final Color color;
 
+  /// ينشئ الرسّام بقيمة الحركة واللون المطلوبين.
+  /// Creates the painter with the requested animation value and color.
   _PatternPainter({
     required this.animation,
     required this.color,
   });
 
+  /// يرسم النمط السداسي المتكرر على مساحة البطاقة.
+  /// Paints the repeating hexagon pattern across the card surface.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -665,6 +757,8 @@ class _PatternPainter extends CustomPainter {
     }
   }
 
+  /// يرسم سداسيًا واحدًا حول المركز المحدد بالحجم واللون الحاليين.
+  /// Draws a single hexagon around the given center with the current size and color.
   void _drawHexagon(Canvas canvas, Offset center, double radius, Paint paint) {
     final path = Path();
     for (int i = 0; i < 6; i++) {
@@ -683,5 +777,8 @@ class _PatternPainter extends CustomPainter {
   }
 
   @override
+
+  /// يعيد الرسم عندما تتغير قيمة الحركة أو اللون.
+  /// Repaints when the animation value or color changes.
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

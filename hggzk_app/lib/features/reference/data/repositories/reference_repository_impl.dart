@@ -7,14 +7,24 @@ import '../../domain/repositories/reference_repository.dart';
 import '../datasources/reference_local_datasource.dart';
 import '../datasources/reference_remote_datasource.dart';
 
+/// Provides repository behavior for `ReferenceRepositoryImpl`.
+/// العربية: يوفر سلوك المستودع الخاص بـ `ReferenceRepositoryImpl`.
 class ReferenceRepositoryImpl implements ReferenceRepository {
+  /// Keeps the `remote` value.
+  /// العربية: يخزن القيمة `remote`.
   final ReferenceRemoteDataSource remote;
+
+  /// Keeps the `local` value.
+  /// العربية: يخزن القيمة `local`.
   final ReferenceLocalDataSource local;
 
+  /// Builds a new `ReferenceRepositoryImpl` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReferenceRepositoryImpl`.
   ReferenceRepositoryImpl({required this.remote, required this.local});
 
   @override
-  Future<Either<Failure, List<domain.City>>> getCities({bool forceRefresh = false}) async {
+  Future<Either<Failure, List<domain.City>>> getCities(
+      {bool forceRefresh = false}) async {
     try {
       if (!forceRefresh && local.isCitiesCacheFresh()) {
         final cached = local.getCachedCities();
@@ -35,7 +45,8 @@ class ReferenceRepositoryImpl implements ReferenceRepository {
   }
 
   @override
-  Future<Either<Failure, List<domain.Currency>>> getCurrencies({bool forceRefresh = false}) async {
+  Future<Either<Failure, List<domain.Currency>>> getCurrencies(
+      {bool forceRefresh = false}) async {
     try {
       if (!forceRefresh && local.isCurrenciesCacheFresh()) {
         final cached = local.getCachedCurrencies();
@@ -55,4 +66,3 @@ class ReferenceRepositoryImpl implements ReferenceRepository {
     }
   }
 }
-

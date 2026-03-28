@@ -12,27 +12,62 @@ import '../bloc/settings_bloc.dart';
 import '../bloc/settings_event.dart';
 import '../bloc/settings_state.dart';
 
+/// تعرض شاشة اختيار اللغة وتطبيقها مباشرة على إعدادات التطبيق.
+/// Presents the language-selection screen and applies the chosen language to
+/// app settings.
 class LanguageSettingsPage extends StatefulWidget {
+  /// ينشئ شاشة إعدادات اللغة.
+  /// Creates the language settings page.
   const LanguageSettingsPage({super.key});
 
+  /// ينشئ حالة الصفحة المسؤولة عن الحركة والاختيار والتفاعل.
+  /// Creates the page state that handles animation, selection, and feedback.
   @override
   State<LanguageSettingsPage> createState() => _LanguageSettingsPageState();
 }
 
+/// يدير تفاعل صفحة اللغة، بدءًا من التحريك البصري وحتى تحديث الاختيار.
+/// Manages the language page interaction, from motion to selection updates.
 class _LanguageSettingsPageState extends State<LanguageSettingsPage>
     with TickerProviderStateMixin {
+  /// يتحكم في ظهور الصفحة تدريجيًا عند فتحها.
+  /// Controls the page fade-in when it first appears.
   late AnimationController _fadeController;
+
+  /// يحرك المحتوى بخفة من الأسفل إلى الأعلى.
+  /// Drives the subtle upward slide for the content.
   late AnimationController _slideController;
+
+  /// يضيف نبضًا بصريًا خفيفًا إلى الخلفية.
+  /// Adds a subtle pulsing motion to the background.
   late AnimationController _pulseController;
+
+  /// يحرّك تمييز البطاقة المختارة عند تبديل اللغة.
+  /// Animates the selected-card highlight when switching languages.
   late AnimationController _selectionController;
-  
+
+  /// قيمة التلاشي المستخدمة في انتقال الصفحة.
+  /// Fade animation used by the page transition.
   late Animation<double> _fadeAnimation;
+
+  /// إزاحة الحركة المستخدمة لرفع المحتوى برفق.
+  /// Slide animation used to lift the content gently.
   late Animation<Offset> _slideAnimation;
+
+  /// قيمة النبض الخلفي المستخدم في الرسم.
+  /// Pulse animation value used by the background painter.
   late Animation<double> _pulseAnimation;
+
+  /// قيمة الانتقال المستخدمة لتفعيل تأثير التحديد.
+  /// Selection animation value used to activate the highlight effect.
   late Animation<double> _selectionAnimation;
-  
+
+  /// اللغة المحددة حاليًا داخل الصفحة قبل حفظها في الإعدادات.
+  /// Currently selected language inside the page before persistence.
   String? _selectedLanguage;
-  
+
+  /// خيارات اللغة المعروضة للمستخدم داخل الواجهة.
+  /// Language options shown to the user in the UI.
   final List<_UltraMinimalLanguage> _languages = [
     _UltraMinimalLanguage(
       code: 'ar',
@@ -50,39 +85,43 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
     ),
   ];
 
+  /// يهيئ المتحكمات الحركية ويبدأ الانتقالات الأولى للصفحة.
+  /// Initializes animation controllers and starts the first page transitions.
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
     _loadCurrentLanguage();
   }
-  
+
+  /// ينشئ جميع الحركات المستخدمة في الخلفية والبطاقات والتنبيهات.
+  /// Builds all animations used by the background, cards, and feedback.
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    
+
     _pulseController = AnimationController(
       duration: const Duration(seconds: 3),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _selectionController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _fadeAnimation = CurvedAnimation(
       parent: _fadeController,
       curve: Curves.easeOut,
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.03),
       end: Offset.zero,
@@ -90,7 +129,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       parent: _slideController,
       curve: Curves.easeOutCubic,
     ));
-    
+
     _pulseAnimation = Tween<double>(
       begin: 0.95,
       end: 1.0,
@@ -98,21 +137,23 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       parent: _pulseController,
       curve: Curves.easeInOut,
     ));
-    
+
     _selectionAnimation = CurvedAnimation(
       parent: _selectionController,
       curve: Curves.easeOutCubic,
     );
-    
+
     _fadeController.forward();
     _slideController.forward();
   }
-  
+
+  /// يقرأ اللغة المحفوظة من SettingsBloc ليعرض الاختيار الحالي بدقة.
+  /// Reads the saved language from SettingsBloc so the current selection is accurate.
   void _loadCurrentLanguage() {
     final state = context.read<SettingsBloc>().state;
     if (state is SettingsLoaded || state is SettingsUpdated) {
-      final settings = (state is SettingsLoaded) 
-          ? state.settings 
+      final settings = (state is SettingsLoaded)
+          ? state.settings
           : (state as SettingsUpdated).settings;
       setState(() {
         _selectedLanguage = settings.preferredLanguage;
@@ -120,6 +161,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
     }
   }
 
+  /// يحرر متحكمات الحركة حتى لا تبقى موارد معلقّة بعد مغادرة الصفحة.
+  /// Disposes animation controllers to avoid dangling resources after leaving the page.
   @override
   void dispose() {
     _fadeController.dispose();
@@ -129,6 +172,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
     super.dispose();
   }
 
+  /// يبني الصفحة الكاملة بخلفية زخرفية ومحتوى قابل للتمرير.
+  /// Builds the full page with a decorative background and scrollable content.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,7 +182,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
         children: [
           // Ultra minimal gradient background
           _buildUltraMinimalBackground(),
-          
+
           // Main content
           SafeArea(
             child: Column(
@@ -159,7 +204,9 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       ),
     );
   }
-  
+
+  /// يرسم خلفية خفيفة جدًا تعتمد على تدرج ونقاط ضوئية متحركة.
+  /// Renders a very subtle background using a gradient and animated light orbs.
   Widget _buildUltraMinimalBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -185,7 +232,9 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       ),
     );
   }
-  
+
+  /// يبني رأس الصفحة الذي يوضح العنوان ويوفر زر الرجوع والأيقونة.
+  /// Builds the page header with title, back button, and language icon.
   Widget _buildUltraMinimalHeader() {
     return Container(
       height: 56,
@@ -194,9 +243,9 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
         children: [
           // Back button
           _buildMinimalBackButton(),
-          
+
           const SizedBox(width: 16),
-          
+
           // Title
           Expanded(
             child: Column(
@@ -222,7 +271,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
               ],
             ),
           ),
-          
+
           // Language icon
           Container(
             width: 32,
@@ -246,7 +295,9 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       ),
     );
   }
-  
+
+  /// يبني زر الرجوع الذي يغلق الصفحة مع اهتزاز لمسي خفيف.
+  /// Builds the back button that closes the page with a light haptic cue.
   Widget _buildMinimalBackButton() {
     return GestureDetector(
       onTap: () {
@@ -272,15 +323,17 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       ),
     );
   }
-  
+
+  /// يبني المحتوى الرئيسي ويقرأ الحالة من SettingsBloc ليعكس الاختيار الحالي.
+  /// Builds the main content and reads SettingsBloc to reflect the active choice.
   Widget _buildContent() {
     return BlocBuilder<SettingsBloc, SettingsState>(
       builder: (context, state) {
         String currentLanguage = 'ar';
-        
+
         if (state is SettingsLoaded || state is SettingsUpdated) {
-          final settings = (state is SettingsLoaded) 
-              ? state.settings 
+          final settings = (state is SettingsLoaded)
+              ? state.settings
               : (state as SettingsUpdated).settings;
           currentLanguage = settings.preferredLanguage;
         }
@@ -290,12 +343,12 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
           child: Column(
             children: [
               const SizedBox(height: 32),
-              
+
               // Language cards
               ...List.generate(_languages.length, (index) {
                 final language = _languages[index];
                 final isSelected = language.code == currentLanguage;
-                
+
                 return TweenAnimationBuilder<double>(
                   key: ValueKey(language.code),
                   tween: Tween(begin: 0, end: 1),
@@ -316,9 +369,9 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                   },
                 );
               }),
-              
+
               const SizedBox(height: 40),
-              
+
               // Info section
               _buildInfoSection(currentLanguage),
             ],
@@ -327,7 +380,9 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       },
     );
   }
-  
+
+  /// يبني بطاقة لغة واحدة مع حالة تحديد وتغذية لمسية وانتقال بصري.
+  /// Builds one language card with selected state, haptics, and visual transition.
   Widget _buildUltraMinimalLanguageCard({
     required _UltraMinimalLanguage language,
     required bool isSelected,
@@ -356,9 +411,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                   ],
                 )
               : null,
-          color: !isSelected 
-              ? AppTheme.darkCard.withOpacity(0.03)
-              : null,
+          color: !isSelected ? AppTheme.darkCard.withOpacity(0.03) : null,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected
@@ -383,9 +436,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                         ],
                       )
                     : null,
-                color: !isSelected
-                    ? AppTheme.darkCard.withOpacity(0.05)
-                    : null,
+                color: !isSelected ? AppTheme.darkCard.withOpacity(0.05) : null,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: isSelected
@@ -403,9 +454,9 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                 ),
               ),
             ),
-            
+
             const SizedBox(width: 14),
-            
+
             // Language info
             Expanded(
               child: Column(
@@ -417,7 +468,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                         language.name,
                         style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 14,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.w500,
                           color: isSelected
                               ? AppTheme.primaryBlue.withOpacity(0.9)
                               : AppTheme.textWhite.withOpacity(0.8),
@@ -459,7 +511,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                 ],
               ),
             ),
-            
+
             // Selection indicator
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
@@ -495,7 +547,9 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       ),
     );
   }
-  
+
+  /// يبني قسمًا توضيحيًا يشرح أثر تغيير اللغة للمستخدم.
+  /// Builds an informational block that explains what language changes affect.
   Widget _buildInfoSection(String currentLanguage) {
     return AnimatedBuilder(
       animation: _pulseAnimation,
@@ -536,9 +590,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      currentLanguage == 'ar' 
-                          ? 'معلومة'
-                          : 'Info',
+                      currentLanguage == 'ar' ? 'معلومة' : 'Info',
                       style: AppTextStyles.caption.copyWith(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -564,49 +616,72 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       },
     );
   }
-  
+
+  /// يرسل حدث تغيير اللغة إلى SettingsBloc ثم يعرض رسالة تأكيد قصيرة.
+  /// Dispatches the language change event to SettingsBloc and then shows a short confirmation.
   void _selectLanguage(String languageCode) {
     context.read<SettingsBloc>().add(UpdateLanguageEvent(languageCode));
-    
+
     _showUltraMinimalSnackBar(languageCode);
   }
-  
+
+  /// يعرض رسالة نجاح عابرة تؤكد اللغة الجديدة بعد التبديل.
+  /// Shows a transient success message confirming the new language choice.
   void _showUltraMinimalSnackBar(String languageCode) {
     HapticFeedback.mediumImpact();
-    
+
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
       builder: (context) => _UltraMinimalSnackBar(
         languageCode: languageCode,
       ),
     );
-    
+
     overlay.insert(overlayEntry);
-    
+
     Future.delayed(const Duration(seconds: 2), () {
       overlayEntry.remove();
     });
   }
 }
 
-// Ultra Minimal Snackbar
+/// شريط تأكيد عابر يعرض نجاح تغيير اللغة بأسلوب خفيف ومركّز.
+/// Transient confirmation bar that highlights a successful language change.
 class _UltraMinimalSnackBar extends StatefulWidget {
+  /// رمز اللغة الذي يحدد نص الرسالة المعروضة.
+  /// Language code that determines the displayed message.
   final String languageCode;
 
+  /// ينشئ شريط التأكيد العابر المرتبط بالرمز اللغوي الحالي.
+  /// Creates the transient confirmation bar for the current language code.
   const _UltraMinimalSnackBar({
     required this.languageCode,
   });
 
+  /// ينشئ حالة الشريط المؤقت مع حركة الدخول والخروج.
+  /// Creates the transient snackbar state with entrance and exit motion.
   @override
   State<_UltraMinimalSnackBar> createState() => _UltraMinimalSnackBarState();
 }
 
+/// يدير حركة ظهور واختفاء الشريط المؤقت.
+/// Manages the show and hide animation for the transient snackbar.
 class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
     with SingleTickerProviderStateMixin {
+  /// يتحكم في دورة دخول وخروج الشريط المؤقت.
+  /// Drives the snackbar's show and hide cycle.
   late AnimationController _controller;
+
+  /// يضبط الشفافية أثناء الحركة.
+  /// Controls opacity during the motion.
   late Animation<double> _fadeAnimation;
+
+  /// يحرّك الشريط من الأسفل إلى موضعه النهائي.
+  /// Slides the snackbar upward into place.
   late Animation<Offset> _slideAnimation;
 
+  /// يهيئ الحركة ويشغل الإظهار الأولي ثم يبدأ الإخفاء المؤجل.
+  /// Sets up the animation and starts the delayed hide sequence.
   @override
   void initState() {
     super.initState();
@@ -614,12 +689,12 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _fadeAnimation = CurvedAnimation(
       parent: _controller,
       curve: Curves.easeOut,
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 1),
       end: Offset.zero,
@@ -627,9 +702,9 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
       parent: _controller,
       curve: Curves.easeOutCubic,
     ));
-    
+
     _controller.forward();
-    
+
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (mounted) {
         _controller.reverse();
@@ -637,16 +712,20 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
     });
   }
 
+  /// يحرر متحكم الحركة بعد انتهاء عرض الشريط.
+  /// Disposes the animation controller once the snackbar is removed.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// يبني الشريط المؤقت مع رسالة مناسبة بحسب اللغة المختارة.
+  /// Builds the transient snackbar with a message that matches the selected language.
   @override
   Widget build(BuildContext context) {
     final isArabic = widget.languageCode == 'ar';
-    
+
     return Positioned(
       bottom: 100,
       left: 20,
@@ -723,14 +802,31 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
   }
 }
 
-// Language Model
+/// نموذج صغير يصف لغة واحدة مع بيانات العرض الخاصة بها.
+/// Small model describing one language and its display metadata.
 class _UltraMinimalLanguage {
+  /// رمز اللغة المستخدم للحفظ والمقارنة.
+  /// Language code used for persistence and comparison.
   final String code;
+
+  /// الاسم الظاهر للمستخدم داخل البطاقة.
+  /// Display name shown to the user in the card.
   final String name;
+
+  /// تسمية ثانوية توضح الاسم بلغته الأخرى.
+  /// Secondary label that clarifies the language in the alternate script.
   final String subtitle;
+
+  /// الرمز المرئي أو العلم المستخدم في البطاقة.
+  /// Visual icon or flag displayed in the card.
   final String icon;
+
+  /// اتجاه الكتابة المرتبط باللغة.
+  /// Writing direction associated with the language.
   final String direction;
 
+  /// ينشئ وصف اللغة المصغّر المستخدم داخل البطاقات.
+  /// Creates the compact language descriptor used in cards.
   const _UltraMinimalLanguage({
     required this.code,
     required this.name,
@@ -740,14 +836,21 @@ class _UltraMinimalLanguage {
   });
 }
 
-// Ultra Subtle Background Painter
+/// رسّام خلفية خفيف جدًا يضيف نقطتين ضوئيتين دون تشويش على المحتوى.
+/// Very subtle background painter that adds two light orbs without distracting from the content.
 class _UltraSubtleBackgroundPainter extends CustomPainter {
+  /// مقدار النبض المستخدم لتقوية أو تهدئة الوهج.
+  /// Pulse amount used to strengthen or soften the glow.
   final double pulseAnimation;
 
+  /// ينشئ الرسّام مع قيمة النبض الحالية.
+  /// Creates the painter with the current pulse value.
   _UltraSubtleBackgroundPainter({
     required this.pulseAnimation,
   });
 
+  /// يرسم الوهج الخلفي الهادئ الذي يحدد هوية الصفحة.
+  /// Paints the quiet background glow that gives the page its identity.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -759,7 +862,7 @@ class _UltraSubtleBackgroundPainter extends CustomPainter {
       size.width * 0.8,
       size.height * 0.2,
     );
-    
+
     paint.shader = RadialGradient(
       colors: [
         AppTheme.primaryBlue.withOpacity(0.02 * pulseAnimation),
@@ -767,25 +870,27 @@ class _UltraSubtleBackgroundPainter extends CustomPainter {
       ],
       stops: const [0.0, 1.0],
     ).createShader(Rect.fromCircle(center: center, radius: 200));
-    
+
     canvas.drawCircle(center, 200, paint);
-    
+
     // Second subtle orb
     final center2 = Offset(
       size.width * 0.2,
       size.height * 0.7,
     );
-    
+
     paint.shader = RadialGradient(
       colors: [
         AppTheme.primaryPurple.withOpacity(0.01 * pulseAnimation),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(center: center2, radius: 150));
-    
+
     canvas.drawCircle(center2, 150, paint);
   }
 
+  /// يعيد الرسم دائمًا لأن النبض يتغير باستمرار.
+  /// Always repaints because the pulse value changes continuously.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

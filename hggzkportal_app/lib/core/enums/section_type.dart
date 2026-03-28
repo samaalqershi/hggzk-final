@@ -1,14 +1,18 @@
 // lib/core/enums/section_ui_type.dart
 
-/// UI Types for sections - defines which widget to use in client app
+/// يحدد نمط العرض الذي يستخدمه العميل عند رسم القسم.
+/// Defines the section rendering style used by the client app.
 enum SectionTypeEnum {
   grid,
   bigCards,
   list,
 }
 
+/// يربط نوع القسم المحلي بالقيم النصية والرقمية التي يستهلكها الخادم والواجهة.
+/// Maps the local section type to the string and numeric values used by the backend and UI.
 extension SectionUITypeExtension on SectionTypeEnum {
-  /// القيمة النصية للعرض والاستلام من API
+  /// يعيد القيمة النصية التي يرسلها الخادم ويعرضها العميل.
+  /// Returns the string token exchanged with the API and UI.
   String get value {
     switch (this) {
       case SectionTypeEnum.grid:
@@ -20,8 +24,8 @@ extension SectionUITypeExtension on SectionTypeEnum {
     }
   }
 
-  /// ✅ القيمة الرقمية للإرسال إلى الـ Backend (C# enum)
-  /// Grid = 0, BigCards = 1, List = 2
+  /// يعيد القيمة الرقمية التي يرسلها الخادم عند تمثيل هذا النمط.
+  /// Returns the numeric backend value used for this section type.
   int get apiValue {
     switch (this) {
       case SectionTypeEnum.grid:
@@ -33,6 +37,8 @@ extension SectionUITypeExtension on SectionTypeEnum {
     }
   }
 
+  /// يعيد اسمًا عربيًا/إنجليزيًا مختصرًا يفيد في الواجهات وملفات السجل.
+  /// Returns a compact Arabic/English display name for UI surfaces and logs.
   String get displayName {
     switch (this) {
       case SectionTypeEnum.grid:
@@ -44,12 +50,13 @@ extension SectionUITypeExtension on SectionTypeEnum {
     }
   }
 
+  /// يحاول تحويل النص أو القيمة المختصرة إلى نوع القسم المحلي المقابل.
+  /// Attempts to parse a string or shorthand into the matching local section type.
   static SectionTypeEnum? tryFromString(String? value) {
     if (value == null) return null;
     for (final type in SectionTypeEnum.values) {
       if (type.value == value) return type;
     }
-    // ✅ محاولة التحويل من رقم أو اسم Enum
     switch (value.toLowerCase()) {
       case '0':
       case 'grid':

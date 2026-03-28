@@ -9,7 +9,9 @@ import '../../../admin_properties/domain/entities/property.dart';
 import '../../../helpers/presentation/pages/property_search_page.dart';
 
 class PolicyFiltersWidget extends StatefulWidget {
+  /// العربية: يعالج `Function`.
   final Function(String?, PolicyType?)? onFilterChanged;
+
   final bool showPropertyFilter;
 
   const PolicyFiltersWidget({
@@ -23,10 +25,14 @@ class PolicyFiltersWidget extends StatefulWidget {
 }
 
 class _PolicyFiltersWidgetState extends State<PolicyFiltersWidget> {
+  /// العربية: يخزن القيمة `selectedType`.
   PolicyType? _selectedType;
+
   String? _selectedPropertyId;
+
   String? _selectedPropertyName;
   final _storage = GetIt.I<LocalStorageService>();
+
   bool _isAdmin = false;
 
   @override

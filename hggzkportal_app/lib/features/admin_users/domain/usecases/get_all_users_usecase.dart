@@ -6,13 +6,15 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/user.dart';
 import '../repositories/users_repository.dart';
 
-class GetAllUsersUseCase implements UseCase<PaginatedResult<User>, GetAllUsersParams> {
+class GetAllUsersUseCase
+    implements UseCase<PaginatedResult<User>, GetAllUsersParams> {
   final UsersRepository repository;
 
   GetAllUsersUseCase(this.repository);
 
   @override
-  Future<Either<Failure, PaginatedResult<User>>> call(GetAllUsersParams params) {
+  Future<Either<Failure, PaginatedResult<User>>> call(
+      GetAllUsersParams params) {
     return repository.getAllUsers(
       pageNumber: params.pageNumber,
       pageSize: params.pageSize,
@@ -32,16 +34,27 @@ class GetAllUsersUseCase implements UseCase<PaginatedResult<User>, GetAllUsersPa
 
 class GetAllUsersParams extends Equatable {
   final int? pageNumber;
+
   final int? pageSize;
+
   final String? searchTerm;
+
   final String? sortBy;
+
   final bool? isAscending;
+
   final String? roleId;
+
   final bool? isActive;
+
   final DateTime? createdAfter;
+
   final DateTime? createdBefore;
+
   final DateTime? lastLoginAfter;
+
   final String? loyaltyTier;
+
   final double? minTotalSpent;
 
   const GetAllUsersParams({

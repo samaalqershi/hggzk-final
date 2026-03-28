@@ -3,6 +3,7 @@ import '../../../../core/models/paginated_result.dart';
 import '../../domain/entities/policy.dart';
 
 abstract class PoliciesState extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `PoliciesState`.
   const PoliciesState();
 
   @override
@@ -11,21 +12,29 @@ abstract class PoliciesState extends Equatable {
 
 /// الحالة الأولية
 class PoliciesInitial extends PoliciesState {
+  /// العربية: ينشئ مثيلًا جديدًا من `PoliciesInitial`.
   const PoliciesInitial();
 }
 
 /// جاري التحميل
 class PoliciesLoading extends PoliciesState {
+  /// العربية: ينشئ مثيلًا جديدًا من `PoliciesLoading`.
   const PoliciesLoading();
 }
 
 /// تم تحميل السياسات بنجاح
 class PoliciesLoaded extends PoliciesState {
+  /// العربية: يخزن القيمة `policies`.
   final PaginatedResult<Policy> policies;
+
   final String? searchTerm;
+
   final String? propertyId;
+
   final PolicyType? policyType;
+
   final Policy? selectedPolicy;
+
   final PolicyStats? stats;
 
   const PoliciesLoaded({
@@ -51,7 +60,8 @@ class PoliciesLoaded extends PoliciesState {
       searchTerm: searchTerm ?? this.searchTerm,
       propertyId: propertyId ?? this.propertyId,
       policyType: policyType ?? this.policyType,
-      selectedPolicy: clearSelectedPolicy ? null : (selectedPolicy ?? this.selectedPolicy),
+      selectedPolicy:
+          clearSelectedPolicy ? null : (selectedPolicy ?? this.selectedPolicy),
       stats: stats ?? this.stats,
     );
   }
@@ -69,6 +79,7 @@ class PoliciesLoaded extends PoliciesState {
 
 /// خطأ في تحميل السياسات
 class PoliciesError extends PoliciesState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
 
   const PoliciesError({required this.message});
@@ -79,7 +90,9 @@ class PoliciesError extends PoliciesState {
 
 /// جاري تنفيذ عملية على سياسة
 class PolicyOperationInProgress extends PoliciesState {
+  /// العربية: يخزن القيمة `operation`.
   final String operation;
+
   final String? policyId;
 
   const PolicyOperationInProgress({
@@ -93,7 +106,9 @@ class PolicyOperationInProgress extends PoliciesState {
 
 /// نجاح عملية على سياسة
 class PolicyOperationSuccess extends PoliciesState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
+
   final String? policyId;
 
   const PolicyOperationSuccess({
@@ -107,7 +122,9 @@ class PolicyOperationSuccess extends PoliciesState {
 
 /// فشل عملية على سياسة
 class PolicyOperationFailure extends PoliciesState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
+
   final String? policyId;
 
   const PolicyOperationFailure({
@@ -121,7 +138,9 @@ class PolicyOperationFailure extends PoliciesState {
 
 /// تم تحميل سياسات عقار معين
 class PolicyByPropertyLoaded extends PoliciesState {
+  /// العربية: يخزن القيمة `policies`.
   final List<Policy> policies;
+
   final String propertyId;
 
   const PolicyByPropertyLoaded({
@@ -135,6 +154,7 @@ class PolicyByPropertyLoaded extends PoliciesState {
 
 /// تم تحميل سياسة واحدة
 class PolicyDetailsLoaded extends PoliciesState {
+  /// العربية: يخزن القيمة `policy`.
   final Policy policy;
 
   const PolicyDetailsLoaded({required this.policy});

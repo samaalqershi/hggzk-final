@@ -4,27 +4,53 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// يعرّف الكلاس `UploadProgressOverlay`.
+/// Describes the `UploadProgressOverlay` class.
 class UploadProgressOverlay extends StatefulWidget {
+  /// Holds the `tasks` value.
+  /// العربية: يخزن القيمة `tasks`.
   final List<UploadTask> tasks;
+
+  /// يخزن العضو `onCancel`.
+  /// Holds the `onCancel` member.
   final VoidCallback? onCancel;
 
+  /// ينشئ مثيلاً من `UploadProgressOverlay`.
+  /// Builds an instance of `UploadProgressOverlay`.
   const UploadProgressOverlay({
     super.key,
     required this.tasks,
     this.onCancel,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<UploadProgressOverlay> createState() => _UploadProgressOverlayState();
 }
 
+/// يعرّف الكلاس `_UploadProgressOverlayState`.
+/// Describes the `_UploadProgressOverlayState` class.
 class _UploadProgressOverlayState extends State<UploadProgressOverlay>
     with TickerProviderStateMixin {
+  /// يخزن العضو `_slideController`.
+  /// Holds the `_slideController` member.
   late AnimationController _slideController;
+
+  /// يخزن العضو `_pulseController`.
+  /// Holds the `_pulseController` member.
   late AnimationController _pulseController;
+
+  /// يخزن العضو `_slideAnimation`.
+  /// Holds the `_slideAnimation` member.
   late Animation<Offset> _slideAnimation;
+
+  /// يخزن العضو `_pulseAnimation`.
+  /// Holds the `_pulseAnimation` member.
   late Animation<double> _pulseAnimation;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -58,6 +84,8 @@ class _UploadProgressOverlayState extends State<UploadProgressOverlay>
     _slideController.forward();
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _slideController.dispose();
@@ -65,10 +93,11 @@ class _UploadProgressOverlayState extends State<UploadProgressOverlay>
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     final completedTasks = widget.tasks.where((t) => t.isCompleted).length;
-    final failedTasks = widget.tasks.where((t) => t.isFailed).length;
     final totalProgress = widget.tasks.fold<double>(
           0,
           (sum, task) => sum + task.progress,
@@ -197,6 +226,8 @@ class _UploadProgressOverlayState extends State<UploadProgressOverlay>
     );
   }
 
+  /// ينفذ العملية `_buildOverallProgress`.
+  /// Runs the `_buildOverallProgress` operation.
   Widget _buildOverallProgress(double progress) {
     return Container(
       height: 4,
@@ -217,6 +248,8 @@ class _UploadProgressOverlayState extends State<UploadProgressOverlay>
     );
   }
 
+  /// ينفذ العملية `_buildTaskProgress`.
+  /// Runs the `_buildTaskProgress` operation.
   Widget _buildTaskProgress(UploadTask task) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -328,15 +361,39 @@ class _UploadProgressOverlayState extends State<UploadProgressOverlay>
   }
 }
 
+/// يعرّف الكلاس `UploadTask`.
+/// Describes the `UploadTask` class.
 class UploadTask {
+  /// Holds the `id` value.
+  /// العربية: يخزن القيمة `id`.
   final String id;
+
+  /// يخزن العضو `fileName`.
+  /// Holds the `fileName` member.
   final String fileName;
+
+  /// يخزن العضو `thumbnail`.
+  /// Holds the `thumbnail` member.
   final File? thumbnail;
+
+  /// يخزن العضو `progress`.
+  /// Holds the `progress` member.
   double progress;
+
+  /// يخزن العضو `isCompleted`.
+  /// Holds the `isCompleted` member.
   bool isCompleted;
+
+  /// يخزن العضو `isFailed`.
+  /// Holds the `isFailed` member.
   bool isFailed;
+
+  /// يخزن العضو `error`.
+  /// Holds the `error` member.
   String? error;
 
+  /// ينشئ مثيلاً من `UploadTask`.
+  /// Builds an instance of `UploadTask`.
   UploadTask({
     required this.id,
     required this.fileName,

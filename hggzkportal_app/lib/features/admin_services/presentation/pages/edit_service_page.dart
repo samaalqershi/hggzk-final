@@ -21,21 +21,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 class EditServicePage extends StatefulWidget {
+  /// العربية: يخزن القيمة `serviceId`.
   final String serviceId;
   final svc_entity.Service? initialService;
-
   const EditServicePage({
     super.key,
     required this.serviceId,
     this.initialService,
   });
-
   @override
   State<EditServicePage> createState() => _EditServicePageState();
 }
-
 class _EditServicePageState extends State<EditServicePage>
     with TickerProviderStateMixin {
   // Controllers
@@ -64,14 +61,12 @@ class _EditServicePageState extends State<EditServicePage>
   svc_entity.Service? _originalService;
   bool _isDataLoaded = false;
   bool _hasChanges = false;
-
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
     _prefillOrLoad();
   }
-
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -112,7 +107,6 @@ class _EditServicePageState extends State<EditServicePage>
       curve: Curves.linear,
     ));
   }
-
   void _prefillOrLoad() {
     final initial = widget.initialService;
     if (initial != null) {
@@ -123,7 +117,6 @@ class _EditServicePageState extends State<EditServicePage>
           .add(LoadServiceDetailsEvent(widget.serviceId));
     }
   }
-
   void _populateFormWithServiceData(svc_entity.Service service) {
     if (_isDataLoaded) return;
 
@@ -151,7 +144,6 @@ class _EditServicePageState extends State<EditServicePage>
       }
     });
   }
-
   @override
   void dispose() {
     _animationController.dispose();
@@ -161,11 +153,15 @@ class _EditServicePageState extends State<EditServicePage>
     _amountController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (!didPop && await _onWillPop() && mounted) {
+          context.pop();
+        }
+      },
       child: BlocListener<ServicesBloc, ServicesState>(
         listener: (context, state) {
           if (state is ServiceOperationSuccess) {
@@ -223,7 +219,6 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
-
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: _glowController,
@@ -235,8 +230,8 @@ class _EditServicePageState extends State<EditServicePage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -250,7 +245,6 @@ class _EditServicePageState extends State<EditServicePage>
       },
     );
   }
-
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -270,14 +264,14 @@ class _EditServicePageState extends State<EditServicePage>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppTheme.primaryBlue.withOpacity(0.3),
-                        AppTheme.primaryPurple.withOpacity(0.2),
-                        AppTheme.primaryViolet.withOpacity(0.1),
+                        AppTheme.primaryBlue.withValues(alpha: 0.3),
+                        AppTheme.primaryPurple.withValues(alpha: 0.2),
+                        AppTheme.primaryViolet.withValues(alpha: 0.1),
                       ],
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                         blurRadius: 30,
                         spreadRadius: 10,
                       ),
@@ -327,20 +321,19 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
-
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -356,13 +349,13 @@ class _EditServicePageState extends State<EditServicePage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -400,10 +393,10 @@ class _EditServicePageState extends State<EditServicePage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.warning.withOpacity(0.2),
+                          color: AppTheme.warning.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppTheme.warning.withOpacity(0.5),
+                            color: AppTheme.warning.withValues(alpha: 0.5),
                             width: 1,
                           ),
                         ),
@@ -436,10 +429,10 @@ class _EditServicePageState extends State<EditServicePage>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.error.withOpacity(0.1),
+                  color: AppTheme.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.error.withOpacity(0.3),
+                    color: AppTheme.error.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -454,7 +447,6 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
-
   Widget _buildProgressIndicator() {
     final steps = [
       'المعلومات الأساسية',
@@ -482,23 +474,23 @@ class _EditServicePageState extends State<EditServicePage>
                   decoration: BoxDecoration(
                     gradient: isActive ? AppTheme.primaryGradient : null,
                     color: !isActive
-                        ? AppTheme.darkSurface.withOpacity(0.5)
+                        ? AppTheme.darkSurface.withValues(alpha: 0.5)
                         : null,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isModified
-                          ? AppTheme.warning.withOpacity(0.5)
+                          ? AppTheme.warning.withValues(alpha: 0.5)
                           : isActive
-                              ? AppTheme.primaryBlue.withOpacity(0.5)
-                              : AppTheme.darkBorder.withOpacity(0.3),
+                              ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                              : AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: isModified ? 2 : 1,
                     ),
                     boxShadow: isActive
                         ? [
                             BoxShadow(
                               color: isModified
-                                  ? AppTheme.warning.withOpacity(0.3)
-                                  : AppTheme.primaryBlue.withOpacity(0.3),
+                                  ? AppTheme.warning.withValues(alpha: 0.3)
+                                  : AppTheme.primaryBlue.withValues(alpha: 0.3),
                               blurRadius: 10,
                             ),
                           ]
@@ -535,12 +527,12 @@ class _EditServicePageState extends State<EditServicePage>
                             ? isModified
                                 ? LinearGradient(colors: [
                                     AppTheme.warning,
-                                    AppTheme.warning.withOpacity(0.5)
+                                    AppTheme.warning.withValues(alpha: 0.5)
                                   ])
                                 : AppTheme.primaryGradient
                             : null,
                         color: !isCompleted
-                            ? AppTheme.darkBorder.withOpacity(0.2)
+                            ? AppTheme.darkBorder.withValues(alpha: 0.2)
                             : null,
                         borderRadius: BorderRadius.circular(1),
                       ),
@@ -553,7 +545,6 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
-
   Widget _buildFormContent() {
     return Form(
       key: _formKey,
@@ -572,7 +563,6 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
-
   Widget _buildBasicInfoStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -632,7 +622,6 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
-
   Widget _buildPricingStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -720,7 +709,6 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
-
   Widget _buildReviewStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -745,7 +733,7 @@ class _EditServicePageState extends State<EditServicePage>
                     gradient: LinearGradient(
                       colors: [
                         AppTheme.warning,
-                        AppTheme.warning.withOpacity(0.8),
+                        AppTheme.warning.withValues(alpha: 0.8),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
@@ -812,7 +800,6 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
-
   Widget _buildIconSelector() {
     return GestureDetector(
       onTap: _showIconPicker,
@@ -821,15 +808,15 @@ class _EditServicePageState extends State<EditServicePage>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.5),
-              AppTheme.darkCard.withOpacity(0.3),
+              AppTheme.darkCard.withValues(alpha: 0.5),
+              AppTheme.darkCard.withValues(alpha: 0.3),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: _selectedIcon != _originalService?.icon
-                ? AppTheme.warning.withOpacity(0.3)
-                : AppTheme.darkBorder.withOpacity(0.3),
+                ? AppTheme.warning.withValues(alpha: 0.3)
+                : AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -841,12 +828,12 @@ class _EditServicePageState extends State<EditServicePage>
                 gradient: LinearGradient(
                   colors: _selectedIcon != _originalService?.icon
                       ? [
-                          AppTheme.warning.withOpacity(0.2),
-                          AppTheme.warning.withOpacity(0.1),
+                          AppTheme.warning.withValues(alpha: 0.2),
+                          AppTheme.warning.withValues(alpha: 0.1),
                         ]
                       : [
-                          AppTheme.primaryBlue.withOpacity(0.2),
-                          AppTheme.primaryPurple.withOpacity(0.1),
+                          AppTheme.primaryBlue.withValues(alpha: 0.2),
+                          AppTheme.primaryPurple.withValues(alpha: 0.1),
                         ],
                 ),
                 borderRadius: BorderRadius.circular(10),
@@ -885,7 +872,7 @@ class _EditServicePageState extends State<EditServicePage>
                           padding: const EdgeInsets.symmetric(
                               horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppTheme.warning.withOpacity(0.2),
+                            color: AppTheme.warning.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -913,7 +900,6 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
-
   Widget _buildPricingModelSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -953,18 +939,20 @@ class _EditServicePageState extends State<EditServicePage>
                       ? hasChanged
                           ? LinearGradient(colors: [
                               AppTheme.warning,
-                              AppTheme.warning.withOpacity(0.7)
+                              AppTheme.warning.withValues(alpha: 0.7)
                             ])
                           : AppTheme.primaryGradient
                       : null,
-                  color: isSelected ? null : AppTheme.darkCard.withOpacity(0.5),
+                  color: isSelected
+                      ? null
+                      : AppTheme.darkCard.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
                         ? hasChanged
-                            ? AppTheme.warning.withOpacity(0.5)
-                            : AppTheme.primaryBlue.withOpacity(0.5)
-                        : AppTheme.darkBorder.withOpacity(0.3),
+                            ? AppTheme.warning.withValues(alpha: 0.5)
+                            : AppTheme.primaryBlue.withValues(alpha: 0.5)
+                        : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -983,7 +971,6 @@ class _EditServicePageState extends State<EditServicePage>
       ],
     );
   }
-
   Widget _buildOriginalValueIndicator(
       String label, String value, bool isChanged) {
     if (!isChanged) return const SizedBox.shrink();
@@ -992,10 +979,10 @@ class _EditServicePageState extends State<EditServicePage>
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.warning.withOpacity(0.1),
+        color: AppTheme.warning.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1021,7 +1008,7 @@ class _EditServicePageState extends State<EditServicePage>
                   TextSpan(
                     text: value,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.warning.withOpacity(0.8),
+                      color: AppTheme.warning.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -1034,7 +1021,6 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
-
   Widget _buildReadOnlyField({
     required String label,
     required String value,
@@ -1056,13 +1042,13 @@ class _EditServicePageState extends State<EditServicePage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.3),
-                AppTheme.darkCard.withOpacity(0.2),
+                AppTheme.darkCard.withValues(alpha: 0.3),
+                AppTheme.darkCard.withValues(alpha: 0.2),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.2),
+              color: AppTheme.darkBorder.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -1070,7 +1056,7 @@ class _EditServicePageState extends State<EditServicePage>
             children: [
               Icon(
                 icon,
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -1084,7 +1070,7 @@ class _EditServicePageState extends State<EditServicePage>
               ),
               Icon(
                 Icons.lock_outline_rounded,
-                color: AppTheme.textMuted.withOpacity(0.3),
+                color: AppTheme.textMuted.withValues(alpha: 0.3),
                 size: 16,
               ),
             ],
@@ -1093,7 +1079,6 @@ class _EditServicePageState extends State<EditServicePage>
       ],
     );
   }
-
   Widget _buildChangesSummary() {
     final changes = _getChangedFields();
 
@@ -1102,13 +1087,13 @@ class _EditServicePageState extends State<EditServicePage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.warning.withOpacity(0.1),
-            AppTheme.warning.withOpacity(0.05),
+            AppTheme.warning.withValues(alpha: 0.1),
+            AppTheme.warning.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1202,7 +1187,6 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
-
   Widget _buildReviewCard({
     required String title,
     required List<Map<String, dynamic>> items,
@@ -1215,19 +1199,19 @@ class _EditServicePageState extends State<EditServicePage>
         gradient: LinearGradient(
           colors: hasChanges
               ? [
-                  AppTheme.warning.withOpacity(0.05),
-                  AppTheme.darkCard.withOpacity(0.4),
+                  AppTheme.warning.withValues(alpha: 0.05),
+                  AppTheme.darkCard.withValues(alpha: 0.4),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasChanges
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1249,7 +1233,7 @@ class _EditServicePageState extends State<EditServicePage>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.warning.withOpacity(0.2),
+                    color: AppTheme.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -1330,13 +1314,13 @@ class _EditServicePageState extends State<EditServicePage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.primaryBlue.withOpacity(0.3),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1344,7 +1328,7 @@ class _EditServicePageState extends State<EditServicePage>
             children: [
               Icon(
                 Icons.lock_outline_rounded,
-                color: AppTheme.textMuted.withOpacity(0.7),
+                color: AppTheme.textMuted.withValues(alpha: 0.7),
                 size: 18,
               ),
               const SizedBox(width: 8),
@@ -1364,14 +1348,13 @@ class _EditServicePageState extends State<EditServicePage>
         Text(
           'موروثة من الكيان',
           style: AppTextStyles.caption.copyWith(
-            color: AppTheme.textMuted.withOpacity(0.6),
+            color: AppTheme.textMuted.withValues(alpha: 0.6),
             fontSize: 10,
           ),
         ),
       ],
     );
   }
-
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
@@ -1397,13 +1380,13 @@ class _EditServicePageState extends State<EditServicePage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1417,12 +1400,12 @@ class _EditServicePageState extends State<EditServicePage>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: maxLines == 1
                   ? Icon(
                       icon,
-                      color: AppTheme.primaryBlue.withOpacity(0.7),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                       size: 20,
                     )
                   : null,
@@ -1436,20 +1419,19 @@ class _EditServicePageState extends State<EditServicePage>
       ],
     );
   }
-
   Widget _buildActionButtons() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1466,13 +1448,13 @@ class _EditServicePageState extends State<EditServicePage>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -1501,15 +1483,15 @@ class _EditServicePageState extends State<EditServicePage>
                   gradient: _hasChanges
                       ? LinearGradient(colors: [
                           AppTheme.warning,
-                          AppTheme.warning.withOpacity(0.8)
+                          AppTheme.warning.withValues(alpha: 0.8)
                         ])
                       : AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
                       color: _hasChanges
-                          ? AppTheme.warning.withOpacity(0.3)
-                          : AppTheme.primaryBlue.withOpacity(0.3),
+                          ? AppTheme.warning.withValues(alpha: 0.3)
+                          : AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -1580,7 +1562,6 @@ class _EditServicePageState extends State<EditServicePage>
                         ?.trim() ??
                     ''));
   }
-
   bool _hasChangesInStep(int step) {
     if (_originalService == null) return false;
 
@@ -1603,7 +1584,6 @@ class _EditServicePageState extends State<EditServicePage>
         return _checkForChanges();
     }
   }
-
   List<Map<String, String>> _getChangedFields() {
     final changes = <Map<String, String>>[];
     if (_originalService == null) return changes;
@@ -1664,7 +1644,6 @@ class _EditServicePageState extends State<EditServicePage>
 
     return changes;
   }
-
   void _resetChanges() {
     if (_originalService == null) return;
 
@@ -1688,7 +1667,6 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
-
   Future<bool> _onWillPop() async {
     if (!_hasChanges) return true;
 
@@ -1699,7 +1677,6 @@ class _EditServicePageState extends State<EditServicePage>
 
     return result ?? false;
   }
-
   void _handleBack() {
     if (_currentStep > 0) {
       setState(() {
@@ -1717,7 +1694,6 @@ class _EditServicePageState extends State<EditServicePage>
       }
     }
   }
-
   void _previousStep() {
     if (_currentStep > 0) {
       setState(() {
@@ -1725,7 +1701,6 @@ class _EditServicePageState extends State<EditServicePage>
       });
     }
   }
-
   void _nextStep() {
     if (_currentStep < 2) {
       bool isValid = true;
@@ -1743,7 +1718,6 @@ class _EditServicePageState extends State<EditServicePage>
       }
     }
   }
-
   bool _validateBasicInfo() {
     if (_nameController.text.isEmpty) {
       _showErrorMessage('الرجاء إدخال اسم الخدمة');
@@ -1751,7 +1725,6 @@ class _EditServicePageState extends State<EditServicePage>
     }
     return true;
   }
-
   bool _validatePricing() {
     if (_isFree) return true;
     if (_amountController.text.isEmpty) {
@@ -1765,7 +1738,6 @@ class _EditServicePageState extends State<EditServicePage>
     }
     return true;
   }
-
   void _submitForm() {
     if (!_hasChanges) {
       _showInfoMessage('لا توجد تغييرات للحفظ');
@@ -1792,7 +1764,6 @@ class _EditServicePageState extends State<EditServicePage>
           );
     }
   }
-
   void _showIconPicker() {
     showDialog(
       context: context,
@@ -1807,7 +1778,6 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
-
   IconData _getIconFromString(String icon) {
     // This should map string to IconData
     // You might want to implement a proper icon mapping
@@ -1822,7 +1792,6 @@ class _EditServicePageState extends State<EditServicePage>
         return Icons.miscellaneous_services;
     }
   }
-
   void _showSuccessMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1844,7 +1813,6 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
-
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1866,7 +1834,6 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
-
   void _showInfoMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1892,10 +1859,9 @@ class _EditServicePageState extends State<EditServicePage>
 
 // Dialogs for Edit Page
 class _ResetConfirmationDialog extends StatelessWidget {
+  /// العربية: يخزن القيمة `onConfirm`.
   final VoidCallback onConfirm;
-
   const _ResetConfirmationDialog({required this.onConfirm});
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -1905,13 +1871,13 @@ class _ResetConfirmationDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.warning.withOpacity(0.3),
+            color: AppTheme.warning.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1924,8 +1890,8 @@ class _ResetConfirmationDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.warning.withOpacity(0.2),
-                    AppTheme.warning.withOpacity(0.1),
+                    AppTheme.warning.withValues(alpha: 0.2),
+                    AppTheme.warning.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -1961,10 +1927,10 @@ class _ResetConfirmationDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkSurface.withOpacity(0.5),
+                        color: AppTheme.darkSurface.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.3),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -1992,7 +1958,7 @@ class _ResetConfirmationDialog extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             AppTheme.warning,
-                            AppTheme.warning.withOpacity(0.8),
+                            AppTheme.warning.withValues(alpha: 0.8),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -2017,7 +1983,6 @@ class _ResetConfirmationDialog extends StatelessWidget {
     );
   }
 }
-
 class _UnsavedChangesDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -2028,13 +1993,13 @@ class _UnsavedChangesDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.error.withOpacity(0.3),
+            color: AppTheme.error.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2047,8 +2012,8 @@ class _UnsavedChangesDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
+                    AppTheme.error.withValues(alpha: 0.2),
+                    AppTheme.error.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -2109,10 +2074,10 @@ class _UnsavedChangesDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.error.withOpacity(0.1),
+                        color: AppTheme.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.error.withOpacity(0.3),
+                          color: AppTheme.error.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -2136,12 +2101,10 @@ class _UnsavedChangesDialog extends StatelessWidget {
     );
   }
 }
-
 class _EditServiceBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
-
   _EditServiceBackgroundPainter({required this.glowIntensity});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -2149,8 +2112,8 @@ class _EditServiceBackgroundPainter extends CustomPainter {
     // Draw glowing orbs with edit theme
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.warning.withOpacity(0.1 * glowIntensity),
-        AppTheme.warning.withOpacity(0.05 * glowIntensity),
+        AppTheme.warning.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.warning.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -2166,8 +2129,8 @@ class _EditServiceBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryPurple.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryPurple.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -2181,31 +2144,27 @@ class _EditServiceBackgroundPainter extends CustomPainter {
       paint,
     );
   }
-
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
-
 class _CurrencyDropdown extends StatefulWidget {
+  /// العربية: يخزن القيمة `value`.
   final String value;
   final ValueChanged<String> onChanged;
   const _CurrencyDropdown({required this.value, required this.onChanged});
-
   @override
   State<_CurrencyDropdown> createState() => _CurrencyDropdownState();
 }
-
 class _CurrencyDropdownState extends State<_CurrencyDropdown> {
+  /// العربية: يخزن القيمة `codes`.
   List<String> _codes = const [];
   bool _loading = true;
   String? _error;
-
   @override
   void initState() {
     super.initState();
     _load();
   }
-
   Future<void> _load() async {
     try {
       final usecase = di.sl<GetCurrenciesUseCase>();
@@ -2230,14 +2189,13 @@ class _CurrencyDropdownState extends State<_CurrencyDropdown> {
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final decoration = InputDecoration(
       labelText: 'العملة',
       labelStyle: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
       filled: true,
-      fillColor: AppTheme.darkSurface.withOpacity(0.3),
+      fillColor: AppTheme.darkSurface.withValues(alpha: 0.3),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,

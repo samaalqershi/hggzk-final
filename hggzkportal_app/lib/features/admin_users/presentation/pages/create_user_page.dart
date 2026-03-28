@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:ui';
 import 'dart:math' as math;
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import 'package:hggzkportal/core/enums/payment_method_enum.dart';
@@ -19,8 +18,11 @@ class CreateUserPage extends StatefulWidget {
   final String? userId; // if provided -> edit mode
   final User? initialUser; // For edit mode
   final String? initialName;
+
   final String? initialEmail;
+
   final String? initialPhone;
+
   final String? initialRoleId;
 
   const CreateUserPage({
@@ -41,10 +43,15 @@ class _CreateUserPageState extends State<CreateUserPage>
     with TickerProviderStateMixin {
   // Animation Controllers
   late AnimationController _animationController;
+
   late AnimationController _glowController;
+
   late AnimationController _loadingAnimationController;
+
   late Animation<double> _fadeAnimation;
+
   late Animation<Offset> _slideAnimation;
+
   late Animation<double> _loadingRotation;
 
   // Form Controllers
@@ -56,32 +63,46 @@ class _CreateUserPageState extends State<CreateUserPage>
 
   // State
   String? _selectedRole;
+
   bool _isPasswordVisible = false;
+
   int _currentStep = 0;
+
   bool _isSubmitting = false;
+
   bool _isPrefilledFromExtras = false;
+
   bool _emailConfirmed = false;
+
   bool _phoneNumberConfirmed = false;
 
   // Owner wallet accounts
   final List<_WalletAccountDraft> _walletAccounts = [];
+
   List<String> _originalWalletAccountsSnapshot = const [];
 
   // Edit specific state
   bool _isDataLoaded = false;
+
   bool _hasChanges = false;
 
   // Original values for comparison
   String? _originalName;
+
   String? _originalEmail;
+
   String? _originalPhone;
+
   String? _originalRole;
+
   bool? _originalEmailConfirmed;
+
   bool? _originalPhoneConfirmed;
 
   @override
   void initState() {
     super.initState();
+
     _initializeAnimations();
 
     if (widget.userId != null) {
@@ -400,8 +421,15 @@ class _CreateUserPageState extends State<CreateUserPage>
       );
     }
 
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final navigator = Navigator.of(context);
+        if (await _onWillPop() && mounted) {
+          navigator.pop();
+        }
+      },
       child: content,
     );
   }
@@ -449,10 +477,10 @@ class _CreateUserPageState extends State<CreateUserPage>
             _isSubmitting = false;
           });
         }
+        final navigator = Navigator.of(context);
         Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) {
-            context.pop(true);
-          }
+          if (!mounted) return;
+          navigator.pop(true);
         });
       }
     }
@@ -508,8 +536,8 @@ class _CreateUserPageState extends State<CreateUserPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -544,14 +572,14 @@ class _CreateUserPageState extends State<CreateUserPage>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppTheme.primaryBlue.withOpacity(0.3),
-                        AppTheme.primaryPurple.withOpacity(0.2),
-                        AppTheme.primaryViolet.withOpacity(0.1),
+                        AppTheme.primaryBlue.withValues(alpha: 0.3),
+                        AppTheme.primaryPurple.withValues(alpha: 0.2),
+                        AppTheme.primaryViolet.withValues(alpha: 0.1),
                       ],
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                         blurRadius: 30,
                         spreadRadius: 10,
                       ),
@@ -610,13 +638,13 @@ class _CreateUserPageState extends State<CreateUserPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -632,13 +660,13 @@ class _CreateUserPageState extends State<CreateUserPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -676,10 +704,10 @@ class _CreateUserPageState extends State<CreateUserPage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.warning.withOpacity(0.2),
+                          color: AppTheme.warning.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppTheme.warning.withOpacity(0.5),
+                            color: AppTheme.warning.withValues(alpha: 0.5),
                             width: 1,
                           ),
                         ),
@@ -717,10 +745,10 @@ class _CreateUserPageState extends State<CreateUserPage>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.error.withOpacity(0.1),
+                  color: AppTheme.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.error.withOpacity(0.3),
+                    color: AppTheme.error.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -764,23 +792,23 @@ class _CreateUserPageState extends State<CreateUserPage>
                   decoration: BoxDecoration(
                     gradient: isActive ? AppTheme.primaryGradient : null,
                     color: !isActive
-                        ? AppTheme.darkSurface.withOpacity(0.5)
+                        ? AppTheme.darkSurface.withValues(alpha: 0.5)
                         : null,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isModified
-                          ? AppTheme.warning.withOpacity(0.5)
+                          ? AppTheme.warning.withValues(alpha: 0.5)
                           : isActive
-                              ? AppTheme.primaryBlue.withOpacity(0.5)
-                              : AppTheme.darkBorder.withOpacity(0.3),
+                              ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                              : AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: isModified ? 2 : 1,
                     ),
                     boxShadow: isActive
                         ? [
                             BoxShadow(
                               color: isModified
-                                  ? AppTheme.warning.withOpacity(0.3)
-                                  : AppTheme.primaryBlue.withOpacity(0.3),
+                                  ? AppTheme.warning.withValues(alpha: 0.3)
+                                  : AppTheme.primaryBlue.withValues(alpha: 0.3),
                               blurRadius: 10,
                             ),
                           ]
@@ -817,12 +845,12 @@ class _CreateUserPageState extends State<CreateUserPage>
                             ? isModified
                                 ? LinearGradient(colors: [
                                     AppTheme.warning,
-                                    AppTheme.warning.withOpacity(0.5)
+                                    AppTheme.warning.withValues(alpha: 0.5)
                                   ])
                                 : AppTheme.primaryGradient
                             : null,
                         color: !isCompleted
-                            ? AppTheme.darkBorder.withOpacity(0.2)
+                            ? AppTheme.darkBorder.withValues(alpha: 0.2)
                             : null,
                         borderRadius: BorderRadius.circular(1),
                       ),
@@ -1050,12 +1078,12 @@ class _CreateUserPageState extends State<CreateUserPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.6),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.6),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.darkBorder.withOpacity(0.3)),
+        border: Border.all(color: AppTheme.darkBorder.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1109,10 +1137,10 @@ class _CreateUserPageState extends State<CreateUserPage>
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkBackground.withOpacity(0.4),
+                  color: AppTheme.darkBackground.withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(12),
-                  border:
-                      Border.all(color: AppTheme.darkBorder.withOpacity(0.2)),
+                  border: Border.all(
+                      color: AppTheme.darkBorder.withValues(alpha: 0.2)),
                 ),
                 child: Column(
                   children: [
@@ -1148,18 +1176,20 @@ class _CreateUserPageState extends State<CreateUserPage>
                               labelStyle: AppTextStyles.bodySmall
                                   .copyWith(color: AppTheme.textMuted),
                               filled: true,
-                              fillColor:
-                                  AppTheme.darkBackground.withOpacity(0.2),
+                              fillColor: AppTheme.darkBackground
+                                  .withValues(alpha: 0.2),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: AppTheme.darkBorder.withOpacity(0.3),
+                                  color: AppTheme.darkBorder
+                                      .withValues(alpha: 0.3),
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                  color: AppTheme.darkBorder.withOpacity(0.3),
+                                  color: AppTheme.darkBorder
+                                      .withValues(alpha: 0.3),
                                 ),
                               ),
                             ),
@@ -1181,7 +1211,7 @@ class _CreateUserPageState extends State<CreateUserPage>
                             });
                           },
                           icon: Icon(Icons.delete_outline_rounded,
-                              color: AppTheme.error.withOpacity(0.9)),
+                              color: AppTheme.error.withValues(alpha: 0.9)),
                         ),
                       ],
                     ),
@@ -1203,17 +1233,18 @@ class _CreateUserPageState extends State<CreateUserPage>
                         labelStyle: AppTextStyles.bodySmall
                             .copyWith(color: AppTheme.textMuted),
                         filled: true,
-                        fillColor: AppTheme.darkBackground.withOpacity(0.2),
+                        fillColor:
+                            AppTheme.darkBackground.withValues(alpha: 0.2),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: AppTheme.darkBorder.withOpacity(0.3),
+                            color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: AppTheme.darkBorder.withOpacity(0.3),
+                            color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           ),
                         ),
                       ),
@@ -1235,17 +1266,18 @@ class _CreateUserPageState extends State<CreateUserPage>
                         labelStyle: AppTextStyles.bodySmall
                             .copyWith(color: AppTheme.textMuted),
                         filled: true,
-                        fillColor: AppTheme.darkBackground.withOpacity(0.2),
+                        fillColor:
+                            AppTheme.darkBackground.withValues(alpha: 0.2),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: AppTheme.darkBorder.withOpacity(0.3),
+                            color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: AppTheme.darkBorder.withOpacity(0.3),
+                            color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           ),
                         ),
                       ),
@@ -1347,33 +1379,34 @@ class _CreateUserPageState extends State<CreateUserPage>
                 ? LinearGradient(
                     colors: [
                       (role['gradient'] as List<Color>)[0]
-                          .withOpacity(hasChanged ? 0.15 : 0.1),
+                          .withValues(alpha: hasChanged ? 0.15 : 0.1),
                       (role['gradient'] as List<Color>)[1]
-                          .withOpacity(hasChanged ? 0.08 : 0.05),
+                          .withValues(alpha: hasChanged ? 0.08 : 0.05),
                     ],
                   )
                 : LinearGradient(
                     colors: [
-                      AppTheme.darkCard.withOpacity(0.5),
-                      AppTheme.darkCard.withOpacity(0.3),
+                      AppTheme.darkCard.withValues(alpha: 0.5),
+                      AppTheme.darkCard.withValues(alpha: 0.3),
                     ],
                   ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: hasChanged
-                  ? AppTheme.warning.withOpacity(0.5)
+                  ? AppTheme.warning.withValues(alpha: 0.5)
                   : isSelected
-                      ? (role['gradient'] as List<Color>)[0].withOpacity(0.5)
-                      : AppTheme.darkBorder.withOpacity(0.3),
+                      ? (role['gradient'] as List<Color>)[0]
+                          .withValues(alpha: 0.5)
+                      : AppTheme.darkBorder.withValues(alpha: 0.3),
               width: hasChanged ? 2 : 1,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
                       color: hasChanged
-                          ? AppTheme.warning.withOpacity(0.2)
+                          ? AppTheme.warning.withValues(alpha: 0.2)
                           : (role['gradient'] as List<Color>)[0]
-                              .withOpacity(0.2),
+                              .withValues(alpha: 0.2),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
@@ -1438,7 +1471,7 @@ class _CreateUserPageState extends State<CreateUserPage>
                       colors: hasChanged
                           ? [
                               AppTheme.warning,
-                              AppTheme.warning.withOpacity(0.7)
+                              AppTheme.warning.withValues(alpha: 0.7)
                             ]
                           : role['gradient'] as List<Color>,
                     ),
@@ -1483,7 +1516,7 @@ class _CreateUserPageState extends State<CreateUserPage>
                     gradient: LinearGradient(
                       colors: [
                         AppTheme.warning,
-                        AppTheme.warning.withOpacity(0.8),
+                        AppTheme.warning.withValues(alpha: 0.8),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
@@ -1593,10 +1626,10 @@ class _CreateUserPageState extends State<CreateUserPage>
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.warning.withOpacity(0.1),
+        color: AppTheme.warning.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1622,7 +1655,7 @@ class _CreateUserPageState extends State<CreateUserPage>
                   TextSpan(
                     text: value,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.warning.withOpacity(0.8),
+                      color: AppTheme.warning.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -1642,13 +1675,13 @@ class _CreateUserPageState extends State<CreateUserPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.info.withOpacity(0.1),
-            AppTheme.info.withOpacity(0.05),
+            AppTheme.info.withValues(alpha: 0.1),
+            AppTheme.info.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.info.withOpacity(0.3),
+          color: AppTheme.info.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1694,13 +1727,13 @@ class _CreateUserPageState extends State<CreateUserPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.warning.withOpacity(0.1),
-            AppTheme.warning.withOpacity(0.05),
+            AppTheme.warning.withValues(alpha: 0.1),
+            AppTheme.warning.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1819,13 +1852,13 @@ class _CreateUserPageState extends State<CreateUserPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1839,11 +1872,11 @@ class _CreateUserPageState extends State<CreateUserPage>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: Icon(
                 icon,
-                color: AppTheme.primaryBlue.withOpacity(0.7),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                 size: 20,
               ),
               border: InputBorder.none,
@@ -1872,13 +1905,13 @@ class _CreateUserPageState extends State<CreateUserPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1891,11 +1924,11 @@ class _CreateUserPageState extends State<CreateUserPage>
             decoration: InputDecoration(
               hintText: 'أدخل كلمة المرور',
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: Icon(
                 Icons.lock_rounded,
-                color: AppTheme.primaryBlue.withOpacity(0.7),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                 size: 20,
               ),
               suffixIcon: IconButton(
@@ -1937,21 +1970,21 @@ class _CreateUserPageState extends State<CreateUserPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: showChangeIndicator
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: showChangeIndicator ? 2 : 1,
         ),
         boxShadow: showChangeIndicator
             ? [
                 BoxShadow(
-                  color: AppTheme.warning.withOpacity(0.1),
+                  color: AppTheme.warning.withValues(alpha: 0.1),
                   blurRadius: 10,
                   spreadRadius: 2,
                 ),
@@ -1966,17 +1999,17 @@ class _CreateUserPageState extends State<CreateUserPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: value
-                    ? [color, color.withOpacity(0.7)]
+                    ? [color, color.withValues(alpha: 0.7)]
                     : [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3)
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3)
                       ],
               ),
               borderRadius: BorderRadius.circular(12),
               boxShadow: value
                   ? [
                       BoxShadow(
-                        color: color.withOpacity(0.3),
+                        color: color.withValues(alpha: 0.3),
                         blurRadius: 10,
                         spreadRadius: 2,
                       ),
@@ -2009,7 +2042,7 @@ class _CreateUserPageState extends State<CreateUserPage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.warning.withOpacity(0.2),
+                          color: AppTheme.warning.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -2048,9 +2081,9 @@ class _CreateUserPageState extends State<CreateUserPage>
             value: value,
             onChanged: onChanged,
             activeColor: color,
-            activeTrackColor: color.withOpacity(0.5),
+            activeTrackColor: color.withValues(alpha: 0.5),
             inactiveThumbColor: AppTheme.darkSurface,
-            inactiveTrackColor: AppTheme.darkBorder.withOpacity(0.3),
+            inactiveTrackColor: AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ],
       ),
@@ -2068,13 +2101,13 @@ class _CreateUserPageState extends State<CreateUserPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            color.withOpacity(0.1),
-            color.withOpacity(0.05),
+            color.withValues(alpha: 0.1),
+            color.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -2085,7 +2118,7 @@ class _CreateUserPageState extends State<CreateUserPage>
             height: 48,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [color, color.withOpacity(0.7)],
+                colors: [color, color.withValues(alpha: 0.7)],
               ),
               borderRadius: BorderRadius.circular(10),
             ),
@@ -2136,19 +2169,19 @@ class _CreateUserPageState extends State<CreateUserPage>
         gradient: LinearGradient(
           colors: hasChanges
               ? [
-                  AppTheme.warning.withOpacity(0.05),
-                  AppTheme.darkCard.withOpacity(0.4),
+                  AppTheme.warning.withValues(alpha: 0.05),
+                  AppTheme.darkCard.withValues(alpha: 0.4),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasChanges
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -2162,8 +2195,11 @@ class _CreateUserPageState extends State<CreateUserPage>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: hasChanges
-                        ? [AppTheme.warning, AppTheme.warning.withOpacity(0.7)]
-                        : [iconColor, iconColor.withOpacity(0.7)],
+                        ? [
+                            AppTheme.warning,
+                            AppTheme.warning.withValues(alpha: 0.7)
+                          ]
+                        : [iconColor, iconColor.withValues(alpha: 0.7)],
                   ),
                   borderRadius: BorderRadius.circular(6),
                 ),
@@ -2187,7 +2223,7 @@ class _CreateUserPageState extends State<CreateUserPage>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.warning.withOpacity(0.2),
+                    color: AppTheme.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -2224,8 +2260,8 @@ class _CreateUserPageState extends State<CreateUserPage>
                           _getItemIcon(item['label']!),
                           size: 14,
                           color: item['changed'] == true
-                              ? AppTheme.warning.withOpacity(0.7)
-                              : AppTheme.textMuted.withOpacity(0.7),
+                              ? AppTheme.warning.withValues(alpha: 0.7)
+                              : AppTheme.textMuted.withValues(alpha: 0.7),
                         ),
                         const SizedBox(width: 6),
                         Text(
@@ -2266,13 +2302,13 @@ class _CreateUserPageState extends State<CreateUserPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2289,13 +2325,13 @@ class _CreateUserPageState extends State<CreateUserPage>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -2330,15 +2366,15 @@ class _CreateUserPageState extends State<CreateUserPage>
                       gradient: isEditMode && _hasChanges
                           ? LinearGradient(colors: [
                               AppTheme.warning,
-                              AppTheme.warning.withOpacity(0.8)
+                              AppTheme.warning.withValues(alpha: 0.8)
                             ])
                           : AppTheme.primaryGradient,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
                           color: isEditMode && _hasChanges
-                              ? AppTheme.warning.withOpacity(0.3)
-                              : AppTheme.primaryBlue.withOpacity(0.3),
+                              ? AppTheme.warning.withValues(alpha: 0.3)
+                              : AppTheme.primaryBlue.withValues(alpha: 0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -2401,13 +2437,13 @@ class _CreateUserPageState extends State<CreateUserPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.error.withOpacity(0.10),
-            AppTheme.error.withOpacity(0.05),
+            AppTheme.error.withValues(alpha: 0.10),
+            AppTheme.error.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.error.withOpacity(0.35),
+          color: AppTheme.error.withValues(alpha: 0.35),
           width: 1,
         ),
       ),
@@ -2419,7 +2455,7 @@ class _CreateUserPageState extends State<CreateUserPage>
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: AppTheme.error.withOpacity(0.2),
+                  color: AppTheme.error.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -2612,9 +2648,10 @@ class _CreateUserPageState extends State<CreateUserPage>
       });
     } else {
       if (widget.userId != null && _hasChanges) {
+        final navigator = Navigator.of(context);
         _onWillPop().then((canPop) {
-          if (canPop) {
-            context.pop();
+          if (canPop && mounted) {
+            navigator.pop();
           }
         });
       } else {
@@ -2886,13 +2923,13 @@ class _ResetConfirmationDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.warning.withOpacity(0.3),
+            color: AppTheme.warning.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2905,8 +2942,8 @@ class _ResetConfirmationDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.warning.withOpacity(0.2),
-                    AppTheme.warning.withOpacity(0.1),
+                    AppTheme.warning.withValues(alpha: 0.2),
+                    AppTheme.warning.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -2942,10 +2979,10 @@ class _ResetConfirmationDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkSurface.withOpacity(0.5),
+                        color: AppTheme.darkSurface.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.3),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -2973,7 +3010,7 @@ class _ResetConfirmationDialog extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             AppTheme.warning,
-                            AppTheme.warning.withOpacity(0.8),
+                            AppTheme.warning.withValues(alpha: 0.8),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -3009,13 +3046,13 @@ class _UnsavedChangesDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.error.withOpacity(0.3),
+            color: AppTheme.error.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -3028,8 +3065,8 @@ class _UnsavedChangesDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
+                    AppTheme.error.withValues(alpha: 0.2),
+                    AppTheme.error.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -3090,10 +3127,10 @@ class _UnsavedChangesDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.error.withOpacity(0.1),
+                        color: AppTheme.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.error.withOpacity(0.3),
+                          color: AppTheme.error.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -3120,6 +3157,7 @@ class _UnsavedChangesDialog extends StatelessWidget {
 
 class _WalletAccountDraft {
   PaymentMethod walletType;
+
   bool isDefault;
   final TextEditingController accountNumberController = TextEditingController();
   final TextEditingController accountNameController = TextEditingController();
@@ -3137,8 +3175,11 @@ class _WalletAccountDraft {
 
 class _WalletAccountSnapshotInput {
   final PaymentMethod walletType;
+
   final String accountNumber;
+
   final String accountName;
+
   final bool isDefault;
 
   const _WalletAccountSnapshotInput({
@@ -3166,6 +3207,7 @@ class _WalletAccountSnapshotInput {
 // Background Painter
 class _CreateUserBackgroundPainter extends CustomPainter {
   final double glowIntensity;
+
   final bool isEditMode;
 
   _CreateUserBackgroundPainter({
@@ -3182,8 +3224,8 @@ class _CreateUserBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        primaryColor.withOpacity(0.1 * glowIntensity),
-        primaryColor.withOpacity(0.05 * glowIntensity),
+        primaryColor.withValues(alpha: 0.1 * glowIntensity),
+        primaryColor.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -3199,8 +3241,8 @@ class _CreateUserBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryPurple.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryPurple.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(

@@ -3,7 +3,6 @@
 import 'package:equatable/equatable.dart';
 import 'financial_transaction.dart';
 
-/// 📊 كيان التقرير المالي
 class FinancialReport extends Equatable {
   final DateTime startDate;
   final DateTime endDate;
@@ -18,7 +17,6 @@ class FinancialReport extends Equatable {
   final Map<String, double> expensesByCategory;
   final List<AccountBalance> accountBalances;
   final FinancialSummary? summary;
-
   const FinancialReport({
     required this.startDate,
     required this.endDate,
@@ -36,9 +34,12 @@ class FinancialReport extends Equatable {
   });
 
   // 🎯 Helper Methods
-  double get profitMargin => totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
-  double get expenseRatio => totalRevenue > 0 ? (totalExpenses / totalRevenue) * 100 : 0;
-  double get commissionRate => totalRevenue > 0 ? (totalCommissions / totalRevenue) * 100 : 0;
+  double get profitMargin =>
+      totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
+  double get expenseRatio =>
+      totalRevenue > 0 ? (totalExpenses / totalRevenue) * 100 : 0;
+  double get commissionRate =>
+      totalRevenue > 0 ? (totalCommissions / totalRevenue) * 100 : 0;
   bool get isProfitable => netProfit > 0;
 
   // 📈 Growth calculations
@@ -65,7 +66,6 @@ class FinancialReport extends Equatable {
       ];
 }
 
-/// 💰 رصيد الحساب
 class AccountBalance extends Equatable {
   final String accountId;
   final String accountNumber;
@@ -76,7 +76,6 @@ class AccountBalance extends Equatable {
   final double debitTotal;
   final double creditTotal;
   final int transactionCount;
-
   const AccountBalance({
     required this.accountId,
     required this.accountNumber,
@@ -88,7 +87,6 @@ class AccountBalance extends Equatable {
     this.creditTotal = 0,
     this.transactionCount = 0,
   });
-
   @override
   List<Object?> get props => [
         accountId,
@@ -103,7 +101,6 @@ class AccountBalance extends Equatable {
       ];
 }
 
-/// 📋 كشف الحساب
 class AccountStatement extends Equatable {
   final String accountId;
   final String accountNumber;
@@ -116,7 +113,6 @@ class AccountStatement extends Equatable {
   final double totalCredits;
   final List<FinancialTransaction> transactions;
   final String currency;
-
   const AccountStatement({
     required this.accountId,
     required this.accountNumber,
@@ -135,7 +131,6 @@ class AccountStatement extends Equatable {
   double get netChange => closingBalance - openingBalance;
   bool get hasIncreased => netChange > 0;
   int get transactionCount => transactions.length;
-
   @override
   List<Object?> get props => [
         accountId,
@@ -152,7 +147,6 @@ class AccountStatement extends Equatable {
       ];
 }
 
-/// 📊 ملخص مالي
 class FinancialSummary extends Equatable {
   final double totalAssets;
   final double totalLiabilities;
@@ -175,7 +169,6 @@ class FinancialSummary extends Equatable {
   final int totalUnits;
   final double occupancyRate;
   final double averageBookingValue;
-
   const FinancialSummary({
     this.totalAssets = 0,
     this.totalLiabilities = 0,
@@ -204,7 +197,6 @@ class FinancialSummary extends Equatable {
   bool get isFinanciallyHealthy => currentRatio > 1.5 && debtToEquityRatio < 2;
   bool get hasGoodLiquidity => currentRatio > 1.0;
   bool get isProfitable => netProfitMargin > 0;
-
   @override
   List<Object?> get props => [
         totalAssets,
@@ -231,14 +223,12 @@ class FinancialSummary extends Equatable {
       ];
 }
 
-/// 📈 بيانات الرسم البياني
 class ChartData extends Equatable {
   final String label;
   final double value;
   final String? color;
   final String? icon;
   final Map<String, dynamic>? metadata;
-
   const ChartData({
     required this.label,
     required this.value,
@@ -246,7 +236,6 @@ class ChartData extends Equatable {
     this.icon,
     this.metadata,
   });
-
   @override
   List<Object?> get props => [label, value, color, icon, metadata];
 }

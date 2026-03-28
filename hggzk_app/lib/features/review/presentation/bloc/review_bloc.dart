@@ -3,23 +3,49 @@ import '../../../../core/models/paginated_result.dart';
 import '../../domain/entities/review.dart';
 import '../../domain/usecases/create_review_usecase.dart';
 import '../../domain/usecases/get_property_reviews_usecase.dart';
-import '../../domain/usecases/get_property_reviews_Summary_usecase.dart';
+import '../../domain/usecases/get_property_reviews_summary_usecase.dart';
 import '../../domain/usecases/upload_review_images_usecase.dart';
 import 'review_event.dart';
 import 'review_state.dart';
 
+/// Coordinates the state and events for `ReviewBloc`.
+/// العربية: ينسق الحالة والأحداث الخاصة بـ `ReviewBloc`.
 class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
+  /// Keeps the `createReviewUseCase` value.
+  /// العربية: يخزن القيمة `createReviewUseCase`.
   final CreateReviewUseCase createReviewUseCase;
+
+  /// Keeps the `getPropertyReviewsUseCase` value.
+  /// العربية: يخزن القيمة `getPropertyReviewsUseCase`.
   final GetPropertyReviewsUseCase getPropertyReviewsUseCase;
+
+  /// Keeps the `getPropertyReviewsSummaryUseCase` value.
+  /// العربية: يخزن القيمة `getPropertyReviewsSummaryUseCase`.
   final GetPropertyReviewsSummaryUseCase getPropertyReviewsSummaryUseCase;
+
+  /// Keeps the `uploadReviewImagesUseCase` value.
+  /// العربية: يخزن القيمة `uploadReviewImagesUseCase`.
   final UploadReviewImagesUseCase uploadReviewImagesUseCase;
 
   // Pagination variables
+  /// Keeps the `currentPropertyId` value.
+  /// العربية: يخزن القيمة `currentPropertyId`.
   String? _currentPropertyId;
+
+  /// Keeps the `currentPage` value.
+  /// العربية: يخزن القيمة `currentPage`.
   int _currentPage = 1;
+
+  /// Indicates whether `hasReachedMax` is enabled.
+  /// العربية: يحدد ما إذا كانت القيمة `hasReachedMax` مفعلة.
   bool _hasReachedMax = false;
+
+  /// Keeps the `allReviews` value.
+  /// العربية: يخزن القيمة `allReviews`.
   List<Review> _allReviews = [];
 
+  /// Builds a new `ReviewBloc` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewBloc`.
   ReviewBloc({
     required this.createReviewUseCase,
     required this.getPropertyReviewsUseCase,
@@ -37,6 +63,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     on<UnlikeReviewEvent>(_onUnlikeReview);
   }
 
+  /// Processes `onCreateReview`.
+  /// العربية: يعالج `onCreateReview`.
   Future<void> _onCreateReview(
     CreateReviewEvent event,
     Emitter<ReviewState> emit,
@@ -62,6 +90,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     );
   }
 
+  /// Processes `onGetPropertyReviews`.
+  /// العربية: يعالج `onGetPropertyReviews`.
   Future<void> _onGetPropertyReviews(
     GetPropertyReviewsEvent event,
     Emitter<ReviewState> emit,
@@ -99,6 +129,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     );
   }
 
+  /// Processes `onLoadMoreReviews`.
+  /// العربية: يعالج `onLoadMoreReviews`.
   Future<void> _onLoadMoreReviews(
     LoadMoreReviewsEvent event,
     Emitter<ReviewState> emit,
@@ -123,7 +155,7 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
         (paginatedResult) {
           _allReviews.addAll(paginatedResult.items);
           _hasReachedMax = !paginatedResult.hasNextPage;
-          
+
           emit(ReviewsLoaded(
             reviews: PaginatedResult<Review>(
               items: _allReviews,
@@ -139,6 +171,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     }
   }
 
+  /// Processes `onGetPropertyReviewsSummary`.
+  /// العربية: يعالج `onGetPropertyReviewsSummary`.
   Future<void> _onGetPropertyReviewsSummary(
     GetPropertyReviewsSummaryEvent event,
     Emitter<ReviewState> emit,
@@ -155,6 +189,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     );
   }
 
+  /// Processes `onUploadReviewImages`.
+  /// العربية: يعالج `onUploadReviewImages`.
   Future<void> _onUploadReviewImages(
     UploadReviewImagesEvent event,
     Emitter<ReviewState> emit,
@@ -174,6 +210,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     );
   }
 
+  /// Processes `onFilterReviews`.
+  /// العربية: يعالج `onFilterReviews`.
   Future<void> _onFilterReviews(
     FilterReviewsEvent event,
     Emitter<ReviewState> emit,
@@ -189,6 +227,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     ));
   }
 
+  /// Processes `onRefreshReviews`.
+  /// العربية: يعالج `onRefreshReviews`.
   Future<void> _onRefreshReviews(
     RefreshReviewsEvent event,
     Emitter<ReviewState> emit,
@@ -200,6 +240,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     ));
   }
 
+  /// Processes `onLikeReview`.
+  /// العربية: يعالج `onLikeReview`.
   Future<void> _onLikeReview(
     LikeReviewEvent event,
     Emitter<ReviewState> emit,
@@ -208,6 +250,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     // This would require an additional use case for liking reviews
   }
 
+  /// Processes `onUnlikeReview`.
+  /// العربية: يعالج `onUnlikeReview`.
   Future<void> _onUnlikeReview(
     UnlikeReviewEvent event,
     Emitter<ReviewState> emit,

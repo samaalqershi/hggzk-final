@@ -3,17 +3,39 @@ import 'package:hggzk/features/search/data/models/search_filter_model.dart';
 import 'package:hggzk/features/search/data/models/search_statistics_model.dart';
 import 'package:hggzk/core/enums/search_relaxation_level.dart';
 
+/// العربية: يمثل نموذج البيانات `SearchPropertiesResponseModel`.
 class SearchPropertiesResponseModel {
+  /// العربية: يخزن القيمة `properties`.
   final List<SearchResultModel> properties;
+
+  /// العربية: يخزن القيمة `totalCount`.
   final int totalCount;
+
+  /// العربية: يخزن القيمة `currentPage`.
   final int currentPage;
+
+  /// العربية: يخزن القيمة `pageSize`.
   final int pageSize;
+
+  /// العربية: يخزن القيمة `totalPages`.
   final int totalPages;
+
+  /// العربية: يحدد ما إذا كانت القيمة `hasPreviousPage` مفعلة.
   final bool hasPreviousPage;
+
+  /// العربية: يحدد ما إذا كانت القيمة `hasNextPage` مفعلة.
   final bool hasNextPage;
+
+  /// العربية: يخزن القيمة `appliedFilters`.
   final SearchFiltersModel appliedFilters;
+
+  /// العربية: يخزن القيمة `facets`.
   final SearchFiltersModel facets;
+
+  /// العربية: يخزن القيمة `searchTimeMs`.
   final int searchTimeMs;
+
+  /// العربية: يخزن القيمة `statistics`.
   final SearchStatisticsModel statistics;
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -49,6 +71,7 @@ class SearchPropertiesResponseModel {
   /// Suggestions to improve search
   final List<String> suggestedActions;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchPropertiesResponseModel`.
   const SearchPropertiesResponseModel({
     required this.properties,
     required this.totalCount,
@@ -70,6 +93,7 @@ class SearchPropertiesResponseModel {
     this.suggestedActions = const [],
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchPropertiesResponseModel.fromJson`.
   factory SearchPropertiesResponseModel.fromJson(Map<String, dynamic> json) {
     // Debug: Print relaxation info from JSON
     print('🔍 [SearchPropertiesResponseModel] Parsing JSON...');

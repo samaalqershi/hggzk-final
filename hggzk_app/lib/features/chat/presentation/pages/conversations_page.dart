@@ -19,38 +19,70 @@ import '../widgets/chat_fab.dart';
 import 'chat_page.dart';
 import 'new_conversation_page.dart';
 
+/// Inbox screen that lists conversations, search, and quick entry actions.
+/// شاشة الصندوق الوارد التي تعرض المحادثات والبحث وأفعال الدخول السريع.
 class ConversationsPage extends StatefulWidget {
+  /// Builds the conversation inbox screen.
+  /// ينشئ شاشة صندوق المحادثات الوارد.
   const ConversationsPage({super.key});
 
+  /// Builds the state object for this widget.
+  /// ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<ConversationsPage> createState() => _ConversationsPageState();
 }
 
+/// Keeps the inbox list, search overlay, and scroll-driven animations in sync.
+/// يبقي قائمة الصندوق الوارد والبحث والحوكات المتحركة متزامنة.
 class _ConversationsPageState extends State<ConversationsPage>
     with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
 
   // Animation Controllers
+  /// العربية: يخزن القيمة `fadeController`.
   late AnimationController _fadeController;
+
+  /// العربية: يخزن القيمة `slideController`.
   late AnimationController _slideController;
+
+  /// العربية: يخزن القيمة `shimmerController`.
   late AnimationController _shimmerController;
+
+  /// العربية: يخزن القيمة `backgroundController`.
   late AnimationController _backgroundController;
+
+  /// العربية: يخزن القيمة `pulseController`.
   late AnimationController _pulseController;
 
+  /// العربية: يخزن القيمة `fadeAnimation`.
   late Animation<double> _fadeAnimation;
+
+  /// العربية: يخزن القيمة `slideAnimation`.
   late Animation<Offset> _slideAnimation;
+
+  /// العربية: يخزن القيمة `shimmerAnimation`.
   late Animation<double> _shimmerAnimation;
+
+  /// العربية: يخزن القيمة `backgroundAnimation`.
   late Animation<double> _backgroundAnimation;
+
+  /// العربية: يخزن القيمة `pulseAnimation`.
   late Animation<double> _pulseAnimation;
 
+  /// العربية: يحدد ما إذا كانت القيمة `isSearching` مفعلة.
   bool _isSearching = false;
+
+  /// العربية: يخزن القيمة `searchQuery`.
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
 
   // Minimal background particles
+  /// العربية: يخزن القيمة `particles`.
   final List<_MinimalParticle> _particles = [];
 
+  /// Initializes animations, particle state, and the first conversation load.
+  /// يهيئ الحركات وحالة الجسيمات وأول تحميل للمحادثات.
   @override
   void initState() {
     super.initState();
@@ -60,6 +92,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     _scrollController.addListener(_onScroll);
   }
 
+  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -124,12 +157,14 @@ class _ConversationsPageState extends State<ConversationsPage>
     _slideController.forward();
   }
 
+  /// العربية: ينشئ particles.
   void _generateParticles() {
     for (int i = 0; i < 5; i++) {
       _particles.add(_MinimalParticle());
     }
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _scrollController.dispose();
@@ -143,10 +178,12 @@ class _ConversationsPageState extends State<ConversationsPage>
     super.dispose();
   }
 
+  /// العربية: يحمل conversations.
   void _loadConversations() {
     context.read<ChatBloc>().add(const InitializeChatEvent());
   }
 
+  /// العربية: يعالج `onScroll`.
   void _onScroll() {
     if (_isBottom) {
       final state = context.read<ChatBloc>().state;
@@ -160,6 +197,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     }
   }
 
+  /// العربية: يعيد القيمة `isBottom`.
   bool get _isBottom {
     if (!_scrollController.hasClients) return false;
     final maxScroll = _scrollController.position.maxScrollExtent;
@@ -167,6 +205,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     return currentScroll >= (maxScroll * 0.9);
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -222,6 +261,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يبني ultra minimal background.
   Widget _buildUltraMinimalBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -250,6 +290,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يبني subtle particles.
   Widget _buildSubtleParticles() {
     return AnimatedBuilder(
       animation: _backgroundController,
@@ -265,6 +306,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يبني ultra premium header.
   Widget _buildUltraPremiumHeader() {
     return Container(
       height: _isSearching ? 110 : 60,
@@ -312,6 +354,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يبني minimal header content.
   Widget _buildMinimalHeaderContent() {
     return Container(
       height: 60,
@@ -396,6 +439,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يبني minimal icon button.
   Widget _buildMinimalIconButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -422,6 +466,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يبني ultra minimal search.
   Widget _buildUltraMinimalSearch() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -475,6 +520,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يبني conversations list.
   Widget _buildConversationsList() {
     return BlocBuilder<ChatBloc, ChatState>(
       builder: (context, state) {
@@ -501,6 +547,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يبني ultra minimal loading.
   Widget _buildUltraMinimalLoading() {
     return Center(
       child: Column(
@@ -569,6 +616,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يبني ultra minimal error.
   Widget _buildUltraMinimalError(String message) {
     return Center(
       child: Container(
@@ -630,6 +678,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يبني ultra minimal empty.
   Widget _buildUltraMinimalEmpty() {
     return Center(
       child: TweenAnimationBuilder<double>(
@@ -739,6 +788,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يبني ultra premium list.
   Widget _buildUltraPremiumList(
     List<Conversation> conversations,
     ChatLoaded state,
@@ -797,6 +847,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يبني minimal load more.
   Widget _buildMinimalLoadMore() {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -815,6 +866,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يعالج `filterConversations`.
   List<Conversation> _filterConversations(List<Conversation> conversations) {
     if (_searchQuery.isEmpty) return conversations;
 
@@ -827,6 +879,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     }).toList();
   }
 
+  /// العربية: يفتح chat.
   void _openChat(Conversation conversation) {
     HapticFeedback.selectionClick();
     Navigator.push(
@@ -857,6 +910,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يبني unauthenticated view.
   Widget _buildUnauthenticatedView(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -949,6 +1003,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يبني minimal button.
   Widget _buildMinimalButton({
     required VoidCallback onPressed,
     required Widget child,
@@ -986,6 +1041,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يبدأ new conversation.
   void _startNewConversation() {
     HapticFeedback.lightImpact();
     Navigator.push(
@@ -1016,6 +1072,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يعرض minimal options.
   void _showMinimalOptions() {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
@@ -1033,6 +1090,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يعرض conversation options.
   void _showConversationOptions(Conversation conversation) {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
@@ -1060,6 +1118,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
+  /// العربية: يعالج `confirmDelete`.
   void _confirmDelete(Conversation conversation) {
     HapticFeedback.lightImpact();
     showDialog(
@@ -1082,15 +1141,21 @@ class _ConversationsPageState extends State<ConversationsPage>
 }
 
 // Ultra Minimal Options Sheet
+/// العربية: يمثل `UltraMinimalOptionsSheet`.
 class _UltraMinimalOptionsSheet extends StatelessWidget {
+  /// العربية: يخزن القيمة `onArchiveAll`.
   final VoidCallback onArchiveAll;
+
+  /// العربية: يخزن القيمة `onSettings`.
   final VoidCallback onSettings;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `UltraMinimalOptionsSheet`.
   const _UltraMinimalOptionsSheet({
     required this.onArchiveAll,
     required this.onSettings,
   });
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1149,6 +1214,7 @@ class _UltraMinimalOptionsSheet extends StatelessWidget {
     );
   }
 
+  /// العربية: يبني minimal option.
   Widget _buildMinimalOption({
     required IconData icon,
     required String title,
@@ -1182,12 +1248,21 @@ class _UltraMinimalOptionsSheet extends StatelessWidget {
 }
 
 // Ultra Minimal Conversation Options
+/// العربية: يمثل `UltraMinimalConversationSheet`.
 class _UltraMinimalConversationSheet extends StatelessWidget {
+  /// العربية: يخزن القيمة `conversation`.
   final Conversation conversation;
+
+  /// العربية: يخزن القيمة `onArchive`.
   final VoidCallback onArchive;
+
+  /// العربية: يخزن القيمة `onDelete`.
   final VoidCallback onDelete;
+
+  /// العربية: يخزن القيمة `onMute`.
   final VoidCallback onMute;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `UltraMinimalConversationSheet`.
   const _UltraMinimalConversationSheet({
     required this.conversation,
     required this.onArchive,
@@ -1195,6 +1270,7 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
     required this.onMute,
   });
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1262,6 +1338,7 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
     );
   }
 
+  /// العربية: يبني option.
   Widget _buildOption({
     required IconData icon,
     required String title,
@@ -1296,13 +1373,24 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
 }
 
 // Ultra Minimal Dialog
+/// العربية: يمثل `UltraMinimalDialog`.
 class _UltraMinimalDialog extends StatelessWidget {
+  /// العربية: يخزن القيمة `title`.
   final String title;
+
+  /// العربية: يخزن القيمة `message`.
   final String message;
+
+  /// العربية: يخزن القيمة `confirmText`.
   final String confirmText;
+
+  /// العربية: يحدد ما إذا كانت القيمة `isDestructive` مفعلة.
   final bool isDestructive;
+
+  /// العربية: يخزن القيمة `onConfirm`.
   final VoidCallback onConfirm;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `UltraMinimalDialog`.
   const _UltraMinimalDialog({
     required this.title,
     required this.message,
@@ -1311,6 +1399,7 @@ class _UltraMinimalDialog extends StatelessWidget {
     this.isDestructive = false,
   });
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -1439,6 +1528,7 @@ class _UltraMinimalDialog extends StatelessWidget {
 }
 
 // Minimal Particle Model
+/// العربية: يمثل `MinimalParticle`.
 class _MinimalParticle {
   double x = math.Random().nextDouble();
   double y = math.Random().nextDouble();
@@ -1452,15 +1542,21 @@ class _MinimalParticle {
 }
 
 // Painters
+/// العربية: يمثل `UltraMinimalGradientPainter`.
 class _UltraMinimalGradientPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `animation`.
   final double animation;
+
+  /// العربية: يخزن القيمة `pulseAnimation`.
   final double pulseAnimation;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `UltraMinimalGradientPainter`.
   _UltraMinimalGradientPainter({
     required this.animation,
     required this.pulseAnimation,
   });
 
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1489,19 +1585,26 @@ class _UltraMinimalGradientPainter extends CustomPainter {
     }
   }
 
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+/// العربية: يمثل `SubtleParticlePainter`.
 class _SubtleParticlePainter extends CustomPainter {
+  /// العربية: يخزن القيمة `particles`.
   final List<_MinimalParticle> particles;
+
+  /// العربية: يخزن القيمة `animation`.
   final double animation;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `SubtleParticlePainter`.
   _SubtleParticlePainter({
     required this.particles,
     required this.animation,
   });
 
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
@@ -1524,6 +1627,7 @@ class _SubtleParticlePainter extends CustomPainter {
     }
   }
 
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

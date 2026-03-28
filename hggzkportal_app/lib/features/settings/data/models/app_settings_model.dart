@@ -1,6 +1,10 @@
 import '../../domain/entities/app_settings.dart';
 
+/// الشبكة.
+/// by storage or network layers.
 class AppSettingsModel extends AppSettings {
+  /// يعتمدان على البنية نفسها.
+  /// storage and loading use the same structure.
   const AppSettingsModel({
     super.preferredLanguage,
     super.preferredCurrency,
@@ -12,23 +16,26 @@ class AppSettingsModel extends AppSettings {
     super.lastUpdated,
   });
 
+  /// app.
   factory AppSettingsModel.fromJson(Map<String, dynamic> json) {
     return AppSettingsModel(
       preferredLanguage: json['preferredLanguage'] ?? 'ar',
       preferredCurrency: json['preferredCurrency'] ?? 'YER',
       timeZone: json['timeZone'] ?? 'Asia/Aden',
       darkMode: json['darkMode'] ?? false,
-      biometricEnabled: json['biometricEnabled'] ?? (json['additionalSettings']?['biometricEnabled'] ?? false),
+      biometricEnabled: json['biometricEnabled'] ??
+          (json['additionalSettings']?['biometricEnabled'] ?? false),
       notificationSettings: json['notificationSettings'] != null
           ? NotificationSettingsModel.fromJson(json['notificationSettings'])
           : const NotificationSettings(),
       additionalSettings: json['additionalSettings'] ?? {},
-      lastUpdated: json['lastUpdated'] != null 
-          ? DateTime.parse(json['lastUpdated']) 
+      lastUpdated: json['lastUpdated'] != null
+          ? DateTime.parse(json['lastUpdated'])
           : null,
     );
   }
 
+  /// easily.
   Map<String, dynamic> toJson() {
     return {
       'preferredLanguage': preferredLanguage,
@@ -36,12 +43,15 @@ class AppSettingsModel extends AppSettings {
       'timeZone': timeZone,
       'darkMode': darkMode,
       'biometricEnabled': biometricEnabled,
-      'notificationSettings': (notificationSettings as NotificationSettingsModel).toJson(),
+      'notificationSettings':
+          (notificationSettings as NotificationSettingsModel).toJson(),
       'additionalSettings': additionalSettings,
       'lastUpdated': lastUpdated?.toIso8601String(),
     };
   }
 
+  /// البيانات نفسها في طبقة التخزين.
+  /// needs to be reused in storage.
   factory AppSettingsModel.fromEntity(AppSettings settings) {
     return AppSettingsModel(
       preferredLanguage: settings.preferredLanguage,
@@ -56,6 +66,7 @@ class AppSettingsModel extends AppSettings {
   }
 }
 
+/// app settings.
 class NotificationSettingsModel extends NotificationSettings {
   const NotificationSettingsModel({
     super.bookingNotifications,
@@ -69,6 +80,8 @@ class NotificationSettingsModel extends NotificationSettings {
     super.categoryPreferences,
   });
 
+  /// التطبيق.
+  /// app can read.
   factory NotificationSettingsModel.fromJson(Map<String, dynamic> json) {
     return NotificationSettingsModel(
       bookingNotifications: json['bookingNotifications'] ?? true,
@@ -79,10 +92,13 @@ class NotificationSettingsModel extends NotificationSettings {
       soundEnabled: json['soundEnabled'] ?? true,
       vibrationEnabled: json['vibrationEnabled'] ?? true,
       notificationTone: json['notificationTone'] ?? 'default',
-      categoryPreferences: Map<String, bool>.from(json['categoryPreferences'] ?? {}),
+      categoryPreferences:
+          Map<String, bool>.from(json['categoryPreferences'] ?? {}),
     );
   }
 
+  /// الإعدادات الكامل.
+  /// embedded inside the full settings record.
   Map<String, dynamic> toJson() {
     return {
       'bookingNotifications': bookingNotifications,

@@ -8,13 +8,12 @@ import '../utils/service_icons.dart';
 
 /// 📋 Service Details Dialog
 class ServiceDetailsDialog extends StatelessWidget {
+  /// العربية: يخزن القيمة `service`.
   final Service service;
-
   const ServiceDetailsDialog({
     super.key,
     required this.service,
   });
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -27,13 +26,13 @@ class ServiceDetailsDialog extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -53,20 +52,19 @@ class ServiceDetailsDialog extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryBlue.withOpacity(0.1),
-            AppTheme.primaryPurple.withOpacity(0.05),
+            AppTheme.primaryBlue.withValues(alpha: 0.1),
+            AppTheme.primaryPurple.withValues(alpha: 0.05),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
@@ -81,7 +79,7 @@ class ServiceDetailsDialog extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.3),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 4),
                 ),
@@ -124,7 +122,6 @@ class ServiceDetailsDialog extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildContent() {
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -168,7 +165,6 @@ class ServiceDetailsDialog extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildInfoRow({
     required IconData icon,
     required String label,
@@ -182,7 +178,7 @@ class ServiceDetailsDialog extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.primaryBlue.withOpacity(0.1),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(

@@ -6,12 +6,27 @@ import '../../domain/entities/conversation.dart';
 
 // في ملف pinned_admins_widget.dart، حدث callback onUserTap:
 
+/// يعرّف الكلاس `PinnedAdminsWidget`.
+/// Describes the `PinnedAdminsWidget` class.
 class PinnedAdminsWidget extends StatelessWidget {
+  /// Holds the `adminUsers` value.
+  /// العربية: يخزن القيمة `adminUsers`.
   final List<ChatUser> adminUsers;
+
+  /// يخزن العضو `selectedUsers`.
+  /// Holds the `selectedUsers` member.
   final Set<ChatUser> selectedUsers;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(ChatUser) onUserTap;
+
+  /// يخزن العضو `scrollController`.
+  /// Holds the `scrollController` member.
   final ScrollController? scrollController;
 
+  /// ينشئ مثيلاً من `PinnedAdminsWidget`.
+  /// Builds an instance of `PinnedAdminsWidget`.
   const PinnedAdminsWidget({
     super.key,
     required this.adminUsers,
@@ -20,6 +35,8 @@ class PinnedAdminsWidget extends StatelessWidget {
     this.scrollController,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     if (adminUsers.isEmpty) {
@@ -99,7 +116,7 @@ class PinnedAdminsWidget extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Admins horizontal list
           SizedBox(
             height: 100,
@@ -111,7 +128,7 @@ class PinnedAdminsWidget extends StatelessWidget {
               itemBuilder: (context, index) {
                 final admin = adminUsers[index];
                 final isSelected = selectedUsers.contains(admin);
-                
+
                 return _AdminItemWidget(
                   admin: admin,
                   isSelected: isSelected,
@@ -127,12 +144,27 @@ class PinnedAdminsWidget extends StatelessWidget {
   }
 }
 
+/// يعرّف الكلاس `_AdminItemWidget`.
+/// Describes the `_AdminItemWidget` class.
 class _AdminItemWidget extends StatefulWidget {
+  /// Holds the `admin` value.
+  /// العربية: يخزن القيمة `admin`.
   final ChatUser admin;
+
+  /// يخزن العضو `isSelected`.
+  /// Holds the `isSelected` member.
   final bool isSelected;
+
+  /// يخزن العضو `onTap`.
+  /// Holds the `onTap` member.
   final VoidCallback onTap;
+
+  /// يخزن العضو `index`.
+  /// Holds the `index` member.
   final int index;
 
+  /// ينشئ مثيلاً من `_AdminItemWidget`.
+  /// Builds an instance of `_AdminItemWidget`.
   const _AdminItemWidget({
     required this.admin,
     required this.isSelected,
@@ -140,16 +172,30 @@ class _AdminItemWidget extends StatefulWidget {
     required this.index,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<_AdminItemWidget> createState() => _AdminItemWidgetState();
 }
 
+/// يعرّف الكلاس `_AdminItemWidgetState`.
+/// Describes the `_AdminItemWidgetState` class.
 class _AdminItemWidgetState extends State<_AdminItemWidget>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_controller`.
+  /// Holds the `_controller` member.
   late AnimationController _controller;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
+
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -157,7 +203,7 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
       duration: Duration(milliseconds: 400 + (widget.index * 50)),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.5,
       end: 1.0,
@@ -165,7 +211,7 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
       parent: _controller,
       curve: Curves.easeOutBack,
     ));
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -173,16 +219,20 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
       parent: _controller,
       curve: Curves.easeOut,
     ));
-    
+
     _controller.forward();
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -216,14 +266,15 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppTheme.primaryBlue.withValues(alpha: 0.4),
+                                  color: AppTheme.primaryBlue
+                                      .withValues(alpha: 0.4),
                                   blurRadius: 16,
                                   spreadRadius: 2,
                                 ),
                               ],
                             ),
                           ),
-                        
+
                         // Avatar container
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
@@ -264,7 +315,7 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                             ),
                           ),
                         ),
-                        
+
                         // Crown badge
                         Positioned(
                           top: 0,
@@ -296,7 +347,7 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                             ),
                           ),
                         ),
-                        
+
                         // Selection checkmark
                         if (widget.isSelected)
                           Positioned(
@@ -322,9 +373,9 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                           ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 6),
-                    
+
                     // Name
                     Text(
                       widget.admin.name.split(' ').first,
@@ -341,7 +392,7 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),
-                    
+
                     // Status
                     if (widget.admin.isOnline)
                       Container(
@@ -373,11 +424,15 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
     );
   }
 
+  /// ينفذ العملية `_getInitials`.
+  /// Runs the `_getInitials` operation.
   String _getInitials(String name) {
     final parts = name.trim().split(' ').where((e) => e.isNotEmpty).toList();
     if (parts.isEmpty) return '?';
     if (parts.length == 1) {
-      return parts.first.substring(0, parts.first.length.clamp(0, 2)).toUpperCase();
+      return parts.first
+          .substring(0, parts.first.length.clamp(0, 2))
+          .toUpperCase();
     }
     return (parts[0].substring(0, 1) + parts[1].substring(0, 1)).toUpperCase();
   }

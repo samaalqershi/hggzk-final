@@ -28,6 +28,8 @@ String _normalizeYemenPhone(String input) {
 }
 
 class RegisterForm extends StatefulWidget {
+  /// يستقبل بيانات التسجيل النهائية بعد اجتياز التحقق المحلي.
+  /// Receives the validated registration payload once local validation passes.
   final Function(
     String name,
     String email,
@@ -35,14 +37,18 @@ class RegisterForm extends StatefulWidget {
     String password,
     String passwordConfirmation,
   ) onSubmit;
+
+  /// يوضح ما إذا كانت عملية إنشاء الحساب جارية.
+  /// Indicates whether the registration request is currently running.
   final bool isLoading;
 
+  /// ينشئ نموذج التسجيل مع رد الإرسال وحالة التحميل.
+  /// Creates the registration form with its submit callback and loading flag.
   const RegisterForm({
     super.key,
     required this.onSubmit,
     this.isLoading = false,
   });
-
   @override
   State<RegisterForm> createState() => _RegisterFormState();
 }
@@ -61,21 +67,15 @@ class _RegisterFormState extends State<RegisterForm>
   final _phoneFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
   final _confirmPasswordFocusNode = FocusNode();
-
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _acceptTerms = false;
   bool _showPasswordStrength = false;
-
   late TapGestureRecognizer _termsRecognizer;
   late TapGestureRecognizer _privacyRecognizer;
-
-  /// حماية ضد الضغط المتكرر على زر التسجيل
   bool _isSubmitting = false;
-
   late AnimationController _fieldAnimationController;
   late AnimationController _checkboxAnimationController;
-
   @override
   void initState() {
     super.initState();

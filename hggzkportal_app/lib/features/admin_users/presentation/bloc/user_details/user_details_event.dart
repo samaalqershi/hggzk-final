@@ -18,9 +18,13 @@ class LoadUserDetailsEvent extends UserDetailsEvent {
 
 class UpdateUserDetailsEvent extends UserDetailsEvent {
   final String userId;
+
   final String? name;
+
   final String? email;
+
   final String? phone;
+
   final String? profileImage;
 
   const UpdateUserDetailsEvent({
@@ -37,6 +41,7 @@ class UpdateUserDetailsEvent extends UserDetailsEvent {
 
 class ToggleUserStatusEvent extends UserDetailsEvent {
   final String userId;
+
   final bool activate;
 
   const ToggleUserStatusEvent({
@@ -50,6 +55,7 @@ class ToggleUserStatusEvent extends UserDetailsEvent {
 
 class AssignUserRoleEvent extends UserDetailsEvent {
   final String userId;
+
   final String roleId;
 
   const AssignUserRoleEvent({

@@ -10,13 +10,31 @@ import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/booking.dart';
 import 'booking_status_badge.dart';
 
+/// يعرض عنصرًا زمنيًا داخل خط الحجوزات يربط الوقت بالحجوزات الموجودة فيه.
+/// Shows one timeline slot that links a time slot to the bookings within it.
 class BookingTimelineWidget extends StatelessWidget {
+  /// يحدد الشريحة الزمنية التي يمثلها هذا السطر.
+  /// Defines the time slot represented by this row.
   final String timeSlot;
+
+  /// قائمة الحجوزات المرتبطة بالشريحة الزمنية الحالية.
+  /// Bookings associated with the current time slot.
   final List<Booking> bookings;
+
+  /// يحدد ما إذا كان هذا العنصر هو أول سطر في الخط الزمني.
+  /// Indicates whether this item is the first row in the timeline.
   final bool isFirst;
+
+  /// يحدد ما إذا كان هذا العنصر هو آخر سطر في الخط الزمني.
+  /// Indicates whether this item is the last row in the timeline.
   final bool isLast;
+
+  /// يستدعى عند الضغط على بطاقة حجز داخل الخط الزمني.
+  /// Called when a booking card inside the timeline is tapped.
   final Function(String) onBookingTap;
 
+  /// ينشئ عنصر الخط الزمني مع الحجوزات وروابط التفاعل.
+  /// Creates the timeline item with its bookings and interaction callbacks.
   const BookingTimelineWidget({
     super.key,
     required this.timeSlot,
@@ -26,6 +44,8 @@ class BookingTimelineWidget extends StatelessWidget {
     required this.onBookingTap,
   });
 
+  /// يبني العنصر الزمني الكامل مع المؤشر والبطاقات وسطر الإطار.
+  /// Builds the full timeline item with indicator, cards, and connector lines.
   @override
   Widget build(BuildContext context) {
     return TimelineTile(
@@ -41,11 +61,11 @@ class BookingTimelineWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12),
       ),
       beforeLineStyle: LineStyle(
-        color: AppTheme.primaryBlue.withOpacity(0.2),
+        color: AppTheme.primaryBlue.withValues(alpha: 0.2),
         thickness: 2,
       ),
       afterLineStyle: LineStyle(
-        color: AppTheme.primaryBlue.withOpacity(0.2),
+        color: AppTheme.primaryBlue.withValues(alpha: 0.2),
         thickness: 2,
       ),
       startChild: _buildTimeLabel(),
@@ -53,6 +73,8 @@ class BookingTimelineWidget extends StatelessWidget {
     );
   }
 
+  /// يبني المؤشر الدائري الذي يوضح إذا كانت الساعة الحالية.
+  /// Builds the circular indicator that highlights the current time.
   Widget _buildTimeIndicator() {
     final isNow = _isCurrentTime();
 
@@ -62,14 +84,15 @@ class BookingTimelineWidget extends StatelessWidget {
         color: isNow ? null : AppTheme.darkCard,
         shape: BoxShape.circle,
         border: Border.all(
-          color:
-              isNow ? Colors.transparent : AppTheme.darkBorder.withOpacity(0.3),
+          color: isNow
+              ? Colors.transparent
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 2,
         ),
         boxShadow: isNow
             ? [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.5),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                   blurRadius: 10,
                   spreadRadius: 2,
                 ),
@@ -86,6 +109,8 @@ class BookingTimelineWidget extends StatelessWidget {
     );
   }
 
+  /// يعرض نص الشريحة الزمنية مع عدد الحجوزات الموجودة فيها.
+  /// Displays the time slot label and the number of bookings in it.
   Widget _buildTimeLabel() {
     return Container(
       margin: const EdgeInsets.only(right: 8),
@@ -109,7 +134,7 @@ class BookingTimelineWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -125,6 +150,8 @@ class BookingTimelineWidget extends StatelessWidget {
     );
   }
 
+  /// يعرض قائمة البطاقات التابعة لهذه الشريحة الزمنية.
+  /// Renders the list of booking cards for this time slot.
   Widget _buildBookingsList(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -136,6 +163,8 @@ class BookingTimelineWidget extends StatelessWidget {
     );
   }
 
+  /// يبني بطاقة حجز واحدة مع حالتها ولونها وسلوك النقر.
+  /// Builds a single booking card with status styling and tap handling.
   Widget _buildBookingCard(BuildContext context, Booking booking) {
     final isCheckIn = booking.checkIn.hour == int.parse(timeSlot.split(':')[0]);
     final isCheckOut =
@@ -147,7 +176,7 @@ class BookingTimelineWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.shadowDark.withOpacity(0.1),
+            color: AppTheme.shadowDark.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -163,17 +192,17 @@ class BookingTimelineWidget extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.8),
-                  AppTheme.darkCard.withOpacity(0.6),
+                  AppTheme.darkCard.withValues(alpha: 0.8),
+                  AppTheme.darkCard.withValues(alpha: 0.6),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isCheckIn
-                    ? AppTheme.success.withOpacity(0.3)
+                    ? AppTheme.success.withValues(alpha: 0.3)
                     : isCheckOut
-                        ? AppTheme.error.withOpacity(0.3)
-                        : AppTheme.darkBorder.withOpacity(0.2),
+                        ? AppTheme.error.withValues(alpha: 0.3)
+                        : AppTheme.darkBorder.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -239,6 +268,8 @@ class BookingTimelineWidget extends StatelessWidget {
     );
   }
 
+  /// يختار الأيقونة واللون وفق كون الحدث وصولًا أو مغادرة أو إقامة.
+  /// Chooses the icon and color based on check-in, check-out, or stay.
   Widget _buildEventTypeIcon(bool isCheckIn, bool isCheckOut) {
     IconData icon;
     Color color;
@@ -258,7 +289,7 @@ class BookingTimelineWidget extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Icon(
@@ -269,15 +300,24 @@ class BookingTimelineWidget extends StatelessWidget {
     );
   }
 
+  /// Builds the booking facts panel and switches to a compact layout on narrow
+  /// screens to avoid crowding the timeline card.
+  ///
+  /// يبني لوحة تفاصيل الحجز وينتقل إلى تنسيق مضغوط على الشاشات الضيقة
+  /// حتى لا تزدحم بطاقة الخط الزمني.
   Widget _buildBookingDetails(
-      BuildContext context, Booking booking, bool isCheckIn, bool isCheckOut) {
+    BuildContext context,
+    Booking booking,
+    bool isCheckIn,
+    bool isCheckOut,
+  ) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 380;
 
     return Container(
       padding: EdgeInsets.all(isSmallScreen ? 8 : 12),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.3),
+        color: AppTheme.darkBackground.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(10),
       ),
       child: isSmallScreen
@@ -286,6 +326,9 @@ class BookingTimelineWidget extends StatelessWidget {
     );
   }
 
+  /// Builds the regular detail layout used when the card has enough width.
+  ///
+  /// يبني تخطيط التفاصيل الاعتيادي عندما تكون البطاقة واسعة بما يكفي.
   Widget _buildNormalLayout(Booking booking, bool isCheckIn, bool isCheckOut) {
     return Wrap(
       spacing: 12,
@@ -315,6 +358,9 @@ class BookingTimelineWidget extends StatelessWidget {
     );
   }
 
+  /// Builds a vertically stacked detail layout for narrow timeline cards.
+  ///
+  /// يبني تخطيط تفاصيل عموديًا لبطاقات الخط الزمني الضيقة.
   Widget _buildCompactLayout(Booking booking, bool isCheckIn, bool isCheckOut) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -356,6 +402,9 @@ class BookingTimelineWidget extends StatelessWidget {
     );
   }
 
+  /// Builds the highlighted price chip for the booking card.
+  ///
+  /// يبني شارة السعر البارزة داخل بطاقة الحجز.
   Widget _buildPriceTag(String price, {bool compact = false}) {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -377,6 +426,9 @@ class BookingTimelineWidget extends StatelessWidget {
     );
   }
 
+  /// Builds one labeled fact row such as guests, date, or stay length.
+  ///
+  /// يبني صف معلومة واحدًا مثل الضيوف أو التاريخ أو مدة الإقامة.
   Widget _buildDetailItem({
     required IconData icon,
     required String label,
@@ -417,6 +469,9 @@ class BookingTimelineWidget extends StatelessWidget {
     );
   }
 
+  /// Checks whether the represented time slot matches the current hour.
+  ///
+  /// يتحقق مما إذا كانت الشريحة الزمنية الحالية تطابق الساعة الراهنة.
   bool _isCurrentTime() {
     final now = DateTime.now();
     final currentHour = '${now.hour.toString().padLeft(2, '0')}:00';

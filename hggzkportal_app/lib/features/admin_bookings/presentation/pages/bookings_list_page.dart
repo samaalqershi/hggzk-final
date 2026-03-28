@@ -23,30 +23,63 @@ import '../widgets/booking_stats_cards.dart';
 import '../widgets/booking_actions_dialog.dart';
 import '../widgets/booking_confirmation_dialog.dart';
 
+/// Arabic: الصفحة الرئيسية التي تعرض قائمة الحجوزات مع الفلاتر وعروض العرض المختلفة.
+/// English: Main bookings page that exposes filters, list, grid, and table views.
 class BookingsListPage extends StatefulWidget {
+  /// Arabic: تاريخ البداية الافتراضي لنطاق التحميل الأولي أو الرابط العميق.
+  /// English: Default start date for the initial load range or deep-link entry.
   final DateTime? initialStartDate;
+
+  /// Arabic: تاريخ النهاية الافتراضي لنطاق التحميل الأولي.
+  /// English: Default end date for the initial load range.
   final DateTime? initialEndDate;
 
+  /// Arabic: ينشئ صفحة الحجوزات مع نطاق اختياري للتحميل الأول.
+  /// English: Creates the bookings page with an optional initial load range.
   const BookingsListPage(
       {super.key, this.initialStartDate, this.initialEndDate});
-
   @override
   State<BookingsListPage> createState() => _BookingsListPageState();
 }
 
+/// Arabic: يدير حالة صفحة الحجوزات بما في ذلك التحميل، التمرير، والاختيار الجماعي.
+/// English: Manages the bookings page state, including loading, scrolling, and bulk selection.
 class _BookingsListPageState extends State<BookingsListPage>
     with TickerProviderStateMixin {
+  /// Arabic: يتحكم في الحركة الافتتاحية لعناصر الصفحة.
+  /// English: Drives the page entrance animation.
   late AnimationController _animationController;
-  late AnimationController _pulseAnimationController; // 🎯 للـ pulse animation
+
+  /// Arabic: يصنع نبضة بصرية للزر العائم المميز.
+  /// English: Produces the pulse animation for the highlighted floating button.
+  late AnimationController _pulseAnimationController;
+
+  /// Arabic: ينسق التنقل بين أوضاع العرض داخل الصفحة.
+  /// English: Coordinates switching among the page's display modes.
   late TabController _tabController;
+
+  /// Arabic: يراقب التمرير داخل قائمة الحجوزات.
+  /// English: Tracks scrolling within the bookings list.
   final ScrollController _scrollController = ScrollController();
 
+  /// Arabic: يحدد ما إذا كانت الصفحة تعرض بطاقات شبكية أم لا.
+  /// English: Tracks whether the page currently shows a grid of cards.
   bool _isGridView = false;
+
+  /// Arabic: يحدد ما إذا كانت لوحة الفلاتر ظاهرة.
+  /// English: Tracks whether the filter panel is visible.
   bool _showFilters = false;
+
+  /// Arabic: يحتفظ بالفلاتر النشطة التي تم تطبيقها مؤخرًا.
+  /// English: Stores the currently active filters applied in the view.
   BookingFilters? _activeFilters;
-  // آخر سبب إلغاء تم إدخاله لكل حجز لإعادة الاستخدام عند فشل الإلغاء بسبب وجود مدفوعات
+
+  /// Arabic: يحفظ آخر سبب إلغاء لكل حجز لإعادة استخدامه عند الحاجة.
+  /// English: Remembers the latest cancellation reason for each booking when needed again.
   final Map<String, String> _lastCancellationReasons = {};
 
+  /// Arabic: يهيئ المتحكمات والحركات ثم يحمّل بيانات الحجوزات الأولى.
+  /// English: Initializes controllers and animations, then loads the initial bookings data.
   @override
   void initState() {
     super.initState();
@@ -66,6 +99,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     _setupScrollListener();
   }
 
+  /// Arabic: يطلب دفعة الحجوزات الأولى ضمن النطاق المحدد للتحميل.
+  /// English: Requests the initial bookings batch within the configured load range.
   void _loadBookings() {
     // Default range (when not coming from a deep-link): from 2023-01-01 until tomorrow.
     // This avoids the common "no bookings" empty state when seeded/demo data is older.
@@ -91,6 +126,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     ));
   }
 
+  /// Arabic: يضيف مستمع التمرير لجلب الصفحة التالية عند الاقتراب من النهاية.
+  /// English: Adds a scroll listener to fetch the next page near the list bottom.
   void _setupScrollListener() {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -110,7 +147,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     });
   }
 
-  /// 🔄 دالة السحب للتحديث (Pull-to-Refresh)
+  /// Arabic: يعيد تحميل الحجوزات عندما يسحب المستخدم القائمة للأسفل.
+  /// English: Refreshes bookings when the user performs a pull-to-refresh gesture.
   Future<void> _onRefresh() async {
     HapticFeedback.mediumImpact();
     context.read<BookingsListBloc>().add(const RefreshBookingsEvent());
@@ -125,6 +163,8 @@ class _BookingsListPageState extends State<BookingsListPage>
         );
   }
 
+  /// Arabic: يحرر المتحكمات قبل إزالة الصفحة من الشجرة.
+  /// English: Disposes the controllers before the page leaves the tree.
   @override
   void dispose() {
     _animationController.dispose();
@@ -134,6 +174,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     super.dispose();
   }
 
+  /// Arabic: يبني الصفحة مع مراقبة الحالات التي تحتاج إلى تفاعل إضافي.
+  /// English: Builds the page while watching for states that require additional interaction.
   @override
   Widget build(BuildContext context) {
     return BlocListener<BookingsListBloc, BookingsListState>(
@@ -195,6 +237,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
+  /// Arabic: ينشئ شريط العنوان المثبت مع أزرار العرض والتنقل والفلاتر.
+  /// English: Builds the pinned app bar with view, navigation, and filter actions.
   Widget _buildSliverAppBar() {
     return SliverAppBar(
       expandedHeight: 120,
@@ -209,7 +253,7 @@ class _BookingsListPageState extends State<BookingsListPage>
             color: AppTheme.textWhite,
             shadows: [
               Shadow(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                 blurRadius: 10,
               ),
             ],
@@ -221,7 +265,7 @@ class _BookingsListPageState extends State<BookingsListPage>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.1),
+                AppTheme.primaryBlue.withValues(alpha: 0.1),
                 AppTheme.darkBackground,
               ],
             ),
@@ -254,7 +298,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
-  // 🎯 زر Timeline المميز
+  /// Arabic: يبني زر الخط الزمني بتأثير بصري نابض لتمييزه عن بقية الأزرار.
+  /// English: Builds the timeline button with a pulsing visual treatment to stand out.
   Widget _buildTimelineButton() {
     return AnimatedBuilder(
       animation: _pulseAnimationController,
@@ -268,21 +313,21 @@ class _BookingsListPageState extends State<BookingsListPage>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.primaryPurple.withOpacity(0.2),
-                      AppTheme.primaryViolet.withOpacity(0.15),
+                      AppTheme.primaryPurple.withValues(alpha: 0.2),
+                      AppTheme.primaryViolet.withValues(alpha: 0.15),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.primaryPurple.withOpacity(
-                      0.3 + (_pulseAnimationController.value * 0.2),
+                    color: AppTheme.primaryPurple.withValues(
+                      alpha: 0.3 + (_pulseAnimationController.value * 0.2),
                     ),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryPurple.withOpacity(
-                        0.1 * _pulseAnimationController.value,
+                      color: AppTheme.primaryPurple.withValues(
+                        alpha: 0.1 * _pulseAnimationController.value,
                       ),
                       blurRadius: 8,
                       spreadRadius: 1,
@@ -326,8 +371,8 @@ class _BookingsListPageState extends State<BookingsListPage>
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.neonPurple.withOpacity(
-                          0.6 * _pulseAnimationController.value,
+                        color: AppTheme.neonPurple.withValues(
+                          alpha: 0.6 * _pulseAnimationController.value,
                         ),
                         blurRadius: 4,
                         spreadRadius: 1,
@@ -343,7 +388,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
-  // 🎯 دالة التنقل إلى Timeline
+  /// Arabic: ينتقل إلى صفحة الخط الزمني بعد تشغيل انتقال قصير.
+  /// English: Navigates to the timeline page after a short transition effect.
   void _navigateToTimeline() {
     // عرض loading animation
     _showNavigationAnimation();
@@ -355,7 +401,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     });
   }
 
-  // 🎯 Animation عند التنقل
+  /// Arabic: يعرض طبقة انتقالية ضبابية أثناء الانتقال إلى الخط الزمني.
+  /// English: Shows a blurred transition overlay while navigating to the timeline.
   void _showNavigationAnimation() {
     showDialog(
       fullscreenDialog: true,
@@ -365,7 +412,7 @@ class _BookingsListPageState extends State<BookingsListPage>
       builder: (context) => BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: Container(
-          color: AppTheme.darkBackground.withOpacity(0.3),
+          color: AppTheme.darkBackground.withValues(alpha: 0.3),
           child: Center(
             child: TweenAnimationBuilder<double>(
               tween: Tween(begin: 0, end: 1),
@@ -379,18 +426,18 @@ class _BookingsListPageState extends State<BookingsListPage>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppTheme.primaryPurple.withOpacity(0.3),
-                          AppTheme.primaryViolet.withOpacity(0.3),
+                          AppTheme.primaryPurple.withValues(alpha: 0.3),
+                          AppTheme.primaryViolet.withValues(alpha: 0.3),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: AppTheme.primaryPurple.withOpacity(0.5),
+                        color: AppTheme.primaryPurple.withValues(alpha: 0.5),
                         width: 2,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.primaryPurple.withOpacity(0.3),
+                          color: AppTheme.primaryPurple.withValues(alpha: 0.3),
                           blurRadius: 30,
                           spreadRadius: 10,
                         ),
@@ -410,6 +457,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
+  /// Arabic: يبني زر إجراء صغيرًا مناسبًا لشريط العنوان.
+  /// English: Builds a compact action button that fits the app bar.
   Widget _buildActionButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -417,10 +466,10 @@ class _BookingsListPageState extends State<BookingsListPage>
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -442,7 +491,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
-  // 🎯 تحسين الزر العائم بإضافة قائمة سريعة
+  /// Arabic: يختار الزر العائم المناسب بين الوصول السريع والإجراءات الجماعية.
+  /// English: Chooses the appropriate floating button between quick access and bulk actions.
   Widget _buildEnhancedFloatingActionButton() {
     return BlocBuilder<BookingsListBloc, BookingsListState>(
       builder: (context, state) {
@@ -457,7 +507,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
-  // 🎯 زر الوصول السريع
+  /// Arabic: يبني زر الوصول السريع الذي يفتح قائمة الاختصارات.
+  /// English: Builds the quick-access button that opens the shortcuts menu.
   Widget _buildQuickAccessFloatingButton() {
     return Container(
       decoration: BoxDecoration(
@@ -465,7 +516,7 @@ class _BookingsListPageState extends State<BookingsListPage>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -484,7 +535,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
-  // 🎯 قائمة الوصول السريع
+  /// Arabic: يفتح لوحة سفلية تحتوي أهم اختصارات التنقل.
+  /// English: Opens a bottom sheet with the most frequently used navigation shortcuts.
   void _showQuickAccessMenu() {
     HapticFeedback.mediumImpact();
     showModalBottomSheet(
@@ -493,11 +545,11 @@ class _BookingsListPageState extends State<BookingsListPage>
       isScrollControlled: true,
       builder: (context) => Container(
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withOpacity(0.95),
+          color: AppTheme.darkCard.withValues(alpha: 0.95),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           border: Border(
             top: BorderSide(
-              color: AppTheme.darkBorder.withOpacity(0.2),
+              color: AppTheme.darkBorder.withValues(alpha: 0.2),
             ),
           ),
         ),
@@ -514,7 +566,7 @@ class _BookingsListPageState extends State<BookingsListPage>
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppTheme.darkBorder.withOpacity(0.3),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -561,7 +613,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
-  // 🎯 عنصر القائمة السريعة
+  /// Arabic: يبني عنصرًا واحدًا داخل قائمة الوصول السريع.
+  /// English: Builds a single entry inside the quick access menu.
   Widget _buildQuickMenuItem({
     required IconData icon,
     required String label,
@@ -573,11 +626,11 @@ class _BookingsListPageState extends State<BookingsListPage>
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: gradient.map((c) => c.withOpacity(0.05)).toList(),
+          colors: gradient.map((c) => c.withValues(alpha: 0.05)).toList(),
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: gradient.first.withOpacity(0.2),
+          color: gradient.first.withValues(alpha: 0.2),
         ),
       ),
       child: Material(
@@ -600,7 +653,7 @@ class _BookingsListPageState extends State<BookingsListPage>
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: gradient.first.withOpacity(0.3),
+                        color: gradient.first.withValues(alpha: 0.3),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -647,7 +700,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
-  // 🎯 زر الإجراءات الجماعية (الموجود مسبقاً مع تحسينات)
+  /// Arabic: يبني زر الإجراءات الجماعية الذي يظهر عند تحديد أكثر من حجز.
+  /// English: Builds the bulk-actions button shown when multiple bookings are selected.
   Widget _buildBulkActionsFloatingButton(BookingsListLoaded state) {
     return Container(
       decoration: BoxDecoration(
@@ -655,7 +709,7 @@ class _BookingsListPageState extends State<BookingsListPage>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -680,7 +734,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
-  // باقي الدوال كما هي...
+  /// Arabic: يعرض بطاقات الإحصاءات المختصرة أعلى قائمة الحجوزات.
+  /// English: Renders the compact statistics cards above the bookings list.
   Widget _buildStatsSection() {
     return SliverToBoxAdapter(
       child: BlocBuilder<BookingsListBloc, BookingsListState>(
@@ -702,6 +757,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
+  /// Arabic: يفتح أو يغلق لوحة الفلاتر المتقدمة للحجوزات.
+  /// English: Expands or collapses the advanced bookings filter panel.
   Widget _buildFilterSection() {
     return SliverToBoxAdapter(
       child: AnimatedContainer(
@@ -728,6 +785,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
+  /// Arabic: يعرض محتوى القائمة أو حالات التحميل والخطأ والفراغ.
+  /// English: Renders the list content or its loading, error, and empty states.
   Widget _buildBookingsList() {
     return BlocBuilder<BookingsListBloc, BookingsListState>(
       builder: (context, state) {
@@ -789,7 +848,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
-  // 🎯 Overlay يظهر أثناء تنفيذ أي عملية (إلغاء/تأكيد/تحديث/تشيك إن/آوت)
+  /// Arabic: يعرض طبقة تغطية أثناء العمليات التي تحتاج إيقاف التفاعل مؤقتًا.
+  /// English: Shows an overlay for operations that need temporary UI blocking.
   Widget _buildOperationOverlay() {
     return BlocBuilder<BookingsListBloc, BookingsListState>(
       builder: (context, state) {
@@ -801,7 +861,7 @@ class _BookingsListPageState extends State<BookingsListPage>
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
               child: Container(
-                color: AppTheme.darkBackground.withOpacity(0.4),
+                color: AppTheme.darkBackground.withValues(alpha: 0.4),
                 alignment: Alignment.center,
                 child: LoadingWidget(
                   type: LoadingType.futuristic,
@@ -833,6 +893,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
+  /// Arabic: يعرض الحجوزات على هيئة شبكة بطاقات تفاعلية.
+  /// English: Displays bookings as an interactive grid of cards.
   Widget _buildGridView(BookingsListLoaded state) {
     return SliverPadding(
       padding: const EdgeInsets.all(16),
@@ -880,6 +942,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
+  /// Arabic: يعرض الحجوزات في جدول مناسب للعمليات السريعة.
+  /// English: Displays bookings in a table layout suited for quick actions.
   Widget _buildTableView(BookingsListLoaded state) {
     return SliverToBoxAdapter(
       child: Padding(
@@ -916,6 +980,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
+  /// Arabic: ينتقل إلى صفحة تفاصيل الحجز ثم ينعش القائمة إذا عادت نتيجة نجاح.
+  /// English: Opens booking details and refreshes the list when a successful result returns.
   Future<void> _navigateToDetails(String bookingId) async {
     final result = await context.push('/admin/bookings/$bookingId');
     // تحديث القائمة فقط إذا تمت عمليات في صفحة التفاصيل
@@ -924,6 +990,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     }
   }
 
+  /// Arabic: يبدّل تحديد الحجز لاستخدامه في الإجراءات الجماعية.
+  /// English: Toggles a booking's selection for bulk actions.
   void _toggleSelection(Booking booking) {
     final bloc = context.read<BookingsListBloc>();
     final state = bloc.state;
@@ -937,6 +1005,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     }
   }
 
+  /// Arabic: يفتح حوار تأكيد الحجز مع الحفاظ على مرجع الحجز الحالي.
+  /// English: Opens the booking confirmation dialog while preserving the current reference.
   void _showConfirmDialog(String bookingId) {
     // final bloc = context.read<BookingsListBloc>();
     // final state = bloc.state;
@@ -956,6 +1026,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
+  /// Arabic: يفتح حوار سبب الإلغاء ثم يرسل التأكيد النهائي عند الاختيار.
+  /// English: Opens the cancellation-reason dialog and then sends the final confirmation.
   void _showCancelDialog(String bookingId) async {
     // First: Show reason selection dialog
     final result = await showDialog<String?>(
@@ -996,6 +1068,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     }
   }
 
+  /// Arabic: يعرض لوحة سفلية للإجراءات الجماعية المتاحة للحجوزات المحددة.
+  /// English: Shows a bottom sheet with the available bulk actions for selected bookings.
   void _showBulkActions() {
     // Show bottom sheet with bulk actions
     showModalBottomSheet(
@@ -1038,6 +1112,8 @@ class _BookingsListPageState extends State<BookingsListPage>
     );
   }
 
+  /// Arabic: يبني زرًا واحدًا داخل لوحة الإجراءات الجماعية.
+  /// English: Builds a single action button inside the bulk actions panel.
   Widget _buildBulkActionButton({
     required IconData icon,
     required String label,
@@ -1049,7 +1125,7 @@ class _BookingsListPageState extends State<BookingsListPage>
         color: AppTheme.darkBackground,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
         ),
       ),
       child: Material(

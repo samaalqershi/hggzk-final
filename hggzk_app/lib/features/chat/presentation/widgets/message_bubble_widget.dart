@@ -10,17 +10,47 @@ import 'attachment_preview_widget.dart';
 import 'message_status_indicator.dart';
 import 'reaction_picker_widget.dart';
 
+/// Renders one chat message bubble with replies, attachments, reactions, and
+/// action affordances.
+/// يرسم فقاعة رسالة واحدة مع الردود والمرفقات والتفاعلات وأفعال الرسالة.
 class MessageBubbleWidget extends StatefulWidget {
+  /// Message being rendered in the bubble.
+  /// الرسالة التي تُعرض داخل الفقاعة.
   final Message message;
-  final bool isMe;
-  final Message? previousMessage;
-  final Message? nextMessage;
-  final VoidCallback? onReply;
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
-  final Function(String)? onReaction;
-  final VoidCallback? onReplyTap; // Added for reply message tap
 
+  /// True when the bubble belongs to the current user.
+  /// تكون صحيحة عندما تعود الفقاعة للمستخدم الحالي.
+  final bool isMe;
+
+  /// Previous message used to decide grouping and tail visibility.
+  /// الرسالة السابقة المستخدمة لتحديد التجميع وإظهار الذيل.
+  final Message? previousMessage;
+
+  /// Next message used to decide grouping and tail visibility.
+  /// الرسالة التالية المستخدمة لتحديد التجميع وإظهار الذيل.
+  final Message? nextMessage;
+
+  /// Opens the reply composer for this message.
+  /// يفتح محرر الرد لهذه الرسالة.
+  final VoidCallback? onReply;
+
+  /// Opens edit mode for this message.
+  /// يفتح وضع التعديل لهذه الرسالة.
+  final VoidCallback? onEdit;
+
+  /// Deletes the message when the user confirms the action.
+  /// يحذف الرسالة عند تأكيد المستخدم.
+  final VoidCallback? onDelete;
+
+  /// Applies a reaction picked from the inline reaction tray.
+  /// يضيف تفاعلًا مختارًا من درج التفاعلات المضمّن.
+  final Function(String)? onReaction;
+  /// Opens the referenced reply when the user taps the quoted preview.
+  /// يفتح الرد المشار إليه عندما ينقر المستخدم على المعاينة المقتبسة.
+  final VoidCallback? onReplyTap;
+
+  /// Builds one message bubble with optional reaction support.
+  /// ينشئ فقاعة رسالة واحدة مع دعم اختياري للتفاعلات.
   const MessageBubbleWidget({
     super.key,
     required this.message,
@@ -34,17 +64,34 @@ class MessageBubbleWidget extends StatefulWidget {
     this.onReplyTap,
   });
 
+  /// Creates the state object for this widget.
+  /// ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<MessageBubbleWidget> createState() => _MessageBubbleWidgetState();
 }
 
+/// Animates the message entrance and manages inline reaction visibility.
+/// يحرك ظهور الرسالة ويدير ظهور درج التفاعلات المضمّن.
 class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     with SingleTickerProviderStateMixin {
+  /// Drives the bubble entrance animation.
+  /// يقود حركة ظهور الفقاعة.
   late AnimationController _animationController;
+
+  /// Scales the bubble slightly as it enters the viewport.
+  /// يكبّر الفقاعة قليلًا أثناء دخولها إلى الشاشة.
   late Animation<double> _scaleAnimation;
+
+  /// Fades the bubble into view.
+  /// يدرج الفقاعة إلى الواجهة بالتدريج.
   late Animation<double> _fadeAnimation;
+
+  /// Tracks whether the reaction tray is visible.
+  /// يتتبع ما إذا كان درج التفاعلات ظاهرًا.
   bool _showReactions = false;
 
+  /// Starts the entrance animation when the widget mounts.
+  /// يبدأ حركة الظهور عند تركيب العنصر.
   @override
   void initState() {
     super.initState();
@@ -69,12 +116,16 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     _animationController.forward();
   }
 
+  /// Releases the animation controller owned by the bubble.
+  /// يحرر متحكم الحركة المملوك للفقاعة.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// Builds the bubble, attachment previews, footer, and reaction tray.
+  /// يبني الفقاعة ومعاينات المرفقات والتذييل ودرج التفاعلات.
   @override
   Widget build(BuildContext context) {
     final showTail = _shouldShowTail();
@@ -94,9 +145,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
             bottom: 2,
           ),
           child: Column(
-            crossAxisAlignment: widget.isMe
-                ? CrossAxisAlignment.end
-                : CrossAxisAlignment.start,
+            crossAxisAlignment:
+                widget.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
               GestureDetector(
                 onLongPress: _showOptions,
@@ -130,7 +180,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
                                       end: Alignment.bottomRight,
                                       colors: [
                                         AppTheme.primaryBlue.withOpacity(0.9),
-                                        AppTheme.primaryPurple.withOpacity(0.85),
+                                        AppTheme.primaryPurple
+                                            .withOpacity(0.85),
                                       ],
                                     )
                                   : LinearGradient(
@@ -176,8 +227,7 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
                   ],
                 ),
               ),
-              if (widget.message.reactions.isNotEmpty) 
-                _buildMinimalReactions(),
+              if (widget.message.reactions.isNotEmpty) _buildMinimalReactions(),
               if (_showReactions)
                 Padding(
                   padding: EdgeInsets.only(
@@ -201,6 +251,10 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     );
   }
 
+  /// Builds the quoted reply preview so users can jump back to the referenced
+  /// message.
+  /// ينشئ معاينة الرد المقتبس حتى يتمكن المستخدم من الرجوع إلى الرسالة
+  /// المشار إليها.
   Widget _buildMinimalReplySection() {
     return GestureDetector(
       onTap: widget.onReplyTap,
@@ -281,8 +335,10 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     );
   }
 
+  /// Renders the message body or the special location payload for the bubble.
+  /// يرسم نص الرسالة أو حمولة الموقع الخاصة بالفقاعة.
   Widget _buildMessageContent() {
-    if (widget.message.messageType == 'text' && 
+    if (widget.message.messageType == 'text' &&
         widget.message.content != null) {
       return Padding(
         padding: const EdgeInsets.symmetric(
@@ -292,8 +348,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
         child: Text(
           widget.message.content!,
           style: AppTextStyles.bodySmall.copyWith(
-            color: widget.isMe 
-                ? Colors.white 
+            color: widget.isMe
+                ? Colors.white
                 : AppTheme.textWhite.withOpacity(0.85),
             height: 1.35,
             fontSize: 12,
@@ -302,7 +358,7 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
       );
     }
 
-    if (widget.message.messageType == 'location' && 
+    if (widget.message.messageType == 'location' &&
         widget.message.location != null) {
       return _buildMinimalLocationMessage();
     }
@@ -310,6 +366,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     return const SizedBox.shrink();
   }
 
+  /// Renders the compact location card used for map-style chat messages.
+  /// يرسم بطاقة الموقع المدمجة المستخدمة لرسائل المواقع.
   Widget _buildMinimalLocationMessage() {
     return Container(
       margin: const EdgeInsets.all(5),
@@ -345,7 +403,7 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
                 color: AppTheme.textMuted,
               ),
             ),
-            
+
             // Glass overlay with location info
             Positioned(
               bottom: 0,
@@ -408,6 +466,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     );
   }
 
+  /// Renders all attachments that belong to the message.
+  /// يرسم كل المرفقات التابعة للرسالة.
   Widget _buildAttachments() {
     return Column(
       children: widget.message.attachments.map((attachment) {
@@ -419,6 +479,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     );
   }
 
+  /// Renders timestamp, edit state, and delivery status for the bubble.
+  /// يرسم الوقت وحالة التعديل وحالة التسليم داخل الفقاعة.
   Widget _buildMinimalFooter() {
     return Padding(
       padding: const EdgeInsets.only(
@@ -466,6 +528,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     );
   }
 
+  /// Renders the grouped reaction chips shown under the message.
+  /// يرسم شرائح التفاعل المجمعة أسفل الرسالة.
   Widget _buildMinimalReactions() {
     final groupedReactions = <String, int>{};
     for (final reaction in widget.message.reactions) {
@@ -527,6 +591,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     );
   }
 
+  /// Builds the small tail pointer that visually anchors the bubble.
+  /// ينشئ الذيل الصغير الذي يثبت الفقاعة بصريًا.
   Widget _buildMinimalTail() {
     return Positioned(
       bottom: 0,
@@ -534,7 +600,7 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
       right: widget.isMe ? -5 : null,
       child: CustomPaint(
         painter: _MinimalTailPainter(
-          color: widget.isMe 
+          color: widget.isMe
               ? AppTheme.primaryPurple.withOpacity(0.85)
               : AppTheme.darkCard.withOpacity(0.6),
           isMe: widget.isMe,
@@ -544,6 +610,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     );
   }
 
+  /// Computes the bubble radius so grouped messages can connect cleanly.
+  /// يحسب نصف قطر الفقاعة حتى تتصل الرسائل المجمعة بشكل متناسق.
   BorderRadius _getBorderRadius(bool showTail) {
     const radius = 8.0;
     const smallRadius = 2.0;
@@ -565,28 +633,38 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     }
   }
 
+  /// Decides whether the bubble should render a tail based on the next
+  /// message in the thread.
+  /// يقرر ما إذا كانت الفقاعة تحتاج ذيلًا بناءً على الرسالة التالية في
+  /// السلسلة.
   bool _shouldShowTail() {
     if (widget.nextMessage == null) return true;
     if (widget.nextMessage!.senderId != widget.message.senderId) return true;
-    
+
     final timeDiff = widget.message.createdAt
         .difference(widget.nextMessage!.createdAt)
         .inMinutes;
     return timeDiff > 1;
   }
 
+  /// Computes top spacing so consecutive messages from the same sender stay
+  /// visually compact.
+  /// يحسب التباعد العلوي حتى تبقى الرسائل المتتالية من نفس المرسل متقاربة
+  /// بصريًا.
   double _getTopPadding() {
     if (widget.previousMessage == null) return 8;
     if (widget.previousMessage!.senderId != widget.message.senderId) {
       return 8;
     }
-    
+
     final timeDiff = widget.previousMessage!.createdAt
         .difference(widget.message.createdAt)
         .inMinutes;
     return timeDiff > 1 ? 8 : 1.5;
   }
 
+  /// Opens the message action sheet for reply, edit, delete, and copy flows.
+  /// يفتح ورقة إجراءات الرسالة لمسارات الرد والتعديل والحذف والنسخ.
   void _showOptions() {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
@@ -633,10 +711,14 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     );
   }
 
+  /// Formats a timestamp into the compact clock label shown inside bubbles.
+  /// ينسق الطابع الزمني إلى تسمية وقت مختصرة تظهر داخل الفقاعات.
   String _formatTime(DateTime dateTime) {
     return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
+  /// Resolves the emoji used for a reaction chip.
+  /// يحدد الإيموجي المستخدم لشريحة التفاعل.
   String _getEmojiForReaction(String reactionType) {
     switch (reactionType) {
       case 'like':
@@ -657,15 +739,26 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
   }
 }
 
+/// Paints the small triangular tail attached to a message bubble.
+/// يرسم الذيل المثلث الصغير المرفق بفقاعة الرسالة.
 class _MinimalTailPainter extends CustomPainter {
+  /// Tail fill color.
+  /// لون تعبئة الذيل.
   final Color color;
+
+  /// Whether the bubble belongs to the current user.
+  /// يحدد ما إذا كانت الفقاعة تخص المستخدم الحالي.
   final bool isMe;
 
+  /// Builds the painter for the bubble tail.
+  /// ينشئ الرسّام الخاص بذيل الفقاعة.
   _MinimalTailPainter({
     required this.color,
     required this.isMe,
   });
 
+  /// Draws the tail path on the provided canvas.
+  /// يرسم مسار الذيل على اللوحة المحددة.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -699,18 +792,41 @@ class _MinimalTailPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
+  /// The tail shape is static, so repainting is not required.
+  /// شكل الذيل ثابت، لذلك لا حاجة لإعادة الرسم.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
+/// Bottom sheet that exposes message-specific actions in a compact form.
+/// ورقة سفلية تعرض إجراءات الرسالة بشكل مضغوط.
 class _MinimalMessageOptionsSheet extends StatelessWidget {
+  /// Message that the action sheet operates on.
+  /// الرسالة التي تعمل عليها ورقة الإجراءات.
   final Message message;
+
+  /// Whether the current user owns the message.
+  /// يحدد ما إذا كان المستخدم الحالي يملك الرسالة.
   final bool isMe;
+
+  /// Invoked when the user chooses to reply.
+  /// يُستدعى عندما يختار المستخدم الرد.
   final VoidCallback? onReply;
+
+  /// Invoked when the user chooses to edit.
+  /// يُستدعى عندما يختار المستخدم التعديل.
   final VoidCallback? onEdit;
+
+  /// Invoked when the user chooses to delete.
+  /// يُستدعى عندما يختار المستخدم الحذف.
   final VoidCallback? onDelete;
+
+  /// Invoked when the user chooses to copy message text.
+  /// يُستدعى عندما يختار المستخدم نسخ النص.
   final VoidCallback? onCopy;
 
+  /// Builds the compact message action sheet.
+  /// ينشئ ورقة إجراءات الرسالة المدمجة.
   const _MinimalMessageOptionsSheet({
     required this.message,
     required this.isMe,
@@ -720,6 +836,8 @@ class _MinimalMessageOptionsSheet extends StatelessWidget {
     this.onCopy,
   });
 
+  /// Renders the compact set of actions for one message.
+  /// يرسم مجموعة الإجراءات المضغوطة لرسالة واحدة.
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -798,6 +916,7 @@ class _MinimalMessageOptionsSheet extends StatelessWidget {
     );
   }
 
+  /// العربية: يبني option.
   Widget _buildOption({
     required IconData icon,
     required String title,
@@ -829,7 +948,7 @@ class _MinimalMessageOptionsSheet extends StatelessWidget {
               ),
               child: Icon(
                 icon,
-                color: isDestructive 
+                color: isDestructive
                     ? AppTheme.error.withOpacity(0.8)
                     : AppTheme.primaryBlue.withOpacity(0.8),
                 size: 16,
@@ -839,7 +958,7 @@ class _MinimalMessageOptionsSheet extends StatelessWidget {
             Text(
               title,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: isDestructive 
+                color: isDestructive
                     ? AppTheme.error.withOpacity(0.8)
                     : AppTheme.textWhite.withOpacity(0.8),
                 fontSize: 13,

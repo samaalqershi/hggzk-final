@@ -1,18 +1,37 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_dimensions.dart';
 
+/// عنصر تحميل متعدد الأشكال يعرض نفس حالة الانتظار بصيغ مختلفة حسب السياق.
+/// Flexible loading surface that can render circular, shimmer, pulse, dots, or linear feedback.
 class LoadingWidget extends StatelessWidget {
+  /// يحدد النمط المرئي المطلوب لعرض حالة التحميل.
+  /// Chooses the visual treatment used to communicate loading state.
   final LoadingType type;
+
+  /// الحجم الأساسي لبعض الأنماط مثل الـ pulse أو circular.
+  /// Base size used by modes such as circular and pulse loaders.
   final double? size;
+
+  /// لون الحالة الرئيسي المستخدم في العناصر المتحركة.
+  /// Primary accent color for the moving parts of the loader.
   final Color? color;
+
+  /// رسالة اختيارية توضح ما الذي يجري أثناء الانتظار.
+  /// Optional status message shown below the loader.
   final String? message;
+
+  /// مساحة خارجية تسمح بملاءمة العنصر داخل واجهات مختلفة.
+  /// Optional outer padding used to fit the loader into different layouts.
   final EdgeInsets? padding;
+
+  /// ملف SVG الذي تستخدمه النسخة المستقبلية من مؤشر التحميل الدائري.
+  /// SVG asset used by the futuristic circular loader variant.
   final String? svgAsset;
 
+  /// Creates a loader widget that adapts to the available space and messaging needs.
+  /// ينشئ عنصر تحميل يتكيف مع المساحة المتاحة ومع الحاجة إلى نص توضيحي.
   const LoadingWidget({
     super.key,
     this.type = LoadingType.circular,
@@ -23,6 +42,8 @@ class LoadingWidget extends StatelessWidget {
     this.svgAsset,
   });
 
+  /// Chooses the loader style, rescales it to the viewport, and appends optional helper text.
+  /// يختار نمط التحميل، يضبط حجمه بحسب المساحة، ويضيف نصًا مساعدًا اختياريًا.
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -104,6 +125,8 @@ class LoadingWidget extends StatelessWidget {
     );
   }
 
+  /// Builds a full-width progress bar used for straightforward loading feedback.
+  /// يبني شريط تقدم بعرض كامل مناسبًا للحالات البسيطة.
   Widget _buildLinearLoader(Color color) {
     return SizedBox(
       width: double.infinity,
@@ -114,6 +137,8 @@ class LoadingWidget extends StatelessWidget {
     );
   }
 
+  /// Renders a skeleton placeholder that suggests content is still arriving.
+  /// يعرض هيكلًا وهميًا يوحي بأن المحتوى لا يزال قيد التحميل.
   Widget _buildShimmerLoader() {
     return Shimmer.fromColors(
       baseColor: AppTheme.shimmer,
@@ -129,6 +154,8 @@ class LoadingWidget extends StatelessWidget {
     );
   }
 
+  /// Builds a breathing pulse indicator for compact loading states.
+  /// يبني مؤشرًا نابضًا يصلح للحالات المختصرة.
   Widget _buildPulseLoader(Color color, double size) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.8, end: 1.2),
@@ -160,6 +187,8 @@ class LoadingWidget extends StatelessWidget {
     );
   }
 
+  /// Builds an animated dots indicator for lightweight waiting states.
+  /// يبني مؤشر نقاط متحركة للحالات الخفيفة.
   Widget _buildDotsLoader(Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -184,6 +213,8 @@ class LoadingWidget extends StatelessWidget {
   }
 }
 
+/// أوضاع العرض المتاحة لعنصر التحميل.
+/// Rendering modes available to `LoadingWidget`.
 enum LoadingType {
   circular,
   linear,
@@ -192,31 +223,26 @@ enum LoadingType {
   dots,
   futuristic,
 }
-
 class _FuturisticLoading extends StatefulWidget {
   final Color color;
   final double height;
   final double innerSize;
   final String svgAsset;
-
   const _FuturisticLoading({
     required this.color,
     required this.height,
     required this.innerSize,
     required this.svgAsset,
   });
-
   @override
   State<_FuturisticLoading> createState() => _FuturisticLoadingState();
 }
-
 class _FuturisticLoadingState extends State<_FuturisticLoading>
     with TickerProviderStateMixin {
   late AnimationController _controller;
   late AnimationController _rotationController;
   late AnimationController _scaleController;
   late Animation<double> _scaleAnimation;
-
   @override
   void initState() {
     super.initState();
@@ -244,7 +270,6 @@ class _FuturisticLoadingState extends State<_FuturisticLoading>
       curve: Curves.easeInOut,
     ));
   }
-
   @override
   void dispose() {
     _controller.dispose();
@@ -252,7 +277,6 @@ class _FuturisticLoadingState extends State<_FuturisticLoading>
     _scaleController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -277,7 +301,6 @@ class _FuturisticLoadingState extends State<_FuturisticLoading>
                 child: const SizedBox.expand(),
               ),
 
-
               // الدائرة الخارجية الثابتة
               Container(
                 width: widget.innerSize,
@@ -286,8 +309,8 @@ class _FuturisticLoadingState extends State<_FuturisticLoading>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppTheme.primaryBlue.withOpacity(0.3),
-                      AppTheme.primaryBlue.withOpacity(0.1),
+                      AppTheme.primaryBlue.withValues(alpha: 0.3),
+                      AppTheme.primaryBlue.withValues(alpha: 0.1),
                     ],
                   ),
                 ),
@@ -297,7 +320,8 @@ class _FuturisticLoadingState extends State<_FuturisticLoading>
                     height: widget.innerSize * 0.82,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
                     ),
                   ),
                 ),
@@ -313,108 +337,11 @@ class _FuturisticLoadingState extends State<_FuturisticLoading>
   }
 }
 
-// رسام الدائرة المتحركة
-class _CircularProgressPainter extends CustomPainter {
-  final Color color;
-  final double progress;
-
-  _CircularProgressPainter({
-    required this.color,
-    required this.progress,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = (size.width - 6) / 2;
-
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round;
-
-    final rect = Rect.fromCircle(center: center, radius: radius);
-
-    // رسم القوس الأول مع تدرج
-    final gradient1 = SweepGradient(
-      colors: [
-        Colors.transparent,
-        color.withValues(alpha: 0.3),
-        color,
-        color,
-        color.withValues(alpha: 0.3),
-        Colors.transparent,
-      ],
-      stops: const [0.0, 0.1, 0.3, 0.7, 0.9, 1.0],
-      startAngle: 0,
-      endAngle: 2 * 3.14159,
-    );
-
-    paint.shader = gradient1.createShader(rect);
-
-    const startAngle = -3.14159 / 2;
-    final sweepAngle = 3.14159 * progress * 1.5;
-
-    canvas.drawArc(
-      rect,
-      startAngle,
-      sweepAngle,
-      false,
-      paint,
-    );
-
-    // رسم القوس الثاني المعاكس
-    final paint2 = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round
-      ..color = color.withValues(alpha: 0.3);
-
-    canvas.drawArc(
-      rect,
-      startAngle + 3.14159,
-      sweepAngle * 0.6,
-      false,
-      paint2,
-    );
-
-    // نقاط مضيئة في نهاية الأقواس
-    final dotPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    // حساب موقع النقطة الأولى
-    final angle1 = startAngle + sweepAngle;
-    final x1 = center.dx + radius * math.cos(angle1);
-    final y1 = center.dy + radius * math.sin(angle1);
-    canvas.drawCircle(Offset(x1, y1), 3.5, dotPaint);
-
-    // إضافة توهج للنقطة
-    final glowPaint = Paint()
-      ..color = color.withValues(alpha: 0.3)
-      ..style = PaintingStyle.fill
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
-    canvas.drawCircle(Offset(x1, y1), 6, glowPaint);
-
-    // حساب موقع النقطة الثانية
-    final angle2 = startAngle + 3.14159 + (sweepAngle * 0.6);
-    final x2 = center.dx + radius * math.cos(angle2);
-    final y2 = center.dy + radius * math.sin(angle2);
-    canvas.drawCircle(
-        Offset(x2, y2), 2.5, dotPaint..color = color.withValues(alpha: 0.7));
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
-}
-
 // رسام الموجات
 class _RipplePainter extends CustomPainter {
   final double animationValue;
   final Color color;
-
   _RipplePainter({required this.animationValue, required this.color});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -432,9 +359,7 @@ class _RipplePainter extends CustomPainter {
 
       canvas.drawCircle(center, radius, paint);
     }
-
   }
-
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

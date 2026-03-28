@@ -2,26 +2,26 @@ import 'dart:async';
 import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-/// خدمة إدارة الاتصال بالإنترنت
 class ConnectivityService {
   static final ConnectivityService _instance = ConnectivityService._internal();
+
   factory ConnectivityService() => _instance;
+
   ConnectivityService._internal();
 
   final Connectivity _connectivity = Connectivity();
+
   final StreamController<bool> _connectionStatusController =
       StreamController<bool>.broadcast();
 
   bool _isConnected = false;
+
   Timer? _connectionCheckTimer;
 
-  /// Stream لحالة الاتصال
   Stream<bool> get connectionStatus => _connectionStatusController.stream;
 
-  /// الحالة الحالية للاتصال
   bool get isConnected => _isConnected;
 
-  /// تهيئة الخدمة
   Future<void> initialize() async {
     // التحقق من الحالة الأولية
     await _checkConnectionStatus();
@@ -37,7 +37,6 @@ class ConnectivityService {
     _startPeriodicConnectionCheck();
   }
 
-  /// التحقق من حالة الاتصال
   Future<bool> checkConnection() async {
     try {
       // التحقق من الاتصال بالإنترنت
@@ -62,7 +61,6 @@ class ConnectivityService {
     }
   }
 
-  /// التحقق من نوع الاتصال
   Future<ConnectivityResult> getConnectionType() async {
     try {
       final results = await _connectivity.checkConnectivity();
@@ -73,7 +71,6 @@ class ConnectivityService {
     }
   }
 
-  /// التحقق من جودة الاتصال
   Future<ConnectionQuality> checkConnectionQuality() async {
     try {
       final stopwatch = Stopwatch()..start();
@@ -102,7 +99,6 @@ class ConnectivityService {
     }
   }
 
-  /// اختبار الاتصال بخادم معين
   Future<bool> testConnectionToServer(String host,
       {int port = 80, Duration timeout = const Duration(seconds: 5)}) async {
     try {
@@ -114,7 +110,6 @@ class ConnectivityService {
     }
   }
 
-  /// التحقق من الاتصال بخوادم التطبيق
   Future<bool> checkAppServerConnection() async {
     // يمكن إضافة خوادم التطبيق هنا
     const servers = [
@@ -136,7 +131,6 @@ class ConnectivityService {
     return false;
   }
 
-  /// بدء الفحص الدوري للاتصال
   void _startPeriodicConnectionCheck() {
     _connectionCheckTimer?.cancel();
     _connectionCheckTimer =
@@ -145,13 +139,11 @@ class ConnectivityService {
     });
   }
 
-  /// إيقاف الفحص الدوري
   void stopPeriodicConnectionCheck() {
     _connectionCheckTimer?.cancel();
     _connectionCheckTimer = null;
   }
 
-  /// معالجة تغيير حالة الاتصال
   void _handleConnectivityChange(ConnectivityResult result) {
     final wasConnected = _isConnected;
     _isConnected = result != ConnectivityResult.none;
@@ -161,19 +153,16 @@ class ConnectivityService {
     }
   }
 
-  /// التحقق من حالة الاتصال
   Future<void> _checkConnectionStatus() async {
     await checkConnection();
   }
 
-  /// إغلاق الخدمة
   void dispose() {
     stopPeriodicConnectionCheck();
     _connectionStatusController.close();
   }
 }
 
-/// جودة الاتصال
 enum ConnectionQuality {
   none,
   poor,
@@ -182,7 +171,6 @@ enum ConnectionQuality {
   excellent,
 }
 
-/// امتداد لجودة الاتصال
 extension ConnectionQualityExtension on ConnectionQuality {
   String get displayName {
     switch (this) {

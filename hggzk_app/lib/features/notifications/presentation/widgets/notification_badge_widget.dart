@@ -6,11 +6,25 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// Compact bell badge that shows the unread count and can pulse when new
+/// notifications arrive.
+/// شارة جرس مضغوطة تعرض عدد غير المقروء ويمكن أن تنبض عند وصول إشعارات
+/// جديدة.
 class NotificationBadgeWidget extends StatefulWidget {
+  /// Number shown inside the badge.
+  /// العدد الظاهر داخل الشارة.
   final int count;
+
+  /// Optional tap handler used by the host screen.
+  /// معالج نقر اختياري تستخدمه الشاشة المضيفة.
   final VoidCallback? onTap;
+
+  /// Whether the badge should animate when the count changes.
+  /// يحدد ما إذا كانت الشارة يجب أن تتحرك عند تغيّر العدد.
   final bool showAnimation;
 
+  /// Builds the badge with its count and optional animation behavior.
+  /// ينشئ الشارة مع العدد وسلوك الحركة الاختياري.
   const NotificationBadgeWidget({
     super.key,
     required this.count,
@@ -18,17 +32,31 @@ class NotificationBadgeWidget extends StatefulWidget {
     this.showAnimation = true,
   });
 
+  /// Creates the animated badge state.
+  /// ينشئ حالة الشارة المتحركة.
   @override
   State<NotificationBadgeWidget> createState() =>
       _NotificationBadgeWidgetState();
 }
 
+/// Handles the badge pulse and scale animations.
+/// يدير حركة النبض والتكبير الخاصة بالشارة.
 class _NotificationBadgeWidgetState extends State<NotificationBadgeWidget>
     with SingleTickerProviderStateMixin {
+  /// Drives the pulse and scale animations.
+  /// يقود حركة النبض والتكبير.
   late AnimationController _animationController;
+
+  /// Scales the bell icon slightly when notifications increase.
+  /// يكبّر أيقونة الجرس قليلًا عند زيادة الإشعارات.
   late Animation<double> _scaleAnimation;
+
+  /// Creates the soft pulse effect around the badge.
+  /// ينشئ تأثير النبض الخفيف حول الشارة.
   late Animation<double> _pulseAnimation;
 
+  /// Prepares the repeating animation when the widget is inserted.
+  /// يجهز الحركة المتكررة عند إدخال العنصر في الشجرة.
   @override
   void initState() {
     super.initState();
@@ -58,6 +86,8 @@ class _NotificationBadgeWidgetState extends State<NotificationBadgeWidget>
     }
   }
 
+  /// Reacts to badge count changes and restarts animation when needed.
+  /// يتفاعل مع تغيّر العدد ويعيد تشغيل الحركة عند الحاجة.
   @override
   void didUpdateWidget(NotificationBadgeWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -70,19 +100,22 @@ class _NotificationBadgeWidgetState extends State<NotificationBadgeWidget>
     }
   }
 
+  /// Releases the animation controller owned by the badge.
+  /// يحرر متحكم الحركة المملوك للشارة.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// Renders the bell icon and the numeric badge.
+  /// يرسم أيقونة الجرس والعداد الرقمي.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap,
       child: Stack(
         children: [
-          // Bell Icon with Glow Effect
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
@@ -125,8 +158,6 @@ class _NotificationBadgeWidgetState extends State<NotificationBadgeWidget>
               },
             ),
           ),
-
-          // Count Badge
           if (widget.count > 0)
             Positioned(
               top: 2,

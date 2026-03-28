@@ -10,17 +10,27 @@ import 'section_images_event.dart';
 import 'section_images_state.dart';
 
 class SectionImagesBloc extends Bloc<SectionImagesEvent, SectionImagesState> {
+  /// العربية: يخزن القيمة `uploadSectionImage`.
   final UploadSectionImageUseCase uploadSectionImage;
+
   final UploadMultipleSectionImagesUseCase uploadMultipleImages;
+
   final GetSectionImagesUseCase getSectionImages;
+
   final UpdateSectionImageUseCase updateSectionImage;
+
   final DeleteSectionImageUseCase deleteSectionImage;
+
   final DeleteMultipleSectionImagesUseCase deleteMultipleImages;
+
   final ReorderSectionImagesUseCase reorderImages;
+
   final SetPrimarySectionImageUseCase setPrimaryImage;
 
   List<SectionImage> _currentImages = [];
+
   Set<String> _selectedImageIds = {};
+
   String? _currentSectionId;
 
   SectionImagesBloc({
@@ -446,7 +456,7 @@ class SectionImagesBloc extends Bloc<SectionImagesEvent, SectionImagesState> {
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
       case ServerFailure:
-        return (failure as ServerFailure).message ?? 'Server Error';
+        return (failure as ServerFailure).message;
       case NetworkFailure:
         return 'Network connection error. Please check your internet connection.';
       case CacheFailure:

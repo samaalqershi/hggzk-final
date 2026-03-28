@@ -8,16 +8,24 @@ import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/cached_image_widget.dart';
 import 'models/section_display_item.dart';
 
+/// يعرض عناصر القسم في بطاقات قائمة كثيفة بالمعلومات عندما يكون التركيز على
+/// التفاصيل النصية أكثر من الاستعراض البصري.
+/// Renders section items as information-dense list cards when textual detail
+/// matters more than pure visual showcase.
 class ListSectionWidget extends StatelessWidget {
+  /// العناصر الموحدة الجاهزة للعرض داخل القائمة.
+  /// Unified items ready to be presented in the list.
   final List<SectionDisplayItem> items;
-  final Function(String)? onItemTap;
 
+  /// رد اختياري يعيد معرّف العنصر الذي اختاره المستخدم من القائمة.
+  /// Optional callback that returns the identifier of the item selected from
+  /// the list.
+  final Function(String)? onItemTap;
   const ListSectionWidget({
     super.key,
     required this.items,
     this.onItemTap,
   });
-
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
@@ -40,15 +48,17 @@ class ListSectionWidget extends StatelessWidget {
   }
 }
 
+/// بطاقة قائمة فردية توسع المساحة المخصصة للنصوص والمعلومات الثانوية مقارنةً
+/// بالشبكة، مع الحفاظ على صورة مصغرة واضحة.
+/// Individual list card that allocates more room for text and secondary
+/// details than the grid while keeping a clear thumbnail.
 class _ListItemCard extends StatefulWidget {
   final SectionDisplayItem item;
   final VoidCallback? onTap;
-
   const _ListItemCard({
     required this.item,
     this.onTap,
   });
-
   @override
   State<_ListItemCard> createState() => _ListItemCardState();
 }
@@ -58,7 +68,6 @@ class _ListItemCardState extends State<_ListItemCard>
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   bool _isPressed = false;
-
   @override
   void initState() {
     super.initState();
@@ -133,10 +142,12 @@ class _ListItemCardState extends State<_ListItemCard>
             borderRadius: BorderRadius.circular(18),
             child: Row(
               children: [
-                // Image Section
+                // Arabic: قسم الصورة.
+                // English: Image section.
                 _buildImageSection(item),
 
-                // Content Section
+                // Arabic: قسم المحتوى.
+                // English: Content section.
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(14),
@@ -164,7 +175,8 @@ class _ListItemCardState extends State<_ListItemCard>
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Image
+          // Arabic: الصورة الأساسية للعنصر.
+          // English: Main image for the item.
           Hero(
             tag: 'property_list_${item.id}',
             child: item.imageUrl != null
@@ -195,7 +207,8 @@ class _ListItemCardState extends State<_ListItemCard>
                   ),
           ),
 
-          // Discount Badge
+          // Arabic: شارة الخصم إن وُجدت.
+          // English: Discount badge when available.
           if (item.hasDiscount)
             Positioned(
               top: 8,
@@ -203,7 +216,8 @@ class _ListItemCardState extends State<_ListItemCard>
               child: _DiscountBadge(discount: item.discount!),
             ),
 
-          // Rating Badge
+          // Arabic: شارة التقييم إن كان هناك تقييم صالح.
+          // English: Rating badge when a valid rating exists.
           if (item.averageRating != null && item.averageRating! > 0)
             Positioned(
               bottom: 8,
@@ -352,12 +366,9 @@ class _ListItemCardState extends State<_ListItemCard>
 // ═══════════════════════════════════════════════════════════════════════════
 // 🏷️ BADGES & CHIPS
 // ═══════════════════════════════════════════════════════════════════════════
-
 class _DiscountBadge extends StatelessWidget {
   final int discount;
-
   const _DiscountBadge({required this.discount});
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -392,9 +403,7 @@ class _DiscountBadge extends StatelessWidget {
 
 class _RatingBadge extends StatelessWidget {
   final double rating;
-
   const _RatingBadge({required this.rating});
-
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -435,12 +444,10 @@ class _RatingBadge extends StatelessWidget {
 class _FeatureChip extends StatelessWidget {
   final IconData icon;
   final String value;
-
   const _FeatureChip({
     required this.icon,
     required this.value,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(

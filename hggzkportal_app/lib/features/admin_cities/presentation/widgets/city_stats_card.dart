@@ -6,16 +6,31 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// Horizontal card strip that summarizes the city dashboard metrics.
+///
+/// شريط بطاقات أفقي يلخص مقاييس لوحة المدن.
 class CityStatsCard extends StatelessWidget {
+  /// Raw statistics returned by the analytics use case.
+  ///
+  /// الإحصائيات الخام التي يعيدها use case التحليلات.
   final Map<String, dynamic> statistics;
+
+  /// Number of loaded city records used for the headline metric.
+  ///
+  /// عدد سجلات المدن المحمّلة المستخدم في المؤشر الرئيسي.
   final int citiesCount;
 
+  /// Creates the metrics strip shown at the top of the dashboard.
+  ///
+  /// ينشئ شريط المؤشرات الظاهر أعلى لوحة التحكم.
   const CityStatsCard({
     super.key,
     required this.statistics,
     required this.citiesCount,
   });
 
+  /// يبني صف الإحصاءات الأفقية ويحوّل القيم الخام إلى بطاقات عرضية.
+  /// Builds the horizontal stats strip and turns raw values into display cards.
   @override
   Widget build(BuildContext context) {
     double numb(Object? v) {
@@ -72,6 +87,8 @@ class CityStatsCard extends StatelessWidget {
     );
   }
 
+  /// يبني بطاقة إحصائية واحدة مع الاتجاه والقيمة والتمييز اللوني.
+  /// Builds one stat card with its trend, value, and color accent.
   Widget _buildStatCard(_StatItem stat) {
     final isPositive = stat.trend >= 0;
 
@@ -229,6 +246,8 @@ class CityStatsCard extends StatelessWidget {
     );
   }
 
+  /// يختصر الأرقام الكبيرة إلى K و M لتناسب مساحة البطاقة.
+  /// Shortens large numbers into K and M forms to fit the card.
   String _formatNumber(int number) {
     if (number >= 1000000) {
       return '${(number / 1000000).toStringAsFixed(1)}M';
@@ -239,13 +258,40 @@ class CityStatsCard extends StatelessWidget {
   }
 }
 
+/// Lightweight view model that carries one city metric into the card strip.
+///
+/// نموذج عرض خفيف يحمل مؤشرًا واحدًا من مؤشرات المدن إلى شريط البطاقات.
 class _StatItem {
+  /// Icon that visually anchors the statistic tile.
+  ///
+  /// الأيقونة التي تثبّت البطاقة الإحصائية بصريًا.
   final IconData icon;
+
+  /// Short label displayed under the headline value.
+  ///
+  /// العنوان القصير المعروض أسفل القيمة الرئيسية.
   final String label;
+
+  /// Formatted metric value displayed to the admin user.
+  ///
+  /// القيمة المهيأة التي تعرض لمستخدم الإدارة.
   final String value;
+
+  /// Gradient colors that define the tile's accent style.
+  ///
+  /// ألوان التدرج التي تحدد الأسلوب اللوني للبطاقة.
   final List<Color> gradient;
+
+  /// Trend percentage used to show rise or fall indicators.
+  ///
+  /// نسبة الاتجاه المستخدمة لإظهار مؤشرات الارتفاع أو الانخفاض.
   final double trend;
 
+  /// Packages one dashboard metric for rendering.
+  ///
+  /// يجمع مقياسًا واحدًا من لوحة التحكم للعرض.
+  /// ينشئ مقياسًا واحدًا مع أيقونته وقيمته واتجاهه.
+  /// Creates one metric with its icon, value, and trend data.
   _StatItem({
     required this.icon,
     required this.label,

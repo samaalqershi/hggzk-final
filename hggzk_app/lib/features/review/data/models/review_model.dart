@@ -1,7 +1,11 @@
 import '../../domain/entities/review.dart';
 import 'review_image_model.dart';
 
+/// Describes the data model `ReviewModel`.
+/// العربية: يمثل نموذج البيانات `ReviewModel`.
 class ReviewModel extends Review {
+  /// Builds a new `ReviewModel` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewModel`.
   const ReviewModel({
     required super.id,
     required super.userId,
@@ -27,6 +31,8 @@ class ReviewModel extends Review {
     required super.isRecommended,
   });
 
+  /// Builds a new `ReviewModel.fromJson` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewModel.fromJson`.
   factory ReviewModel.fromJson(Map<String, dynamic> json) {
     return ReviewModel(
       id: json['id'] ?? '',
@@ -61,6 +67,8 @@ class ReviewModel extends Review {
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -90,6 +98,8 @@ class ReviewModel extends Review {
     };
   }
 
+  /// Processes `toEntity`.
+  /// العربية: يعالج `toEntity`.
   Review toEntity() {
     return Review(
       id: id,
@@ -118,7 +128,11 @@ class ReviewModel extends Review {
   }
 }
 
+/// Describes the data model `ReviewReplyModel`.
+/// العربية: يمثل نموذج البيانات `ReviewReplyModel`.
 class ReviewReplyModel extends ReviewReply {
+  /// Builds a new `ReviewReplyModel` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewReplyModel`.
   const ReviewReplyModel({
     required super.id,
     required super.content,
@@ -127,6 +141,8 @@ class ReviewReplyModel extends ReviewReply {
     required super.replierPosition,
   });
 
+  /// Builds a new `ReviewReplyModel.fromJson` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewReplyModel.fromJson`.
   factory ReviewReplyModel.fromJson(Map<String, dynamic> json) {
     return ReviewReplyModel(
       id: json['id'] ?? '',
@@ -138,6 +154,8 @@ class ReviewReplyModel extends ReviewReply {
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -149,7 +167,11 @@ class ReviewReplyModel extends ReviewReply {
   }
 }
 
+/// Describes the data model `ReviewsSummaryModel`.
+/// العربية: يمثل نموذج البيانات `ReviewsSummaryModel`.
 class ReviewsSummaryModel extends ReviewsSummary {
+  /// Builds a new `ReviewsSummaryModel` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewsSummaryModel`.
   const ReviewsSummaryModel({
     required super.totalReviews,
     required super.averageRating,
@@ -163,44 +185,42 @@ class ReviewsSummaryModel extends ReviewsSummary {
     required super.managementResponseRate,
   });
 
+  /// Builds a new `ReviewsSummaryModel.fromJson` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewsSummaryModel.fromJson`.
   factory ReviewsSummaryModel.fromJson(Map<String, dynamic> json) {
-    // Helper to safely parse numeric values that might come as strings
-    double _toDouble(dynamic v) {
-      if (v == null) return 0.0;
-      if (v is num) return v.toDouble();
-      return double.tryParse(v.toString()) ?? 0.0;
+    double toDouble(dynamic value) {
+      if (value == null) return 0.0;
+      if (value is num) return value.toDouble();
+      return double.tryParse(value.toString()) ?? 0.0;
     }
 
-    int _toInt(dynamic v) {
-      if (v == null) return 0;
-      if (v is int) return v;
-      if (v is num) return v.toInt();
-      return int.tryParse(v.toString()) ?? 0;
+    int toInt(dynamic value) {
+      if (value == null) return 0;
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      return int.tryParse(value.toString()) ?? 0;
     }
 
-    // Convert ratingDistribution which may have string keys in JSON to Map<int,int>
-    Map<int, int> _parseIntIntMap(dynamic src) {
+    Map<int, int> parseIntMap(dynamic source) {
       final result = <int, int>{};
-      if (src is Map) {
-        // src keys may be int or String
-        src.forEach((k, v) {
-          final key = k is int ? k : int.tryParse(k.toString()) ?? null;
-          if (key != null) {
-            result[key] = _toInt(v);
+      if (source is Map) {
+        source.forEach((key, value) {
+          final parsedKey = key is int ? key : int.tryParse(key.toString());
+          if (parsedKey != null) {
+            result[parsedKey] = toInt(value);
           }
         });
       }
       return result;
     }
 
-    // Convert ratingPercentages which may have string keys and numeric/string values
-    Map<int, double> _parseIntDoubleMap(dynamic src) {
+    Map<int, double> parseDoubleMap(dynamic source) {
       final result = <int, double>{};
-      if (src is Map) {
-        src.forEach((k, v) {
-          final key = k is int ? k : int.tryParse(k.toString()) ?? null;
-          if (key != null) {
-            result[key] = _toDouble(v);
+      if (source is Map) {
+        source.forEach((key, value) {
+          final parsedKey = key is int ? key : int.tryParse(key.toString());
+          if (parsedKey != null) {
+            result[parsedKey] = toDouble(value);
           }
         });
       }
@@ -208,12 +228,12 @@ class ReviewsSummaryModel extends ReviewsSummary {
     }
 
     return ReviewsSummaryModel(
-      totalReviews: _toInt(json['totalReviews']),
-      averageRating: _toDouble(json['averageRating']),
-      ratingDistribution: _parseIntIntMap(json['ratingDistribution'] ?? {}),
-      ratingPercentages: _parseIntDoubleMap(json['ratingPercentages'] ?? {}),
-      reviewsWithImagesCount: _toInt(json['reviewsWithImagesCount']),
-      recommendedCount: _toInt(json['recommendedCount']),
+      totalReviews: toInt(json['totalReviews']),
+      averageRating: toDouble(json['averageRating']),
+      ratingDistribution: parseIntMap(json['ratingDistribution'] ?? {}),
+      ratingPercentages: parseDoubleMap(json['ratingPercentages'] ?? {}),
+      reviewsWithImagesCount: toInt(json['reviewsWithImagesCount']),
+      recommendedCount: toInt(json['recommendedCount']),
       latestReviews: (json['latestReviews'] as List?)
               ?.map((e) => ReviewModel.fromJson(e))
               .toList() ??
@@ -226,10 +246,12 @@ class ReviewsSummaryModel extends ReviewsSummary {
               ?.map((e) => ReviewKeywordModel.fromJson(e))
               .toList() ??
           [],
-      managementResponseRate: _toDouble(json['managementResponseRate']),
+      managementResponseRate: toDouble(json['managementResponseRate']),
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'totalReviews': totalReviews,
@@ -248,6 +270,8 @@ class ReviewsSummaryModel extends ReviewsSummary {
     };
   }
 
+  /// Processes `toEntity`.
+  /// العربية: يعالج `toEntity`.
   ReviewsSummary toEntity() {
     return ReviewsSummary(
       totalReviews: totalReviews,
@@ -264,7 +288,11 @@ class ReviewsSummaryModel extends ReviewsSummary {
   }
 }
 
+/// Describes the data model `ReviewKeywordModel`.
+/// العربية: يمثل نموذج البيانات `ReviewKeywordModel`.
 class ReviewKeywordModel extends ReviewKeyword {
+  /// Builds a new `ReviewKeywordModel` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewKeywordModel`.
   const ReviewKeywordModel({
     required super.keyword,
     required super.count,
@@ -272,6 +300,8 @@ class ReviewKeywordModel extends ReviewKeyword {
     required super.sentiment,
   });
 
+  /// Builds a new `ReviewKeywordModel.fromJson` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewKeywordModel.fromJson`.
   factory ReviewKeywordModel.fromJson(Map<String, dynamic> json) {
     return ReviewKeywordModel(
       keyword: json['keyword'] ?? '',
@@ -281,6 +311,8 @@ class ReviewKeywordModel extends ReviewKeyword {
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'keyword': keyword,

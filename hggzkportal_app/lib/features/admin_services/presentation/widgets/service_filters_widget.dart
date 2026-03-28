@@ -6,6 +6,7 @@ import 'selected_property_badge.dart';
 
 /// 🔍 Service Filters Widget
 class ServiceFiltersWidget extends StatefulWidget {
+  /// العربية: يخزن القيمة `selectedPropertyId`.
   final String? selectedPropertyId;
   final String? selectedPropertyName;
   final Function(String?) onPropertyChanged;
@@ -22,7 +23,6 @@ class ServiceFiltersWidget extends StatefulWidget {
   final bool? showOnlyFree;
   final Function(bool?) onShowOnlyFreeChanged;
   final bool hidePropertySelector;
-
   const ServiceFiltersWidget({
     super.key,
     required this.selectedPropertyId,
@@ -42,16 +42,13 @@ class ServiceFiltersWidget extends StatefulWidget {
     required this.onShowOnlyFreeChanged,
     this.hidePropertySelector = false,
   });
-
   @override
   State<ServiceFiltersWidget> createState() => _ServiceFiltersWidgetState();
 }
-
 class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
   final TextEditingController _minPriceController = TextEditingController();
   final TextEditingController _maxPriceController = TextEditingController();
   bool _showAdvancedFilters = false;
-
   @override
   void initState() {
     super.initState();
@@ -62,14 +59,12 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
       _maxPriceController.text = widget.maxPrice.toString();
     }
   }
-
   @override
   void dispose() {
     _minPriceController.dispose();
     _maxPriceController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -77,13 +72,13 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -101,7 +96,8 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
                     if (!widget.hidePropertySelector) _buildPropertySelector(),
                     const SizedBox(height: 12),
                     _buildSearchField(),
-                    if (widget.selectedPropertyId != null && (widget.selectedPropertyName?.isNotEmpty ?? false)) ...[
+                    if (widget.selectedPropertyId != null &&
+                        (widget.selectedPropertyName?.isNotEmpty ?? false)) ...[
                       const SizedBox(height: 12),
                       SelectedPropertyBadge(
                         propertyName: widget.selectedPropertyName!,
@@ -120,14 +116,18 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
                     children: [
                       Expanded(
                         flex: 2,
-                        child: widget.hidePropertySelector ? const SizedBox.shrink() : _buildPropertySelector(),
+                        child: widget.hidePropertySelector
+                            ? const SizedBox.shrink()
+                            : _buildPropertySelector(),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         flex: 3,
                         child: _buildSearchField(),
                       ),
-                      if (widget.selectedPropertyId != null && (widget.selectedPropertyName?.isNotEmpty ?? false)) ...[
+                      if (widget.selectedPropertyId != null &&
+                          (widget.selectedPropertyName?.isNotEmpty ??
+                              false)) ...[
                         const SizedBox(width: 16),
                         SelectedPropertyBadge(
                           propertyName: widget.selectedPropertyName!,
@@ -147,7 +147,6 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
       ),
     );
   }
-
   Widget _buildPropertySelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,14 +162,14 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
           onTap: widget.onPropertyFieldTap,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-          decoration: BoxDecoration(
-            color: AppTheme.darkSurface.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.2),
-              width: 0.5,
+            decoration: BoxDecoration(
+              color: AppTheme.darkSurface.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppTheme.darkBorder.withValues(alpha: 0.2),
+                width: 0.5,
+              ),
             ),
-          ),
             child: Row(
               children: [
                 Icon(
@@ -186,19 +185,24 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: widget.selectedPropertyId == null ? AppTheme.textMuted : AppTheme.textWhite,
+                      color: widget.selectedPropertyId == null
+                          ? AppTheme.textMuted
+                          : AppTheme.textWhite,
                     ),
                   ),
                 ),
-                if (widget.selectedPropertyId != null && widget.onClearProperty != null)
+                if (widget.selectedPropertyId != null &&
+                    widget.onClearProperty != null)
                   GestureDetector(
                     onTap: widget.onClearProperty,
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkSurface.withOpacity(0.25),
+                        color: AppTheme.darkSurface.withValues(alpha: 0.25),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppTheme.darkBorder.withOpacity(0.2), width: 0.5),
+                        border: Border.all(
+                            color: AppTheme.darkBorder.withValues(alpha: 0.2),
+                            width: 0.5),
                       ),
                       child: Icon(
                         Icons.clear_rounded,
@@ -219,7 +223,6 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
       ],
     );
   }
-
   Widget _buildSearchField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,10 +241,10 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
           decoration: InputDecoration(
             hintText: 'ابحث عن خدمة...',
             hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             filled: true,
-            fillColor: AppTheme.darkSurface.withOpacity(0.3),
+            fillColor: AppTheme.darkSurface.withValues(alpha: 0.3),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -249,14 +252,14 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.2),
+                color: AppTheme.darkBorder.withValues(alpha: 0.2),
                 width: 0.5,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.primaryBlue.withOpacity(0.5),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                 width: 1,
               ),
             ),
@@ -279,17 +282,16 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
       ],
     );
   }
-
   Widget _buildExpandAdvancedFilters() {
     return GestureDetector(
       onTap: () => setState(() => _showAdvancedFilters = !_showAdvancedFilters),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
-          color: AppTheme.darkSurface.withOpacity(0.3),
+          color: AppTheme.darkSurface.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
@@ -297,13 +299,17 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              _showAdvancedFilters ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+              _showAdvancedFilters
+                  ? Icons.keyboard_arrow_up
+                  : Icons.keyboard_arrow_down,
               color: AppTheme.primaryBlue,
               size: 20,
             ),
             const SizedBox(width: 8),
             Text(
-              _showAdvancedFilters ? 'إخفاء الفلاتر المتقدمة' : 'إظهار الفلاتر المتقدمة',
+              _showAdvancedFilters
+                  ? 'إخفاء الفلاتر المتقدمة'
+                  : 'إظهار الفلاتر المتقدمة',
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppTheme.primaryBlue,
                 fontWeight: FontWeight.w600,
@@ -314,7 +320,6 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
       ),
     );
   }
-
   List<Widget> _buildAdvancedFilters() {
     return [
       const SizedBox(height: 16),
@@ -331,7 +336,6 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
       _buildShowOnlyFreeFilter(),
     ];
   }
-
   Widget _buildPricingModelFilter() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,10 +350,10 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: AppTheme.darkSurface.withOpacity(0.3),
+            color: AppTheme.darkSurface.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.2),
+              color: AppTheme.darkBorder.withValues(alpha: 0.2),
               width: 0.5,
             ),
           ),
@@ -383,7 +387,6 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
       ],
     );
   }
-
   Widget _buildMinPriceFilter() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -404,10 +407,10 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
           decoration: InputDecoration(
             hintText: '0',
             hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             filled: true,
-            fillColor: AppTheme.darkSurface.withOpacity(0.3),
+            fillColor: AppTheme.darkSurface.withValues(alpha: 0.3),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -415,14 +418,14 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.2),
+                color: AppTheme.darkBorder.withValues(alpha: 0.2),
                 width: 0.5,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.primaryBlue.withOpacity(0.5),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                 width: 1,
               ),
             ),
@@ -439,7 +442,6 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
       ],
     );
   }
-
   Widget _buildMaxPriceFilter() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -460,10 +462,10 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
           decoration: InputDecoration(
             hintText: '∞',
             hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             filled: true,
-            fillColor: AppTheme.darkSurface.withOpacity(0.3),
+            fillColor: AppTheme.darkSurface.withValues(alpha: 0.3),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -471,14 +473,14 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.2),
+                color: AppTheme.darkBorder.withValues(alpha: 0.2),
                 width: 0.5,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.primaryBlue.withOpacity(0.5),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                 width: 1,
               ),
             ),
@@ -495,7 +497,6 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
       ],
     );
   }
-
   Widget _buildShowOnlyFreeFilter() {
     return GestureDetector(
       onTap: () {
@@ -505,29 +506,36 @@ class _ServiceFiltersWidgetState extends State<ServiceFiltersWidget> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: widget.showOnlyFree == true 
-              ? AppTheme.primaryBlue.withOpacity(0.2) 
-              : AppTheme.darkSurface.withOpacity(0.3),
+          color: widget.showOnlyFree == true
+              ? AppTheme.primaryBlue.withValues(alpha: 0.2)
+              : AppTheme.darkSurface.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: widget.showOnlyFree == true 
-                ? AppTheme.primaryBlue.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.2),
+            color: widget.showOnlyFree == true
+                ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                : AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
         child: Row(
           children: [
             Icon(
-              widget.showOnlyFree == true ? Icons.check_box : Icons.check_box_outline_blank,
-              color: widget.showOnlyFree == true ? AppTheme.primaryBlue : AppTheme.textMuted,
+              widget.showOnlyFree == true
+                  ? Icons.check_box
+                  : Icons.check_box_outline_blank,
+              color: widget.showOnlyFree == true
+                  ? AppTheme.primaryBlue
+                  : AppTheme.textMuted,
             ),
             const SizedBox(width: 12),
             Text(
               'عرض الخدمات المجانية فقط',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: widget.showOnlyFree == true ? AppTheme.primaryBlue : AppTheme.textWhite,
-                fontWeight: widget.showOnlyFree == true ? FontWeight.w600 : null,
+                color: widget.showOnlyFree == true
+                    ? AppTheme.primaryBlue
+                    : AppTheme.textWhite,
+                fontWeight:
+                    widget.showOnlyFree == true ? FontWeight.w600 : null,
               ),
             ),
           ],

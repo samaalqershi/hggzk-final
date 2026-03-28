@@ -1,6 +1,13 @@
 import '../../domain/entities/notification.dart';
 
+/// يحول JSON الإشعارات القادم من الخادم إلى كيان مجال موحد يمكن للواجهة
+/// وطبقات المجال الاعتماد عليه.
+/// Converts notification JSON payloads into a normalized domain entity used by
+/// the UI and domain layers.
 class NotificationModel extends NotificationEntity {
+  /// ينشئ نموذج الإشعار مع كل الحقول اللازمة للعرض والتفاعل.
+  /// Creates the notification model with the fields required for display and
+  /// interaction.
   const NotificationModel({
     required super.id,
     required super.title,
@@ -12,6 +19,9 @@ class NotificationModel extends NotificationEntity {
     super.readAt,
   });
 
+  /// يبني النموذج من JSON مع دعم اختلافات التسمية بين الحقول.
+  /// Builds the model from JSON while tolerating naming differences across
+  /// backend payloads.
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
       id: json['id'] ?? '',
@@ -31,10 +41,12 @@ class NotificationModel extends NotificationEntity {
               ? DateTime.parse(json['read_at'])
               : json['ReadAt'] != null
                   ? DateTime.tryParse(json['ReadAt'])
-              : null,
+                  : null,
     );
   }
 
+  /// يحول النموذج إلى JSON للحفظ المحلي أو النقل بين الطبقات.
+  /// Converts the model to JSON for local caching or inter-layer transport.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -48,6 +60,9 @@ class NotificationModel extends NotificationEntity {
     };
   }
 
+  /// ينشئ نموذج بيانات من كيان المجال عند الحاجة إلى التخزين أو الإرسال.
+  /// Creates a data model from the domain entity when caching or resending is
+  /// needed.
   factory NotificationModel.fromEntity(NotificationEntity notification) {
     return NotificationModel(
       id: notification.id,

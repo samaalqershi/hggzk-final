@@ -4,34 +4,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
-
 class ReviewFiltersWidget extends StatefulWidget {
+  /// العربية: يعالج `Function`.
   final Function(Map<String, dynamic>) onFilterChanged;
-  
   const ReviewFiltersWidget({
     super.key,
     required this.onFilterChanged,
   });
-  
   @override
   State<ReviewFiltersWidget> createState() => _ReviewFiltersWidgetState();
 }
-
 class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _expandAnimation;
-  
+
   final TextEditingController _searchController = TextEditingController();
   bool _isExpanded = false;
-  
+
   // قيم الفلاتر
   String _searchQuery = '';
   double? _minRating;
   bool? _isPending;
   bool? _hasResponse;
   String _dateRange = 'all';
-  
   @override
   void initState() {
     super.initState();
@@ -39,25 +35,23 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _expandAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOutCubic,
     );
-    
+
     _searchController.addListener(() {
       setState(() => _searchQuery = _searchController.text);
       _applyFilters();
     });
   }
-  
   @override
   void dispose() {
     _animationController.dispose();
     _searchController.dispose();
     super.dispose();
   }
-  
   void _applyFilters() {
     widget.onFilterChanged({
       'search': _searchQuery,
@@ -67,7 +61,6 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
       'dateRange': _dateRange,
     });
   }
-  
   void _clearFilters() {
     HapticFeedback.lightImpact();
     setState(() {
@@ -80,7 +73,6 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
     });
     _applyFilters();
   }
-  
   int get _activeFiltersCount {
     int count = 0;
     if (_searchQuery.isNotEmpty) count++;
@@ -90,12 +82,11 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
     if (_dateRange != 'all') count++;
     return count;
   }
-  
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width > 1200;
-    
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -103,12 +94,12 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -128,16 +119,17 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
                       flex: isDesktop ? 3 : 2,
                       child: _buildSearchField(),
                     ),
-                    
+
                     const SizedBox(width: 12),
-                    
+
                     // فلاتر سريعة (سطح المكتب)
                     if (isDesktop) ...[
                       _buildQuickFilter(
                         label: 'قيد المراجعة',
                         isActive: _isPending == true,
                         onTap: () {
-                          setState(() => _isPending = _isPending == true ? null : true);
+                          setState(() =>
+                              _isPending = _isPending == true ? null : true);
                           _applyFilters();
                         },
                       ),
@@ -146,16 +138,17 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
                         label: 'مع رد',
                         isActive: _hasResponse == true,
                         onTap: () {
-                          setState(() => _hasResponse = _hasResponse == true ? null : true);
+                          setState(() => _hasResponse =
+                              _hasResponse == true ? null : true);
                           _applyFilters();
                         },
                       ),
                       const SizedBox(width: 12),
                     ],
-                    
+
                     // زر التوسع
                     _buildExpandButton(),
-                    
+
                     // زر المسح
                     if (_activeFiltersCount > 0) ...[
                       const SizedBox(width: 8),
@@ -164,7 +157,7 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
                   ],
                 ),
               ),
-              
+
               // الفلاتر الموسعة
               SizeTransition(
                 sizeFactor: _expandAnimation,
@@ -172,7 +165,7 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
                   decoration: BoxDecoration(
                     border: Border(
                       top: BorderSide(
-                        color: AppTheme.darkBorder.withOpacity(0.2),
+                        color: AppTheme.darkBorder.withValues(alpha: 0.2),
                         width: 0.5,
                       ),
                     ),
@@ -189,17 +182,16 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
       ),
     );
   }
-  
   Widget _buildSearchField() {
     return Container(
       height: 44,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: AppTheme.inputBackground.withOpacity(0.3),
+        color: AppTheme.inputBackground.withValues(alpha: 0.3),
         border: Border.all(
           color: _searchController.text.isNotEmpty
-              ? AppTheme.primaryBlue.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.2),
+              ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -213,12 +205,12 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
           hintText: 'البحث في التقييمات...',
           hintStyle: TextStyle(
             fontSize: 14,
-            color: AppTheme.textMuted.withOpacity(0.5),
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
           ),
           prefixIcon: Icon(
             Icons.search,
             size: 20,
-            color: AppTheme.textMuted.withOpacity(0.5),
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
           ),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
@@ -242,7 +234,6 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
       ),
     );
   }
-  
   Widget _buildQuickFilter({
     required String label,
     required bool isActive,
@@ -258,22 +249,19 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          gradient: isActive
-              ? AppTheme.primaryGradient
-              : null,
-          color: isActive
-              ? null
-              : AppTheme.inputBackground.withOpacity(0.3),
+          gradient: isActive ? AppTheme.primaryGradient : null,
+          color:
+              isActive ? null : AppTheme.inputBackground.withValues(alpha: 0.3),
           border: Border.all(
             color: isActive
                 ? Colors.transparent
-                : AppTheme.darkBorder.withOpacity(0.2),
+                : AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 0.5,
           ),
           boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.3),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                     blurRadius: 12,
                     spreadRadius: 2,
                   ),
@@ -291,7 +279,6 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
       ),
     );
   }
-  
   Widget _buildExpandButton() {
     return GestureDetector(
       onTap: () {
@@ -307,9 +294,9 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: AppTheme.primaryBlue.withOpacity(0.1),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.1),
           border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 0.5,
           ),
         ),
@@ -354,7 +341,6 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
       ),
     );
   }
-  
   Widget _buildClearButton() {
     return GestureDetector(
       onTap: _clearFilters,
@@ -362,9 +348,9 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: AppTheme.error.withOpacity(0.1),
+          color: AppTheme.error.withValues(alpha: 0.1),
           border: Border.all(
-            color: AppTheme.error.withOpacity(0.3),
+            color: AppTheme.error.withValues(alpha: 0.3),
             width: 0.5,
           ),
         ),
@@ -376,16 +362,15 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
       ),
     );
   }
-  
   Widget _buildExpandedFilters(bool isDesktop) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // فلتر التقييم
         _buildRatingFilter(),
-        
+
         const SizedBox(height: 16),
-        
+
         // فلاتر الحالة + التاريخ بمحاذاة واحدة
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -401,7 +386,7 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
             ],
           ],
         ),
-        
+
         if (!isDesktop) ...[
           const SizedBox(height: 16),
           _buildDateRangeFilter(),
@@ -409,7 +394,6 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
       ],
     );
   }
-  
   Widget _buildRatingFilter() {
     return Container(
       alignment: Alignment.topLeft,
@@ -431,57 +415,56 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
             children: List.generate(5, (index) {
               final rating = (index + 1).toDouble();
               final isSelected = _minRating == rating;
-              
+
               return GestureDetector(
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    setState(() {
-                      _minRating = isSelected ? null : rating;
-                    });
-                    _applyFilters();
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  setState(() {
+                    _minRating = isSelected ? null : rating;
+                  });
+                  _applyFilters();
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: isSelected
+                        ? AppTheme.warning.withValues(alpha: 0.2)
+                        : AppTheme.inputBackground.withValues(alpha: 0.3),
+                    border: Border.all(
                       color: isSelected
-                          ? AppTheme.warning.withOpacity(0.2)
-                          : AppTheme.inputBackground.withOpacity(0.3),
-                      border: Border.all(
-                        color: isSelected
-                            ? AppTheme.warning.withOpacity(0.5)
-                            : AppTheme.darkBorder.withOpacity(0.2),
-                        width: 0.5,
-                      ),
+                          ? AppTheme.warning.withValues(alpha: 0.5)
+                          : AppTheme.darkBorder.withValues(alpha: 0.2),
+                      width: 0.5,
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.star_rounded,
-                          size: 16,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.star_rounded,
+                        size: 16,
+                        color:
+                            isSelected ? AppTheme.warning : AppTheme.textMuted,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        rating.toStringAsFixed(0),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
                           color: isSelected
                               ? AppTheme.warning
                               : AppTheme.textMuted,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          rating.toStringAsFixed(0),
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: isSelected
-                                ? AppTheme.warning
-                                : AppTheme.textMuted,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
+                ),
               );
             }),
           ),
@@ -489,7 +472,6 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
       ),
     );
   }
-  
   Widget _buildStatusFilter() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -527,7 +509,8 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
               label: 'مع رد',
               isSelected: _hasResponse == true,
               onTap: () {
-                setState(() => _hasResponse = _hasResponse == true ? null : true);
+                setState(
+                    () => _hasResponse = _hasResponse == true ? null : true);
                 _applyFilters();
               },
             ),
@@ -536,7 +519,6 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
       ],
     );
   }
-  
   Widget _buildDateRangeFilter() {
     final ranges = {
       'all': 'كل الأوقات',
@@ -545,7 +527,7 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
       'month': 'هذا الشهر',
       'year': 'هذه السنة',
     };
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -562,9 +544,9 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            color: AppTheme.inputBackground.withOpacity(0.3),
+            color: AppTheme.inputBackground.withValues(alpha: 0.3),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.2),
+              color: AppTheme.darkBorder.withValues(alpha: 0.2),
               width: 0.5,
             ),
           ),
@@ -598,7 +580,6 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
       ],
     );
   }
-  
   Widget _buildChip({
     required String label,
     required bool isSelected,
@@ -615,11 +596,13 @@ class _ReviewFiltersWidgetState extends State<ReviewFiltersWidget>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           gradient: isSelected ? AppTheme.primaryGradient : null,
-          color: isSelected ? null : AppTheme.inputBackground.withOpacity(0.3),
+          color: isSelected
+              ? null
+              : AppTheme.inputBackground.withValues(alpha: 0.3),
           border: Border.all(
             color: isSelected
                 ? Colors.transparent
-                : AppTheme.darkBorder.withOpacity(0.2),
+                : AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),

@@ -2,33 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:hggzk/core/theme/app_text_styles.dart';
 import '../../data/models/property_filter_mismatch_model.dart';
 
-/// Widget لعرض معلومات الفروقات بين المعايير المطلوبة والعقار
-/// Widget to display mismatches between requested criteria and property
+/// Shows the search constraints that the property does not satisfy.
+/// يعرض القيود التي لا يطابقها العقار من معايير البحث.
 class PropertyMismatchBadgeWidget extends StatelessWidget {
-  /// قائمة الفروقات
-  /// List of mismatches
+  /// Search mismatches returned by the backend.
+  /// فروقات البحث التي يعيدها الخادم.
   final List<PropertyFilterMismatchModel> mismatches;
 
-  /// هل العرض مختصر؟ (عدد الفروقات فقط)
-  /// Is the view compact? (count only)
+  /// True when the badge should show only the count instead of details.
+  /// تكون صحيحة عندما يجب عرض العدد فقط بدل التفاصيل.
   final bool compact;
 
+  /// Builds a compact or detailed badge depending on the available space.
+  /// ينشئ شارة مختصرة أو مفصلة بحسب المساحة المتاحة.
   const PropertyMismatchBadgeWidget({
     super.key,
     required this.mismatches,
     this.compact = true,
   });
 
+  /// Renders the mismatch badge in compact or detailed form.
+  /// يرسم شارة الفروقات بصيغة مختصرة أو مفصلة.
   @override
   Widget build(BuildContext context) {
-    // إذا لم توجد فروقات، لا نعرض شيء
+    // Hide the badge when there are no mismatches to communicate.
     if (mismatches.isEmpty) return const SizedBox.shrink();
 
     return compact ? _buildCompactView(context) : _buildDetailedView(context);
   }
 
-  /// النسخة المختصرة: عدد الفروقات فقط
-  /// Compact view: count only
+  /// Renders the compact badge with just the mismatch count.
+  /// يرسم الشارة المختصرة التي تعرض عدد الفروقات فقط.
   Widget _buildCompactView(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -61,8 +65,8 @@ class PropertyMismatchBadgeWidget extends StatelessWidget {
     );
   }
 
-  /// النسخة المفصلة: قائمة الفروقات
-  /// Detailed view: list of mismatches
+  /// Renders the detailed list of individual mismatches.
+  /// يرسم قائمة الفروقات المفصلة لكل عنصر على حدة.
   Widget _buildDetailedView(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,8 +91,8 @@ class PropertyMismatchBadgeWidget extends StatelessWidget {
     );
   }
 
-  /// Chip لكل فرق
-  /// Chip for each mismatch
+  /// Builds one visual chip for a specific mismatch.
+  /// يبني شريحة مرئية لفروقة واحدة محددة.
   Widget _buildMismatchChip(
       BuildContext context, PropertyFilterMismatchModel mismatch) {
     final color = _getColorForSeverity(mismatch.severity);
@@ -127,8 +131,8 @@ class PropertyMismatchBadgeWidget extends StatelessWidget {
     );
   }
 
-  /// الألوان حسب الشدة
-  /// Colors by severity
+  /// Maps mismatch severity to the badge color.
+  /// يطابق شدة الفروقة مع لون الشارة.
   Color _getColorForSeverity(MismatchSeverity severity) {
     switch (severity) {
       case MismatchSeverity.minor:
@@ -140,8 +144,8 @@ class PropertyMismatchBadgeWidget extends StatelessWidget {
     }
   }
 
-  /// الأيقونات حسب الشدة
-  /// Icons by severity
+  /// Maps mismatch severity to the badge icon.
+  /// يطابق شدة الفروقة مع أيقونة الشارة.
   IconData _getIconForSeverity(MismatchSeverity severity) {
     switch (severity) {
       case MismatchSeverity.minor:

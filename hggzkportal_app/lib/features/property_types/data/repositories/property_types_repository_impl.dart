@@ -8,7 +8,9 @@ import '../../domain/repositories/property_types_repository.dart';
 import '../datasources/property_types_remote_datasource.dart';
 
 class PropertyTypesRepositoryImpl implements PropertyTypesRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final PropertyTypesRemoteDataSource remoteDataSource;
+
   final NetworkInfo networkInfo;
 
   PropertyTypesRepositoryImpl({
@@ -101,10 +103,12 @@ class PropertyTypesRepositoryImpl implements PropertyTypesRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> deletePropertyType(String propertyTypeId) async {
+  Future<Either<Failure, bool>> deletePropertyType(
+      String propertyTypeId) async {
     if (await networkInfo.isConnected) {
       try {
-        final result = await remoteDataSource.deletePropertyType(propertyTypeId);
+        final result =
+            await remoteDataSource.deletePropertyType(propertyTypeId);
         return Right(result);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));

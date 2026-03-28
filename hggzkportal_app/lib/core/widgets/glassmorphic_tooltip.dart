@@ -59,7 +59,6 @@ class GlasmorphicTooltip {
     _isVisible = false;
   }
 }
-
 class _GlasmorphicTooltipContent extends StatefulWidget {
   final Offset targetOffset;
   final Size targetSize;
@@ -70,7 +69,6 @@ class _GlasmorphicTooltipContent extends StatefulWidget {
   final IconData? icon;
   final VoidCallback onDismiss;
   final bool dismissOnTap;
-
   const _GlasmorphicTooltipContent({
     required this.targetOffset,
     required this.targetSize,
@@ -82,19 +80,15 @@ class _GlasmorphicTooltipContent extends StatefulWidget {
     required this.onDismiss,
     required this.dismissOnTap,
   });
-
   @override
   State<_GlasmorphicTooltipContent> createState() =>
       _GlasmorphicTooltipContentState();
 }
-
-class _GlasmorphicTooltipContentState
-    extends State<_GlasmorphicTooltipContent>
+class _GlasmorphicTooltipContentState extends State<_GlasmorphicTooltipContent>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
-
   @override
   void initState() {
     super.initState();
@@ -115,23 +109,20 @@ class _GlasmorphicTooltipContentState
 
     _controller.forward();
   }
-
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-
   void _dismiss() async {
     await _controller.reverse();
     widget.onDismiss();
   }
-
   @override
   Widget build(BuildContext context) {
     // حساب الموقع الأمثل للـ tooltip
     final tooltipWidth = widget.screenSize.width * 0.85;
-    final tooltipMaxWidth = 320.0;
+    const tooltipMaxWidth = 320.0;
     final actualTooltipWidth =
         tooltipWidth > tooltipMaxWidth ? tooltipMaxWidth : tooltipWidth;
 
@@ -324,12 +315,9 @@ class _GlasmorphicTooltipContentState
     );
   }
 }
-
 class _ArrowPainter extends CustomPainter {
   final Color color;
-
   _ArrowPainter({required this.color});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -344,7 +332,6 @@ class _ArrowPainter extends CustomPainter {
 
     canvas.drawPath(path, paint);
   }
-
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

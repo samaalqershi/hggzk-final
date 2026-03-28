@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/error_widget.dart';
@@ -15,21 +14,35 @@ import '../bloc/booking_analytics/booking_analytics_bloc.dart';
 import '../bloc/booking_analytics/booking_analytics_event.dart';
 import '../bloc/booking_analytics/booking_analytics_state.dart';
 import '../widgets/booking_analytics_charts.dart';
-import '../widgets/booking_stats_cards.dart';
 
+/// Arabic: صفحة التحليلات التي تعرض مؤشرات الأداء والاتجاهات والمقارنات الخاصة بالحجوزات.
+/// English: Analytics page that surfaces booking KPIs, trends, and comparison views.
 class BookingAnalyticsPage extends StatefulWidget {
+  /// Arabic: ينشئ صفحة التحليلات بدون أي مدخلات إضافية.
+  /// English: Creates the analytics page without any additional inputs.
   const BookingAnalyticsPage({super.key});
-
   @override
   State<BookingAnalyticsPage> createState() => _BookingAnalyticsPageState();
 }
 
+/// Arabic: يدير حالة صفحة التحليلات، بما في ذلك التحميل وتبديل الفترات والتنقل بين التبويبات.
+/// English: Manages the analytics page state, including loading, period changes, and tab navigation.
 class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     with TickerProviderStateMixin {
+  /// Arabic: يتحكم في حركة الظهور التدريجي لعناصر الصفحة.
+  /// English: Drives the page entrance animation.
   late AnimationController _animationController;
+
+  /// Arabic: ينسق التبديل بين تبويبات التحليلات.
+  /// English: Coordinates the analytics tab transitions.
   late TabController _tabController;
+
+  /// Arabic: تحدد الفترة الزمنية الحالية التي تُبنى عليها الاستعلامات.
+  /// English: Tracks the currently selected time period used for analytics queries.
   AnalyticsPeriod _selectedPeriod = AnalyticsPeriod.month;
 
+  /// Arabic: يهيئ المتحكمات ثم يحمّل البيانات الأولية ويبدأ الحركة.
+  /// English: Initializes controllers, loads the first dataset, and starts the entrance animation.
   @override
   void initState() {
     super.initState();
@@ -42,6 +55,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     _animationController.forward();
   }
 
+  /// Arabic: يطلب أحدث بيانات التحليلات وفق الفترة المحددة حاليًا.
+  /// English: Requests the latest analytics dataset for the currently selected period.
   void _loadAnalytics() {
     final now = DateTime.now();
     final startDate = _getStartDateForPeriod(_selectedPeriod);
@@ -54,6 +69,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
         );
   }
 
+  /// Arabic: يحسب تاريخ البداية المناسب لكل فترة تحليلية.
+  /// English: Calculates the start date that matches a given analytics period.
   DateTime _getStartDateForPeriod(AnalyticsPeriod period) {
     final now = DateTime.now();
     switch (period) {
@@ -70,6 +87,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     }
   }
 
+  /// Arabic: يحرر المتحكمات المرتبطة بالحركة والتبويبات قبل إزالة الصفحة.
+  /// English: Disposes the animation and tab controllers before the page is removed.
   @override
   void dispose() {
     _animationController.dispose();
@@ -77,6 +96,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     super.dispose();
   }
 
+  /// Arabic: يبني واجهة صفحة التحليلات وفق حالة الـ bloc الحالية.
+  /// English: Builds the analytics UI according to the current bloc state.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,6 +128,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     );
   }
 
+  /// Arabic: يجمع أقسام الصفحة عند توفر بيانات التحليلات كاملة.
+  /// English: Assembles the page sections once analytics data has been loaded.
   Widget _buildContent(BookingAnalyticsLoaded state) {
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -120,6 +143,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     );
   }
 
+  /// Arabic: ينشئ شريط العنوان المثبت مع أزرار التحديث والتصدير.
+  /// English: Builds the pinned header with refresh and export actions.
   Widget _buildSliverAppBar() {
     return SliverAppBar(
       expandedHeight: 120,
@@ -134,7 +159,7 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
             color: AppTheme.textWhite,
             shadows: [
               Shadow(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                 blurRadius: 10,
               ),
             ],
@@ -146,7 +171,7 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.primaryPurple.withOpacity(0.1),
+                AppTheme.primaryPurple.withValues(alpha: 0.1),
                 AppTheme.darkBackground,
               ],
             ),
@@ -167,6 +192,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     );
   }
 
+  /// Arabic: يعرض أزرار اختيار الفترة الزمنية للتحليلات.
+  /// English: Displays the time-period chips used to switch analytics ranges.
   Widget _buildPeriodSelector() {
     return SliverToBoxAdapter(
       child: Container(
@@ -189,7 +216,7 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
                         );
                   }
                 },
-                selectedColor: AppTheme.primaryBlue.withOpacity(0.2),
+                selectedColor: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 backgroundColor: AppTheme.darkCard,
                 labelStyle: AppTextStyles.bodyMedium.copyWith(
                   color: isSelected ? AppTheme.primaryBlue : AppTheme.textMuted,
@@ -198,7 +225,7 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
                 side: BorderSide(
                   color: isSelected
                       ? AppTheme.primaryBlue
-                      : AppTheme.darkBorder.withOpacity(0.3),
+                      : AppTheme.darkBorder.withValues(alpha: 0.3),
                 ),
               ),
             );
@@ -208,6 +235,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     );
   }
 
+  /// Arabic: يعرض بطاقات مؤشرات الأداء الرئيسية الخاصة بالحجوزات.
+  /// English: Renders the booking KPI cards.
   Widget _buildKPICards(BookingAnalyticsLoaded state) {
     return SliverToBoxAdapter(
       child: Container(
@@ -231,7 +260,10 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
               ),
               icon: CupertinoIcons.money_dollar_circle_fill,
               gradient: LinearGradient(
-                colors: [AppTheme.success, AppTheme.success.withOpacity(0.6)],
+                colors: [
+                  AppTheme.success,
+                  AppTheme.success.withValues(alpha: 0.6)
+                ],
               ),
               trend: 15.3,
             ),
@@ -241,7 +273,10 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
                   '${state.kpis['occupancyRate']?.toStringAsFixed(1) ?? '0'}%',
               icon: CupertinoIcons.chart_pie_fill,
               gradient: LinearGradient(
-                colors: [AppTheme.warning, AppTheme.warning.withOpacity(0.6)],
+                colors: [
+                  AppTheme.warning,
+                  AppTheme.warning.withValues(alpha: 0.6)
+                ],
               ),
               trend: -5.2,
             ),
@@ -251,7 +286,7 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
                   '${state.kpis['averageStayLength']?.toStringAsFixed(1) ?? '0'} ليلة',
               icon: CupertinoIcons.moon_fill,
               gradient: LinearGradient(
-                colors: [AppTheme.info, AppTheme.info.withOpacity(0.6)],
+                colors: [AppTheme.info, AppTheme.info.withValues(alpha: 0.6)],
               ),
               trend: 8.7,
             ),
@@ -261,6 +296,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     );
   }
 
+  /// Arabic: يبني بطاقة مؤشر واحدة مع القيمة والاتجاه.
+  /// English: Builds a single KPI card with its value and trend indicator.
   Widget _buildKPICard({
     required String title,
     required String value,
@@ -278,7 +315,7 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: gradient.colors.first.withOpacity(0.3),
+            color: gradient.colors.first.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -292,7 +329,7 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
             child: Icon(
               icon,
               size: 100,
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
             ),
           ),
           Padding(
@@ -309,7 +346,7 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
                       child: Text(
                         title,
                         style: AppTextStyles.caption.copyWith(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                         ),
                       ),
                     ),
@@ -330,7 +367,7 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -362,6 +399,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     );
   }
 
+  /// Arabic: يجهز شريط التبويبات الثابت بين أقسام التحليلات.
+  /// English: Prepares the pinned tab bar for the analytics sections.
   Widget _buildTabBar() {
     return SliverPersistentHeader(
       pinned: true,
@@ -387,6 +426,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     );
   }
 
+  /// Arabic: يربط محتوى التبويبات ببيانات التحليلات المحملة.
+  /// English: Connects each tab to the loaded analytics data.
   Widget _buildTabContent(BookingAnalyticsLoaded state) {
     return SliverFillRemaining(
       child: TabBarView(
@@ -401,6 +442,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     );
   }
 
+  /// Arabic: يعرض ملخص التحليلات والمخططات الرئيسية.
+  /// English: Shows the overall analytics summary and primary charts.
   Widget _buildOverviewTab(BookingAnalyticsLoaded state) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -412,6 +455,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     );
   }
 
+  /// Arabic: يعرض مخططات الاتجاهات للحجوزات والإيرادات.
+  /// English: Shows trend charts for bookings and revenue.
   Widget _buildTrendsTab(BookingAnalyticsLoaded state) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -433,6 +478,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     );
   }
 
+  /// Arabic: يبني مخططًا خطيًا يوضح تغير أحد المقاييس عبر الزمن.
+  /// English: Builds a line chart that visualizes how a metric changes over time.
   Widget _buildTrendChart({
     required String title,
     required List<TimeSeriesData> data,
@@ -442,10 +489,10 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
       height: 300,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -467,7 +514,7 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
                   horizontalInterval: 1,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: AppTheme.darkBorder.withOpacity(0.1),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.1),
                       strokeWidth: 1,
                     );
                   },
@@ -528,7 +575,7 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
                     isCurved: true,
                     gradient: LinearGradient(
                       colors: [
-                        color.withOpacity(0.8),
+                        color.withValues(alpha: 0.8),
                         color,
                       ],
                     ),
@@ -539,8 +586,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
                       show: true,
                       gradient: LinearGradient(
                         colors: [
-                          color.withOpacity(0.1),
-                          color.withOpacity(0.0),
+                          color.withValues(alpha: 0.1),
+                          color.withValues(alpha: 0.0),
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -556,6 +603,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     );
   }
 
+  /// Arabic: يعرض توزيع الحجوزات حسب المصدر مع بطاقات تفصيلية.
+  /// English: Shows booking source distribution with supporting detail cards.
   Widget _buildSourcesTab(BookingAnalyticsLoaded state) {
     final sources = state.report.summary.bookingsBySource;
 
@@ -580,6 +629,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     );
   }
 
+  /// Arabic: يبني مخططًا دائريًا لتوزيع القيم بين المصادر.
+  /// English: Builds a pie chart for the value distribution across sources.
   Widget _buildPieChart({
     required String title,
     required Map<String, int> data,
@@ -588,10 +639,10 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
       height: 300,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -618,6 +669,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     );
   }
 
+  /// Arabic: يحول البيانات الخام إلى شرائح مناسبة للمخطط الدائري.
+  /// English: Converts raw counts into pie-chart sections.
   List<PieChartSectionData> _generatePieSections(Map<String, int> data) {
     final total = data.values.reduce((a, b) => a + b);
     final colors = [
@@ -646,6 +699,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     }).toList();
   }
 
+  /// Arabic: يعرض بطاقة تفصيلية لمصدر واحد مع النسبة المئوية.
+  /// English: Renders a detailed card for one source together with its percentage.
   Widget _buildSourceCard({
     required String source,
     required int count,
@@ -657,10 +712,10 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.3),
+        color: AppTheme.darkCard.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -669,7 +724,7 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -693,7 +748,7 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
                 const SizedBox(height: 4),
                 LinearProgressIndicator(
                   value: percentage / 100,
-                  backgroundColor: AppTheme.darkBorder.withOpacity(0.2),
+                  backgroundColor: AppTheme.darkBorder.withValues(alpha: 0.2),
                   valueColor: AlwaysStoppedAnimation<Color>(
                     AppTheme.primaryBlue,
                   ),
@@ -724,6 +779,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     );
   }
 
+  /// Arabic: يقدم نقطة دخول لعرض المقارنات بين الفترات الزمنية.
+  /// English: Provides the entry point for comparing different time ranges.
   Widget _buildComparisonsTab(BookingAnalyticsLoaded state) {
     return Center(
       child: Container(
@@ -734,7 +791,7 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
             Icon(
               CupertinoIcons.chart_bar_alt_fill,
               size: 80,
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 24),
             Text(
@@ -772,6 +829,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     );
   }
 
+  /// Arabic: يحول قيمة الفترة إلى تسمية عربية واضحة للمستخدم.
+  /// English: Converts a period value into a user-friendly Arabic label.
   String _getPeriodLabel(AnalyticsPeriod period) {
     switch (period) {
       case AnalyticsPeriod.day:
@@ -787,6 +846,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     }
   }
 
+  /// Arabic: يختار الأيقونة المناسبة لتمثيل مصدر الحجز.
+  /// English: Picks the icon that best represents a booking source.
   IconData _getSourceIcon(String source) {
     switch (source.toLowerCase()) {
       case 'website':
@@ -800,6 +861,8 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     }
   }
 
+  /// Arabic: يحول اسم المصدر الداخلي إلى تسمية عرض مفهومة.
+  /// English: Converts an internal source key into a readable label.
   String _getSourceLabel(String source) {
     switch (source.toLowerCase()) {
       case 'website':
@@ -813,32 +876,50 @@ class _BookingAnalyticsPageState extends State<BookingAnalyticsPage>
     }
   }
 
+  /// Arabic: يختصر التاريخ إلى صيغة مناسبة لوسوم المخطط.
+  /// English: Condenses a date into a compact chart label.
   String _formatChartDate(DateTime date) {
     return '${date.day}/${date.month}';
   }
 
+  /// Arabic: يرسل حدث تصدير التقرير إلى طبقة الـ bloc.
+  /// English: Dispatches the analytics export event to the bloc layer.
   void _exportReport() {
     context.read<BookingAnalyticsBloc>().add(
           const ExportAnalyticsReportEvent(format: ExportFormat.pdf),
         );
   }
 
+  /// Arabic: يفتح حاليًا نقطة دخول للمقارنة، وهي ما زالت بحاجة إلى حوار كامل لاحقًا.
+  /// English: Opens the current comparison entry point; the full dialog flow is still pending.
   void _showComparisonDialog() {
     // Implement comparison dialog
   }
 }
 
+/// Arabic: يلف شريط التبويب داخل رأس سلايفر مثبّت مع الحفاظ على ارتفاعه الثابت.
+/// English: Wraps a tab bar inside a pinned sliver header while keeping a fixed height.
 class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
+  /// Arabic: شريط التبويب الذي سيُعرض داخل الرأس المثبّت.
+  /// English: The tab bar rendered inside the pinned header.
   final TabBar tabBar;
 
+  /// Arabic: ينشئ وكيلاً جديدًا للرأس المثبّت حول شريط التبويب.
+  /// English: Creates a new persistent-header delegate around the given tab bar.
   _SliverTabBarDelegate(this.tabBar);
 
+  /// Arabic: يطابق أقل ارتفاع مع الارتفاع المطلوب فعليًا لشريط التبويب.
+  /// English: Matches the minimum extent to the tab bar's actual height.
   @override
   double get minExtent => tabBar.preferredSize.height;
 
+  /// Arabic: يطابق أكبر ارتفاع مع الارتفاع المطلوب فعليًا لشريط التبويب.
+  /// English: Matches the maximum extent to the tab bar's actual height.
   @override
   double get maxExtent => tabBar.preferredSize.height;
 
+  /// Arabic: يعرض شريط التبويب داخل حاوية تحمل خلفية الصفحة نفسها.
+  /// English: Renders the tab bar inside a container that shares the page background.
   @override
   Widget build(
     BuildContext context,
@@ -851,6 +932,8 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
     );
   }
 
+  /// Arabic: يعيد `false` لأن هذا الوكيل لا يتغير بعد الإنشاء.
+  /// English: Returns `false` because this delegate does not change after creation.
   @override
   bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
     return false;

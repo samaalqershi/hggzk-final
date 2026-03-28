@@ -14,13 +14,12 @@ import '../../../../../../core/widgets/error_widget.dart';
 import '../../../../../../core/widgets/price_widget.dart';
 
 class RefundsManagementPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `paymentId`.
   final String? paymentId;
-
   const RefundsManagementPage({
     super.key,
     this.paymentId,
   });
-
   @override
   State<RefundsManagementPage> createState() => _RefundsManagementPageState();
 }
@@ -31,7 +30,6 @@ class _RefundsManagementPageState extends State<RefundsManagementPage>
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _reasonController = TextEditingController();
   RefundType _selectedType = RefundType.full;
-
   @override
   void initState() {
     super.initState();

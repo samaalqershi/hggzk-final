@@ -6,10 +6,9 @@ import '../repositories/services_repository.dart';
 
 /// 🏢 Use Case لجلب خدمات عقار معين
 class GetServicesByPropertyUseCase implements UseCase<List<Service>, String> {
+  /// العربية: يخزن القيمة `repository`.
   final ServicesRepository repository;
-
   GetServicesByPropertyUseCase(this.repository);
-
   @override
   Future<Either<Failure, List<Service>>> call(String propertyId) async {
     return await repository.getServicesByProperty(propertyId);

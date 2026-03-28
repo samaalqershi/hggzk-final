@@ -5,7 +5,9 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../reference/presentation/widgets/city_selector_dialog.dart';
 
 class SectionFilterCriteriaEditor extends StatefulWidget {
+  /// العربية: يخزن القيمة `initialCriteria`.
   final Map<String, dynamic>? initialCriteria;
+
   final Function(Map<String, dynamic>) onCriteriaChanged;
 
   const SectionFilterCriteriaEditor({
@@ -207,9 +209,10 @@ class _SectionFilterCriteriaEditorState
                         ? _criteria['cityName'] as String
                         : 'اختر المدينة',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: (_criteria['cityName'] as String?)?.isNotEmpty == true
-                          ? AppTheme.textWhite
-                          : AppTheme.textMuted.withValues(alpha: 0.5),
+                      color:
+                          (_criteria['cityName'] as String?)?.isNotEmpty == true
+                              ? AppTheme.textWhite
+                              : AppTheme.textMuted.withValues(alpha: 0.5),
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),

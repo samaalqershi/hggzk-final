@@ -12,13 +12,12 @@ part 'policies_event.dart';
 part 'policies_state.dart';
 
 class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
+  /// العربية: يخزن القيمة `getPolicies`.
   final GetPoliciesUseCase getPolicies;
   final CreatePolicyUseCase createPolicy;
   final UpdatePolicyUseCase updatePolicy;
   final DeletePolicyUseCase deletePolicy;
-
   String? _currentPropertyId;
-  
   PoliciesBloc({
     required this.getPolicies,
     required this.createPolicy,
@@ -30,7 +29,6 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
     on<UpdatePolicyEvent>(_onUpdatePolicy);
     on<DeletePolicyEvent>(_onDeletePolicy);
   }
-  
   Future<void> _onLoadPolicies(
     LoadPoliciesEvent event,
     Emitter<PoliciesState> emit,
@@ -38,26 +36,26 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
     emit(PoliciesLoading());
 
     _currentPropertyId = event.propertyId;
-    
+
     final result = await getPolicies(
       GetPoliciesParams(
         propertyId: event.propertyId,
         policyType: event.policyType,
       ),
     );
-    
+
     result.fold(
       (failure) => emit(PoliciesError(failure.message)),
       (policies) => emit(PoliciesLoaded(policies)),
     );
   }
-  
+
   Future<void> _onCreatePolicy(
     CreatePolicyEvent event,
     Emitter<PoliciesState> emit,
   ) async {
     emit(PolicyCreating());
-    
+
     final result = await createPolicy(
       CreatePolicyParams(
         propertyId: event.propertyId,
@@ -66,7 +64,7 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
         rules: event.rules,
       ),
     );
-    
+
     result.fold(
       (failure) => emit(PoliciesError(failure.message)),
       (policyId) {
@@ -75,13 +73,13 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
       },
     );
   }
-  
+
   Future<void> _onUpdatePolicy(
     UpdatePolicyEvent event,
     Emitter<PoliciesState> emit,
   ) async {
     emit(PolicyUpdating());
-    
+
     final result = await updatePolicy(
       UpdatePolicyParams(
         policyId: event.policyId,
@@ -90,7 +88,7 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
         rules: event.rules,
       ),
     );
-    
+
     result.fold(
       (failure) => emit(PoliciesError(failure.message)),
       (_) {
@@ -103,15 +101,15 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
       },
     );
   }
-  
+
   Future<void> _onDeletePolicy(
     DeletePolicyEvent event,
     Emitter<PoliciesState> emit,
   ) async {
     emit(PolicyDeleting());
-    
+
     final result = await deletePolicy(event.policyId);
-    
+
     result.fold(
       (failure) => emit(PoliciesError(failure.message)),
       (_) {

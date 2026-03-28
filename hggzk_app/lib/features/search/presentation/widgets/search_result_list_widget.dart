@@ -7,15 +7,41 @@ import '../../domain/entities/search_result.dart';
 import 'search_result_card_widget.dart';
 import 'package:hggzk/core/enums/search_relaxation_level.dart';
 
+/// Full-width result list used when the screen prefers a spacious layout over
+/// compact cards.
+/// قائمة نتائج بعرض كامل تُستخدم عندما تفضل الشاشة تخطيطًا أوسع بدل البطاقات
+/// المضغوطة.
 class SearchResultListWidget extends StatefulWidget {
+  /// Search results rendered in the full-width list layout.
+  /// نتائج البحث المعروضة في تخطيط القائمة بعرض كامل.
   final List<SearchResult> results;
+
+  /// Optional controller used to sync pagination with a parent scroll view.
+  /// متحكم اختياري لمزامنة الترقيم مع عرض تمرير خارجي.
   final ScrollController? scrollController;
+
+  /// Shows a loading footer while the next page is being fetched.
+  /// يعرض تذييل تحميل أثناء جلب الصفحة التالية.
   final bool isLoadingMore;
+
+  /// Requests the next page when the list reaches the end.
+  /// يطلب الصفحة التالية عند الوصول إلى نهاية القائمة.
   final VoidCallback? onLoadMore;
+
+  /// Opens the tapped result in the property detail flow.
+  /// يفتح النتيجة المختارة في مسار تفاصيل العقار.
   final Function(SearchResult)? onItemTap;
+
+  /// Updates the favorite state for the tapped result.
+  /// يحدّث حالة المفضلة للنتيجة المختارة.
   final Function(SearchResult)? onFavoriteToggle;
+
+  /// Adjusts the card style when the backend relaxed the match criteria.
+  /// يضبط أسلوب البطاقة عندما يخفف الخادم معايير المطابقة.
   final SearchRelaxationLevel? relaxationLevel;
 
+  /// Builds the list layout with optional pagination and item actions.
+  /// ينشئ تخطيط القائمة مع إجراءات اختيارية للتصفح الصفحي والعناصر.
   const SearchResultListWidget({
     super.key,
     required this.results,
@@ -27,15 +53,26 @@ class SearchResultListWidget extends StatefulWidget {
     this.relaxationLevel,
   });
 
+  /// Creates the animated state used to stagger list entries.
+  /// يهيئ حالة الحركة المستخدمة لتدرج عناصر القائمة.
   @override
   State<SearchResultListWidget> createState() => _SearchResultListWidgetState();
 }
 
+/// Keeps the full-width result list aligned with the current search payload.
+/// يبقي قائمة النتائج بعرض كامل متناسقة مع حمولة البحث الحالية.
 class _SearchResultListWidgetState extends State<SearchResultListWidget>
     with TickerProviderStateMixin {
+  /// Drives the list entrance animation.
+  /// يقود حركة ظهور القائمة.
   late AnimationController _listAnimationController;
+
+  /// Keeps a controller per result so rows can appear sequentially.
+  /// يحتفظ بمتحكم لكل نتيجة كي تظهر الصفوف بالتتابع.
   final Map<int, AnimationController> _itemAnimations = {};
 
+  /// Starts the entry animation and prepares per-row controllers.
+  /// يبدأ حركة الظهور ويجهز المتحكمات الخاصة بكل صف.
   @override
   void initState() {
     super.initState();
@@ -44,7 +81,7 @@ class _SearchResultListWidgetState extends State<SearchResultListWidget>
       vsync: this,
     )..forward();
 
-    // Create animation for each item
+    // Stagger row appearance to keep the list visually ordered.
     for (int i = 0; i < widget.results.length; i++) {
       _itemAnimations[i] = AnimationController(
         duration: Duration(milliseconds: 300 + (i * 50)),
@@ -53,10 +90,12 @@ class _SearchResultListWidgetState extends State<SearchResultListWidget>
     }
   }
 
+  /// Reconciles the animation controllers whenever the result count changes.
+  /// يطابق متحكمات الحركة عند تغيّر عدد النتائج.
   @override
   void didUpdateWidget(covariant SearchResultListWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Sync animation controllers with updated results length
+    // Match controller count to the latest result list.
     final oldLen = oldWidget.results.length;
     final newLen = widget.results.length;
 
@@ -75,6 +114,8 @@ class _SearchResultListWidgetState extends State<SearchResultListWidget>
     }
   }
 
+  /// Disposes the list and item controllers owned by the widget.
+  /// يحرر متحكمات القائمة والعناصر المملوكة للعنصر.
   @override
   void dispose() {
     _listAnimationController.dispose();
@@ -84,6 +125,8 @@ class _SearchResultListWidgetState extends State<SearchResultListWidget>
     super.dispose();
   }
 
+  /// Renders the full-width cards, empty state, or loading footer.
+  /// يرسم البطاقات بعرض كامل أو الحالة الفارغة أو تذييل التحميل.
   @override
   Widget build(BuildContext context) {
     if (widget.results.isEmpty) {
@@ -145,6 +188,7 @@ class _SearchResultListWidgetState extends State<SearchResultListWidget>
     );
   }
 
+  /// العربية: يبني empty state.
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -205,6 +249,7 @@ class _SearchResultListWidgetState extends State<SearchResultListWidget>
     );
   }
 
+  /// العربية: يبني loading indicator.
   Widget _buildLoadingIndicator() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 32),

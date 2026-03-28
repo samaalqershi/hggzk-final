@@ -5,19 +5,40 @@ import '../../domain/usecases/get_property_reviews_usecase.dart';
 import '../../domain/usecases/add_to_favorites_usecase.dart';
 import '../../domain/usecases/remove_from_favorites_usecase.dart';
 import '../../domain/usecases/check_property_availability_usecase.dart';
-import '../../../../services/filter_storage_service.dart';
-import '../../../../injection_container.dart';
+import 'package:hggzk/core/services/filter_storage_service.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import 'property_event.dart';
 import 'property_state.dart';
 
+/// Coordinates the state and events for `PropertyBloc`.
+/// العربية: ينسق الحالة والأحداث الخاصة بـ `PropertyBloc`.
 class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
+  /// Keeps the getPropertyDetailsUseCase value available to this object.
+  /// العربية: يخزن القيمة `getPropertyDetailsUseCase`.
   final GetPropertyDetailsUseCase getPropertyDetailsUseCase;
+
+  /// Keeps the getPropertyUnitsUseCase value available to this object.
+  /// العربية: يخزن القيمة `getPropertyUnitsUseCase`.
   final GetPropertyUnitsUseCase getPropertyUnitsUseCase;
+
+  /// Keeps the getPropertyReviewsUseCase value available to this object.
+  /// العربية: يخزن القيمة `getPropertyReviewsUseCase`.
   final GetPropertyReviewsUseCase getPropertyReviewsUseCase;
+
+  /// Keeps the addToFavoritesUseCase value available to this object.
+  /// العربية: يخزن القيمة `addToFavoritesUseCase`.
   final AddToFavoritesUseCase addToFavoritesUseCase;
+
+  /// Keeps the removeFromFavoritesUseCase value available to this object.
+  /// العربية: يخزن القيمة `removeFromFavoritesUseCase`.
   final RemoveFromFavoritesUseCase removeFromFavoritesUseCase;
+
+  /// Keeps the checkPropertyAvailabilityUseCase value available to this object.
+  /// العربية: يخزن القيمة `checkPropertyAvailabilityUseCase`.
   final CheckPropertyAvailabilityUseCase checkPropertyAvailabilityUseCase;
 
+  /// Constructs the PropertyBloc value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyBloc`.
   PropertyBloc({
     required this.getPropertyDetailsUseCase,
     required this.getPropertyUnitsUseCase,
@@ -38,6 +59,8 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     on<CheckPropertyAvailabilityEvent>(_onCheckPropertyAvailability);
   }
 
+  /// Processes the onGetPropertyDetails flow and maps it into the property feature behavior.
+  /// العربية: يعالج `onGetPropertyDetails`.
   Future<void> _onGetPropertyDetails(
     GetPropertyDetailsEvent event,
     Emitter<PropertyState> emit,
@@ -94,6 +117,8 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     );
   }
 
+  /// Processes the onGetPropertyUnits flow and maps it into the property feature behavior.
+  /// العربية: يعالج `onGetPropertyUnits`.
   Future<void> _onGetPropertyUnits(
     GetPropertyUnitsEvent event,
     Emitter<PropertyState> emit,
@@ -186,6 +211,8 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     );
   }
 
+  /// Processes the onGetPropertyReviews flow and maps it into the property feature behavior.
+  /// العربية: يعالج `onGetPropertyReviews`.
   Future<void> _onGetPropertyReviews(
     GetPropertyReviewsEvent event,
     Emitter<PropertyState> emit,
@@ -214,6 +241,8 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     );
   }
 
+  /// Processes the onAddToFavorites flow and maps it into the property feature behavior.
+  /// العربية: يعالج `onAddToFavorites`.
   Future<void> _onAddToFavorites(
     AddToFavoritesEvent event,
     Emitter<PropertyState> emit,
@@ -307,6 +336,8 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     );
   }
 
+  /// Processes the onRemoveFromFavorites flow and maps it into the property feature behavior.
+  /// العربية: يعالج `onRemoveFromFavorites`.
   Future<void> _onRemoveFromFavorites(
     RemoveFromFavoritesEvent event,
     Emitter<PropertyState> emit,
@@ -396,6 +427,8 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     );
   }
 
+  /// Processes the onUpdateViewCount flow and maps it into the property feature behavior.
+  /// العربية: يعالج `onUpdateViewCount`.
   Future<void> _onUpdateViewCount(
     UpdateViewCountEvent event,
     Emitter<PropertyState> emit,
@@ -403,6 +436,8 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     // Silently update view count
   }
 
+  /// Processes the onToggleFavorite flow and maps it into the property feature behavior.
+  /// العربية: يعالج `onToggleFavorite`.
   Future<void> _onToggleFavorite(
     ToggleFavoriteEvent event,
     Emitter<PropertyState> emit,
@@ -448,6 +483,8 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     }
   }
 
+  /// Processes the onSelectUnit flow and maps it into the property feature behavior.
+  /// العربية: يعالج `onSelectUnit`.
   Future<void> _onSelectUnit(
     SelectUnitEvent event,
     Emitter<PropertyState> emit,
@@ -505,6 +542,8 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     }
   }
 
+  /// Processes the onSelectImage flow and maps it into the property feature behavior.
+  /// العربية: يعالج `onSelectImage`.
   Future<void> _onSelectImage(
     SelectImageEvent event,
     Emitter<PropertyState> emit,
@@ -518,6 +557,8 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
     }
   }
 
+  /// Processes the onCheckPropertyAvailability flow and maps it into the property feature behavior.
+  /// العربية: يعالج `onCheckPropertyAvailability`.
   Future<void> _onCheckPropertyAvailability(
     CheckPropertyAvailabilityEvent event,
     Emitter<PropertyState> emit,

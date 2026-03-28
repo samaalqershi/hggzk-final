@@ -1,23 +1,13 @@
 // lib/features/admin_financial/data/utils/enum_converter.dart
-
-/// 🔄 محول Enums للتوافق مع الباك اند
-/// Enum Converter for Backend Compatibility
 class EnumConverter {
-  
-  /// تحويل قيمة enum من الباك اند (يبدأ من 1) إلى Flutter (يبدأ من 0)
-  /// Convert enum value from backend (starts at 1) to Flutter (starts at 0)
   static int fromBackendEnum(int backendValue) {
     return backendValue - 1;
   }
-  
-  /// تحويل قيمة enum من Flutter (يبدأ من 0) إلى الباك اند (يبدأ من 1)
-  /// Convert enum value from Flutter (starts at 0) to backend (starts at 1)
+
   static int toBackendEnum(int flutterValue) {
     return flutterValue + 1;
   }
-  
-  /// تحويل قيمة enum آمن مع التحقق من النطاق
-  /// Safe enum conversion with range checking
+
   static T? parseEnumSafe<T>(
     dynamic value,
     List<T> values,
@@ -25,7 +15,7 @@ class EnumConverter {
     T defaultValue,
   ) {
     if (value == null) return defaultValue;
-    
+
     // Handle integer values (backend enum indices start at 1)
     if (value is int) {
       final index = fromBackendEnum(value);
@@ -33,7 +23,7 @@ class EnumConverter {
         return values[index];
       }
     }
-    
+
     // Handle string values
     if (value is String) {
       // Try to parse as number first
@@ -41,12 +31,12 @@ class EnumConverter {
       if (intValue != null) {
         return parseEnumSafe(intValue, values, stringMap, defaultValue);
       }
-      
+
       // Try exact match
       if (stringMap.containsKey(value)) {
         return stringMap[value]!;
       }
-      
+
       // Try case-insensitive match
       final lowerValue = value.toLowerCase();
       for (final entry in stringMap.entries) {
@@ -55,22 +45,21 @@ class EnumConverter {
         }
       }
     }
-    
+
     return defaultValue;
   }
-  
-  /// التحقق من صحة البيانات المالية
-  /// Validate financial data
-  static Map<String, dynamic> validateAndFixFinancialData(Map<String, dynamic> data) {
+
+  static Map<String, dynamic> validateAndFixFinancialData(
+      Map<String, dynamic> data) {
     final fixed = Map<String, dynamic>.from(data);
-    
+
     // Fix field names
     final fieldMappings = {
       'taxAmount': 'tax',
       'discountAmount': 'discount',
       'documentPath': null, // Remove this field
     };
-    
+
     for (final mapping in fieldMappings.entries) {
       if (fixed.containsKey(mapping.key)) {
         if (mapping.value != null) {
@@ -79,23 +68,24 @@ class EnumConverter {
         fixed.remove(mapping.key);
       }
     }
-    
+
     // Fix enum values
     if (fixed['entryType'] is String) {
       fixed['entryType'] = _getJournalEntryTypeValue(fixed['entryType']);
     }
-    
+
     if (fixed['transactionType'] is String) {
-      fixed['transactionType'] = _getTransactionTypeValue(fixed['transactionType']);
+      fixed['transactionType'] =
+          _getTransactionTypeValue(fixed['transactionType']);
     }
-    
+
     if (fixed['status'] is String) {
       fixed['status'] = _getTransactionStatusValue(fixed['status']);
     }
-    
+
     return fixed;
   }
-  
+
   static int _getJournalEntryTypeValue(String value) {
     final map = {
       'GeneralJournal': 1,
@@ -110,7 +100,7 @@ class EnumConverter {
     };
     return map[value] ?? 1;
   }
-  
+
   static int _getTransactionTypeValue(String value) {
     final map = {
       'NewBooking': 1,
@@ -136,7 +126,7 @@ class EnumConverter {
     };
     return map[value] ?? 18; // Default to Adjustment
   }
-  
+
   static int _getTransactionStatusValue(String value) {
     final map = {
       'Draft': 1,

@@ -7,27 +7,54 @@ import 'package:flutter/services.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// Search bar used to filter the city administration list.
+///
+/// شريط بحث يُستخدم لتصفية قائمة المدن في الإدارة.
 class CitySearchBar extends StatefulWidget {
+  /// Callback fired whenever the user edits the query text.
+  ///
+  /// دالة تُستدعى كلما غيّر المستخدم نص البحث.
   final ValueChanged<String> onChanged;
+
+  /// Optional hook that opens the advanced filter panel.
+  ///
+  /// خطاف اختياري يفتح لوحة الفلاتر المتقدمة.
   final VoidCallback? onFilterTap;
 
+  /// Creates the search bar used above the city grid.
+  ///
+  /// ينشئ شريط البحث الظاهر فوق شبكة المدن.
   const CitySearchBar({
     super.key,
     required this.onChanged,
     this.onFilterTap,
   });
-
   @override
   State<CitySearchBar> createState() => _CitySearchBarState();
 }
 
+/// يدير نص البحث والانتقال البصري عند التركيز على الحقل.
+/// Manages the search text and the visual transition when the field gains focus.
 class _CitySearchBarState extends State<CitySearchBar>
     with SingleTickerProviderStateMixin {
+  /// متحكم الحركة الذي يحرّك الأيقونة وتأثير الحقل عند التركيز.
+  /// Animation controller that drives the icon motion and focus effect.
   late AnimationController _animationController;
+
+  /// متحكم النص المستخدم لتخزين قيمة البحث الحالية.
+  /// Text controller that stores the current query value.
   late TextEditingController _searchController;
+
+  /// عقدة التركيز التي تحدد ما إذا كان الحقل نشطًا.
+  /// Focus node that tracks whether the field is active.
   final FocusNode _focusNode = FocusNode();
+
+  /// يحدد ما إذا كان الحقل في حالة تركيز نشطة.
+  /// Indicates whether the field currently has focus.
   bool _isFocused = false;
 
+  /// يهيئ متحكمات البحث ويربط مستمع التركيز بالحركة.
+  /// Initializes the search controllers and connects focus changes to animation.
   @override
   void initState() {
     super.initState();
@@ -47,6 +74,8 @@ class _CitySearchBarState extends State<CitySearchBar>
     });
   }
 
+  /// يحرر متحكمات النص والتركيز والحركة عند انتهاء الاستخدام.
+  /// Disposes the text, focus, and animation controllers when done.
   @override
   void dispose() {
     _animationController.dispose();
@@ -55,6 +84,8 @@ class _CitySearchBarState extends State<CitySearchBar>
     super.dispose();
   }
 
+  /// يبني شريط البحث مع الأيقونة والزر المساعد والتأثيرات البصرية.
+  /// Builds the search bar with icon, helper button, and visual effects.
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(

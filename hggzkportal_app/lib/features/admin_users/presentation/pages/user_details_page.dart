@@ -27,7 +27,6 @@ import 'package:hggzkportal/features/admin_bookings/domain/usecases/bookings/con
 import 'package:hggzkportal/features/admin_bookings/domain/usecases/bookings/cancel_booking_usecase.dart';
 import 'package:hggzkportal/features/admin_bookings/domain/usecases/bookings/check_in_usecase.dart';
 import 'package:hggzkportal/features/admin_bookings/domain/usecases/bookings/check_out_usecase.dart';
-import 'package:hggzkportal/core/widgets/glassmorphic_tooltip.dart';
 import '../bloc/user_details/user_details_bloc.dart';
 import '../widgets/user_role_selector.dart';
 // import '../widgets/last_seen_widget.dart';
@@ -48,16 +47,13 @@ class _UserDetailsPageState extends State<UserDetailsPage>
     with TickerProviderStateMixin {
   // Animation Controllers
   late AnimationController _backgroundAnimationController;
+
   late AnimationController _glowController;
-  late AnimationController _contentAnimationController;
-  late AnimationController _statsAnimationController;
 
   // Animations
   late Animation<double> _backgroundRotation;
+
   late Animation<double> _glowAnimation;
-  late Animation<double> _contentFadeAnimation;
-  late Animation<Offset> _contentSlideAnimation;
-  late Animation<double> _statsScaleAnimation;
 
   // Tab Controller
   late TabController _tabController;
@@ -66,30 +62,47 @@ class _UserDetailsPageState extends State<UserDetailsPage>
   String _selectedTab = 'overview';
   // Bookings state
   final int _bookingsPageSize = 10;
+
   List<Booking> _userBookings = [];
+
   bool _isLoadingBookings = false;
+
   String? _bookingsError;
+
   int _bookingsPage = 1;
+
   bool _bookingsHasMore = true;
   // Reviews state
   final int _reviewsPageSize = 10;
+
   List<Review> _userReviews = [];
+
   bool _isLoadingReviews = false;
+
   String? _reviewsError;
+
   int _reviewsPage = 1;
+
   bool _reviewsHasMore = true;
   // Activity state
   final int _activityPageSize = 10;
+
   List<AuditLog> _userActivityLogs = [];
+
   bool _isLoadingActivity = false;
+
   String? _activityError;
+
   int _activityPage = 1;
+
   bool _activityHasMore = true;
 
   @override
   void initState() {
     super.initState();
+
     _initializeAnimations();
+
     _loadUserDetails();
   }
 
@@ -107,8 +120,12 @@ class _UserDetailsPageState extends State<UserDetailsPage>
       resultEither.fold(
         (failure) => _showSnack(failure.message),
         (result) {
-          final success = (result['success'] == true) || (result['isSuccess'] == true);
-          final message = (result['message'] as String?) ?? (success ? 'تم تنفيذ تحويل المستحقات' : 'فشل تنفيذ تحويل المستحقات');
+          final success =
+              (result['success'] == true) || (result['isSuccess'] == true);
+          final message = (result['message'] as String?) ??
+              (success
+                  ? 'تم تنفيذ تحويل المستحقات'
+                  : 'فشل تنفيذ تحويل المستحقات');
           _showSnack(message);
         },
       );
@@ -137,16 +154,6 @@ class _UserDetailsPageState extends State<UserDetailsPage>
       vsync: this,
     )..repeat(reverse: true);
 
-    _contentAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-
-    _statsAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
-
     _backgroundRotation = Tween<double>(
       begin: 0,
       end: 2 * math.pi,
@@ -163,38 +170,11 @@ class _UserDetailsPageState extends State<UserDetailsPage>
       curve: Curves.easeInOut,
     ));
 
-    _contentFadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _contentAnimationController,
-      curve: Curves.easeOut,
-    ));
-
-    _contentSlideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.05),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _contentAnimationController,
-      curve: Curves.easeOutQuart,
-    ));
-
-    _statsScaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _statsAnimationController,
-      curve: Curves.elasticOut,
-    ));
-
     _tabController = TabController(length: 4, vsync: this);
 
     // Start animations
     Future.delayed(const Duration(milliseconds: 100), () {
-      if (mounted) {
-        _contentAnimationController.forward();
-        _statsAnimationController.forward();
-      }
+      if (mounted) {}
     });
   }
 
@@ -208,8 +188,6 @@ class _UserDetailsPageState extends State<UserDetailsPage>
   void dispose() {
     _backgroundAnimationController.dispose();
     _glowController.dispose();
-    _contentAnimationController.dispose();
-    _statsAnimationController.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -261,7 +239,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
             builder: (context, state) {
               if (state is UserDetailsLoaded && state.isUpdating) {
                 return Container(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   child: const Center(
                     child: LoadingWidget(
                         type: LoadingType.futuristic,
@@ -288,8 +266,8 @@ class _UserDetailsPageState extends State<UserDetailsPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -316,10 +294,10 @@ class _UserDetailsPageState extends State<UserDetailsPage>
         child: Container(
           margin: const EdgeInsets.only(left: 8),
           decoration: BoxDecoration(
-            color: AppTheme.darkCard.withOpacity(0.5),
+            color: AppTheme.darkCard.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -335,7 +313,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
             color: AppTheme.textWhite,
             shadows: [
               Shadow(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                 blurRadius: 10,
               ),
             ],
@@ -347,7 +325,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.1),
+                AppTheme.primaryBlue.withValues(alpha: 0.1),
                 AppTheme.darkBackground,
               ],
             ),
@@ -394,7 +372,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: (isDanger
@@ -402,7 +380,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                   : isActive
                       ? AppTheme.primaryBlue
                       : AppTheme.darkBorder)
-              .withOpacity(0.3),
+              .withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -429,223 +407,6 @@ class _UserDetailsPageState extends State<UserDetailsPage>
     );
   }
 
-  Widget _buildHeader(UserDetailsLoaded state) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
-          ],
-        ),
-        border: Border(
-          bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
-            width: 1,
-          ),
-        ),
-      ),
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Row(
-            children: [
-              // Back Button
-              GestureDetector(
-                onTap: () => context.pop(),
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.arrow_back_rounded,
-                    color: AppTheme.textWhite,
-                    size: 20,
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 16),
-
-              // Title with gradient
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ShaderMask(
-                      shaderCallback: (bounds) =>
-                          AppTheme.primaryGradient.createShader(bounds),
-                      child: Text(
-                        'تفاصيل المستخدم',
-                        style: AppTextStyles.heading1.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      state.userDetails.userName,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppTheme.textMuted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Action Buttons
-              Flexible(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildActionButton(
-                        icon: Icons.edit_rounded,
-                        label: 'تعديل',
-                        onTap: () => _navigateToEditPage(state),
-                      ),
-                      const SizedBox(width: 8),
-                      _buildActionButton(
-                        icon: Icons.security_rounded,
-                        label: 'الصلاحيات',
-                        onTap: () => _showRoleSelector(state),
-                      ),
-                      const SizedBox(width: 8),
-                      _buildActionButton(
-                        icon: Icons.receipt_long_rounded,
-                        label: 'القيود',
-                        onTap: () => context.push('/admin/financial/transactions', extra: {
-                          'userId': state.userDetails.id,
-                        }),
-                      ),
-                      if ((state.userDetails.role ?? '').toLowerCase() == 'owner') ...[
-                        const SizedBox(width: 8),
-                        _buildActionButton(
-                          icon: Icons.payments_rounded,
-                          label: 'تحويل مستحقات',
-                          onTap: () => _processOwnerPayout(state.userDetails.id),
-                        ),
-                      ],
-                      const SizedBox(width: 8),
-                      _buildActionButton(
-                        icon: state.userDetails.isActive
-                            ? Icons.block_rounded
-                            : Icons.check_circle_rounded,
-                        label: state.userDetails.isActive ? 'تعطيل' : 'تفعيل',
-                        onTap: () => _toggleUserStatus(state),
-                        isActive: !state.userDetails.isActive,
-                      ),
-                      const SizedBox(width: 8),
-                      _buildActionButton(
-                        icon: Icons.delete_rounded,
-                        label: 'حذف',
-                        onTap: () => _showDeleteConfirmation(),
-                        isDanger: true,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    bool isActive = false,
-    bool isDanger = false,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          gradient: isActive
-              ? AppTheme.primaryGradient
-              : isDanger
-                  ? LinearGradient(
-                      colors: [
-                        AppTheme.error.withOpacity(0.2),
-                        AppTheme.error.withOpacity(0.1),
-                      ],
-                    )
-                  : LinearGradient(
-                      colors: [
-                        AppTheme.darkCard.withOpacity(0.5),
-                        AppTheme.darkCard.withOpacity(0.3),
-                      ],
-                    ),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isActive
-                ? AppTheme.primaryBlue.withOpacity(0.5)
-                : isDanger
-                    ? AppTheme.error.withOpacity(0.3)
-                    : AppTheme.darkBorder.withOpacity(0.3),
-            width: 1,
-          ),
-          boxShadow: isActive
-              ? [
-                  BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              size: 16,
-              color: isActive
-                  ? Colors.white
-                  : isDanger
-                      ? AppTheme.error
-                      : AppTheme.textMuted,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: isActive
-                    ? Colors.white
-                    : isDanger
-                        ? AppTheme.error
-                        : AppTheme.textMuted,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildUserInfoCard(UserDetailsLoaded state) {
     final user = state.userDetails;
 
@@ -655,13 +416,13 @@ class _UserDetailsPageState extends State<UserDetailsPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -685,15 +446,15 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                           : AppTheme.primaryGradient,
                       border: Border.all(
                         color: user.isActive
-                            ? AppTheme.success.withOpacity(0.5)
-                            : AppTheme.textMuted.withOpacity(0.3),
+                            ? AppTheme.success.withValues(alpha: 0.5)
+                            : AppTheme.textMuted.withValues(alpha: 0.3),
                         width: 2,
                       ),
                       boxShadow: user.isActive
                           ? [
                               BoxShadow(
-                                color: AppTheme.success
-                                    .withOpacity(0.3 * _glowAnimation.value),
+                                color: AppTheme.success.withValues(
+                                    alpha: 0.3 * _glowAnimation.value),
                                 blurRadius: 20,
                                 spreadRadius: 2,
                               ),
@@ -747,7 +508,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                         Icon(
                           Icons.email_outlined,
                           size: 14,
-                          color: AppTheme.textMuted.withOpacity(0.7),
+                          color: AppTheme.textMuted.withValues(alpha: 0.7),
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -767,7 +528,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                         Icon(
                           Icons.phone_outlined,
                           size: 14,
-                          color: AppTheme.textMuted.withOpacity(0.7),
+                          color: AppTheme.textMuted.withValues(alpha: 0.7),
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -811,13 +572,13 @@ class _UserDetailsPageState extends State<UserDetailsPage>
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: isActive
-            ? AppTheme.success.withOpacity(0.1)
-            : AppTheme.textMuted.withOpacity(0.1),
+            ? AppTheme.success.withValues(alpha: 0.1)
+            : AppTheme.textMuted.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: isActive
-              ? AppTheme.success.withOpacity(0.3)
-              : AppTheme.textMuted.withOpacity(0.3),
+              ? AppTheme.success.withValues(alpha: 0.3)
+              : AppTheme.textMuted.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -864,6 +625,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
     );
   }
 
+  /*
   Widget _buildStatsSection(UserDetailsLoaded state) {
     final user = state.userDetails;
 
@@ -962,18 +724,18 @@ class _UserDetailsPageState extends State<UserDetailsPage>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              color.withOpacity(0.1),
-              color.withOpacity(0.05),
+              color.withValues(alpha: 0.1),
+              color.withValues(alpha: 0.05),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -999,8 +761,8 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            color.withOpacity(0.3),
-                            color.withOpacity(0.1),
+                            color.withValues(alpha: 0.3),
+                            color.withValues(alpha: 0.1),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(8),
@@ -1021,8 +783,8 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                           ),
                           decoration: BoxDecoration(
                             color: isPositive
-                                ? AppTheme.success.withOpacity(0.1)
-                                : AppTheme.error.withOpacity(0.1),
+                                ? AppTheme.success.withValues(alpha: 0.1)
+                                : AppTheme.error.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -1085,6 +847,8 @@ class _UserDetailsPageState extends State<UserDetailsPage>
     );
   }
 
+  */
+
   Widget _buildTabNavigation(UserDetailsLoaded state) {
     final tabs = [
       {'id': 'overview', 'label': 'نظرة عامة', 'icon': Icons.dashboard_rounded},
@@ -1117,18 +881,20 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   gradient: isActive ? AppTheme.primaryGradient : null,
-                  color: !isActive ? AppTheme.darkCard.withOpacity(0.3) : null,
+                  color: !isActive
+                      ? AppTheme.darkCard.withValues(alpha: 0.3)
+                      : null,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: isActive
-                        ? AppTheme.primaryBlue.withOpacity(0.5)
-                        : AppTheme.darkBorder.withOpacity(0.3),
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                        : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                   boxShadow: isActive
                       ? [
                           BoxShadow(
-                            color: AppTheme.primaryBlue.withOpacity(0.3),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 2),
                           ),
@@ -1691,13 +1457,13 @@ class _UserDetailsPageState extends State<UserDetailsPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1781,6 +1547,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
     );
   }
 
+  /*
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -1810,6 +1577,8 @@ class _UserDetailsPageState extends State<UserDetailsPage>
     );
   }
 
+  */
+
   Widget _buildErrorState(String message) {
     return Center(
       child: Column(
@@ -1818,7 +1587,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
           Icon(
             Icons.error_outline_rounded,
             size: 64,
-            color: AppTheme.error.withOpacity(0.7),
+            color: AppTheme.error.withValues(alpha: 0.7),
           ),
           const SizedBox(height: 16),
           Text(
@@ -1865,8 +1634,8 @@ class _UserDetailsPageState extends State<UserDetailsPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.primaryBlue.withOpacity(0.1),
-                  AppTheme.primaryPurple.withOpacity(0.05),
+                  AppTheme.primaryBlue.withValues(alpha: 0.1),
+                  AppTheme.primaryPurple.withValues(alpha: 0.05),
                 ],
               ),
               shape: BoxShape.circle,
@@ -1874,7 +1643,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
             child: Icon(
               icon,
               size: 40,
-              color: AppTheme.primaryBlue.withOpacity(0.5),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.5),
             ),
           ),
           const SizedBox(height: 16),
@@ -1896,6 +1665,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
     );
   }
 
+  /*
   Widget _buildFloatingActionButton() {
     return Positioned(
       bottom: 24,
@@ -1945,12 +1715,12 @@ class _UserDetailsPageState extends State<UserDetailsPage>
         height: 48,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [color, color.withOpacity(0.7)],
+            colors: [color, color.withValues(alpha: 0.7)],
           ),
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               blurRadius: 15,
               spreadRadius: 2,
             ),
@@ -1964,6 +1734,8 @@ class _UserDetailsPageState extends State<UserDetailsPage>
       ),
     );
   }
+
+  */
 
   // Helper Methods
   void _navigateToEditPage(UserDetailsLoaded state) async {
@@ -2031,12 +1803,12 @@ class _UserDetailsPageState extends State<UserDetailsPage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.error.withOpacity(0.3),
+                color: AppTheme.error.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.error.withOpacity(0.2),
+                  color: AppTheme.error.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -2049,7 +1821,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.error.withOpacity(0.1),
+                    color: AppTheme.error.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.delete_outline,
@@ -2127,18 +1899,6 @@ class _UserDetailsPageState extends State<UserDetailsPage>
     );
   }
 
-  void _sendMessage() {
-    // TODO: Implement send message
-  }
-
-  void _sendEmail() {
-    // TODO: Implement send email
-  }
-
-  void _makeCall() {
-    // TODO: Implement make call
-  }
-
   List<Color> _getRoleGradient(String role) {
     switch (role.toLowerCase()) {
       case 'admin':
@@ -2172,6 +1932,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
   }
 }
 
+/*
 // Delete Confirmation Dialog
 class _DeleteConfirmationDialog extends StatelessWidget {
   final VoidCallback onConfirm;
@@ -2189,18 +1950,18 @@ class _DeleteConfirmationDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.error.withOpacity(0.3),
+            color: AppTheme.error.withValues(alpha: 0.3),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.error.withOpacity(0.2),
+              color: AppTheme.error.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -2215,8 +1976,8 @@ class _DeleteConfirmationDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
+                    AppTheme.error.withValues(alpha: 0.2),
+                    AppTheme.error.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -2252,10 +2013,10 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkSurface.withOpacity(0.5),
+                        color: AppTheme.darkSurface.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.3),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -2283,13 +2044,13 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             AppTheme.error,
-                            AppTheme.error.withOpacity(0.8),
+                            AppTheme.error.withValues(alpha: 0.8),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.error.withOpacity(0.3),
+                            color: AppTheme.error.withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 2),
                           ),
@@ -2315,10 +2076,12 @@ class _DeleteConfirmationDialog extends StatelessWidget {
     );
   }
 }
+  */
 
 // Background Painter
 class _FuturisticBackgroundPainter extends CustomPainter {
   final double rotation;
+
   final double glowIntensity;
 
   _FuturisticBackgroundPainter({
@@ -2333,7 +2096,7 @@ class _FuturisticBackgroundPainter extends CustomPainter {
       ..strokeWidth = 0.5;
 
     // Draw grid
-    paint.color = AppTheme.primaryBlue.withOpacity(0.05);
+    paint.color = AppTheme.primaryBlue.withValues(alpha: 0.05);
     const spacing = 50.0;
 
     for (double x = 0; x < size.width; x += spacing) {
@@ -2354,7 +2117,7 @@ class _FuturisticBackgroundPainter extends CustomPainter {
 
     // Draw rotating circles
     final center = Offset(size.width / 2, size.height / 2);
-    paint.color = AppTheme.primaryBlue.withOpacity(0.03 * glowIntensity);
+    paint.color = AppTheme.primaryBlue.withValues(alpha: 0.03 * glowIntensity);
 
     for (int i = 0; i < 3; i++) {
       final radius = 200.0 + i * 100;

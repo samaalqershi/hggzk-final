@@ -2,12 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/review.dart';
-
 class ReviewStatsCard extends StatelessWidget {
+  /// العربية: يخزن القيمة `totalReviews`.
   final int totalReviews;
   final int pendingReviews;
   final double averageRating;
@@ -15,7 +14,6 @@ class ReviewStatsCard extends StatelessWidget {
   final bool isDesktop;
   final bool isTablet;
   final int? withResponsesCount;
-
   const ReviewStatsCard({
     super.key,
     required this.totalReviews,
@@ -26,11 +24,12 @@ class ReviewStatsCard extends StatelessWidget {
     required this.isTablet,
     this.withResponsesCount,
   });
-
   @override
   Widget build(BuildContext context) {
-    final withResponse = withResponsesCount ?? reviews.where((r) => r.hasResponse).length;
-    final responseRate = totalReviews > 0 ? (withResponse / totalReviews) * 100 : 0.0;
+    final withResponse =
+        withResponsesCount ?? reviews.where((r) => r.hasResponse).length;
+    final responseRate =
+        totalReviews > 0 ? (withResponse / totalReviews) * 100 : 0.0;
 
     return SizedBox(
       height: 130,
@@ -75,7 +74,6 @@ class ReviewStatsCard extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildStatCard({
     required String title,
     required String value,
@@ -89,7 +87,7 @@ class ReviewStatsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: gradient.colors.first.withOpacity(0.2),
+            color: gradient.colors.first.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -105,13 +103,13 @@ class ReviewStatsCard extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  gradient.colors.first.withOpacity(0.15),
-                  gradient.colors.last.withOpacity(0.08),
+                  gradient.colors.first.withValues(alpha: 0.15),
+                  gradient.colors.last.withValues(alpha: 0.08),
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: gradient.colors.first.withOpacity(0.3),
+                color: gradient.colors.first.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -123,7 +121,7 @@ class ReviewStatsCard extends StatelessWidget {
                   child: Icon(
                     icon,
                     size: 80,
-                    color: gradient.colors.first.withOpacity(0.1),
+                    color: gradient.colors.first.withValues(alpha: 0.1),
                   ),
                 ),
                 Padding(

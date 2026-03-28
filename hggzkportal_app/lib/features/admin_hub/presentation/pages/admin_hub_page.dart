@@ -16,15 +16,12 @@ import '../../data/services/screen_search_service.dart';
 import '../widgets/screen_search_dialog.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-
 class AdminHubPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `AdminHubPage`.
   const AdminHubPage({super.key});
-
   @override
   State<AdminHubPage> createState() => _AdminHubPageState();
 }
-
 class _AdminHubPageState extends State<AdminHubPage>
     with TickerProviderStateMixin {
   // Animation Controllers
@@ -35,7 +32,6 @@ class _AdminHubPageState extends State<AdminHubPage>
   // Animations
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  late Animation<double> _scaleAnimation;
 
   // UI State
   final ScrollController _scrollController = ScrollController();
@@ -51,14 +47,12 @@ class _AdminHubPageState extends State<AdminHubPage>
     'growth': 12.5,
     'occupancy': 78,
   };
-
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
     _setupScrollListener();
   }
-
   void _initializeAnimations() {
     // Main entrance animation
     _mainAnimationController = AnimationController(
@@ -95,18 +89,9 @@ class _AdminHubPageState extends State<AdminHubPage>
       curve: const Interval(0.2, 0.7, curve: Curves.easeOutCubic),
     ));
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _mainAnimationController,
-      curve: const Interval(0.3, 0.8, curve: Curves.easeOutBack),
-    ));
-
     // Start animations
     _mainAnimationController.forward();
   }
-
   void _setupScrollListener() {
     _scrollController.addListener(() {
       final shouldShow = _scrollController.offset > 200;
@@ -117,7 +102,6 @@ class _AdminHubPageState extends State<AdminHubPage>
       }
     });
   }
-
   Widget _buildCompanyFooter(bool isDesktop, bool isTablet) {
     final currentYear = DateTime.now().year;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -140,31 +124,34 @@ class _AdminHubPageState extends State<AdminHubPage>
           end: Alignment.bottomRight,
           colors: isDark
               ? [
-                  AppTheme.darkCard.withOpacity(0.8), // ✅ زيادة من 0.3 إلى 0.8
-                  AppTheme.darkCard.withOpacity(0.6), // ✅ زيادة من 0.15 إلى 0.6
+                  AppTheme.darkCard
+                      .withValues(alpha: 0.8), // ✅ زيادة من 0.3 إلى 0.8
+                  AppTheme.darkCard
+                      .withValues(alpha: 0.6), // ✅ زيادة من 0.15 إلى 0.6
                 ]
               : [
-                  AppTheme.lightCard.withOpacity(0.9),
-                  AppTheme.lightCard.withOpacity(0.7),
+                  AppTheme.lightCard.withValues(alpha: 0.9),
+                  AppTheme.lightCard.withValues(alpha: 0.7),
                 ],
         ),
         border: Border.all(
           color: isDark
-              ? AppTheme.darkBorder.withOpacity(0.4) // ✅ زيادة من 0.1 إلى 0.4
-              : AppTheme.lightBorder.withOpacity(0.3),
+              ? AppTheme.darkBorder
+                  .withValues(alpha: 0.4) // ✅ زيادة من 0.1 إلى 0.4
+              : AppTheme.lightBorder.withValues(alpha: 0.3),
           width: 1, // ✅ زيادة من 0.5 إلى 1
         ),
         boxShadow: [
           BoxShadow(
             color: isDark
-                ? Colors.black.withOpacity(0.3) // ✅ ظل أقوى
-                : Colors.black.withOpacity(0.1),
+                ? Colors.black.withValues(alpha: 0.3) // ✅ ظل أقوى
+                : Colors.black.withValues(alpha: 0.1),
             blurRadius: 30,
             spreadRadius: 5,
           ),
           if (isDark) // ✅ توهج إضافي في الوضع المظلم
             BoxShadow(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.1),
               blurRadius: 50,
               spreadRadius: 10,
             ),
@@ -193,29 +180,30 @@ class _AdminHubPageState extends State<AdminHubPage>
                             end: Alignment.bottomRight,
                             colors: isDark
                                 ? [
-                                    AppTheme.primaryBlue
-                                        .withOpacity(0.2), // ✅ زيادة من 0.05
-                                    AppTheme.primaryPurple
-                                        .withOpacity(0.15), // ✅ زيادة من 0.05
+                                    AppTheme.primaryBlue.withValues(
+                                        alpha: 0.2), // ✅ زيادة من 0.05
+                                    AppTheme.primaryPurple.withValues(
+                                        alpha: 0.15), // ✅ زيادة من 0.05
                                   ]
                                 : [
-                                    AppTheme.primaryBlue.withOpacity(0.1),
-                                    AppTheme.primaryPurple.withOpacity(0.08),
+                                    AppTheme.primaryBlue.withValues(alpha: 0.1),
+                                    AppTheme.primaryPurple
+                                        .withValues(alpha: 0.08),
                                   ],
                           ),
                           border: Border.all(
                             color: isDark
                                 ? AppTheme.glowBlue
-                                    .withOpacity(0.3) // ✅ زيادة من 0.1
-                                : AppTheme.primaryBlue.withOpacity(0.2),
+                                    .withValues(alpha: 0.3) // ✅ زيادة من 0.1
+                                : AppTheme.primaryBlue.withValues(alpha: 0.2),
                             width: 1.5, // ✅ زيادة من 0.5
                           ),
                           boxShadow: [
                             // ✅ ظل أقوى للشعار
                             BoxShadow(
                               color: isDark
-                                  ? AppTheme.primaryBlue.withOpacity(0.3)
-                                  : AppTheme.primaryBlue.withOpacity(0.1),
+                                  ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                                  : AppTheme.primaryBlue.withValues(alpha: 0.1),
                               blurRadius: 30,
                               spreadRadius: 5,
                             ),
@@ -245,9 +233,9 @@ class _AdminHubPageState extends State<AdminHubPage>
                                 Icons.copyright_rounded,
                                 size: 14,
                                 color: isDark
-                                    ? AppTheme.textLight
-                                        .withOpacity(0.8) // ✅ زيادة الوضوح
-                                    : AppTheme.textMuted.withOpacity(0.7),
+                                    ? AppTheme.textLight.withValues(
+                                        alpha: 0.8) // ✅ زيادة الوضوح
+                                    : AppTheme.textMuted.withValues(alpha: 0.7),
                               ),
                               const SizedBox(width: 4),
                               Text(
@@ -268,8 +256,8 @@ class _AdminHubPageState extends State<AdminHubPage>
                             'أرما سوفت للبرمجة والتطوير',
                             style: AppTextStyles.caption.copyWith(
                               color: isDark
-                                  ? AppTheme.textWhite
-                                      .withOpacity(0.9) // ✅ تغيير من textMuted
+                                  ? AppTheme.textWhite.withValues(
+                                      alpha: 0.9) // ✅ تغيير من textMuted
                                   : AppTheme.textDark,
                               fontSize: isDesktop ? 13 : 12,
                               fontWeight: FontWeight.w600, // ✅ أثقل
@@ -283,7 +271,7 @@ class _AdminHubPageState extends State<AdminHubPage>
                         style: AppTextStyles.caption.copyWith(
                           color: isDark
                               ? AppTheme.textLight
-                                  .withOpacity(0.8) // ✅ زيادة من 0.5
+                                  .withValues(alpha: 0.8) // ✅ زيادة من 0.5
                               : AppTheme.textMuted,
                           fontSize: isDesktop ? 12 : 11,
                         ),
@@ -296,23 +284,23 @@ class _AdminHubPageState extends State<AdminHubPage>
                         decoration: BoxDecoration(
                           color: isDark
                               ? AppTheme.inputBackground
-                                  .withOpacity(0.3) // ✅ زيادة من 0.1
-                              : AppTheme.inputBackground.withOpacity(0.5),
+                                  .withValues(alpha: 0.3) // ✅ زيادة من 0.1
+                              : AppTheme.inputBackground.withValues(alpha: 0.5),
                           borderRadius:
                               BorderRadius.circular(8), // ✅ زيادة من 6
                           border: Border.all(
                             color: isDark
                                 ? AppTheme.darkBorder
-                                    .withOpacity(0.4) // ✅ زيادة من 0.1
-                                : AppTheme.lightBorder.withOpacity(0.5),
+                                    .withValues(alpha: 0.4) // ✅ زيادة من 0.1
+                                : AppTheme.lightBorder.withValues(alpha: 0.5),
                             width: 1, // ✅ زيادة من 0.5
                           ),
                           boxShadow: [
                             // ✅ إضافة ظل للوضوح
                             BoxShadow(
                               color: isDark
-                                  ? AppTheme.primaryBlue.withOpacity(0.1)
-                                  : Colors.black.withOpacity(0.05),
+                                  ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+                                  : Colors.black.withValues(alpha: 0.05),
                               blurRadius: 8,
                               spreadRadius: 1,
                             ),
@@ -325,7 +313,7 @@ class _AdminHubPageState extends State<AdminHubPage>
                               Icons.phone_outlined,
                               size: 12,
                               color: isDark
-                                  ? AppTheme.textLight.withOpacity(0.7)
+                                  ? AppTheme.textLight.withValues(alpha: 0.7)
                                   : AppTheme.textMuted,
                             ),
                             const SizedBox(width: 6),
@@ -340,8 +328,8 @@ class _AdminHubPageState extends State<AdminHubPage>
                                     maxLines: 1,
                                     style: AppTextStyles.caption.copyWith(
                                       color: isDark
-                                          ? AppTheme.textLight.withOpacity(
-                                              0.9) // ✅ زيادة من 0.4
+                                          ? AppTheme.textLight.withValues(
+                                              alpha: 0.9) // ✅ زيادة من 0.4
                                           : AppTheme.textMuted,
                                       fontSize: 11,
                                       fontFamily: 'monospace',
@@ -365,7 +353,6 @@ class _AdminHubPageState extends State<AdminHubPage>
       ),
     );
   }
-
   Widget _buildLogo(bool isDesktop, bool isTablet) {
     // تكبير الشعار بنسبة 1.5x - 2x
     final double logoWidth = isDesktop ? 120 : (isTablet ? 96 : 72);
@@ -385,7 +372,6 @@ class _AdminHubPageState extends State<AdminHubPage>
           _buildLogoPlaceholder(logoWidth, logoHeight),
     );
   }
-
   Widget _buildLogoPlaceholder(double width, double height) {
     return Container(
       width: width,
@@ -395,14 +381,14 @@ class _AdminHubPageState extends State<AdminHubPage>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.primaryBlue.withOpacity(0.8),
-            AppTheme.primaryPurple.withOpacity(0.8),
+            AppTheme.primaryBlue.withValues(alpha: 0.8),
+            AppTheme.primaryPurple.withValues(alpha: 0.8),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.glowBlue.withOpacity(0.2),
+            color: AppTheme.glowBlue.withValues(alpha: 0.2),
             blurRadius: 20,
             spreadRadius: 2,
           ),
@@ -421,7 +407,6 @@ class _AdminHubPageState extends State<AdminHubPage>
       ),
     );
   }
-
   @override
   void dispose() {
     _mainAnimationController.dispose();
@@ -430,7 +415,6 @@ class _AdminHubPageState extends State<AdminHubPage>
     _scrollController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -499,14 +483,10 @@ class _AdminHubPageState extends State<AdminHubPage>
 
           // Floating Header
           if (_showFloatingHeader) _buildFloatingHeader(context),
-
-          // Floating Action Button
-          if (false) _buildFloatingActionButton(),
         ],
       ),
     );
   }
-
   Widget _buildAnimatedBackground() {
     return Stack(
       children: [
@@ -519,7 +499,7 @@ class _AdminHubPageState extends State<AdminHubPage>
               colors: [
                 AppTheme.darkBackground,
                 AppTheme.darkBackground2,
-                AppTheme.darkBackground3.withOpacity(0.5),
+                AppTheme.darkBackground3.withValues(alpha: 0.5),
               ],
             ),
           ),
@@ -542,9 +522,9 @@ class _AdminHubPageState extends State<AdminHubPage>
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          AppTheme.primaryBlue.withOpacity(0.15),
-                          AppTheme.primaryBlue.withOpacity(0.05),
-                          AppTheme.primaryBlue.withOpacity(0.01),
+                          AppTheme.primaryBlue.withValues(alpha: 0.15),
+                          AppTheme.primaryBlue.withValues(alpha: 0.05),
+                          AppTheme.primaryBlue.withValues(alpha: 0.01),
                         ],
                       ),
                     ),
@@ -562,9 +542,9 @@ class _AdminHubPageState extends State<AdminHubPage>
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          AppTheme.primaryPurple.withOpacity(0.12),
-                          AppTheme.primaryPurple.withOpacity(0.04),
-                          AppTheme.primaryPurple.withOpacity(0.01),
+                          AppTheme.primaryPurple.withValues(alpha: 0.12),
+                          AppTheme.primaryPurple.withValues(alpha: 0.04),
+                          AppTheme.primaryPurple.withValues(alpha: 0.01),
                         ],
                       ),
                     ),
@@ -584,8 +564,8 @@ class _AdminHubPageState extends State<AdminHubPage>
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           colors: [
-                            AppTheme.primaryViolet.withOpacity(0.08),
-                            AppTheme.primaryViolet.withOpacity(0.02),
+                            AppTheme.primaryViolet.withValues(alpha: 0.08),
+                            AppTheme.primaryViolet.withValues(alpha: 0.02),
                             Colors.transparent,
                           ],
                         ),
@@ -602,14 +582,13 @@ class _AdminHubPageState extends State<AdminHubPage>
         CustomPaint(
           size: MediaQuery.of(context).size,
           painter: _GridPatternPainter(
-            color: AppTheme.darkBorder.withOpacity(0.03),
+            color: AppTheme.darkBorder.withValues(alpha: 0.03),
             spacing: 60,
           ),
         ),
       ],
     );
   }
-
   Widget _buildPremiumAppBar(BuildContext context, bool isDesktop) {
     return SliverAppBar(
       expandedHeight: 0,
@@ -625,13 +604,13 @@ class _AdminHubPageState extends State<AdminHubPage>
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.8),
-                  AppTheme.darkCard.withOpacity(0.4),
+                  AppTheme.darkCard.withValues(alpha: 0.8),
+                  AppTheme.darkCard.withValues(alpha: 0.4),
                 ],
               ),
               border: Border(
                 bottom: BorderSide(
-                  color: AppTheme.glowBlue.withOpacity(0.1),
+                  color: AppTheme.glowBlue.withValues(alpha: 0.1),
                   width: 0.5,
                 ),
               ),
@@ -650,7 +629,7 @@ class _AdminHubPageState extends State<AdminHubPage>
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.glowBlue.withOpacity(0.5),
+                  color: AppTheme.glowBlue.withValues(alpha: 0.5),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -681,7 +660,7 @@ class _AdminHubPageState extends State<AdminHubPage>
                 Text(
                   'نظام الإدارة',
                   style: AppTextStyles.caption.copyWith(
-                    color: AppTheme.textMuted.withOpacity(0.7),
+                    color: AppTheme.textMuted.withValues(alpha: 0.7),
                   ),
                 ),
               ],
@@ -704,15 +683,17 @@ class _AdminHubPageState extends State<AdminHubPage>
             builder: (context, state) {
               String? badge;
               if (state is NotificationLoaded) {
-                if (state.unreadCount > 0)
+                if (state.unreadCount > 0) {
                   badge = state.unreadCount > 99
                       ? '99+'
                       : state.unreadCount.toString();
+                }
               } else if (state is NotificationUnreadCountLoaded) {
-                if (state.unreadCount > 0)
+                if (state.unreadCount > 0) {
                   badge = state.unreadCount > 99
                       ? '99+'
                       : state.unreadCount.toString();
+                }
               }
               return _buildAppBarAction(
                 icon: Icons.notifications_none_rounded,
@@ -744,7 +725,7 @@ class _AdminHubPageState extends State<AdminHubPage>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryPurple.withOpacity(0.3),
+                    color: AppTheme.primaryPurple.withValues(alpha: 0.3),
                     blurRadius: 12,
                     spreadRadius: 2,
                   ),
@@ -761,7 +742,6 @@ class _AdminHubPageState extends State<AdminHubPage>
       ],
     );
   }
-
   Widget _buildAppBarAction({
     required IconData icon,
     required VoidCallback onTap,
@@ -779,7 +759,7 @@ class _AdminHubPageState extends State<AdminHubPage>
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: AppTheme.inputBackground.withOpacity(0.3),
+              color: AppTheme.inputBackground.withValues(alpha: 0.3),
             ),
             child: Icon(
               icon,
@@ -801,7 +781,7 @@ class _AdminHubPageState extends State<AdminHubPage>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.error.withOpacity(0.5),
+                    color: AppTheme.error.withValues(alpha: 0.5),
                     blurRadius: 8,
                     spreadRadius: 1,
                   ),
@@ -826,16 +806,7 @@ class _AdminHubPageState extends State<AdminHubPage>
       ],
     );
   }
-
   Widget _buildHeroSection(bool isDesktop, bool isTablet) {
-    final isAdmin = context.select((AuthBloc bloc) {
-      final s = bloc.state;
-      if (s is AuthAuthenticated) return s.user.isAdmin;
-      if (s is AuthLoginSuccess) return s.user.isAdmin;
-      if (s is AuthProfileUpdateSuccess) return s.user.isAdmin;
-      if (s is AuthProfileImageUploadSuccess) return s.user.isAdmin;
-      return false;
-    });
     final hour = DateTime.now().hour;
     String greeting;
     IconData greetingIcon;
@@ -863,17 +834,17 @@ class _AdminHubPageState extends State<AdminHubPage>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.darkCard.withOpacity(0.6),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.6),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border.all(
-          color: AppTheme.glowBlue.withOpacity(0.1),
+          color: AppTheme.glowBlue.withValues(alpha: 0.1),
           width: 0.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.1),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
             blurRadius: 30,
             spreadRadius: 5,
           ),
@@ -901,14 +872,15 @@ class _AdminHubPageState extends State<AdminHubPage>
                                 borderRadius: BorderRadius.circular(12),
                                 gradient: LinearGradient(
                                   colors: [
-                                    AppTheme.warning.withOpacity(0.2),
-                                    AppTheme.warning.withOpacity(0.1),
+                                    AppTheme.warning.withValues(alpha: 0.2),
+                                    AppTheme.warning.withValues(alpha: 0.1),
                                   ],
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppTheme.warning.withOpacity(
-                                      0.2 * _pulseAnimationController.value,
+                                    color: AppTheme.warning.withValues(
+                                      alpha:
+                                          0.2 * _pulseAnimationController.value,
                                     ),
                                     blurRadius: 20,
                                     spreadRadius: 2,
@@ -986,7 +958,8 @@ class _AdminHubPageState extends State<AdminHubPage>
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.primaryBlue.withOpacity(0.3),
+                              color:
+                                  AppTheme.primaryBlue.withValues(alpha: 0.3),
                               blurRadius: 30,
                               spreadRadius: 10,
                             ),
@@ -1008,317 +981,6 @@ class _AdminHubPageState extends State<AdminHubPage>
       ),
     );
   }
-
-  Widget _buildQuickActionButton({
-    required String label,
-    required IconData icon,
-    required VoidCallback onTap,
-    bool isPrimary = true,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          gradient: isPrimary ? AppTheme.primaryGradient : null,
-          color: isPrimary ? null : AppTheme.inputBackground.withOpacity(0.3),
-          border: isPrimary
-              ? null
-              : Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
-                  width: 0.5,
-                ),
-          boxShadow: isPrimary
-              ? [
-                  BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.3),
-                    blurRadius: 12,
-                    spreadRadius: 2,
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isPrimary ? Colors.white : AppTheme.textLight,
-              size: 18,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: AppTextStyles.buttonMedium.copyWith(
-                color: isPrimary ? Colors.white : AppTheme.textLight,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuickStats(bool isDesktop, bool isTablet) {
-    final stats = [
-      _StatItem(
-        label: 'العقارات',
-        value: _stats['properties'].toString(),
-        icon: Icons.apartment_rounded,
-        gradient: [AppTheme.primaryBlue, AppTheme.primaryCyan],
-        trend: '+12%',
-        isPositive: true,
-      ),
-      _StatItem(
-        label: 'المستخدمون',
-        value: '${(_stats['users'] / 1000).toStringAsFixed(1)}ك',
-        icon: Icons.people_rounded,
-        gradient: [AppTheme.primaryPurple, AppTheme.primaryViolet],
-        trend: '+8%',
-        isPositive: true,
-      ),
-      _StatItem(
-        label: 'الحجوزات',
-        value: _stats['bookings'].toString(),
-        icon: Icons.calendar_month_rounded,
-        gradient: [AppTheme.neonGreen, AppTheme.primaryCyan],
-        trend: '-3%',
-        isPositive: false,
-      ),
-      _StatItem(
-        label: 'الإيرادات',
-        value: '\$${_stats['revenue']}ك',
-        icon: Icons.attach_money_rounded,
-        gradient: [AppTheme.warning, AppTheme.neonPurple],
-        trend: '+24%',
-        isPositive: true,
-      ),
-      _StatItem(
-        label: 'النمو',
-        value: '${_stats['growth']}%',
-        icon: Icons.trending_up_rounded,
-        gradient: [AppTheme.success, AppTheme.neonGreen],
-        trend: '+5%',
-        isPositive: true,
-      ),
-      _StatItem(
-        label: 'الإشغال',
-        value: '${_stats['occupancy']}%',
-        icon: Icons.hotel_rounded,
-        gradient: [AppTheme.info, AppTheme.neonBlue],
-        trend: '+10%',
-        isPositive: true,
-      ),
-    ];
-
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: isDesktop ? 32 : 20,
-      ),
-      child: AnimationLimiter(
-        child: GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: isDesktop ? 6 : (isTablet ? 3 : 2),
-            childAspectRatio: isDesktop ? 1.4 : 1.3,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          itemCount: stats.length,
-          itemBuilder: (context, index) {
-            return AnimationConfiguration.staggeredGrid(
-              position: index,
-              duration: const Duration(milliseconds: 600),
-              columnCount: isDesktop ? 6 : (isTablet ? 3 : 2),
-              child: ScaleAnimation(
-                child: FadeInAnimation(
-                  child: _buildStatCard(stats[index]),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatCard(_StatItem stat) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isCompact =
-            constraints.maxHeight < 100 || constraints.maxWidth < 120;
-        final isVeryCompact = constraints.maxHeight < 80;
-
-        return Container(
-          padding: EdgeInsets.all(isVeryCompact ? 12 : 16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppTheme.darkCard.withOpacity(0.7),
-                AppTheme.darkCard.withOpacity(0.5),
-              ],
-            ),
-            border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.2),
-              width: 0.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: stat.gradient[0].withOpacity(0.1),
-                blurRadius: 20,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Icon and Trend - جعله flexible
-                  Flexible(
-                    flex: isVeryCompact ? 2 : 1,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          width: isVeryCompact ? 28 : (isCompact ? 32 : 36),
-                          height: isVeryCompact ? 28 : (isCompact ? 32 : 36),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(colors: stat.gradient),
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                color: stat.gradient[0].withOpacity(0.3),
-                                blurRadius: 12,
-                                spreadRadius: 2,
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            stat.icon,
-                            color: Colors.white,
-                            size: isVeryCompact ? 14 : (isCompact ? 16 : 18),
-                          ),
-                        ),
-                        if (!isVeryCompact) // إخفاء الترند في المساحات الصغيرة جداً
-                          Flexible(
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: isCompact ? 4 : 6,
-                                vertical: isCompact ? 2 : 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: stat.isPositive
-                                    ? AppTheme.success.withOpacity(0.1)
-                                    : AppTheme.error.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                  color: stat.isPositive
-                                      ? AppTheme.success.withOpacity(0.3)
-                                      : AppTheme.error.withOpacity(0.3),
-                                  width: 0.5,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    stat.isPositive
-                                        ? Icons.trending_up_rounded
-                                        : Icons.trending_down_rounded,
-                                    color: stat.isPositive
-                                        ? AppTheme.success
-                                        : AppTheme.error,
-                                    size: isCompact ? 8 : 10,
-                                  ),
-                                  const SizedBox(width: 1),
-                                  Flexible(
-                                    child: Text(
-                                      stat.trend,
-                                      style: AppTextStyles.caption.copyWith(
-                                        color: stat.isPositive
-                                            ? AppTheme.success
-                                            : AppTheme.error,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: isCompact ? 8 : 9,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-
-                  // Value and Label - استخدام Expanded
-                  Expanded(
-                    flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Flexible(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
-                            child: TweenAnimationBuilder<double>(
-                              tween: Tween(begin: 0, end: 1),
-                              duration: const Duration(milliseconds: 1000),
-                              curve: Curves.easeOutCubic,
-                              builder: (context, value, child) {
-                                return Text(
-                                  stat.value,
-                                  style: AppTextStyles.heading2.copyWith(
-                                    color: AppTheme.textWhite,
-                                    fontSize: isVeryCompact
-                                        ? 14
-                                        : (isCompact ? 16 : 18),
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  maxLines: 1,
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          stat.label,
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppTheme.textMuted,
-                            fontSize: isVeryCompact ? 9 : (isCompact ? 10 : 11),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildAdminFeaturesSection(bool isDesktop, bool isTablet) {
     final isAdmin = context.select((AuthBloc bloc) {
       final s = bloc.state;
@@ -1416,7 +1078,6 @@ class _AdminHubPageState extends State<AdminHubPage>
       ],
     );
   }
-
   Widget _buildFeatureCard(_AdminFeature feature, int index) {
     final isHovered = _hoveredCardIndex == index;
 
@@ -1430,7 +1091,8 @@ class _AdminHubPageState extends State<AdminHubPage>
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          transform: Matrix4.identity()..translate(0.0, isHovered ? -8.0 : 0.0),
+          transform:
+              Matrix4.translationValues(0.0, isHovered ? -8.0 : 0.0, 0.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             gradient: LinearGradient(
@@ -1438,25 +1100,25 @@ class _AdminHubPageState extends State<AdminHubPage>
               end: Alignment.bottomRight,
               colors: isHovered
                   ? [
-                      AppTheme.darkCard.withOpacity(0.9),
-                      AppTheme.darkCard.withOpacity(0.7),
+                      AppTheme.darkCard.withValues(alpha: 0.9),
+                      AppTheme.darkCard.withValues(alpha: 0.7),
                     ]
                   : [
-                      AppTheme.darkCard.withOpacity(0.6),
-                      AppTheme.darkCard.withOpacity(0.4),
+                      AppTheme.darkCard.withValues(alpha: 0.6),
+                      AppTheme.darkCard.withValues(alpha: 0.4),
                     ],
             ),
             border: Border.all(
               color: isHovered
-                  ? feature.gradient[0].withOpacity(0.5)
-                  : AppTheme.darkBorder.withOpacity(0.2),
+                  ? feature.gradient[0].withValues(alpha: 0.5)
+                  : AppTheme.darkBorder.withValues(alpha: 0.2),
               width: isHovered ? 1.5 : 0.5,
             ),
             boxShadow: [
               BoxShadow(
                 color: isHovered
-                    ? feature.gradient[0].withOpacity(0.3)
-                    : Colors.black.withOpacity(0.1),
+                    ? feature.gradient[0].withValues(alpha: 0.3)
+                    : Colors.black.withValues(alpha: 0.1),
                 blurRadius: isHovered ? 30 : 20,
                 spreadRadius: isHovered ? 5 : 0,
                 offset: Offset(0, isHovered ? 12 : 8),
@@ -1484,8 +1146,8 @@ class _AdminHubPageState extends State<AdminHubPage>
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              feature.gradient[0].withOpacity(0.3),
-                              feature.gradient[0].withOpacity(0.1),
+                              feature.gradient[0].withValues(alpha: 0.3),
+                              feature.gradient[0].withValues(alpha: 0.1),
                               Colors.transparent,
                             ],
                           ),
@@ -1513,7 +1175,8 @@ class _AdminHubPageState extends State<AdminHubPage>
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: feature.gradient[0].withOpacity(0.4),
+                                    color: feature.gradient[0]
+                                        .withValues(alpha: 0.4),
                                     blurRadius: 16,
                                     spreadRadius: 2,
                                   ),
@@ -1575,11 +1238,11 @@ class _AdminHubPageState extends State<AdminHubPage>
                                       ),
                                       decoration: BoxDecoration(
                                         color: feature.gradient[0]
-                                            .withOpacity(0.1),
+                                            .withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(6),
                                         border: Border.all(
                                           color: feature.gradient[0]
-                                              .withOpacity(0.3),
+                                              .withValues(alpha: 0.3),
                                           width: 0.5,
                                         ),
                                       ),
@@ -1619,9 +1282,9 @@ class _AdminHubPageState extends State<AdminHubPage>
                           height: 24,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: AppTheme.glassLight.withOpacity(0.2),
+                            color: AppTheme.glassLight.withValues(alpha: 0.2),
                             border: Border.all(
-                              color: AppTheme.glowWhite.withOpacity(0.2),
+                              color: AppTheme.glowWhite.withValues(alpha: 0.2),
                               width: 0.5,
                             ),
                           ),
@@ -1641,7 +1304,6 @@ class _AdminHubPageState extends State<AdminHubPage>
       ),
     );
   }
-
   Widget _buildFloatingHeader(BuildContext context) {
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 300),
@@ -1660,16 +1322,16 @@ class _AdminHubPageState extends State<AdminHubPage>
               right: 20,
             ),
             decoration: BoxDecoration(
-              color: AppTheme.darkCard.withOpacity(0.8),
+              color: AppTheme.darkCard.withValues(alpha: 0.8),
               border: Border(
                 bottom: BorderSide(
-                  color: AppTheme.glowBlue.withOpacity(0.2),
+                  color: AppTheme.glowBlue.withValues(alpha: 0.2),
                   width: 0.5,
                 ),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                   blurRadius: 20,
                   offset: const Offset(0, 5),
                 ),
@@ -1736,7 +1398,6 @@ class _AdminHubPageState extends State<AdminHubPage>
       ),
     );
   }
-
   Widget _buildMiniStat({
     required IconData icon,
     required String value,
@@ -1745,10 +1406,10 @@ class _AdminHubPageState extends State<AdminHubPage>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -1772,57 +1433,6 @@ class _AdminHubPageState extends State<AdminHubPage>
       ),
     );
   }
-
-  Widget _buildFloatingActionButton() {
-    return Positioned(
-      bottom: 20,
-      right: 20,
-      child: AnimatedBuilder(
-        animation: _pulseAnimationController,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: 1.0 + (0.05 * _pulseAnimationController.value),
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: AppTheme.primaryGradient,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.glowBlue.withOpacity(0.4),
-                    blurRadius: 14 + (6 * _pulseAnimationController.value),
-                    spreadRadius: 1,
-                  ),
-                ],
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    _scrollController.animateTo(
-                      0,
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeOutCubic,
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(22),
-                  child: const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Icon(
-                      Icons.arrow_upward_rounded,
-                      color: Colors.white,
-                      size: 18,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   void _showSearchDialog(BuildContext context) {
     HapticFeedback.lightImpact();
 
@@ -1850,20 +1460,6 @@ class _AdminHubPageState extends State<AdminHubPage>
         );
       },
     );
-  }
-
-  String _formatLastLogin() {
-    final now = DateTime.now();
-    final lastLogin = now.subtract(const Duration(hours: 2));
-    final difference = now.difference(lastLogin);
-
-    if (difference.inMinutes < 60) {
-      return 'منذ ${difference.inMinutes} دقيقة';
-    } else if (difference.inHours < 24) {
-      return 'منذ ${difference.inHours} ساعة';
-    } else {
-      return 'منذ ${difference.inDays} يوم';
-    }
   }
 
   // Admin Features List
@@ -2009,6 +1605,7 @@ class _AdminHubPageState extends State<AdminHubPage>
 
 // Data Models
 class _AdminFeature {
+  /// العربية: يخزن القيمة `title`.
   final String title;
   final String description;
   final IconData icon;
@@ -2017,7 +1614,6 @@ class _AdminFeature {
   final int? count;
   final bool adminOnly;
   final bool visibleForOwner;
-
   _AdminFeature({
     required this.title,
     required this.description,
@@ -2030,34 +1626,15 @@ class _AdminFeature {
   });
 }
 
-class _StatItem {
-  final String label;
-  final String value;
-  final IconData icon;
-  final List<Color> gradient;
-  final String trend;
-  final bool isPositive;
-
-  _StatItem({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.gradient,
-    required this.trend,
-    required this.isPositive,
-  });
-}
-
 // Grid Pattern Painter
 class _GridPatternPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `color`.
   final Color color;
   final double spacing;
-
   _GridPatternPainter({
     required this.color,
     this.spacing = 60,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -2083,7 +1660,6 @@ class _GridPatternPainter extends CustomPainter {
       );
     }
   }
-
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

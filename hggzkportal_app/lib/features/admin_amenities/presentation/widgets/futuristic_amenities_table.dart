@@ -1,29 +1,42 @@
-import 'package:hggzkportal/features/admin_amenities/presentation/bloc/amenities_bloc.dart';
-import 'package:hggzkportal/features/admin_amenities/presentation/bloc/amenities_event.dart';
 import 'package:hggzkportal/features/admin_amenities/presentation/utils/amenity_icons.dart';
-import 'package:hggzkportal/features/admin_amenities/presentation/widgets/assign_amenity_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/amenity_identity_card_tooltip.dart';
 import '../../domain/entities/amenity.dart';
 
-/// 📊 Premium Amenities Table - Enhanced Version
+/// يعرض جدولًا متقدمًا لإدارة المرافق مع فرز وتصفية وحركات واجهة غنية.
 class FuturisticAmenitiesTable extends StatefulWidget {
+  /// قائمة المرافق المعروضة في الجدول.
   final List<Amenity> amenities;
-  final Function(Amenity) onAmenitySelected;
-  final Function(Amenity)? onEditAmenity;
-  final Function(Amenity)? onDeleteAmenity;
-  final Function(Amenity)? onAssignAmenity;
-  final VoidCallback? onLoadMore;
-  final bool hasReachedMax;
-  final bool isLoadingMore;
-  final ScrollController? controller; // will not be used for inner scrolling
 
+  /// يستدعى عندما يختار المستخدم مرفقًا من الصفوف.
+  final Function(Amenity) onAmenitySelected;
+
+  /// يستدعى لبدء تعديل مرفق محدد إذا كان التعديل متاحًا.
+  final Function(Amenity)? onEditAmenity;
+
+  /// يستدعى لبدء حذف مرفق محدد إذا كان الحذف متاحًا.
+  final Function(Amenity)? onDeleteAmenity;
+
+  /// يستدعى لإسناد المرفق إلى عقار أو وحدة مرتبطة.
+  final Function(Amenity)? onAssignAmenity;
+
+  /// يستدعى عند الحاجة إلى تحميل المزيد من المرافق.
+  final VoidCallback? onLoadMore;
+
+  /// يحدد هل وصلنا إلى نهاية قائمة التحميل.
+  final bool hasReachedMax;
+
+  /// يحدد هل ما زال تحميل المزيد جاريًا.
+  final bool isLoadingMore;
+
+  /// متحكم التمرير الخارجي عند الحاجة إلى ربط الجدول بمسار تمرير الصفحة.
+  final ScrollController? controller;
+
+  /// يبني الجدول مع نقاط الربط الخاصة بالتحديد والتحرير والحذف والإسناد.
   const FuturisticAmenitiesTable({
     super.key,
     required this.amenities,
@@ -37,40 +50,66 @@ class FuturisticAmenitiesTable extends StatefulWidget {
     this.controller,
   });
 
+  /// ينشئ حالة الجدول المسؤولة عن الحركة والترتيب والتحميل الإضافي.
   @override
   State<FuturisticAmenitiesTable> createState() =>
       _FuturisticAmenitiesTableState();
 }
 
+/// تدير هذه الحالة الترتيب والـ shimmer والـ hover والتفاعل مع الصفوف.
 class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     with TickerProviderStateMixin {
   // Animation Controllers
+  /// متحكم التلاشي العام للجدول.
   late AnimationController _fadeAnimationController;
+
+  /// متحكم حركة اللمعان المستمر.
   late AnimationController _shimmerController;
+
+  /// متحكم النبض البصري الخفيف.
   late AnimationController _pulseController;
 
+  /// منحنى الشفافية المستخدم عند ظهور الجدول.
   late Animation<double> _fadeAnimation;
-  late Animation<double> _shimmerAnimation;
-  late Animation<double> _pulseAnimation;
 
   // State
+  /// الصف الذي يمر عليه المؤشر حاليًا.
   int? _hoveredIndex;
-  int? _selectedIndex;
+
+  /// حقل الفرز الحالي.
   String _sortBy = 'name';
+
+  /// اتجاه الفرز الحالي.
   bool _isAscending = true;
+
+  /// متحكم التمرير الداخلي المستخدم عند الحاجة إلى مزامنة الحركة.
   late final ScrollController _scrollController;
+
+  /// يحدد هل هذه الحالة هي مالك متحكم التمرير.
   bool _ownsController = false;
+
+  /// مفاتيح الصفوف التي يستخدمها عرض التلميحات.
   final Map<String, GlobalKey> _amenityRowKeys = {};
 
   // Responsive breakpoints (match units table)
+  /// نقطة الفصل بين عرض الجوال والتابلت.
   static const double _mobileBreakpoint = 600;
+
+  /// نقطة الفصل العليا قبل اعتبار الشاشة مكتبية.
   static const double _tabletBreakpoint = 1024;
 
-  // Filters similar to units design
-  bool? _activeFilter; // null=all, true=active, false=inactive
-  bool? _paidFilter; // null=all, true=paid (>0), false=free (==0)
+  /// فلتر الحالة النشطة.
+  /// null = الكل، true = نشط، false = معطل.
+  bool? _activeFilter;
+
+  /// فلتر المرافق ذات الكلفة الإضافية.
+  /// null = الكل، true = مدفوع، false = مجاني.
+  bool? _paidFilter;
+
+  /// قائمة المرافق بعد تطبيق الفلاتر الحالية.
   late List<Amenity> _filteredAmenities;
 
+  /// يجهز الأنيميشن والمتصفحات الداخلية عند إنشاء الجدول.
   @override
   void initState() {
     super.initState();
@@ -78,6 +117,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     _initializeControllers();
   }
 
+  /// يضبط حركات الظهور واللمعان والنبض.
   void _initializeAnimations() {
     _fadeAnimationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -102,31 +142,17 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
       curve: Curves.easeOutCubic,
     ));
 
-    _shimmerAnimation = Tween<double>(
-      begin: -1,
-      end: 2,
-    ).animate(CurvedAnimation(
-      parent: _shimmerController,
-      curve: Curves.linear,
-    ));
-
-    _pulseAnimation = Tween<double>(
-      begin: 0.95,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
-
     _fadeAnimationController.forward();
   }
 
+  /// ينشئ متحكم التمرير الداخلي عندما لا يأتي من الخارج.
   void _initializeControllers() {
     // Do not attach internal scroll to avoid nested scrolling; use page scroll only
     _scrollController = ScrollController();
     _ownsController = true;
   }
 
+  /// يحرر المتحكمات التابعة للجدول عند إزالته.
   @override
   void dispose() {
     _fadeAnimationController.dispose();
@@ -134,19 +160,17 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     _pulseController.dispose();
     if (_ownsController) {
       _scrollController.dispose();
-    } else {
-      _scrollController.removeListener(_handleScroll);
     }
     super.dispose();
   }
 
-  void _handleScroll() {}
-
+  /// يعيد مفتاح الصف الخاص بالمرفق ليسهل ربط التلميح به.
   GlobalKey _getAmenityRowKey(String amenityId, {String scope = 'default'}) {
     final cacheKey = scope.isEmpty ? amenityId : '$amenityId-$scope';
     return _amenityRowKeys.putIfAbsent(cacheKey, () => GlobalKey());
   }
 
+  /// يعرض بطاقة تعريف المرفق فوق الصف المرتبط به.
   void _showAmenityTooltip(Amenity amenity, {String scope = 'default'}) {
     final targetKey = _getAmenityRowKey(amenity.id, scope: scope);
     AmenityIdentityCardTooltip.show(
@@ -164,6 +188,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     );
   }
 
+  /// يعيد المرافق بعد تطبيق الفرز الحالي على البيانات الأصلية.
   List<Amenity> get _sortedAmenities {
     final sorted = List<Amenity>.from(widget.amenities);
 
@@ -194,6 +219,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     return sorted;
   }
 
+  /// يبني الجدول المناسب للحجم الحالي للشاشة مع تطبيق الفلاتر والفرز.
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -226,6 +252,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
   }
 
   // ================= Units-like Table: Mobile/Tablet/Desktop =================
+  /// يبني العرض المحمول للجدول مع قائمة بطاقات عمودية.
   Widget _buildMobileView() {
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -249,6 +276,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     );
   }
 
+  /// يبني عرض التابلت مع رأس جدولي وحركة خفيفة.
   Widget _buildTabletView() {
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -257,13 +285,13 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.glassLight.withOpacity(0.05),
-              AppTheme.glassDark.withOpacity(0.02),
+              AppTheme.glassLight.withValues(alpha: 0.05),
+              AppTheme.glassDark.withValues(alpha: 0.02),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 0.5,
           ),
         ),
@@ -299,6 +327,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     );
   }
 
+  /// يبني العرض المكتبي الكامل للجدول.
   Widget _buildDesktopView() {
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -307,18 +336,18 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.glassLight.withOpacity(0.05),
-              AppTheme.glassDark.withOpacity(0.02),
+              AppTheme.glassLight.withValues(alpha: 0.05),
+              AppTheme.glassDark.withValues(alpha: 0.02),
             ],
           ),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 0.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryBlue.withOpacity(0.05),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.05),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -348,223 +377,21 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     );
   }
 
-  Widget _buildSortMenu() {
-    return PopupMenuButton<String>(
-      icon: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppTheme.primaryPurple.withOpacity(0.1),
-              AppTheme.primaryBlue.withOpacity(0.05),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: AppTheme.primaryPurple.withOpacity(0.2),
-            width: 1,
-          ),
-        ),
-        child: Icon(
-          Icons.sort_rounded,
-          color: AppTheme.primaryPurple,
-          size: 20,
-        ),
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: AppTheme.primaryPurple.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      color: AppTheme.isDark ? AppTheme.darkCard : Colors.white,
-      elevation: 8,
-      onSelected: (value) {
-        setState(() {
-          if (_sortBy == value) {
-            _isAscending = !_isAscending;
-          } else {
-            _sortBy = value;
-            _isAscending = true;
-          }
-        });
-      },
-      itemBuilder: (context) => [
-        _buildEnhancedSortMenuItem('name', 'الاسم', Icons.text_fields),
-        _buildEnhancedSortMenuItem(
-            'properties', 'العقارات', Icons.business_rounded),
-        _buildEnhancedSortMenuItem(
-            'cost', 'التكلفة', Icons.attach_money_rounded),
-        _buildEnhancedSortMenuItem('status', 'الحالة', Icons.toggle_on_rounded),
-      ],
-    );
-  }
-
-  PopupMenuItem<String> _buildEnhancedSortMenuItem(
-      String value, String label, IconData icon) {
-    final isActive = _sortBy == value;
-    return PopupMenuItem(
-      value: value,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                gradient: isActive
-                    ? LinearGradient(
-                        colors: [
-                          AppTheme.primaryPurple.withOpacity(0.2),
-                          AppTheme.primaryBlue.withOpacity(0.1),
-                        ],
-                      )
-                    : null,
-                color: !isActive ? AppTheme.darkSurface.withOpacity(0.3) : null,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                icon,
-                size: 16,
-                color: isActive ? AppTheme.primaryPurple : AppTheme.textMuted,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                label,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: isActive ? AppTheme.primaryPurple : AppTheme.textWhite,
-                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                ),
-              ),
-            ),
-            if (isActive)
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryPurple.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  _isAscending ? Icons.arrow_upward : Icons.arrow_downward,
-                  size: 12,
-                  color: AppTheme.primaryPurple,
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEnhancedHeaderCell(
-    String title,
-    String sortKey, {
-    required int flex,
-    IconData? icon,
-    bool isPrimary = false,
-  }) {
-    final isActive = _sortBy == sortKey;
-
-    return Expanded(
-      flex: flex,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            HapticFeedback.selectionClick();
-            setState(() {
-              if (_sortBy == sortKey) {
-                _isAscending = !_isAscending;
-              } else {
-                _sortBy = sortKey;
-                _isAscending = true;
-              }
-            });
-          },
-          borderRadius: BorderRadius.circular(10),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            child: Row(
-              children: [
-                if (icon != null) ...[
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      gradient: isActive || isPrimary
-                          ? LinearGradient(
-                              colors: [
-                                AppTheme.primaryPurple.withOpacity(0.2),
-                                AppTheme.primaryBlue.withOpacity(0.1),
-                              ],
-                            )
-                          : null,
-                      color: !isActive && !isPrimary
-                          ? AppTheme.darkSurface.withOpacity(0.2)
-                          : null,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Icon(
-                      icon,
-                      size: 14,
-                      color: isActive || isPrimary
-                          ? AppTheme.primaryPurple
-                          : AppTheme.textMuted,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                Expanded(
-                  child: Text(
-                    title,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: isActive
-                          ? AppTheme.primaryPurple
-                          : AppTheme.textLight,
-                      fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                AnimatedRotation(
-                  turns: isActive && !_isAscending ? 0.5 : 0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    isActive
-                        ? Icons.arrow_upward_rounded
-                        : Icons.unfold_more_rounded,
-                    size: 14,
-                    color: isActive
-                        ? AppTheme.primaryPurple
-                        : AppTheme.textMuted.withOpacity(0.5),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   // ===== Header & Rows (units style) =====
+  /// يبني صف العناوين للعرض المكتبي.
   Widget _buildDesktopHeader() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryBlue.withOpacity(0.1),
-            AppTheme.primaryPurple.withOpacity(0.05),
+            AppTheme.primaryBlue.withValues(alpha: 0.1),
+            AppTheme.primaryPurple.withValues(alpha: 0.05),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.2),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -581,6 +408,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     );
   }
 
+  /// يبني رأس التابلت مع شريط التصفية.
   Widget _buildTabletHeader() {
     return Column(
       children: [
@@ -590,13 +418,13 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.1),
-                AppTheme.primaryPurple.withOpacity(0.05),
+                AppTheme.primaryBlue.withValues(alpha: 0.1),
+                AppTheme.primaryPurple.withValues(alpha: 0.05),
               ],
             ),
             border: Border(
               bottom: BorderSide(
-                color: AppTheme.primaryBlue.withOpacity(0.2),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -615,6 +443,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     );
   }
 
+  /// يبني خلية عنوان قابلة للتوسيع داخل الرأس.
   Widget _buildHeaderCell(String title, {int flex = 1}) {
     return Expanded(
       flex: flex,
@@ -628,9 +457,11 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     );
   }
 
+  /// يعيد المرافق بعد الفرز ثم بعد تطبيق الفلاتر الحالية.
   List<Amenity> get _sortedAmenitiesForDisplay =>
       _sortedAmenities.where((a) => _filteredAmenities.contains(a)).toList();
 
+  /// يبني صفًا مكتبيًا واحدًا للمرفق.
   Widget _buildDesktopRow(Amenity amenity, int index) {
     final isEven = index % 2 == 0;
     final isHovered = _hoveredIndex == index;
@@ -642,7 +473,6 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
         onTap: () {
           HapticFeedback.lightImpact();
           _showAmenityTooltip(amenity, scope: 'desktop');
-          setState(() => _selectedIndex = index);
           // عرض التفاصيل فقط بدون الانتقال إلى صفحة جديدة
         },
         onLongPress: () {
@@ -656,19 +486,19 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
             gradient: isHovered
                 ? LinearGradient(
                     colors: [
-                      AppTheme.primaryBlue.withOpacity(0.08),
-                      AppTheme.primaryPurple.withOpacity(0.04),
+                      AppTheme.primaryBlue.withValues(alpha: 0.08),
+                      AppTheme.primaryPurple.withValues(alpha: 0.04),
                     ],
                   )
                 : null,
             color: !isHovered
                 ? isEven
-                    ? AppTheme.darkCard.withOpacity(0.03)
+                    ? AppTheme.darkCard.withValues(alpha: 0.03)
                     : Colors.transparent
                 : null,
             border: Border(
               bottom: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.1),
+                color: AppTheme.darkBorder.withValues(alpha: 0.1),
                 width: 0.5,
               ),
             ),
@@ -806,12 +636,14 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     );
   }
 
+  /// يعيد العرض الخاص بالتابلت اعتمادًا على صف الجدول المكتبي.
   Widget _buildTabletRow(Amenity amenity, int index) {
     // For tablet, reuse desktop row (width handled by SizedBox in tablet view)
     return _buildDesktopRow(amenity, index);
   }
 
   // ===== Mobile components =====
+  /// يبني شريط الفلاتر السريع في العرض المحمول.
   Widget _buildMobileFilterBar() {
     final totalActive =
         widget.amenities.where((a) => a.isActive == true).length;
@@ -821,13 +653,13 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.9),
-            AppTheme.darkCard.withOpacity(0.7),
+            AppTheme.darkCard.withValues(alpha: 0.9),
+            AppTheme.darkCard.withValues(alpha: 0.7),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.2),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -850,10 +682,12 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     );
   }
 
+  /// يعيد نفس شريط الفلاتر للتابلت ليوحد السلوك بين الشاشات.
   Widget _buildTabletFilterBar() {
     return _buildMobileFilterBar();
   }
 
+  /// يبني شارة تفاعلية لتصفية القائمة حسب الحالة أو التكلفة.
   Widget _buildFilterChip(String label, bool? activeFilter, bool? paidFilter) {
     final isSelected =
         (_activeFilter == activeFilter) && (_paidFilter == paidFilter);
@@ -872,17 +706,18 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withOpacity(0.3),
-                    AppTheme.primaryPurple.withOpacity(0.2),
+                    AppTheme.primaryBlue.withValues(alpha: 0.3),
+                    AppTheme.primaryPurple.withValues(alpha: 0.2),
                   ],
                 )
               : null,
-          color: !isSelected ? AppTheme.darkSurface.withOpacity(0.5) : null,
+          color:
+              !isSelected ? AppTheme.darkSurface.withValues(alpha: 0.5) : null,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? AppTheme.primaryBlue.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.3),
+                ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                : AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -897,6 +732,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     );
   }
 
+  /// يبني بطاقة مرفق مضغوطة للعرض المحمول مع أفعال سريعة.
   Widget _buildMobileAmenityRowCard(Amenity amenity, int index) {
     final isHovered = _hoveredIndex == index;
     return GestureDetector(
@@ -920,15 +756,15 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.9),
-              AppTheme.darkCard.withOpacity(0.7),
+              AppTheme.darkCard.withValues(alpha: 0.9),
+              AppTheme.darkCard.withValues(alpha: 0.7),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isHovered
-                ? AppTheme.primaryBlue.withOpacity(0.4)
-                : AppTheme.darkBorder.withOpacity(0.2),
+                ? AppTheme.primaryBlue.withValues(alpha: 0.4)
+                : AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -989,7 +825,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.darkSurface.withOpacity(0.3),
+                      color: AppTheme.darkSurface.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -1014,7 +850,8 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
                               Text(
                                 'عقار',
                                 style: AppTextStyles.caption.copyWith(
-                                  color: AppTheme.primaryBlue.withOpacity(0.7),
+                                  color: AppTheme.primaryBlue
+                                      .withValues(alpha: 0.7),
                                 ),
                               ),
                             ],
@@ -1094,74 +931,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     );
   }
 
-  Widget _buildCostWidget(Amenity amenity) {
-    final hasCost =
-        amenity.averageExtraCost != null && amenity.averageExtraCost! > 0;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 8,
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: hasCost
-              ? [
-                  AppTheme.success.withOpacity(0.15),
-                  AppTheme.neonGreen.withOpacity(0.08),
-                ]
-              : [
-                  AppTheme.textMuted.withOpacity(0.1),
-                  AppTheme.textMuted.withOpacity(0.05),
-                ],
-        ),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: hasCost
-              ? AppTheme.success.withOpacity(0.3)
-              : AppTheme.textMuted.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (hasCost) ...[
-            Text(
-              '\$',
-              style: AppTextStyles.caption.copyWith(
-                color: AppTheme.success.withOpacity(0.8),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Text(
-              amenity.averageExtraCost!.toStringAsFixed(0),
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.success,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ] else ...[
-            Icon(
-              Icons.money_off_rounded,
-              size: 14,
-              color: AppTheme.textMuted,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              'مجاني',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppTheme.textMuted,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
+  /// يبني مؤشر الحالة التفاعلي الذي يوضح النشاط الحالي للمرفق.
   Widget _buildStatusWidget(Amenity amenity) {
     final isActive = amenity.isActive == true;
 
@@ -1177,25 +947,25 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
           gradient: LinearGradient(
             colors: isActive
                 ? [
-                    AppTheme.success.withOpacity(0.2),
-                    AppTheme.neonGreen.withOpacity(0.1),
+                    AppTheme.success.withValues(alpha: 0.2),
+                    AppTheme.neonGreen.withValues(alpha: 0.1),
                   ]
                 : [
-                    AppTheme.textMuted.withOpacity(0.2),
-                    AppTheme.textMuted.withOpacity(0.1),
+                    AppTheme.textMuted.withValues(alpha: 0.2),
+                    AppTheme.textMuted.withValues(alpha: 0.1),
                   ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isActive
-                ? AppTheme.success.withOpacity(0.5)
-                : AppTheme.textMuted.withOpacity(0.3),
+                ? AppTheme.success.withValues(alpha: 0.5)
+                : AppTheme.textMuted.withValues(alpha: 0.3),
             width: 1,
           ),
           boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: AppTheme.success.withOpacity(0.2),
+                    color: AppTheme.success.withValues(alpha: 0.2),
                     blurRadius: 8,
                     spreadRadius: 1,
                   ),
@@ -1216,7 +986,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
                 boxShadow: isActive
                     ? [
                         BoxShadow(
-                          color: AppTheme.success.withOpacity(0.5),
+                          color: AppTheme.success.withValues(alpha: 0.5),
                           blurRadius: 4,
                           spreadRadius: 1,
                         ),
@@ -1240,58 +1010,13 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
   }
 
   // Compatibility badge API used by the units-like table rows
+  /// يوفر نفس واجهة الشارة القديمة مع إعادة استخدام ويدجت الحالة.
   Widget _buildStatusBadge(Amenity amenity) {
     return _buildStatusWidget(amenity);
   }
 
-  Widget _buildPremiumActionButton({
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-    required String tooltip,
-  }) {
-    return Tooltip(
-      message: tooltip,
-      preferBelow: false,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [color.withOpacity(0.9), color.withOpacity(0.7)],
-        ),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: GestureDetector(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          onTap();
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                color.withOpacity(0.15),
-                color.withOpacity(0.08),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(8), // زوايا حادة هادئة
-            border: Border.all(
-              color: color.withOpacity(0.3),
-              width: 1,
-            ),
-          ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 16,
-          ),
-        ),
-      ),
-    );
-  }
-
   // Reusable actions/buttons for table rows
+  /// يبني زر إجراء أيقوني صغير داخل صف الجدول.
   Widget _buildActionButton({
     required IconData icon,
     required Color color,
@@ -1309,9 +1034,9 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             border: Border.all(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               width: 0.5,
             ),
           ),
@@ -1325,6 +1050,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     );
   }
 
+  /// يبني زر إجراء نصي أكبر يناسب العرض المحمول أو التابلت.
   Widget _buildActionTextButton({
     required String label,
     required IconData icon,
@@ -1342,10 +1068,10 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1368,364 +1094,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     );
   }
 
-  Widget _buildEnhancedMobileList() {
-    final sortedAmenities = _sortedAmenities;
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16),
-      itemCount: sortedAmenities.length,
-      itemBuilder: (context, index) {
-        final amenity = sortedAmenities[index];
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                HapticFeedback.selectionClick();
-                _showAmenityTooltip(amenity, scope: 'mobile-list');
-                // عرض التفاصيل فقط بدون الانتقال إلى صفحة جديدة
-              },
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: AppTheme.isDark
-                        ? [
-                            AppTheme.darkSurface.withOpacity(0.4),
-                            const Color(0xFF1A0E2E).withOpacity(0.2),
-                          ]
-                        : [
-                            AppTheme.lightSurface,
-                            AppTheme.lightBackground,
-                          ],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: AppTheme.primaryPurple.withOpacity(0.15),
-                    width: 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.primaryPurple.withOpacity(0.08),
-                      blurRadius: 15,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    // Header Row
-                    Row(
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppTheme.primaryPurple.withOpacity(0.2),
-                                AppTheme.primaryBlue.withOpacity(0.1),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: AppTheme.primaryPurple.withOpacity(0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: Icon(
-                            _getAmenityIcon(amenity.icon),
-                            color: AppTheme.primaryPurple,
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      amenity.name,
-                                      style: AppTextStyles.bodyMedium.copyWith(
-                                        color: AppTheme.textWhite,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.primaryPurple
-                                          .withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      '#${amenity.id.substring(0, 6).toUpperCase()}',
-                                      style: AppTextStyles.caption.copyWith(
-                                        color: AppTheme.primaryPurple,
-                                        fontSize: 9,
-                                        fontFamily: 'monospace',
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                amenity.description,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTextStyles.caption.copyWith(
-                                  color: AppTheme.textMuted,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (widget.onEditAmenity != null ||
-                            widget.onAssignAmenity != null ||
-                            widget.onDeleteAmenity != null)
-                          PopupMenuButton<String>(
-                            icon: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: AppTheme.darkSurface.withOpacity(0.3),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.more_vert_rounded,
-                                color: AppTheme.textMuted,
-                                size: 20,
-                              ),
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            color: AppTheme.isDark
-                                ? AppTheme.darkCard
-                                : Colors.white,
-                            onSelected: (value) {
-                              HapticFeedback.selectionClick();
-                              if (value == 'edit') {
-                                widget.onEditAmenity?.call(amenity);
-                              } else if (value == 'assign') {
-                                widget.onAssignAmenity?.call(amenity);
-                              } else if (value == 'delete') {
-                                widget.onDeleteAmenity?.call(amenity);
-                              }
-                            },
-                            itemBuilder: (context) => [
-                              if (widget.onEditAmenity != null)
-                                PopupMenuItem(
-                                  value: 'edit',
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.edit_outlined,
-                                        size: 18,
-                                        color: AppTheme.primaryPurple,
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Text(
-                                        'تعديل',
-                                        style:
-                                            AppTextStyles.bodyMedium.copyWith(
-                                          color: AppTheme.textWhite,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              if (widget.onAssignAmenity != null)
-                                PopupMenuItem(
-                                  value: 'assign',
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.assignment_outlined,
-                                        size: 18,
-                                        color: AppTheme.primaryPurple,
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Text(
-                                        'تعيين',
-                                        style:
-                                            AppTextStyles.bodyMedium.copyWith(
-                                          color: AppTheme.textWhite,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              if (widget.onDeleteAmenity != null)
-                                PopupMenuItem(
-                                  value: 'delete',
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.delete_outline,
-                                        size: 18,
-                                        color: AppTheme.error,
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Text(
-                                        'حذف',
-                                        style:
-                                            AppTextStyles.bodyMedium.copyWith(
-                                          color: AppTheme.error,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                            ],
-                          ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Stats Row
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  AppTheme.primaryBlue.withOpacity(0.1),
-                                  AppTheme.primaryBlue.withOpacity(0.05),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: AppTheme.primaryBlue.withOpacity(0.2),
-                                width: 1,
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.business_rounded,
-                                  size: 18,
-                                  color: AppTheme.primaryBlue,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${amenity.propertiesCount ?? 0}',
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    color: AppTheme.primaryBlue,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  'عقار',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color:
-                                        AppTheme.primaryBlue.withOpacity(0.7),
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: amenity.averageExtraCost != null &&
-                                        amenity.averageExtraCost! > 0
-                                    ? [
-                                        AppTheme.success.withOpacity(0.15),
-                                        AppTheme.neonGreen.withOpacity(0.08),
-                                      ]
-                                    : [
-                                        AppTheme.textMuted.withOpacity(0.1),
-                                        AppTheme.textMuted.withOpacity(0.05),
-                                      ],
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: amenity.averageExtraCost != null &&
-                                        amenity.averageExtraCost! > 0
-                                    ? AppTheme.success.withOpacity(0.3)
-                                    : AppTheme.textMuted.withOpacity(0.2),
-                                width: 1,
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  amenity.averageExtraCost != null &&
-                                          amenity.averageExtraCost! > 0
-                                      ? Icons.attach_money_rounded
-                                      : Icons.money_off_rounded,
-                                  size: 18,
-                                  color: amenity.averageExtraCost != null &&
-                                          amenity.averageExtraCost! > 0
-                                      ? AppTheme.success
-                                      : AppTheme.textMuted,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  amenity.averageExtraCost != null &&
-                                          amenity.averageExtraCost! > 0
-                                      ? '\$${amenity.averageExtraCost!.toStringAsFixed(0)}'
-                                      : 'مجاني',
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    color: amenity.averageExtraCost != null &&
-                                            amenity.averageExtraCost! > 0
-                                        ? AppTheme.success
-                                        : AppTheme.textMuted,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  'التكلفة',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: amenity.averageExtraCost != null &&
-                                            amenity.averageExtraCost! > 0
-                                        ? AppTheme.success.withOpacity(0.7)
-                                        : AppTheme.textMuted.withOpacity(0.7),
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        _buildStatusWidget(amenity),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
+  /// يبني مؤشر تحميل سفلي عند جلب المزيد من المرافق.
   Widget _buildLoadingIndicator() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1752,161 +1121,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
     );
   }
 
-  Widget _buildFooterStats() {
-    final totalCount = widget.amenities.length;
-    final activeCount =
-        widget.amenities.where((a) => a.isActive == true).length;
-    final averageCost = _calculateAverageCost();
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.darkSurface.withOpacity(0.4),
-            AppTheme.darkSurface.withOpacity(0.2),
-          ],
-        ),
-        border: Border(
-          top: BorderSide(
-            color: AppTheme.primaryPurple.withOpacity(0.2),
-            width: 1,
-          ),
-        ),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final useWrap = constraints.maxWidth < 700;
-          if (useWrap) {
-            return Wrap(
-              alignment: WrapAlignment.spaceEvenly,
-              spacing: 12,
-              runSpacing: 8,
-              children: [
-                _buildFooterStat(
-                  icon: Icons.checklist_rounded,
-                  label: 'المجموع',
-                  value: totalCount.toString(),
-                  color: AppTheme.primaryPurple,
-                ),
-                _buildFooterStat(
-                  icon: Icons.toggle_on_rounded,
-                  label: 'نشط',
-                  value: activeCount.toString(),
-                  color: AppTheme.success,
-                ),
-                _buildFooterStat(
-                  icon: Icons.toggle_off_rounded,
-                  label: 'معطل',
-                  value: (totalCount - activeCount).toString(),
-                  color: AppTheme.textMuted,
-                ),
-                _buildFooterStat(
-                  icon: Icons.attach_money_rounded,
-                  label: 'متوسط التكلفة',
-                  value: '\$$averageCost',
-                  color: AppTheme.warning,
-                ),
-              ],
-            );
-          }
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildFooterStat(
-                icon: Icons.checklist_rounded,
-                label: 'المجموع',
-                value: totalCount.toString(),
-                color: AppTheme.primaryPurple,
-              ),
-              _buildFooterStat(
-                icon: Icons.toggle_on_rounded,
-                label: 'نشط',
-                value: activeCount.toString(),
-                color: AppTheme.success,
-              ),
-              _buildFooterStat(
-                icon: Icons.toggle_off_rounded,
-                label: 'معطل',
-                value: (totalCount - activeCount).toString(),
-                color: AppTheme.textMuted,
-              ),
-              _buildFooterStat(
-                icon: Icons.attach_money_rounded,
-                label: 'متوسط التكلفة',
-                value: '\$$averageCost',
-                color: AppTheme.warning,
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildFooterStat({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Row(
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: color.withOpacity(0.3),
-              width: 1,
-            ),
-          ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 16,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: AppTextStyles.caption.copyWith(
-                color: AppTheme.textMuted,
-                fontSize: 10,
-              ),
-            ),
-            Text(
-              value,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textWhite,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  String _calculateAverageCost() {
-    if (widget.amenities.isEmpty) return '0';
-
-    final costs = widget.amenities
-        .where((a) => a.averageExtraCost != null && a.averageExtraCost! > 0)
-        .map((a) => a.averageExtraCost!)
-        .toList();
-
-    if (costs.isEmpty) return '0';
-
-    final average = costs.reduce((a, b) => a + b) / costs.length;
-    return average.toStringAsFixed(0);
-  }
-
+  /// يحول اسم الأيقونة النصي إلى أيقونة Material مناسبة للمرفق.
   IconData _getAmenityIcon(String iconName) {
     return AmenityIcons.getIconByName(iconName)?.icon ?? Icons.star_rounded;
   }

@@ -3,6 +3,7 @@
 import 'package:equatable/equatable.dart';
 
 abstract class PropertyInSectionImagesEvent extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyInSectionImagesEvent`.
   const PropertyInSectionImagesEvent();
 
   @override
@@ -10,9 +11,13 @@ abstract class PropertyInSectionImagesEvent extends Equatable {
 }
 
 class LoadPropertyInSectionImagesEvent extends PropertyInSectionImagesEvent {
+  /// العربية: يخزن القيمة `propertyInSectionId`.
   final String? propertyInSectionId;
+
   final String? tempKey;
+
   final int? page;
+
   final int? limit;
 
   const LoadPropertyInSectionImagesEvent({
@@ -27,13 +32,21 @@ class LoadPropertyInSectionImagesEvent extends PropertyInSectionImagesEvent {
 }
 
 class UploadPropertyInSectionImageEvent extends PropertyInSectionImagesEvent {
+  /// العربية: يخزن القيمة `propertyInSectionId`.
   final String? propertyInSectionId;
+
   final String? tempKey;
+
   final String filePath;
+
   final String? category;
+
   final String? alt;
+
   final bool isPrimary;
+
   final int? order;
+
   final List<String>? tags;
 
   const UploadPropertyInSectionImageEvent({
@@ -63,9 +76,13 @@ class UploadPropertyInSectionImageEvent extends PropertyInSectionImagesEvent {
 class UploadMultiplePropertyInSectionImagesEvent
     extends PropertyInSectionImagesEvent {
   final String? propertyInSectionId;
+
   final String? tempKey;
+
   final List<String> filePaths;
+
   final String? category;
+
   final List<String>? tags;
 
   const UploadMultiplePropertyInSectionImagesEvent({
@@ -82,7 +99,9 @@ class UploadMultiplePropertyInSectionImagesEvent
 }
 
 class UpdatePropertyInSectionImageEvent extends PropertyInSectionImagesEvent {
+  /// العربية: يخزن القيمة `imageId`.
   final String imageId;
+
   final Map<String, dynamic> data;
 
   const UpdatePropertyInSectionImageEvent({
@@ -95,7 +114,9 @@ class UpdatePropertyInSectionImageEvent extends PropertyInSectionImagesEvent {
 }
 
 class DeletePropertyInSectionImageEvent extends PropertyInSectionImagesEvent {
+  /// العربية: يخزن القيمة `imageId`.
   final String imageId;
+
   final bool permanent;
 
   const DeletePropertyInSectionImageEvent({
@@ -118,8 +139,11 @@ class DeleteMultiplePropertyInSectionImagesEvent
 }
 
 class ReorderPropertyInSectionImagesEvent extends PropertyInSectionImagesEvent {
+  /// العربية: يخزن القيمة `propertyInSectionId`.
   final String? propertyInSectionId;
+
   final String? tempKey;
+
   final List<String> imageIds;
 
   const ReorderPropertyInSectionImagesEvent({
@@ -135,7 +159,9 @@ class ReorderPropertyInSectionImagesEvent extends PropertyInSectionImagesEvent {
 class SetPrimaryPropertyInSectionImageEvent
     extends PropertyInSectionImagesEvent {
   final String? propertyInSectionId;
+
   final String? tempKey;
+
   final String imageId;
 
   const SetPrimaryPropertyInSectionImageEvent({
@@ -149,11 +175,14 @@ class SetPrimaryPropertyInSectionImageEvent
 }
 
 class ClearPropertyInSectionImagesEvent extends PropertyInSectionImagesEvent {
+  /// العربية: ينشئ مثيلًا جديدًا من `ClearPropertyInSectionImagesEvent`.
   const ClearPropertyInSectionImagesEvent();
 }
 
 class RefreshPropertyInSectionImagesEvent extends PropertyInSectionImagesEvent {
+  /// العربية: يخزن القيمة `propertyInSectionId`.
   final String? propertyInSectionId;
+
   final String? tempKey;
 
   const RefreshPropertyInSectionImagesEvent({

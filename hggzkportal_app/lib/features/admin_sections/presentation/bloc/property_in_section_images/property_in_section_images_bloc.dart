@@ -12,16 +12,25 @@ import 'property_in_section_images_state.dart';
 class PropertyInSectionImagesBloc
     extends Bloc<PropertyInSectionImagesEvent, PropertyInSectionImagesState> {
   final UploadPropertyInSectionImageUseCase uploadImage;
+
   final UploadMultiplePropertyInSectionImagesUseCase uploadMultipleImages;
+
   final GetPropertyInSectionImagesUseCase getImages;
+
   final UpdatePropertyInSectionImageUseCase updateImage;
+
   final DeletePropertyInSectionImageUseCase deleteImage;
+
   final DeleteMultiplePropertyInSectionImagesUseCase deleteMultipleImages;
+
   final ReorderPropertyInSectionImagesUseCase reorderImages;
+
   final SetPrimaryPropertyInSectionImageUseCase setPrimaryImage;
 
   List<SectionImage> _current = [];
+
   Set<String> _selected = {};
+
   String? _propertyInSectionId;
 
   PropertyInSectionImagesBloc({
@@ -360,14 +369,8 @@ class PropertyInSectionImagesBloc
   }
 
   String _msg(Failure f) {
-    if (f is ServerFailure) return f.message ?? 'Server Error';
+    if (f is ServerFailure) return f.message;
     if (f is NetworkFailure) return 'Network error';
     return 'Unexpected error';
   }
-}
-
-class _ProgressEvent extends PropertyInSectionImagesEvent {
-  final String propertyInSectionId;
-  final double progress;
-  const _ProgressEvent(this.propertyInSectionId, this.progress);
 }

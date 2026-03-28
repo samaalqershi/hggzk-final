@@ -8,14 +8,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
-import 'dart:math' as math;
-import 'package:hggzkportal/core/theme/app_colors.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import '../bloc/users_list/users_list_bloc.dart';
 import '../widgets/futuristic_users_table.dart';
 import '../widgets/user_filters_widget.dart';
 import '../widgets/user_stats_card.dart';
-import '../widgets/last_seen_widget.dart';
 
 class UsersListPage extends StatefulWidget {
   const UsersListPage({super.key});
@@ -26,91 +23,21 @@ class UsersListPage extends StatefulWidget {
 
 class _UsersListPageState extends State<UsersListPage>
     with TickerProviderStateMixin {
-  // Animation Controllers
-  late AnimationController _backgroundAnimationController;
-  late AnimationController _glowController;
-  late AnimationController _particleController;
-  late AnimationController _contentAnimationController;
-
-  // Animations
-  late Animation<double> _backgroundRotation;
-  late Animation<double> _glowAnimation;
-  late Animation<double> _contentFadeAnimation;
-  late Animation<Offset> _contentSlideAnimation;
-
   // State
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
+
   bool _showFilters = false;
-  String _selectedView = 'table'; // table, grid, chart
+
+  final String _selectedView = 'table'; // table, grid, chart
 
   @override
   void initState() {
     super.initState();
-    _initializeAnimations();
+
     _loadUsers();
+
     _setupScrollListener();
-  }
-
-  void _initializeAnimations() {
-    _backgroundAnimationController = AnimationController(
-      duration: const Duration(seconds: 20),
-      vsync: this,
-    )..repeat();
-
-    _glowController = AnimationController(
-      duration: const Duration(seconds: 3),
-      vsync: this,
-    )..repeat(reverse: true);
-
-    _particleController = AnimationController(
-      duration: const Duration(seconds: 15),
-      vsync: this,
-    )..repeat();
-
-    _contentAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-
-    _backgroundRotation = Tween<double>(
-      begin: 0,
-      end: 2 * math.pi,
-    ).animate(CurvedAnimation(
-      parent: _backgroundAnimationController,
-      curve: Curves.linear,
-    ));
-
-    _glowAnimation = Tween<double>(
-      begin: 0.3,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _glowController,
-      curve: Curves.easeInOut,
-    ));
-
-    _contentFadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _contentAnimationController,
-      curve: Curves.easeOut,
-    ));
-
-    _contentSlideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.05),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _contentAnimationController,
-      curve: Curves.easeOutQuart,
-    ));
-
-    // Start animations
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (mounted) {
-        _contentAnimationController.forward();
-      }
-    });
   }
 
   void _loadUsers() {
@@ -131,10 +58,6 @@ class _UsersListPageState extends State<UsersListPage>
 
   @override
   void dispose() {
-    _backgroundAnimationController.dispose();
-    _glowController.dispose();
-    _particleController.dispose();
-    _contentAnimationController.dispose();
     _searchController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -154,11 +77,11 @@ class _UsersListPageState extends State<UsersListPage>
             parent: AlwaysScrollableScrollPhysics(),
           ),
           slivers: [
-          _buildSliverAppBar(),
-          _buildStatsSliver(),
-          _buildSearchSliver(),
-          _buildFiltersSliver(),
-          _buildContentSliver(),
+            _buildSliverAppBar(),
+            _buildStatsSliver(),
+            _buildSearchSliver(),
+            _buildFiltersSliver(),
+            _buildContentSliver(),
           ],
         ),
       ),
@@ -180,7 +103,7 @@ class _UsersListPageState extends State<UsersListPage>
             color: AppTheme.textWhite,
             shadows: [
               Shadow(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                 blurRadius: 10,
               ),
             ],
@@ -192,7 +115,7 @@ class _UsersListPageState extends State<UsersListPage>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.1),
+                AppTheme.primaryBlue.withValues(alpha: 0.1),
                 AppTheme.darkBackground,
               ],
             ),
@@ -218,11 +141,11 @@ class _UsersListPageState extends State<UsersListPage>
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: (isActive ? AppTheme.primaryBlue : AppTheme.darkBorder)
-              .withOpacity(0.3),
+              .withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -383,7 +306,7 @@ class _UsersListPageState extends State<UsersListPage>
                 ),
               );
             case 'chart':
-              return SliverToBoxAdapter(child: _buildChartView(state));
+              return SliverToBoxAdapter(child: _buildChartView());
             default:
               return _buildGridSliver(state);
           }
@@ -437,291 +360,6 @@ class _UsersListPageState extends State<UsersListPage>
     );
   }
 
-  Widget _buildAnimatedBackground() {
-    return AnimatedBuilder(
-      animation: Listenable.merge([_backgroundRotation, _glowAnimation]),
-      builder: (context, child) {
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
-              ],
-            ),
-          ),
-          child: CustomPaint(
-            painter: _FuturisticBackgroundPainter(
-              rotation: _backgroundRotation.value,
-              glowIntensity: _glowAnimation.value,
-            ),
-            size: Size.infinite,
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
-          ],
-        ),
-        border: Border(
-          bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
-            width: 1,
-          ),
-        ),
-      ),
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Row(
-            children: [
-              // Title with gradient
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ShaderMask(
-                      shaderCallback: (bounds) =>
-                          AppTheme.primaryGradient.createShader(bounds),
-                      child: Text(
-                        'إدارة المستخدمين',
-                        style: AppTextStyles.heading1.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'إدارة جميع حسابات المستخدمين والصلاحيات',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppTheme.textMuted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Action Buttons
-              Flexible(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildActionButton(
-                        icon: Icons.filter_list_rounded,
-                        label: 'فلتر',
-                        onTap: () =>
-                            setState(() => _showFilters = !_showFilters),
-                        isActive: _showFilters,
-                      ),
-                      const SizedBox(width: 16),
-                      _buildPrimaryActionButton(
-                        icon: Icons.person_add_rounded,
-                        label: 'إضافة مستخدم',
-                        onTap: () async {
-                          await context.push('/admin/users/create');
-                          if (!mounted) return;
-                          context.read<UsersListBloc>().add(RefreshUsersEvent());
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      _buildActionButton(
-                        icon: Icons.file_download_outlined,
-                        label: 'تصدير',
-                        onTap: _exportUsers,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    bool isActive = false,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          gradient: isActive
-              ? AppTheme.primaryGradient
-              : LinearGradient(
-                  colors: [
-                    AppTheme.darkCard.withOpacity(0.5),
-                    AppTheme.darkCard.withOpacity(0.3),
-                  ],
-                ),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isActive
-                ? AppTheme.primaryBlue.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.3),
-            width: 1,
-          ),
-          boxShadow: isActive
-              ? [
-                  BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              size: 16,
-              color: isActive ? Colors.white : AppTheme.textMuted,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: isActive ? Colors.white : AppTheme.textMuted,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPrimaryActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        onTap();
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          gradient: AppTheme.primaryGradient,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.primaryBlue.withOpacity(0.4),
-              blurRadius: 15,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 18, color: Colors.white),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: AppTextStyles.buttonMedium.copyWith(
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatsSection() {
-    return Container(
-      height: 120,
-      padding: const EdgeInsets.all(16),
-      child: BlocBuilder<UsersListBloc, UsersListState>(
-        builder: (context, state) {
-          final totalUsers = state is UsersListLoaded ? state.totalCount : 0;
-          final activeUsers = state is UsersListLoaded
-              ? state.users.where((u) => u.isActive).length
-              : 0;
-          final newUsers =
-              state is UsersListLoaded ? _getNewUsersCount(state.users) : 0;
-          final inactiveUsers = state is UsersListLoaded
-              ? state.users.where((u) => !u.isActive).length
-              : 0;
-
-          return Row(
-            children: [
-              Expanded(
-                child: UserStatsCard(
-                  title: 'إجمالي المستخدمين',
-                  value: totalUsers.toString(),
-                  icon: Icons.people_rounded,
-                  color: AppTheme.primaryBlue,
-                  trend: '+15%',
-                  isPositive: true,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: UserStatsCard(
-                  title: 'المستخدمين النشطين',
-                  value: activeUsers.toString(),
-                  icon: Icons.verified_user_rounded,
-                  color: AppTheme.success,
-                  trend: '+8%',
-                  isPositive: true,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: UserStatsCard(
-                  title: 'المستخدمين الجدد',
-                  value: newUsers.toString(),
-                  icon: Icons.person_add_rounded,
-                  color: AppTheme.warning,
-                  trend: '12',
-                  isPositive: true,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: UserStatsCard(
-                  title: 'غير النشطين',
-                  value: inactiveUsers.toString(),
-                  icon: Icons.person_off_rounded,
-                  color: AppTheme.error,
-                  trend: '-3%',
-                  isPositive: false,
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildSearchBar() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -729,13 +367,13 @@ class _UsersListPageState extends State<UsersListPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -744,7 +382,7 @@ class _UsersListPageState extends State<UsersListPage>
           const SizedBox(width: 16),
           Icon(
             Icons.search_rounded,
-            color: AppTheme.primaryBlue.withOpacity(0.7),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.7),
             size: 20,
           ),
           const SizedBox(width: 12),
@@ -757,7 +395,7 @@ class _UsersListPageState extends State<UsersListPage>
               decoration: InputDecoration(
                 hintText: 'البحث عن مستخدم...',
                 hintStyle: AppTextStyles.bodyMedium.copyWith(
-                  color: AppTheme.textMuted.withOpacity(0.5),
+                  color: AppTheme.textMuted.withValues(alpha: 0.5),
                 ),
                 border: InputBorder.none,
               ),
@@ -806,145 +444,6 @@ class _UsersListPageState extends State<UsersListPage>
     );
   }
 
-  Widget _buildContent() {
-    return BlocBuilder<UsersListBloc, UsersListState>(
-      builder: (context, state) {
-        if (state is UsersListLoading) {
-          return _buildLoadingState();
-        }
-
-        if (state is UsersListError) {
-          return _buildErrorState(state.message);
-        }
-
-        if (state is UsersListLoaded) {
-          if (state.users.isEmpty) {
-            return _buildEmptyState();
-          }
-
-          switch (_selectedView) {
-            case 'grid':
-              return _buildGridView(state);
-            case 'table':
-              return FuturisticUsersTable(
-                users: state.users,
-                onUserTap: (userId) => _navigateToUserDetails(userId),
-                onStatusToggle: (userId, activate) {
-                  context.read<UsersListBloc>().add(
-                        ToggleUserStatusEvent(
-                          userId: userId,
-                          activate: activate,
-                        ),
-                      );
-                },
-                onDelete: (userId) {
-                  _showDeleteConfirmation(userId);
-                },
-              );
-            case 'chart':
-              return _buildChartView(state);
-            default:
-              return _buildGridView(state);
-          }
-        }
-
-        return const SizedBox.shrink();
-      },
-    );
-  }
-
-  Widget _buildGridView(UsersListLoaded state) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // حساب عدد الأعمدة بناءً على عرض الشاشة
-        int crossAxisCount = 4;
-        if (constraints.maxWidth < 1200) {
-          crossAxisCount = 3;
-        }
-        if (constraints.maxWidth < 900) {
-          crossAxisCount = 2;
-        }
-        if (constraints.maxWidth < 600) {
-          crossAxisCount = 1;
-        }
-
-        return RefreshIndicator(
-          onRefresh: () async {
-            context.read<UsersListBloc>().add(RefreshUsersEvent());
-          },
-          child: GridView.builder(
-            controller: _scrollController,
-            padding: const EdgeInsets.all(16),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.2,
-            ),
-            itemCount: state.users.length + (state.hasMore ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index >= state.users.length) {
-                return _buildLoadMoreIndicator();
-              }
-
-              final user = state.users[index];
-              return _UserGridCard(
-                user: user,
-                onTap: () => _navigateToUserDetails(user.id),
-                onEdit: () => _navigateToEditUser(user.id),
-                onDelete: () => _showDeleteConfirmation(user.id),
-                onStatusToggle: (activate) {
-                  context.read<UsersListBloc>().add(
-                        ToggleUserStatusEvent(
-                          userId: user.id,
-                          activate: activate,
-                        ),
-                      );
-                },
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildChartView(UsersListLoaded state) {
-    // TODO: Implement chart view
-    return const Center(
-      child: Text('Chart View - Coming Soon'),
-    );
-  }
-
-  Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              gradient: AppTheme.primaryGradient,
-              shape: BoxShape.circle,
-            ),
-            child: const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              strokeWidth: 2,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'جاري تحميل المستخدمين...',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildErrorState(String message) {
     return Center(
       child: Column(
@@ -953,7 +452,7 @@ class _UsersListPageState extends State<UsersListPage>
           Icon(
             Icons.error_outline_rounded,
             size: 64,
-            color: AppTheme.error.withOpacity(0.7),
+            color: AppTheme.error.withValues(alpha: 0.7),
           ),
           const SizedBox(height: 16),
           Text(
@@ -985,62 +484,10 @@ class _UsersListPageState extends State<UsersListPage>
     );
   }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.primaryBlue.withOpacity(0.1),
-                  AppTheme.primaryPurple.withOpacity(0.05),
-                ],
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.people_outline_rounded,
-              size: 64,
-              color: AppTheme.primaryBlue.withOpacity(0.5),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'لا يوجد مستخدمين',
-            style: AppTextStyles.heading3.copyWith(
-              color: AppTheme.textWhite,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'لم يتم العثور على أي مستخدمين',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted,
-            ),
-          ),
-          const SizedBox(height: 32),
-          GestureDetector(
-            onTap: () => context.push('/admin/users/create'),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                gradient: AppTheme.primaryGradient,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                'إضافة أول مستخدم',
-                style: AppTextStyles.buttonMedium.copyWith(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+  Widget _buildChartView() {
+    // TODO: Implement chart view
+    return const Center(
+      child: Text('Chart View - Coming Soon'),
     );
   }
 
@@ -1050,40 +497,6 @@ class _UsersListPageState extends State<UsersListPage>
       child: const Center(
         child: LoadingWidget(
             type: LoadingType.futuristic, message: 'جاري التحميل...'),
-      ),
-    );
-  }
-
-  Widget _buildFloatingActionButton() {
-    return Positioned(
-      bottom: 24,
-      right: 24,
-      child: AnimatedBuilder(
-        animation: _glowAnimation,
-        builder: (context, child) {
-          return Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primaryBlue
-                      .withOpacity(0.4 * _glowAnimation.value),
-                  blurRadius: 20 + 10 * _glowAnimation.value,
-                  spreadRadius: 2,
-                ),
-              ],
-            ),
-            child: FloatingActionButton(
-              onPressed: () => context.push('/admin/users/create'),
-              backgroundColor: AppTheme.primaryBlue,
-              child: const Icon(
-                Icons.person_add_rounded,
-                color: Colors.white,
-                size: 28,
-              ),
-            ),
-          );
-        },
       ),
     );
   }
@@ -1104,107 +517,11 @@ class _UsersListPageState extends State<UsersListPage>
       fullscreenDialog: true,
       context: context,
       barrierColor: Colors.black87,
-      builder: (context) => BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Dialog(
-          backgroundColor: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: AppTheme.darkCard,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: AppTheme.error.withOpacity(0.3),
-                width: 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.error.withOpacity(0.2),
-                  blurRadius: 30,
-                  spreadRadius: 5,
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppTheme.error.withOpacity(0.1),
-                  ),
-                  child: Icon(
-                    Icons.delete_outline,
-                    color: AppTheme.error,
-                    size: 32,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'حذف المستخدم؟',
-                  style: AppTextStyles.heading3.copyWith(
-                    color: AppTheme.textWhite,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'لا يمكن التراجع عن هذا الإجراء',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppTheme.textMuted,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          'إلغاء',
-                          style: AppTextStyles.buttonMedium.copyWith(
-                            color: AppTheme.textLight,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          context
-                              .read<UsersListBloc>()
-                              .add(DeleteUserEvent(userId));
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.error,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          'حذف',
-                          style: AppTextStyles.buttonMedium.copyWith(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
+      builder: (context) => _DeleteConfirmationDialog(
+        onConfirm: () {
+          Navigator.pop(context);
+          this.context.read<UsersListBloc>().add(DeleteUserEvent(userId));
+        },
       ),
     );
   }
@@ -1216,13 +533,146 @@ class _UsersListPageState extends State<UsersListPage>
       return user.createdAt.isAfter(lastWeek);
     }).length;
   }
+}
 
-  void _exportUsers() {
-    // TODO: Implement export functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('جاري تصدير البيانات...'),
-        backgroundColor: AppTheme.primaryBlue,
+class _DeleteConfirmationDialog extends StatelessWidget {
+  final VoidCallback onConfirm;
+
+  const _DeleteConfirmationDialog({required this.onConfirm});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: const EdgeInsets.all(10),
+      backgroundColor: Colors.transparent,
+      child: Container(
+        width: 400,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: AppTheme.error.withValues(alpha: 0.3),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.error.withValues(alpha: 0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppTheme.error.withValues(alpha: 0.2),
+                    AppTheme.error.withValues(alpha: 0.1),
+                  ],
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.warning_rounded,
+                color: AppTheme.error,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'تأكيد الحذف',
+              style: AppTextStyles.heading3.copyWith(
+                color: AppTheme.textWhite,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'هل أنت متأكد من حذف هذا المستخدم؟\nلا يمكن التراجع عن هذا الإجراء.',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppTheme.textMuted,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.darkSurface.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppTheme.darkBorder.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'إلغاء',
+                          style: AppTextStyles.buttonMedium.copyWith(
+                            color: AppTheme.textMuted,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      HapticFeedback.mediumImpact();
+                      onConfirm();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppTheme.error,
+                            AppTheme.error.withValues(alpha: 0.8),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.error.withValues(alpha: 0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          'حذف',
+                          style: AppTextStyles.buttonMedium.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1231,9 +681,13 @@ class _UsersListPageState extends State<UsersListPage>
 // User Grid Card Widget
 class _UserGridCard extends StatefulWidget {
   final User user;
+
   final VoidCallback onTap;
+
   final VoidCallback onEdit;
+
   final VoidCallback onDelete;
+
   final Function(bool) onStatusToggle;
 
   const _UserGridCard({
@@ -1251,7 +705,9 @@ class _UserGridCard extends StatefulWidget {
 class _UserGridCardState extends State<_UserGridCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _hoverController;
+
   late Animation<double> _hoverAnimation;
+
   bool _isHovered = false;
 
   @override
@@ -1301,26 +757,26 @@ class _UserGridCardState extends State<_UserGridCard>
                     end: Alignment.bottomRight,
                     colors: _isHovered
                         ? [
-                            AppTheme.primaryBlue.withOpacity(0.1),
-                            AppTheme.primaryPurple.withOpacity(0.05),
+                            AppTheme.primaryBlue.withValues(alpha: 0.1),
+                            AppTheme.primaryPurple.withValues(alpha: 0.05),
                           ]
                         : [
-                            AppTheme.darkCard.withOpacity(0.7),
-                            AppTheme.darkCard.withOpacity(0.5),
+                            AppTheme.darkCard.withValues(alpha: 0.7),
+                            AppTheme.darkCard.withValues(alpha: 0.5),
                           ],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: _isHovered
-                        ? AppTheme.primaryBlue.withOpacity(0.5)
-                        : AppTheme.darkBorder.withOpacity(0.3),
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                        : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: _isHovered
-                          ? AppTheme.primaryBlue.withOpacity(0.2)
-                          : Colors.black.withOpacity(0.1),
+                          ? AppTheme.primaryBlue.withValues(alpha: 0.2)
+                          : Colors.black.withValues(alpha: 0.1),
                       blurRadius: _isHovered ? 20 : 10,
                       offset: const Offset(0, 4),
                     ),
@@ -1351,8 +807,10 @@ class _UserGridCardState extends State<_UserGridCard>
                                         : AppTheme.primaryGradient,
                                     border: Border.all(
                                       color: widget.user.isActive
-                                          ? AppTheme.success.withOpacity(0.5)
-                                          : AppTheme.textMuted.withOpacity(0.3),
+                                          ? AppTheme.success
+                                              .withValues(alpha: 0.5)
+                                          : AppTheme.textMuted
+                                              .withValues(alpha: 0.3),
                                       width: 2,
                                     ),
                                   ),
@@ -1447,8 +905,8 @@ class _UserGridCardState extends State<_UserGridCard>
                               boxShadow: widget.user.isActive
                                   ? [
                                       BoxShadow(
-                                        color:
-                                            AppTheme.success.withOpacity(0.5),
+                                        color: AppTheme.success
+                                            .withValues(alpha: 0.5),
                                         blurRadius: 6,
                                         spreadRadius: 2,
                                       ),
@@ -1529,10 +987,10 @@ class _UserGridCardState extends State<_UserGridCard>
         width: 32,
         height: 32,
         decoration: BoxDecoration(
-          color: AppTheme.darkBackground.withOpacity(0.8),
+          color: AppTheme.darkBackground.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: (color ?? AppTheme.primaryBlue).withOpacity(0.3),
+            color: (color ?? AppTheme.primaryBlue).withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1572,203 +1030,4 @@ class _UserGridCardState extends State<_UserGridCard>
         return role;
     }
   }
-}
-
-// Delete Confirmation Dialog
-class _DeleteConfirmationDialog extends StatelessWidget {
-  final VoidCallback onConfirm;
-
-  const _DeleteConfirmationDialog({required this.onConfirm});
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      insetPadding: const EdgeInsets.all(10),
-      backgroundColor: Colors.transparent,
-      child: Container(
-        width: 400,
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: AppTheme.error.withOpacity(0.3),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.error.withOpacity(0.2),
-              blurRadius: 20,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
-                  ],
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.warning_rounded,
-                color: AppTheme.error,
-                size: 32,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'تأكيد الحذف',
-              style: AppTextStyles.heading3.copyWith(
-                color: AppTheme.textWhite,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'هل أنت متأكد من حذف هذا المستخدم؟\nلا يمكن التراجع عن هذا الإجراء.',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: AppTheme.darkSurface.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.3),
-                          width: 1,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'إلغاء',
-                          style: AppTextStyles.buttonMedium.copyWith(
-                            color: AppTheme.textMuted,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      HapticFeedback.mediumImpact();
-                      onConfirm();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppTheme.error,
-                            AppTheme.error.withOpacity(0.8),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.error.withOpacity(0.3),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          'حذف',
-                          style: AppTextStyles.buttonMedium.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Background Painter
-class _FuturisticBackgroundPainter extends CustomPainter {
-  final double rotation;
-  final double glowIntensity;
-
-  _FuturisticBackgroundPainter({
-    required this.rotation,
-    required this.glowIntensity,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.5;
-
-    // Draw grid
-    paint.color = AppTheme.primaryBlue.withOpacity(0.05);
-    const spacing = 50.0;
-
-    for (double x = 0; x < size.width; x += spacing) {
-      canvas.drawLine(
-        Offset(x, 0),
-        Offset(x, size.height),
-        paint,
-      );
-    }
-
-    for (double y = 0; y < size.height; y += spacing) {
-      canvas.drawLine(
-        Offset(0, y),
-        Offset(size.width, y),
-        paint,
-      );
-    }
-
-    // Draw rotating circles
-    final center = Offset(size.width / 2, size.height / 2);
-    paint.color = AppTheme.primaryBlue.withOpacity(0.03 * glowIntensity);
-
-    for (int i = 0; i < 3; i++) {
-      final radius = 200.0 + i * 100;
-      canvas.save();
-      canvas.translate(center.dx, center.dy);
-      canvas.rotate(rotation + i * 0.5);
-      canvas.translate(-center.dx, -center.dy);
-      canvas.drawCircle(center, radius, paint);
-      canvas.restore();
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

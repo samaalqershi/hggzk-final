@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exceptions.dart';
@@ -38,7 +37,6 @@ abstract class UsersRemoteDataSource {
     List<Map<String, dynamic>>? walletAccounts,
   });
 
-  /// Register an Owner user and create a linked Property in one operation
   Future<Map<String, String>> registerOwnerWithProperty({
     required String name,
     required String email,
@@ -67,7 +65,9 @@ abstract class UsersRemoteDataSource {
   });
 
   Future<bool> activateUser(String userId);
+
   Future<bool> deactivateUser(String userId);
+
   Future<bool> assignRole({
     required String userId,
     required String roleId,

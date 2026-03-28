@@ -16,8 +16,11 @@ enum PaymentMethod {
 }
 
 /// Extension for PaymentMethod enum
+/// العربية: يعرّف الامتداد `PaymentMethodExtension`.
 extension PaymentMethodExtension on PaymentMethod {
   /// Get the backend value for the payment method
+  /// Exposes the `backendValue` value for callers that need it.
+  /// العربية: يعيد القيمة `backendValue`.
   int get backendValue {
     switch (this) {
       case PaymentMethod.jwaliWallet:
@@ -42,6 +45,8 @@ extension PaymentMethodExtension on PaymentMethod {
   }
 
   /// Get display name in Arabic
+  /// Exposes the `displayNameAr` value for callers that need it.
+  /// العربية: يعيد القيمة `displayNameAr`.
   String get displayNameAr {
     switch (this) {
       case PaymentMethod.jwaliWallet:
@@ -66,6 +71,8 @@ extension PaymentMethodExtension on PaymentMethod {
   }
 
   /// Get display name in English
+  /// Exposes the `displayNameEn` value for callers that need it.
+  /// العربية: يعيد القيمة `displayNameEn`.
   String get displayNameEn {
     switch (this) {
       case PaymentMethod.jwaliWallet:
@@ -90,6 +97,8 @@ extension PaymentMethodExtension on PaymentMethod {
   }
 
   /// Get icon name for the payment method
+  /// Exposes the `iconName` value for callers that need it.
+  /// العربية: يعيد القيمة `iconName`.
   String get iconName {
     switch (this) {
       case PaymentMethod.jwaliWallet:
@@ -114,6 +123,8 @@ extension PaymentMethodExtension on PaymentMethod {
   }
 
   /// Check if the payment method is a wallet
+  /// Exposes the `isWallet` value for callers that need it.
+  /// العربية: يعيد القيمة `isWallet`.
   bool get isWallet {
     switch (this) {
       case PaymentMethod.jwaliWallet:
@@ -129,6 +140,8 @@ extension PaymentMethodExtension on PaymentMethod {
   }
 
   /// Check if the payment method is online
+  /// Exposes the `isOnline` value for callers that need it.
+  /// العربية: يعيد القيمة `isOnline`.
   bool get isOnline {
     switch (this) {
       case PaymentMethod.cash:
@@ -139,6 +152,8 @@ extension PaymentMethodExtension on PaymentMethod {
   }
 
   /// Create PaymentMethod from backend value
+  /// Processes the `fromBackendValue` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `fromBackendValue`.
   static PaymentMethod fromBackendValue(int value) {
     switch (value) {
       case 1:
@@ -165,6 +180,8 @@ extension PaymentMethodExtension on PaymentMethod {
   }
 
   /// Create PaymentMethod from string
+  /// Processes the `fromString` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `fromString`.
   static PaymentMethod fromString(String value) {
     final normalizedValue = value.toLowerCase().replaceAll('_', '');
     switch (normalizedValue) {
@@ -210,8 +227,11 @@ enum PaymentStatus {
 }
 
 /// Extension for PaymentStatus enum
+/// العربية: يعرّف الامتداد `PaymentStatusExtension`.
 extension PaymentStatusExtension on PaymentStatus {
   /// Get display name in Arabic
+  /// Exposes the `displayNameAr` value for callers that need it.
+  /// العربية: يعيد القيمة `displayNameAr`.
   String get displayNameAr {
     switch (this) {
       case PaymentStatus.successful:
@@ -230,6 +250,8 @@ extension PaymentStatusExtension on PaymentStatus {
   }
 
   /// Get display name in English
+  /// Exposes the `displayNameEn` value for callers that need it.
+  /// العربية: يعيد القيمة `displayNameEn`.
   String get displayNameEn {
     switch (this) {
       case PaymentStatus.successful:
@@ -248,6 +270,8 @@ extension PaymentStatusExtension on PaymentStatus {
   }
 
   /// Get color for status
+  /// Exposes the `colorCode` value for callers that need it.
+  /// العربية: يعيد القيمة `colorCode`.
   String get colorCode {
     switch (this) {
       case PaymentStatus.successful:
@@ -266,16 +290,22 @@ extension PaymentStatusExtension on PaymentStatus {
   }
 
   /// Check if payment is complete
+  /// Exposes the `isComplete` value for callers that need it.
+  /// العربية: يعيد القيمة `isComplete`.
   bool get isComplete {
     return this == PaymentStatus.successful;
   }
 
   /// Check if payment can be refunded
+  /// Exposes the `canRefund` value for callers that need it.
+  /// العربية: يعيد القيمة `canRefund`.
   bool get canRefund {
     return this == PaymentStatus.successful;
   }
 
   /// Create PaymentStatus from string
+  /// Processes the `fromString` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `fromString`.
   static PaymentStatus fromString(String value) {
     final normalizedValue = value.toLowerCase();
     switch (normalizedValue) {

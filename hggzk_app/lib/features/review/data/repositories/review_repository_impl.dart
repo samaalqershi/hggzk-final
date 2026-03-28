@@ -8,15 +8,26 @@ import '../../domain/entities/review_image.dart';
 import '../../domain/repositories/review_repository.dart';
 import '../datasources/review_remote_datasource.dart';
 
+/// Provides repository behavior for `ReviewRepositoryImpl`.
+/// العربية: يوفر سلوك المستودع الخاص بـ `ReviewRepositoryImpl`.
 class ReviewRepositoryImpl implements ReviewRepository {
+  /// Keeps the `remoteDataSource` value.
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final ReviewRemoteDataSource remoteDataSource;
+
+  /// Keeps the `networkInfo` value.
+  /// العربية: يخزن القيمة `networkInfo`.
   final NetworkInfo networkInfo;
 
+  /// Builds a new `ReviewRepositoryImpl` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewRepositoryImpl`.
   ReviewRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
 
+  /// Builds the review.
+  /// العربية: ينشئ review.
   @override
   Future<Either<Failure, Review>> createReview({
     required String bookingId,
@@ -49,6 +60,8 @@ class ReviewRepositoryImpl implements ReviewRepository {
     }
   }
 
+  /// Exposes the property reviews.
+  /// العربية: يعيد property reviews.
   @override
   Future<Either<Failure, PaginatedResult<Review>>> getPropertyReviews({
     required String propertyId,
@@ -72,10 +85,10 @@ class ReviewRepositoryImpl implements ReviewRepository {
           withImagesOnly: withImagesOnly,
           userId: userId,
         );
-        
+
         // Convert models to entities
         final reviews = result.items.map((model) => model.toEntity()).toList();
-        
+
         return Right(PaginatedResult<Review>(
           items: reviews,
           pageNumber: result.pageNumber,
@@ -91,6 +104,8 @@ class ReviewRepositoryImpl implements ReviewRepository {
     }
   }
 
+  /// Exposes the property reviews summary.
+  /// العربية: يعيد property reviews summary.
   @override
   Future<Either<Failure, ReviewsSummary>> getPropertyReviewsSummary({
     required String propertyId,
@@ -109,6 +124,8 @@ class ReviewRepositoryImpl implements ReviewRepository {
     }
   }
 
+  /// Processes `uploadReviewImages`.
+  /// العربية: يعالج `uploadReviewImages`.
   @override
   Future<Either<Failure, List<ReviewImage>>> uploadReviewImages({
     required String reviewId,

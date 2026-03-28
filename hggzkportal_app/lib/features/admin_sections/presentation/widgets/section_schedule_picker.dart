@@ -6,8 +6,11 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/formatters.dart';
 
 class SectionSchedulePicker extends StatefulWidget {
+  /// العربية: يخزن القيمة `startDate`.
   final DateTime? startDate;
+
   final DateTime? endDate;
+
   final Function(DateTime?, DateTime?) onScheduleChanged;
 
   const SectionSchedulePicker({
@@ -24,9 +27,13 @@ class SectionSchedulePicker extends StatefulWidget {
 class _SectionSchedulePickerState extends State<SectionSchedulePicker>
     with SingleTickerProviderStateMixin {
   DateTime? _startDate;
+
   DateTime? _endDate;
+
   bool _hasSchedule = false;
+
   late AnimationController _animationController;
+
   late Animation<double> _expandAnimation;
 
   @override

@@ -1,21 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/conversation.dart';
 
+/// يعرّف الكلاس `ChatAppBar`.
+/// Describes the `ChatAppBar` class.
 class ChatAppBar extends StatefulWidget implements PreferredSizeWidget {
+  /// Holds the `conversation` value.
+  /// العربية: يخزن القيمة `conversation`.
   final Conversation conversation;
+
+  /// يخزن العضو `currentUserId`.
+  /// Holds the `currentUserId` member.
   final String currentUserId;
+
+  /// يخزن العضو `onBackPressed`.
+  /// Holds the `onBackPressed` member.
   final VoidCallback onBackPressed;
+
+  /// يخزن العضو `onInfoPressed`.
+  /// Holds the `onInfoPressed` member.
   final VoidCallback onInfoPressed;
+
+  /// يخزن العضو `onCallPressed`.
+  /// Holds the `onCallPressed` member.
   final VoidCallback? onCallPressed;
+
+  /// يخزن العضو `onVideoCallPressed`.
+  /// Holds the `onVideoCallPressed` member.
   final VoidCallback? onVideoCallPressed;
 
+  /// ينشئ مثيلاً من `ChatAppBar`.
+  /// Builds an instance of `ChatAppBar`.
   const ChatAppBar({
     super.key,
     required this.conversation,
@@ -26,18 +45,31 @@ class ChatAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.onVideoCallPressed,
   });
 
+  /// يعيد قيمة `preferredSize`.
+  /// Exposes the `preferredSize` value.
   @override
   Size get preferredSize => const Size.fromHeight(52); // Reduced from 56
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<ChatAppBar> createState() => _ChatAppBarState();
 }
 
-class _ChatAppBarState extends State<ChatAppBar> 
+/// يعرّف الكلاس `_ChatAppBarState`.
+/// Describes the `_ChatAppBarState` class.
+class _ChatAppBarState extends State<ChatAppBar>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_glowController`.
+  /// Holds the `_glowController` member.
   late AnimationController _glowController;
+
+  /// يخزن العضو `_glowAnimation`.
+  /// Holds the `_glowAnimation` member.
   late Animation<double> _glowAnimation;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -45,7 +77,7 @@ class _ChatAppBarState extends State<ChatAppBar>
       duration: const Duration(seconds: 3),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _glowAnimation = Tween<double>(
       begin: 0.3,
       end: 1.0,
@@ -55,24 +87,27 @@ class _ChatAppBarState extends State<ChatAppBar>
     ));
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _glowController.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     final otherParticipant = widget.conversation.isDirectChat
         ? widget.conversation.getOtherParticipant(widget.currentUserId)
         : null;
 
-    final displayName = widget.conversation.title ??
-        otherParticipant?.name ??
-        'محادثة';
+    final displayName =
+        widget.conversation.title ?? otherParticipant?.name ?? 'محادثة';
 
-    final displayImage = widget.conversation.avatar ??
-        otherParticipant?.profileImage;
+    final displayImage =
+        widget.conversation.avatar ?? otherParticipant?.profileImage;
 
     final statusText = _getStatusText();
 
@@ -108,9 +143,9 @@ class _ChatAppBarState extends State<ChatAppBar>
                     onPressed: widget.onBackPressed,
                     size: 16,
                   ),
-                  
+
                   const SizedBox(width: 6),
-                  
+
                   // User info - Compact and elegant
                   Expanded(
                     child: GestureDetector(
@@ -133,7 +168,8 @@ class _ChatAppBarState extends State<ChatAppBar>
                                   style: AppTextStyles.bodyMedium.copyWith(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 13,
-                                    color: AppTheme.textWhite.withValues(alpha: 0.9),
+                                    color: AppTheme.textWhite
+                                        .withValues(alpha: 0.9),
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -158,7 +194,7 @@ class _ChatAppBarState extends State<ChatAppBar>
                       ),
                     ),
                   ),
-                  
+
                   // Action buttons - Minimal style
                   if (widget.onCallPressed != null)
                     _buildMinimalIconButton(
@@ -186,6 +222,8 @@ class _ChatAppBarState extends State<ChatAppBar>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalIconButton`.
+  /// Runs the `_buildMinimalIconButton` operation.
   Widget _buildMinimalIconButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -209,19 +247,21 @@ class _ChatAppBarState extends State<ChatAppBar>
           ),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.05),
+            color: Colors.white.withValues(alpha: 0.05),
             width: 0.5,
           ),
         ),
         child: Icon(
           icon,
           size: size,
-                          color: AppTheme.textWhite.withValues(alpha: 0.7),
+          color: AppTheme.textWhite.withValues(alpha: 0.7),
         ),
       ),
     );
   }
 
+  /// ينفذ العملية `_buildPremiumAvatar`.
+  /// Runs the `_buildPremiumAvatar` operation.
   Widget _buildPremiumAvatar(String? imageUrl, String name) {
     return AnimatedBuilder(
       animation: _glowAnimation,
@@ -235,8 +275,8 @@ class _ChatAppBarState extends State<ChatAppBar>
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
                   colors: [
-                                  AppTheme.primaryBlue.withValues(alpha: 0.08),
-              AppTheme.primaryPurple.withValues(alpha: 0.04),
+                    AppTheme.primaryBlue.withValues(alpha: 0.08),
+                    AppTheme.primaryPurple.withValues(alpha: 0.04),
                   ],
                 ),
                 border: Border.all(
@@ -245,8 +285,8 @@ class _ChatAppBarState extends State<ChatAppBar>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryBlue.withValues(alpha:
-                      0.05 * _glowAnimation.value,
+                    color: AppTheme.primaryBlue.withValues(
+                      alpha: 0.05 * _glowAnimation.value,
                     ),
                     blurRadius: 8,
                     spreadRadius: 0.5,
@@ -285,8 +325,11 @@ class _ChatAppBarState extends State<ChatAppBar>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalOnlineIndicator`.
+  /// Runs the `_buildMinimalOnlineIndicator` operation.
   Widget _buildMinimalOnlineIndicator() {
-    final otherParticipant = widget.conversation.getOtherParticipant(widget.currentUserId);
+    final otherParticipant =
+        widget.conversation.getOtherParticipant(widget.currentUserId);
     if (otherParticipant == null || !otherParticipant.isOnline) {
       return const SizedBox.shrink();
     }
@@ -300,8 +343,8 @@ class _ChatAppBarState extends State<ChatAppBar>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                              AppTheme.success.withValues(alpha: 0.9),
-              AppTheme.neonGreen.withValues(alpha: 0.7),
+                AppTheme.success.withValues(alpha: 0.9),
+                AppTheme.neonGreen.withValues(alpha: 0.7),
               ],
             ),
             shape: BoxShape.circle,
@@ -311,8 +354,8 @@ class _ChatAppBarState extends State<ChatAppBar>
             ),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.success.withValues(alpha:
-                  0.3 + 0.1 * _glowAnimation.value,
+                color: AppTheme.success.withValues(
+                  alpha: 0.3 + 0.1 * _glowAnimation.value,
                 ),
                 blurRadius: 3 + 2 * _glowAnimation.value,
                 spreadRadius: 0.3,
@@ -324,11 +367,14 @@ class _ChatAppBarState extends State<ChatAppBar>
     );
   }
 
+  /// ينفذ العملية `_getStatusText`.
+  /// Runs the `_getStatusText` operation.
   String? _getStatusText() {
     if (widget.conversation.isDirectChat) {
-      final otherParticipant = widget.conversation.getOtherParticipant(widget.currentUserId);
+      final otherParticipant =
+          widget.conversation.getOtherParticipant(widget.currentUserId);
       if (otherParticipant == null) return null;
-      
+
       if (otherParticipant.isOnline) {
         return 'متصل';
       } else if (otherParticipant.lastSeen != null) {
@@ -345,21 +391,25 @@ class _ChatAppBarState extends State<ChatAppBar>
     return null;
   }
 
+  /// ينفذ العملية `_getStatusColor`.
+  /// Runs the `_getStatusColor` operation.
   Color _getStatusColor() {
     final otherParticipant = widget.conversation.isDirectChat
         ? widget.conversation.getOtherParticipant(widget.currentUserId)
         : null;
-    
+
     if (otherParticipant?.isOnline == true) {
       return AppTheme.success.withValues(alpha: 0.8);
     }
     return AppTheme.textMuted.withValues(alpha: 0.6);
   }
 
+  /// ينفذ العملية `_formatLastSeen`.
+  /// Runs the `_formatLastSeen` operation.
   String _formatLastSeen(DateTime lastSeen) {
     final now = DateTime.now();
     final difference = now.difference(lastSeen);
-    
+
     if (difference.inMinutes < 1) {
       return 'الآن';
     } else if (difference.inMinutes < 60) {
@@ -373,6 +423,8 @@ class _ChatAppBarState extends State<ChatAppBar>
     }
   }
 
+  /// ينفذ العملية `_getInitials`.
+  /// Runs the `_getInitials` operation.
   String _getInitials(String name) {
     final parts = name.trim().split(' ');
     if (parts.isEmpty) return '';

@@ -1,14 +1,15 @@
 import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:hggzkportal/core/theme/app_colors.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import 'package:hggzkportal/core/utils/time_ago_helper.dart';
 
-/// Widget لعرض آخر ظهور للمستخدم بشكل أنيق
 class LastSeenWidget extends StatelessWidget {
   final DateTime? lastSeen;
+
   final LastSeenStyle style;
+
   final bool showIcon;
+
   final bool showAnimation;
 
   const LastSeenWidget({
@@ -43,10 +44,10 @@ class LastSeenWidget extends StatelessWidget {
       width: double.infinity, // يمتد على عرض الكرت
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: color.withOpacity(0.25),
+          color: color.withValues(alpha: 0.25),
           width: 0.5,
         ),
       ),
@@ -86,13 +87,13 @@ class LastSeenWidget extends StatelessWidget {
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: [
-            color.withOpacity(0.12),
-            color.withOpacity(0.04),
+            color.withValues(alpha: 0.12),
+            color.withValues(alpha: 0.04),
           ],
         ),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -116,7 +117,7 @@ class LastSeenWidget extends StatelessWidget {
           Text(
             '•',
             style: TextStyle(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
               fontSize: 8,
             ),
           ),
@@ -150,7 +151,7 @@ class LastSeenWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -232,7 +233,7 @@ class LastSeenWidget extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.5),
+            color: color.withValues(alpha: 0.5),
             blurRadius: 4,
             spreadRadius: 1,
           ),
@@ -255,7 +256,7 @@ class LastSeenWidget extends StatelessWidget {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: color.withOpacity(0.6 * value),
+                color: color.withValues(alpha: 0.6 * value),
                 blurRadius: 8 * value,
                 spreadRadius: 2 * value,
               ),
@@ -296,7 +297,6 @@ class LastSeenWidget extends StatelessWidget {
   }
 }
 
-/// Different styles for displaying last seen
 enum LastSeenStyle {
   compact, // Small compact badge
   detailed, // Detailed card with status label

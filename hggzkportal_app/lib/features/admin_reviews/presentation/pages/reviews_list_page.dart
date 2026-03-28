@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../injection_container.dart' as di;
@@ -19,24 +18,20 @@ import 'review_details_page.dart';
 import 'package:hggzkportal/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:hggzkportal/features/auth/presentation/bloc/auth_state.dart';
 import 'package:hggzkportal/features/auth/domain/entities/user.dart' as domain;
-
 class ReviewsListPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewsListPage`.
   const ReviewsListPage({super.key});
-
   @override
   State<ReviewsListPage> createState() => _ReviewsListPageState();
 }
-
 class _ReviewsListPageState extends State<ReviewsListPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
   bool _isGridView = false;
   final ScrollController _scrollController = ScrollController();
   bool _showBackToTop = false;
-
   @override
   void initState() {
     super.initState();
@@ -98,17 +93,14 @@ class _ReviewsListPageState extends State<ReviewsListPage>
         _showBackToTop = _scrollController.offset > 200;
       });
     });
-
     _loadReviews(pageNumber: 1, pageSize: 20);
   }
-
   @override
   void dispose() {
     _animationController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
-
   void _loadReviews({int pageNumber = 1, int pageSize = 20}) {
     final authState = context.read<AuthBloc>().state;
     domain.User? user;
@@ -135,7 +127,6 @@ class _ReviewsListPageState extends State<ReviewsListPage>
           );
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -165,8 +156,8 @@ class _ReviewsListPageState extends State<ReviewsListPage>
                   end: Alignment.bottomRight,
                   colors: [
                     AppTheme.darkBackground,
-                    AppTheme.darkBackground2.withOpacity(0.8),
-                    AppTheme.primaryPurple.withOpacity(0.05),
+                    AppTheme.darkBackground2.withValues(alpha: 0.8),
+                    AppTheme.primaryPurple.withValues(alpha: 0.05),
                   ],
                 ),
               ),
@@ -439,7 +430,6 @@ class _ReviewsListPageState extends State<ReviewsListPage>
       ),
     );
   }
-
   void _showDisableConfirmation(BuildContext context, String reviewId) {
     // 🎯 حفظ مرجع للـ bloc قبل فتح الـ Dialog
     final reviewsBloc = context.read<ReviewsListBloc>();
@@ -477,7 +467,6 @@ class _ReviewsListPageState extends State<ReviewsListPage>
       },
     );
   }
-
   List<Widget> _buildFloatingOrbs() {
     return [
       Positioned(
@@ -496,8 +485,8 @@ class _ReviewsListPageState extends State<ReviewsListPage>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppTheme.primaryBlue.withOpacity(0.1 * value),
-                      AppTheme.primaryBlue.withOpacity(0.01),
+                      AppTheme.primaryBlue.withValues(alpha: 0.1 * value),
+                      AppTheme.primaryBlue.withValues(alpha: 0.01),
                     ],
                   ),
                 ),
@@ -522,8 +511,8 @@ class _ReviewsListPageState extends State<ReviewsListPage>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppTheme.primaryPurple.withOpacity(0.08 * value),
-                      AppTheme.primaryPurple.withOpacity(0.01),
+                      AppTheme.primaryPurple.withValues(alpha: 0.08 * value),
+                      AppTheme.primaryPurple.withValues(alpha: 0.01),
                     ],
                   ),
                 ),
@@ -534,7 +523,6 @@ class _ReviewsListPageState extends State<ReviewsListPage>
       ),
     ];
   }
-
   Widget _buildPremiumAppBar(BuildContext context, bool isDesktop) {
     // محاذاة التصميم مع شريط تطبيق صفحة الحجوزات
     return SliverAppBar(
@@ -550,7 +538,7 @@ class _ReviewsListPageState extends State<ReviewsListPage>
             color: AppTheme.textWhite,
             shadows: [
               Shadow(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                 blurRadius: 10,
               ),
             ],
@@ -562,7 +550,7 @@ class _ReviewsListPageState extends State<ReviewsListPage>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.1),
+                AppTheme.primaryBlue.withValues(alpha: 0.1),
                 AppTheme.darkBackground,
               ],
             ),
@@ -584,7 +572,6 @@ class _ReviewsListPageState extends State<ReviewsListPage>
       ],
     );
   }
-
   Widget _buildStatsSection(bool isDesktop, bool isTablet) {
     return BlocBuilder<ReviewsListBloc, ReviewsListState>(
       builder: (context, state) {
@@ -613,7 +600,6 @@ class _ReviewsListPageState extends State<ReviewsListPage>
       },
     );
   }
-
   bool? _extractHasNextFromStats(Map<String, dynamic>? stats) {
     if (stats == null) return null;
     final v = stats['hasNextPage'] ?? stats['hasMore'] ?? stats['HasNextPage'];
@@ -622,7 +608,6 @@ class _ReviewsListPageState extends State<ReviewsListPage>
     if (v is num) return v > 0;
     return null;
   }
-
   int? _extractNextPageFromStats(Map<String, dynamic>? stats) {
     if (stats == null) return null;
     final v = stats['nextPage'] ?? stats['nextPageNumber'] ?? stats['NextPage'];
@@ -631,21 +616,18 @@ class _ReviewsListPageState extends State<ReviewsListPage>
     if (v is num) return v.toInt();
     return null;
   }
-
   int? _parseInt(Object? v) {
     if (v is int) return v;
     if (v is num) return v.toInt();
     if (v is String) return int.tryParse(v);
     return null;
   }
-
   double? _parseDouble(Object? v) {
     if (v is double) return v;
     if (v is num) return v.toDouble();
     if (v is String) return double.tryParse(v);
     return null;
   }
-
   Widget _buildViewToggle() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -656,9 +638,9 @@ class _ReviewsListPageState extends State<ReviewsListPage>
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: AppTheme.darkCard.withOpacity(0.5),
+              color: AppTheme.darkCard.withValues(alpha: 0.5),
               border: Border.all(
-                color: AppTheme.glowBlue.withOpacity(0.2),
+                color: AppTheme.glowBlue.withValues(alpha: 0.2),
                 width: 0.5,
               ),
             ),
@@ -688,7 +670,6 @@ class _ReviewsListPageState extends State<ReviewsListPage>
       ),
     );
   }
-
   Widget _buildToggleButton({
     required IconData icon,
     required bool isSelected,
@@ -702,7 +683,7 @@ class _ReviewsListPageState extends State<ReviewsListPage>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           color: isSelected
-              ? AppTheme.primaryBlue.withOpacity(0.2)
+              ? AppTheme.primaryBlue.withValues(alpha: 0.2)
               : Colors.transparent,
         ),
         child: Icon(
@@ -710,12 +691,11 @@ class _ReviewsListPageState extends State<ReviewsListPage>
           size: 20,
           color: isSelected
               ? AppTheme.glowBlue
-              : AppTheme.textLight.withOpacity(0.5),
+              : AppTheme.textLight.withValues(alpha: 0.5),
         ),
       ),
     );
   }
-
   Widget _buildReviewsGrid(
     List<dynamic> reviews, {
     required bool isTablet,
@@ -755,45 +735,6 @@ class _ReviewsListPageState extends State<ReviewsListPage>
       ),
     );
   }
-
-  Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: AppTheme.primaryGradient,
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.glowBlue.withOpacity(0.5),
-                  blurRadius: 30,
-                  spreadRadius: 5,
-                ),
-              ],
-            ),
-            child: const Center(
-              child: CircularProgressIndicator(
-                color: Colors.white,
-                strokeWidth: 3,
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'جاري تحميل التقييمات...',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textLight,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildErrorState(String message) {
     return Center(
       child: Column(
@@ -803,9 +744,9 @@ class _ReviewsListPageState extends State<ReviewsListPage>
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: AppTheme.error.withOpacity(0.1),
+              color: AppTheme.error.withValues(alpha: 0.1),
               border: Border.all(
-                color: AppTheme.error.withOpacity(0.3),
+                color: AppTheme.error.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -856,7 +797,6 @@ class _ReviewsListPageState extends State<ReviewsListPage>
       ),
     );
   }
-
   Widget _buildEmptyState() {
     // Use a scroll-safe layout to avoid RenderFlex overflow on small heights
     // (e.g. in landscape, split-screen, or when system insets reduce space).
@@ -880,8 +820,8 @@ class _ReviewsListPageState extends State<ReviewsListPage>
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
                         colors: [
-                          AppTheme.primaryBlue.withOpacity(0.1),
-                          AppTheme.primaryPurple.withOpacity(0.1),
+                          AppTheme.primaryBlue.withValues(alpha: 0.1),
+                          AppTheme.primaryPurple.withValues(alpha: 0.1),
                         ],
                       ),
                     ),
@@ -915,7 +855,6 @@ class _ReviewsListPageState extends State<ReviewsListPage>
       },
     );
   }
-
   Widget _buildFloatingActionButton() {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
@@ -929,7 +868,7 @@ class _ReviewsListPageState extends State<ReviewsListPage>
               gradient: AppTheme.primaryGradient,
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.glowBlue.withOpacity(0.5),
+                  color: AppTheme.glowBlue.withValues(alpha: 0.5),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -962,7 +901,6 @@ class _ReviewsListPageState extends State<ReviewsListPage>
       },
     );
   }
-
   void _navigateToDetails(BuildContext context, String reviewId) {
     HapticFeedback.lightImpact();
     Navigator.push(
@@ -992,7 +930,6 @@ class _ReviewsListPageState extends State<ReviewsListPage>
       ),
     );
   }
-
   void _showDeleteConfirmation(BuildContext context, String reviewId) {
     HapticFeedback.mediumImpact();
     // 🎯 حفظ مرجع للـ bloc قبل فتح الـ Dialog
@@ -1012,12 +949,12 @@ class _ReviewsListPageState extends State<ReviewsListPage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.error.withOpacity(0.3),
+                color: AppTheme.error.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.error.withOpacity(0.2),
+                  color: AppTheme.error.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -1030,7 +967,7 @@ class _ReviewsListPageState extends State<ReviewsListPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.error.withOpacity(0.1),
+                    color: AppTheme.error.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.delete_outline,
@@ -1106,7 +1043,6 @@ class _ReviewsListPageState extends State<ReviewsListPage>
       ),
     );
   }
-
   void _showApproveConfirmation(BuildContext context, String reviewId) {
     HapticFeedback.mediumImpact();
     final reviewsListBloc = context.read<ReviewsListBloc>();
@@ -1124,12 +1060,12 @@ class _ReviewsListPageState extends State<ReviewsListPage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.success.withOpacity(0.3),
+                color: AppTheme.success.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.success.withOpacity(0.2),
+                  color: AppTheme.success.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -1142,7 +1078,7 @@ class _ReviewsListPageState extends State<ReviewsListPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.success.withOpacity(0.1),
+                    color: AppTheme.success.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.check_circle_outline,

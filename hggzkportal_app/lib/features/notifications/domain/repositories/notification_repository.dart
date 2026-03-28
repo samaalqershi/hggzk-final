@@ -4,7 +4,9 @@ import '../../../../core/models/paginated_result.dart';
 import '../entities/notification.dart';
 
 abstract class NotificationRepository {
-  Future<Either<Failure, PaginatedResult<NotificationEntity>>> getNotifications({
+  Future<Either<Failure, PaginatedResult<NotificationEntity>>>
+
+      getNotifications({
     int page = 1,
     int limit = 20,
     String? type,
@@ -18,7 +20,8 @@ abstract class NotificationRepository {
 
   Future<Either<Failure, Map<String, bool>>> getNotificationSettings();
 
-  Future<Either<Failure, void>> updateNotificationSettings(Map<String, bool> settings);
+  Future<Either<Failure, void>> updateNotificationSettings(
+      Map<String, bool> settings);
 
   Future<Either<Failure, int>> getUnreadCount();
 }

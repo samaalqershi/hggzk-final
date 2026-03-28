@@ -7,15 +7,14 @@ import '../../../../../../core/theme/app_theme.dart';
 import '../../../../../../core/theme/app_text_styles.dart';
 
 class RevenueChartWidget extends StatefulWidget {
+  /// العربية: يخزن القيمة `data`.
   final List<PaymentTrend> data;
   final double height;
-
   const RevenueChartWidget({
     super.key,
     required this.data,
     this.height = 300,
   });
-
   @override
   State<RevenueChartWidget> createState() => _RevenueChartWidgetState();
 }
@@ -25,7 +24,6 @@ class _RevenueChartWidgetState extends State<RevenueChartWidget>
   late AnimationController _animationController;
   late Animation<double> _animation;
   int? _touchedIndex;
-
   @override
   void initState() {
     super.initState();

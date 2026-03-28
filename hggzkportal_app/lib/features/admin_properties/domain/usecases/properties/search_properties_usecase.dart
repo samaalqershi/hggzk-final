@@ -8,6 +8,7 @@ import '../../entities/property.dart';
 import '../../repositories/properties_repository.dart';
 
 class SearchPropertiesParams {
+  /// العربية: يخزن القيمة `city`.
   final String? city;
   final String? checkIn;
   final String? checkOut;
@@ -26,7 +27,6 @@ class SearchPropertiesParams {
   final double? latitude;
   final double? longitude;
   final double? radiusKm;
-  
   SearchPropertiesParams({
     this.city,
     this.checkIn,
@@ -49,13 +49,13 @@ class SearchPropertiesParams {
   });
 }
 
-class SearchPropertiesUseCase implements UseCase<PaginatedResult<Property>, SearchPropertiesParams> {
+class SearchPropertiesUseCase
+    implements UseCase<PaginatedResult<Property>, SearchPropertiesParams> {
   final PropertiesRepository repository;
-  
   SearchPropertiesUseCase(this.repository);
-  
   @override
-  Future<Either<Failure, PaginatedResult<Property>>> call(SearchPropertiesParams params) async {
+  Future<Either<Failure, PaginatedResult<Property>>> call(
+      SearchPropertiesParams params) async {
     return await repository.getAllProperties(
       pageNumber: params.pageNumber,
       pageSize: params.pageSize,

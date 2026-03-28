@@ -4,13 +4,21 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/glassmorphic_tooltip.dart';
 
 class PolicyStatsCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `title`.
   final String title;
+
   final String value;
+
   final IconData icon;
+
   final Color color;
+
   final String trend;
+
   final bool isPositive;
+
   final String? detailedDescription;
+
   final Map<String, dynamic>? additionalStats;
 
   const PolicyStatsCard({
@@ -32,8 +40,11 @@ class PolicyStatsCard extends StatefulWidget {
 class _PolicyStatsCardState extends State<PolicyStatsCard>
     with SingleTickerProviderStateMixin {
   final GlobalKey _cardKey = GlobalKey();
+
   late AnimationController _scaleController;
+
   late Animation<double> _scaleAnimation;
+
   bool _isPressed = false;
 
   @override
@@ -83,11 +94,11 @@ class _PolicyStatsCardState extends State<PolicyStatsCard>
 
   String _buildDetailedMessage() {
     String description = widget.detailedDescription ?? _getDefaultDescription();
-    
+
     // Add value prominently
     String message = '📊 القيمة الحالية: ${widget.value}\n\n';
     message += description;
-    
+
     // Add additional stats if available
     if (widget.additionalStats != null && widget.additionalStats!.isNotEmpty) {
       message += '\n\n📈 تفاصيل إضافية:';
@@ -95,7 +106,7 @@ class _PolicyStatsCardState extends State<PolicyStatsCard>
         message += '\n• $key: $value';
       });
     }
-    
+
     return message;
   }
 

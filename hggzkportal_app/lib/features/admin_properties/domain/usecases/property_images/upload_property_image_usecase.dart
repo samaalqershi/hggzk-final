@@ -9,9 +9,7 @@ import '../../repositories/property_images_repository.dart';
 class UploadPropertyImageUseCase
     implements UseCase<PropertyImage, UploadImageParams> {
   final PropertyImagesRepository repository;
-
   UploadPropertyImageUseCase(this.repository);
-
   @override
   Future<Either<Failure, PropertyImage>> call(UploadImageParams params) async {
     return await repository.uploadImage(
@@ -29,6 +27,7 @@ class UploadPropertyImageUseCase
 }
 
 class UploadImageParams {
+  /// العربية: يخزن القيمة `propertyId`.
   final String? propertyId;
   final String? tempKey;
   final String filePath;
@@ -38,7 +37,6 @@ class UploadImageParams {
   final int? order;
   final List<String>? tags;
   final void Function(int sent, int total)? onSendProgress;
-
   UploadImageParams({
     this.propertyId,
     this.tempKey,

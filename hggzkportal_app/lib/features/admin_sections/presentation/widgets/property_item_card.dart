@@ -13,8 +13,11 @@ import 'property_in_section_image_gallery.dart';
 import 'package:hggzkportal/injection_container.dart' as di;
 
 class PropertyItemCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `property`.
   final PropertyInSection property;
+
   final VoidCallback? onRemove;
+
   final bool isReordering;
 
   const PropertyItemCard({
@@ -32,12 +35,14 @@ class _PropertyItemCardState extends State<PropertyItemCard>
     with SingleTickerProviderStateMixin {
   // Animation controller for media panel
   late AnimationController _animationController;
+
   late Animation<double> _slideAnimation;
 
   // Media management
   bool _showMediaPanel = false;
-  String? _tempKey;
+
   List<SectionImage> _selectedImages = [];
+
   List<String> _selectedLocalImages = [];
   final GlobalKey<PropertyInSectionGalleryState> _galleryKey = GlobalKey();
 
@@ -57,7 +62,7 @@ class _PropertyItemCardState extends State<PropertyItemCard>
     ));
 
     // Initialize images from property
-    _selectedImages = widget.property.additionalImages ?? [];
+    _selectedImages = widget.property.additionalImages;
   }
 
   @override
@@ -70,9 +75,6 @@ class _PropertyItemCardState extends State<PropertyItemCard>
     setState(() {
       _showMediaPanel = !_showMediaPanel;
       if (_showMediaPanel) {
-        // Generate temp key for this session
-        _tempKey =
-            '${widget.property.id}_${DateTime.now().millisecondsSinceEpoch}';
         _animationController.forward();
       } else {
         _animationController.reverse();
@@ -421,7 +423,6 @@ class _PropertyItemCardState extends State<PropertyItemCard>
               child: PropertyInSectionGallery(
                 key: _galleryKey,
                 propertyInSectionId: widget.property.id,
-                // tempKey: _tempKey,
                 isReadOnly: false,
                 maxImages: 20,
                 maxVideos: 5,

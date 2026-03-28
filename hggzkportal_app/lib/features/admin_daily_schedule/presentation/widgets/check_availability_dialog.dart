@@ -9,8 +9,11 @@ import '../../domain/entities/schedule_params.dart';
 import '../bloc/daily_schedule_barrel.dart';
 
 class CheckAvailabilityDialog extends StatefulWidget {
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
+
   final DateTime? initialStartDate;
+
   final DateTime? initialEndDate;
 
   const CheckAvailabilityDialog({
@@ -62,9 +65,13 @@ class CheckAvailabilityDialog extends StatefulWidget {
 }
 
 class _CheckAvailabilityDialogState extends State<CheckAvailabilityDialog> {
+  /// العربية: يخزن القيمة `startDate`.
   late DateTime _startDate;
+
   late DateTime _endDate;
+
   bool _isChecking = false;
+
   CheckAvailabilityResponse? _result;
 
   @override
@@ -86,18 +93,18 @@ class _CheckAvailabilityDialogState extends State<CheckAvailabilityDialog> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryBlue.withOpacity(0.2),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -197,10 +204,10 @@ class _CheckAvailabilityDialogState extends State<CheckAvailabilityDialog> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppTheme.info.withOpacity(0.1),
+            color: AppTheme.info.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.info.withOpacity(0.3),
+              color: AppTheme.info.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -236,13 +243,13 @@ class _CheckAvailabilityDialogState extends State<CheckAvailabilityDialog> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkSurface.withOpacity(0.6),
-              AppTheme.darkSurface.withOpacity(0.4),
+              AppTheme.darkSurface.withValues(alpha: 0.6),
+              AppTheme.darkSurface.withValues(alpha: 0.4),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -289,14 +296,16 @@ class _CheckAvailabilityDialogState extends State<CheckAvailabilityDialog> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            (isAvailable ? AppTheme.success : AppTheme.error).withOpacity(0.15),
-            (isAvailable ? AppTheme.success : AppTheme.error).withOpacity(0.05),
+            (isAvailable ? AppTheme.success : AppTheme.error)
+                .withValues(alpha: 0.15),
+            (isAvailable ? AppTheme.success : AppTheme.error)
+                .withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: (isAvailable ? AppTheme.success : AppTheme.error)
-              .withOpacity(0.3),
+              .withValues(alpha: 0.3),
         ),
       ),
       child: Column(

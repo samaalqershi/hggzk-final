@@ -3,19 +3,55 @@ import '../theme/app_theme.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_dimensions.dart';
 
+/// يعرض السعر بصيغ متعددة تناسب البطاقات الموجزة أو العروض التفصيلية.
+/// Renders prices in multiple layouts for compact cards or detailed views.
 class PriceWidget extends StatelessWidget {
+  /// السعر الحالي المعروض للمستخدم.
+  /// Current price shown to the user.
   final double price;
+
+  /// السعر الأصلي عندما نحتاج إظهار خصم أو مقارنة.
+  /// Original price used for discounts or comparison.
   final double? originalPrice;
+
+  /// رمز العملة الذي يظهر بجانب الرقم.
+  /// Currency code or symbol displayed beside the value.
   final String currency;
+
+  /// النمط البصري المستخدم لعرض السعر.
+  /// Visual style used to present the price.
   final PriceDisplayType displayType;
+
+  /// نمط النص للسعر الحالي عندما يحتاج المستدعي تخصيصًا.
+  /// Text style for the current price when the caller needs customization.
   final TextStyle? priceStyle;
+
+  /// نمط النص للسعر الأصلي في حالة وجود خصم.
+  /// Text style for the original price when a discount exists.
   final TextStyle? originalPriceStyle;
+
+  /// نمط العملة بجانب السعر إن احتاجت الواجهة ضبطًا أدق.
+  /// Text style for the currency label when fine control is needed.
   final TextStyle? currencyStyle;
+
+  /// الفترة التي يخصها السعر مثل الليلة أو الشهر.
+  /// Period that the price applies to, such as per night or per month.
   final String? period;
+
+  /// يحدد ما إذا كان رمز العملة يجب أن يظهر بجانب الرقم.
+  /// Controls whether the currency label should appear next to the value.
   final bool showCurrencySymbol;
+
+  /// محاذاة صف السعر وما يجاوره.
+  /// Alignment for the price row and its companions.
   final MainAxisAlignment alignment;
+
+  /// يحدد ما إذا كان السعر ينتقل بعدّاد متحرك بدل الظهور الفوري.
+  /// Controls whether the price animates into view instead of appearing instantly.
   final bool animate;
 
+  /// ينشئ عنصر السعر مع إعدادات العرض التي تحتاجها الواجهة.
+  /// Creates the price widget with the presentation options the screen needs.
   const PriceWidget({
     super.key,
     required this.price,
@@ -31,6 +67,8 @@ class PriceWidget extends StatelessWidget {
     this.animate = false,
   });
 
+  /// يختار شكل عرض السعر المناسب وفق النمط المحدد.
+  /// Chooses the appropriate price layout based on the selected display type.
   @override
   Widget build(BuildContext context) {
     switch (displayType) {
@@ -45,6 +83,8 @@ class PriceWidget extends StatelessWidget {
     }
   }
 
+  /// يعرض السعر بصيغة بسيطة تناسب البطاقات أو العناوين القصيرة.
+  /// Shows a simple price layout for cards or short headings.
   Widget _buildNormalPrice(BuildContext context) {
     final Widget priceWidget = Row(
       mainAxisAlignment: alignment,
@@ -108,6 +148,8 @@ class PriceWidget extends StatelessWidget {
     return priceWidget;
   }
 
+  /// يعرض السعر الحالي مع السعر الأصلي وشارة الخصم.
+  /// Shows the current price with the original price and a discount badge.
   Widget _buildDiscountPrice(BuildContext context) {
     if (originalPrice == null || originalPrice == price) {
       return _buildNormalPrice(context);
@@ -191,6 +233,8 @@ class PriceWidget extends StatelessWidget {
     );
   }
 
+  /// يعرض السعر في شارة صغيرة مناسبة للأماكن الضيقة.
+  /// Renders the price inside a compact badge for tight spaces.
   Widget _buildCompactPrice(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -225,6 +269,8 @@ class PriceWidget extends StatelessWidget {
     );
   }
 
+  /// يعرض السعر داخل بطاقة تفصيلية تناسب صفحة العقار أو الحجز.
+  /// Renders the price inside a detailed card for property or booking pages.
   Widget _buildDetailedPrice(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -285,6 +331,8 @@ class PriceWidget extends StatelessWidget {
     );
   }
 
+  /// يحول الرقم إلى صيغة مختصرة مثل K أو M عندما يصبح كبيرًا.
+  /// Converts large numbers into compact K or M notation.
   String _formatPrice(double value) {
     if (value >= 1000000) {
       return '${(value / 1000000).toStringAsFixed(1)}M';
@@ -295,6 +343,8 @@ class PriceWidget extends StatelessWidget {
   }
 }
 
+/// يحدد صيغ عرض السعر المتاحة حتى تبقى الواجهات متسقة وآمنة نوعيًا.
+/// Enumerates the available price presentation modes.
 enum PriceDisplayType {
   normal,
   discount,

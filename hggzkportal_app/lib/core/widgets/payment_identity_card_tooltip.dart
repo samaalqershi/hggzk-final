@@ -9,7 +9,6 @@ import '../utils/formatters.dart';
 class PaymentIdentityCardTooltip {
   static OverlayEntry? _overlayEntry;
   static final GlobalKey<_PaymentCardContentState> _contentKey = GlobalKey();
-
   static void show({
     required BuildContext context,
     required GlobalKey targetKey,
@@ -71,7 +70,6 @@ class PaymentIdentityCardTooltip {
 
     Overlay.of(context).insert(_overlayEntry!);
   }
-
   static void hide() {
     _contentKey.currentState?.animateOut(() {
       _overlayEntry?.remove();
@@ -79,7 +77,6 @@ class PaymentIdentityCardTooltip {
     });
   }
 }
-
 class _PaymentCardOverlay extends StatelessWidget {
   final GlobalKey targetKey;
   final String paymentId;
@@ -106,7 +103,6 @@ class _PaymentCardOverlay extends StatelessWidget {
   final String? voidReason;
   final String? notes;
   final GlobalKey<_PaymentCardContentState> contentKey;
-
   const _PaymentCardOverlay({
     required this.targetKey,
     required this.paymentId,
@@ -134,7 +130,6 @@ class _PaymentCardOverlay extends StatelessWidget {
     this.notes,
     required this.contentKey,
   });
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -177,7 +172,6 @@ class _PaymentCardOverlay extends StatelessWidget {
     );
   }
 }
-
 class _PaymentCardContent extends StatefulWidget {
   final GlobalKey targetKey;
   final String paymentId;
@@ -203,7 +197,6 @@ class _PaymentCardContent extends StatefulWidget {
   final DateTime? voidedAt;
   final String? voidReason;
   final String? notes;
-
   const _PaymentCardContent({
     super.key,
     required this.targetKey,
@@ -231,17 +224,14 @@ class _PaymentCardContent extends StatefulWidget {
     this.voidReason,
     this.notes,
   });
-
   @override
   State<_PaymentCardContent> createState() => _PaymentCardContentState();
 }
-
 class _PaymentCardContentState extends State<_PaymentCardContent>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
-
   @override
   void initState() {
     super.initState();
@@ -260,17 +250,14 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
 
     _controller.forward();
   }
-
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-
   void animateOut(VoidCallback onComplete) {
     _controller.reverse().then((_) => onComplete());
   }
-
   Color _getStatusColor() {
     switch (widget.status.toLowerCase()) {
       case 'successful':
@@ -288,7 +275,6 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
         return AppTheme.textMuted;
     }
   }
-
   IconData _getStatusIcon() {
     switch (widget.status.toLowerCase()) {
       case 'successful':
@@ -308,7 +294,6 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
         return CupertinoIcons.creditcard_fill;
     }
   }
-
   String _getStatusText() {
     switch (widget.status.toLowerCase()) {
       case 'successful':
@@ -329,7 +314,6 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
         return widget.status;
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -352,7 +336,7 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: statusColor.withOpacity(0.3),
+                      color: statusColor.withValues(alpha: 0.3),
                       blurRadius: 30,
                       offset: const Offset(0, 10),
                     ),
@@ -364,10 +348,10 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
                     filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: AppTheme.darkCard.withOpacity(0.95),
+                        color: AppTheme.darkCard.withValues(alpha: 0.95),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: statusColor.withOpacity(0.3),
+                          color: statusColor.withValues(alpha: 0.3),
                           width: 2,
                         ),
                       ),
@@ -390,7 +374,6 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
       },
     );
   }
-
   Widget _buildHeader(Color statusColor) {
     return Container(
       padding: const EdgeInsets.all(16), // 🎯 تقليل padding
@@ -399,13 +382,13 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            statusColor.withOpacity(0.15), // 🎯 شفافية أقل
-            statusColor.withOpacity(0.03),
+            statusColor.withValues(alpha: 0.15), // 🎯 شفافية أقل
+            statusColor.withValues(alpha: 0.03),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: statusColor.withOpacity(0.15), // 🎯 حدود أخف
+            color: statusColor.withValues(alpha: 0.15), // 🎯 حدود أخف
             width: 1,
           ),
         ),
@@ -418,7 +401,7 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [statusColor, statusColor.withOpacity(0.7)],
+                    colors: [statusColor, statusColor.withValues(alpha: 0.7)],
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -458,10 +441,10 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.2),
+                  color: statusColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: statusColor.withOpacity(0.5),
+                    color: statusColor.withValues(alpha: 0.5),
                   ),
                 ),
                 child: Text(
@@ -479,7 +462,7 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.darkBackground.withOpacity(0.3),
+              color: AppTheme.darkBackground.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -518,7 +501,6 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
       ),
     );
   }
-
   Widget _buildContent() {
     return Padding(
       padding: const EdgeInsets.all(16), // 🎯 تقليل padding
@@ -557,7 +539,7 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
               ],
             ),
           ],
-          if (widget.processedBy != null || widget.processedAt != null) ... [
+          if (widget.processedBy != null || widget.processedAt != null) ...[
             const SizedBox(height: 12),
             _buildSection(
               'معلومات المعالجة',
@@ -573,7 +555,7 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
               ],
             ),
           ],
-          if (widget.refundedAmount != null && widget.refundedAmount! > 0) ... [
+          if (widget.refundedAmount != null && widget.refundedAmount! > 0) ...[
             const SizedBox(height: 12),
             _buildSection(
               'معلومات الاسترداد',
@@ -599,7 +581,7 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
               ],
             ),
           ],
-          if (widget.isVoided == true) ... [
+          if (widget.isVoided == true) ...[
             const SizedBox(height: 12),
             _buildSection(
               'معلومات الإلغاء',
@@ -615,7 +597,7 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
               ],
             ),
           ],
-          if (widget.notes != null && widget.notes!.isNotEmpty) ... [
+          if (widget.notes != null && widget.notes!.isNotEmpty) ...[
             const SizedBox(height: 12),
             _buildSection(
               'ملاحظات',
@@ -624,7 +606,7 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.darkBackground.withOpacity(0.3),
+                    color: AppTheme.darkBackground.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -642,7 +624,6 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
       ),
     );
   }
-
   Widget _buildSection(String title, IconData icon, List<Widget> children) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -666,7 +647,6 @@ class _PaymentCardContentState extends State<_PaymentCardContent>
       ],
     );
   }
-
   Widget _buildInfoRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),

@@ -2,7 +2,6 @@
 
 import 'package:intl/intl.dart';
 import '../constants/app_constants.dart';
-
 class Formatters {
   Formatters._();
 

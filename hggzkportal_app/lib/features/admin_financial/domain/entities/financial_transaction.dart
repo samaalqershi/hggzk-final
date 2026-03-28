@@ -4,7 +4,6 @@ import 'package:equatable/equatable.dart';
 
 import 'chart_of_account.dart';
 
-/// 💳 كيان القيود المحاسبية
 class FinancialTransaction extends Equatable {
   final String id;
   final String transactionNumber;
@@ -65,7 +64,6 @@ class FinancialTransaction extends Equatable {
   final DateTime? updatedAt;
   final bool isAutomatic;
   final String? automaticSource;
-
   const FinancialTransaction({
     required this.id,
     required this.transactionNumber,
@@ -241,7 +239,6 @@ class FinancialTransaction extends Equatable {
       ];
 }
 
-/// 📋 نوع القيد المحاسبي - متوافق مع ترتيب Backend
 enum JournalEntryType {
   generalJournal('قيد يومية عام', 'General Journal'),
   sales('قيد مبيعات', 'Sales'),
@@ -258,7 +255,6 @@ enum JournalEntryType {
   const JournalEntryType(this.nameAr, this.nameEn);
 }
 
-/// 💰 نوع المعاملة المالية - متوافق مع Backend
 enum TransactionType {
   newBooking('حجز جديد', 'New Booking'),
   advancePayment('دفعة مقدمة', 'Advance Payment'),
@@ -286,7 +282,6 @@ enum TransactionType {
   const TransactionType(this.nameAr, this.nameEn);
 }
 
-/// 🚦 حالة القيد - متوافق مع Backend
 enum TransactionStatus {
   draft('مسودة', 'Draft'),
   pending('معلق', 'Pending'),

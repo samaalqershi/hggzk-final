@@ -11,8 +11,11 @@ import '../../domain/entities/notification.dart';
 
 class NotificationItemWidget extends StatefulWidget {
   final NotificationEntity notification;
+
   final VoidCallback? onTap;
+
   final VoidCallback? onDismiss;
+
   final VoidCallback? onMarkAsRead;
 
   const NotificationItemWidget({
@@ -30,7 +33,9 @@ class NotificationItemWidget extends StatefulWidget {
 class _NotificationItemWidgetState extends State<NotificationItemWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   bool _isHovered = false;
+
   bool _isDismissed = false;
 
   @override

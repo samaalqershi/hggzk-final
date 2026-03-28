@@ -1,21 +1,73 @@
 import 'package:equatable/equatable.dart';
 import 'payment.dart';
 
-/// 💸 Entity للاسترداد
+/// Represents a refund request or completed reversal linked to a payment.
+///
+/// يمثل طلب استرداد أو عملية عكس مرتبطة بدفعة.
 class Refund extends Equatable {
+  /// Stable refund identifier.
+  ///
+  /// المعرّف الثابت للاسترداد.
   final String id;
+
+  /// Payment that this refund belongs to.
+  ///
+  /// الدفعة التي ينتمي إليها هذا الاسترداد.
   final String paymentId;
+
+  /// Refund amount expressed in the original payment currency.
+  ///
+  /// مبلغ الاسترداد بالعملة الأصلية للدفع.
   final Money amount;
+
+  /// Human-readable reason submitted for the refund.
+  ///
+  /// السبب المقروء بشريًا المقدم للاسترداد.
   final String reason;
+
+  /// Current lifecycle state of the refund request.
+  ///
+  /// الحالة الحالية لدورة حياة طلب الاسترداد.
   final RefundStatus status;
+
+  /// Timestamp when the refund was requested.
+  ///
+  /// وقت طلب الاسترداد.
   final DateTime requestedAt;
+
+  /// Timestamp when the refund was processed, if it has been completed.
+  ///
+  /// وقت معالجة الاسترداد إن كانت العملية قد اكتملت.
   final DateTime? processedAt;
+
+  /// Processor or gateway reference for the refund transaction.
+  ///
+  /// مرجع معاملة الاسترداد لدى المعالج أو البوابة.
   final String? transactionId;
+
+  /// User or system actor that handled the refund.
+  ///
+  /// المستخدم أو النظام الذي عالج الاسترداد.
   final String? processedBy;
+
+  /// Optional free-form notes attached to the refund.
+  ///
+  /// ملاحظات حرة اختيارية مرفقة بالاسترداد.
   final String? notes;
+
+  /// Refund category such as full, partial, or dispute.
+  ///
+  /// فئة الاسترداد مثل الكامل أو الجزئي أو النزاع.
   final RefundType? type;
+
+  /// Additional gateway or backend data preserved for audit purposes.
+  ///
+  /// بيانات إضافية من البوابة أو الخادم محفوظة لأغراض التدقيق.
   final Map<String, dynamic>? metadata;
 
+  /// Creates the immutable refund record used by payment recovery workflows.
+  ///
+  /// ينشئ سجل الاسترداد غير القابل للتعديل المستخدم في تدفقات استرجاع الدفع.
   const Refund({
     required this.id,
     required this.paymentId,
@@ -31,12 +83,19 @@ class Refund extends Equatable {
     this.metadata,
   });
 
-  /// التحقق من اكتمال الاسترداد
+  /// Indicates whether the refund has reached the completed state.
+  ///
+  /// يحدد ما إذا كان الاسترداد قد وصل إلى الحالة المكتملة.
   bool get isCompleted => status == RefundStatus.completed;
 
-  /// التحقق من قابلية الإلغاء
+  /// Indicates whether the refund request can still be cancelled.
+  ///
+  /// يحدد ما إذا كان يمكن إلغاء طلب الاسترداد بعد.
   bool get canCancel => status == RefundStatus.pending;
 
+  /// Returns a copy with selected refund fields replaced.
+  ///
+  /// يعيد نسخة مع استبدال الحقول المختارة فقط.
   Refund copyWith({
     String? id,
     String? paymentId,
@@ -67,6 +126,9 @@ class Refund extends Equatable {
     );
   }
 
+  /// Keeps equality aligned with the refund lifecycle record.
+  ///
+  /// يربط المقارنة بسجل الاسترداد كاملًا.
   @override
   List<Object?> get props => [
         id,
@@ -84,7 +146,9 @@ class Refund extends Equatable {
       ];
 }
 
-/// حالات الاسترداد
+/// Lifecycle states that a refund can move through.
+///
+/// الحالات التي يمكن أن يمر بها الاسترداد.
 enum RefundStatus {
   pending,
   processing,
@@ -93,7 +157,9 @@ enum RefundStatus {
   cancelled,
 }
 
-/// أنواع الاسترداد
+/// Business categories used to classify refund intent.
+///
+/// الفئات التجارية المستخدمة لتصنيف سبب الاسترداد.
 enum RefundType {
   full,
   partial,
@@ -102,7 +168,12 @@ enum RefundType {
   other,
 }
 
+/// Human-readable labels for refund status values.
+///
+/// تسميات مقروءة بشريًا لقيم حالة الاسترداد.
 extension RefundStatusExtension on RefundStatus {
+  ///
+  /// يعيد التسمية العربية للحالة.
   String get displayNameAr {
     switch (this) {
       case RefundStatus.pending:
@@ -118,6 +189,8 @@ extension RefundStatusExtension on RefundStatus {
     }
   }
 
+  ///
+  /// يعيد التسمية الإنجليزية للحالة.
   String get displayNameEn {
     switch (this) {
       case RefundStatus.pending:
@@ -134,7 +207,12 @@ extension RefundStatusExtension on RefundStatus {
   }
 }
 
+/// Human-readable labels for refund type values.
+///
+/// تسميات مقروءة بشريًا لأنواع الاسترداد.
 extension RefundTypeExtension on RefundType {
+  ///
+  /// يعيد التسمية العربية لنوع الاسترداد.
   String get displayNameAr {
     switch (this) {
       case RefundType.full:
@@ -150,6 +228,8 @@ extension RefundTypeExtension on RefundType {
     }
   }
 
+  ///
+  /// يعيد التسمية الإنجليزية لنوع الاسترداد.
   String get displayNameEn {
     switch (this) {
       case RefundType.full:

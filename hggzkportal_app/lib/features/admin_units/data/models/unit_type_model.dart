@@ -1,6 +1,10 @@
 import '../../domain/entities/unit_type.dart';
 
+/// يمثل هذا الكلاس UnitTypeModel البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitTypeModel in the admin unit workflow.
 class UnitTypeModel extends UnitType {
+  /// This constructor creates a new UnitTypeModel instance.
+  /// ينشئ مثيلًا جديدًا من UnitTypeModel.
   const UnitTypeModel({
     required String id,
     required String propertyTypeId,
@@ -27,6 +31,8 @@ class UnitTypeModel extends UnitType {
           fields: fields,
         );
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitTypeModel.
+  /// This constructor creates an instance of UnitTypeModel.
   factory UnitTypeModel.fromJson(Map<String, dynamic> json) {
     return UnitTypeModel(
       id: json['id'] as String,
@@ -37,7 +43,8 @@ class UnitTypeModel extends UnitType {
       isHasAdults: json['isHasAdults'] as bool? ?? false,
       isHasChildren: json['isHasChildren'] as bool? ?? false,
       isMultiDays: json['isMultiDays'] as bool? ?? false,
-      isRequiredToDetermineTheHour: json['isRequiredToDetermineTheHour'] as bool? ?? false,
+      isRequiredToDetermineTheHour:
+          json['isRequiredToDetermineTheHour'] as bool? ?? false,
       maxCapacity: json['maxCapacity'] as int? ?? 1,
       fields: (json['fields'] as List?)
               ?.map((e) => UnitTypeFieldModel.fromJson(e))
@@ -47,7 +54,11 @@ class UnitTypeModel extends UnitType {
   }
 }
 
+/// يمثل هذا الكلاس UnitTypeFieldModel البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitTypeFieldModel in the admin unit workflow.
 class UnitTypeFieldModel extends UnitTypeField {
+  /// This constructor creates a new UnitTypeFieldModel instance.
+  /// ينشئ مثيلًا جديدًا من UnitTypeFieldModel.
   const UnitTypeFieldModel({
     required String fieldId,
     required String unitTypeId,
@@ -88,6 +99,8 @@ class UnitTypeFieldModel extends UnitTypeField {
           groupId: groupId,
         );
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitTypeFieldModel.
+  /// This constructor creates an instance of UnitTypeFieldModel.
   factory UnitTypeFieldModel.fromJson(Map<String, dynamic> json) {
     return UnitTypeFieldModel(
       fieldId: json['fieldId'] as String,

@@ -10,8 +10,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/enums/booking_status.dart';
+import '../../../../core/enums/payment_method_enum.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/error_widget.dart';
 import '../../../../core/utils/formatters.dart';
@@ -20,35 +21,53 @@ import '../bloc/booking_details/booking_details_event.dart';
 import '../bloc/booking_details/booking_details_state.dart';
 import '../widgets/booking_status_badge.dart';
 import '../widgets/booking_payment_summary.dart';
-import '../widgets/booking_services_widget.dart';
 import '../widgets/booking_actions_dialog.dart';
 import '../widgets/booking_confirmation_dialog.dart';
 import '../widgets/check_in_out_dialog.dart';
-import '../../../../core/enums/payment_method_enum.dart';
-import '../../../../core/enums/booking_status.dart';
 
+/// Arabic: صفحة تعرض تفاصيل الحجز كاملة مع الإجراءات والدفعات والنشاط.
+/// English: Page that shows the full booking details, actions, payments, and activity.
 class BookingDetailsPage extends StatefulWidget {
+  /// Arabic: معرّف الحجز الذي ستُعرض تفاصيله.
+  /// English: The booking identifier whose details will be shown.
   final String bookingId;
 
+  /// Arabic: ينشئ صفحة تفاصيل الحجز المحدد.
+  /// English: Creates the details page for the selected booking.
   const BookingDetailsPage({
     super.key,
     required this.bookingId,
   });
-
   @override
   State<BookingDetailsPage> createState() => _BookingDetailsPageState();
 }
 
+/// Arabic: يدير حالة تفاصيل الحجز بما في ذلك التمرير والعمليات والإشعارات.
+/// English: Manages the booking details state, including scrolling, operations, and notifications.
 class _BookingDetailsPageState extends State<BookingDetailsPage>
     with SingleTickerProviderStateMixin {
+  /// Arabic: يتحكم في الحركة الافتتاحية لعناصر الصفحة.
+  /// English: Drives the page entrance animation.
   late AnimationController _animationController;
+
+  /// Arabic: يراقب موضع التمرير لتأثيرات الشريط العلوي.
+  /// English: Tracks scroll position for app bar effects.
   late ScrollController _scrollController;
+
+  /// Arabic: يسجل مقدار التمرير الحالي المستخدم في حسابات البارالاكس.
+  /// English: Stores the current scroll offset used for parallax calculations.
   double _scrollOffset = 0;
+
+  /// Arabic: يحفظ آخر سبب إلغاء تم اختياره لإعادة استخدامه عند الحاجة.
+  /// English: Stores the latest chosen cancellation reason for reuse when needed.
   String? _lastCancellationReason;
 
-  /// 🔄 تتبع إذا تمت أي عملية تتطلب تحديث قائمة الحجوزات
+  /// Arabic: يشير إلى أن الصفحة نفذت عملية تستدعي تحديث قائمة الحجوزات عند الرجوع.
+  /// English: Indicates whether the page performed an operation that should refresh the bookings list on return.
   bool _hasChanges = false;
 
+  /// Arabic: يجهز المتحكمات ثم يحمّل تفاصيل الحجز مع بدء الحركة.
+  /// English: Initializes controllers, loads booking details, and starts the entrance animation.
   @override
   void initState() {
     super.initState();
@@ -62,17 +81,20 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           _scrollOffset = _scrollController.offset;
         });
       });
-
     _loadBookingDetails();
     _animationController.forward();
   }
 
+  /// Arabic: يطلب تفاصيل الحجز المحدد من طبقة الـ bloc.
+  /// English: Requests the selected booking's details from the bloc layer.
   void _loadBookingDetails() {
     context.read<BookingDetailsBloc>().add(
           LoadBookingDetailsEvent(bookingId: widget.bookingId),
         );
   }
 
+  /// Arabic: يعرض السياسات المحفوظة المرتبطة بالعقار أو الوحدة إذا كانت موجودة.
+  /// English: Renders any saved policies associated with the property or unit when available.
   Widget _buildSavedPoliciesSection(BookingDetailsLoaded state) {
     final policies = state.bookingDetails?.propertyDetails?.policies;
     if (policies == null) return const SizedBox.shrink();
@@ -127,9 +149,10 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           margin: const EdgeInsets.only(top: 8),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppTheme.darkBackground.withOpacity(0.5),
+            color: AppTheme.darkBackground.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppTheme.darkBorder.withOpacity(0.2)),
+            border:
+                Border.all(color: AppTheme.darkBorder.withValues(alpha: 0.2)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,6 +231,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يحول مفتاح السياسة إلى عنوان عربي مناسب للعرض.
+  /// English: Converts a policy key into a readable Arabic title.
   String _policyTitle(String key) {
     switch (key.toLowerCase()) {
       case 'cancellation':
@@ -226,6 +251,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     }
   }
 
+  /// Arabic: يحرر المتحكمات قبل إزالة الصفحة من الشجرة.
+  /// English: Disposes the controllers before the page leaves the widget tree.
   @override
   void dispose() {
     _animationController.dispose();
@@ -233,6 +260,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     super.dispose();
   }
 
+  /// Arabic: يبني واجهة التفاصيل مع الاستماع لنتائج العمليات والحالات المختلفة.
+  /// English: Builds the details UI while listening to operation results and state changes.
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -386,6 +415,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يعرض حوارًا يشرح سبب منع بعض عمليات الحجز.
+  /// English: Shows a dialog that explains why certain booking actions are blocked.
   void _showPolicyDialog({
     required String title,
     required String description,
@@ -405,12 +436,12 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.warning.withOpacity(0.4),
+                color: AppTheme.warning.withValues(alpha: 0.4),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.warning.withOpacity(0.2),
+                  color: AppTheme.warning.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -423,7 +454,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.warning.withOpacity(0.1),
+                    color: AppTheme.warning.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.rule_folder_rounded,
@@ -476,6 +507,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يجمع أقسام التفاصيل داخل شاشة قابلة للتمرير.
+  /// English: Assembles the detail sections into a scrollable screen.
   Widget _buildContent(BookingDetailsLoaded state) {
     final booking = state.booking;
 
@@ -501,7 +534,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                       _buildGuestInfoCard(state),
                       _buildUnitInfoCard(state),
                       _buildPaymentSection(state),
-                      // _buildPaymentsListSection(state),
+                      _buildPaymentsListSection(state),
                       _buildSavedPoliciesSection(state),
                       _buildActivityTimeline(state),
                       _buildReviewSection(state),
@@ -525,6 +558,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يبني شريط العنوان الموسع مع أزرار الإجراءات السريعة.
+  /// English: Builds the expanded app bar with quick action buttons.
   Widget _buildSliverAppBar(BookingDetailsLoaded state) {
     final booking = state.booking;
     final parallaxOffset = _scrollOffset * 0.5;
@@ -582,7 +617,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          AppTheme.darkBackground.withOpacity(0.7),
+                          AppTheme.darkBackground.withValues(alpha: 0.7),
                           AppTheme.darkBackground,
                         ],
                         stops: const [0.3, 0.6, 1.0],
@@ -621,7 +656,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                                   color: AppTheme.textWhite,
                                   shadows: [
                                     Shadow(
-                                      color: Colors.black.withOpacity(0.3),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.3),
                                       blurRadius: 10,
                                     ),
                                   ],
@@ -649,6 +685,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يعرض بطاقة حالة الحجز الحالية والملخص الزمني لها.
+  /// English: Shows the current booking status card and its temporal summary.
   Widget _buildBookingStatusCard(BookingDetailsLoaded state) {
     final booking = state.booking;
 
@@ -702,14 +740,16 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: ينشئ زر الرجوع أعلى صفحة التفاصيل.
+  /// English: Builds the back button in the details header.
   Widget _buildBackButton() {
     return Container(
       margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.8),
+        color: AppTheme.darkCard.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
         ),
       ),
       child: Material(
@@ -727,6 +767,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يبني زر إجراء صغيرًا في شريط العنوان.
+  /// English: Builds a compact action button in the app bar.
   Widget _buildActionButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -734,10 +776,10 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.8),
+        color: AppTheme.darkCard.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
         ),
       ),
       child: Material(
@@ -758,9 +800,10 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يعرض معلومات الحجز الأساسية مثل الوصول والمغادرة والخصائص المهمة.
+  /// English: Shows the core booking information such as check-in, check-out, and key attributes.
   Widget _buildBookingInfoCard(BookingDetailsLoaded state) {
     final booking = state.booking;
-    final details = state.bookingDetails;
 
     return _buildGlassCard(
       title: 'معلومات الحجز',
@@ -849,6 +892,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يعرض معلومات الضيف المرتبط بالحجز.
+  /// English: Shows the guest information associated with the booking.
   Widget _buildGuestInfoCard(BookingDetailsLoaded state) {
     final booking = state.booking;
     final guestInfo = state.bookingDetails?.guestInfo;
@@ -886,6 +931,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يعرض تفاصيل الوحدة أو العقار الذي تم الحجز فيه.
+  /// English: Shows the unit or property details for the booking.
   Widget _buildUnitInfoCard(BookingDetailsLoaded state) {
     final booking = state.booking;
     final unitDetails = state.bookingDetails?.unitDetails;
@@ -932,6 +979,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يعرض ملخص الدفعات والحالة المالية للحجز.
+  /// English: Shows the payment summary and financial status for the booking.
   Widget _buildPaymentSection(BookingDetailsLoaded state) {
     return Container(
       margin: const EdgeInsets.all(16),
@@ -949,6 +998,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يعرض سجل الدفعات المفصل مع الحالة والتواريخ.
+  /// English: Shows the detailed payment history with status and dates.
   Widget _buildPaymentsListSection(BookingDetailsLoaded state) {
     final payments = state.bookingDetails?.payments ?? [];
     if (payments.isEmpty) return const SizedBox.shrink();
@@ -963,7 +1014,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
             final payment = entry.value;
             final isSuccessful = payment.status == PaymentStatus.successful;
             final isPending = payment.status == PaymentStatus.pending;
-            final isFailed = payment.status == PaymentStatus.failed;
 
             return AnimationConfiguration.staggeredList(
               position: index,
@@ -983,8 +1033,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                                   : isPending
                                       ? AppTheme.warning
                                       : AppTheme.error)
-                              .withOpacity(0.05),
-                          AppTheme.darkBackground.withOpacity(0.3),
+                              .withValues(alpha: 0.05),
+                          AppTheme.darkBackground.withValues(alpha: 0.3),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(16),
@@ -994,7 +1044,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                                 : isPending
                                     ? AppTheme.warning
                                     : AppTheme.error)
-                            .withOpacity(0.2),
+                            .withValues(alpha: 0.2),
                         width: 1.5,
                       ),
                       boxShadow: [
@@ -1004,7 +1054,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                                   : isPending
                                       ? AppTheme.warning
                                       : AppTheme.error)
-                              .withOpacity(0.1),
+                              .withValues(alpha: 0.1),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -1033,13 +1083,13 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                                               : isPending
                                                   ? AppTheme.warning
                                                   : AppTheme.error)
-                                          .withOpacity(0.2),
+                                          .withValues(alpha: 0.2),
                                       (isSuccessful
                                               ? AppTheme.success
                                               : isPending
                                                   ? AppTheme.warning
                                                   : AppTheme.error)
-                                          .withOpacity(0.05),
+                                          .withValues(alpha: 0.05),
                                     ],
                                   ),
                                   borderRadius: BorderRadius.circular(12),
@@ -1087,7 +1137,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                                                     : isPending
                                                         ? AppTheme.warning
                                                         : AppTheme.error)
-                                                .withOpacity(0.15),
+                                                .withValues(alpha: 0.15),
                                             borderRadius:
                                                 BorderRadius.circular(6),
                                           ),
@@ -1177,7 +1227,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                                         vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: AppTheme.info.withOpacity(0.1),
+                                        color: AppTheme.info
+                                            .withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
@@ -1209,13 +1260,13 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.primaryBlue.withOpacity(0.05),
-                  AppTheme.darkBackground.withOpacity(0.2),
+                  AppTheme.primaryBlue.withValues(alpha: 0.05),
+                  AppTheme.darkBackground.withValues(alpha: 0.2),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppTheme.primaryBlue.withOpacity(0.2),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.2),
               ),
             ),
             child: Row(
@@ -1252,33 +1303,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
-  IconData _getPaymentMethodIcon(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.cash:
-        return CupertinoIcons.money_dollar;
-      case PaymentMethod.creditCard:
-        return CupertinoIcons.creditcard;
-      case PaymentMethod.paypal:
-        return CupertinoIcons.globe;
-      default:
-        return CupertinoIcons.device_phone_portrait;
-    }
-  }
-
-  Widget _buildServicesSection(BookingDetailsLoaded state) {
-    if (state.services.isEmpty) return const SizedBox.shrink();
-
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: BookingServicesWidget(
-        services: state.services,
-        onAddService: () => _showAddServiceDialog(state.booking.id),
-        onRemoveService: (serviceId) =>
-            _removeService(serviceId, state.booking.id),
-      ),
-    );
-  }
-
+  /// Arabic: يعرض نشاطات الحجز مرتبة زمنيًا.
+  /// English: Shows the booking activity entries in chronological order.
   Widget _buildActivityTimeline(BookingDetailsLoaded state) {
     final activities = state.bookingDetails?.activities ?? [];
     if (activities.isEmpty) return const SizedBox.shrink();
@@ -1292,10 +1318,10 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
             margin: const EdgeInsets.symmetric(vertical: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.darkBackground.withOpacity(0.5),
+              color: AppTheme.darkBackground.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.2),
+                color: AppTheme.darkBorder.withValues(alpha: 0.2),
               ),
             ),
             child: Row(
@@ -1304,7 +1330,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withOpacity(0.1),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -1342,6 +1368,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يعرض تقييم الضيف وتعليقاته وصوره إن وجدت.
+  /// English: Shows the guest review, comments, and images when present.
   Widget _buildReviewSection(BookingDetailsLoaded state) {
     final review = state.review;
     if (review == null) return const SizedBox.shrink();
@@ -1440,6 +1468,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يعرض طبقة حجب عند تنفيذ العمليات أو تحديث الدفعات.
+  /// English: Shows a blocking overlay while operations or payment refreshes are running.
   Widget _buildOperationOverlay() {
     return BlocBuilder<BookingDetailsBloc, BookingDetailsState>(
       builder: (context, state) {
@@ -1460,7 +1490,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
             child: Container(
-              color: AppTheme.darkBackground.withOpacity(0.4),
+              color: AppTheme.darkBackground.withValues(alpha: 0.4),
               alignment: Alignment.center,
               child: LoadingWidget(
                 type: LoadingType.futuristic,
@@ -1473,6 +1503,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يعرض أزرار الإجراءات السفلية حسب صلاحيات الحجز الحالية.
+  /// English: Shows bottom action buttons according to the current booking capabilities.
   Widget _buildBottomActions(BookingDetailsLoaded state) {
     final booking = state.booking;
     if (!_hasBottomActions(booking)) {
@@ -1494,7 +1526,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, -5),
               ),
@@ -1528,7 +1560,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                     icon: CupertinoIcons.xmark_circle_fill,
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.error.withOpacity(0.8),
+                        AppTheme.error.withValues(alpha: 0.8),
                         AppTheme.error,
                       ],
                     ),
@@ -1544,7 +1576,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                     icon: CupertinoIcons.checkmark_circle_fill,
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.success.withOpacity(0.8),
+                        AppTheme.success.withValues(alpha: 0.8),
                         AppTheme.success,
                       ],
                     ),
@@ -1559,6 +1591,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يتحقق مما إذا كان هناك أي إجراء سفلي متاح للحجز.
+  /// English: Checks whether any bottom actions are available for the booking.
   bool _hasBottomActions(Booking booking) {
     return booking.canCheckIn ||
         booking.canCheckOut ||
@@ -1566,11 +1600,15 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
         booking.canConfirm;
   }
 
+  /// Arabic: يحسب الارتفاع المحجوز لأسفل الشاشة حتى لا تُغطى العناصر التفاعلية.
+  /// English: Calculates the reserved height so floating actions do not cover content.
   double _bottomActionsReservedHeight(BuildContext context) {
     // 44 button height + 16 vertical padding top/bottom + safe area + buffer
     return 44 + 32 + MediaQuery.of(context).padding.bottom + 28;
   }
 
+  /// Arabic: يبني زرًا كبيرًا يستخدم في شريط الإجراءات السفلي.
+  /// English: Builds a large button used inside the bottom action bar.
   Widget _buildActionButtonLarge({
     required String label,
     required IconData icon,
@@ -1584,7 +1622,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: gradient.colors.first.withOpacity(0.3),
+            color: gradient.colors.first.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -1615,6 +1653,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يلف المحتوى داخل بطاقة زجاجية شفافة تناسب الواجهة الداكنة.
+  /// English: Wraps content in a glass-style card suited to the dark theme.
   Widget _buildGlassCard({
     required String title,
     required IconData icon,
@@ -1623,14 +1663,14 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     return Container(
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.shadowDark.withOpacity(0.1),
+            color: AppTheme.shadowDark.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -1650,7 +1690,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -1678,6 +1718,23 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يختار الأيقونة المناسبة لطريقة الدفع المعروضة.
+  /// English: Selects the icon that matches the displayed payment method.
+  IconData _getPaymentMethodIcon(PaymentMethod method) {
+    switch (method) {
+      case PaymentMethod.cash:
+        return CupertinoIcons.money_dollar;
+      case PaymentMethod.creditCard:
+        return CupertinoIcons.creditcard;
+      case PaymentMethod.paypal:
+        return CupertinoIcons.globe;
+      default:
+        return CupertinoIcons.device_phone_portrait;
+    }
+  }
+
+  /// Arabic: يعرض سطر تفاصيل موحدًا مع أيقونة وعنوان وقيمة.
+  /// English: Renders a unified detail row with icon, label, and value.
   Widget _buildDetailRow({
     required String label,
     required String value,
@@ -1689,7 +1746,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
           ),
         ),
       ),
@@ -1730,6 +1787,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يعرض صفًا بسيطًا داخل بطاقات المعلومات المختصرة.
+  /// English: Renders a simple row inside the compact information cards.
   Widget _buildInfoRow({
     required IconData icon,
     required String label,
@@ -1761,6 +1820,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يفتح حوار تسجيل الوصول قبل تنفيذ العملية.
+  /// English: Opens the check-in dialog before the action is executed.
   void _showCheckInDialog(String bookingId) {
     final bloc = context.read<BookingDetailsBloc>();
     showDialog(
@@ -1778,6 +1839,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يفتح حوار تسجيل المغادرة قبل تنفيذ العملية.
+  /// English: Opens the check-out dialog before the action is executed.
   void _showCheckOutDialog(String bookingId) {
     final bloc = context.read<BookingDetailsBloc>();
     showDialog(
@@ -1795,6 +1858,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
+  /// Arabic: يبدأ مسار إلغاء الحجز بما في ذلك اختيار السبب والتأكيد النهائي.
+  /// English: Starts the booking cancellation flow, including reason selection and final confirmation.
   void _cancelBooking(String bookingId) async {
     debugPrint('🔵 [BookingDetailsPage] عرض ديالوج الإلغاء للحجز: $bookingId');
 
@@ -1842,6 +1907,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     }
   }
 
+  /// Arabic: يبدأ مسار تأكيد الحجز بعد التحقق من المرجع الحالي.
+  /// English: Starts the booking confirmation flow after resolving the current reference.
   void _confirmBooking(String bookingId) {
     final state = context.read<BookingDetailsBloc>().state;
     String? bookingReference;
@@ -1863,32 +1930,16 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     );
   }
 
-  void _showAddServiceDialog(String bookingId) {
-    // Implement add service dialog
-  }
-
-  void _removeService(String serviceId, String bookingId) {
-    context.read<BookingDetailsBloc>().add(
-          RemoveServiceEvent(
-            bookingId: bookingId,
-            serviceId: serviceId,
-          ),
-        );
-  }
-
-  void _shareBooking(String bookingId) {
-    context.read<BookingDetailsBloc>().add(
-          ShareBookingDetailsEvent(bookingId: bookingId),
-        );
-  }
-
+  /// Arabic: يرسل حدث طباعة أو إنشاء نسخة قابلة للطباعة من الحجز.
+  /// English: Dispatches the event that prints or generates a printable booking copy.
   void _printBooking(String bookingId) {
     context.read<BookingDetailsBloc>().add(
           PrintBookingDetailsEvent(bookingId: bookingId),
         );
   }
 
-  // Helper methods لاستخراج البيانات من الحالات المختلفة
+  /// Arabic: يستخرج كيان الحجز من أي حالة من حالات التفاصيل المدعومة.
+  /// English: Extracts the booking entity from any supported details state.
   Booking? _getBookingFromState(BookingDetailsState state) {
     if (state is BookingDetailsLoaded) return state.booking;
     if (state is BookingDetailsOperationInProgress) return state.booking;
@@ -1897,6 +1948,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     return null;
   }
 
+  /// Arabic: يستخرج تفاصيل الحجز الموسعة من الحالة الحالية إن كانت موجودة.
+  /// English: Extracts the extended booking details from the current state when available.
   BookingDetails? _getBookingDetailsFromState(BookingDetailsState state) {
     if (state is BookingDetailsLoaded) return state.bookingDetails;
     if (state is BookingDetailsOperationInProgress) return state.bookingDetails;
@@ -1905,6 +1958,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage>
     return null;
   }
 
+  /// Arabic: يستخرج قائمة الخدمات المرتبطة بالحجز من الحالة الحالية.
+  /// English: Extracts the list of services associated with the booking from the current state.
   List<Service> _getServicesFromState(BookingDetailsState state) {
     if (state is BookingDetailsLoaded) return state.services;
     if (state is BookingDetailsOperationInProgress) return state.services;

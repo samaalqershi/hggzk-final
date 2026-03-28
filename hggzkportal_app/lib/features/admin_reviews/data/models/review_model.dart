@@ -2,7 +2,6 @@
 import 'package:hggzkportal/features/admin_reviews/domain/entities/review.dart';
 
 import 'review_image_model.dart';
-
 class ReviewModel extends Review {
   const ReviewModel({
     required super.id,
@@ -33,7 +32,6 @@ class ReviewModel extends Review {
     super.bookingStatus,
     super.bookingSource,
   });
-
   factory ReviewModel.fromJson(Map<String, dynamic> json) {
     return ReviewModel(
       id: json['id'] as String,
@@ -74,7 +72,6 @@ class ReviewModel extends Review {
       bookingSource: json['bookingSource'] as String?,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,

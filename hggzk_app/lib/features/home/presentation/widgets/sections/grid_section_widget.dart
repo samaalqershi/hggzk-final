@@ -8,16 +8,23 @@ import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/cached_image_widget.dart';
 import 'models/section_display_item.dart';
 
+/// يعرض عناصر القسم ضمن شبكة متوازنة تناسب الحالات التي نحتاج فيها عددًا
+/// أكبر من العناصر المرئية فوق الطية الأولى.
+/// Renders section items in a balanced grid suited for cases where more items
+/// should remain visible above the fold.
 class GridSectionWidget extends StatelessWidget {
+  /// العناصر الموحدة الجاهزة للعرض داخل الشبكة.
+  /// Unified items ready to be shown in the grid.
   final List<SectionDisplayItem> items;
-  final Function(String)? onItemTap;
 
+  /// رد اختياري يعيد معرّف البطاقة التي اختارها المستخدم.
+  /// Optional callback that returns the identifier of the card the user taps.
+  final Function(String)? onItemTap;
   const GridSectionWidget({
     super.key,
     required this.items,
     this.onItemTap,
   });
-
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
@@ -45,15 +52,17 @@ class GridSectionWidget extends StatelessWidget {
   }
 }
 
+/// بطاقة شبكية فردية مصممة لعرض الحد الأدنى المهم من الصورة والسعر والموقع
+/// داخل مساحة مضغوطة نسبيًا.
+/// Single grid card designed to present the essential image, price, and
+/// location inside a relatively compact footprint.
 class _GridItemCard extends StatefulWidget {
   final SectionDisplayItem item;
   final VoidCallback? onTap;
-
   const _GridItemCard({
     required this.item,
     this.onTap,
   });
-
   @override
   State<_GridItemCard> createState() => _GridItemCardState();
 }
@@ -63,7 +72,6 @@ class _GridItemCardState extends State<_GridItemCard>
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   bool _isPressed = false;
-
   @override
   void initState() {
     super.initState();
@@ -138,13 +146,15 @@ class _GridItemCardState extends State<_GridItemCard>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Image Section
+                // Arabic: قسم الصورة.
+                // English: Image section.
                 Expanded(
                   flex: 55,
                   child: _buildImageSection(item),
                 ),
 
-                // Content Section
+                // Arabic: قسم المحتوى.
+                // English: Content section.
                 Expanded(
                   flex: 45,
                   child: Padding(
@@ -152,12 +162,14 @@ class _GridItemCardState extends State<_GridItemCard>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Title
+                        // Arabic: العنوان.
+                        // English: Title.
                         Expanded(
                           child: _buildTitleSection(item),
                         ),
 
-                        // City Row
+                        // Arabic: صف الموقع.
+                        // English: City row.
                         _buildCityRow(item),
                       ],
                     ),
@@ -175,7 +187,8 @@ class _GridItemCardState extends State<_GridItemCard>
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Image
+        // Arabic: الصورة الأساسية للعنصر.
+        // English: Main image for the item.
         Hero(
           tag: 'property_grid_${item.id}',
           child: item.imageUrl != null
@@ -202,7 +215,8 @@ class _GridItemCardState extends State<_GridItemCard>
                 ),
         ),
 
-        // Gradient Overlay
+        // Arabic: طبقة تدرج لتقوية وضوح النص فوق الصورة.
+        // English: Gradient overlay to keep text readable above the image.
         Positioned(
           bottom: 0,
           left: 0,
@@ -222,7 +236,8 @@ class _GridItemCardState extends State<_GridItemCard>
           ),
         ),
 
-        // Top Badges
+        // Arabic: الشارات العلوية مثل الخصم أو الحالة.
+        // English: Top badges such as discount or status.
         Positioned(
           top: 8,
           left: 8,
@@ -357,12 +372,9 @@ class _GridItemCardState extends State<_GridItemCard>
 // ═══════════════════════════════════════════════════════════════════════════
 // 🏷️ COMPACT BADGES
 // ═══════════════════════════════════════════════════════════════════════════
-
 class _CompactRatingBadge extends StatelessWidget {
   final double rating;
-
   const _CompactRatingBadge({required this.rating});
-
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -402,9 +414,7 @@ class _CompactRatingBadge extends StatelessWidget {
 
 class _CompactDiscountBadge extends StatelessWidget {
   final int discount;
-
   const _CompactDiscountBadge({required this.discount});
-
   @override
   Widget build(BuildContext context) {
     return Container(

@@ -9,7 +9,9 @@ import '../datasources/notification_remote_datasource.dart';
 
 class NotificationRepositoryImpl implements NotificationRepository {
   final NotificationRemoteDataSource remoteDataSource;
+
   final NotificationLocalDataSource localDataSource;
+
   final NetworkInfo networkInfo;
 
   NotificationRepositoryImpl({
@@ -19,7 +21,9 @@ class NotificationRepositoryImpl implements NotificationRepository {
   });
 
   @override
-  Future<Either<Failure, PaginatedResult<NotificationEntity>>> getNotifications({
+  Future<Either<Failure, PaginatedResult<NotificationEntity>>>
+
+      getNotifications({
     int page = 1,
     int limit = 20,
     String? type,
@@ -34,7 +38,8 @@ class NotificationRepositoryImpl implements NotificationRepository {
         await localDataSource.cacheNotifications(result.items);
         return Right(result);
       } else {
-        final cachedNotifications = await localDataSource.getCachedNotifications();
+        final cachedNotifications =
+            await localDataSource.getCachedNotifications();
         return Right(PaginatedResult(
           items: cachedNotifications,
           pageNumber: 1,
@@ -43,7 +48,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         ));
       }
     } catch (e) {
-      return const Left(ServerFailure( 'Server error occurred'));
+      return const Left(ServerFailure('Server error occurred'));
     }
   }
 
@@ -57,7 +62,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return const Left(NetworkFailure());
       }
     } catch (e) {
-      return const Left(ServerFailure( 'Server error occurred'));
+      return const Left(ServerFailure('Server error occurred'));
     }
   }
 
@@ -71,12 +76,13 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return const Left(NetworkFailure());
       }
     } catch (e) {
-      return const Left(ServerFailure( 'Server error occurred'));
+      return const Left(ServerFailure('Server error occurred'));
     }
   }
 
   @override
-  Future<Either<Failure, void>> dismissNotification(String notificationId) async {
+  Future<Either<Failure, void>> dismissNotification(
+      String notificationId) async {
     try {
       if (await networkInfo.isConnected) {
         await remoteDataSource.dismissNotification(notificationId);
@@ -85,7 +91,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return const Left(NetworkFailure());
       }
     } catch (e) {
-      return const Left(ServerFailure( 'Server error occurred'));
+      return const Left(ServerFailure('Server error occurred'));
     }
   }
 
@@ -101,12 +107,13 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return Right(cachedSettings);
       }
     } catch (e) {
-      return const Left(ServerFailure( 'Server error occurred'));
+      return const Left(ServerFailure('Server error occurred'));
     }
   }
 
   @override
-  Future<Either<Failure, void>> updateNotificationSettings(Map<String, bool> settings) async {
+  Future<Either<Failure, void>> updateNotificationSettings(
+      Map<String, bool> settings) async {
     try {
       if (await networkInfo.isConnected) {
         await remoteDataSource.updateNotificationSettings(settings);
@@ -116,7 +123,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return const Left(NetworkFailure());
       }
     } catch (e) {
-      return const Left(ServerFailure( 'Server error occurred'));
+      return const Left(ServerFailure('Server error occurred'));
     }
   }
 
@@ -130,7 +137,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return const Left(NetworkFailure());
       }
     } catch (e) {
-      return const Left(ServerFailure( 'Server error occurred'));
+      return const Left(ServerFailure('Server error occurred'));
     }
   }
 }

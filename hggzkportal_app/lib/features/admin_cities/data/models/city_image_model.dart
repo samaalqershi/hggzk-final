@@ -4,7 +4,13 @@ import 'package:hggzkportal/core/constants/api_constants.dart';
 import 'package:hggzkportal/core/constants/app_constants.dart';
 import '../../domain/entities/city_image.dart';
 
+/// API-facing model for city media that normalizes URLs and metadata.
+///
+/// نموذج مخصص لوسائط المدن يطبع الروابط والبيانات الوصفية قبل العرض أو الحفظ.
 class CityImageModel extends CityImage {
+  /// Creates a transport model instance for a city media record.
+  ///
+  /// ينشئ نموذج نقل لسجل وسائط المدينة.
   const CityImageModel({
     required super.id,
     required super.url,
@@ -28,6 +34,10 @@ class CityImageModel extends CityImage {
     super.videoThumbnail,
   });
 
+  /// ينشئ رابطًا صالحًا لوسائط المدينة حتى لا تبقى الواجهة أمام مسار
+  /// فارغ أو نسبي أو غير قابل للعرض.
+  /// Builds a valid city-media URL so the UI never receives an empty, relative,
+  /// or non-renderable path.
   static String _validateUrl(String? url) {
     if (url == null || url.isEmpty) {
       return 'https://via.placeholder.com/400x300?text=No+Image';
@@ -43,19 +53,23 @@ class CityImageModel extends CityImage {
     return url;
   }
 
+  /// يحدد نوع الوسيط اعتمادًا على الحقل الصريح أو على MIME أو على اسم
+  /// الملف عندما تكون البيانات ناقصة.
+  /// Determines the media type from the explicit field, MIME type, or
+  /// filename when the payload is incomplete.
   static MediaType _detectMediaType(Map<String, dynamic> json) {
-    // التحقق من mediaType المباشر
+    // Prefer an explicit mediaType when the backend already provides it.
     if (json['mediaType'] != null) {
       return _parseMediaType(json['mediaType'].toString());
     }
 
-    // التحقق من mimeType
+    // Fall back to the MIME type when the dedicated field is absent.
     final mimeType = json['mimeType']?.toString() ?? '';
     if (mimeType.startsWith('video/')) {
       return MediaType.video;
     }
 
-    // التحقق من الملف
+    // Derive the type from the filename as a last portable fallback.
     final filename = json['filename']?.toString() ?? '';
     if (AppConstants.isVideoFile(filename)) {
       return MediaType.video;
@@ -64,6 +78,9 @@ class CityImageModel extends CityImage {
     return MediaType.image;
   }
 
+  /// يبني نموذج وسائط المدينة من JSON الوارد من الخادم أو الكاش المحلي.
+  /// Builds the city-media model from JSON received from the backend or the
+  /// local cache.
   factory CityImageModel.fromJson(Map<String, dynamic> json) {
     List<String> parsedTags = [];
     if (json['tags'] != null) {
@@ -118,6 +135,10 @@ class CityImageModel extends CityImage {
     );
   }
 
+  /// يطبع معلومات الصور المصغرة إلى شكل ثابت حتى تستطيع الواجهة عرض
+  /// بدائل متعددة للوسيط نفسه.
+  /// Normalizes thumbnail information into a stable shape so the UI can show
+  /// multiple variants for the same media item.
   static ImageThumbnails _parseThumbnails(
       dynamic thumbnailsData, String fallbackUrl) {
     if (thumbnailsData == null) {
@@ -151,6 +172,9 @@ class CityImageModel extends CityImage {
     );
   }
 
+  /// Serializes the media record into the shape expected by the API layer.
+  ///
+  /// يحول سجل الوسائط إلى الصيغة التي تتوقعها طبقة الـ API.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -176,6 +200,9 @@ class CityImageModel extends CityImage {
     };
   }
 
+  /// يحول فئة الوسيط النصية إلى قيمة `ImageCategory` الداخلية.
+  /// Converts the textual media category into the internal `ImageCategory`
+  /// value.
   static ImageCategory _parseImageCategory(String value) {
     switch (value.toLowerCase()) {
       case 'exterior':
@@ -200,6 +227,8 @@ class CityImageModel extends CityImage {
     }
   }
 
+  /// يحول فئة الصورة إلى النص المعتمد في طبقة النقل أو الحفظ.
+  /// Converts the image category into the transport/persistence string value.
   static String _imageCategoryToString(ImageCategory category) {
     switch (category) {
       case ImageCategory.exterior:
@@ -223,6 +252,8 @@ class CityImageModel extends CityImage {
     }
   }
 
+  /// يحول حالة معالجة الوسيط النصية إلى قيمة `ProcessingStatus`.
+  /// Converts the textual processing state into a `ProcessingStatus` value.
   static ProcessingStatus _parseProcessingStatus(String value) {
     switch (value.toLowerCase()) {
       case 'uploading':
@@ -240,6 +271,9 @@ class CityImageModel extends CityImage {
     }
   }
 
+  /// يعيد حالة المعالجة إلى النص الذي يفهمه الـ API عند الحفظ أو التحديث.
+  /// Converts the processing state back into the string the API expects when
+  /// saving or updating.
   static String _processingStatusToString(ProcessingStatus status) {
     switch (status) {
       case ProcessingStatus.uploading:
@@ -255,6 +289,8 @@ class CityImageModel extends CityImage {
     }
   }
 
+  /// يحول نوع الوسيط النصي إلى `MediaType` داخلي ثابت.
+  /// Converts a textual media-type value into the internal `MediaType` enum.
   static MediaType _parseMediaType(String value) {
     switch (value.toLowerCase()) {
       case 'video':
@@ -265,6 +301,8 @@ class CityImageModel extends CityImage {
     }
   }
 
+  /// يعيد نوع الوسيط إلى النص الذي يحافظ على التوافق مع الخادم.
+  /// Converts the media type back to the text used for backend compatibility.
   static String _mediaTypeToString(MediaType type) {
     switch (type) {
       case MediaType.video:
@@ -275,7 +313,13 @@ class CityImageModel extends CityImage {
   }
 }
 
+/// Serializes thumbnail variants for a city image.
+///
+/// يحول نسخ الصور المصغرة المختلفة الخاصة بصورة المدينة.
 class ImageThumbnailsModel extends ImageThumbnails {
+  /// Creates a thumbnail bundle for the API payload.
+  ///
+  /// ينشئ حزمة صور مصغرة لحمولة الـ API.
   const ImageThumbnailsModel({
     required super.small,
     required super.medium,
@@ -283,6 +327,9 @@ class ImageThumbnailsModel extends ImageThumbnails {
     required super.hd,
   });
 
+  /// يبني حزمة الصور المصغرة من JSON مع بديل آمن عند غياب القيم.
+  /// Builds the thumbnail bundle from JSON with a safe fallback when values
+  /// are missing.
   factory ImageThumbnailsModel.fromJson(Map<String, dynamic> json,
       [String? fallbackUrl]) {
     final fallback =
@@ -298,6 +345,9 @@ class ImageThumbnailsModel extends ImageThumbnails {
     );
   }
 
+  /// Serializes every thumbnail variant into JSON.
+  ///
+  /// يحول كل نسخة من الصور المصغرة إلى JSON.
   Map<String, dynamic> toJson() {
     return {
       'small': small,

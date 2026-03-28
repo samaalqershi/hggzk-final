@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'dart:ui';
-import 'dart:math' as math;
-import '../../domain/entities/payment.dart';
 import '../../domain/entities/payment_analytics.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../../../../core/theme/app_text_styles.dart';
 import '../../../../../../core/enums/payment_method_enum.dart';
 
 class PaymentBreakdownPieChart extends StatefulWidget {
+  /// العربية: يخزن القيمة `methodAnalytics`.
   final Map<dynamic, MethodAnalytics> methodAnalytics;
   final double height;
-
   const PaymentBreakdownPieChart({
     super.key,
     required this.methodAnalytics,
     this.height = 300,
   });
-
   @override
   State<PaymentBreakdownPieChart> createState() =>
       _PaymentBreakdownPieChartState();
@@ -29,7 +25,6 @@ class _PaymentBreakdownPieChartState extends State<PaymentBreakdownPieChart>
   late AnimationController _animationController;
   late Animation<double> _animation;
   int _touchedIndex = -1;
-
   @override
   void initState() {
     super.initState();
@@ -439,7 +434,6 @@ class _PaymentBreakdownPieChartState extends State<PaymentBreakdownPieChart>
     );
   }
 
-
   Color _getMethodColor(int index) {
     final colors = [
       AppTheme.primaryBlue,
@@ -476,8 +470,6 @@ class _PaymentBreakdownPieChartState extends State<PaymentBreakdownPieChart>
           return 'سبأ كاش';
         case PaymentMethod.paypal:
           return 'PayPal';
-        default:
-          return 'أخرى';
       }
     }
     return method.toString();

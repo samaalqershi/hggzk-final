@@ -5,18 +5,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../bloc/settings_bloc.dart';
 import '../bloc/settings_event.dart';
 import '../bloc/settings_state.dart';
 import '../../../../core/bloc/app_bloc.dart';
-import '../../../../core/bloc/locale/locale_cubit.dart';
 
 class LanguageSettingsPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `LanguageSettingsPage`.
   const LanguageSettingsPage({super.key});
-
   @override
   State<LanguageSettingsPage> createState() => _LanguageSettingsPageState();
 }
@@ -27,14 +25,9 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
   late AnimationController _slideController;
   late AnimationController _pulseController;
   late AnimationController _selectionController;
-  
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _pulseAnimation;
-  late Animation<double> _selectionAnimation;
-  
-  String? _selectedLanguage;
-  
   final List<_UltraMinimalLanguage> _languages = [
     _UltraMinimalLanguage(
       code: 'ar',
@@ -51,40 +44,38 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       direction: 'LTR',
     ),
   ];
-
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
-    _loadCurrentLanguage();
   }
-  
+
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    
+
     _pulseController = AnimationController(
       duration: const Duration(seconds: 3),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _selectionController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _fadeAnimation = CurvedAnimation(
       parent: _fadeController,
       curve: Curves.easeOut,
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.03),
       end: Offset.zero,
@@ -92,7 +83,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       parent: _slideController,
       curve: Curves.easeOutCubic,
     ));
-    
+
     _pulseAnimation = Tween<double>(
       begin: 0.95,
       end: 1.0,
@@ -100,26 +91,9 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       parent: _pulseController,
       curve: Curves.easeInOut,
     ));
-    
-    _selectionAnimation = CurvedAnimation(
-      parent: _selectionController,
-      curve: Curves.easeOutCubic,
-    );
-    
+
     _fadeController.forward();
     _slideController.forward();
-  }
-  
-  void _loadCurrentLanguage() {
-    final state = context.read<SettingsBloc>().state;
-    if (state is SettingsLoaded || state is SettingsUpdated) {
-      final settings = (state is SettingsLoaded) 
-          ? state.settings 
-          : (state as SettingsUpdated).settings;
-      setState(() {
-        _selectedLanguage = settings.preferredLanguage;
-      });
-    }
   }
 
   @override
@@ -139,7 +113,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
         children: [
           // Ultra minimal gradient background
           _buildUltraMinimalBackground(),
-          
+
           // Main content
           SafeArea(
             child: Column(
@@ -161,7 +135,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       ),
     );
   }
-  
+
   Widget _buildUltraMinimalBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -187,7 +161,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       ),
     );
   }
-  
+
   Widget _buildUltraMinimalHeader() {
     return Container(
       height: 56,
@@ -196,9 +170,9 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
         children: [
           // Back button
           _buildMinimalBackButton(),
-          
+
           const SizedBox(width: 16),
-          
+
           // Title
           Expanded(
             child: Column(
@@ -210,7 +184,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                   style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textWhite.withOpacity(0.9),
+                    color: AppTheme.textWhite.withValues(alpha: 0.9),
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -218,13 +192,13 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                   'اختر لغة التطبيق',
                   style: AppTextStyles.caption.copyWith(
                     fontSize: 11,
-                    color: AppTheme.textMuted.withOpacity(0.5),
+                    color: AppTheme.textMuted.withValues(alpha: 0.5),
                   ),
                 ),
               ],
             ),
           ),
-          
+
           // Language icon
           Container(
             width: 32,
@@ -232,15 +206,15 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.primaryBlue.withOpacity(0.08),
-                  AppTheme.primaryPurple.withOpacity(0.04),
+                  AppTheme.primaryBlue.withValues(alpha: 0.08),
+                  AppTheme.primaryPurple.withValues(alpha: 0.04),
                 ],
               ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               Icons.translate,
-              color: AppTheme.primaryBlue.withOpacity(0.5),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.5),
               size: 16,
             ),
           ),
@@ -248,7 +222,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       ),
     );
   }
-  
+
   Widget _buildMinimalBackButton() {
     return GestureDetector(
       onTap: () {
@@ -259,10 +233,10 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
         width: 32,
         height: 32,
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withOpacity(0.05),
+          color: AppTheme.darkCard.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.05),
+            color: AppTheme.darkBorder.withValues(alpha: 0.05),
             width: 0.5,
           ),
         ),
@@ -274,15 +248,15 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       ),
     );
   }
-  
+
   Widget _buildContent() {
     return BlocBuilder<SettingsBloc, SettingsState>(
       builder: (context, state) {
         String currentLanguage = 'ar';
-        
+
         if (state is SettingsLoaded || state is SettingsUpdated) {
-          final settings = (state is SettingsLoaded) 
-              ? state.settings 
+          final settings = (state is SettingsLoaded)
+              ? state.settings
               : (state as SettingsUpdated).settings;
           currentLanguage = settings.preferredLanguage;
         }
@@ -292,12 +266,12 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
           child: Column(
             children: [
               const SizedBox(height: 32),
-              
+
               // Language cards
               ...List.generate(_languages.length, (index) {
                 final language = _languages[index];
                 final isSelected = language.code == currentLanguage;
-                
+
                 return TweenAnimationBuilder<double>(
                   key: ValueKey(language.code),
                   tween: Tween(begin: 0, end: 1),
@@ -318,9 +292,9 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                   },
                 );
               }),
-              
+
               const SizedBox(height: 40),
-              
+
               // Info section
               _buildInfoSection(currentLanguage),
             ],
@@ -329,7 +303,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       },
     );
   }
-  
+
   Widget _buildUltraMinimalLanguageCard({
     required _UltraMinimalLanguage language,
     required bool isSelected,
@@ -338,9 +312,6 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
-        setState(() {
-          _selectedLanguage = language.code;
-        });
         if (isSelected) return;
         _selectionController.forward(from: 0);
         onTap();
@@ -353,19 +324,17 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withOpacity(0.05),
-                    AppTheme.primaryPurple.withOpacity(0.02),
+                    AppTheme.primaryBlue.withValues(alpha: 0.05),
+                    AppTheme.primaryPurple.withValues(alpha: 0.02),
                   ],
                 )
               : null,
-          color: !isSelected 
-              ? AppTheme.darkCard.withOpacity(0.03)
-              : null,
+          color: !isSelected ? AppTheme.darkCard.withValues(alpha: 0.03) : null,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected
-                ? AppTheme.primaryBlue.withOpacity(0.2)
-                : AppTheme.darkBorder.withOpacity(0.05),
+                ? AppTheme.primaryBlue.withValues(alpha: 0.2)
+                : AppTheme.darkBorder.withValues(alpha: 0.05),
             width: isSelected ? 1 : 0.5,
           ),
         ),
@@ -380,19 +349,19 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                 gradient: isSelected
                     ? LinearGradient(
                         colors: [
-                          AppTheme.primaryBlue.withOpacity(0.1),
-                          AppTheme.primaryPurple.withOpacity(0.05),
+                          AppTheme.primaryBlue.withValues(alpha: 0.1),
+                          AppTheme.primaryPurple.withValues(alpha: 0.05),
                         ],
                       )
                     : null,
                 color: !isSelected
-                    ? AppTheme.darkCard.withOpacity(0.05)
+                    ? AppTheme.darkCard.withValues(alpha: 0.05)
                     : null,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: isSelected
-                      ? AppTheme.primaryBlue.withOpacity(0.15)
-                      : AppTheme.darkBorder.withOpacity(0.05),
+                      ? AppTheme.primaryBlue.withValues(alpha: 0.15)
+                      : AppTheme.darkBorder.withValues(alpha: 0.05),
                   width: 0.5,
                 ),
               ),
@@ -405,9 +374,9 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                 ),
               ),
             ),
-            
+
             const SizedBox(width: 14),
-            
+
             // Language info
             Expanded(
               child: Column(
@@ -419,10 +388,11 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                         language.name,
                         style: AppTextStyles.bodyMedium.copyWith(
                           fontSize: 14,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.w500,
                           color: isSelected
-                              ? AppTheme.primaryBlue.withOpacity(0.9)
-                              : AppTheme.textWhite.withOpacity(0.8),
+                              ? AppTheme.primaryBlue.withValues(alpha: 0.9)
+                              : AppTheme.textWhite.withValues(alpha: 0.8),
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -433,8 +403,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppTheme.primaryBlue.withOpacity(0.1)
-                              : AppTheme.darkCard.withOpacity(0.1),
+                              ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+                              : AppTheme.darkCard.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -442,8 +412,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                           style: AppTextStyles.caption.copyWith(
                             fontSize: 9,
                             color: isSelected
-                                ? AppTheme.primaryBlue.withOpacity(0.7)
-                                : AppTheme.textMuted.withOpacity(0.4),
+                                ? AppTheme.primaryBlue.withValues(alpha: 0.7)
+                                : AppTheme.textMuted.withValues(alpha: 0.4),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -455,13 +425,13 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                     language.subtitle,
                     style: AppTextStyles.caption.copyWith(
                       fontSize: 11,
-                      color: AppTheme.textMuted.withOpacity(0.5),
+                      color: AppTheme.textMuted.withValues(alpha: 0.5),
                     ),
                   ),
                 ],
               ),
             ),
-            
+
             // Selection indicator
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
@@ -471,8 +441,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                 gradient: isSelected
                     ? LinearGradient(
                         colors: [
-                          AppTheme.primaryBlue.withOpacity(0.8),
-                          AppTheme.primaryPurple.withOpacity(0.6),
+                          AppTheme.primaryBlue.withValues(alpha: 0.8),
+                          AppTheme.primaryPurple.withValues(alpha: 0.6),
                         ],
                       )
                     : null,
@@ -480,7 +450,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                 border: Border.all(
                   color: isSelected
                       ? Colors.transparent
-                      : AppTheme.darkBorder.withOpacity(0.1),
+                      : AppTheme.darkBorder.withValues(alpha: 0.1),
                   width: isSelected ? 0 : 1.5,
                 ),
               ),
@@ -497,7 +467,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       ),
     );
   }
-  
+
   Widget _buildInfoSection(String currentLanguage) {
     return AnimatedBuilder(
       animation: _pulseAnimation,
@@ -507,13 +477,13 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.info.withOpacity(0.03 * _pulseAnimation.value),
-                AppTheme.info.withOpacity(0.01 * _pulseAnimation.value),
+                AppTheme.info.withValues(alpha: 0.03 * _pulseAnimation.value),
+                AppTheme.info.withValues(alpha: 0.01 * _pulseAnimation.value),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.info.withOpacity(0.08),
+              color: AppTheme.info.withValues(alpha: 0.08),
               width: 0.5,
             ),
           ),
@@ -523,12 +493,12 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: AppTheme.info.withOpacity(0.08),
+                  color: AppTheme.info.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Icon(
                   Icons.info_outline,
-                  color: AppTheme.info.withOpacity(0.6),
+                  color: AppTheme.info.withValues(alpha: 0.6),
                   size: 16,
                 ),
               ),
@@ -538,13 +508,11 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      currentLanguage == 'ar' 
-                          ? 'معلومة'
-                          : 'Info',
+                      currentLanguage == 'ar' ? 'معلومة' : 'Info',
                       style: AppTextStyles.caption.copyWith(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.info.withOpacity(0.8),
+                        color: AppTheme.info.withValues(alpha: 0.8),
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -554,7 +522,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                           : 'Language will be applied to all app sections',
                       style: AppTextStyles.caption.copyWith(
                         fontSize: 10,
-                        color: AppTheme.textMuted.withOpacity(0.6),
+                        color: AppTheme.textMuted.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -566,10 +534,10 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       },
     );
   }
-  
+
   void _selectLanguage(String languageCode) {
     context.read<SettingsBloc>().add(UpdateLanguageEvent(languageCode));
-    
+
     _showUltraMinimalSnackBar(languageCode);
   }
 
@@ -584,19 +552,19 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       }
     });
   }
-  
+
   void _showUltraMinimalSnackBar(String languageCode) {
     HapticFeedback.mediumImpact();
-    
+
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
       builder: (context) => _UltraMinimalSnackBar(
         languageCode: languageCode,
       ),
     );
-    
+
     overlay.insert(overlayEntry);
-    
+
     Future.delayed(const Duration(seconds: 2), () {
       overlayEntry.remove();
     });
@@ -605,12 +573,11 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
 
 // Ultra Minimal Snackbar
 class _UltraMinimalSnackBar extends StatefulWidget {
+  /// العربية: يخزن القيمة `languageCode`.
   final String languageCode;
-
   const _UltraMinimalSnackBar({
     required this.languageCode,
   });
-
   @override
   State<_UltraMinimalSnackBar> createState() => _UltraMinimalSnackBarState();
 }
@@ -620,7 +587,6 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
   @override
   void initState() {
     super.initState();
@@ -628,12 +594,12 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _fadeAnimation = CurvedAnimation(
       parent: _controller,
       curve: Curves.easeOut,
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 1),
       end: Offset.zero,
@@ -641,9 +607,9 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
       parent: _controller,
       curve: Curves.easeOutCubic,
     ));
-    
+
     _controller.forward();
-    
+
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (mounted) {
         _controller.reverse();
@@ -660,7 +626,7 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
   @override
   Widget build(BuildContext context) {
     final isArabic = widget.languageCode == 'ar';
-    
+
     return Positioned(
       bottom: 100,
       left: 20,
@@ -676,15 +642,15 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
                 vertical: 10,
               ),
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.9),
+                color: AppTheme.darkCard.withValues(alpha: 0.9),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: AppTheme.success.withOpacity(0.2),
+                  color: AppTheme.success.withValues(alpha: 0.2),
                   width: 0.5,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.success.withOpacity(0.1),
+                    color: AppTheme.success.withValues(alpha: 0.1),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -703,15 +669,15 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              AppTheme.success.withOpacity(0.2),
-                              AppTheme.success.withOpacity(0.1),
+                              AppTheme.success.withValues(alpha: 0.2),
+                              AppTheme.success.withValues(alpha: 0.1),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Icon(
                           Icons.check_circle,
-                          color: AppTheme.success.withOpacity(0.8),
+                          color: AppTheme.success.withValues(alpha: 0.8),
                           size: 14,
                         ),
                       ),
@@ -722,7 +688,7 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
                             : 'Language changed to English',
                         style: AppTextStyles.caption.copyWith(
                           fontSize: 12,
-                          color: AppTheme.textWhite.withOpacity(0.9),
+                          color: AppTheme.textWhite.withValues(alpha: 0.9),
                         ),
                       ),
                     ],
@@ -739,12 +705,12 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
 
 // Language Model
 class _UltraMinimalLanguage {
+  /// العربية: يخزن القيمة `code`.
   final String code;
   final String name;
   final String subtitle;
   final String icon;
   final String direction;
-
   const _UltraMinimalLanguage({
     required this.code,
     required this.name,
@@ -756,12 +722,11 @@ class _UltraMinimalLanguage {
 
 // Ultra Subtle Background Painter
 class _UltraSubtleBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `pulseAnimation`.
   final double pulseAnimation;
-
   _UltraSubtleBackgroundPainter({
     required this.pulseAnimation,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -773,30 +738,30 @@ class _UltraSubtleBackgroundPainter extends CustomPainter {
       size.width * 0.8,
       size.height * 0.2,
     );
-    
+
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryBlue.withOpacity(0.02 * pulseAnimation),
+        AppTheme.primaryBlue.withValues(alpha: 0.02 * pulseAnimation),
         Colors.transparent,
       ],
       stops: const [0.0, 1.0],
     ).createShader(Rect.fromCircle(center: center, radius: 200));
-    
+
     canvas.drawCircle(center, 200, paint);
-    
+
     // Second subtle orb
     final center2 = Offset(
       size.width * 0.2,
       size.height * 0.7,
     );
-    
+
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryPurple.withOpacity(0.01 * pulseAnimation),
+        AppTheme.primaryPurple.withValues(alpha: 0.01 * pulseAnimation),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(center: center2, radius: 150));
-    
+
     canvas.drawCircle(center2, 150, paint);
   }
 

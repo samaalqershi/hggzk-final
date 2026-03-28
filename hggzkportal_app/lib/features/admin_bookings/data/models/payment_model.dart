@@ -2,7 +2,13 @@ import '../../../../core/enums/payment_method_enum.dart';
 import '../../domain/entities/booking.dart' show Money;
 import '../../domain/entities/booking_details.dart' show Payment;
 
+/// يمثل سجل الدفع المرتبط بالحجز مع أدوات تطبيع المبلغ والطريقة والحالة
+/// قبل عرضه أو تخزينه.
+/// Represents the payment record attached to a booking with normalization
+/// helpers for amount, method, and status before display or storage.
 class PaymentModel extends Payment {
+  /// ينشئ سجل الدفع الكامل بجميع بياناته التشغيلية والمالية.
+  /// Creates the full payment record with its operational and financial data.
   const PaymentModel({
     required super.id,
     required super.bookingId,
@@ -16,13 +22,20 @@ class PaymentModel extends Payment {
     super.receiptUrl,
   });
 
+  /// يحلل عدة أشكال محتملة لحمولة الدفع ثم يطبعها إلى سجل واحد ثابت.
+  /// Parses several possible payment payload shapes and normalizes them into
+  /// one stable record.
   factory PaymentModel.fromJson(Map<String, dynamic> json) {
     // Amount can come as:
     // - a number (PaymentDto.Amount)
     // - a Money object (amount: { amount, currency, ... })
     // - AmountMoney object (AmountMoney: { Amount, Currency, ... })
-    final dynamic amountValue = json['amount'] ?? json['Amount'] ?? json['amountMoney'] ?? json['AmountMoney'];
-    final String currencyFromRoot = (json['currency'] ?? json['Currency'])?.toString() ?? 'YER';
+    final dynamic amountValue = json['amount'] ??
+        json['Amount'] ??
+        json['amountMoney'] ??
+        json['AmountMoney'];
+    final String currencyFromRoot =
+        (json['currency'] ?? json['Currency'])?.toString() ?? 'YER';
 
     Money amountMoney;
     if (amountValue is Map<String, dynamic>) {
@@ -62,6 +75,8 @@ class PaymentModel extends Payment {
     );
   }
 
+  /// يعيد تمثيل الدفعة بصيغة JSON المتوقعة من واجهات الإدارة.
+  /// Serializes the payment using the JSON shape expected by admin endpoints.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -77,9 +92,12 @@ class PaymentModel extends Payment {
     };
   }
 
+  /// يحوّل قيم طريقة الدفع القادمة من الخادم إلى `PaymentMethod` موحد.
+  /// Converts backend payment-method values into one normalized
+  /// `PaymentMethod`.
   static PaymentMethod _parsePaymentMethod(dynamic value) {
     if (value == null) return PaymentMethod.cash;
-    
+
     if (value is int) {
       // Handle backend integer values
       switch (value) {
@@ -107,21 +125,26 @@ class PaymentModel extends Payment {
           return PaymentMethod.cash;
       }
     }
-    
+
     if (value is String) {
       // Handle string values
       return PaymentMethod.values.firstWhere(
-        (method) => method.toString().split('.').last.toLowerCase() == value.toLowerCase(),
+        (method) =>
+            method.toString().split('.').last.toLowerCase() ==
+            value.toLowerCase(),
         orElse: () => PaymentMethod.cash,
       );
     }
-    
+
     return PaymentMethod.cash;
   }
 
+  /// يحوّل قيم حالة الدفع القادمة من الخادم إلى `PaymentStatus` موحد.
+  /// Converts backend payment-status values into one normalized
+  /// `PaymentStatus`.
   static PaymentStatus _parsePaymentStatus(dynamic value) {
     if (value == null) return PaymentStatus.pending;
-    
+
     if (value is String) {
       switch (value.toLowerCase()) {
         case 'successful':
@@ -143,30 +166,40 @@ class PaymentModel extends Payment {
           return PaymentStatus.pending;
       }
     }
-    
+
     return PaymentStatus.pending;
   }
 }
 
+/// يمثل القيمة المالية المصاحبة لعملية الدفع مع العملة والنص المنسق.
+/// Represents the monetary value attached to a payment, including currency
+/// and formatted text.
 class MoneyModel extends Money {
+  /// ينشئ قيمة مالية قابلة للاستخدام في إجماليات الدفع والحجز.
+  /// Creates a monetary value usable in payment and booking totals.
   const MoneyModel({
     required super.amount,
     required super.currency,
     required super.formattedAmount,
   });
 
+  /// يبني قيمة مالية من JSON مع الحفاظ على النص المنسق إذا وُجد.
+  /// Builds a monetary value from JSON while preserving an existing formatted
+  /// string when present.
   factory MoneyModel.fromJson(Map<String, dynamic> json) {
     final amount = (json['amount'] ?? 0).toDouble();
     final currency = json['currency']?.toString() ?? 'YER';
-    
+
     return MoneyModel(
       amount: amount,
       currency: currency,
-      formattedAmount: json['formattedAmount']?.toString() ?? 
-                      '${amount.toStringAsFixed(2)} $currency',
+      formattedAmount: json['formattedAmount']?.toString() ??
+          '${amount.toStringAsFixed(2)} $currency',
     );
   }
 
+  /// يعيد القيمة المالية إلى JSON بنفس أسماء الحقول التي يستخدمها الـ API.
+  /// Serializes the monetary value back to JSON using the API's field names.
   Map<String, dynamic> toJson() {
     return {
       'amount': amount,

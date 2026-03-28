@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -20,25 +19,56 @@ import '../widgets/city_stats_card.dart';
 import '../widgets/city_search_bar.dart';
 import '../../domain/entities/city.dart';
 
+/// Main dashboard page for browsing, filtering, and managing cities.
+///
+/// الصفحة الرئيسية لتصفّح المدن وتصفية النتائج وإدارتها.
 class AdminCitiesPage extends StatefulWidget {
+  /// Creates the admin cities dashboard entry point.
+  ///
+  /// ينشئ نقطة دخول لوحة إدارة المدن.
   const AdminCitiesPage({super.key});
-
   @override
   State<AdminCitiesPage> createState() => _AdminCitiesPageState();
 }
 
+/// Arabic: يدير حالة لوحة المدن بما في ذلك الفلاتر والعرض والحركات والعمليات.
+/// English: Manages the cities dashboard state, including filters, view modes, animations, and actions.
 class _AdminCitiesPageState extends State<AdminCitiesPage>
     with TickerProviderStateMixin {
+  /// Arabic: يتحكم في الحركة الافتتاحية لعناصر الصفحة.
+  /// English: Drives the entrance animation for page content.
   late AnimationController _animationController;
+
+  /// Arabic: ينشئ تأثير النبض للزر العائم المرتبط بالإجراءات.
+  /// English: Creates the pulse animation for the action-focused floating button.
   late AnimationController _fabAnimationController;
+
+  /// Arabic: يسيطر على حركة ظهور بطاقة الإحصاءات واختفائها.
+  /// English: Controls the entrance and exit animation for the statistics card.
   late AnimationController _statsAnimationController;
+
+  /// Arabic: يراقب التمرير داخل المحتوى الرئيسي للمدن.
+  /// English: Tracks scrolling within the main cities content.
   final ScrollController _scrollController = ScrollController();
 
+  /// Arabic: يحدد ما إذا كان العرض الحالي شبكة بطاقات أم قائمة.
+  /// English: Tracks whether the current view is a grid or a list.
   bool _isGridView = true;
+
+  /// Arabic: يتحكم في إظهار قسم الإحصاءات أعلى الصفحة.
+  /// English: Controls whether the statistics section is visible.
   bool _showStats = true;
+
+  /// Arabic: يحفظ البلد المختار حاليًا من فلاتر الدول.
+  /// English: Stores the currently selected country filter.
   String? _selectedCountry;
+
+  /// Arabic: يحفظ فلتر النشاط النشط أو يتركه بلا قيمة عند عدم التصفية.
+  /// English: Stores the active-status filter or stays null when no filter is applied.
   bool? _activeFilter;
 
+  /// Arabic: يهيئ المتحكمات ثم يحمّل المدن والإحصاءات الأولية.
+  /// English: Initializes controllers and loads the initial cities and statistics.
   @override
   void initState() {
     super.initState();
@@ -56,19 +86,24 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     )..forward();
-
     _loadCities();
     _loadStatistics();
   }
 
+  /// Arabic: يطلب تحميل قائمة المدن الحالية من طبقة الـ bloc.
+  /// English: Requests the current city list from the bloc layer.
   void _loadCities() {
     context.read<CitiesBloc>().add(const LoadCitiesEvent());
   }
 
+  /// Arabic: يطلب تحميل إحصاءات المدن لعرضها في البطاقة العلوية.
+  /// English: Requests city statistics for the top summary card.
   void _loadStatistics() {
     context.read<CitiesBloc>().add(LoadCitiesStatisticsEvent());
   }
 
+  /// Arabic: يحرر المتحكمات الحركية ومنفذ التمرير قبل إزالة الصفحة.
+  /// English: Disposes the animation controllers and scroll controller before removal.
   @override
   void dispose() {
     _animationController.dispose();
@@ -78,6 +113,8 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     super.dispose();
   }
 
+  /// Arabic: يبني الصفحة الرئيسية مع الاستماع لتغييرات الحالة.
+  /// English: Builds the main page while listening for state changes.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,6 +138,8 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     );
   }
 
+  /// Arabic: ينشئ شريط العنوان العلوي مع أزرار الإنشاء والتبديل والتحديث.
+  /// English: Builds the top app bar with create, toggle, and refresh actions.
   Widget _buildSliverAppBar() {
     return SliverAppBar(
       expandedHeight: 140,
@@ -229,6 +268,8 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     );
   }
 
+  /// Arabic: يبني زر إجراء صغيرًا داخل شريط العنوان.
+  /// English: Builds a compact action button used in the app bar.
   Widget _buildActionButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -272,6 +313,8 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     );
   }
 
+  /// Arabic: يعرض بطاقة الإحصاءات مع حركة دخول تدريجية.
+  /// English: Renders the statistics card with a staged entrance animation.
   Widget _buildStatsSection() {
     return SliverToBoxAdapter(
       child: AnimatedContainer(
@@ -303,6 +346,8 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     );
   }
 
+  /// Arabic: يعرض شريط البحث والفلترة الخاص بالمدن.
+  /// English: Renders the search and filtering bar for cities.
   Widget _buildSearchSection() {
     return SliverToBoxAdapter(
       child: Padding(
@@ -317,6 +362,8 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     );
   }
 
+  /// Arabic: ينشئ قائمة الشرائح الأفقية لاختيار الدولة أو حالة النشاط.
+  /// English: Builds the horizontal chips used to filter by country or active state.
   Widget _buildFilterChips() {
     return SliverToBoxAdapter(
       child: BlocBuilder<CitiesBloc, CitiesState>(
@@ -386,6 +433,8 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     );
   }
 
+  /// Arabic: يبني شريحة فلتر واحدة مع دعم الأيقونة والحالة المختارة.
+  /// English: Builds one filter chip with optional icon and selected-state styling.
   Widget _buildFilterChip({
     required String label,
     required bool isSelected,
@@ -452,6 +501,8 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     );
   }
 
+  /// Arabic: يعرض محتوى المدن أو حالات التحميل والخطأ والفراغ.
+  /// English: Renders the cities content or its loading, error, and empty states.
   Widget _buildCitiesContent() {
     return BlocBuilder<CitiesBloc, CitiesState>(
       builder: (context, state) {
@@ -503,8 +554,8 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     );
   }
 
-  // Removed FAB: Add action moved to AppBar
-
+  /// Arabic: يبني زر إضافة مدينة أولى عندما تكون القائمة فارغة.
+  /// English: Builds the add-first-city button when the list is empty.
   Widget _buildAddCityButton() {
     return Container(
       decoration: BoxDecoration(
@@ -545,6 +596,8 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     );
   }
 
+  /// Arabic: يتابع حالات الإلغاء والنجاح والفشل ويعرض الواجهات المناسبة.
+  /// English: Handles delete, success, and failure states and shows the matching UI.
   void _handleStateChanges(BuildContext context, CitiesState state) {
     if (state is CityOperationInProgress && state.operation == 'deleting') {
       _showDeletingDialog(cityName: state.cityName);
@@ -557,7 +610,12 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     }
   }
 
+  /// Arabic: يضمن عدم فتح حوار الحذف أكثر من مرة في الوقت نفسه.
+  /// English: Prevents the delete dialog from being shown more than once at a time.
   bool _isDeleting = false;
+
+  /// Arabic: يعرض حوارًا يمنع التفاعل أثناء حذف المدينة.
+  /// English: Shows a blocking dialog while a city is being deleted.
   void _showDeletingDialog({String? cityName}) {
     if (_isDeleting) return;
     _isDeleting = true;
@@ -578,6 +636,8 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     );
   }
 
+  /// Arabic: يغلق حوار الحذف إذا كان ظاهرًا بالفعل.
+  /// English: Closes the delete dialog when it is currently visible.
   void _dismissDeletingDialog() {
     if (_isDeleting) {
       _isDeleting = false;
@@ -587,6 +647,8 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     }
   }
 
+  /// Arabic: يفتح صفحة إنشاء أو تعديل المدينة ثم ينعش القائمة عند الرجوع.
+  /// English: Opens the city create/edit page and refreshes the list when returning.
   Future<void> _showCityForm({City? city}) async {
     HapticFeedback.lightImpact();
 
@@ -604,11 +666,15 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     context.read<CitiesBloc>().add(const RefreshCitiesEvent());
   }
 
+  /// Arabic: يجهز نقطة التنقل إلى صفحة تفاصيل المدينة مستقبلًا.
+  /// English: Prepares the navigation entry point for the city details screen.
   void _showCityDetails(City city) {
     HapticFeedback.lightImpact();
     // Navigate to city details page
   }
 
+  /// Arabic: يعرض حوار تأكيد حذف المدينة قبل إرسال حدث الحذف.
+  /// English: Shows a delete-confirmation dialog before dispatching the delete event.
   void _confirmDeleteCity(City city) {
     HapticFeedback.mediumImpact();
     showDialog(
@@ -625,12 +691,12 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.error.withOpacity(0.3),
+                color: AppTheme.error.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.error.withOpacity(0.2),
+                  color: AppTheme.error.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -643,7 +709,7 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.error.withOpacity(0.1),
+                    color: AppTheme.error.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.delete_outline,
@@ -721,11 +787,15 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     );
   }
 
+  /// Arabic: يفتح نقطة دخول خيارات التصفية الإضافية.
+  /// English: Opens the entry point for additional filter options.
   void _showFilterOptions() {
     HapticFeedback.mediumImpact();
     // Show filter bottom sheet
   }
 
+  /// Arabic: يعرض رسالة نجاح قصيرة بعد تنفيذ عملية ناجحة.
+  /// English: Shows a short success message after an operation completes successfully.
   void _showSuccessMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -746,6 +816,8 @@ class _AdminCitiesPageState extends State<AdminCitiesPage>
     );
   }
 
+  /// Arabic: يعرض رسالة خطأ قصيرة عند فشل العملية.
+  /// English: Shows a short error message when the operation fails.
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

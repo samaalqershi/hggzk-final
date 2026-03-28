@@ -6,13 +6,21 @@ import '../../domain/entities/search_result.dart';
 import '../../domain/repositories/helpers_repository.dart';
 import '../datasources/helpers_remote_datasource.dart';
 
+/// يعرّف الكلاس `HelpersRepositoryImpl`.
+/// Describes the `HelpersRepositoryImpl` class.
 class HelpersRepositoryImpl implements HelpersRepository {
+  /// Holds the `remoteDataSource` value.
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final HelpersRemoteDataSource remoteDataSource;
 
+  /// ينشئ مثيلاً من `HelpersRepositoryImpl`.
+  /// Builds an instance of `HelpersRepositoryImpl`.
   HelpersRepositoryImpl({
     required this.remoteDataSource,
   });
 
+  /// ينفذ العملية `searchUsers`.
+  /// Runs the `searchUsers` operation.
   @override
   Future<Either<Failure, PaginatedResult<SearchResult>>> searchUsers({
     String? searchTerm,
@@ -37,6 +45,8 @@ class HelpersRepositoryImpl implements HelpersRepository {
     }
   }
 
+  /// ينفذ العملية `searchProperties`.
+  /// Runs the `searchProperties` operation.
   @override
   Future<Either<Failure, PaginatedResult<SearchResult>>> searchProperties({
     String? searchTerm,
@@ -63,6 +73,8 @@ class HelpersRepositoryImpl implements HelpersRepository {
     }
   }
 
+  /// ينفذ العملية `searchUnits`.
+  /// Runs the `searchUnits` operation.
   @override
   Future<Either<Failure, PaginatedResult<SearchResult>>> searchUnits({
     String? searchTerm,
@@ -87,6 +99,8 @@ class HelpersRepositoryImpl implements HelpersRepository {
     }
   }
 
+  /// ينفذ العملية `searchCities`.
+  /// Runs the `searchCities` operation.
   @override
   Future<Either<Failure, PaginatedResult<SearchResult>>> searchCities({
     String? searchTerm,
@@ -109,6 +123,8 @@ class HelpersRepositoryImpl implements HelpersRepository {
     }
   }
 
+  /// ينفذ العملية `searchBookings`.
+  /// Runs the `searchBookings` operation.
   @override
   Future<Either<Failure, PaginatedResult<SearchResult>>> searchBookings({
     String? searchTerm,

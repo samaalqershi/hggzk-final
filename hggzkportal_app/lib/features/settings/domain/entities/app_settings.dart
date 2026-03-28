@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class AppSettings extends Equatable {
+  /// العربية: يخزن القيمة `preferredLanguage`.
   final String preferredLanguage;
   final String preferredCurrency;
   final String timeZone;
@@ -9,7 +10,6 @@ class AppSettings extends Equatable {
   final NotificationSettings notificationSettings;
   final Map<String, dynamic> additionalSettings;
   final DateTime? lastUpdated;
-
   const AppSettings({
     this.preferredLanguage = 'ar',
     this.preferredCurrency = 'YER',
@@ -20,7 +20,6 @@ class AppSettings extends Equatable {
     this.additionalSettings = const {},
     this.lastUpdated,
   });
-
   AppSettings copyWith({
     String? preferredLanguage,
     String? preferredCurrency,
@@ -57,6 +56,7 @@ class AppSettings extends Equatable {
 }
 
 class NotificationSettings extends Equatable {
+  /// العربية: يخزن القيمة `bookingNotifications`.
   final bool bookingNotifications;
   final bool promotionalNotifications;
   final bool emailNotifications;
@@ -66,7 +66,6 @@ class NotificationSettings extends Equatable {
   final bool vibrationEnabled;
   final String notificationTone;
   final Map<String, bool> categoryPreferences;
-
   const NotificationSettings({
     this.bookingNotifications = true,
     this.promotionalNotifications = true,
@@ -78,7 +77,6 @@ class NotificationSettings extends Equatable {
     this.notificationTone = 'default',
     this.categoryPreferences = const {},
   });
-
   NotificationSettings copyWith({
     bool? bookingNotifications,
     bool? promotionalNotifications,
@@ -92,7 +90,8 @@ class NotificationSettings extends Equatable {
   }) {
     return NotificationSettings(
       bookingNotifications: bookingNotifications ?? this.bookingNotifications,
-      promotionalNotifications: promotionalNotifications ?? this.promotionalNotifications,
+      promotionalNotifications:
+          promotionalNotifications ?? this.promotionalNotifications,
       emailNotifications: emailNotifications ?? this.emailNotifications,
       smsNotifications: smsNotifications ?? this.smsNotifications,
       pushNotifications: pushNotifications ?? this.pushNotifications,

@@ -2,9 +2,9 @@ import 'package:hggzk/features/auth/data/datasources/auth_local_datasource.dart'
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/storage_constants.dart';
 import '../../../../core/usecases/usecase.dart';
-import '../../../../injection_container.dart';
-import '../../../../services/biometric_auth_service.dart';
-import '../../../../services/local_storage_service.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
+import 'package:hggzk/core/services/biometric_auth_service.dart';
+import 'package:hggzk/core/services/local_storage_service.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/usecases/get_settings_usecase.dart';
 import '../../domain/usecases/update_language_usecase.dart';
@@ -14,17 +14,52 @@ import '../../domain/usecases/update_notification_settings_usecase.dart';
 import 'settings_event.dart';
 import 'settings_state.dart';
 
+/// ينسق كل تغييرات الإعدادات بين طبقة العرض، حالات البلوك، والتخزين المحلي
+/// حتى تبقى التفضيلات الظاهرة للمستخدم متطابقة مع الحالة المحفوظة.
+/// Coordinates all settings changes across the UI, bloc state, and local
+/// persistence so the visible preferences always match what is stored.
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
-  final GetSettingsUseCase getSettingsUseCase;
-  final UpdateLanguageUseCase updateLanguageUseCase;
-  final UpdateThemeUseCase updateThemeUseCase;
-  final UpdateBiometricUseCase? updateBiometricUseCase;
-  final UpdateNotificationSettingsUseCase updateNotificationSettingsUseCase;
-  final AuthLocalDataSource localDataSource;
-  final BiometricAuthService biometricAuthService;
-
+  /// النسخة العاملة من الإعدادات التي تُحدَّث محليًا قبل إعادة قراءتها من
+  /// المصدر الدائم.
+  /// The working settings snapshot that gets updated locally before being
+  /// reloaded from the persistent source.
   AppSettings? _currentSettings;
 
+  /// يحمّل النسخة المعتمدة من الإعدادات عند الطلب حتى يبدأ البلوك من حالة
+  /// صحيحة.
+  /// Loads the authoritative settings snapshot on demand so the bloc starts
+  /// from a valid state.
+  final GetSettingsUseCase getSettingsUseCase;
+
+  /// يحمّل تبديل اللغة ويعيد كتابته في المصدر المسؤول عن حفظ التفضيلات.
+  /// Persists language changes through the use case responsible for settings
+  /// storage.
+  final UpdateLanguageUseCase updateLanguageUseCase;
+
+  /// يطبق تبديل الوضع الفاتح أو الداكن على الإعدادات المحفوظة.
+  /// Persists the light/dark appearance selection in stored settings.
+  final UpdateThemeUseCase updateThemeUseCase;
+
+  /// يحدّث تفضيل البصمة عندما تتوفر طبقة استخدام مخصصة لذلك.
+  /// Updates biometric preferences when a dedicated use case is available.
+  final UpdateBiometricUseCase? updateBiometricUseCase;
+
+  /// يكتب إعدادات الإشعارات الجديدة في المصدر المعتمد.
+  /// Persists the updated notification preferences in the trusted source.
+  final UpdateNotificationSettingsUseCase updateNotificationSettingsUseCase;
+
+  /// يستعمل لتخزين الإعدادات الخفيفة التي لا تحتاج إلى نموذج domain كامل.
+  /// Used for lightweight storage entries that do not need a full domain
+  /// model round-trip.
+  final AuthLocalDataSource localDataSource;
+
+  /// ينسق تخزين واسترجاع سر التحقق البيومتري بشكل آمن.
+  /// Coordinates secure storage and retrieval of the biometric refresh token.
+  final BiometricAuthService biometricAuthService;
+
+  /// ينشئ البلوك مع جميع الاعتمادات التي يحتاجها لتحديث الإعدادات ومزامنتها.
+  /// Creates the bloc with all dependencies needed to update and sync
+  /// settings.
   SettingsBloc({
     required this.getSettingsUseCase,
     required this.updateLanguageUseCase,
@@ -45,10 +80,14 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<SyncSettingsEvent>(_onSyncSettings);
     on<AcceptPrivacyPolicyEvent>(_onAcceptPrivacyPolicy);
 
-    // Load settings on initialization
+    // يبدأ بحالة القراءة الفعلية للإعدادات حتى تكون الشاشة جاهزة عند أول
+    // رسم.
     add(LoadSettingsEvent());
   }
 
+  /// يقرأ الإعدادات المخزنة ويثبتها كنسخة العمل داخل البلوك.
+  /// Reads the stored settings and keeps them as the working snapshot inside
+  /// the bloc.
   Future<void> _onLoadSettings(
     LoadSettingsEvent event,
     Emitter<SettingsState> emit,
@@ -66,6 +105,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     );
   }
 
+  /// يغيّر لغة الواجهة ويحفظ التغيير ثم يعيد تحميل الإعدادات للتأكد من
+  /// اتساق الحالة.
+  /// Changes the interface language, persists it, and reloads settings to
+  /// keep the bloc state aligned.
   Future<void> _onUpdateLanguage(
     UpdateLanguageEvent event,
     Emitter<SettingsState> emit,
@@ -89,13 +132,16 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
             _currentSettings!,
             message: 'تم تغيير اللغة بنجاح',
           ));
-          // Reload to ensure consistency
           add(LoadSettingsEvent());
         },
       );
     }
   }
 
+  /// يبدّل بين الوضع الداكن والفاتح ويحدث الحالة المخزنة مع رسالة
+  /// تأكيد مناسبة.
+  /// Switches between dark and light mode while updating the stored state and
+  /// showing a contextual confirmation message.
   Future<void> _onUpdateTheme(
     UpdateThemeEvent event,
     Emitter<SettingsState> emit,
@@ -121,13 +167,16 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
                 ? 'تم تفعيل الوضع الليلي'
                 : 'تم تفعيل الوضع النهاري',
           ));
-          // Reload to ensure consistency
           add(LoadSettingsEvent());
         },
       );
     }
   }
 
+  /// يطبق تفضيل المصادقة الحيوية ويزامن السر الآمن المرتبط بها إذا كان
+  /// التفعيل متاحًا.
+  /// Applies the biometric preference and syncs the related secure secret when
+  /// biometric login is enabled.
   Future<void> _onUpdateBiometric(
     UpdateBiometricEvent event,
     Emitter<SettingsState> emit,
@@ -136,7 +185,6 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       emit(SettingsUpdating(_currentSettings!));
 
       if (updateBiometricUseCase == null) {
-        // fallback: update locally via localDataSource if DI not available
         try {
           await localDataSource.saveData('biometric_enabled', event.enabled);
           _currentSettings = _currentSettings!.copyWith(
@@ -188,6 +236,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     }
   }
 
+  /// يحفظ إعدادات الإشعارات الجديدة ثم يعيد تحميل الحالة حتى تبقى القيم
+  /// المرئية متطابقة مع التخزين.
+  /// Persists the updated notification settings and reloads the state so the
+  /// visible values stay aligned with storage.
   Future<void> _onUpdateNotificationSettings(
     UpdateNotificationSettingsEvent event,
     Emitter<SettingsState> emit,
@@ -218,6 +270,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     }
   }
 
+  /// يغير العملة المعروضة داخل الإعدادات ويحدث النسخة المحلية مباشرة لأن
+  /// هذه القيمة لا تحتاج مسار حفظ مستقل.
+  /// Updates the displayed currency directly in the local snapshot because
+  /// this preference does not use a dedicated persistence path here.
   Future<void> _onUpdateCurrency(
     UpdateCurrencyEvent event,
     Emitter<SettingsState> emit,
@@ -238,6 +294,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     }
   }
 
+  /// يغير المنطقة الزمنية النشطة حتى تبقى الحسابات الزمنية والختمات
+  /// الزمنية متوافقة مع بيئة المستخدم.
+  /// Updates the active time zone so time-based calculations and timestamps
+  /// stay aligned with the user's environment.
   Future<void> _onUpdateTimeZone(
     UpdateTimeZoneEvent event,
     Emitter<SettingsState> emit,
@@ -256,6 +316,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     }
   }
 
+  /// يعيد الإعدادات إلى القيم الافتراضية ثم يعرض الحالة الجديدة بدل ترك
+  /// القيم القديمة معلقة.
+  /// Restores the default settings and then emits the fresh state instead of
+  /// leaving the previous values in place.
   Future<void> _onResetSettings(
     ResetSettingsEvent event,
     Emitter<SettingsState> emit,
@@ -274,6 +338,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     add(LoadSettingsEvent());
   }
 
+  /// يطلب مهلة قصيرة ثم يعيد نشر الحالة الحالية لتقليد مزامنة خارجية
+  /// عندما لا يكون هناك مسار API مباشر هنا.
+  /// Waits briefly and then re-emits the current state to simulate an external
+  /// sync when no dedicated API path exists in this bloc.
   Future<void> _onSyncSettings(
     SyncSettingsEvent event,
     Emitter<SettingsState> emit,
@@ -291,6 +359,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     }
   }
 
+  /// يسجل موافقة المستخدم على سياسة الخصوصية في التخزين المحلي ويضيفها إلى
+  /// snapshot الإعدادات حتى تستفيد منها بقية الطبقات.
+  /// Records privacy-policy acceptance in local storage and folds it into the
+  /// settings snapshot so other layers can rely on the consent state.
   Future<void> _onAcceptPrivacyPolicy(
     AcceptPrivacyPolicyEvent event,
     Emitter<SettingsState> emit,
@@ -314,6 +386,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     }
   }
 
+  /// ينسخ سر التحقق البيومتري أو يمسحه بحسب حالة التفعيل حتى يبقى الدخول
+  /// الآمن متوافقًا مع التفضيل الحالي.
+  /// Copies or clears the biometric refresh token depending on the enabled
+  /// flag so secure sign-in always matches the current preference.
   Future<void> _syncBiometricStorage(bool enabled) async {
     if (enabled) {
       String? refreshToken;

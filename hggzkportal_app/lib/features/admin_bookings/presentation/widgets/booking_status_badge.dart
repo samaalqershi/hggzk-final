@@ -6,14 +6,31 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/enums/booking_status.dart';
 
+/// يحدد الأحجام المتاحة لشارة حالة الحجز في الواجهة.
+/// Defines the available badge sizes for booking status chips.
 enum BadgeSize { small, medium, large }
 
+/// يعرض حالة الحجز بشكل بصري مدمج مع لون وأيقونة وحركة اختيارية.
+/// Renders a compact booking status indicator with color, icon, and optional animation.
 class BookingStatusBadge extends StatelessWidget {
+  /// يحدد حالة الحجز التي سيعتمد عليها لون الشارة وأيقونتها.
+  /// Defines the booking status that drives the badge color and icon.
   final BookingStatus status;
+
+  /// يحدد حجم الشارة وطريقة تباعدها الداخلي.
+  /// Defines the badge size and its internal spacing.
   final BadgeSize size;
+
+  /// يحدد ما إذا كان يجب إظهار الأيقونة بجانب النص.
+  /// Controls whether the icon is shown next to the label.
   final bool showIcon;
+
+  /// يحدد ما إذا كانت الشارة تستخدم تأثير الوميض للحالات المنتظرة.
+  /// Controls whether pending statuses use a pulsing animation.
   final bool animated;
 
+  /// ينشئ شارة الحالة مع خيارات العرض والحجم والسلوك البصري.
+  /// Creates the status badge with size, icon, and animation options.
   const BookingStatusBadge({
     super.key,
     required this.status,
@@ -22,6 +39,8 @@ class BookingStatusBadge extends StatelessWidget {
     this.animated = true,
   });
 
+  /// يبني الشارة النهائية مع النص والأيقونة والحالة اللونية المناسبة.
+  /// Builds the final badge with the label, icon, and matching visual state.
   @override
   Widget build(BuildContext context) {
     final config = _getStatusConfig();
@@ -31,13 +50,13 @@ class BookingStatusBadge extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            config.color.withOpacity(0.15),
-            config.color.withOpacity(0.08),
+            config.color.withValues(alpha: 0.15),
+            config.color.withValues(alpha: 0.08),
           ],
         ),
         borderRadius: BorderRadius.circular(_getBorderRadius()),
         border: Border.all(
-          color: config.color.withOpacity(0.3),
+          color: config.color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -70,6 +89,9 @@ class BookingStatusBadge extends StatelessWidget {
     return badge;
   }
 
+  /// Resolves the color and icon pair that matches the current booking status.
+  ///
+  /// يحدد زوج اللون والأيقونة الموافق لحالة الحجز الحالية.
   _StatusConfig _getStatusConfig() {
     switch (status) {
       case BookingStatus.confirmed:
@@ -100,6 +122,9 @@ class BookingStatusBadge extends StatelessWidget {
     }
   }
 
+  /// Chooses internal spacing based on the selected badge size.
+  ///
+  /// يختار التباعد الداخلي وفق حجم الشارة المحدد.
   EdgeInsets _getPadding() {
     switch (size) {
       case BadgeSize.small:
@@ -111,6 +136,9 @@ class BookingStatusBadge extends StatelessWidget {
     }
   }
 
+  /// Chooses the corner radius that keeps the badge proportions balanced.
+  ///
+  /// يختار نصف قطر الزوايا الذي يحافظ على توازن أبعاد الشارة.
   double _getBorderRadius() {
     switch (size) {
       case BadgeSize.small:
@@ -122,6 +150,9 @@ class BookingStatusBadge extends StatelessWidget {
     }
   }
 
+  /// Chooses the icon size that fits the selected badge variant.
+  ///
+  /// يختار حجم الأيقونة المناسب لنسخة الشارة المختارة.
   double _getIconSize() {
     switch (size) {
       case BadgeSize.small:
@@ -133,6 +164,9 @@ class BookingStatusBadge extends StatelessWidget {
     }
   }
 
+  /// Chooses the gap between icon and text for the current badge size.
+  ///
+  /// يختار المسافة بين الأيقونة والنص وفق حجم الشارة الحالي.
   double _getSpacing() {
     switch (size) {
       case BadgeSize.small:
@@ -144,6 +178,9 @@ class BookingStatusBadge extends StatelessWidget {
     }
   }
 
+  /// Returns the typography variant that matches the selected badge size.
+  ///
+  /// يعيد نمط الخط الموافق لحجم الشارة المختار.
   TextStyle _getTextStyle() {
     switch (size) {
       case BadgeSize.small:
@@ -156,30 +193,57 @@ class BookingStatusBadge extends StatelessWidget {
   }
 }
 
+/// Stores the minimal visual recipe needed to render one status badge variant.
+///
+/// يخزن الوصفة البصرية الدنيا اللازمة لرسم نسخة واحدة من شارة الحالة.
 class _StatusConfig {
+  /// يحدد لون الحالة المستخدم في التدرج وحدود الشارة.
+  /// Defines the color used for the badge gradient and border.
   final Color color;
+
+  /// يحدد الأيقونة المرتبطة بهذه الحالة.
+  /// Defines the icon associated with this status.
   final IconData icon;
 
+  /// ينشئ تكوين الحالة الداخلي الذي يربط اللون بالأيقونة.
+  /// Creates the internal status configuration that pairs color with icon.
   const _StatusConfig({
     required this.color,
     required this.icon,
   });
 }
 
+/// يضيف تأثير وميض خفيف للشارة عندما تحتاج الحالة إلى لفت الانتباه.
+/// Adds a subtle pulsing effect when the badge needs attention.
 class _AnimatedBadge extends StatefulWidget {
+  /// يحدد العنصر المراد تطبيق تأثير الوميض عليه.
+  /// Defines the child widget that receives the pulsing effect.
   final Widget child;
 
+  /// ينشئ غلاف الحركة للعنصر الداخلي.
+  /// Creates the animated wrapper for the inner child.
   const _AnimatedBadge({required this.child});
 
+  /// ينشئ حالة الوميض المتحركة.
+  /// Creates the pulsing animation state.
   @override
   State<_AnimatedBadge> createState() => _AnimatedBadgeState();
 }
 
+/// يدير متحكم الحركة والتدرج الزمني لتأثير الوميض.
+/// Manages the animation controller and tween used for the pulse effect.
 class _AnimatedBadgeState extends State<_AnimatedBadge>
     with SingleTickerProviderStateMixin {
+  /// متحكم الحركة الذي يعيد تشغيل الوميض بشكل دوري.
+  /// Animation controller that repeats the pulse loop.
   late AnimationController _controller;
+
+  /// قيمة التعتيم المتدرجة المستخدمة في الوميض.
+  /// Opacity tween used to create the pulse.
   late Animation<double> _animation;
 
+  /// يجهز المتحكم والانتقال التدريجي قبل العرض الأول.
+  /// Initializes the animation controller and tween before the first frame.
   @override
   void initState() {
     super.initState();
@@ -197,12 +261,16 @@ class _AnimatedBadgeState extends State<_AnimatedBadge>
     ));
   }
 
+  /// يحرر متحكم الحركة عند إزالة الويدجت من الشجرة.
+  /// Disposes the animation controller when the widget leaves the tree.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// يعرض الطفل مع تعتيم متحرك يعبّر عن حالة الوميض.
+  /// Renders the child with animated opacity for the pulsing effect.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(

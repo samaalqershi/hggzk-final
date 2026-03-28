@@ -7,17 +7,16 @@ import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/service.dart';
-import '../../domain/entities/pricing_model.dart';
 import '../utils/service_icons.dart';
 
 /// 🎴 Ultra Premium Service Card - Fixed Version
 class FuturisticServiceCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `service`.
   final Service service;
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final bool isSelected;
-
   const FuturisticServiceCard({
     super.key,
     required this.service,
@@ -26,11 +25,9 @@ class FuturisticServiceCard extends StatefulWidget {
     this.onDelete,
     this.isSelected = false,
   });
-
   @override
   State<FuturisticServiceCard> createState() => _FuturisticServiceCardState();
 }
-
 class _FuturisticServiceCardState extends State<FuturisticServiceCard>
     with TickerProviderStateMixin {
   // Animation Controllers
@@ -43,17 +40,14 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
   late Animation<double> _shimmerAnimation;
   late Animation<double> _pulseAnimation;
   late Animation<double> _rotationAnimation;
-
   bool _isHovered = false;
   bool _isPressed = false;
   bool _showActions = false;
-
   @override
   void initState() {
     super.initState();
     _initAnimations();
   }
-
   void _initAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -102,7 +96,6 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       curve: Curves.linear,
     ));
   }
-
   @override
   void dispose() {
     _animationController.dispose();
@@ -110,7 +103,6 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
     _pulseController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -191,7 +183,6 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
-
   Widget _buildMainCard({
     required IconData icon,
     required bool isMobile,
@@ -204,9 +195,11 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.isDark ? AppTheme.darkCard.withOpacity(0.9) : Colors.white,
             AppTheme.isDark
-                ? AppTheme.darkCard.withOpacity(0.7)
+                ? AppTheme.darkCard.withValues(alpha: 0.9)
+                : Colors.white,
+            AppTheme.isDark
+                ? AppTheme.darkCard.withValues(alpha: 0.7)
                 : Colors.grey.shade50,
           ],
         ),
@@ -215,26 +208,26 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
         ),
         border: Border.all(
           color: widget.isSelected
-              ? AppTheme.primaryBlue.withOpacity(0.5)
+              ? AppTheme.primaryBlue.withValues(alpha: 0.5)
               : _isHovered
-                  ? AppTheme.primaryBlue.withOpacity(0.3)
-                  : AppTheme.darkBorder.withOpacity(0.1),
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                  : AppTheme.darkBorder.withValues(alpha: 0.1),
           width: widget.isSelected ? 2 : 1,
         ),
         boxShadow: [
           BoxShadow(
             color: widget.isSelected
-                ? AppTheme.primaryBlue.withOpacity(0.2)
+                ? AppTheme.primaryBlue.withValues(alpha: 0.2)
                 : _isHovered
-                    ? AppTheme.primaryBlue.withOpacity(0.15)
-                    : Colors.black.withOpacity(0.08),
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.15)
+                    : Colors.black.withValues(alpha: 0.08),
             blurRadius: _isHovered ? 30 : 15,
             offset: Offset(0, _isHovered ? 8 : 4),
             spreadRadius: _isHovered ? 5 : 0,
           ),
           if (_isHovered)
             BoxShadow(
-              color: AppTheme.primaryPurple.withOpacity(0.1),
+              color: AppTheme.primaryPurple.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(-5, -5),
             ),
@@ -249,8 +242,8 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
             child: InkWell(
               onTap: widget.onTap,
               borderRadius: BorderRadius.circular(isMobile ? 16 : 20),
-              splashColor: AppTheme.primaryBlue.withOpacity(0.1),
-              highlightColor: AppTheme.primaryBlue.withOpacity(0.05),
+              splashColor: AppTheme.primaryBlue.withValues(alpha: 0.1),
+              highlightColor: AppTheme.primaryBlue.withValues(alpha: 0.05),
               child: _buildCardContent(
                 icon: icon,
                 isMobile: isMobile,
@@ -263,7 +256,6 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
-
   Widget _buildCardContent({
     required IconData icon,
     required bool isMobile,
@@ -278,7 +270,6 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       return _buildDesktopLayout(icon);
     }
   }
-
   Widget _buildMobileLayout(IconData icon) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -303,15 +294,16 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                AppTheme.primaryBlue
-                                    .withOpacity(0.15 * _pulseAnimation.value),
-                                AppTheme.primaryPurple
-                                    .withOpacity(0.08 * _pulseAnimation.value),
+                                AppTheme.primaryBlue.withValues(
+                                    alpha: 0.15 * _pulseAnimation.value),
+                                AppTheme.primaryPurple.withValues(
+                                    alpha: 0.08 * _pulseAnimation.value),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: AppTheme.primaryBlue.withOpacity(0.2),
+                              color:
+                                  AppTheme.primaryBlue.withValues(alpha: 0.2),
                               width: 1,
                             ),
                           ),
@@ -354,7 +346,8 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryBlue.withOpacity(0.08),
+                              color:
+                                  AppTheme.primaryBlue.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -389,13 +382,13 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.success.withOpacity(0.08),
-                      AppTheme.success.withOpacity(0.04),
+                      AppTheme.success.withValues(alpha: 0.08),
+                      AppTheme.success.withValues(alpha: 0.04),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: AppTheme.success.withOpacity(0.2),
+                    color: AppTheme.success.withValues(alpha: 0.2),
                     width: 0.5,
                   ),
                 ),
@@ -422,7 +415,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                           Text(
                             widget.service.price.currency,
                             style: AppTextStyles.caption.copyWith(
-                              color: AppTheme.success.withOpacity(0.8),
+                              color: AppTheme.success.withValues(alpha: 0.8),
                               fontSize: 10,
                             ),
                           ),
@@ -435,7 +428,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.success.withOpacity(0.1),
+                        color: AppTheme.success.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -497,7 +490,6 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       },
     );
   }
-
   Widget _buildTabletLayout(IconData icon) {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -514,14 +506,14 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                   gradient: LinearGradient(
                     colors: [
                       AppTheme.primaryBlue
-                          .withOpacity(0.15 * _pulseAnimation.value),
+                          .withValues(alpha: 0.15 * _pulseAnimation.value),
                       AppTheme.primaryPurple
-                          .withOpacity(0.08 * _pulseAnimation.value),
+                          .withValues(alpha: 0.08 * _pulseAnimation.value),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: AppTheme.primaryBlue.withOpacity(0.2),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
@@ -562,10 +554,10 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryBlue.withOpacity(0.08),
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(5),
                           border: Border.all(
-                            color: AppTheme.primaryBlue.withOpacity(0.15),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.15),
                             width: 0.5,
                           ),
                         ),
@@ -586,7 +578,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                         child: Text(
                           'Icons.${widget.service.icon}',
                           style: AppTextStyles.caption.copyWith(
-                            color: AppTheme.textMuted.withOpacity(0.5),
+                            color: AppTheme.textMuted.withValues(alpha: 0.5),
                             fontFamily: 'monospace',
                             fontSize: 9,
                           ),
@@ -622,7 +614,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                   Text(
                     widget.service.price.currency,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.success.withOpacity(0.8),
+                      color: AppTheme.success.withValues(alpha: 0.8),
                       fontSize: 10,
                     ),
                   ),
@@ -635,7 +627,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                   vertical: 2,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.success.withOpacity(0.08),
+                  color: AppTheme.success.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -659,7 +651,6 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
-
   Widget _buildDesktopLayout(IconData icon) {
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -677,8 +668,8 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.primaryBlue.withOpacity(0.15),
-                        AppTheme.primaryPurple.withOpacity(0.08),
+                        AppTheme.primaryBlue.withValues(alpha: 0.15),
+                        AppTheme.primaryPurple.withValues(alpha: 0.08),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -686,13 +677,14 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
                       color: AppTheme.primaryBlue
-                          .withOpacity(_isHovered ? 0.3 : 0.2),
+                          .withValues(alpha: _isHovered ? 0.3 : 0.2),
                       width: _isHovered ? 1.5 : 1,
                     ),
                     boxShadow: _isHovered
                         ? [
                             BoxShadow(
-                              color: AppTheme.primaryBlue.withOpacity(0.2),
+                              color:
+                                  AppTheme.primaryBlue.withValues(alpha: 0.2),
                               blurRadius: 15,
                               spreadRadius: 2,
                             ),
@@ -738,13 +730,13 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            AppTheme.primaryBlue.withOpacity(0.1),
-                            AppTheme.primaryPurple.withOpacity(0.05),
+                            AppTheme.primaryBlue.withValues(alpha: 0.1),
+                            AppTheme.primaryPurple.withValues(alpha: 0.05),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: AppTheme.primaryBlue.withOpacity(0.2),
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                           width: 0.5,
                         ),
                       ),
@@ -754,7 +746,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                           Icon(
                             Icons.business_rounded,
                             size: 14,
-                            color: AppTheme.primaryBlue.withOpacity(0.8),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.8),
                           ),
                           const SizedBox(width: 6),
                           Text(
@@ -774,7 +766,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                       Text(
                         'Icons.${widget.service.icon}',
                         style: AppTextStyles.caption.copyWith(
-                          color: AppTheme.textMuted.withOpacity(0.5),
+                          color: AppTheme.textMuted.withValues(alpha: 0.5),
                           fontFamily: 'monospace',
                           fontSize: 11,
                         ),
@@ -795,13 +787,13 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.success.withOpacity(0.08),
-                  AppTheme.success.withOpacity(0.04),
+                  AppTheme.success.withValues(alpha: 0.08),
+                  AppTheme.success.withValues(alpha: 0.04),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppTheme.success.withOpacity(0.2),
+                color: AppTheme.success.withValues(alpha: 0.2),
                 width: 0.5,
               ),
             ),
@@ -824,7 +816,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                     Text(
                       widget.service.price.currency,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppTheme.success.withOpacity(0.8),
+                        color: AppTheme.success.withValues(alpha: 0.8),
                       ),
                     ),
                   ],
@@ -836,13 +828,13 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.success.withOpacity(0.1),
+                    color: AppTheme.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     widget.service.pricingModel.label,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.success.withOpacity(0.9),
+                      color: AppTheme.success.withValues(alpha: 0.9),
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
                     ),
@@ -861,7 +853,6 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
-
   Widget _buildShimmerOverlay() {
     return Positioned.fill(
       child: AnimatedBuilder(
@@ -876,9 +867,9 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                 colors: [
                   Colors.transparent,
                   AppTheme.primaryBlue
-                      .withOpacity(0.05 * _shimmerAnimation.value),
+                      .withValues(alpha: 0.05 * _shimmerAnimation.value),
                   AppTheme.primaryPurple
-                      .withOpacity(0.03 * _shimmerAnimation.value),
+                      .withValues(alpha: 0.03 * _shimmerAnimation.value),
                   Colors.transparent,
                 ],
                 stops: [
@@ -894,7 +885,6 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
-
   Widget _buildSelectionIndicator() {
     return Positioned(
       top: 8,
@@ -907,7 +897,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryBlue.withOpacity(0.4),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.4),
               blurRadius: 8,
               spreadRadius: 2,
             ),
@@ -921,16 +911,15 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
-
   Widget _buildMobileActionButton() {
     return Container(
       width: 32,
       height: 32,
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.3),
+        color: AppTheme.darkSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.1),
+          color: AppTheme.darkBorder.withValues(alpha: 0.1),
           width: 0.5,
         ),
       ),
@@ -951,7 +940,6 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
-
   Widget _buildActionButton({
     required IconData icon,
     required String label,
@@ -972,10 +960,10 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
             vertical: 6,
           ),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.08),
+            color: color.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               width: 0.5,
             ),
           ),
@@ -1003,7 +991,6 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
-
   Widget _buildDesktopActions() {
     return Row(
       children: [
@@ -1015,7 +1002,8 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
             },
             icon: Icon(
               Icons.edit_outlined,
-              color: AppTheme.primaryBlue.withOpacity(_isHovered ? 1 : 0.7),
+              color:
+                  AppTheme.primaryBlue.withValues(alpha: _isHovered ? 1 : 0.7),
               size: 20,
             ),
             tooltip: 'تعديل',
@@ -1028,7 +1016,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
             },
             icon: Icon(
               Icons.delete_outline,
-              color: AppTheme.error.withOpacity(_isHovered ? 1 : 0.7),
+              color: AppTheme.error.withValues(alpha: _isHovered ? 1 : 0.7),
               size: 20,
             ),
             tooltip: 'حذف',
@@ -1036,7 +1024,6 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ],
     );
   }
-
   List<PopupMenuEntry<String>> _buildMenuItems() {
     return [
       if (widget.onEdit != null)
@@ -1085,7 +1072,6 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
         ),
     ];
   }
-
   void _handleAction(String value) {
     HapticFeedback.lightImpact();
     switch (value) {

@@ -6,8 +6,11 @@ import '../repositories/daily_schedule_repository.dart';
 
 /// معاملات الحصول على الجدول الشهري
 class GetMonthlyScheduleParams {
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
+
   final int year;
+
   final int month;
 
   const GetMonthlyScheduleParams({

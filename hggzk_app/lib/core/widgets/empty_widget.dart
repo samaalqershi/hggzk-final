@@ -2,11 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart'; // Assuming you use SVG for icons
 import '../theme/app_text_styles.dart';
 
+/// يقدّم حالة فارغة جاهزة للاستخدام عندما لا توجد بيانات أو نتائج لعرضها.
+/// Provides a reusable empty state when the screen has no data or results.
 class EmptyWidget extends StatelessWidget {
+  /// الرسالة التي تشرح للمستخدم لماذا الشاشة فارغة أو ماذا يمكنه أن يفعل بعد ذلك.
+  /// Message shown to explain why the screen is empty or what the user can do next.
   final String message;
-  final String? emptyImage; // Path to an empty state illustration (e.g., SVG or PNG)
-  final Widget? actionWidget; // Optional widget for action (e.g., button to add item)
 
+  /// أصل الصورة أو الرسم التوضيحي الذي يدعم الحالة الفارغة بصريًا.
+  /// Asset path for the illustration that gives the empty state visual context.
+  final String? emptyImage;
+
+  /// إجراء اختياري يوجّه المستخدم إلى خطوة مفيدة مثل الإضافة أو إعادة المحاولة.
+  /// Optional action that helps the user continue, such as add or retry.
+  final Widget? actionWidget;
+
+  /// ينشئ الحالة الفارغة مع إبقاء النص والأصول والقائمة الجانبية قابلة للتخصيص.
+  /// Creates the empty state with customizable copy, artwork, and follow-up action.
   const EmptyWidget({
     super.key,
     required this.message,
@@ -14,6 +26,8 @@ class EmptyWidget extends StatelessWidget {
     this.actionWidget,
   });
 
+  /// يبني المحتوى المركزي الذي يظهر عندما لا توجد عناصر لعرضها.
+  /// Builds the centered content shown when no items are available.
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -22,7 +36,8 @@ class EmptyWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (emptyImage != null && emptyImage!.toLowerCase().endsWith('.svg'))
+            if (emptyImage != null &&
+                emptyImage!.toLowerCase().endsWith('.svg'))
               SvgPicture.asset(
                 emptyImage!,
                 height: 100, // Adjust size as needed
@@ -36,7 +51,12 @@ class EmptyWidget extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium.copyWith(color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.7)),
+              style: AppTextStyles.bodyMedium.copyWith(
+                  color: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.color
+                      ?.withValues(alpha: 0.7)),
             ),
             if (actionWidget != null) ...[
               const SizedBox(height: 24.0),

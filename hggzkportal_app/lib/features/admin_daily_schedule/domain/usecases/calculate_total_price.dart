@@ -5,8 +5,11 @@ import '../repositories/daily_schedule_repository.dart';
 
 /// معاملات حساب السعر الإجمالي
 class CalculateTotalPriceParams {
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
+
   final DateTime startDate;
+
   final DateTime endDate;
 
   const CalculateTotalPriceParams({

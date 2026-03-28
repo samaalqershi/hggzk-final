@@ -2,24 +2,22 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-
 class ImageHelper {
-  static const String defaultPropertyImage = 'assets/images/default_property.jpg';
+  static const String defaultPropertyImage =
+      'assets/images/default_property.jpg';
   static const String defaultUserAvatar = 'assets/images/default_avatar.png';
-  
   static String getValidImageUrl(String? url) {
     if (url == null || url.isEmpty) {
       return defaultPropertyImage;
     }
-    
+
     // تجنب استخدام placeholder.com عند عدم وجود اتصال
     if (url.contains('placeholder.com')) {
       return defaultPropertyImage;
     }
-    
+
     return url;
   }
-  
   static Widget buildCachedImage({
     required String? imageUrl,
     double? width,
@@ -29,7 +27,7 @@ class ImageHelper {
     Widget? errorWidget,
   }) {
     final url = getValidImageUrl(imageUrl);
-    
+
     // إذا كان URL محلي (asset)
     if (url.startsWith('assets/')) {
       return Image.asset(
@@ -42,7 +40,7 @@ class ImageHelper {
         },
       );
     }
-    
+
     // إذا كان URL عادي
     return CachedNetworkImage(
       imageUrl: url,
@@ -50,10 +48,10 @@ class ImageHelper {
       height: height,
       fit: fit,
       placeholder: (context, url) => placeholder ?? _buildDefaultPlaceholder(),
-      errorWidget: (context, url, error) => errorWidget ?? _buildDefaultErrorWidget(),
+      errorWidget: (context, url, error) =>
+          errorWidget ?? _buildDefaultErrorWidget(),
     );
   }
-  
   static Widget _buildDefaultPlaceholder() {
     return Container(
       color: Colors.grey[300],
@@ -62,7 +60,6 @@ class ImageHelper {
       ),
     );
   }
-  
   static Widget _buildDefaultErrorWidget() {
     return Container(
       color: Colors.grey[200],

@@ -17,18 +17,51 @@ import '../../domain/entities/message.dart';
 import '../bloc/chat_bloc.dart';
 import '../models/image_upload_info.dart';
 
+/// يعرّف الكلاس `MessageInputWidget`.
+/// Describes the `MessageInputWidget` class.
 class MessageInputWidget extends StatefulWidget {
+  /// Holds the `controller` value.
+  /// العربية: يخزن القيمة `controller`.
   final TextEditingController controller;
+
+  /// يخزن العضو `focusNode`.
+  /// Holds the `focusNode` member.
   final FocusNode focusNode;
+
+  /// يخزن العضو `conversationId`.
+  /// Holds the `conversationId` member.
   final String conversationId;
+
+  /// يخزن العضو `replyToMessageId`.
+  /// Holds the `replyToMessageId` member.
   final String? replyToMessageId;
+
+  /// يخزن العضو `editingMessage`.
+  /// Holds the `editingMessage` member.
   final Message? editingMessage;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(String) onSend;
+
+  /// يخزن العضو `onAttachment`.
+  /// Holds the `onAttachment` member.
   final VoidCallback? onAttachment;
+
+  /// يخزن العضو `onLocation`.
+  /// Holds the `onLocation` member.
   final VoidCallback? onLocation;
+
+  /// يخزن العضو `onCancelReply`.
+  /// Holds the `onCancelReply` member.
   final VoidCallback? onCancelReply;
+
+  /// يخزن العضو `onCancelEdit`.
+  /// Holds the `onCancelEdit` member.
   final VoidCallback? onCancelEdit;
 
+  /// ينشئ مثيلاً من `MessageInputWidget`.
+  /// Builds an instance of `MessageInputWidget`.
   const MessageInputWidget({
     super.key,
     required this.controller,
@@ -43,32 +76,81 @@ class MessageInputWidget extends StatefulWidget {
     this.onCancelEdit,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<MessageInputWidget> createState() => _MessageInputWidgetState();
 }
 
+/// يعرّف الكلاس `_MessageInputWidgetState`.
+/// Describes the `_MessageInputWidgetState` class.
 class _MessageInputWidgetState extends State<MessageInputWidget>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_sendButtonAnimation`.
+  /// Holds the `_sendButtonAnimation` member.
   late Animation<double> _sendButtonAnimation;
+
+  /// يخزن العضو `_recordAnimation`.
+  /// Holds the `_recordAnimation` member.
   late Animation<double> _recordAnimation;
 
   final AudioRecorder _audioRecorder = AudioRecorder();
+
+  /// يخزن العضو `_isRecording`.
+  /// Holds the `_isRecording` member.
   bool _isRecording = false;
+
+  /// يخزن العضو `_showAttachmentOptions`.
+  /// Holds the `_showAttachmentOptions` member.
   bool _showAttachmentOptions = false;
+
+  /// يخزن العضو `_showEmojiPicker`.
+  /// Holds the `_showEmojiPicker` member.
   bool _showEmojiPicker = false;
+
+  /// يخزن العضو `_recordingPath`.
+  /// Holds the `_recordingPath` member.
   String _recordingPath = '';
+
+  /// يخزن العضو `_recordStartAt`.
+  /// Holds the `_recordStartAt` member.
   DateTime? _recordStartAt;
+
+  /// يخزن العضو `_recordTimer`.
+  /// Holds the `_recordTimer` member.
   Timer? _recordTimer;
+
+  /// يخزن العضو `_recordElapsedText`.
+  /// Holds the `_recordElapsedText` member.
   String _recordElapsedText = '0:00';
+
+  /// يخزن العضو `_recordCancelled`.
+  /// Holds the `_recordCancelled` member.
   bool _recordCancelled = false;
 
+  /// يخزن العضو `_progressTimer`.
+  /// Holds the `_progressTimer` member.
   Timer? _progressTimer;
+
+  /// يخزن العضو `_currentDisplayedProgress`.
+  /// Holds the `_currentDisplayedProgress` member.
   double _currentDisplayedProgress = 0.0;
+
+  /// يخزن العضو `_targetProgress`.
+  /// Holds the `_targetProgress` member.
   double _targetProgress = 0.0;
+
+  /// يخزن العضو `_currentUploadId`.
+  /// Holds the `_currentUploadId` member.
   String? _currentUploadId;
 
   // Emoji categories - احترافي
+  /// يخزن العضو `_emojiCategories`.
+  /// Holds the `_emojiCategories` member.
   final Map<String, List<String>> _emojiCategories = {
     'وجوه': [
       '😀',
@@ -258,9 +340,13 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     ],
   };
 
+  /// يخزن العضو `_selectedCategory`.
+  /// Holds the `_selectedCategory` member.
   String _selectedCategory = 'وجوه';
   final ScrollController _emojiScrollController = ScrollController();
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -295,6 +381,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     });
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _progressTimer?.cancel();
@@ -304,6 +392,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     super.dispose();
   }
 
+  /// ينفذ العملية `_startSmoothProgress`.
+  /// Runs the `_startSmoothProgress` operation.
   void _startSmoothProgress(String baseUploadId) {
     _currentUploadId = baseUploadId;
     _currentDisplayedProgress = 0.0;
@@ -345,10 +435,14 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     });
   }
 
+  /// ينفذ العملية `_updateTargetProgress`.
+  /// Runs the `_updateTargetProgress` operation.
   void _updateTargetProgress(double progress) {
     _targetProgress = progress;
   }
 
+  /// ينفذ العملية `_stopSmoothProgress`.
+  /// Runs the `_stopSmoothProgress` operation.
   void _stopSmoothProgress() {
     _progressTimer?.cancel();
     _currentDisplayedProgress = 0.0;
@@ -356,6 +450,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     _currentUploadId = null;
   }
 
+  /// ينفذ العملية `_onTextChanged`.
+  /// Runs the `_onTextChanged` operation.
   void _onTextChanged() {
     if (widget.controller.text.isNotEmpty && _sendButtonAnimation.value == 0) {
       _animationController.forward();
@@ -365,6 +461,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     }
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -416,6 +514,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalAttachmentOptions`.
+  /// Runs the `_buildMinimalAttachmentOptions` operation.
   Widget _buildMinimalAttachmentOptions() {
     return Container(
       height: 64,
@@ -480,6 +580,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
   }
 
   // Emoji Picker احترافي جداً
+  /// ينفذ العملية `_buildProfessionalEmojiPicker`.
+  /// Runs the `_buildProfessionalEmojiPicker` operation.
   Widget _buildProfessionalEmojiPicker() {
     return Container(
       height: 280,
@@ -600,6 +702,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// ينفذ العملية `_insertEmoji`.
+  /// Runs the `_insertEmoji` operation.
   void _insertEmoji(String emoji) {
     final text = widget.controller.text;
     final selection = widget.controller.selection;
@@ -622,6 +726,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     }
   }
 
+  /// ينفذ العملية `_buildMinimalAttachmentButton`.
+  /// Runs the `_buildMinimalAttachmentButton` operation.
   Widget _buildMinimalAttachmentButton() {
     return GestureDetector(
       onTap: () {
@@ -672,6 +778,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalInputField`.
+  /// Runs the `_buildMinimalInputField` operation.
   Widget _buildMinimalInputField() {
     return Container(
       constraints: const BoxConstraints(
@@ -764,6 +872,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalActionButton`.
+  /// Runs the `_buildMinimalActionButton` operation.
   Widget _buildMinimalActionButton() {
     return AnimatedBuilder(
       animation: _sendButtonAnimation,
@@ -853,6 +963,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalRecordingIndicator`.
+  /// Runs the `_buildMinimalRecordingIndicator` operation.
   Widget _buildMinimalRecordingIndicator() {
     return AnimatedBuilder(
       animation: _animationController,
@@ -884,6 +996,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// ينفذ العملية `_sendMessage`.
+  /// Runs the `_sendMessage` operation.
   void _sendMessage() {
     final text = widget.controller.text.trim();
     if (text.isNotEmpty) {
@@ -892,6 +1006,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     }
   }
 
+  /// ينفذ العملية `_startRecording`.
+  /// Runs the `_startRecording` operation.
   Future<void> _startRecording() async {
     HapticFeedback.mediumImpact();
 
@@ -935,6 +1051,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     }
   }
 
+  /// ينفذ العملية `_stopRecording`.
+  /// Runs the `_stopRecording` operation.
   Future<void> _stopRecording() async {
     if (!_isRecording) return;
 
@@ -960,6 +1078,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     }
   }
 
+  /// ينفذ العملية `_sendAudioMessage`.
+  /// Runs the `_sendAudioMessage` operation.
   void _sendAudioMessage(String path) {
     try {
       final bloc = context.read<ChatBloc>();
@@ -972,6 +1092,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     } catch (_) {}
   }
 
+  /// ينفذ العملية `_cancelRecording`.
+  /// Runs the `_cancelRecording` operation.
   void _cancelRecording() {
     if (!_isRecording || _recordCancelled) return;
     HapticFeedback.lightImpact();
@@ -982,6 +1104,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     _stopRecording();
   }
 
+  /// ينفذ العملية `_buildRecordingOverlay`.
+  /// Runs the `_buildRecordingOverlay` operation.
   Widget _buildRecordingOverlay() {
     return Container(
       margin: const EdgeInsets.only(bottom: 6),
@@ -1029,6 +1153,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// ينفذ العملية `_pickImage`.
+  /// Runs the `_pickImage` operation.
   Future<void> _pickImage(ImageSource source) async {
     if (source == ImageSource.gallery) {
       final state = await PhotoManager.requestPermissionExtend();
@@ -1078,6 +1204,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     }
   }
 
+  /// ينفذ العملية `_showMultiImagePickerBottomSheet`.
+  /// Runs the `_showMultiImagePickerBottomSheet` operation.
   void _showMultiImagePickerBottomSheet() {
     setState(() {
       _showAttachmentOptions = false;
@@ -1097,6 +1225,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// ينفذ العملية `_pickImagesWithSystemPicker`.
+  /// Runs the `_pickImagesWithSystemPicker` operation.
   Future<bool> _pickImagesWithSystemPicker() async {
     try {
       final picker = ImagePicker();
@@ -1115,6 +1245,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     return false;
   }
 
+  /// ينفذ العملية `_showImagePreviewScreen`.
+  /// Runs the `_showImagePreviewScreen` operation.
   void _showImagePreviewScreen(List<File> images) {
     Navigator.push(
       context,
@@ -1144,6 +1276,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// ينفذ العملية `_sendMultipleImages`.
+  /// Runs the `_sendMultipleImages` operation.
   void _sendMultipleImages(List<File> images) {
     if (images.isEmpty) return;
 
@@ -1165,6 +1299,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     _uploadImagesWithProgress(images, tempMessageId, uploadInfos);
   }
 
+  /// ينفذ العملية `_uploadImagesWithProgress`.
+  /// Runs the `_uploadImagesWithProgress` operation.
   Future<void> _uploadImagesWithProgress(
     List<File> images,
     String tempMessageId,
@@ -1229,6 +1365,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     }
   }
 
+  /// ينفذ العملية `_pickVideo`.
+  /// Runs the `_pickVideo` operation.
   Future<void> _pickVideo() async {
     final picker = ImagePicker();
     final video = await picker.pickVideo(
@@ -1251,6 +1389,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     }
   }
 
+  /// ينفذ العملية `_pickFile`.
+  /// Runs the `_pickFile` operation.
   void _pickFile() {
     setState(() {
       _showAttachmentOptions = false;
@@ -1258,12 +1398,27 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
   }
 }
 
+/// يعرّف الكلاس `_MinimalAttachmentOption`.
+/// Describes the `_MinimalAttachmentOption` class.
 class _MinimalAttachmentOption extends StatelessWidget {
+  /// Holds the `icon` value.
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
+
+  /// يخزن العضو `label`.
+  /// Holds the `label` member.
   final String label;
+
+  /// يخزن العضو `gradient`.
+  /// Holds the `gradient` member.
   final List<Color> gradient;
+
+  /// يخزن العضو `onTap`.
+  /// Holds the `onTap` member.
   final VoidCallback onTap;
 
+  /// ينشئ مثيلاً من `_MinimalAttachmentOption`.
+  /// Builds an instance of `_MinimalAttachmentOption`.
   const _MinimalAttachmentOption({
     required this.icon,
     required this.label,
@@ -1271,6 +1426,8 @@ class _MinimalAttachmentOption extends StatelessWidget {
     required this.onTap,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

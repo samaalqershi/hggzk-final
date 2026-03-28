@@ -1,10 +1,11 @@
-/// features/payment/domain/repositories/payment_repository.dart
-
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../entities/transaction.dart';
 
+/// يحدد العقد الذي تعتمد عليه طبقة المجال لمعالجة الدفع واستعراض سجله.
+/// Defines the contract used by the domain layer to process payments and read
+/// payment history.
 abstract class PaymentRepository {
   Future<Either<Failure, Transaction>> processPayment({
     required String bookingId,
@@ -14,7 +15,6 @@ abstract class PaymentRepository {
     required String currency,
     Map<String, dynamic>? paymentDetails,
   });
-
   Future<Either<Failure, PaginatedResult<Transaction>>> getPaymentHistory({
     required String userId,
     int pageNumber = 1,

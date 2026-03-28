@@ -1,6 +1,5 @@
 // lib/features/admin_services/presentation/pages/create_service_page.dart
 
-import 'dart:ui';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:hggzkportal/features/admin_services/domain/entities/money.dart';
@@ -19,15 +18,13 @@ import 'package:hggzkportal/features/admin_currencies/domain/usecases/get_curren
 import 'package:hggzkportal/core/usecases/usecase.dart';
 import 'package:hggzkportal/services/local_storage_service.dart';
 import 'package:hggzkportal/core/constants/storage_constants.dart';
-
 class CreateServicePage extends StatefulWidget {
+  /// العربية: يخزن القيمة `initialPropertyId`.
   final String? initialPropertyId;
   const CreateServicePage({super.key, this.initialPropertyId});
-
   @override
   State<CreateServicePage> createState() => _CreateServicePageState();
 }
-
 class _CreateServicePageState extends State<CreateServicePage>
     with TickerProviderStateMixin {
   // Controllers
@@ -53,7 +50,6 @@ class _CreateServicePageState extends State<CreateServicePage>
   PricingModel _selectedPricingModel = PricingModel.perBooking;
   int _currentStep = 0;
   bool _hidePropertySelector = false;
-
   @override
   void initState() {
     super.initState();
@@ -61,7 +57,6 @@ class _CreateServicePageState extends State<CreateServicePage>
     _selectedPropertyId = widget.initialPropertyId;
     _prefillOwnerContextIfNeeded();
   }
-
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -96,7 +91,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       }
     });
   }
-
   void _prefillOwnerContextIfNeeded() {
     try {
       final storage = di.sl<LocalStorageService>();
@@ -129,7 +123,6 @@ class _CreateServicePageState extends State<CreateServicePage>
     } catch (_) {}
     if (mounted) setState(() {});
   }
-
   @override
   void dispose() {
     _animationController.dispose();
@@ -139,20 +132,19 @@ class _CreateServicePageState extends State<CreateServicePage>
     _amountController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<ServicesBloc, ServicesState>(
       listener: (context, state) {
         if (state is ServiceOperationSuccess) {
+          final router = GoRouter.of(context);
           _showSuccessMessage('تم إنشاء الخدمة بنجاح');
           Future.delayed(const Duration(milliseconds: 500), () {
-            if (mounted) {
-              context.pop({
-                'refresh': true,
-                'propertyId': _selectedPropertyId,
-              });
-            }
+            if (!mounted) return;
+            router.pop({
+              'refresh': true,
+              'propertyId': _selectedPropertyId,
+            });
           });
         } else if (state is ServicesError) {
           _showErrorMessage(state.message);
@@ -196,7 +188,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
-
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: _glowController,
@@ -208,8 +199,8 @@ class _CreateServicePageState extends State<CreateServicePage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -223,20 +214,19 @@ class _CreateServicePageState extends State<CreateServicePage>
       },
     );
   }
-
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -252,13 +242,13 @@ class _CreateServicePageState extends State<CreateServicePage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -302,7 +292,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
-
   Widget _buildProgressIndicator() {
     final steps = ['المعلومات الأساسية', 'التسعير', 'المراجعة'];
 
@@ -325,19 +314,20 @@ class _CreateServicePageState extends State<CreateServicePage>
                   decoration: BoxDecoration(
                     gradient: isActive ? AppTheme.primaryGradient : null,
                     color: !isActive
-                        ? AppTheme.darkSurface.withOpacity(0.5)
+                        ? AppTheme.darkSurface.withValues(alpha: 0.5)
                         : null,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isActive
-                          ? AppTheme.primaryBlue.withOpacity(0.5)
-                          : AppTheme.darkBorder.withOpacity(0.3),
+                          ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                          : AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                     boxShadow: isActive
                         ? [
                             BoxShadow(
-                              color: AppTheme.primaryBlue.withOpacity(0.3),
+                              color:
+                                  AppTheme.primaryBlue.withValues(alpha: 0.3),
                               blurRadius: 10,
                             ),
                           ]
@@ -370,7 +360,7 @@ class _CreateServicePageState extends State<CreateServicePage>
                       decoration: BoxDecoration(
                         gradient: isCompleted ? AppTheme.primaryGradient : null,
                         color: !isCompleted
-                            ? AppTheme.darkBorder.withOpacity(0.2)
+                            ? AppTheme.darkBorder.withValues(alpha: 0.2)
                             : null,
                         borderRadius: BorderRadius.circular(1),
                       ),
@@ -383,7 +373,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
-
   Widget _buildFormContent() {
     return Form(
       key: _formKey,
@@ -397,7 +386,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
-
   Widget _buildBasicInfoStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -448,7 +436,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
-
   Widget _buildPricingStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -537,7 +524,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
-
   Widget _buildReviewStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -576,7 +562,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
-
   Widget _buildPropertySelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -609,13 +594,13 @@ class _CreateServicePageState extends State<CreateServicePage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -623,7 +608,7 @@ class _CreateServicePageState extends State<CreateServicePage>
               children: [
                 Icon(
                   Icons.home_work_outlined,
-                  color: AppTheme.primaryBlue.withOpacity(0.7),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -631,14 +616,14 @@ class _CreateServicePageState extends State<CreateServicePage>
                     _selectedPropertyName ?? 'اختر العقار',
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: _selectedPropertyName == null
-                          ? AppTheme.textMuted.withOpacity(0.5)
+                          ? AppTheme.textMuted.withValues(alpha: 0.5)
                           : AppTheme.textWhite,
                     ),
                   ),
                 ),
                 Icon(
                   Icons.search,
-                  color: AppTheme.primaryBlue.withOpacity(0.7),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                 ),
               ],
             ),
@@ -647,7 +632,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       ],
     );
   }
-
   Widget _buildIconSelector() {
     return GestureDetector(
       onTap: _showIconPicker,
@@ -656,13 +640,13 @@ class _CreateServicePageState extends State<CreateServicePage>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.5),
-              AppTheme.darkCard.withOpacity(0.3),
+              AppTheme.darkCard.withValues(alpha: 0.5),
+              AppTheme.darkCard.withValues(alpha: 0.3),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -711,7 +695,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
-
   void _showIconPicker() {
     showDialog(
       fullscreenDialog: true,
@@ -724,7 +707,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
-
   Widget _buildPricingModelSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -752,12 +734,14 @@ class _CreateServicePageState extends State<CreateServicePage>
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
                   gradient: isSelected ? AppTheme.primaryGradient : null,
-                  color: isSelected ? null : AppTheme.darkCard.withOpacity(0.5),
+                  color: isSelected
+                      ? null
+                      : AppTheme.darkCard.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
-                        ? AppTheme.primaryBlue.withOpacity(0.5)
-                        : AppTheme.darkBorder.withOpacity(0.3),
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                        : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -795,13 +779,13 @@ class _CreateServicePageState extends State<CreateServicePage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.primaryBlue.withOpacity(0.3),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -809,7 +793,7 @@ class _CreateServicePageState extends State<CreateServicePage>
             children: [
               Icon(
                 Icons.lock_outline_rounded,
-                color: AppTheme.textMuted.withOpacity(0.7),
+                color: AppTheme.textMuted.withValues(alpha: 0.7),
                 size: 18,
               ),
               const SizedBox(width: 8),
@@ -829,14 +813,13 @@ class _CreateServicePageState extends State<CreateServicePage>
         Text(
           'موروثة من الكيان',
           style: AppTextStyles.caption.copyWith(
-            color: AppTheme.textMuted.withOpacity(0.6),
+            color: AppTheme.textMuted.withValues(alpha: 0.6),
             fontSize: 10,
           ),
         ),
       ],
     );
   }
-
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
@@ -863,13 +846,13 @@ class _CreateServicePageState extends State<CreateServicePage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -883,12 +866,12 @@ class _CreateServicePageState extends State<CreateServicePage>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: maxLines == 1
                   ? Icon(
                       icon,
-                      color: AppTheme.primaryBlue.withOpacity(0.7),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                       size: 20,
                     )
                   : null,
@@ -903,7 +886,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       ],
     );
   }
-
   Widget _buildReviewCard({
     required String title,
     required List<Map<String, String>> items,
@@ -913,13 +895,13 @@ class _CreateServicePageState extends State<CreateServicePage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -986,20 +968,19 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
-
   Widget _buildActionButtons() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1016,13 +997,13 @@ class _CreateServicePageState extends State<CreateServicePage>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -1052,7 +1033,7 @@ class _CreateServicePageState extends State<CreateServicePage>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -1099,7 +1080,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       context.pop();
     }
   }
-
   void _previousStep() {
     if (_currentStep > 0) {
       setState(() {
@@ -1107,7 +1087,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       });
     }
   }
-
   void _nextStep() {
     if (_currentStep < 2) {
       bool isValid = true;
@@ -1125,7 +1104,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       }
     }
   }
-
   bool _validateBasicInfo() {
     if (_nameController.text.isEmpty ||
         _selectedPropertyId == null ||
@@ -1135,7 +1113,6 @@ class _CreateServicePageState extends State<CreateServicePage>
     }
     return true;
   }
-
   bool _validatePricing() {
     if (_isFree) return true;
     if (_amountController.text.isEmpty) {
@@ -1149,7 +1126,6 @@ class _CreateServicePageState extends State<CreateServicePage>
     }
     return true;
   }
-
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       if (_selectedPropertyId == null) {
@@ -1176,7 +1152,6 @@ class _CreateServicePageState extends State<CreateServicePage>
           );
     }
   }
-
   IconData _getIconData(String iconName) {
     // Convert string icon name to IconData
     // This is simplified - you might want to use a more comprehensive mapping
@@ -1191,7 +1166,6 @@ class _CreateServicePageState extends State<CreateServicePage>
         return Icons.miscellaneous_services;
     }
   }
-
   void _showSuccessMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1215,7 +1189,6 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
-
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1243,10 +1216,9 @@ class _CreateServicePageState extends State<CreateServicePage>
 
 // Background Painter
 class _CreateServiceBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
-
   _CreateServiceBackgroundPainter({required this.glowIntensity});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -1254,8 +1226,8 @@ class _CreateServiceBackgroundPainter extends CustomPainter {
     // Draw glowing orbs
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryBlue.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryBlue.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryBlue.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryBlue.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -1271,8 +1243,8 @@ class _CreateServiceBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryPurple.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryPurple.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -1286,32 +1258,29 @@ class _CreateServiceBackgroundPainter extends CustomPainter {
       paint,
     );
   }
-
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 // Keep Currency Dropdown as is
 class _CurrencyDropdown extends StatefulWidget {
+  /// العربية: يخزن القيمة `value`.
   final String value;
   final ValueChanged<String> onChanged;
   const _CurrencyDropdown({required this.value, required this.onChanged});
-
   @override
   State<_CurrencyDropdown> createState() => _CurrencyDropdownState();
 }
-
 class _CurrencyDropdownState extends State<_CurrencyDropdown> {
+  /// العربية: يخزن القيمة `codes`.
   List<String> _codes = const [];
   bool _loading = true;
   String? _error;
-
   @override
   void initState() {
     super.initState();
     _load();
   }
-
   Future<void> _load() async {
     try {
       final usecase = di.sl<GetCurrenciesUseCase>();
@@ -1336,14 +1305,13 @@ class _CurrencyDropdownState extends State<_CurrencyDropdown> {
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final decoration = InputDecoration(
       labelText: 'العملة',
       labelStyle: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
       filled: true,
-      fillColor: AppTheme.darkSurface.withOpacity(0.3),
+      fillColor: AppTheme.darkSurface.withValues(alpha: 0.3),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,

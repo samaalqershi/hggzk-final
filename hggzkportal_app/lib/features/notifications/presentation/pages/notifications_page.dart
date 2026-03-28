@@ -13,7 +13,6 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/error_widget.dart';
-import '../../../../core/widgets/empty_widget.dart';
 import '../bloc/notification_bloc.dart';
 import '../bloc/notification_event.dart';
 import '../bloc/notification_state.dart';
@@ -33,7 +32,9 @@ class _NotificationsPageState extends State<NotificationsPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   final ScrollController _scrollController = ScrollController();
+
   String? _selectedType;
+
   bool _showUnreadOnly = false;
 
   @override
@@ -43,7 +44,9 @@ class _NotificationsPageState extends State<NotificationsPage>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+
     _loadNotifications();
+
     _setupScrollListener();
   }
 
@@ -515,7 +518,8 @@ class _NotificationsPageState extends State<NotificationsPage>
     if (upper.startsWith('BOOKING')) return 'booking';
     if (upper.startsWith('PAYMENT')) return 'payment';
     if (upper.startsWith('PROMOTION')) return 'promotion';
-    if (upper.startsWith('SYSTEM') || upper == 'SECURITY_ALERT') return 'system';
+    if (upper.startsWith('SYSTEM') || upper == 'SECURITY_ALERT')
+      return 'system';
     final lower = t.toLowerCase();
     if (['booking', 'payment', 'promotion', 'system'].contains(lower)) {
       return lower;

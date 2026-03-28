@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import '../../../domain/entities/unit_type.dart';
 
 abstract class UnitTypesState extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitTypesState`.
   const UnitTypesState();
 
   @override
@@ -13,9 +14,13 @@ class UnitTypesInitial extends UnitTypesState {}
 class UnitTypesLoading extends UnitTypesState {}
 
 class UnitTypesLoaded extends UnitTypesState {
+  /// العربية: يخزن القيمة `unitTypes`.
   final List<UnitType> unitTypes;
+
   final UnitType? selectedUnitType;
+
   final int totalCount;
+
   final int currentPage;
 
   const UnitTypesLoaded({
@@ -34,17 +39,20 @@ class UnitTypesLoaded extends UnitTypesState {
   }) {
     return UnitTypesLoaded(
       unitTypes: unitTypes ?? this.unitTypes,
-      selectedUnitType: clearSelection ? null : (selectedUnitType ?? this.selectedUnitType),
+      selectedUnitType:
+          clearSelection ? null : (selectedUnitType ?? this.selectedUnitType),
       totalCount: totalCount ?? this.totalCount,
       currentPage: currentPage ?? this.currentPage,
     );
   }
 
   @override
-  List<Object?> get props => [unitTypes, selectedUnitType, totalCount, currentPage];
+  List<Object?> get props =>
+      [unitTypes, selectedUnitType, totalCount, currentPage];
 }
 
 class UnitTypesError extends UnitTypesState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
 
   const UnitTypesError({required this.message});
@@ -56,6 +64,7 @@ class UnitTypesError extends UnitTypesState {
 class UnitTypeOperationLoading extends UnitTypesState {}
 
 class UnitTypeOperationSuccess extends UnitTypesState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
 
   const UnitTypeOperationSuccess({required this.message});
@@ -65,6 +74,7 @@ class UnitTypeOperationSuccess extends UnitTypesState {
 }
 
 class UnitTypeOperationError extends UnitTypesState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
 
   const UnitTypeOperationError({required this.message});

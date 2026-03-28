@@ -1,24 +1,40 @@
 import 'package:equatable/equatable.dart';
 
-/// 📝 كيان حقل نوع الوحدة الديناميكي
 class UnitTypeField extends Equatable {
   final String fieldId;
+
   final String unitTypeId;
+
   final String fieldTypeId;
+
   final String fieldName;
+
   final String displayName;
+
   final String description;
+
   final Map<String, dynamic> fieldOptions;
+
   final Map<String, dynamic> validationRules;
+
   final bool isRequired;
+
   final bool isSearchable;
+
   final bool isPublic;
+
   final int sortOrder;
+
   final String category;
+
   final String? groupId;
+
   final bool isForUnits;
+
   final bool showInCards;
+
   final bool isPrimaryFilter;
+
   final int priority;
 
   const UnitTypeField({

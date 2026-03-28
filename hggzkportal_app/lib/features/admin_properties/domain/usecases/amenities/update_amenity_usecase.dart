@@ -6,18 +6,17 @@ import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../../repositories/amenities_repository.dart';
 
 class UpdateAmenityParams {
+  /// العربية: يخزن القيمة `amenityId`.
   final String amenityId;
   final String? name;
   final String? description;
   final String? icon;
-  
   UpdateAmenityParams({
     required this.amenityId,
     this.name,
     this.description,
     this.icon,
   });
-  
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
     if (name != null) data['name'] = name;
@@ -28,10 +27,9 @@ class UpdateAmenityParams {
 }
 
 class UpdateAmenityUseCase implements UseCase<bool, UpdateAmenityParams> {
+  /// العربية: يخزن القيمة `repository`.
   final AmenitiesRepository repository;
-  
   UpdateAmenityUseCase(this.repository);
-  
   @override
   Future<Either<Failure, bool>> call(UpdateAmenityParams params) async {
     return await repository.updateAmenity(params.amenityId, params.toJson());

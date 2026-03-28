@@ -1,30 +1,29 @@
 // lib/features/admin_properties/presentation/pages/properties_list_page.dart
 
-import 'package:hggzkportal/core/theme/app_theme.dart';
-import 'package:hggzkportal/features/admin_properties/domain/entities/property.dart';
-import 'package:hggzkportal/features/admin_properties/presentation/widgets/property_map_cluster_view.dart';
-import 'package:hggzkportal/injection_container.dart' as di;
+import 'dart:math' as math;
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:ui';
-import 'dart:math' as math;
-import 'package:hggzkportal/core/theme/app_colors.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
-import '../bloc/properties/properties_bloc.dart';
-import '../widgets/futuristic_property_table.dart';
-import '../widgets/property_filters_widget.dart';
-import '../widgets/property_stats_card.dart';
+import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:hggzkportal/core/widgets/loading_widget.dart';
+import 'package:hggzkportal/features/admin_properties/domain/entities/property.dart';
 import 'package:hggzkportal/features/admin_properties/presentation/bloc/amenities/amenities_bloc.dart'
     as ap_am_bloc;
+import 'package:hggzkportal/features/admin_properties/presentation/bloc/properties/properties_bloc.dart';
 import 'package:hggzkportal/features/admin_properties/domain/repositories/amenities_repository.dart'
     as ap_repo;
+import 'package:hggzkportal/features/admin_properties/presentation/widgets/futuristic_property_table.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/widgets/property_filters_widget.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/widgets/property_map_cluster_view.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/widgets/property_stats_card.dart';
+import 'package:hggzkportal/injection_container.dart' as di;
 
 class PropertiesListPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertiesListPage`.
   const PropertiesListPage({super.key});
-
   @override
   State<PropertiesListPage> createState() => _PropertiesListPageState();
 }
@@ -48,7 +47,6 @@ class _PropertiesListPageState extends State<PropertiesListPage>
   bool _showFilters = false;
   String _selectedView = 'table'; // grid, table, map
   bool _isDeleting = false;
-
   void _showDeletingDialog({String message = 'جاري حذف العقار...'}) {
     if (_isDeleting) return;
     _isDeleting = true;
@@ -227,38 +225,38 @@ class _PropertiesListPageState extends State<PropertiesListPage>
                   parent: AlwaysScrollableScrollPhysics(),
                 ),
                 slivers: [
-                // App Bar similar to bookings page
-                _buildSliverAppBar(),
+                  // App Bar similar to bookings page
+                  _buildSliverAppBar(),
 
-                // Stats Cards as SliverToBoxAdapter
-                SliverToBoxAdapter(
-                  child: _buildStatsSection(),
-                ),
-
-                // Filters Section as SliverToBoxAdapter
-                if (_showFilters)
+                  // Stats Cards as SliverToBoxAdapter
                   SliverToBoxAdapter(
-                    child: _buildFiltersSection(),
+                    child: _buildStatsSection(),
                   ),
 
-                // Content Area - المحتوى الرئيسي
-                SliverToBoxAdapter(
-                  child: FadeTransition(
-                    opacity: _contentFadeAnimation,
-                    child: SlideTransition(
-                      position: _contentSlideAnimation,
-                      child: _buildContent(),
+                  // Filters Section as SliverToBoxAdapter
+                  if (_showFilters)
+                    SliverToBoxAdapter(
+                      child: _buildFiltersSection(),
+                    ),
+
+                  // Content Area - المحتوى الرئيسي
+                  SliverToBoxAdapter(
+                    child: FadeTransition(
+                      opacity: _contentFadeAnimation,
+                      child: SlideTransition(
+                        position: _contentSlideAnimation,
+                        child: _buildContent(),
+                      ),
                     ),
                   ),
-                ),
 
-                // Load more indicator space
-                SliverToBoxAdapter(child: _buildLoadMoreIndicator()),
+                  // Load more indicator space
+                  SliverToBoxAdapter(child: _buildLoadMoreIndicator()),
 
-                // Bottom padding
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: 100),
-                ),
+                  // Bottom padding
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 100),
+                  ),
                 ],
               ),
             ),
@@ -286,7 +284,7 @@ class _PropertiesListPageState extends State<PropertiesListPage>
             color: AppTheme.textWhite,
             shadows: [
               Shadow(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                 blurRadius: 10,
               ),
             ],
@@ -300,7 +298,7 @@ class _PropertiesListPageState extends State<PropertiesListPage>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.1),
+                AppTheme.primaryBlue.withValues(alpha: 0.1),
                 AppTheme.darkBackground,
               ],
             ),
@@ -441,8 +439,8 @@ class _PropertiesListPageState extends State<PropertiesListPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -458,209 +456,6 @@ class _PropertiesListPageState extends State<PropertiesListPage>
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
-          ],
-        ),
-        border: Border(
-          bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
-            width: 1,
-          ),
-        ),
-      ),
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Column(
-            children: [
-              // Title Section
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ShaderMask(
-                          shaderCallback: (bounds) =>
-                              AppTheme.primaryGradient.createShader(bounds),
-                          child: Text(
-                            'إدارة العقارات',
-                            style: AppTextStyles.heading1.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'إدارة جميع العقارات والوحدات المسجلة',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppTheme.textMuted,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // Action Buttons - مع scroll أفقي
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildActionButton(
-                      icon: Icons.filter_list_rounded,
-                      label: 'فلتر',
-                      onTap: () => setState(() => _showFilters = !_showFilters),
-                      isActive: _showFilters,
-                    ),
-                    const SizedBox(width: 8),
-                    _buildActionButton(
-                      icon: Icons.grid_view_rounded,
-                      label: 'شبكة',
-                      onTap: () => setState(() => _selectedView = 'grid'),
-                      isActive: _selectedView == 'grid',
-                    ),
-                    const SizedBox(width: 8),
-                    _buildActionButton(
-                      icon: Icons.table_chart_rounded,
-                      label: 'جدول',
-                      onTap: () => setState(() => _selectedView = 'table'),
-                      isActive: _selectedView == 'table',
-                    ),
-                    const SizedBox(width: 8),
-                    _buildActionButton(
-                      icon: Icons.map_rounded,
-                      label: 'خريطة',
-                      onTap: () => setState(() => _selectedView = 'map'),
-                      isActive: _selectedView == 'map',
-                    ),
-                    const SizedBox(width: 16),
-                    _buildPrimaryActionButton(
-                      icon: Icons.add_rounded,
-                      label: 'إضافة عقار',
-                      onTap: () => context.push('/admin/properties/create'),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    bool isActive = false,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          gradient: isActive
-              ? AppTheme.primaryGradient
-              : LinearGradient(
-                  colors: [
-                    AppTheme.darkCard.withOpacity(0.5),
-                    AppTheme.darkCard.withOpacity(0.3),
-                  ],
-                ),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isActive
-                ? AppTheme.primaryBlue.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.3),
-            width: 1,
-          ),
-          boxShadow: isActive
-              ? [
-                  BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              size: 16,
-              color: isActive ? Colors.white : AppTheme.textMuted,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: isActive ? Colors.white : AppTheme.textMuted,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPrimaryActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        onTap();
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          gradient: AppTheme.primaryGradient,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.primaryBlue.withOpacity(0.4),
-              blurRadius: 15,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 18, color: Colors.white),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: AppTextStyles.buttonMedium.copyWith(
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildStatsSection() {
     return Container(
       height: 120,
@@ -669,7 +464,8 @@ class _PropertiesListPageState extends State<PropertiesListPage>
         builder: (context, state) {
           final totalProperties = state is PropertiesLoaded
               ? (state.stats != null && state.stats!['totalProperties'] != null
-                  ? int.tryParse('${state.stats!['totalProperties']}') ?? state.totalCount
+                  ? int.tryParse('${state.stats!['totalProperties']}') ??
+                      state.totalCount
                   : state.totalCount)
               : 0;
           final activeCount = state is PropertiesLoaded
@@ -678,7 +474,8 @@ class _PropertiesListPageState extends State<PropertiesListPage>
                   : 0)
               : 0;
           final pendingCount = state is PropertiesLoaded
-              ? (state.stats != null && state.stats!['pendingProperties'] != null
+              ? (state.stats != null &&
+                      state.stats!['pendingProperties'] != null
                   ? int.tryParse('${state.stats!['pendingProperties']}') ?? 0
                   : 0)
               : 0;
@@ -921,9 +718,7 @@ class _PropertiesListPageState extends State<PropertiesListPage>
       child: Padding(
         padding: EdgeInsets.all(16.0),
         child: LoadingWidget(
-          type: LoadingType.futuristic,
-          message: 'جاري التحميل...'
-        ),
+            type: LoadingType.futuristic, message: 'جاري التحميل...'),
       ),
     );
   }
@@ -936,9 +731,8 @@ class _PropertiesListPageState extends State<PropertiesListPage>
             padding: EdgeInsets.symmetric(vertical: 16),
             child: Center(
               child: LoadingWidget(
-                type: LoadingType.futuristic,
-                message: 'جاري تحميل المزيد...'
-              ),
+                  type: LoadingType.futuristic,
+                  message: 'جاري تحميل المزيد...'),
             ),
           );
         }
@@ -958,7 +752,7 @@ class _PropertiesListPageState extends State<PropertiesListPage>
           Icon(
             Icons.error_outline_rounded,
             size: 64,
-            color: AppTheme.error.withOpacity(0.7),
+            color: AppTheme.error.withValues(alpha: 0.7),
           ),
           const SizedBox(height: 16),
           Text(
@@ -993,7 +787,6 @@ class _PropertiesListPageState extends State<PropertiesListPage>
   }
 
   // Removed FAB: Add action exists in AppBar
-
   Future<void> _navigateToProperty(String propertyId) async {
     final pid = Uri.encodeComponent(propertyId);
     await context.push('/admin/properties/$pid');
@@ -1035,7 +828,7 @@ class _PropertiesListPageState extends State<PropertiesListPage>
                 color: AppTheme.darkCard,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: AppTheme.primaryPurple.withOpacity(0.3),
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -1063,12 +856,12 @@ class _PropertiesListPageState extends State<PropertiesListPage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.error.withOpacity(0.3),
+                color: AppTheme.error.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.error.withOpacity(0.2),
+                  color: AppTheme.error.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -1081,7 +874,7 @@ class _PropertiesListPageState extends State<PropertiesListPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.error.withOpacity(0.1),
+                    color: AppTheme.error.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.delete_outline,
@@ -1174,12 +967,12 @@ class _PropertiesListPageState extends State<PropertiesListPage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.success.withOpacity(0.3),
+                color: AppTheme.success.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.success.withOpacity(0.2),
+                  color: AppTheme.success.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -1192,7 +985,7 @@ class _PropertiesListPageState extends State<PropertiesListPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.success.withOpacity(0.1),
+                    color: AppTheme.success.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.check_circle_outline,
@@ -1285,12 +1078,12 @@ class _PropertiesListPageState extends State<PropertiesListPage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.error.withOpacity(0.3),
+                color: AppTheme.error.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.error.withOpacity(0.2),
+                  color: AppTheme.error.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -1303,7 +1096,7 @@ class _PropertiesListPageState extends State<PropertiesListPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.error.withOpacity(0.1),
+                    color: AppTheme.error.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.highlight_off_rounded,
@@ -1383,13 +1176,13 @@ class _PropertiesListPageState extends State<PropertiesListPage>
 
 // Property Grid Card Widget - تبقى كما هي
 class _PropertyGridCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `property`.
   final Property property;
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onApprove;
   final VoidCallback onReject;
-
   const _PropertyGridCard({
     required this.property,
     required this.onTap,
@@ -1398,7 +1191,6 @@ class _PropertyGridCard extends StatefulWidget {
     required this.onApprove,
     required this.onReject,
   });
-
   @override
   State<_PropertyGridCard> createState() => _PropertyGridCardState();
 }
@@ -1408,7 +1200,6 @@ class _PropertyGridCardState extends State<_PropertyGridCard>
   late AnimationController _hoverController;
   late Animation<double> _hoverAnimation;
   bool _isHovered = false;
-
   @override
   void initState() {
     super.initState();
@@ -1458,26 +1249,26 @@ class _PropertyGridCardState extends State<_PropertyGridCard>
                     end: Alignment.bottomRight,
                     colors: _isHovered
                         ? [
-                            AppTheme.primaryBlue.withOpacity(0.1),
-                            AppTheme.primaryPurple.withOpacity(0.05),
+                            AppTheme.primaryBlue.withValues(alpha: 0.1),
+                            AppTheme.primaryPurple.withValues(alpha: 0.05),
                           ]
                         : [
-                            AppTheme.darkCard.withOpacity(0.7),
-                            AppTheme.darkCard.withOpacity(0.5),
+                            AppTheme.darkCard.withValues(alpha: 0.7),
+                            AppTheme.darkCard.withValues(alpha: 0.5),
                           ],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: _isHovered
-                        ? AppTheme.primaryBlue.withOpacity(0.5)
-                        : AppTheme.darkBorder.withOpacity(0.3),
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                        : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: _isHovered
-                          ? AppTheme.primaryBlue.withOpacity(0.2)
-                          : Colors.black.withOpacity(0.1),
+                          ? AppTheme.primaryBlue.withValues(alpha: 0.2)
+                          : Colors.black.withValues(alpha: 0.1),
                       blurRadius: _isHovered ? 20 : 10,
                       offset: const Offset(0, 4),
                     ),
@@ -1574,13 +1365,15 @@ class _PropertyGridCardState extends State<_PropertyGridCard>
                                 ),
                                 decoration: BoxDecoration(
                                   color: widget.property.isApproved
-                                      ? AppTheme.success.withOpacity(0.2)
-                                      : AppTheme.warning.withOpacity(0.2),
+                                      ? AppTheme.success.withValues(alpha: 0.2)
+                                      : AppTheme.warning.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(6),
                                   border: Border.all(
                                     color: widget.property.isApproved
-                                        ? AppTheme.success.withOpacity(0.5)
-                                        : AppTheme.warning.withOpacity(0.5),
+                                        ? AppTheme.success
+                                            .withValues(alpha: 0.5)
+                                        : AppTheme.warning
+                                            .withValues(alpha: 0.5),
                                     width: 0.5,
                                   ),
                                 ),
@@ -1715,10 +1508,10 @@ class _PropertyGridCardState extends State<_PropertyGridCard>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: AppTheme.darkBackground.withOpacity(0.8),
+          color: AppTheme.darkBackground.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: (color ?? AppTheme.primaryBlue).withOpacity(0.3),
+            color: (color ?? AppTheme.primaryBlue).withValues(alpha: 0.3),
             width: 0.5,
           ),
         ),
@@ -1780,10 +1573,10 @@ class _PropertyGridCardState extends State<_PropertyGridCard>
         width: 26,
         height: 26,
         decoration: BoxDecoration(
-          color: AppTheme.darkBackground.withOpacity(0.8),
+          color: AppTheme.darkBackground.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: (color ?? AppTheme.primaryBlue).withOpacity(0.3),
+            color: (color ?? AppTheme.primaryBlue).withValues(alpha: 0.3),
             width: 0.5,
           ),
         ),
@@ -1797,160 +1590,14 @@ class _PropertyGridCardState extends State<_PropertyGridCard>
   }
 }
 
-// Delete Confirmation Dialog - تبقى كما هي
-class _DeleteConfirmationDialog extends StatelessWidget {
-  final VoidCallback onConfirm;
-
-  const _DeleteConfirmationDialog({required this.onConfirm});
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      insetPadding: const EdgeInsets.all(10),
-      backgroundColor: Colors.transparent,
-      child: Container(
-        width: 400,
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: AppTheme.error.withOpacity(0.3),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.error.withOpacity(0.2),
-              blurRadius: 20,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
-                  ],
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.warning_rounded,
-                color: AppTheme.error,
-                size: 32,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'تأكيد الحذف',
-              style: AppTextStyles.heading3.copyWith(
-                color: AppTheme.textWhite,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'هل أنت متأكد من حذف هذا العقار؟\nلا يمكن التراجع عن هذا الإجراء.',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: AppTheme.darkSurface.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.3),
-                          width: 1,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'إلغاء',
-                          style: AppTextStyles.buttonMedium.copyWith(
-                            color: AppTheme.textMuted,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      HapticFeedback.mediumImpact();
-                      onConfirm();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppTheme.error,
-                            AppTheme.error.withOpacity(0.8),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.error.withOpacity(0.3),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          'حذف',
-                          style: AppTextStyles.buttonMedium.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Background Painter - تبقى كما هي
 class _FuturisticBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `rotation`.
   final double rotation;
   final double glowIntensity;
-
   _FuturisticBackgroundPainter({
     required this.rotation,
     required this.glowIntensity,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1958,7 +1605,7 @@ class _FuturisticBackgroundPainter extends CustomPainter {
       ..strokeWidth = 0.5;
 
     // Draw grid
-    paint.color = AppTheme.primaryBlue.withOpacity(0.05);
+    paint.color = AppTheme.primaryBlue.withValues(alpha: 0.05);
     const spacing = 50.0;
 
     for (double x = 0; x < size.width; x += spacing) {
@@ -1979,7 +1626,7 @@ class _FuturisticBackgroundPainter extends CustomPainter {
 
     // Draw rotating circles
     final center = Offset(size.width / 2, size.height / 2);
-    paint.color = AppTheme.primaryBlue.withOpacity(0.03 * glowIntensity);
+    paint.color = AppTheme.primaryBlue.withValues(alpha: 0.03 * glowIntensity);
 
     for (int i = 0; i < 3; i++) {
       final radius = 200.0 + i * 100;
@@ -1997,11 +1644,11 @@ class _FuturisticBackgroundPainter extends CustomPainter {
 }
 
 class _PropertyAmenitiesAssignView extends StatefulWidget {
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
   final String propertyName;
   const _PropertyAmenitiesAssignView(
       {required this.propertyId, required this.propertyName});
-
   @override
   State<_PropertyAmenitiesAssignView> createState() =>
       _PropertyAmenitiesAssignViewState();
@@ -2011,10 +1658,8 @@ class _PropertyAmenitiesAssignViewState
     extends State<_PropertyAmenitiesAssignView> {
   bool _loading = true;
   String? _error;
-  List<dynamic> _allAmenities = [];
   Set<String> _assignedAmenityIds = {};
   bool _submitting = false;
-
   @override
   void initState() {
     super.initState();
@@ -2106,8 +1751,8 @@ class _PropertyAmenitiesAssignViewState
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: [
-          AppTheme.primaryPurple.withOpacity(0.1),
-          AppTheme.primaryBlue.withOpacity(0.05)
+          AppTheme.primaryPurple.withValues(alpha: 0.1),
+          AppTheme.primaryBlue.withValues(alpha: 0.05)
         ]),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -2150,7 +1795,6 @@ class _PropertyAmenitiesAssignViewState
     return BlocBuilder<ap_am_bloc.AmenitiesBloc, ap_am_bloc.AmenitiesState>(
       builder: (context, state) {
         if (state is ap_am_bloc.AmenitiesLoaded) {
-          _allAmenities = state.amenities;
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: state.amenities.length,
@@ -2179,12 +1823,12 @@ class _PropertyAmenitiesAssignViewState
       margin: const EdgeInsets.symmetric(vertical: 6),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.4),
+        color: AppTheme.darkSurface.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
             color: selected
-                ? AppTheme.primaryPurple.withOpacity(0.3)
-                : AppTheme.darkBorder.withOpacity(0.2)),
+                ? AppTheme.primaryPurple.withValues(alpha: 0.3)
+                : AppTheme.darkBorder.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -2246,8 +1890,8 @@ class _PropertyAmenitiesAssignViewState
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: [
-          AppTheme.darkSurface.withOpacity(0.6),
-          AppTheme.darkSurface.withOpacity(0.3)
+          AppTheme.darkSurface.withValues(alpha: 0.6),
+          AppTheme.darkSurface.withValues(alpha: 0.3)
         ]),
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
       ),

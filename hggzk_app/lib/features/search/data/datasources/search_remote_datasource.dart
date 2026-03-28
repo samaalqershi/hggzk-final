@@ -10,7 +10,9 @@ import '../../../../core/utils/validators.dart';
 import '../models/search_filter_model.dart';
 import '../models/search_result_model.dart';
 
+/// العربية: يوفر سلوك مصدر البيانات الخاص بـ `SearchRemoteDataSource`.
 abstract class SearchRemoteDataSource {
+  /// العربية: يعالج `searchProperties`.
   Future<ResultDto<SearchPropertiesResponseModel>> searchProperties({
     String? searchTerm,
     String? city,
@@ -37,8 +39,10 @@ abstract class SearchRemoteDataSource {
     int pageSize = 20,
   });
 
+  /// العربية: يعيد search filters.
   Future<ResultDto<SearchFiltersModel>> getSearchFilters();
 
+  /// العربية: يعيد search suggestions.
   Future<ResultDto<List<String>>> getSearchSuggestions({
     required String query,
     int limit = 10,
@@ -50,16 +54,21 @@ abstract class SearchRemoteDataSource {
     int limit = 10,
   });
 
+  /// العربية: يعيد popular destinations.
   Future<ResultDto<List<String>>> getPopularDestinations({
     int limit = 10,
   });
 }
 
+/// العربية: يمثل `SearchRemoteDataSourceImpl`.
 class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
+  /// العربية: يخزن القيمة `apiClient`.
   final ApiClient apiClient;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchRemoteDataSourceImpl`.
   SearchRemoteDataSourceImpl({required this.apiClient});
 
+  /// العربية: يعالج `searchProperties`.
   @override
   Future<ResultDto<SearchPropertiesResponseModel>> searchProperties({
     String? searchTerm,
@@ -186,6 +195,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
     }
   }
 
+  /// العربية: يعالج `serializeDynamicFieldFilters`.
   Map<String, String> _serializeDynamicFieldFilters(
     Map<String, dynamic> dynamicFieldFilters,
   ) {
@@ -226,6 +236,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
     return serialized;
   }
 
+  /// العربية: يعيد search filters.
   @override
   Future<ResultDto<SearchFiltersModel>> getSearchFilters() async {
     const requestName = 'search.getSearchFilters';
@@ -254,6 +265,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
     }
   }
 
+  /// العربية: يعيد search suggestions.
   @override
   Future<ResultDto<List<String>>> getSearchSuggestions({
     required String query,
@@ -339,6 +351,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
     }
   }
 
+  /// العربية: يعيد popular destinations.
   @override
   Future<ResultDto<List<String>>> getPopularDestinations({
     int limit = 10,

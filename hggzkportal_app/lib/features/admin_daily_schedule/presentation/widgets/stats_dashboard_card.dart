@@ -5,12 +5,11 @@ import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../domain/entities/daily_schedule.dart';
 
 /// لوحة الإحصائيات الشاملة للجدول اليومي
 /// Comprehensive stats dashboard for daily schedule
-/// 
+///
 /// ميزات:
 /// - عرض إحصائيات الإتاحة والتسعير
 /// - تأثيرات أنيميشن متقدمة
@@ -18,8 +17,9 @@ import '../../domain/entities/daily_schedule.dart';
 /// - تحديث مباشر للبيانات
 class StatsDashboardCard extends StatefulWidget {
   /// قائمة الجداول اليومية
+  /// العربية: يخزن القيمة `schedules`.
   final List<DailySchedule> schedules;
-  
+
   /// عملة العرض
   final String currency;
 
@@ -36,10 +36,13 @@ class StatsDashboardCard extends StatefulWidget {
 class _StatsDashboardCardState extends State<StatsDashboardCard>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
+
   late AnimationController _countController;
+
   late Animation<double> _pulseAnimation;
+
   late Animation<double> _rotationAnimation;
-  
+
   @override
   void initState() {
     super.initState();
@@ -47,12 +50,12 @@ class _StatsDashboardCardState extends State<StatsDashboardCard>
       duration: const Duration(seconds: 3),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _countController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..forward();
-    
+
     _pulseAnimation = Tween<double>(
       begin: 0.95,
       end: 1.05,
@@ -60,7 +63,7 @@ class _StatsDashboardCardState extends State<StatsDashboardCard>
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
-    
+
     _rotationAnimation = Tween<double>(
       begin: 0,
       end: 2 * math.pi,
@@ -83,24 +86,24 @@ class _StatsDashboardCardState extends State<StatsDashboardCard>
     final availableDays = widget.schedules.where((s) => s.isAvailable).length;
     final bookedDays = widget.schedules.where((s) => s.isBooked).length;
     final blockedDays = widget.schedules.where((s) => s.isBlocked).length;
-    final maintenanceDays = widget.schedules.where((s) => s.isMaintenance).length;
-    
+    final maintenanceDays =
+        widget.schedules.where((s) => s.isMaintenance).length;
+
     final occupancyRate = totalDays > 0 ? bookedDays / totalDays : 0.0;
-    
+
     final prices = widget.schedules
         .where((s) => s.priceAmount != null && s.priceAmount! > 0)
         .map((s) => s.priceAmount!)
         .toList();
-    
-    final averagePrice = prices.isNotEmpty 
-        ? prices.reduce((a, b) => a + b) / prices.length 
+
+    final averagePrice = prices.isNotEmpty
+        ? prices.reduce((a, b) => a + b) / prices.length
         : 0.0;
     final minPrice = prices.isNotEmpty ? prices.reduce(math.min) : 0.0;
     final maxPrice = prices.isNotEmpty ? prices.reduce(math.max) : 0.0;
-    final potentialRevenue = prices.isNotEmpty 
-        ? prices.reduce((a, b) => a + b) 
-        : 0.0;
-    
+    final potentialRevenue =
+        prices.isNotEmpty ? prices.reduce((a, b) => a + b) : 0.0;
+
     return {
       'totalDays': totalDays,
       'availableDays': availableDays,
@@ -118,7 +121,7 @@ class _StatsDashboardCardState extends State<StatsDashboardCard>
   @override
   Widget build(BuildContext context) {
     final stats = _calculateStats();
-    
+
     return AnimatedBuilder(
       animation: _pulseAnimation,
       builder: (context, child) {
@@ -126,18 +129,18 @@ class _StatsDashboardCardState extends State<StatsDashboardCard>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.7),
-                AppTheme.darkCard.withOpacity(0.5),
+                AppTheme.darkCard.withValues(alpha: 0.7),
+                AppTheme.darkCard.withValues(alpha: 0.5),
               ],
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: AppTheme.primaryBlue.withOpacity(0.2),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.2),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.primaryBlue.withOpacity(0.1),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                 blurRadius: 20,
                 spreadRadius: 2,
               ),
@@ -212,7 +215,7 @@ class _StatsDashboardCardState extends State<StatsDashboardCard>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: AppTheme.success.withOpacity(0.2),
+            color: AppTheme.success.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Row(
@@ -338,14 +341,14 @@ class _StatsDashboardCardState extends State<StatsDashboardCard>
     required Color color,
   }) {
     final percentage = total > 0 ? (int.parse(value) / total * 100) : 0.0;
-    
+
     return Row(
       children: [
         Container(
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color, size: 18),
@@ -367,7 +370,8 @@ class _StatsDashboardCardState extends State<StatsDashboardCard>
                   AnimatedBuilder(
                     animation: _countController,
                     builder: (context, child) {
-                      final animatedValue = (_countController.value * int.parse(value)).round();
+                      final animatedValue =
+                          (_countController.value * int.parse(value)).round();
                       return Text(
                         '$animatedValue',
                         style: AppTextStyles.heading3.copyWith(
@@ -391,7 +395,7 @@ class _StatsDashboardCardState extends State<StatsDashboardCard>
                 child: LinearProgressIndicator(
                   value: percentage / 100,
                   minHeight: 4,
-                  backgroundColor: color.withOpacity(0.1),
+                  backgroundColor: color.withValues(alpha: 0.1),
                   valueColor: AlwaysStoppedAnimation<Color>(color),
                 ),
               ),
@@ -401,7 +405,7 @@ class _StatsDashboardCardState extends State<StatsDashboardCard>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
@@ -423,13 +427,13 @@ class _StatsDashboardCardState extends State<StatsDashboardCard>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryBlue.withOpacity(0.1),
-            AppTheme.primaryPurple.withOpacity(0.05),
+            AppTheme.primaryBlue.withValues(alpha: 0.1),
+            AppTheme.primaryPurple.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.3),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -490,13 +494,13 @@ class _StatsDashboardCardState extends State<StatsDashboardCard>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            color.withOpacity(0.1),
-            color.withOpacity(0.05),
+            color.withValues(alpha: 0.1),
+            color.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -538,7 +542,7 @@ class _StatsDashboardCardState extends State<StatsDashboardCard>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -559,7 +563,7 @@ class _StatsDashboardCardState extends State<StatsDashboardCard>
                 Text(
                   'الإيرادات المحتملة',
                   style: AppTextStyles.caption.copyWith(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
                 Text(

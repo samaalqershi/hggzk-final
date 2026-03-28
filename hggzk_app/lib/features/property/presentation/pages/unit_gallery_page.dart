@@ -9,11 +9,23 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/unit.dart';
 
+/// Describes the `UnitGalleryPage` page widget.
+/// العربية: يمثل عنصر الصفحة `UnitGalleryPage`.
 class UnitGalleryPage extends StatefulWidget {
+  /// Keeps the images value available to this object.
+  /// العربية: يخزن القيمة `images`.
   final List<UnitImage> images;
+
+  /// Keeps the initialIndex value available to this object.
+  /// العربية: يخزن القيمة `initialIndex`.
   final int initialIndex;
+
+  /// Keeps the unitName value available to this object.
+  /// العربية: يخزن القيمة `unitName`.
   final String unitName;
 
+  /// Constructs the UnitGalleryPage value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitGalleryPage`.
   const UnitGalleryPage({
     super.key,
     required this.images,
@@ -21,27 +33,66 @@ class UnitGalleryPage extends StatefulWidget {
     this.unitName = '',
   });
 
+  /// Builds the state object for this widget used by this feature.
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<UnitGalleryPage> createState() => _UnitGalleryPageState();
 }
 
+/// Describes the state for `UnitGalleryPageState`.
+/// العربية: يمثل الحالة الخاصة بـ `UnitGalleryPageState`.
 class _UnitGalleryPageState extends State<UnitGalleryPage>
     with TickerProviderStateMixin {
+  /// Keeps the pageController value available to this object.
+  /// العربية: يخزن القيمة `pageController`.
   late PageController _pageController;
+
+  /// Keeps the fadeController value available to this object.
+  /// العربية: يخزن القيمة `fadeController`.
   late AnimationController _fadeController;
+
+  /// Keeps the slideController value available to this object.
+  /// العربية: يخزن القيمة `slideController`.
   late AnimationController _slideController;
+
+  /// Keeps the glowController value available to this object.
+  /// العربية: يخزن القيمة `glowController`.
   late AnimationController _glowController;
+
+  /// Keeps the particleController value available to this object.
+  /// العربية: يخزن القيمة `particleController`.
   late AnimationController _particleController;
 
+  /// Keeps the fadeAnimation value available to this object.
+  /// العربية: يخزن القيمة `fadeAnimation`.
   late Animation<double> _fadeAnimation;
+
+  /// Keeps the slideAnimation value available to this object.
+  /// العربية: يخزن القيمة `slideAnimation`.
   late Animation<Offset> _slideAnimation;
+
+  /// Keeps the bottomInfoSlideAnimation value available to this object.
+  /// العربية: يخزن القيمة `bottomInfoSlideAnimation`.
   late Animation<Offset> _bottomInfoSlideAnimation;
+
+  /// Keeps the glowAnimation value available to this object.
+  /// العربية: يخزن القيمة `glowAnimation`.
   late Animation<double> _glowAnimation;
 
+  /// Keeps the currentIndex value available to this object.
+  /// العربية: يخزن القيمة `currentIndex`.
   late int _currentIndex;
+
+  /// Keeps the showInfo value available to this object.
+  /// العربية: يخزن القيمة `showInfo`.
   bool _showInfo = true;
+
+  /// Keeps the orbs value available to this object.
+  /// العربية: يخزن القيمة `orbs`.
   final List<_FloatingOrb> _orbs = [];
 
+  /// Initializes the state for this widget.
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -52,6 +103,8 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
     _startAnimations();
   }
 
+  /// Initializes the animations.
+  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -106,17 +159,23 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
     ));
   }
 
+  /// Generates the orbs.
+  /// العربية: ينشئ orbs.
   void _generateOrbs() {
     for (int i = 0; i < 5; i++) {
       _orbs.add(_FloatingOrb());
     }
   }
 
+  /// Starts the animations.
+  /// العربية: يبدأ animations.
   void _startAnimations() {
     _fadeController.forward();
     _slideController.forward();
   }
 
+  /// Releases the resources used by this instance.
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _pageController.dispose();
@@ -127,6 +186,8 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
     super.dispose();
   }
 
+  /// Builds the widget tree for this component.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,6 +205,8 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
     );
   }
 
+  /// Builds the animated background.
+  /// العربية: يبني animated background.
   Widget _buildAnimatedBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -160,6 +223,8 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
     );
   }
 
+  /// Builds the floating orbs.
+  /// العربية: يبني floating orbs.
   Widget _buildFloatingOrbs() {
     return AnimatedBuilder(
       animation: _particleController,
@@ -175,6 +240,8 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
     );
   }
 
+  /// Builds the photo gallery.
+  /// العربية: يبني photo gallery.
   Widget _buildPhotoGallery() {
     return GestureDetector(
       onTap: () {
@@ -222,6 +289,8 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
     );
   }
 
+  /// Builds the futuristic loader.
+  /// العربية: يبني futuristic loader.
   Widget _buildFuturisticLoader(ImageChunkEvent? event) {
     final progress = event == null
         ? 0.0
@@ -262,6 +331,8 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
     );
   }
 
+  /// Builds the futuristic top bar.
+  /// العربية: يبني futuristic top bar.
   Widget _buildFuturisticTopBar() {
     return SlideTransition(
       position: _slideAnimation,
@@ -312,6 +383,8 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
     );
   }
 
+  /// Builds the glass button.
+  /// العربية: يبني glass button.
   Widget _buildGlassButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -355,6 +428,8 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
     );
   }
 
+  /// Builds the image counter.
+  /// العربية: يبني image counter.
   Widget _buildImageCounter() {
     return AnimatedBuilder(
       animation: _glowAnimation,
@@ -386,6 +461,8 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
     );
   }
 
+  /// Builds the futuristic bottom info.
+  /// العربية: يبني futuristic bottom info.
   Widget _buildFuturisticBottomInfo() {
     final currentImage = widget.images[_currentIndex];
 
@@ -491,6 +568,8 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
     );
   }
 
+  /// Builds the futuristic page indicator.
+  /// العربية: يبني futuristic page indicator.
   Widget _buildFuturisticPageIndicator() {
     if (widget.images.length <= 1) return const SizedBox.shrink();
 
@@ -561,19 +640,42 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
     );
   }
 
+  /// Shares the image.
+  /// العربية: يشارك image.
   void _shareImage() {
     HapticFeedback.mediumImpact();
   }
 }
 
+/// Describes the FloatingOrb type used in the property feature.
+/// العربية: يمثل `FloatingOrb`.
 class _FloatingOrb {
+  /// Keeps the x value available to this object.
+  /// العربية: يخزن القيمة `x`.
   late double x;
+
+  /// Keeps the y value available to this object.
+  /// العربية: يخزن القيمة `y`.
   late double y;
+
+  /// Keeps the size value available to this object.
+  /// العربية: يخزن القيمة `size`.
   late double size;
+
+  /// Keeps the speedX value available to this object.
+  /// العربية: يخزن القيمة `speedX`.
   late double speedX;
+
+  /// Keeps the speedY value available to this object.
+  /// العربية: يخزن القيمة `speedY`.
   late double speedY;
+
+  /// Keeps the color value available to this object.
+  /// العربية: يخزن القيمة `color`.
   late Color color;
 
+  /// Constructs the FloatingOrb value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `FloatingOrb`.
   _FloatingOrb() {
     final random = math.Random();
     x = random.nextDouble();
@@ -591,15 +693,26 @@ class _FloatingOrb {
   }
 }
 
+/// Describes the OrbPainter type used in the property feature.
+/// العربية: يمثل `OrbPainter`.
 class _OrbPainter extends CustomPainter {
+  /// Keeps the orbs value available to this object.
+  /// العربية: يخزن القيمة `orbs`.
   final List<_FloatingOrb> orbs;
+
+  /// Keeps the animationValue value available to this object.
+  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
 
+  /// Constructs the OrbPainter value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `OrbPainter`.
   _OrbPainter({
     required this.orbs,
     required this.animationValue,
   });
 
+  /// Processes the paint flow and maps it into the property feature behavior.
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     for (final orb in orbs) {
@@ -627,6 +740,8 @@ class _OrbPainter extends CustomPainter {
     }
   }
 
+  /// Processes the shouldRepaint flow and maps it into the property feature behavior.
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(_OrbPainter oldDelegate) => true;
 }

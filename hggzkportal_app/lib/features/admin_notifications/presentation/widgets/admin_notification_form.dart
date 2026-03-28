@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'dart:ui';
 import 'package:flutter/services.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -11,21 +10,18 @@ import '../../../admin_users/domain/entities/user.dart';
 import '../../../notification_channels/domain/entities/notification_channel.dart';
 import '../../../notification_channels/data/datasources/notification_channels_remote_datasource.dart';
 import 'package:hggzkportal/injection_container.dart' as di;
-
 class AdminNotificationForm extends StatefulWidget {
+  /// العربية: يحدد ما إذا كانت القيمة `isBroadcast` مفعلة.
   final bool isBroadcast;
   final Function(Map<String, dynamic>) onSubmit;
-
   const AdminNotificationForm({
     super.key,
     required this.isBroadcast,
     required this.onSubmit,
   });
-
   @override
   State<AdminNotificationForm> createState() => _AdminNotificationFormState();
 }
-
 class _AdminNotificationFormState extends State<AdminNotificationForm>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
@@ -36,7 +32,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
   final _recipientController = TextEditingController();
   User? _selectedRecipient;
   final List<User> _selectedUsers = [];
-
   String _selectedType = 'booking';
   String _selectedPriority = 'normal';
   bool _targetAll = false;
@@ -44,11 +39,9 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
   DateTime? _scheduledFor;
   String? _selectedChannelId;
   NotificationChannel? _selectedChannel;
-
   final List<String> _types = ['booking', 'payment', 'promotion', 'system'];
   final List<String> _priorities = ['low', 'normal', 'high', 'urgent'];
   final List<String> _roles = ['Admin', 'Owner', 'Client', 'Staff', 'Guest'];
-
   @override
   void initState() {
     super.initState();
@@ -58,7 +51,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
     );
     _animationController.forward();
   }
-
   @override
   void dispose() {
     _animationController.dispose();
@@ -67,7 +59,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
     _recipientController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -133,7 +124,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
       ),
     );
   }
-
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
@@ -142,7 +132,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
       ),
     );
   }
-
   Widget _buildTypeSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,7 +186,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
       ],
     );
   }
-
   Widget _buildPrioritySelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -251,7 +239,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
       ],
     );
   }
-
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -321,7 +308,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
       ],
     );
   }
-
   Widget _buildChannelSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -392,7 +378,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
       ],
     );
   }
-
   Widget _buildTargetAllSwitch() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -442,7 +427,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
       ),
     );
   }
-
   Widget _buildRolesSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -516,7 +500,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
       ],
     );
   }
-
   Widget _buildScheduleSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -582,7 +565,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
       ],
     );
   }
-
   Widget _buildSubmitButton() {
     return Container(
       width: double.infinity,
@@ -628,7 +610,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
       ),
     );
   }
-
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
       HapticFeedback.mediumImpact();
@@ -659,7 +640,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
       widget.onSubmit(formData);
     }
   }
-
   Future<void> _openChannelSelector() async {
     HapticFeedback.lightImpact();
     final ds = di.sl<NotificationChannelsRemoteDataSource>();
@@ -676,7 +656,8 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
           decoration: BoxDecoration(
             color: AppTheme.darkCard.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.darkBorder.withValues(alpha: 0.3)),
+            border:
+                Border.all(color: AppTheme.darkBorder.withValues(alpha: 0.3)),
           ),
           child: SafeArea(
             top: false,
@@ -685,25 +666,35 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: channels.length,
-                separatorBuilder: (_, __) => Divider(color: AppTheme.darkBorder.withValues(alpha: 0.2)),
+                separatorBuilder: (_, __) =>
+                    Divider(color: AppTheme.darkBorder.withValues(alpha: 0.2)),
                 itemBuilder: (context, index) {
                   final ch = channels[index];
                   final isSelected = _selectedChannelId == ch.id;
                   return ListTile(
                     dense: true,
                     onTap: () => Navigator.pop(ctx, ch),
-                    leading: Icon(CupertinoIcons.speaker_2, color: isSelected ? AppTheme.primaryBlue : AppTheme.textMuted, size: 20),
+                    leading: Icon(CupertinoIcons.speaker_2,
+                        color: isSelected
+                            ? AppTheme.primaryBlue
+                            : AppTheme.textMuted,
+                        size: 20),
                     title: Text(
                       ch.name,
-                      style: AppTextStyles.bodyMedium.copyWith(color: AppTheme.textWhite),
+                      style: AppTextStyles.bodyMedium
+                          .copyWith(color: AppTheme.textWhite),
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(
                       ch.identifier,
-                      style: AppTextStyles.caption.copyWith(color: AppTheme.textMuted),
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppTheme.textMuted),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    trailing: isSelected ? Icon(CupertinoIcons.checkmark_circle_fill, color: AppTheme.primaryBlue, size: 20) : null,
+                    trailing: isSelected
+                        ? Icon(CupertinoIcons.checkmark_circle_fill,
+                            color: AppTheme.primaryBlue, size: 20)
+                        : null,
                   );
                 },
               ),
@@ -719,11 +710,11 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
       });
     }
   }
-
   Widget _buildRecipientSelector() {
     return GestureDetector(
       onTap: () async {
         final user = await SearchNavigationHelper.searchSingleUser(context);
+        if (!mounted) return;
         if (user != null) {
           setState(() {
             _selectedRecipient = user;
@@ -770,7 +761,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
       ),
     );
   }
-
   Widget _buildMultiUsersSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -789,6 +779,7 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
               onPressed: () async {
                 final users =
                     await SearchNavigationHelper.searchMultipleUsers(context);
+                if (!mounted) return;
                 if (users != null && users.isNotEmpty) {
                   setState(() {
                     // add unique by id
@@ -850,7 +841,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
       ],
     );
   }
-
   Future<void> _selectScheduleDateTime(BuildContext context) async {
     HapticFeedback.lightImpact();
 
@@ -872,27 +862,25 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
             datePickerTheme: DatePickerThemeData(
               backgroundColor: AppTheme.darkCard,
               headerForegroundColor: AppTheme.textWhiteAlways,
-              dayForegroundColor:
-                  MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected)) {
+              dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
                   return Colors.white;
                 }
-                if (states.contains(MaterialState.disabled)) {
+                if (states.contains(WidgetState.disabled)) {
                   return AppTheme.textMuted;
                 }
                 return AppTheme.textWhiteAlways;
               }),
-              dayBackgroundColor:
-                  MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected)) {
+              dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
                   return AppTheme.primaryBlue;
                 }
                 return Colors.transparent;
               }),
               todayForegroundColor:
-                  MaterialStatePropertyAll(AppTheme.primaryBlue),
+                  WidgetStatePropertyAll(AppTheme.primaryBlue),
               todayBackgroundColor:
-                  const MaterialStatePropertyAll(Colors.transparent),
+                  const WidgetStatePropertyAll(Colors.transparent),
             ),
           ),
           child: child!,
@@ -901,6 +889,7 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
     );
 
     if (pickedDate != null) {
+      if (!context.mounted) return;
       final TimeOfDay? pickedTime = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.now(),
@@ -934,6 +923,7 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
         },
       );
 
+      if (!mounted) return;
       if (pickedTime != null) {
         setState(() {
           _scheduledFor = DateTime(
@@ -947,7 +937,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
       }
     }
   }
-
   String _formatScheduledDateTime(DateTime dateTime) {
     final months = [
       'يناير',
@@ -969,7 +958,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
 
     return '${dateTime.day} ${months[dateTime.month - 1]}, ${dateTime.year} - $hour:$minute';
   }
-
   String _getTypeLabel(String type) {
     switch (type) {
       case 'booking':
@@ -984,7 +972,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
         return type;
     }
   }
-
   String _getPriorityLabel(String priority) {
     switch (priority) {
       case 'low':
@@ -999,7 +986,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
         return priority;
     }
   }
-
   Color _getPriorityColor(String priority) {
     switch (priority) {
       case 'low':
@@ -1014,7 +1000,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
         return AppTheme.textMuted;
     }
   }
-
   String _getRoleLabel(String role) {
     switch (role) {
       case 'Admin':
@@ -1029,7 +1014,6 @@ class _AdminNotificationFormState extends State<AdminNotificationForm>
         return role;
     }
   }
-
   String _mapRoleValue(String role) {
     // Canonicalize selected value to 5 roles
     switch (role) {

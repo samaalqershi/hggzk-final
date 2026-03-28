@@ -9,9 +9,13 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
+/// تعرض مسار استرجاع كلمة المرور وتنتقل إلى واجهة النجاح بعد قبول الطلب.
+/// Presents the password-recovery flow and transitions into a success view
+/// once the reset request is accepted.
 class ForgotPasswordPage extends StatefulWidget {
+  /// ينشئ شاشة استرجاع كلمة المرور.
+  /// Creates the password-recovery page.
   const ForgotPasswordPage({super.key});
-
   @override
   State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
 }
@@ -21,16 +25,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
   final _formKey = GlobalKey<FormState>();
   final _emailOrPhoneController = TextEditingController();
   final _emailOrPhoneFocusNode = FocusNode();
-
   late AnimationController _animationController;
   late AnimationController _floatingAnimationController;
   late AnimationController _successAnimationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _scaleAnimation;
-
   bool _isSubmitted = false;
-
   @override
   void initState() {
     super.initState();
@@ -561,10 +562,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
 // Floating Circles Painter
 class _FloatingCirclesPainter extends CustomPainter {
   final Animation<double> animation;
-
   _FloatingCirclesPainter({required this.animation})
       : super(repaint: animation);
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;

@@ -1,6 +1,10 @@
 import '../../domain/entities/review_image.dart';
 
+/// Describes the data model `ReviewImageModel`.
+/// العربية: يمثل نموذج البيانات `ReviewImageModel`.
 class ReviewImageModel extends ReviewImage {
+  /// Builds a new `ReviewImageModel` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewImageModel`.
   const ReviewImageModel({
     required super.id,
     required super.url,
@@ -12,6 +16,8 @@ class ReviewImageModel extends ReviewImage {
     super.uploadedAt,
   });
 
+  /// Builds a new `ReviewImageModel.fromJson` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewImageModel.fromJson`.
   factory ReviewImageModel.fromJson(Map<String, dynamic> json) {
     return ReviewImageModel(
       id: json['id'] ?? '',
@@ -27,6 +33,8 @@ class ReviewImageModel extends ReviewImage {
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -40,6 +48,8 @@ class ReviewImageModel extends ReviewImage {
     };
   }
 
+  /// Processes `toEntity`.
+  /// العربية: يعالج `toEntity`.
   ReviewImage toEntity() {
     return ReviewImage(
       id: id,

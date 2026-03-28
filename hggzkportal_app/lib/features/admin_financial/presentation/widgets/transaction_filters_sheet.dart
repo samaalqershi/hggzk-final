@@ -13,14 +13,12 @@ class TransactionFiltersSheet extends StatefulWidget {
   final TransactionStatus? selectedStatus;
   final TransactionType? selectedType;
   final Function(TransactionStatus?, TransactionType?) onFiltersChanged;
-
   const TransactionFiltersSheet({
     super.key,
     this.selectedStatus,
     this.selectedType,
     required this.onFiltersChanged,
   });
-
   @override
   State<TransactionFiltersSheet> createState() =>
       _TransactionFiltersSheetState();
@@ -32,12 +30,10 @@ class _TransactionFiltersSheetState extends State<TransactionFiltersSheet>
   late AnimationController _expandController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
-
   TransactionStatus? _selectedStatus;
   TransactionType? _selectedType;
   bool _isStatusExpanded = true;
   bool _isTypeExpanded = false;
-
   @override
   void initState() {
     super.initState();
@@ -93,13 +89,13 @@ class _TransactionFiltersSheetState extends State<TransactionFiltersSheet>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    AppTheme.darkCard.withOpacity(0.8),
-                    AppTheme.darkCard.withOpacity(0.6),
+                    AppTheme.darkCard.withValues(alpha: 0.8),
+                    AppTheme.darkCard.withValues(alpha: 0.6),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.2),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.2),
                 ),
               ),
               child: ClipRRect(
@@ -128,7 +124,7 @@ class _TransactionFiltersSheetState extends State<TransactionFiltersSheet>
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
           ),
         ),
       ),
@@ -239,10 +235,10 @@ class _TransactionFiltersSheetState extends State<TransactionFiltersSheet>
         height: _isTypeExpanded ? 300 : 0,
         child: Container(
           decoration: BoxDecoration(
-            color: AppTheme.darkBackground.withOpacity(0.3),
+            color: AppTheme.darkBackground.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.1),
+              color: AppTheme.darkBorder.withValues(alpha: 0.1),
             ),
           ),
           child: ListView(
@@ -281,10 +277,10 @@ class _TransactionFiltersSheetState extends State<TransactionFiltersSheet>
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.3),
+        color: AppTheme.darkBackground.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.1),
+          color: AppTheme.darkBorder.withValues(alpha: 0.1),
         ),
       ),
       child: Column(
@@ -305,7 +301,7 @@ class _TransactionFiltersSheetState extends State<TransactionFiltersSheet>
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: iconColor.withOpacity(0.1),
+                      color: iconColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -366,17 +362,19 @@ class _TransactionFiltersSheetState extends State<TransactionFiltersSheet>
           gradient: isSelected && color != null
               ? LinearGradient(
                   colors: [
-                    color.withOpacity(0.2),
-                    color.withOpacity(0.1),
+                    color.withValues(alpha: 0.2),
+                    color.withValues(alpha: 0.1),
                   ],
                 )
               : null,
-          color: isSelected ? null : AppTheme.darkBackground.withOpacity(0.5),
+          color: isSelected
+              ? null
+              : AppTheme.darkBackground.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isSelected
-                ? (color ?? AppTheme.primaryCyan).withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.2),
+                ? (color ?? AppTheme.primaryCyan).withValues(alpha: 0.5)
+                : AppTheme.darkBorder.withValues(alpha: 0.2),
           ),
         ),
         child: Row(
@@ -425,15 +423,15 @@ class _TransactionFiltersSheetState extends State<TransactionFiltersSheet>
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    AppTheme.primaryCyan.withOpacity(0.1),
-                    AppTheme.primaryCyan.withOpacity(0.05),
+                    AppTheme.primaryCyan.withValues(alpha: 0.1),
+                    AppTheme.primaryCyan.withValues(alpha: 0.05),
                   ],
                 )
               : null,
           borderRadius: BorderRadius.circular(10),
           border: isSelected
               ? Border.all(
-                  color: AppTheme.primaryCyan.withOpacity(0.3),
+                  color: AppTheme.primaryCyan.withValues(alpha: 0.3),
                 )
               : null,
         ),
@@ -466,10 +464,10 @@ class _TransactionFiltersSheetState extends State<TransactionFiltersSheet>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.3),
+        color: AppTheme.darkBackground.withValues(alpha: 0.3),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
           ),
         ),
       ),
@@ -516,18 +514,18 @@ class _TransactionFiltersSheetState extends State<TransactionFiltersSheet>
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           gradient: isPrimary ? AppTheme.primaryGradient : null,
-          color: isPrimary ? null : color?.withOpacity(0.1),
+          color: isPrimary ? null : color?.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isPrimary
-                ? AppTheme.primaryCyan.withOpacity(0.5)
-                : color?.withOpacity(0.3) ??
-                    AppTheme.darkBorder.withOpacity(0.3),
+                ? AppTheme.primaryCyan.withValues(alpha: 0.5)
+                : color?.withValues(alpha: 0.3) ??
+                    AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
           boxShadow: isPrimary
               ? [
                   BoxShadow(
-                    color: AppTheme.primaryCyan.withOpacity(0.3),
+                    color: AppTheme.primaryCyan.withValues(alpha: 0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -569,10 +567,10 @@ class _TransactionFiltersSheetState extends State<TransactionFiltersSheet>
         width: 32,
         height: 32,
         decoration: BoxDecoration(
-          color: AppTheme.darkBackground.withOpacity(0.5),
+          color: AppTheme.darkBackground.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
           ),
         ),
         child: Icon(

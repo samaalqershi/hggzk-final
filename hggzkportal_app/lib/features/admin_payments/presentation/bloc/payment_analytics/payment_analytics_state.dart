@@ -3,8 +3,8 @@ import '../../../domain/entities/payment_analytics.dart';
 import 'payment_analytics_event.dart';
 
 abstract class PaymentAnalyticsState extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `PaymentAnalyticsState`.
   const PaymentAnalyticsState();
-
   @override
   List<Object?> get props => [];
 }
@@ -17,6 +17,7 @@ class PaymentAnalyticsLoading extends PaymentAnalyticsState {}
 
 /// ✅ حالة نجاح التحميل
 class PaymentAnalyticsLoaded extends PaymentAnalyticsState {
+  /// العربية: يخزن القيمة `analytics`.
   final PaymentAnalytics analytics;
   final List<PaymentTrend> trends;
   final RefundAnalytics? refundStatistics;
@@ -30,7 +31,6 @@ class PaymentAnalyticsLoaded extends PaymentAnalyticsState {
   final bool isLoadingReport;
   final bool isLoadingTrends;
   final bool isLoadingRefundStats;
-
   const PaymentAnalyticsLoaded({
     required this.analytics,
     required this.trends,
@@ -46,7 +46,6 @@ class PaymentAnalyticsLoaded extends PaymentAnalyticsState {
     this.isLoadingTrends = false,
     this.isLoadingRefundStats = false,
   });
-
   PaymentAnalyticsLoaded copyWith({
     PaymentAnalytics? analytics,
     List<PaymentTrend>? trends,
@@ -130,52 +129,50 @@ class PaymentAnalyticsLoaded extends PaymentAnalyticsState {
 
 /// ❌ حالة الخطأ
 class PaymentAnalyticsError extends PaymentAnalyticsState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
-
   const PaymentAnalyticsError({required this.message});
-
   @override
   List<Object> get props => [message];
 }
 
 /// 📤 حالة التصدير
 class PaymentAnalyticsExporting extends PaymentAnalyticsState {
+  /// العربية: يخزن القيمة `analytics`.
   final PaymentAnalytics analytics;
   final List<PaymentTrend> trends;
   final RefundAnalytics? refundStatistics;
   final ExportFormat format;
-
   const PaymentAnalyticsExporting({
     required this.analytics,
     required this.trends,
     this.refundStatistics,
     required this.format,
   });
-
   @override
   List<Object?> get props => [analytics, trends, refundStatistics, format];
 }
 
 /// ✅ حالة نجاح التصدير
 class PaymentAnalyticsExportSuccess extends PaymentAnalyticsState {
+  /// العربية: يخزن القيمة `analytics`.
   final PaymentAnalytics analytics;
   final List<PaymentTrend> trends;
   final RefundAnalytics? refundStatistics;
   final String message;
-
   const PaymentAnalyticsExportSuccess({
     required this.analytics,
     required this.trends,
     this.refundStatistics,
     required this.message,
   });
-
   @override
   List<Object?> get props => [analytics, trends, refundStatistics, message];
 }
 
 /// 🔄 حالة المقارنة
 class PaymentAnalyticsComparison extends PaymentAnalyticsState {
+  /// العربية: يخزن القيمة `period1Analytics`.
   final PaymentAnalytics period1Analytics;
   final PaymentAnalytics period2Analytics;
   final Map<String, dynamic> comparison;
@@ -183,7 +180,6 @@ class PaymentAnalyticsComparison extends PaymentAnalyticsState {
   final DateTime period1End;
   final DateTime period2Start;
   final DateTime period2End;
-
   const PaymentAnalyticsComparison({
     required this.period1Analytics,
     required this.period2Analytics,
@@ -193,7 +189,6 @@ class PaymentAnalyticsComparison extends PaymentAnalyticsState {
     required this.period2Start,
     required this.period2End,
   });
-
   @override
   List<Object> get props => [
         period1Analytics,

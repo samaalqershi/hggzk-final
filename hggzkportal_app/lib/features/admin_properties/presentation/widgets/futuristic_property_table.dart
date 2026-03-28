@@ -4,13 +4,12 @@ import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
-import 'package:hggzkportal/core/theme/app_colors.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
-import 'package:hggzkportal/core/theme/app_dimensions.dart';
 import '../../domain/entities/property.dart';
 import '../../../../core/widgets/property_identity_card_tooltip.dart';
 
 class FuturisticPropertyTable extends StatefulWidget {
+  /// العربية: يخزن القيمة `properties`.
   final List<Property> properties;
   final Function(Property) onPropertyTap;
   final Function(Property) onEdit;
@@ -18,7 +17,6 @@ class FuturisticPropertyTable extends StatefulWidget {
   final Function(String) onReject;
   final Function(String) onDelete;
   final Function(Property) onAssignAmenities;
-
   const FuturisticPropertyTable({
     super.key,
     required this.properties,
@@ -29,7 +27,6 @@ class FuturisticPropertyTable extends StatefulWidget {
     required this.onDelete,
     required this.onAssignAmenities,
   });
-
   @override
   State<FuturisticPropertyTable> createState() =>
       _FuturisticPropertyTableState();
@@ -39,17 +36,14 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-
   String? _sortColumn;
   bool _isAscending = true;
   String? _hoveredRowId;
-  String? _pressedRowId;
   final Map<String, GlobalKey> _rowKeys = {};
 
   // Breakpoints
   static const double _mobileBreakpoint = 600;
   static const double _tabletBreakpoint = 1024;
-
   @override
   void initState() {
     super.initState();
@@ -83,10 +77,8 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
   }
 
   void _showPropertyCard(Property property) {
-    setState(() => _pressedRowId = property.id);
-    
     HapticFeedback.mediumImpact();
-    
+
     PropertyIdentityCardTooltip.show(
       context: context,
       targetKey: _getRowKey(property.id),
@@ -97,7 +89,9 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
       address: property.address,
       city: property.city,
       starRating: property.starRating,
-      coverImage: property.images.isNotEmpty ? property.images.first.thumbnails.large : null,
+      coverImage: property.images.isNotEmpty
+          ? property.images.first.thumbnails.large
+          : null,
       isApproved: property.isApproved,
       isFeatured: property.isFeatured,
       createdAt: property.createdAt,
@@ -110,10 +104,8 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
       policiesCount: property.policies.length,
       unitsCount: property.stats?.totalBookings ?? 0,
     );
-    
-    Future.delayed(const Duration(milliseconds: 200), () {
-      if (mounted) setState(() => _pressedRowId = null);
-    });
+
+    Future.delayed(const Duration(milliseconds: 200), () {});
   }
 
   @override

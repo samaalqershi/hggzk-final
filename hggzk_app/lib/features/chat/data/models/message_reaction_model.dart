@@ -1,7 +1,8 @@
 import 'package:hggzk/features/chat/domain/entities/message.dart';
 
-
+/// العربية: يمثل نموذج البيانات `MessageReactionModel`.
 class MessageReactionModel extends MessageReaction {
+  /// العربية: ينشئ مثيلًا جديدًا من `MessageReactionModel`.
   const MessageReactionModel({
     required super.id,
     required super.messageId,
@@ -9,6 +10,7 @@ class MessageReactionModel extends MessageReaction {
     required super.reactionType,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `MessageReactionModel.fromJson`.
   factory MessageReactionModel.fromJson(Map<String, dynamic> json) {
     return MessageReactionModel(
       id: json['id'] ?? '',
@@ -18,6 +20,7 @@ class MessageReactionModel extends MessageReaction {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,

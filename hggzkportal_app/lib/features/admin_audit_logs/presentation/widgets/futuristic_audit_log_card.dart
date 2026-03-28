@@ -8,29 +8,53 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/audit_log.dart';
 
+/// بطاقة سجل تدقيق عصرية تعرض العملية والمستخدم والتوقيت بأسلوب غني بصريًا.
+/// Futuristic audit-log card that presents the action, user, and timing with a rich visual style.
 class FuturisticAuditLogCard extends StatefulWidget {
+  /// سجل التدقيق الذي ستعرضه البطاقة.
+  /// Audit log rendered by the card.
   final AuditLog auditLog;
-  final VoidCallback? onTap;
-  final bool isCompact;
-  final bool isGridView; // 🎯 إضافة للتمييز بين العرض الشبكي والقائمة
 
+  /// يستدعى عند النقر على البطاقة.
+  /// Called when the card is tapped.
+  final VoidCallback? onTap;
+
+  /// يحدد ما إذا كانت البطاقة في العرض المختصر.
+  /// Indicates whether the card should render in compact mode.
+  final bool isCompact;
+
+  /// يحدد ما إذا كانت البطاقة تُعرض داخل شبكة أم داخل قائمة.
+  /// Indicates whether the card is rendered in a grid or a list.
+  final bool isGridView;
+
+  /// ينشئ البطاقة مع سجل التدقيق وخيارات العرض والتفاعل.
   const FuturisticAuditLogCard({
     super.key,
     required this.auditLog,
     this.onTap,
     this.isCompact = false,
-    this.isGridView = false, // 🎯 القيمة الافتراضية
+    this.isGridView = false,
   });
 
+  /// ينشئ الحالة المسؤولة عن الحركة وحالات hover.
   @override
   State<FuturisticAuditLogCard> createState() => _FuturisticAuditLogCardState();
 }
 
+/// تدير هذه الحالة الحركة الخفيفة، التظليل، والتبديل بين أوضاع العرض.
+/// Manages subtle motion, highlighting, and switching between display modes.
 class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     with SingleTickerProviderStateMixin {
+  /// يتحكم في وميض/تحريك الحالة أثناء التفاعل.
+  /// Controls the interaction animation for the card.
   late AnimationController _animationController;
+
+  /// يحدد ما إذا كان المؤشر فوق البطاقة الآن.
+  /// Indicates whether the pointer is currently hovering over the card.
   bool _isHovered = false;
 
+  /// يهيئ متحكم الحركة عند إنشاء الحالة.
+  /// Initializes the animation controller when the state is created.
   @override
   void initState() {
     super.initState();
@@ -40,12 +64,15 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
+  /// يحرر متحكم الحركة عند إزالة البطاقة من الشجرة.
+  /// Disposes the animation controller when the card is removed from the tree.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// يبني البطاقة بالمسار المناسب سواء كان شبكيًا أو كاملاً أو مضغوطًا.
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
@@ -103,7 +130,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
-  // 🎯 محتوى مخصص ومحسّن للعرض الشبكي
+  /// يبني محتوى العرض الشبكي المقتضب داخل البطاقة.
   Widget _buildGridContent() {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -142,7 +169,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
-  // 🎯 Header مضغوط للعرض الشبكي
+  /// يبني رأسًا مضغوطًا مناسبًا للعرض الشبكي.
   Widget _buildGridHeader() {
     return Row(
       children: [
@@ -205,7 +232,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
-  // 🎯 المعلومات الرئيسية للعرض الشبكي
+  /// يبني المعلومات الرئيسية الخاصة بالسجل في العرض الشبكي.
   Widget _buildGridMainInfo() {
     return Container(
       padding: const EdgeInsets.all(8),
@@ -268,7 +295,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
-  // 🎯 معلومات المستخدم للعرض الشبكي
+  /// يبني معلومات المستخدم والوقت في العرض الشبكي.
   Widget _buildGridUserInfo() {
     return Row(
       children: [
@@ -326,7 +353,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
-  // 🎯 معاينة التغييرات للعرض الشبكي (مختصرة جداً)
+  /// يبني معاينة مختصرة جدًا للتغييرات في العرض الشبكي.
   Widget _buildGridChangesPreview() {
     final changes = widget.auditLog.changes.length > 30
         ? '${widget.auditLog.changes.substring(0, 30)}...'
@@ -355,7 +382,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
-  // 🎯 Footer للعرض الشبكي
+  /// يبني تذييل العرض الشبكي الذي يعرض الحالة والتاريخ.
   Widget _buildGridFooter() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -421,7 +448,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
-  // باقي الدوال الأصلية...
+  /// يبني المحتوى الكامل الذي يستخدم داخل العرض غير المضغوط.
   Widget _buildFullContent() {
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
@@ -442,6 +469,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
+  /// يبني المحتوى المختصر المستخدم في الشاشات الصغيرة.
   Widget _buildCompactContent() {
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -481,6 +509,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
+  /// يبني رأس العرض الكامل الذي يعرض الشارة والعنوان.
   Widget _buildHeader() {
     return Row(
       children: [
@@ -511,6 +540,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
+  /// يبني جسم البطاقة الكامل للمحتوى غير المضغوط.
   Widget _buildBody() {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -544,6 +574,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
+  /// يبني تذييل العرض الكامل مع الوقت ومؤشر البطء.
   Widget _buildFooter() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -554,6 +585,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
+  /// يبني الأيقونة الرئيسية للحالة مع حجم اختياري.
   Widget _buildActionIcon({double size = 40}) {
     return Container(
       width: size,
@@ -577,6 +609,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
+  /// يبني شارة الحالة التي تعرض نوع العملية.
   Widget _buildStatusBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -603,6 +636,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
+  /// يبني صفًا معلوماتيًا صغيرًا داخل الجسم أو الشبكة.
   Widget _buildInfoRow({
     required IconData icon,
     required String label,
@@ -638,6 +672,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
+  /// يبني معاينة مختصرة للتغييرات النصية.
   Widget _buildChangesPreview() {
     final changes = widget.auditLog.changes.length > 50
         ? '${widget.auditLog.changes.substring(0, 50)}...'
@@ -665,6 +700,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
+  /// يبني شارة الوقت النسبي أو المطلق حسب العرض.
   Widget _buildTimestamp() {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -685,6 +721,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
+  /// يبني شارة مرئية توضح أن العملية كانت بطيئة.
   Widget _buildSlowOperationBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -717,6 +754,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     );
   }
 
+  /// يختار لون العملية بناءً على نوع الإجراء المسجل.
   Color _getActionColor() {
     switch (widget.auditLog.action.toLowerCase()) {
       case 'create':
@@ -734,6 +772,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     }
   }
 
+  /// يختار الأيقونة المناسبة لنوع العملية.
   IconData _getActionIcon() {
     switch (widget.auditLog.action.toLowerCase()) {
       case 'create':
@@ -751,6 +790,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     }
   }
 
+  /// يعيد وسمًا عربيًا يصف نوع العملية بشكل موجز.
   String _getActionLabel() {
     switch (widget.auditLog.action.toLowerCase()) {
       case 'create':
@@ -768,6 +808,7 @@ class _FuturisticAuditLogCardState extends State<FuturisticAuditLogCard>
     }
   }
 
+  /// يحدّث حالة hover ويشغّل أو يعكس الحركة تبعًا لها.
   void _setHovered(bool value) {
     setState(() => _isHovered = value);
     if (value) {

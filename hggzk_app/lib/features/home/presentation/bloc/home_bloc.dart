@@ -8,21 +8,47 @@ import '../../domain/usecases/get_property_types_with_units_usecase.dart';
 import '../../domain/repositories/home_repository.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../services/data_sync_service.dart';
-import '../../../../services/filter_storage_service.dart';
+import 'package:hggzk/core/services/data_sync_service.dart';
+import 'package:hggzk/core/services/filter_storage_service.dart';
 import 'home_event.dart';
 import 'home_state.dart';
 
+/// ينسّق منطق الصفحة الرئيسية بالكامل، من تحميل الأقسام وبياناتها إلى
+/// استعادة اختيارات المستخدم وتتبع التفاعل مع المحتوى.
+/// Coordinates the entire home-screen flow, from loading sections and their
+/// data to restoring user selections and tracking engagement.
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
+  /// حالة الاستخدام التي تجلب تعريفات الأقسام الظاهرة في الصفحة الرئيسية.
+  /// Use case that loads the section definitions shown on the home screen.
   final GetSectionsUseCase getSectionsUseCase;
+  /// حالة الاستخدام التي تجلب محتوى قسم واحد حسب الصفحات والمعايير.
+  /// Use case that loads the contents of a single section with paging options.
   final GetSectionDataUseCase getSectionDataUseCase;
+  /// حالة الاستخدام الخاصة بتحميل أنواع العقارات المستخدمة في الفلاتر.
+  /// Use case that loads property types used by home filters.
   final GetPropertyTypesUseCase getPropertyTypesUseCase;
+  /// حالة الاستخدام التي تجلب أنواع الوحدات والحقول المرتبطة بها.
+  /// Use case that loads unit types together with their dynamic fields.
   final GetUnitTypesWithFieldsUseCase getUnitTypesWithFieldsUseCase;
+  /// حالة استخدام اختيارية تجمع تحميل أنواع العقارات والوحدات في طلب واحد
+  /// لتحسين الأداء عند التهيئة الأولى.
+  /// Optional combined use case that loads property and unit types in one
+  /// request to speed up the initial home bootstrap.
   final GetPropertyTypesWithUnitsUseCase? getPropertyTypesWithUnitsUseCase;
+  /// المستودع المسؤول عن العمليات الجانبية مثل تسجيل الانطباعات والتفاعل.
+  /// Repository responsible for side effects such as recording impressions and
+  /// interactions.
   final HomeRepository homeRepository;
+  /// خدمة مزامنة تساعد على استخدام البيانات المحلية عند تعثر المصدر البعيد.
+  /// Sync service used to fall back to local data when the remote source fails.
   final DataSyncService dataSyncService;
+  /// تخزين دائم لاختيارات الفلاتر والبحث الخاصة بالصفحة الرئيسية.
+  /// Persistent storage for home-specific search and filter selections.
   final FilterStorageService filterStorageService;
 
+  /// ينشئ منسق الصفحة الرئيسية ويُسجل كل المعالجات المرتبطة بأحداثها.
+  /// Creates the home coordinator bloc and registers all event handlers it
+  /// needs.
   HomeBloc({
     required this.getSectionsUseCase,
     required this.getSectionDataUseCase,
@@ -49,6 +75,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<UpdateDynamicFieldValuesEvent>(_onUpdateDynamicFieldValues);
   }
 
+  /// ينفذ دورة التهيئة الكاملة للصفحة الرئيسية، بما في ذلك الأقسام وبياناتها
+  /// وأنواع العقارات والوحدات والاختيارات المحفوظة.
+  /// Runs the full home bootstrap flow, including sections, section data,
+  /// property and unit types, and restored saved selections.
   Future<void> _onLoadHomeData(
     LoadHomeDataEvent event,
     Emitter<HomeState> emit,
@@ -56,7 +86,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(const HomeLoading());
 
     try {
-      // Load sections first
+      // Load sections first so the UI knows what to render.
       final sectionsResult = await getSectionsUseCase(
         GetSectionsParams(forceRefresh: event.forceRefresh),
       );
@@ -72,7 +102,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           .where((s) => ((s.contentType ?? '').toLowerCase() != 'none'))
           .toList();
 
-      // Load property types (+ unit types if available) to avoid extra roundtrips
+      // Load property types (+ unit types if available) to avoid extra
+      // roundtrips.
       List<dynamic> propertyTypes = [];
       Map<String, List<dynamic>> unitTypesMap = {};
       bool combinedSucceeded = false;
@@ -98,7 +129,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             (l) => <dynamic>[],
             (r) => r,
           );
-          // Prefetch unit types for all property types to avoid selection-time fetches
+          // Prefetch unit types for all property types to avoid selection-time
+          // fetches.
           if (propertyTypes.isNotEmpty) {
             final List<dynamic> pts = propertyTypes;
             final List<Future<void>> tasks = [];
@@ -120,7 +152,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             combinedSucceeded = true;
           }
         } catch (e) {
-          // Fallback to local data if remote fails
+          // Fall back to local data if the remote source fails.
           try {
             final localPropertyTypes = await dataSyncService.getPropertyTypes();
             propertyTypes = localPropertyTypes;
@@ -132,7 +164,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       }
 
-      // Load section data for each active section
+      // Load section data for each active section.
       final Map<String, dynamic> sectionData = {};
       final Map<String, bool> sectionsLoadingMore = {};
 
@@ -152,7 +184,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       }
 
-      // Load saved selections (property type, unit type, dates, guests, dynamic fields)
+      // Load saved selections: property type, unit type, dates, guests, and
+      // dynamic fields.
       final saved = filterStorageService.getHomeSelections();
       String? savedPropertyTypeId = saved['propertyTypeId'] as String?;
       String? savedUnitTypeId = saved['unitTypeId'] as String?;
@@ -164,14 +197,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       final int savedAdults = (saved['adults'] as int?) ?? 0;
       final int savedChildren = (saved['children'] as int?) ?? 0;
 
-      // Validate saved property/unit against loaded data
+      // Validate the saved property/unit against the newly loaded data.
       bool propertyExists = false;
       if (savedPropertyTypeId != null) {
         propertyExists = propertyTypes
             .any((pt) => (pt as dynamic).id == savedPropertyTypeId);
       }
       if (!propertyExists) {
-        // Property type is no longer valid; clear selection IDs but keep dates/guests
+        // The property type is no longer valid; keep dates and guests only.
         savedPropertyTypeId = null;
         savedUnitTypeId = null;
         savedDynamicValues = {
@@ -185,7 +218,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         final unitExists = savedUnitTypeId != null &&
             units.any((u) => (u as dynamic).id == savedUnitTypeId);
         if (!unitExists) {
-          // Unit type is no longer valid; keep dates/guests but drop dynamic filters
+          // The unit type is no longer valid; keep dates and guests but drop
+          // dynamic filters.
           savedUnitTypeId = null;
           savedDynamicValues = {
             if (savedCheckIn != null) 'checkIn': savedCheckIn,
@@ -194,7 +228,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             'children': savedChildren,
           };
         } else {
-          // Unit type exists; نحتفظ فقط بالتواريخ وعدد الضيوف
+          // The unit type exists; keep only the dates and guest counts.
           savedDynamicValues = {
             if (savedCheckIn != null) 'checkIn': savedCheckIn,
             if (savedCheckOut != null) 'checkOut': savedCheckOut,

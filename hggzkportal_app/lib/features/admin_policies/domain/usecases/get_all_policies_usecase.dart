@@ -6,13 +6,15 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/policy.dart';
 import '../repositories/policies_repository.dart';
 
-class GetAllPoliciesUseCase implements UseCase<PaginatedResult<Policy>, GetAllPoliciesParams> {
+class GetAllPoliciesUseCase
+    implements UseCase<PaginatedResult<Policy>, GetAllPoliciesParams> {
   final PoliciesRepository repository;
 
   GetAllPoliciesUseCase(this.repository);
 
   @override
-  Future<Either<Failure, PaginatedResult<Policy>>> call(GetAllPoliciesParams params) async {
+  Future<Either<Failure, PaginatedResult<Policy>>> call(
+      GetAllPoliciesParams params) async {
     return await repository.getAllPolicies(
       pageNumber: params.pageNumber,
       pageSize: params.pageSize,
@@ -24,10 +26,15 @@ class GetAllPoliciesUseCase implements UseCase<PaginatedResult<Policy>, GetAllPo
 }
 
 class GetAllPoliciesParams extends Equatable {
+  /// العربية: يخزن القيمة `pageNumber`.
   final int pageNumber;
+
   final int pageSize;
+
   final String? searchTerm;
+
   final String? propertyId;
+
   final PolicyType? policyType;
 
   const GetAllPoliciesParams({
@@ -39,5 +46,6 @@ class GetAllPoliciesParams extends Equatable {
   });
 
   @override
-  List<Object?> get props => [pageNumber, pageSize, searchTerm, propertyId, policyType];
+  List<Object?> get props =>
+      [pageNumber, pageSize, searchTerm, propertyId, policyType];
 }

@@ -5,13 +5,31 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/conversation.dart';
 
+/// يعرّف الكلاس `ConversationItemWidget`.
+/// Describes the `ConversationItemWidget` class.
 class ConversationItemWidget extends StatelessWidget {
+  /// Holds the `conversation` value.
+  /// العربية: يخزن القيمة `conversation`.
   final Conversation conversation;
+
+  /// يخزن العضو `currentUserId`.
+  /// Holds the `currentUserId` member.
   final String currentUserId;
+
+  /// يخزن العضو `typingUserIds`.
+  /// Holds the `typingUserIds` member.
   final List<String> typingUserIds;
+
+  /// يخزن العضو `onTap`.
+  /// Holds the `onTap` member.
   final VoidCallback onTap;
+
+  /// يخزن العضو `onLongPress`.
+  /// Holds the `onLongPress` member.
   final VoidCallback? onLongPress;
 
+  /// ينشئ مثيلاً من `ConversationItemWidget`.
+  /// Builds an instance of `ConversationItemWidget`.
   const ConversationItemWidget({
     super.key,
     required this.conversation,
@@ -21,6 +39,8 @@ class ConversationItemWidget extends StatelessWidget {
     this.onLongPress,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     final otherParticipant = conversation.isDirectChat
@@ -154,6 +174,8 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildUltraMinimalAvatar`.
+  /// Runs the `_buildUltraMinimalAvatar` operation.
   Widget _buildUltraMinimalAvatar(String? imageUrl, String name) {
     return Stack(
       children: [
@@ -224,6 +246,8 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildUltraMinimalStatus`.
+  /// Runs the `_buildUltraMinimalStatus` operation.
   Widget _buildUltraMinimalStatus(String status) {
     IconData icon;
     Color color;
@@ -264,6 +288,8 @@ class ConversationItemWidget extends StatelessWidget {
   }
 
   // FIX المشكلة 3: عرض صورة مصغرة بدلاً من رابط
+  /// ينفذ العملية `_buildUltraMinimalLastMessage`.
+  /// Runs the `_buildUltraMinimalLastMessage` operation.
   Widget _buildUltraMinimalLastMessage() {
     if (conversation.lastMessage == null) {
       return Text(
@@ -297,8 +323,7 @@ class ConversationItemWidget extends StatelessWidget {
           (att) => att.isImage,
           orElse: () => lastMessage.attachments.first,
         );
-        thumbnailUrl =
-            firstImage.thumbnailUrl ?? firstImage.fileUrl ?? firstImage.url;
+        thumbnailUrl = firstImage.thumbnailUrl ?? firstImage.fileUrl;
       }
 
       // ثانياً: إذا لم توجد attachments، تحقق من content (قد يحتوي على URL مباشر)
@@ -441,6 +466,8 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildUltraMinimalTyping`.
+  /// Runs the `_buildUltraMinimalTyping` operation.
   Widget _buildUltraMinimalTyping() {
     return Row(
       children: [
@@ -483,6 +510,8 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildUltraMinimalBadge`.
+  /// Runs the `_buildUltraMinimalBadge` operation.
   Widget _buildUltraMinimalBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -524,6 +553,8 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_formatTime`.
+  /// Runs the `_formatTime` operation.
   String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -554,6 +585,8 @@ class ConversationItemWidget extends StatelessWidget {
     }
   }
 
+  /// ينفذ العملية `_getInitials`.
+  /// Runs the `_getInitials` operation.
   String _getInitials(String name) {
     final parts = name.trim().split(' ');
     if (parts.isEmpty) return '؟';

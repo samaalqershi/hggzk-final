@@ -5,7 +5,9 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class SectionMetadataEditor extends StatefulWidget {
+  /// العربية: يخزن القيمة `initialMetadata`.
   final String? initialMetadata;
+
   final Function(String) onMetadataChanged;
 
   const SectionMetadataEditor({
@@ -20,7 +22,9 @@ class SectionMetadataEditor extends StatefulWidget {
 
 class _SectionMetadataEditorState extends State<SectionMetadataEditor> {
   final TextEditingController _jsonController = TextEditingController();
+
   bool _isValidJson = true;
+
   bool _isExpanded = false;
 
   @override

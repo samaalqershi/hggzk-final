@@ -11,6 +11,7 @@ import 'daily_schedule_remote_datasource.dart';
 class DailyScheduleRemoteDataSourceImpl
     implements DailyScheduleRemoteDataSource {
   final Dio dio;
+
   static const String baseUrl = '/api/admin/units';
 
   DailyScheduleRemoteDataSourceImpl({required this.dio});
@@ -98,11 +99,11 @@ class DailyScheduleRemoteDataSourceImpl
           return MonthlyScheduleModel.fromJson(raw);
         }
 
-        throw ServerException(
+        throw const ServerException(
           'صيغة استجابة غير متوقعة للجدول الشهري',
         );
       } else {
-        throw ServerException(
+        throw const ServerException(
           'فشل في الحصول على الجدول الشهري',
         );
       }
@@ -199,11 +200,11 @@ class DailyScheduleRemoteDataSourceImpl
           }).toList();
         }
 
-        throw ServerException(
+        throw const ServerException(
           'فشل في الحصول على جدول الفترة: صيغة استجابة غير متوقعة',
         );
       } else {
-        throw ServerException(
+        throw const ServerException(
           'فشل في الحصول على جدول الفترة',
         );
       }
@@ -260,7 +261,7 @@ class DailyScheduleRemoteDataSourceImpl
           defaultMessage: 'فشل في تحديث التوافر',
         );
       } else {
-        throw ServerException(
+        throw const ServerException(
           'فشل في تحديث التوافر',
         );
       }
@@ -297,7 +298,7 @@ class DailyScheduleRemoteDataSourceImpl
           defaultMessage: 'فشل في تحديث التسعير',
         );
       } else {
-        throw ServerException(
+        throw const ServerException(
           'فشل في تحديث التسعير',
         );
       }
@@ -334,7 +335,7 @@ class DailyScheduleRemoteDataSourceImpl
           defaultMessage: 'فشل في تحديث الجدول',
         );
       } else {
-        throw ServerException(
+        throw const ServerException(
           'فشل في تحديث الجدول',
         );
       }
@@ -368,7 +369,7 @@ class DailyScheduleRemoteDataSourceImpl
         // إرجاع عدد السجلات المتأثرة
         return response.data is int ? response.data as int : 0;
       } else {
-        throw ServerException(
+        throw const ServerException(
           'فشل في التحديث الجماعي للجدول',
         );
       }
@@ -403,7 +404,7 @@ class DailyScheduleRemoteDataSourceImpl
         return CheckAvailabilityResponseModel.fromJson(
             response.data as Map<String, dynamic>);
       } else {
-        throw ServerException(
+        throw const ServerException(
           'فشل في التحقق من التوافر',
         );
       }
@@ -445,7 +446,7 @@ class DailyScheduleRemoteDataSourceImpl
             response.data as Map<String, dynamic>);
         return responseModel.totalPrice;
       } else {
-        throw ServerException(
+        throw const ServerException(
           'فشل في حساب السعر الإجمالي',
         );
       }
@@ -504,9 +505,10 @@ class DailyScheduleRemoteDataSourceImpl
           return raw;
         }
 
-        throw ServerException('فشل في نسخ الجدول: صيغة استجابة غير متوقعة');
+        throw const ServerException(
+            'فشل في نسخ الجدول: صيغة استجابة غير متوقعة');
       } else {
-        throw ServerException(
+        throw const ServerException(
           'فشل في نسخ الجدول',
         );
       }
@@ -543,7 +545,7 @@ class DailyScheduleRemoteDataSourceImpl
         // إرجاع عدد السجلات المحذوفة
         return response.data is int ? response.data as int : 0;
       } else {
-        throw ServerException(
+        throw const ServerException(
           'فشل في حذف الجدول',
         );
       }

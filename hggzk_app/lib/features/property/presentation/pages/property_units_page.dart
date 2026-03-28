@@ -7,8 +7,8 @@ import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../injection_container.dart';
-import '../../../../services/filter_storage_service.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
+import 'package:hggzk/core/services/filter_storage_service.dart';
 import '../../domain/entities/unit.dart';
 import '../../domain/entities/property_detail.dart';
 import '../../domain/entities/property_policy.dart';
@@ -18,16 +18,43 @@ import '../bloc/property_event.dart';
 import '../bloc/property_state.dart';
 import 'unit_gallery_page.dart';
 
+/// Describes the `PropertyUnitsPage` page widget.
+/// العربية: يمثل عنصر الصفحة `PropertyUnitsPage`.
 class PropertyUnitsPage extends StatefulWidget {
+  /// Keeps the propertyId value available to this object.
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
+
+  /// Keeps the propertyName value available to this object.
+  /// العربية: يخزن القيمة `propertyName`.
   final String propertyName;
+
+  /// Keeps the checkInDate value available to this object.
+  /// العربية: يخزن القيمة `checkInDate`.
   final DateTime? checkInDate;
+
+  /// Keeps the checkOutDate value available to this object.
+  /// العربية: يخزن القيمة `checkOutDate`.
   final DateTime? checkOutDate;
+
+  /// Keeps the guestsCount value available to this object.
+  /// العربية: يخزن القيمة `guestsCount`.
   final int guestsCount;
+
+  /// Keeps the units value available to this object.
+  /// العربية: يخزن القيمة `units`.
   final List<dynamic>? units;
+
+  /// Keeps the propertyServices value available to this object.
+  /// العربية: يخزن القيمة `propertyServices`.
   final List<PropertyService>? propertyServices;
+
+  /// Keeps the propertyPolicies value available to this object.
+  /// العربية: يخزن القيمة `propertyPolicies`.
   final List<PropertyPolicy>? propertyPolicies;
 
+  /// Constructs the PropertyUnitsPage value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyUnitsPage`.
   const PropertyUnitsPage({
     super.key,
     required this.propertyId,
@@ -40,30 +67,74 @@ class PropertyUnitsPage extends StatefulWidget {
     this.propertyPolicies,
   });
 
+  /// Builds the state object for this widget used by this feature.
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<PropertyUnitsPage> createState() => _PropertyUnitsPageState();
 }
 
+/// Describes the state for `PropertyUnitsPageState`.
+/// العربية: يمثل الحالة الخاصة بـ `PropertyUnitsPageState`.
 class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     with TickerProviderStateMixin {
+  /// Keeps the checkInDate value available to this object.
+  /// العربية: يخزن القيمة `checkInDate`.
   late DateTime _checkInDate;
+
+  /// Keeps the checkOutDate value available to this object.
+  /// العربية: يخزن القيمة `checkOutDate`.
   late DateTime _checkOutDate;
+
+  /// Keeps the guestsCount value available to this object.
+  /// العربية: يخزن القيمة `guestsCount`.
   late int _guestsCount;
+
+  /// Indicates whether `hasDateFilter` is enabled.
+  /// العربية: يحدد ما إذا كانت القيمة `hasDateFilter` مفعلة.
   late bool _hasDateFilter;
+
+  /// Keeps the selectedUnitId value available to this object.
+  /// العربية: يخزن القيمة `selectedUnitId`.
   String? _selectedUnitId;
+
+  /// Keeps the selectedUnitTypeId value available to this object.
+  /// العربية: يخزن القيمة `selectedUnitTypeId`.
   String? _selectedUnitTypeId;
 
+  /// Keeps the fadeController value available to this object.
+  /// العربية: يخزن القيمة `fadeController`.
   late AnimationController _fadeController;
+
+  /// Keeps the slideController value available to this object.
+  /// العربية: يخزن القيمة `slideController`.
   late AnimationController _slideController;
+
+  /// Keeps the pulseController value available to this object.
+  /// العربية: يخزن القيمة `pulseController`.
   late AnimationController _pulseController;
+
+  /// Keeps the waveController value available to this object.
+  /// العربية: يخزن القيمة `waveController`.
   late AnimationController _waveController;
 
+  /// Keeps the fadeAnimation value available to this object.
+  /// العربية: يخزن القيمة `fadeAnimation`.
   late Animation<double> _fadeAnimation;
+
+  /// Keeps the slideAnimation value available to this object.
+  /// العربية: يخزن القيمة `slideAnimation`.
   late Animation<Offset> _slideAnimation;
+
+  /// Keeps the pulseAnimation value available to this object.
+  /// العربية: يخزن القيمة `pulseAnimation`.
   late Animation<double> _pulseAnimation;
 
+  /// Keeps the cubes value available to this object.
+  /// العربية: يخزن القيمة `cubes`.
   final List<_FloatingCube> _cubes = [];
 
+  /// Initializes the state for this widget.
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -81,6 +152,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     _startAnimations();
   }
 
+  /// Initializes the animations.
+  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 600),
@@ -117,12 +190,16 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Generates the cubes.
+  /// العربية: ينشئ cubes.
   void _generateCubes() {
     for (int i = 0; i < 5; i++) {
       _cubes.add(_FloatingCube());
     }
   }
 
+  /// Starts the animations.
+  /// العربية: يبدأ animations.
   void _startAnimations() {
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
@@ -132,6 +209,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     });
   }
 
+  /// Releases the resources used by this instance.
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _fadeController.dispose();
@@ -141,6 +220,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     super.dispose();
   }
 
+  /// Builds the widget tree for this component.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -225,12 +306,16 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the animated background.
+  /// العربية: يبني animated background.
   Widget _buildAnimatedBackground() {
     return Container(
       decoration: BoxDecoration(gradient: AppTheme.darkGradient),
     );
   }
 
+  /// Builds the floating cubes.
+  /// العربية: يبني floating cubes.
   Widget _buildFloatingCubes() {
     return AnimatedBuilder(
       animation: _waveController,
@@ -246,6 +331,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the futuristic app bar.
+  /// العربية: يبني futuristic app bar.
   Widget _buildFuturisticAppBar() {
     return Container(
       decoration: BoxDecoration(
@@ -311,6 +398,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the glass back button.
+  /// العربية: يبني glass back button.
   Widget _buildGlassBackButton() {
     return Container(
       decoration: BoxDecoration(
@@ -344,6 +433,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the filter button.
+  /// العربية: يبني filter button.
   Widget _buildFilterButton() {
     return Container(
       decoration: BoxDecoration(
@@ -371,6 +462,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the futuristic date selector.
+  /// العربية: يبني futuristic date selector.
   Widget _buildFuturisticDateSelector() {
     final nights =
         _hasDateFilter ? _checkOutDate.difference(_checkInDate).inDays : null;
@@ -522,6 +615,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the futuristic date card.
+  /// العربية: يبني futuristic date card.
   Widget _buildFuturisticDateCard({
     required String title,
     required DateTime? date,
@@ -578,6 +673,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the futuristic guests selector.
+  /// العربية: يبني futuristic guests selector.
   Widget _buildFuturisticGuestsSelector() {
     return Container(
       padding: const EdgeInsets.all(10),
@@ -656,6 +753,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the guest control button.
+  /// العربية: يبني guest control button.
   Widget _buildGuestControlButton({
     required IconData icon,
     VoidCallback? onPressed,
@@ -679,6 +778,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the futuristic unit card.
+  /// العربية: يبني futuristic unit card.
   Widget _buildFuturisticUnitCard(
     BuildContext context,
     Unit unit,
@@ -749,6 +850,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the unit images section.
+  /// العربية: يبني unit images section.
   Widget _buildUnitImagesSection(Unit unit, bool isSelected, int index) {
     final accentColor = _getUnitAccentColor(index);
     final primaryImage = _getPrimaryUnitImage(unit);
@@ -955,6 +1058,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the unit info section.
+  /// العربية: يبني unit info section.
   Widget _buildUnitInfoSection(Unit unit, bool isSelected, int index) {
     final accentColor = _getUnitAccentColor(index);
     final currency = unit.currency ?? 'ريال';
@@ -1151,6 +1256,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the unit features grid.
+  /// العربية: يبني unit features grid.
   Widget _buildUnitFeaturesGrid(Unit unit, Color accentColor) {
     final filterFields = _getFilterFields(unit);
 
@@ -1224,6 +1331,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Exposes the filter fields.
+  /// العربية: يعيد filter fields.
   List<Map<String, dynamic>> _getFilterFields(Unit unit) {
     final List<Map<String, dynamic>> filterFields = [];
 
@@ -1285,6 +1394,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     return fallback;
   }
 
+  /// Builds the dynamic field row.
+  /// العربية: يبني dynamic field row.
   Widget _buildDynamicFieldRow({
     required String displayName,
     required dynamic value,
@@ -1343,6 +1454,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Exposes the unit accent color.
+  /// العربية: يعيد unit accent color.
   Color _getUnitAccentColor(int index) {
     const paletteOffsets = <int>[0, 1, 2, 3];
     switch (paletteOffsets[index % paletteOffsets.length]) {
@@ -1357,6 +1470,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     }
   }
 
+  /// Exposes the primary unit image.
+  /// العربية: يعيد primary unit image.
   UnitImage? _getPrimaryUnitImage(Unit unit) {
     if (unit.images.isEmpty) {
       return null;
@@ -1371,6 +1486,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     return unit.images.first;
   }
 
+  /// Builds the premium badge.
+  /// العربية: يبني premium badge.
   Widget _buildPremiumBadge({
     required IconData icon,
     required String label,
@@ -1411,6 +1528,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the unit image strip.
+  /// العربية: يبني unit image strip.
   Widget _buildUnitImageStrip(List<UnitImage> images) {
     final visibleImages = images.take(3).toList();
     return SizedBox(
@@ -1460,6 +1579,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the price panel.
+  /// العربية: يبني price panel.
   Widget _buildPricePanel({
     required Unit unit,
     required Color accentColor,
@@ -1563,6 +1684,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Formats the guests summary.
+  /// العربية: ينسق guests summary.
   String _formatGuestsSummary(Unit unit) {
     final adults = unit.adultCapacity ?? 0;
     final children = unit.childrenCapacity ?? 0;
@@ -1582,11 +1705,15 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     return '$adults ضيوف';
   }
 
+  /// Formats the price.
+  /// العربية: ينسق price.
   String _formatPrice(double price, String currency) {
     final hasFraction = price % 1 != 0;
     return '${price.toStringAsFixed(hasFraction ? 1 : 0)} $currency';
   }
 
+  /// Exposes the pricing period label.
+  /// العربية: يعيد pricing period label.
   String _getPricingPeriodLabel(PricingMethod method) {
     switch (method) {
       case PricingMethod.hourly:
@@ -1600,6 +1727,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     }
   }
 
+  /// Formats the dynamic field value.
+  /// العربية: ينسق dynamic field value.
   String _formatDynamicFieldValue(dynamic value, String fieldType) {
     if (value == null || value.toString().isEmpty) {
       return 'غير محدد';
@@ -1691,6 +1820,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     }
   }
 
+  /// Exposes the field type icon.
+  /// العربية: يعيد field type icon.
   IconData _getFieldTypeIcon(String fieldType) {
     switch (fieldType) {
       case 'text':
@@ -1722,6 +1853,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     }
   }
 
+  /// Exposes the field type color.
+  /// العربية: يعيد field type color.
   Color _getFieldTypeColor(String fieldType) {
     switch (fieldType) {
       case 'boolean':
@@ -1746,6 +1879,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     }
   }
 
+  /// Builds the futuristic bottom bar.
+  /// العربية: يبني futuristic bottom bar.
   Widget _buildFuturisticBottomBar() {
     return BlocBuilder<PropertyBloc, PropertyState>(
       builder: (context, state) {
@@ -1868,6 +2003,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the futuristic loader.
+  /// العربية: يبني futuristic loader.
   Widget _buildFuturisticLoader() {
     return Center(
       child: Column(
@@ -1904,6 +2041,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the futuristic error.
+  /// العربية: يبني futuristic error.
   Widget _buildFuturisticError(BuildContext context, PropertyError state) {
     return Center(
       child: Container(
@@ -1962,6 +2101,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the futuristic empty state.
+  /// العربية: يبني futuristic empty state.
   Widget _buildFuturisticEmptyState(BuildContext context) {
     return Center(
       child: Container(
@@ -2056,6 +2197,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Builds the glowing button.
+  /// العربية: يبني glowing button.
   Widget _buildGlowingButton({
     required VoidCallback onPressed,
     required Widget child,
@@ -2086,6 +2229,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Formats the date.
+  /// العربية: ينسق date.
   String _formatDate(DateTime date) {
     final months = [
       'يناير',
@@ -2104,6 +2249,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     return '${date.day} ${months[date.month - 1]}';
   }
 
+  /// Loads the units.
+  /// العربية: يحمل units.
   void _loadUnits(BuildContext context) {
     context.read<PropertyBloc>().add(
           GetPropertyUnitsEvent(
@@ -2116,6 +2263,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
         );
   }
 
+  /// Selects the check in date.
+  /// العربية: يختار check in date.
   void _selectCheckInDate(BuildContext context) async {
     final date = await showDatePicker(
       context: context,
@@ -2158,6 +2307,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     }
   }
 
+  /// Selects the check out date.
+  /// العربية: يختار check out date.
   void _selectCheckOutDate(BuildContext context) async {
     final date = await showDatePicker(
       context: context,
@@ -2197,6 +2348,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     }
   }
 
+  /// Processes the clearDateFilter flow and maps it into the property feature behavior.
+  /// العربية: يعالج `clearDateFilter`.
   void _clearDateFilter(BuildContext context) {
     setState(() {
       _hasDateFilter = false;
@@ -2204,10 +2357,14 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     _loadUnits(context);
   }
 
+  /// Shows the date picker.
+  /// العربية: يعرض date picker.
   void _showDatePicker(BuildContext context) {
     _selectCheckInDate(context);
   }
 
+  /// Shows the filter dialog.
+  /// العربية: يعرض filter dialog.
   void _showFilterDialog(BuildContext context) {
     HapticFeedback.mediumImpact();
     final state = context.read<PropertyBloc>().state;
@@ -2317,6 +2474,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Selects the unit.
+  /// العربية: يختار unit.
   void _selectUnit(BuildContext context, Unit unit) {
     final state = context.read<PropertyBloc>().state;
     final currentSelected =
@@ -2329,6 +2488,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     HapticFeedback.mediumImpact();
   }
 
+  /// Processes the proceedToBooking flow and maps it into the property feature behavior.
+  /// العربية: يعالج `proceedToBooking`.
   void _proceedToBooking(BuildContext context, Unit unit) {
     HapticFeedback.heavyImpact();
     if (!_hasDateFilter) {
@@ -2364,6 +2525,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
+  /// Shows the date selection required message.
+  /// العربية: يعرض date selection required message.
   void _showDateSelectionRequiredMessage() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -2378,19 +2541,45 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
   }
 }
 
+/// Describes the FloatingCube type used in the property feature.
+/// العربية: يمثل `FloatingCube`.
 class _FloatingCube {
+  /// Keeps the x value available to this object.
+  /// العربية: يخزن القيمة `x`.
   late double x;
+
+  /// Keeps the y value available to this object.
+  /// العربية: يخزن القيمة `y`.
   late double y;
+
+  /// Keeps the z value available to this object.
+  /// العربية: يخزن القيمة `z`.
   late double z;
+
+  /// Keeps the size value available to this object.
+  /// العربية: يخزن القيمة `size`.
   late double size;
+
+  /// Keeps the rotationSpeed value available to this object.
+  /// العربية: يخزن القيمة `rotationSpeed`.
   late double rotationSpeed;
+
+  /// Keeps the color value available to this object.
+  /// العربية: يخزن القيمة `color`.
   late Color color;
+
+  /// Keeps the opacity value available to this object.
+  /// العربية: يخزن القيمة `opacity`.
   late double opacity;
 
+  /// Constructs the FloatingCube value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `FloatingCube`.
   _FloatingCube() {
     reset();
   }
 
+  /// Processes the reset flow and maps it into the property feature behavior.
+  /// العربية: يعالج `reset`.
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -2407,6 +2596,8 @@ class _FloatingCube {
     color = colors[math.Random().nextInt(colors.length)];
   }
 
+  /// Updates the required operation for `update`.
+  /// العربية: يحدّث العملية المطلوبة لـ `update`.
   void update(double animationValue) {
     y -= 0.0005;
     if (y < -0.1) {
@@ -2416,12 +2607,23 @@ class _FloatingCube {
   }
 }
 
+/// Describes the CubePainter type used in the property feature.
+/// العربية: يمثل `CubePainter`.
 class _CubePainter extends CustomPainter {
+  /// Keeps the cubes value available to this object.
+  /// العربية: يخزن القيمة `cubes`.
   final List<_FloatingCube> cubes;
+
+  /// Keeps the animationValue value available to this object.
+  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
 
+  /// Constructs the CubePainter value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `CubePainter`.
   _CubePainter({required this.cubes, required this.animationValue});
 
+  /// Processes the paint flow and maps it into the property feature behavior.
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     for (var cube in cubes) {
@@ -2464,15 +2666,25 @@ class _CubePainter extends CustomPainter {
     }
   }
 
+  /// Processes the shouldRepaint flow and maps it into the property feature behavior.
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+/// Describes the CubeLoaderPainter type used in the property feature.
+/// العربية: يمثل `CubeLoaderPainter`.
 class _CubeLoaderPainter extends CustomPainter {
+  /// Keeps the animationValue value available to this object.
+  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
 
+  /// Constructs the CubeLoaderPainter value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `CubeLoaderPainter`.
   _CubeLoaderPainter({required this.animationValue});
 
+  /// Processes the paint flow and maps it into the property feature behavior.
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
@@ -2505,6 +2717,8 @@ class _CubeLoaderPainter extends CustomPainter {
     }
   }
 
+  /// Processes the shouldRepaint flow and maps it into the property feature behavior.
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

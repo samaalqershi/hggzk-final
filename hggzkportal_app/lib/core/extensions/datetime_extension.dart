@@ -1,11 +1,13 @@
-// lib/core/extensions/datetime_extension.dart
-
 import 'package:hggzkportal/core/utils/timezone_helper.dart';
-
 import 'package:intl/intl.dart';
 
+/// يضيف سلوك تنسيق وتحويل مباشر إلى `DateTime` حتى يبقى التعامل مع
+/// الطوابع الزمنية موحدًا في الواجهة وطبقة البيانات.
+/// Adds direct formatting and conversion behavior to `DateTime` so timestamp
+/// handling stays consistent across the UI and data layers.
 extension DateTimeExtension on DateTime {
-  /// تحويل من UTC إلى التوقيت المحلي
+  /// يحوّل التاريخ من UTC إلى التوقيت المحلي فقط عندما تكون القيمة أصلًا UTC.
+  /// Converts the value from UTC to local time only when the source is UTC.
   DateTime get toLocalTime {
     if (isUtc) {
       return TimezoneHelper.convertFromUtc(this);
@@ -13,7 +15,8 @@ extension DateTimeExtension on DateTime {
     return this;
   }
 
-  /// تحويل إلى UTC
+  /// يحوّل التاريخ المحلي إلى UTC قبل إرساله أو تخزينه بشكل موحّد.
+  /// Converts a local date to UTC before transport or normalized storage.
   DateTime get toUtcTime {
     if (!isUtc) {
       return TimezoneHelper.convertToUtc(this);
@@ -21,25 +24,29 @@ extension DateTimeExtension on DateTime {
     return this;
   }
 
-  /// تنسيق التاريخ للعرض (تاريخ فقط)
+  /// ينسّق التاريخ بصيغة قصيرة مناسبة للبطاقات والجداول.
+  /// Formats the date in a compact form suitable for cards and tables.
   String toDateString() {
     final local = toLocalTime;
     return DateFormat('dd/MM/yyyy').format(local);
   }
 
-  /// تنسيق الوقت للعرض (وقت فقط)
+  /// ينسّق الجزء الزمني فقط عندما يكون التاريخ معروفًا في السياق.
+  /// Formats the time portion only when the date context is already known.
   String toTimeString() {
     final local = toLocalTime;
     return DateFormat('HH:mm').format(local);
   }
 
-  /// تنسيق التاريخ والوقت للعرض
+  /// يدمج التاريخ والوقت في تمثيل واحد للعرض في السجلات أو التفاصيل.
+  /// Combines date and time into a single display string for records or details.
   String toFormattedString() {
     final local = toLocalTime;
     return DateFormat('dd/MM/yyyy HH:mm').format(local);
   }
 
-  /// تنسيق نسبي (منذ دقيقة، منذ ساعة، إلخ)
+  /// يعرض وصفًا نسبيًا للزمن مثل "منذ دقيقة" أو "منذ ساعة".
+  /// Produces a relative time label such as "1 minute ago" or "1 hour ago".
   String toRelativeString() {
     final now = DateTime.now();
     final difference = now.difference(toLocalTime);
@@ -60,9 +67,13 @@ extension DateTimeExtension on DateTime {
   }
 }
 
-// Extension للتعامل مع String dates
+/// يضيف تحويلًا مرنًا إلى النصوص الزمنية الواردة من API أو التخزين المحلي
+/// حتى يمكن عرضها أو إعادة تنسيقها بسهولة.
+/// Adds flexible conversion helpers for date strings coming from the API or
+/// local storage so they can be displayed or reformatted easily.
 extension StringDateExtension on String {
-  /// تحويل string إلى DateTime مع معالجة timezone
+  /// يحلل النص إلى DateTime ثم يعيد ضبطه وفق المنطقة الزمنية المحلية.
+  /// Parses a string into DateTime and adjusts it to the local timezone.
   DateTime? toDateTime() {
     try {
       final utcDate = DateTime.parse(this);
@@ -72,7 +83,8 @@ extension StringDateExtension on String {
     }
   }
 
-  /// تحويل وتنسيق string date
+  /// يحوّل النص الزمني إلى تمثيل منسق، أو يعيده كما هو إذا فشل التحليل.
+  /// Converts the date string to a formatted value, or returns the original text on failure.
   String toFormattedDate() {
     final dt = toDateTime();
     if (dt == null) return this;

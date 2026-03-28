@@ -4,12 +4,15 @@ import '../models/currency_model.dart';
 
 abstract class CurrenciesLocalDataSource {
   Future<List<CurrencyModel>> getCachedCurrencies();
+
   Future<void> cacheCurrencies(List<CurrencyModel> currencies);
+
   Future<void> clearCache();
 }
 
 class CurrenciesLocalDataSourceImpl implements CurrenciesLocalDataSource {
   final SharedPreferences sharedPreferences;
+
   static const String _cacheKey = 'CACHED_CURRENCIES';
 
   CurrenciesLocalDataSourceImpl({required this.sharedPreferences});

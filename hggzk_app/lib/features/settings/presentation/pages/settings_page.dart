@@ -16,19 +16,41 @@ import '../widgets/settings_item_widget.dart';
 import '../widgets/theme_selector_widget.dart';
 import '../../domain/entities/app_settings.dart';
 
+/// تعرض مركز إعدادات التطبيق مع أقسام اللغة والثيم والخصوصية وتفضيلات
+/// الحساب.
+/// Presents the main settings hub with language, theme, privacy, and account
+/// preference sections.
 class SettingsPage extends StatefulWidget {
+  /// ينشئ شاشة الإعدادات الرئيسية.
+  /// Creates the main settings page.
   const SettingsPage({super.key});
 
+  /// ينشئ الحالة التي تتولى إدارة الحركات وبناء أقسام الصفحة.
+  /// Creates the state object that manages animations and builds the page
+  /// sections.
   @override
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
+/// تدير الخلفية المتحركة وبناء أقسام الإعدادات المختلفة داخل الصفحة.
+/// Manages the animated background and builds the different settings sections
+/// inside the page.
 class _SettingsPageState extends State<SettingsPage>
     with TickerProviderStateMixin {
+  /// متحكم حركة الخلفية العامة للصفحة.
+  /// Animation controller for the page background.
   late AnimationController _backgroundAnimationController;
+
+  /// متحكم ظهور عناصر الإعدادات داخل المحتوى.
+  /// Animation controller for revealing settings items.
   late AnimationController _itemAnimationController;
+
+  /// متحكم التوهج الخفيف المستخدم في الخلفية والزخارف.
+  /// Animation controller for the subtle glow used in decorative layers.
   late AnimationController _glowAnimationController;
 
+  /// يهيئ حركات الصفحة الأساسية عند الإنشاء.
+  /// Initializes the page's core animations when it is created.
   @override
   void initState() {
     super.initState();
@@ -49,6 +71,8 @@ class _SettingsPageState extends State<SettingsPage>
     )..repeat(reverse: true);
   }
 
+  /// يحرر متحكمات الحركة عند إزالة الصفحة من الشجرة.
+  /// Disposes the animation controllers when the page leaves the tree.
   @override
   void dispose() {
     _backgroundAnimationController.dispose();
@@ -57,6 +81,9 @@ class _SettingsPageState extends State<SettingsPage>
     super.dispose();
   }
 
+  /// يبني غلاف صفحة الإعدادات مع الخلفية المتحركة والمحتوى الرئيسي.
+  /// Builds the settings page shell with the animated background and primary
+  /// content.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,6 +156,8 @@ class _SettingsPageState extends State<SettingsPage>
     );
   }
 
+  /// يبني طبقة الخلفية المتحركة الخاصة بصفحة الإعدادات.
+  /// Builds the animated background layer for the settings page.
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: _backgroundAnimationController,
@@ -162,6 +191,8 @@ class _SettingsPageState extends State<SettingsPage>
     );
   }
 
+  /// يبني شريط التطبيق الموسع أعلى صفحة الإعدادات.
+  /// Builds the expanded app bar at the top of the settings page.
   Widget _buildFuturisticAppBar() {
     return SliverAppBar(
       expandedHeight: 180,
@@ -261,6 +292,10 @@ class _SettingsPageState extends State<SettingsPage>
     );
   }
 
+  /// يبني محتوى صفحة الإعدادات اعتمادًا على القيم الحالية المخزنة في
+  /// الإعدادات.
+  /// Builds the settings page content from the current persisted settings
+  /// values.
   Widget _buildFuturisticContent(AppSettings settings) {
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -472,6 +507,9 @@ class _SettingsPageState extends State<SettingsPage>
     );
   }
 
+  /// يبني زر حذف الحساب الذي يقود المستخدم إلى نافذة التأكيد النهائية.
+  /// Builds the delete-account button that leads the user to the final
+  /// confirmation dialog.
   Widget _buildFuturisticDeleteAccountButton(BuildContext context) {
     return GestureDetector(
       onTap: () => _showFuturisticDeleteAccountDialog(context),
@@ -525,6 +563,10 @@ class _SettingsPageState extends State<SettingsPage>
     );
   }
 
+  /// يعرض نافذة تأكيد حذف الحساب مع جمع كلمة المرور وسبب الحذف قبل إرسال
+  /// الطلب إلى `AuthBloc`.
+  /// Shows the delete-account confirmation dialog, collects the password and
+  /// optional reason, then forwards the request to `AuthBloc`.
   void _showFuturisticDeleteAccountDialog(BuildContext context) {
     final passwordController = TextEditingController();
     final reasonController = TextEditingController();
@@ -673,6 +715,9 @@ class _SettingsPageState extends State<SettingsPage>
     });
   }
 
+  /// يبني بطاقة قسم إعدادات موحّدة تضم عنوان القسم وأيقونته وعناصره.
+  /// Builds a unified settings section card that contains the section title,
+  /// icon, and child items.
   Widget _buildFuturisticSection({
     required String title,
     required IconData icon,
@@ -758,6 +803,8 @@ class _SettingsPageState extends State<SettingsPage>
     );
   }
 
+  /// يبني زر تسجيل الخروج الرئيسي أسفل الصفحة.
+  /// Builds the primary logout button shown near the bottom of the page.
   Widget _buildFuturisticLogoutButton(BuildContext context) {
     return GestureDetector(
       onTap: () => _showFuturisticLogoutDialog(context),
@@ -811,6 +858,9 @@ class _SettingsPageState extends State<SettingsPage>
     );
   }
 
+  /// يعرض نافذة تأكيد تسجيل الخروج قبل إعادة المستخدم إلى شاشة الدخول.
+  /// Shows the logout confirmation dialog before redirecting the user to the
+  /// login screen.
   void _showFuturisticLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -890,11 +940,18 @@ class _SettingsPageState extends State<SettingsPage>
     );
   }
 
+  /// يعرض محدد العملة عندما يحتاج المستخدم إلى تغيير العملة المفضلة في
+  /// إعداداته.
+  /// Presents the currency selector when the user wants to change the
+  /// preferred currency in the settings.
   void _showFuturisticCurrencySelector(
       BuildContext context, String currentCurrency) {
     // Implementation similar to logout dialog
   }
 
+  /// يحول رمز العملة المخزن إلى اسم واضح يمكن عرضه داخل عناصر الإعدادات.
+  /// Converts a stored currency code into a readable label that can be shown
+  /// in the settings list.
   String _getCurrencyName(String code) {
     switch (code) {
       case 'YER':
@@ -910,21 +967,36 @@ class _SettingsPageState extends State<SettingsPage>
     }
   }
 
+  /// يطلق مسار تقييم التطبيق في المتجر أو الجهة المعتمدة مستقبلًا.
+  /// Triggers the future app-rating flow through the store or chosen channel.
   void _rateApp() {
     // TODO: Implement app rating
   }
 
+  /// يطلق مسار مشاركة التطبيق عبر الوسائل المناسبة مستقبلًا.
+  /// Triggers the future app-sharing flow through the appropriate platform
+  /// channels.
   void _shareApp() {
     // TODO: Implement app sharing
   }
 }
 
-// Background Painter
+/// يرسم خلفية زخرفية متحركة تضيف توهجًا سداسيًا خلف محتوى صفحة الإعدادات.
+/// Paints an animated decorative background that adds hexagonal glow behind
+/// the settings page content.
 class _SettingsBackgroundPainter extends CustomPainter {
+  /// قيمة الحركة الحالية المستخدمة لتحريك عناصر الخلفية وتغيير توهجها.
+  /// Current animation value used to move the background elements and vary
+  /// their glow.
   final double animationValue;
 
+  /// ينشئ الرسام مع قيمة الحركة التي تتحكم في المشهد الخلفي.
+  /// Creates the painter with the animation value that drives the background
+  /// scene.
   _SettingsBackgroundPainter({required this.animationValue});
 
+  /// يرسم التوهجات السداسية العائمة فوق مساحة الصفحة بالكامل.
+  /// Paints the floating hexagonal glows across the full page canvas.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -947,6 +1019,9 @@ class _SettingsBackgroundPainter extends CustomPainter {
     }
   }
 
+  /// يرسم شكلاً سداسيًا عند موضع محدد لاستخدامه كعنصر زخرفي في الخلفية.
+  /// Draws a hexagon at the given position to serve as a decorative
+  /// background element.
   void _drawHexagon(Canvas canvas, Offset center, double radius, Paint paint) {
     final path = Path();
     for (int i = 0; i < 6; i++) {
@@ -964,16 +1039,28 @@ class _SettingsBackgroundPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
+  /// يحدد أن الخلفية تحتاج إلى إعادة رسم في كل إطار لأن الحركة تتغير
+  /// باستمرار.
+  /// Indicates that the background should repaint every frame because the
+  /// animation is continuously changing.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-// Grid Pattern Painter
+/// يرسم شبكة ضوئية خفيفة داخل ترويسة الصفحة لإبراز الطابع البصري المستقبلي.
+/// Paints a subtle glowing grid inside the page header to reinforce the
+/// futuristic visual style.
 class _GridPatternPainter extends CustomPainter {
+  /// قيمة الحركة التي تتحكم في شدة إضاءة خطوط الشبكة.
+  /// Animation value that controls the intensity of the grid lines.
   final double animationValue;
 
+  /// ينشئ الرسام مع قيمة الحركة المستخدمة لتدرج الشبكة.
+  /// Creates the painter with the animation value used to animate the grid.
   _GridPatternPainter({required this.animationValue});
 
+  /// يرسم خطوط الشبكة الأفقية والعمودية داخل مساحة الترويسة.
+  /// Paints the horizontal and vertical grid lines inside the header area.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1020,6 +1107,9 @@ class _GridPatternPainter extends CustomPainter {
     }
   }
 
+  /// يحدد أن الشبكة تحتاج إلى إعادة رسم مستمرة ما دامت الحركة نشطة.
+  /// Indicates that the grid should repaint continuously while the animation
+  /// is active.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

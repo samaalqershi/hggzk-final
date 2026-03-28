@@ -14,14 +14,35 @@ import 'list_section_widget.dart';
 import 'grid_section_widget.dart';
 import 'big_cards_section_widget.dart';
 
+/// يمثّل نقطة الدخول الموحدة لعرض أي قسم في الصفحة الرئيسية، إذ يختار الواجهة
+/// المناسبة، ويحوّل البيانات الخام، ويتعامل مع حالات الفراغ والتحميل.
+/// Serves as the unified entry point for rendering any home section by
+/// choosing the right layout, converting raw data, and handling empty or
+/// loading states.
 class BaseSectionWidget extends StatelessWidget {
+  /// تعريف القسم الذي يحدد نوع الواجهة والعنوان وطبيعة المحتوى.
+  /// Section definition that drives layout choice, labeling, and content type.
   final Section section;
-  final dynamic data;
-  final bool isLoadingMore;
-  final VoidCallback? onViewAll;
-  final Function(String)? onItemTap;
-  final VoidCallback? onLoadMore;
 
+  /// البيانات الخام للقسم قبل تطبيعها إلى عناصر عرض موحدة.
+  /// Raw section payload before it is normalized into display items.
+  final dynamic data;
+
+  /// يحدد ما إذا كانت الصفحة تجلب دفعة إضافية من عناصر هذا القسم.
+  /// Indicates whether the section is currently fetching another page of data.
+  final bool isLoadingMore;
+
+  /// رد اختياري لفتح شاشة تعرض جميع عناصر القسم.
+  /// Optional callback that opens a full listing for the section.
+  final VoidCallback? onViewAll;
+
+  /// رد اختياري يُستدعى عند اختيار عنصر من بطاقات القسم.
+  /// Optional callback invoked when a section card is selected.
+  final Function(String)? onItemTap;
+
+  /// رد اختياري لطلب صفحة إضافية من بيانات القسم.
+  /// Optional callback used to request another page for the section.
+  final VoidCallback? onLoadMore;
   const BaseSectionWidget({
     super.key,
     required this.section,
@@ -31,18 +52,20 @@ class BaseSectionWidget extends StatelessWidget {
     this.onItemTap,
     this.onLoadMore,
   });
-
   @override
   Widget build(BuildContext context) {
-    // Convert data to display items
+    // Arabic: نحول البيانات الخام إلى بطاقات عرض موحدة.
+    // English: Convert raw data into unified display cards.
     final displayItems = _convertToDisplayItems();
 
-    // إذا كانت البيانات null، نعرض skeleton
+    // Arabic: إذا لم تصل البيانات بعد نعرض skeleton.
+    // English: If data has not arrived yet, show a skeleton loader.
     if (data == null) {
       return _buildSkeletonLoader();
     }
 
-    // إذا كانت القائمة فارغة بعد التحويل
+    // Arabic: إذا انتهينا من التحويل ولم يبق أي عنصر نطوي القسم.
+    // English: If conversion yields nothing, collapse the section.
     if (displayItems.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -65,15 +88,20 @@ class BaseSectionWidget extends StatelessWidget {
     try {
       List<dynamic> itemsList = [];
 
-      // ✅ التحقق من نوع البيانات
+      // Arabic: نتحقق من شكل البيانات القادمة من الطبقات المختلفة.
+      // English: Inspect the shape of data coming from different layers.
       if (data is List) {
-        // البيانات قائمة مباشرة
+        // Arabic: بيانات جاهزة على شكل قائمة مباشرة.
+        // English: Data already arrives as a plain list.
         itemsList = data as List;
       } else if (data is PaginatedResult) {
-        // البيانات PaginatedResult - نستخرج items منها
+        // Arabic: بيانات مترقمة؛ نستخرج items منها.
+        // English: Paginated data; extract the items list from it.
         itemsList = (data as PaginatedResult).items;
       } else {
-        // محاولة الوصول لخاصية items ديناميكياً (لأي نوع آخر)
+        // Arabic: نحاول الوصول إلى خاصية items ديناميكيًا لأي شكل آخر.
+        // English: Try accessing an items property dynamically for any other
+        // shape.
         try {
           final dynamic dynamicData = data;
           if (dynamicData.items != null) {
@@ -89,7 +117,8 @@ class BaseSectionWidget extends StatelessWidget {
         return [];
       }
 
-      // تحويل العناصر إلى SectionDisplayItem
+      // Arabic: نحول العناصر إلى نموذج عرض موحد.
+      // English: Convert items into the unified display model.
       final result = <SectionDisplayItem>[];
 
       for (final item in itemsList) {
@@ -100,7 +129,8 @@ class BaseSectionWidget extends StatelessWidget {
         } else if (item is SectionDisplayItem) {
           result.add(item);
         } else if (item is Map<String, dynamic>) {
-          // محاولة تحويل من Map
+          // Arabic: محاولة تحويل خريطة JSON إلى نموذج معروف.
+          // English: Try converting a JSON map into a known model.
           final converted = _convertFromMap(item);
           if (converted != null) {
             result.add(converted);
@@ -118,7 +148,8 @@ class BaseSectionWidget extends StatelessWidget {
 
   SectionDisplayItem? _convertFromMap(Map<String, dynamic> map) {
     try {
-      // تحقق إذا كان property أو unit
+      // Arabic: نحدد ما إذا كانت الخريطة تمثل عقارًا أو وحدة.
+      // English: Determine whether the map represents a property or a unit.
       if (map.containsKey('propertyInSectionId') ||
           map.containsKey('propertyType') ||
           map.containsKey('address')) {
@@ -130,7 +161,8 @@ class BaseSectionWidget extends StatelessWidget {
         return SectionDisplayItem.fromUnit(model);
       }
 
-      // محاولة افتراضية كـ property
+      // Arabic: في حال غياب العلامات الواضحة نفترض أنه عقار.
+      // English: If no clear markers exist, assume the item is a property.
       final model = SectionPropertyItemModel.fromJson(map);
       return SectionDisplayItem.fromProperty(model);
     } catch (e) {
@@ -144,10 +176,10 @@ class BaseSectionWidget extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 🎨 ELEGANT SECTION CONTAINER
-// ═══════════════════════════════════════════════════════════════════════════
-
+/// يجمع بين رأس القسم ومحتواه ومؤشر التحميل الإضافي ضمن غلاف بصري واحد
+/// متوافق مع تصميم الصفحة الرئيسية.
+/// Combines the section header, body, and load-more indicator inside one
+/// visual shell that matches the home-screen design.
 class _ElegantSectionContainer extends StatelessWidget {
   final Section section;
   final List<SectionDisplayItem> items;
@@ -155,7 +187,6 @@ class _ElegantSectionContainer extends StatelessWidget {
   final VoidCallback? onViewAll;
   final Function(String)? onItemTap;
   final VoidCallback? onLoadMore;
-
   const _ElegantSectionContainer({
     required this.section,
     required this.items,
@@ -164,7 +195,6 @@ class _ElegantSectionContainer extends StatelessWidget {
     this.onItemTap,
     this.onLoadMore,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -172,15 +202,18 @@ class _ElegantSectionContainer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
+          // Arabic: رأس القسم.
+          // English: Section header.
           _buildHeader(),
 
           const SizedBox(height: 16),
 
-          // Content
+          // Arabic: محتوى القسم.
+          // English: Section content.
           _buildContent(),
 
-          // Loading More Indicator
+          // Arabic: مؤشر تحميل المزيد.
+          // English: Load-more indicator.
           if (isLoadingMore) _buildLoadingMoreIndicator(),
         ],
       ),
@@ -258,21 +291,19 @@ class _ElegantSectionContainer extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 🏷️ ELEGANT SECTION HEADER
-// ═══════════════════════════════════════════════════════════════════════════
-
+/// رأس خفيف للأقسام العادية يوازن بين العنوان والوصف وزر "عرض الكل" من دون
+/// أن يطغى على محتوى القسم نفسه.
+/// Lightweight header for regular sections that balances title, subtitle, and
+/// a "view all" action without overpowering the section content.
 class _ElegantSectionHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
   final VoidCallback? onSeeAllTap;
-
   const _ElegantSectionHeader({
     required this.title,
     this.subtitle,
     this.onSeeAllTap,
   });
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -346,21 +377,19 @@ class _ElegantSectionHeader extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 💎 LUXURY SECTION HEADER
-// ═══════════════════════════════════════════════════════════════════════════
-
+/// رأس أكثر بروزًا يُستخدم مع الأقسام الكبيرة أو المميزة التي تحتاج حضورًا
+/// بصريًا أقوى من الأقسام القياسية.
+/// More prominent header used for featured or large sections that need a
+/// stronger visual presence than standard ones.
 class _LuxurySectionHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
   final VoidCallback? onSeeAllTap;
-
   const _LuxurySectionHeader({
     required this.title,
     this.subtitle,
     this.onSeeAllTap,
   });
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -458,17 +487,15 @@ class _LuxurySectionHeader extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 💀 SKELETON LOADER
-// ═══════════════════════════════════════════════════════════════════════════
-
+/// يرسم نسخة هيكلية من القسم قبل وصول البيانات الفعلية حتى لا تقفز الواجهة
+/// بصريًا بين حالة الفراغ وحالة الامتلاء.
+/// Draws a structural placeholder for the section before real data arrives so
+/// the UI does not jump abruptly between empty and populated states.
 class _SectionSkeletonLoader extends StatefulWidget {
   final SectionType type;
-
   const _SectionSkeletonLoader({
     this.type = SectionType.grid,
   });
-
   @override
   State<_SectionSkeletonLoader> createState() => _SectionSkeletonLoaderState();
 }
@@ -477,7 +504,6 @@ class _SectionSkeletonLoaderState extends State<_SectionSkeletonLoader>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-
   @override
   void initState() {
     super.initState();

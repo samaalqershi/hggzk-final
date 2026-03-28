@@ -4,7 +4,15 @@ import '../network/api_exceptions.dart' as network_exceptions;
 import 'exceptions.dart';
 import 'failures.dart';
 
+/// يحول الاستثناءات الخام القادمة من الشبكة أو التخزين أو المجال إلى كائنات
+/// `Failure` موحدة تستطيع الطبقات الأعلى التعامل معها بطريقة متسقة.
+/// Translates raw exceptions coming from network, storage, or domain code
+/// into normalized `Failure` objects that upper layers can handle
+/// consistently.
 class ErrorHandler {
+  /// يحلل الخطأ الوارد ويعيد مكافئه من نوع `Failure` داخل `Either`.
+  /// Inspects the incoming error and returns its `Failure` equivalent wrapped
+  /// in an `Either`.
   static Either<Failure, T> handle<T>(dynamic error) {
     if (error is DioException) {
       return Left(_handleDioError(error));
@@ -38,6 +46,9 @@ class ErrorHandler {
     }
   }
 
+  /// يحول أخطاء Dio المنخفضة المستوى إلى نوع الفشل الأنسب لسياق التطبيق.
+  /// Converts low-level Dio failures into the most appropriate application
+  /// failure type.
   static Failure _handleDioError(DioException error) {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
@@ -57,6 +68,10 @@ class ErrorHandler {
     }
   }
 
+  /// يفسر الاستجابات غير الناجحة من الخادم اعتمادًا على رمز HTTP والحمولة
+  /// الراجعة.
+  /// Interprets unsuccessful backend responses using the HTTP status code and
+  /// returned payload.
   static Failure _handleBadResponse(Response? response) {
     if (response == null) {
       return const ServerFailure('لا توجد استجابة من الخادم');
@@ -103,6 +118,10 @@ class ErrorHandler {
     }
   }
 
+  /// يحول استثناءات طبقة `core/network/api_exceptions.dart` إلى `Failure`
+  /// مفهوم لبقية المشروع.
+  /// Maps exceptions coming from `core/network/api_exceptions.dart` into a
+  /// `Failure` understood by the rest of the project.
   static Failure _handleNetworkApiException(
       network_exceptions.ApiException error) {
     if (error.statusCode == 401) {
@@ -124,6 +143,10 @@ class ErrorHandler {
     }
   }
 
+  /// يحول استثناءات الـ API المحلية المستخدمة في طبقات أخرى إلى `Failure`
+  /// موحد.
+  /// Maps the local API exception type used in other layers into a normalized
+  /// `Failure`.
   static Failure _handleApiException(ApiException error) {
     if (error.statusCode == 401) {
       return UnauthorizedFailure(error.message);
@@ -144,7 +167,10 @@ class ErrorHandler {
     }
   }
 
-  // Helper method to extract error message
+  /// يستخرج الرسالة الأنسب للعرض من كائن الفشل، مع دمج أخطاء التحقق متعددة
+  /// الحقول عند الحاجة.
+  /// Extracts the most useful display message from a failure, flattening
+  /// field-level validation errors when needed.
   static String getErrorMessage(Failure failure) {
     if (failure is ValidationFailure && failure.errors != null) {
       // Join all validation errors

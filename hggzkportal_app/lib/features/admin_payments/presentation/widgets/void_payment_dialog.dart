@@ -7,15 +7,14 @@ import '../../../../../../core/theme/app_text_styles.dart';
 import '../../../../../../core/widgets/price_widget.dart';
 
 class VoidPaymentDialog extends StatefulWidget {
+  /// العربية: يخزن القيمة `payment`.
   final Payment payment;
   final VoidCallback onVoid;
-
   const VoidPaymentDialog({
     super.key,
     required this.payment,
     required this.onVoid,
   });
-
   @override
   State<VoidPaymentDialog> createState() => _VoidPaymentDialogState();
 }
@@ -30,7 +29,6 @@ class _VoidPaymentDialogState extends State<VoidPaymentDialog>
 
   final TextEditingController _reasonController = TextEditingController();
   bool _confirmationChecked = false;
-
   @override
   void initState() {
     super.initState();

@@ -1,8 +1,8 @@
 // lib/features/admin_reviews/data/models/review_response_model.dart
 
 import 'package:hggzkportal/features/admin_reviews/domain/entities/review_response.dart';
-
 class ReviewResponseModel extends ReviewResponse {
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewResponseModel`.
   const ReviewResponseModel({
     required super.id,
     required super.reviewId,
@@ -12,7 +12,6 @@ class ReviewResponseModel extends ReviewResponse {
     required super.createdAt,
     super.updatedAt,
   });
-  
   factory ReviewResponseModel.fromJson(Map<String, dynamic> json) {
     return ReviewResponseModel(
       id: json['id'] as String,
@@ -26,7 +25,6 @@ class ReviewResponseModel extends ReviewResponse {
           : null,
     );
   }
-  
   Map<String, dynamic> toJson() {
     return {
       'id': id,

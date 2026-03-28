@@ -4,19 +4,18 @@ import '../models/service_model.dart';
 
 /// 💾 Local Data Source للخدمات
 abstract class ServicesLocalDataSource {
+  /// العربية: يعالج `cacheServices`.
   Future<void> cacheServices(List<ServiceModel> services);
   Future<List<ServiceModel>?> getCachedServices();
   Future<void> clearCache();
 }
-
 class ServicesLocalDataSourceImpl implements ServicesLocalDataSource {
+  /// العربية: يخزن القيمة `sharedPreferences`.
   final SharedPreferences sharedPreferences;
   static const String _cacheKey = 'CACHED_SERVICES';
   static const String _cacheTimestampKey = 'SERVICES_CACHE_TIMESTAMP';
   static const Duration _cacheValidDuration = Duration(hours: 1);
-
   ServicesLocalDataSourceImpl({required this.sharedPreferences});
-
   @override
   Future<void> cacheServices(List<ServiceModel> services) async {
     final jsonList = services.map((service) => service.toJson()).toList();
@@ -29,7 +28,6 @@ class ServicesLocalDataSourceImpl implements ServicesLocalDataSource {
       DateTime.now().millisecondsSinceEpoch,
     );
   }
-
   @override
   Future<List<ServiceModel>?> getCachedServices() async {
     final jsonString = sharedPreferences.getString(_cacheKey);
@@ -48,7 +46,6 @@ class ServicesLocalDataSourceImpl implements ServicesLocalDataSource {
     final jsonList = json.decode(jsonString) as List;
     return jsonList.map((json) => ServiceModel.fromJson(json)).toList();
   }
-
   @override
   Future<void> clearCache() async {
     await sharedPreferences.remove(_cacheKey);

@@ -4,7 +4,8 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/currencies_repository.dart';
 
-class SetDefaultCurrencyUseCase extends UseCase<bool, SetDefaultCurrencyParams> {
+class SetDefaultCurrencyUseCase
+    extends UseCase<bool, SetDefaultCurrencyParams> {
   final CurrenciesRepository repository;
 
   SetDefaultCurrencyUseCase(this.repository);

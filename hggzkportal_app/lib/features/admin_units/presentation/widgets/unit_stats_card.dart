@@ -3,19 +3,45 @@
 import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import '../../../../core/widgets/glassmorphic_tooltip.dart';
 
+/// يمثل هذا الكلاس UnitStatsCard البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitStatsCard in the admin unit workflow.
 class UnitStatsCard extends StatefulWidget {
+  /// This field keeps the title value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة title التي يعتمد عليها مسار إدارة الوحدات.
   final String title;
+
+  /// يحتفظ هذا الحقل بقيمة value التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the value value used by the admin unit workflow.
   final String value;
+
+  /// يحتفظ هذا الحقل بقيمة icon التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the icon value used by the admin unit workflow.
   final IconData icon;
+
+  /// يحتفظ هذا الحقل بقيمة color التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the color value used by the admin unit workflow.
   final Color color;
+
+  /// يحتفظ هذا الحقل بقيمة trend التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the trend value used by the admin unit workflow.
   final String? trend;
+
+  /// يحتفظ هذا الحقل بقيمة isPositive التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the isPositive value used by the admin unit workflow.
   final bool isPositive;
+
+  /// يحتفظ هذا الحقل بقيمة detailedDescription التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the detailedDescription value used by the admin unit workflow.
   final String? detailedDescription;
+
+  /// يحتفظ هذا الحقل بقيمة additionalStats التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the additionalStats value used by the admin unit workflow.
   final Map<String, dynamic>? additionalStats;
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitStatsCard.
+  /// This constructor creates an instance of UnitStatsCard.
   const UnitStatsCard({
     super.key,
     required this.title,
@@ -28,19 +54,40 @@ class UnitStatsCard extends StatefulWidget {
     this.additionalStats,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<UnitStatsCard> createState() => _UnitStatsCardState();
 }
 
+/// يمثل هذا الكلاس _UnitStatsCardState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _UnitStatsCardState in the admin unit workflow.
 class _UnitStatsCardState extends State<UnitStatsCard>
     with SingleTickerProviderStateMixin {
   final GlobalKey _cardKey = GlobalKey();
+
+  /// يحتفظ هذا الحقل بقيمة _animationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _animationController value used by the admin unit workflow.
   late AnimationController _animationController;
+
+  /// يحتفظ هذا الحقل بقيمة _scaleAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _scaleAnimation value used by the admin unit workflow.
   late Animation<double> _scaleAnimation;
+
+  /// يحتفظ هذا الحقل بقيمة _fadeAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _fadeAnimation value used by the admin unit workflow.
   late Animation<double> _fadeAnimation;
+
+  /// يحتفظ هذا الحقل بقيمة _isHovered التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isHovered value used by the admin unit workflow.
   bool _isHovered = false;
+
+  /// يحتفظ هذا الحقل بقيمة _isPressed التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isPressed value used by the admin unit workflow.
   bool _isPressed = false;
 
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
@@ -68,12 +115,16 @@ class _UnitStatsCardState extends State<UnitStatsCard>
     _animationController.forward();
   }
 
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// ينفذ هذا الأسلوب عملية _handleLongPress ضمن مسار إدارة الوحدات.
+  /// This method performs the _handleLongPress operation in the admin unit workflow.
   void _handleLongPress() {
     setState(() => _isPressed = true);
 
@@ -102,6 +153,8 @@ class _UnitStatsCardState extends State<UnitStatsCard>
     });
   }
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -142,21 +195,21 @@ class _UnitStatsCardState extends State<UnitStatsCard>
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              widget.color.withOpacity(0.1),
-                              widget.color.withOpacity(0.05),
+                              widget.color.withValues(alpha: 0.1),
+                              widget.color.withValues(alpha: 0.05),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: _isPressed
-                                ? widget.color.withOpacity(0.6)
-                                : widget.color.withOpacity(0.2),
+                                ? widget.color.withValues(alpha: 0.6)
+                                : widget.color.withValues(alpha: 0.2),
                             width: _isPressed ? 2 : 1,
                           ),
                           boxShadow: [
                             BoxShadow(
                               color: widget.color
-                                  .withOpacity(_isHovered ? 0.2 : 0.1),
+                                  .withValues(alpha: _isHovered ? 0.2 : 0.1),
                               blurRadius: _isHovered ? 25 : 20,
                               offset: const Offset(0, 4),
                             ),
@@ -184,8 +237,10 @@ class _UnitStatsCardState extends State<UnitStatsCard>
                                         decoration: BoxDecoration(
                                           gradient: LinearGradient(
                                             colors: [
-                                              widget.color.withOpacity(0.3),
-                                              widget.color.withOpacity(0.1),
+                                              widget.color
+                                                  .withValues(alpha: 0.3),
+                                              widget.color
+                                                  .withValues(alpha: 0.1),
                                             ],
                                           ),
                                           borderRadius:
@@ -214,9 +269,9 @@ class _UnitStatsCardState extends State<UnitStatsCard>
                                               decoration: BoxDecoration(
                                                 color: widget.isPositive
                                                     ? AppTheme.success
-                                                        .withOpacity(0.1)
+                                                        .withValues(alpha: 0.1)
                                                     : AppTheme.error
-                                                        .withOpacity(0.1),
+                                                        .withValues(alpha: 0.1),
                                                 borderRadius:
                                                     BorderRadius.circular(8),
                                               ),

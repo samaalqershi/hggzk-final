@@ -5,13 +5,31 @@ import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as img;
 import 'package:hggzkportal/core/utils/media_file_safety.dart';
 
+/// Describes the file paths and metadata produced after media preprocessing.
+/// يصف المسارات والبيانات الوصفية الناتجة بعد معالجة الوسائط مسبقًا.
 class MediaPreprocessResult {
+  /// File path that should be uploaded to the backend.
+  /// مسار الملف الذي يجب رفعه إلى الخادم.
   final String uploadPath;
+
+  /// Optional thumbnail created for video uploads.
+  /// صورة مصغرة اختيارية تُنشأ لرفع الفيديو.
   final String? thumbnailPath;
+
+  /// Image width after preprocessing, when available.
+  /// عرض الصورة بعد المعالجة إذا كان متاحًا.
   final int? width;
+
+  /// Image height after preprocessing, when available.
+  /// ارتفاع الصورة بعد المعالجة إذا كان متاحًا.
   final int? height;
+
+  /// Video duration in seconds when it can be determined.
+  /// مدة الفيديو بالثواني عندما يمكن تحديدها.
   final int? durationSeconds;
 
+  /// Captures the normalized output path and any derived metadata.
+  /// يلتقط المسار الموحد وأي بيانات وصفية مشتقة.
   const MediaPreprocessResult({
     required this.uploadPath,
     this.thumbnailPath,
@@ -21,7 +39,15 @@ class MediaPreprocessResult {
   });
 }
 
+/// Normalizes media before upload so the chat and admin flows can work with
+/// stable file paths, thumbnails, and metadata.
+/// يوحد الوسائط قبل الرفع حتى تعمل مسارات الشات والإدارة مع ملفات ولقطات
+/// وبيانات مستقرة.
 class MediaPipeline {
+  /// Prepares media for upload by stabilizing the source file, compressing
+  /// images, and extracting video thumbnails when possible.
+  /// يجهز الوسائط للرفع عبر تثبيت الملف المصدر وضغط الصور واستخراج صورة
+  /// مصغرة للفيديو عند الإمكان.
   Future<MediaPreprocessResult> preprocess({
     required String filePath,
     required String messageType,
@@ -130,6 +156,8 @@ class MediaPipeline {
     }
   }
 
+  /// Creates a scratch directory used for temporary compressed media outputs.
+  /// ينشئ مجلد عمل مؤقتًا لنتائج الوسائط المضغوطة.
   Future<Directory> _ensureWorkingDirectory(String namespace) async {
     final tempDir = await getTemporaryDirectory();
     final workingDir = Directory('${tempDir.path}/media_pipeline/$namespace');
@@ -137,6 +165,8 @@ class MediaPipeline {
     return workingDir;
   }
 
+  /// Emits structured debug information for media-processing failures.
+  /// يطبع معلومات تشخيصية منظمة عند فشل معالجة الوسائط.
   void _log(
     String event,
     Map<String, Object?> details, {

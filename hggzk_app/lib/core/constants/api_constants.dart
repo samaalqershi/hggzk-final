@@ -1,4 +1,8 @@
+/// Represents `ApiConstants`.
+/// العربية: يمثل `ApiConstants`.
 class ApiConstants {
+  /// Builds the `ApiConstants._` instance used by this layer.
+  /// العربية: ينشئ مثيلًا جديدًا من `ApiConstants._`.
   ApiConstants._();
 
   // Base URLs
@@ -30,19 +34,42 @@ class ApiConstants {
       Duration(seconds: 1800); // 30 minutes for uploads and long requests
 
   // Headers
+  /// Keeps the `contentType` value so this type can use it later.
+  /// العربية: يخزن القيمة `contentType`.
   static const String contentType = 'Content-Type';
+
+  /// Keeps the `applicationJson` value so this type can use it later.
+  /// العربية: يخزن القيمة `applicationJson`.
   static const String applicationJson = 'application/json';
+
+  /// Keeps the `authorization` value so this type can use it later.
+  /// العربية: يخزن القيمة `authorization`.
   static const String authorization = 'Authorization';
+
+  /// Keeps the `bearer` value so this type can use it later.
+  /// العربية: يخزن القيمة `bearer`.
   static const String bearer = 'Bearer';
+
+  /// Keeps the `acceptLanguage` value so this type can use it later.
+  /// العربية: يخزن القيمة `acceptLanguage`.
   static const String acceptLanguage = 'Accept-Language';
 
   // API Versions
+  /// Keeps the `apiVersion` value so this type can use it later.
+  /// العربية: يخزن القيمة `apiVersion`.
   static const String apiVersion = 'v1';
 
   // Pagination
+  /// Keeps the `defaultPageSize` value so this type can use it later.
+  /// العربية: يخزن القيمة `defaultPageSize`.
   static const int defaultPageSize = 20;
+
+  /// Keeps the `maxPageSize` value so this type can use it later.
+  /// العربية: يخزن القيمة `maxPageSize`.
   static const int maxPageSize = 100;
 
+  /// Processes the `stripTrailingSlash` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `stripTrailingSlash`.
   static String _stripTrailingSlash(String value) {
     final trimmed = value.trim();
     if (trimmed.endsWith('/')) {

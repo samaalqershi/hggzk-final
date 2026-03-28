@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 abstract class UnitTypeFieldsEvent extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitTypeFieldsEvent`.
   const UnitTypeFieldsEvent();
 
   @override
@@ -8,6 +9,7 @@ abstract class UnitTypeFieldsEvent extends Equatable {
 }
 
 class LoadUnitTypeFieldsEvent extends UnitTypeFieldsEvent {
+  /// العربية: يخزن القيمة `unitTypeId`.
   final String unitTypeId;
 
   const LoadUnitTypeFieldsEvent({required this.unitTypeId});
@@ -17,6 +19,7 @@ class LoadUnitTypeFieldsEvent extends UnitTypeFieldsEvent {
 }
 
 class SearchFieldsEvent extends UnitTypeFieldsEvent {
+  /// العربية: يخزن القيمة `searchTerm`.
   final String searchTerm;
 
   const SearchFieldsEvent({required this.searchTerm});
@@ -26,7 +29,9 @@ class SearchFieldsEvent extends UnitTypeFieldsEvent {
 }
 
 class CreateFieldEvent extends UnitTypeFieldsEvent {
+  /// العربية: يخزن القيمة `unitTypeId`.
   final String unitTypeId;
+
   final Map<String, dynamic> fieldData;
 
   const CreateFieldEvent({
@@ -39,7 +44,9 @@ class CreateFieldEvent extends UnitTypeFieldsEvent {
 }
 
 class UpdateFieldEvent extends UnitTypeFieldsEvent {
+  /// العربية: يخزن القيمة `fieldId`.
   final String fieldId;
+
   final Map<String, dynamic> fieldData;
 
   const UpdateFieldEvent({
@@ -52,6 +59,7 @@ class UpdateFieldEvent extends UnitTypeFieldsEvent {
 }
 
 class DeleteFieldEvent extends UnitTypeFieldsEvent {
+  /// العربية: يخزن القيمة `fieldId`.
   final String fieldId;
 
   const DeleteFieldEvent({required this.fieldId});

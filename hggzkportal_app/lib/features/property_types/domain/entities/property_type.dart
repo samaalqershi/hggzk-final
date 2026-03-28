@@ -2,15 +2,25 @@ import 'package:equatable/equatable.dart';
 
 /// 🏢 كيان نوع الملكية
 class PropertyType extends Equatable {
+  /// العربية: يخزن القيمة `id`.
   final String id;
+
   final String name;
+
   final String description;
+
   final List<String> defaultAmenities;
+
   final String icon;
+
   final int propertiesCount;
+
   final List<String> unitTypeIds;
+
   final bool isActive;
+
   final DateTime? createdAt;
+
   final DateTime? updatedAt;
 
   const PropertyType({

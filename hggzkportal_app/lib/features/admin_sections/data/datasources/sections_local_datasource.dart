@@ -2,15 +2,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/section_model.dart';
 
 abstract class SectionsLocalDataSource {
+  /// العربية: يعالج `cacheSections`.
   Future<void> cacheSections(List<SectionModel> sections);
+
   List<SectionModel> getCachedSections();
+
   bool isCacheFresh();
+
   void invalidate();
 }
 
 class SectionsLocalDataSourceImpl implements SectionsLocalDataSource {
+  /// العربية: يخزن القيمة `sharedPreferences`.
   final SharedPreferences sharedPreferences;
+
   static const String _kCacheKey = 'admin_sections_cache_v1';
+
   static const String _kCacheTimeKey = 'admin_sections_cache_time_v1';
   static const Duration _ttl = Duration(minutes: 10);
 
@@ -50,11 +57,13 @@ class SectionsLocalDataSourceImpl implements SectionsLocalDataSource {
   Map<String, dynamic> _parseMapLikeString(String s) {
     // This is a naive parser; for reliability consider using jsonEncode/jsonDecode storage instead.
     final map = <String, dynamic>{};
-    final trimmed = s.startsWith('{') && s.endsWith('}') ? s.substring(1, s.length - 1) : s;
+    final trimmed =
+        s.startsWith('{') && s.endsWith('}') ? s.substring(1, s.length - 1) : s;
     for (final part in trimmed.split(',')) {
       final idx = part.indexOf(':');
       if (idx == -1) continue;
-      final key = part.substring(0, idx).trim().replaceAll("'", '').replaceAll('"', '');
+      final key =
+          part.substring(0, idx).trim().replaceAll("'", '').replaceAll('"', '');
       final value = part.substring(idx + 1).trim();
       map[key] = value.replaceAll("'", '').replaceAll('"', '');
     }
@@ -75,4 +84,3 @@ class SectionsLocalDataSourceImpl implements SectionsLocalDataSource {
     sharedPreferences.remove(_kCacheTimeKey);
   }
 }
-

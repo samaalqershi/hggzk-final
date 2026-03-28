@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/entities/attachment.dart';
 import '../bloc/chat_bloc.dart';
@@ -13,17 +12,47 @@ import 'reaction_picker_widget.dart';
 import 'attachment_preview_widget.dart';
 import 'audio_message_widget.dart';
 
+/// يعرّف الكلاس `MessageBubbleWidget`.
+/// Describes the `MessageBubbleWidget` class.
 class MessageBubbleWidget extends StatefulWidget {
+  /// Holds the `message` value.
+  /// العربية: يخزن القيمة `message`.
   final Message message;
+
+  /// يخزن العضو `isMe`.
+  /// Holds the `isMe` member.
   final bool isMe;
+
+  /// يخزن العضو `previousMessage`.
+  /// Holds the `previousMessage` member.
   final Message? previousMessage;
+
+  /// يخزن العضو `nextMessage`.
+  /// Holds the `nextMessage` member.
   final Message? nextMessage;
+
+  /// يخزن العضو `onReply`.
+  /// Holds the `onReply` member.
   final VoidCallback? onReply;
+
+  /// يخزن العضو `onEdit`.
+  /// Holds the `onEdit` member.
   final VoidCallback? onEdit;
+
+  /// يخزن العضو `onDelete`.
+  /// Holds the `onDelete` member.
   final VoidCallback? onDelete;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(String)? onReaction;
+
+  /// يخزن العضو `onReplyTap`.
+  /// Holds the `onReplyTap` member.
   final VoidCallback? onReplyTap;
 
+  /// ينشئ مثيلاً من `MessageBubbleWidget`.
+  /// Builds an instance of `MessageBubbleWidget`.
   const MessageBubbleWidget({
     super.key,
     required this.message,
@@ -37,18 +66,35 @@ class MessageBubbleWidget extends StatefulWidget {
     this.onReplyTap,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<MessageBubbleWidget> createState() => _MessageBubbleWidgetState();
 }
 
+/// يعرّف الكلاس `_MessageBubbleWidgetState`.
+/// Describes the `_MessageBubbleWidgetState` class.
 class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
+
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
+
+  /// يخزن العضو `_showReactions`.
+  /// Holds the `_showReactions` member.
   bool _showReactions = false;
 
   // WhatsApp Colors
+  /// يعيد قيمة `_bubbleColor`.
+  /// Exposes the `_bubbleColor` value.
   Color get _bubbleColor {
     if (widget.isMe) {
       return AppTheme.isDark
@@ -61,6 +107,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     }
   }
 
+  /// يعيد قيمة `_textColor`.
+  /// Exposes the `_textColor` value.
   Color get _textColor {
     if (widget.isMe) {
       return AppTheme.isDark ? Colors.white : const Color(0xFF1F2C34);
@@ -71,6 +119,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     }
   }
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -98,12 +148,16 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     _animationController.forward();
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// يعيد قيمة `_isFirstInGroup`.
+  /// Exposes the `_isFirstInGroup` value.
   bool get _isFirstInGroup {
     if (widget.previousMessage == null) return true;
     return widget.previousMessage!.senderId != widget.message.senderId ||
@@ -113,6 +167,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
             5;
   }
 
+  /// يعيد قيمة `_isLastInGroup`.
+  /// Exposes the `_isLastInGroup` value.
   bool get _isLastInGroup {
     if (widget.nextMessage == null) return true;
     return widget.nextMessage!.senderId != widget.message.senderId ||
@@ -122,6 +178,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
             5;
   }
 
+  /// ينفذ العملية `_findReplyMessage`.
+  /// Runs the `_findReplyMessage` operation.
   Message? _findReplyMessage() {
     final replyId = widget.message.replyToMessageId;
     if (replyId == null) return null;
@@ -140,6 +198,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     return null;
   }
 
+  /// ينفذ العملية `_cleanContent`.
+  /// Runs the `_cleanContent` operation.
   String _cleanContent(String? content) {
     if (content == null) return '';
     if (content.startsWith('::attref=')) {
@@ -151,6 +211,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     return content.trim();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     // Check if this is an audio message
@@ -231,6 +293,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     );
   }
 
+  /// ينفذ العملية `_buildAudioMessage`.
+  /// Runs the `_buildAudioMessage` operation.
   Widget _buildAudioMessage() {
     Attachment? audioAttachment;
 
@@ -321,6 +385,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     );
   }
 
+  /// ينفذ العملية `_buildReplyPreview`.
+  /// Runs the `_buildReplyPreview` operation.
   Widget _buildReplyPreview() {
     final replyMessage = _findReplyMessage();
 
@@ -363,7 +429,7 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
               ),
               const SizedBox(height: 2),
               Text(
-                _cleanContent(replyMessage?.content) ?? 'رسالة محذوفة',
+                _cleanContent(replyMessage?.content),
                 style: AppTextStyles.bodySmall.copyWith(
                   color: _textColor.withValues(alpha: 0.8),
                   fontSize: 12,
@@ -378,6 +444,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     );
   }
 
+  /// ينفذ العملية `_buildMessageContent`.
+  /// Runs the `_buildMessageContent` operation.
   Widget _buildMessageContent() {
     if (widget.message.isDeleted) {
       return Row(
@@ -437,6 +505,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     );
   }
 
+  /// ينفذ العملية `_buildMessageFooter`.
+  /// Runs the `_buildMessageFooter` operation.
   Widget _buildMessageFooter() {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -491,6 +561,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalReactions`.
+  /// Runs the `_buildMinimalReactions` operation.
   Widget _buildMinimalReactions() {
     final groupedReactions = <String, int>{};
     for (final reaction in widget.message.reactions) {
@@ -535,6 +607,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     );
   }
 
+  /// ينفذ العملية `_showOptions`.
+  /// Runs the `_showOptions` operation.
   void _showOptions() {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
@@ -551,6 +625,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     );
   }
 
+  /// ينفذ العملية `_handleDoubleTap`.
+  /// Runs the `_handleDoubleTap` operation.
   void _handleDoubleTap() {
     HapticFeedback.lightImpact();
     setState(() {
@@ -558,6 +634,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     });
   }
 
+  /// ينفذ العملية `_getEmojiForReaction`.
+  /// Runs the `_getEmojiForReaction` operation.
   String _getEmojiForReaction(String reactionType) {
     switch (reactionType) {
       case 'like':
@@ -577,10 +655,14 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     }
   }
 
+  /// ينفذ العملية `_formatTime`.
+  /// Runs the `_formatTime` operation.
   String _formatTime(DateTime dateTime) {
     return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
+  /// ينفذ العملية `_isAudioExtension`.
+  /// Runs the `_isAudioExtension` operation.
   bool _isAudioExtension(String? fileName) {
     if (fileName == null || fileName.trim().isEmpty) {
       return false;
@@ -617,17 +699,31 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
 }
 
 // Custom painter for WhatsApp-style bubble with tail
+/// يعرّف الكلاس `_BubblePainter`.
+/// Describes the `_BubblePainter` class.
 class _BubblePainter extends CustomPainter {
+  /// Holds the `color` value.
+  /// العربية: يخزن القيمة `color`.
   final Color color;
+
+  /// يخزن العضو `isMe`.
+  /// Holds the `isMe` member.
   final bool isMe;
+
+  /// يخزن العضو `hasNip`.
+  /// Holds the `hasNip` member.
   final bool hasNip;
 
+  /// ينشئ مثيلاً من `_BubblePainter`.
+  /// Builds an instance of `_BubblePainter`.
   _BubblePainter({
     required this.color,
     required this.isMe,
     required this.hasNip,
   });
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -675,17 +771,34 @@ class _BubblePainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 // Bottom Sheet for message options
+/// يعرّف الكلاس `_MessageOptionsSheet`.
+/// Describes the `_MessageOptionsSheet` class.
 class _MessageOptionsSheet extends StatelessWidget {
+  /// Indicates whether `isMe` is enabled.
+  /// العربية: يحدد ما إذا كانت القيمة `isMe` مفعلة.
   final bool isMe;
+
+  /// يخزن العضو `onReply`.
+  /// Holds the `onReply` member.
   final VoidCallback? onReply;
+
+  /// يخزن العضو `onEdit`.
+  /// Holds the `onEdit` member.
   final VoidCallback? onEdit;
+
+  /// يخزن العضو `onDelete`.
+  /// Holds the `onDelete` member.
   final VoidCallback? onDelete;
 
+  /// ينشئ مثيلاً من `_MessageOptionsSheet`.
+  /// Builds an instance of `_MessageOptionsSheet`.
   const _MessageOptionsSheet({
     required this.isMe,
     this.onReply,
@@ -693,6 +806,8 @@ class _MessageOptionsSheet extends StatelessWidget {
     this.onDelete,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -762,6 +877,8 @@ class _MessageOptionsSheet extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildOption`.
+  /// Runs the `_buildOption` operation.
   Widget _buildOption(
     BuildContext context, {
     required IconData icon,

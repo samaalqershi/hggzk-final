@@ -4,9 +4,7 @@ import 'package:hggzkportal/features/admin_bookings/domain/entities/booking.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:table_calendar/table_calendar.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/error_widget.dart';
@@ -16,23 +14,35 @@ import '../bloc/booking_calendar/booking_calendar_state.dart';
 import '../widgets/booking_calendar_widget.dart';
 import '../widgets/booking_status_badge.dart';
 import 'package:go_router/go_router.dart';
-import 'booking_details_page.dart';
 
+/// Arabic: صفحة تقويم تعرض الحجوزات بحسب اليوم أو الأسبوع أو الشهر.
+/// English: Calendar page that presents bookings by day, week, or month.
 class BookingCalendarPage extends StatefulWidget {
+  /// Arabic: ينشئ صفحة التقويم بدون أي مدخلات إضافية.
+  /// English: Creates the calendar page without any additional inputs.
   const BookingCalendarPage({super.key});
-
   @override
   State<BookingCalendarPage> createState() => _BookingCalendarPageState();
 }
 
+/// Arabic: يدير حالة صفحة التقويم، بما في ذلك وضع العرض والانتقال للحجوزات.
+/// English: Manages the calendar page state, including view mode and navigation to bookings.
 class _BookingCalendarPageState extends State<BookingCalendarPage>
     with SingleTickerProviderStateMixin {
+  /// Arabic: يتحكم في حركة الدخول السلسة لعناصر الصفحة.
+  /// English: Drives the page entrance animation.
   late AnimationController _animationController;
-  final CalendarFormat _calendarFormat = CalendarFormat.month;
+
+  /// Arabic: يحفظ اليوم المرجعي الذي تُحمّل حوله بيانات التقويم.
+  /// English: Stores the reference day used when loading calendar data.
   final DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
+
+  /// Arabic: يحدد نمط العرض الحالي للتقويم.
+  /// English: Tracks the current calendar view mode.
   CalendarView _currentView = CalendarView.month;
 
+  /// Arabic: يهيئ المحرك الحركي ثم يطلب بيانات التقويم الافتراضية.
+  /// English: Initializes the animation controller and loads the default calendar data.
   @override
   void initState() {
     super.initState();
@@ -44,6 +54,8 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
     _animationController.forward();
   }
 
+  /// Arabic: يطلب بيانات الحجوزات الخاصة بالفترة والواجهة الحالية.
+  /// English: Requests booking data for the current date range and view mode.
   void _loadCalendarData() {
     context.read<BookingCalendarBloc>().add(
           LoadCalendarBookingsEvent(
@@ -53,12 +65,16 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
         );
   }
 
+  /// Arabic: يحرر متحكم الحركة قبل إزالة الصفحة.
+  /// English: Disposes the animation controller before the page is removed.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// Arabic: يبني واجهة التقويم ومحتوى الحجوزات المرتبط بها.
+  /// English: Builds the calendar UI and its associated booking content.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,6 +90,8 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
     );
   }
 
+  /// Arabic: ينشئ شريط العنوان المثبت مع أزرار تبديل العرض.
+  /// English: Builds the pinned header with the view-toggle actions.
   Widget _buildSliverAppBar() {
     return SliverAppBar(
       expandedHeight: 120,
@@ -88,7 +106,7 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
             color: AppTheme.textWhite,
             shadows: [
               Shadow(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                 blurRadius: 10,
               ),
             ],
@@ -100,7 +118,7 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.1),
+                AppTheme.primaryBlue.withValues(alpha: 0.1),
                 AppTheme.darkBackground,
               ],
             ),
@@ -114,15 +132,17 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
     );
   }
 
+  /// Arabic: يعرض أزرار التبديل بين الشهر والأسبوع واليوم.
+  /// English: Shows the controls for switching between month, week, and day views.
   Widget _buildViewToggle() {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -147,6 +167,8 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
     );
   }
 
+  /// Arabic: يبني زر عرض واحد داخل شريط التبديل.
+  /// English: Builds a single view button inside the toggle group.
   Widget _buildViewButton({
     required IconData icon,
     required bool isSelected,
@@ -158,7 +180,7 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppTheme.primaryBlue.withOpacity(0.2)
+              ? AppTheme.primaryBlue.withValues(alpha: 0.2)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
@@ -171,6 +193,8 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
     );
   }
 
+  /// Arabic: يعرض ويدجت التقويم نفسه أو حالات التحميل والخطأ.
+  /// English: Renders the calendar widget or its loading and error states.
   Widget _buildCalendarSection() {
     return SliverToBoxAdapter(
       child: BlocBuilder<BookingCalendarBloc, BookingCalendarState>(
@@ -202,7 +226,6 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
               currentView: state.currentView,
               selectedDate: state.selectedDate,
               onDateSelected: (date) {
-                setState(() => _selectedDay = date);
                 context.read<BookingCalendarBloc>().add(
                       SelectCalendarDateEvent(date: date),
                     );
@@ -221,6 +244,8 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
     );
   }
 
+  /// Arabic: يعرض الحجوزات المرتبطة باليوم المحدد إن وجدت.
+  /// English: Shows bookings linked to the selected day when available.
   Widget _buildSelectedDayBookings() {
     return BlocBuilder<BookingCalendarBloc, BookingCalendarState>(
       builder: (context, state) {
@@ -235,10 +260,10 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppTheme.darkCard.withOpacity(0.5),
+              color: AppTheme.darkCard.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             child: Column(
@@ -265,7 +290,7 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -290,14 +315,16 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
     );
   }
 
+  /// Arabic: يبني بطاقة مختصرة لعرض حجز واحد ضمن اليوم المحدد.
+  /// English: Builds a compact card for one booking on the selected day.
   Widget _buildBookingCard(Booking booking) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.5),
+        color: AppTheme.darkBackground.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
       ),
       child: Material(
@@ -357,6 +384,8 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
     );
   }
 
+  /// Arabic: يبدّل نمط عرض التقويم ويطلب البيانات المناسبة له.
+  /// English: Switches the calendar view mode and reloads the matching data.
   void _changeView(CalendarView view) {
     setState(() => _currentView = view);
     context.read<BookingCalendarBloc>().add(
@@ -364,10 +393,14 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
         );
   }
 
+  /// Arabic: ينتقل إلى صفحة تفاصيل الحجز المحدد.
+  /// English: Navigates to the selected booking's details page.
   void _navigateToDetails(String bookingId) {
     context.push('/admin/bookings/$bookingId');
   }
 
+  /// Arabic: يحول التاريخ إلى صيغة قصيرة مناسبة للعرض داخل الصفحة.
+  /// English: Formats a date into a concise in-page display string.
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }

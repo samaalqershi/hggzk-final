@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
-import '../../../../core/constants/api_constants.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/models/result_dto.dart';
 import '../../../../core/network/api_client.dart';
 import '../models/unit_type_field_model.dart';
 
 abstract class UnitTypeFieldsRemoteDataSource {
+  /// العربية: يعيد fields by unit type.
   Future<List<UnitTypeFieldModel>> getFieldsByUnitType({
     required String unitTypeId,
     String? searchTerm,
@@ -64,6 +64,7 @@ abstract class UnitTypeFieldsRemoteDataSource {
 class UnitTypeFieldsRemoteDataSourceImpl
     implements UnitTypeFieldsRemoteDataSource {
   final ApiClient apiClient;
+
   static const String _baseEndpoint = '/api/admin/unit-type-fields';
 
   UnitTypeFieldsRemoteDataSourceImpl({required this.apiClient});

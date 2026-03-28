@@ -5,21 +5,19 @@ import '../../domain/entities/payment.dart';
 import '../../domain/entities/payment_details.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../../../../core/theme/app_text_styles.dart';
-import '../../../../../../core/theme/app_dimensions.dart';
 import '../../../../../../core/widgets/price_widget.dart';
 import 'payment_status_indicator.dart';
 import 'payment_method_icon.dart';
 
 class TransactionDetailsCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `payment`.
   final Payment payment;
   final PaymentDetails? paymentDetails;
-
   const TransactionDetailsCard({
     super.key,
     required this.payment,
     this.paymentDetails,
   });
-
   @override
   State<TransactionDetailsCard> createState() => _TransactionDetailsCardState();
 }
@@ -30,7 +28,6 @@ class _TransactionDetailsCardState extends State<TransactionDetailsCard>
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
   bool _isExpanded = false;
-
   @override
   void initState() {
     super.initState();

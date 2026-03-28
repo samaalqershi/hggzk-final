@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -11,10 +10,15 @@ import '../../domain/entities/user.dart';
 
 class FuturisticUserCard extends StatefulWidget {
   final User user;
+
   final VoidCallback onTap;
+
   final Function(bool) onStatusToggle;
+
   final VoidCallback? onDelete;
+
   final Duration animationDelay;
+
   final bool isCompact; // للتحكم في حجم البطاقة
 
   const FuturisticUserCard({
@@ -34,20 +38,27 @@ class FuturisticUserCard extends StatefulWidget {
 class _FuturisticUserCardState extends State<FuturisticUserCard>
     with TickerProviderStateMixin {
   late AnimationController _entranceController;
+
   late AnimationController _hoverController;
+
   late AnimationController _glowController;
-  
+
   late Animation<double> _entranceAnimation;
+
   late Animation<double> _hoverAnimation;
+
   late Animation<double> _glowAnimation;
-  
+
   bool _isHovered = false;
+
   bool _isPressed = false;
 
   @override
   void initState() {
     super.initState();
+
     _initializeAnimations();
+
     _startAnimations();
   }
 
@@ -56,32 +67,32 @@ class _FuturisticUserCardState extends State<FuturisticUserCard>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _hoverController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    
+
     _glowController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     );
-    
+
     _entranceAnimation = CurvedAnimation(
       parent: _entranceController,
       curve: Curves.elasticOut,
     );
-    
+
     _hoverAnimation = CurvedAnimation(
       parent: _hoverController,
       curve: Curves.easeOutCubic,
     );
-    
+
     _glowAnimation = CurvedAnimation(
       parent: _glowController,
       curve: Curves.easeInOut,
     );
-    
+
     if (widget.user.isActive) {
       _glowController.repeat(reverse: true);
     }
@@ -109,10 +120,9 @@ class _FuturisticUserCardState extends State<FuturisticUserCard>
       builder: (context, constraints) {
         // تحديد الحجم بناءً على عرض الشاشة
         final isSmallScreen = constraints.maxWidth < 400;
-        final cardHeight = widget.isCompact 
-            ? 180.0 
-            : (isSmallScreen ? 220.0 : 240.0);
-        
+        final cardHeight =
+            widget.isCompact ? 180.0 : (isSmallScreen ? 220.0 : 240.0);
+
         return AnimatedBuilder(
           animation: Listenable.merge([
             _entranceAnimation,
@@ -160,14 +170,16 @@ class _FuturisticUserCardState extends State<FuturisticUserCard>
         boxShadow: [
           BoxShadow(
             color: widget.user.isActive
-                ? AppTheme.primaryBlue.withValues(alpha: 0.1 + 0.1 * _glowAnimation.value)
+                ? AppTheme.primaryBlue
+                    .withValues(alpha: 0.1 + 0.1 * _glowAnimation.value)
                 : Colors.black.withValues(alpha: 0.2),
             blurRadius: 20 + 10 * _hoverAnimation.value,
             offset: Offset(0, 8 + 4 * _hoverAnimation.value),
           ),
           if (widget.user.isActive)
             BoxShadow(
-              color: AppTheme.success.withValues(alpha: 0.2 * _glowAnimation.value),
+              color: AppTheme.success
+                  .withValues(alpha: 0.2 * _glowAnimation.value),
               blurRadius: 30,
               spreadRadius: -10,
             ),
@@ -190,7 +202,8 @@ class _FuturisticUserCardState extends State<FuturisticUserCard>
               borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
               border: Border.all(
                 color: widget.user.isActive
-                    ? AppTheme.success.withValues(alpha: 0.3 + 0.2 * _glowAnimation.value)
+                    ? AppTheme.success
+                        .withValues(alpha: 0.3 + 0.2 * _glowAnimation.value)
                     : AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
@@ -206,14 +219,12 @@ class _FuturisticUserCardState extends State<FuturisticUserCard>
                       ),
                     ),
                   ),
-                
+
                 // Content
                 Padding(
-                  padding: EdgeInsets.all(
-                    widget.isCompact 
-                        ? AppDimensions.paddingSmall 
-                        : AppDimensions.paddingMedium
-                  ),
+                  padding: EdgeInsets.all(widget.isCompact
+                      ? AppDimensions.paddingSmall
+                      : AppDimensions.paddingMedium),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -225,14 +236,14 @@ class _FuturisticUserCardState extends State<FuturisticUserCard>
                     ],
                   ),
                 ),
-                
+
                 // Status indicator
                 Positioned(
                   top: 12,
                   right: 12,
                   child: _buildStatusIndicator(),
                 ),
-                
+
                 // Delete button (if provided)
                 if (widget.onDelete != null)
                   Positioned(
@@ -250,7 +261,7 @@ class _FuturisticUserCardState extends State<FuturisticUserCard>
 
   Widget _buildHeader(bool isSmallScreen) {
     final avatarSize = widget.isCompact ? 40.0 : (isSmallScreen ? 45.0 : 50.0);
-    
+
     return Row(
       children: [
         // Avatar
@@ -290,9 +301,9 @@ class _FuturisticUserCardState extends State<FuturisticUserCard>
                 )
               : _buildDefaultAvatar(isSmallScreen),
         ),
-        
+
         const SizedBox(width: AppDimensions.spaceSmall),
-        
+
         // Role badge
         Expanded(
           child: Align(
@@ -336,16 +347,15 @@ class _FuturisticUserCardState extends State<FuturisticUserCard>
   }
 
   Widget _buildDefaultAvatar(bool isSmallScreen) {
-    final initials = widget.user.name.isNotEmpty
-        ? widget.user.name[0].toUpperCase()
-        : 'U';
-    
+    final initials =
+        widget.user.name.isNotEmpty ? widget.user.name[0].toUpperCase() : 'U';
+
     return Center(
       child: Text(
         initials,
-        style: (isSmallScreen 
-            ? AppTextStyles.bodyMedium 
-            : AppTextStyles.heading3).copyWith(
+        style:
+            (isSmallScreen ? AppTextStyles.bodyMedium : AppTextStyles.heading3)
+                .copyWith(
           color: Colors.white,
           fontWeight: FontWeight.bold,
         ),
@@ -357,11 +367,10 @@ class _FuturisticUserCardState extends State<FuturisticUserCard>
     final nameStyle = widget.isCompact
         ? AppTextStyles.bodyMedium
         : (isSmallScreen ? AppTextStyles.bodyLarge : AppTextStyles.heading3);
-    
-    final detailStyle = widget.isCompact
-        ? AppTextStyles.caption
-        : AppTextStyles.bodySmall;
-    
+
+    final detailStyle =
+        widget.isCompact ? AppTextStyles.caption : AppTextStyles.bodySmall;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -376,9 +385,9 @@ class _FuturisticUserCardState extends State<FuturisticUserCard>
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        
+
         const SizedBox(height: AppDimensions.spaceXSmall),
-        
+
         // Email
         Row(
           children: [
@@ -400,7 +409,7 @@ class _FuturisticUserCardState extends State<FuturisticUserCard>
             ),
           ],
         ),
-        
+
         if (!widget.isCompact && widget.user.phone.isNotEmpty) ...[
           const SizedBox(height: AppDimensions.spaceXSmall),
           // Phone
@@ -437,15 +446,16 @@ class _FuturisticUserCardState extends State<FuturisticUserCard>
         Expanded(
           child: Text(
             _formatDate(widget.user.createdAt),
-            style: (widget.isCompact 
-                ? AppTextStyles.caption 
-                : AppTextStyles.bodySmall).copyWith(
+            style: (widget.isCompact
+                    ? AppTextStyles.caption
+                    : AppTextStyles.bodySmall)
+                .copyWith(
               color: AppTheme.textMuted.withValues(alpha: 0.6),
             ),
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        
+
         // Status toggle
         _buildStatusToggle(),
       ],
@@ -461,9 +471,7 @@ class _FuturisticUserCardState extends State<FuturisticUserCard>
           height: widget.isCompact ? 8 : 10,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: widget.user.isActive
-                ? AppTheme.success
-                : AppTheme.textMuted,
+            color: widget.user.isActive ? AppTheme.success : AppTheme.textMuted,
             boxShadow: widget.user.isActive
                 ? [
                     BoxShadow(
@@ -509,7 +517,7 @@ class _FuturisticUserCardState extends State<FuturisticUserCard>
     final width = widget.isCompact ? 36.0 : 40.0;
     final height = widget.isCompact ? 20.0 : 22.0;
     final circleSize = widget.isCompact ? 16.0 : 18.0;
-    
+
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -612,7 +620,7 @@ class _CardPatternPainter extends CustomPainter {
       ..strokeWidth = 0.5;
 
     const spacing = 20.0;
-    
+
     for (double i = spacing; i < size.width; i += spacing) {
       canvas.drawLine(
         Offset(i, 0),
@@ -620,7 +628,7 @@ class _CardPatternPainter extends CustomPainter {
         paint,
       );
     }
-    
+
     for (double i = spacing; i < size.height; i += spacing) {
       canvas.drawLine(
         Offset(0, i),

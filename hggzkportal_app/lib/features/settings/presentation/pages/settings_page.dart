@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:math' as math;
+import '../../../../core/constants/route_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_widget.dart';
@@ -18,8 +19,8 @@ import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 
 class SettingsPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `SettingsPage`.
   const SettingsPage({super.key});
-
   @override
   State<SettingsPage> createState() => _SettingsPageState();
 }
@@ -29,7 +30,6 @@ class _SettingsPageState extends State<SettingsPage>
   late AnimationController _backgroundAnimationController;
   late AnimationController _itemAnimationController;
   late AnimationController _glowAnimationController;
-
   @override
   void initState() {
     super.initState();
@@ -176,8 +176,8 @@ class _SettingsPageState extends State<SettingsPage>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.primaryPurple.withOpacity(0.3),
-                AppTheme.primaryBlue.withOpacity(0.2),
+                AppTheme.primaryPurple.withValues(alpha: 0.3),
+                AppTheme.primaryBlue.withValues(alpha: 0.2),
                 Colors.transparent,
               ],
             ),
@@ -186,7 +186,7 @@ class _SettingsPageState extends State<SettingsPage>
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
               child: Container(
-                color: AppTheme.darkCard.withOpacity(0.3),
+                color: AppTheme.darkCard.withValues(alpha: 0.3),
                 child: Stack(
                   children: [
                     // Animated Lines
@@ -241,13 +241,13 @@ class _SettingsPageState extends State<SettingsPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.7),
-                AppTheme.darkCard.withOpacity(0.5),
+                AppTheme.darkCard.withValues(alpha: 0.7),
+                AppTheme.darkCard.withValues(alpha: 0.5),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.primaryBlue.withOpacity(0.3),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -284,7 +284,7 @@ class _SettingsPageState extends State<SettingsPage>
                 gradient: LinearGradient(
                   colors: [AppTheme.primaryBlue, AppTheme.primaryCyan],
                 ),
-                onTap: () => context.push('/profile'),
+                onTap: () => context.push(RouteConstants.profile),
               ),
               FuturisticSettingsItem(
                 icon: Icons.lock_outline_rounded,
@@ -293,7 +293,7 @@ class _SettingsPageState extends State<SettingsPage>
                 gradient: LinearGradient(
                   colors: [AppTheme.primaryPurple, AppTheme.primaryViolet],
                 ),
-                onTap: () => context.push('/profile/change-password'),
+                onTap: () => context.push(RouteConstants.changePassword),
               ),
             ],
           ),
@@ -316,7 +316,7 @@ class _SettingsPageState extends State<SettingsPage>
                 gradient: LinearGradient(
                   colors: [AppTheme.neonBlue, AppTheme.primaryCyan],
                 ),
-                onTap: () => context.push('/settings/language'),
+                onTap: () => context.push(RouteConstants.languageSettings),
               ),
               FuturisticSettingsItem(
                 icon: Icons.dark_mode_rounded,
@@ -370,7 +370,7 @@ class _SettingsPageState extends State<SettingsPage>
                 gradient: LinearGradient(
                   colors: [AppTheme.warning, Colors.orange],
                 ),
-                onTap: () => context.push('/notifications/settings'),
+                onTap: () => context.push(RouteConstants.notificationSettings),
               ),
             ],
           ),
@@ -392,7 +392,7 @@ class _SettingsPageState extends State<SettingsPage>
                 gradient: LinearGradient(
                   colors: [AppTheme.info, AppTheme.primaryBlue],
                 ),
-                onTap: () => context.push('/support'),
+                onTap: () => context.push(RouteConstants.support),
               ),
               FuturisticSettingsItem(
                 icon: Icons.privacy_tip_rounded,
@@ -401,7 +401,7 @@ class _SettingsPageState extends State<SettingsPage>
                 gradient: LinearGradient(
                   colors: [AppTheme.primaryCyan, AppTheme.neonBlue],
                 ),
-                onTap: () => context.push('/settings/privacy-policy'),
+                onTap: () => context.push(RouteConstants.privacyPolicy),
               ),
               FuturisticSettingsItem(
                 icon: Icons.description_rounded,
@@ -410,7 +410,7 @@ class _SettingsPageState extends State<SettingsPage>
                 gradient: LinearGradient(
                   colors: [AppTheme.primaryBlue, AppTheme.primaryPurple],
                 ),
-                onTap: () => context.push('/terms'),
+                onTap: () => context.push(RouteConstants.terms),
               ),
             ],
           ),
@@ -432,7 +432,7 @@ class _SettingsPageState extends State<SettingsPage>
                 gradient: LinearGradient(
                   colors: [AppTheme.primaryViolet, AppTheme.neonPurple],
                 ),
-                onTap: () => context.push('/settings/about'),
+                onTap: () => context.push(RouteConstants.about),
               ),
               FuturisticSettingsItem(
                 icon: Icons.star_rounded,
@@ -504,13 +504,13 @@ class _SettingsPageState extends State<SettingsPage>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    AppTheme.darkCard.withOpacity(0.6),
-                    AppTheme.darkCard.withOpacity(0.4),
+                    AppTheme.darkCard.withValues(alpha: 0.6),
+                    AppTheme.darkCard.withValues(alpha: 0.4),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: gradient.colors[0].withOpacity(0.3),
+                  color: gradient.colors[0].withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -576,14 +576,14 @@ class _SettingsPageState extends State<SettingsPage>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.error.withOpacity(0.9),
-              AppTheme.warning.withOpacity(0.8),
+              AppTheme.error.withValues(alpha: 0.9),
+              AppTheme.warning.withValues(alpha: 0.8),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.error.withOpacity(0.25),
+              color: AppTheme.error.withValues(alpha: 0.25),
               blurRadius: 20,
               spreadRadius: 2,
               offset: const Offset(0, 4),
@@ -650,14 +650,14 @@ class _SettingsPageState extends State<SettingsPage>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.error.withOpacity(0.8),
-              AppTheme.error.withOpacity(0.6),
+              AppTheme.error.withValues(alpha: 0.8),
+              AppTheme.error.withValues(alpha: 0.6),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.error.withOpacity(0.3),
+              color: AppTheme.error.withValues(alpha: 0.3),
               blurRadius: 20,
               spreadRadius: 2,
               offset: const Offset(0, 4),
@@ -704,17 +704,17 @@ class _SettingsPageState extends State<SettingsPage>
         return BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: AlertDialog(
-            backgroundColor: AppTheme.darkCard.withOpacity(0.95),
+            backgroundColor: AppTheme.darkCard.withValues(alpha: 0.95),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
               side: BorderSide(
-                color: AppTheme.error.withOpacity(0.3),
+                color: AppTheme.error.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
             title: ShaderMask(
               shaderCallback: (bounds) => LinearGradient(
-                colors: [AppTheme.error, AppTheme.error.withOpacity(0.8)],
+                colors: [AppTheme.error, AppTheme.error.withValues(alpha: 0.8)],
               ).createShader(bounds),
               child: const Text(
                 'تسجيل الخروج',
@@ -741,7 +741,10 @@ class _SettingsPageState extends State<SettingsPage>
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppTheme.error, AppTheme.error.withOpacity(0.8)],
+                    colors: [
+                      AppTheme.error,
+                      AppTheme.error.withValues(alpha: 0.8)
+                    ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -777,7 +780,6 @@ class _SettingsPageState extends State<SettingsPage>
       BuildContext context, String currentCurrency) {
     // Implementation similar to logout dialog
   }
-
   String _getCurrencyName(String code) {
     switch (code) {
       case 'YER':
@@ -796,7 +798,6 @@ class _SettingsPageState extends State<SettingsPage>
   void _rateApp() {
     // TODO: Implement app rating
   }
-
   void _shareApp() {
     // TODO: Implement app sharing
   }
@@ -804,10 +805,9 @@ class _SettingsPageState extends State<SettingsPage>
 
 // Background Painter
 class _SettingsBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
-
   _SettingsBackgroundPainter({required this.animationValue});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -821,7 +821,8 @@ class _SettingsBackgroundPainter extends CustomPainter {
 
       paint.shader = RadialGradient(
         colors: [
-          AppTheme.primaryPurple.withOpacity(0.05 + animationValue * 0.02),
+          AppTheme.primaryPurple
+              .withValues(alpha: 0.05 + animationValue * 0.02),
           Colors.transparent,
         ],
       ).createShader(Rect.fromCircle(center: offset, radius: 100));
@@ -853,10 +854,9 @@ class _SettingsBackgroundPainter extends CustomPainter {
 
 // Grid Pattern Painter
 class _GridPatternPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
-
   _GridPatternPainter({required this.animationValue});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -872,7 +872,7 @@ class _GridPatternPainter extends CustomPainter {
         end: Alignment.bottomCenter,
         colors: [
           Colors.transparent,
-          AppTheme.primaryBlue.withOpacity(0.1 + animationValue * 0.05),
+          AppTheme.primaryBlue.withValues(alpha: 0.1 + animationValue * 0.05),
           Colors.transparent,
         ],
       ).createShader(Rect.fromLTWH(x, 0, 1, size.height));
@@ -890,7 +890,7 @@ class _GridPatternPainter extends CustomPainter {
         end: Alignment.centerRight,
         colors: [
           Colors.transparent,
-          AppTheme.primaryPurple.withOpacity(0.1 + animationValue * 0.05),
+          AppTheme.primaryPurple.withValues(alpha: 0.1 + animationValue * 0.05),
           Colors.transparent,
         ],
       ).createShader(Rect.fromLTWH(0, y, size.width, 1));
@@ -909,14 +909,13 @@ class _GridPatternPainter extends CustomPainter {
 
 /// ديالوج حذف حساب المالك
 class _DeleteOwnerAccountDialog extends StatefulWidget {
+  /// العربية: يعالج `Function`.
   final void Function(String password, String? reason) onConfirm;
   final VoidCallback onSuccess;
-
   const _DeleteOwnerAccountDialog({
     required this.onConfirm,
     required this.onSuccess,
   });
-
   @override
   State<_DeleteOwnerAccountDialog> createState() =>
       _DeleteOwnerAccountDialogState();
@@ -927,7 +926,6 @@ class _DeleteOwnerAccountDialogState extends State<_DeleteOwnerAccountDialog> {
   final TextEditingController _reasonController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
-
   @override
   void dispose() {
     _passwordController.dispose();

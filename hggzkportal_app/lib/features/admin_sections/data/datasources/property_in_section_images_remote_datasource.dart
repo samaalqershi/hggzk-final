@@ -9,6 +9,7 @@ import 'package:hggzkportal/core/utils/video_utils.dart';
 import '../models/section_image_model.dart';
 
 abstract class PropertyInSectionImagesRemoteDataSource {
+  /// العربية: يعالج `uploadImage`.
   Future<SectionImageModel> uploadImage({
     String? propertyInSectionId,
     String? tempKey,
@@ -27,12 +28,15 @@ abstract class PropertyInSectionImagesRemoteDataSource {
   });
 
   Future<bool> updateImage(String imageId, Map<String, dynamic> data);
+
   Future<bool> deleteImage(String imageId);
+
   Future<bool> reorderImages(
     String? propertyInSectionId,
     String? tempKey,
     List<String> imageIds,
   );
+
   Future<bool> setAsPrimaryImage(
     String? propertyInSectionId,
     String? tempKey,
@@ -43,6 +47,7 @@ abstract class PropertyInSectionImagesRemoteDataSource {
 class PropertyInSectionImagesRemoteDataSourceImpl
     implements PropertyInSectionImagesRemoteDataSource {
   final ApiClient apiClient;
+
   static const String _baseEndpoint = '/api/admin/property-in-section-images';
 
   PropertyInSectionImagesRemoteDataSourceImpl({required this.apiClient});

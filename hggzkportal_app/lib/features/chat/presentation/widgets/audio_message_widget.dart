@@ -7,21 +7,41 @@ import 'package:hggzkportal/injection_container.dart';
 import 'package:hggzkportal/services/local_storage_service.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/constants/storage_constants.dart';
-import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/image_utils.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../../../core/network/api_client.dart';
 import '../../domain/entities/attachment.dart';
 
+/// يعرّف الكلاس `AudioMessageWidget`.
+/// Describes the `AudioMessageWidget` class.
 class AudioMessageWidget extends StatefulWidget {
+  /// Holds the `attachment` value.
+  /// العربية: يخزن القيمة `attachment`.
   final Attachment attachment;
+
+  /// يخزن العضو `isMe`.
+  /// Holds the `isMe` member.
   final bool isMe;
+
+  /// يخزن العضو `bubbleColor`.
+  /// Holds the `bubbleColor` member.
   final Color bubbleColor;
+
+  /// يخزن العضو `waveformColor`.
+  /// Holds the `waveformColor` member.
   final Color waveformColor;
+
+  /// يخزن العضو `senderName`.
+  /// Holds the `senderName` member.
   final String? senderName;
+
+  /// يخزن العضو `senderAvatar`.
+  /// Holds the `senderAvatar` member.
   final String? senderAvatar;
 
+  /// ينشئ مثيلاً من `AudioMessageWidget`.
+  /// Builds an instance of `AudioMessageWidget`.
   const AudioMessageWidget({
     super.key,
     required this.attachment,
@@ -32,35 +52,95 @@ class AudioMessageWidget extends StatefulWidget {
     this.senderAvatar,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<AudioMessageWidget> createState() => _AudioMessageWidgetState();
 }
 
+/// يعرّف الكلاس `_AudioMessageWidgetState`.
+/// Describes the `_AudioMessageWidgetState` class.
 class _AudioMessageWidgetState extends State<AudioMessageWidget>
     with TickerProviderStateMixin {
+  /// يخزن العضو `_audioPlayer`.
+  /// Holds the `_audioPlayer` member.
   AudioPlayer? _audioPlayer;
+
+  /// يخزن العضو `_playPauseAnimationController`.
+  /// Holds the `_playPauseAnimationController` member.
   late AnimationController _playPauseAnimationController;
+
+  /// يخزن العضو `_waveAnimationController`.
+  /// Holds the `_waveAnimationController` member.
   late AnimationController _waveAnimationController;
+
+  /// يخزن العضو `_playPauseAnimation`.
+  /// Holds the `_playPauseAnimation` member.
   late Animation<double> _playPauseAnimation;
 
+  /// يخزن العضو `_isPlaying`.
+  /// Holds the `_isPlaying` member.
   bool _isPlaying = false;
+
+  /// يخزن العضو `_isLoading`.
+  /// Holds the `_isLoading` member.
   bool _isLoading = false;
+
+  /// يخزن العضو `_hasError`.
+  /// Holds the `_hasError` member.
   bool _hasError = false;
+
+  /// يخزن العضو `_isPaused`.
+  /// Holds the `_isPaused` member.
   bool _isPaused = false;
+
+  /// يخزن العضو `_isPlayerInitialized`.
+  /// Holds the `_isPlayerInitialized` member.
   bool _isPlayerInitialized = false;
+
+  /// يخزن العضو `_position`.
+  /// Holds the `_position` member.
   Duration _position = Duration.zero;
+
+  /// يخزن العضو `_duration`.
+  /// Holds the `_duration` member.
   Duration _duration = Duration.zero;
+
+  /// يخزن العضو `_uploadProgress`.
+  /// Holds the `_uploadProgress` member.
   double _uploadProgress = 0.0;
+
+  /// يخزن العضو `_playbackSpeed`.
+  /// Holds the `_playbackSpeed` member.
   double _playbackSpeed = 1.0;
+
+  /// يخزن العضو `_progressTimer`.
+  /// Holds the `_progressTimer` member.
   Timer? _progressTimer;
+
+  /// يخزن العضو `_loadAttempts`.
+  /// Holds the `_loadAttempts` member.
   int _loadAttempts = 0;
+
+  /// يخزن العضو `_maxLoadAttempts`.
+  /// Holds the `_maxLoadAttempts` member.
   static const int _maxLoadAttempts = 5;
+
+  /// يخزن العضو `_retryTimer`.
+  /// Holds the `_retryTimer` member.
   Timer? _retryTimer;
 
   // WhatsApp-style waveform data
+  /// يخزن العضو `_waveformData`.
+  /// Holds the `_waveformData` member.
   List<double> _waveformData = [];
+
+  /// يخزن العضو `_waveformBars`.
+  /// Holds the `_waveformBars` member.
   static const int _waveformBars = 27; // عدد أعمدة الموجة كما في WhatsApp
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -72,6 +152,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     }
 
     // توليد بيانات الموجة الصوتية
+    /// ينفذ العملية `_generateWaveformData`.
+    /// Runs the `_generateWaveformData` operation.
     _generateWaveformData();
 
     _playPauseAnimationController = AnimationController(
@@ -99,6 +181,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     }
   }
 
+  /// ينفذ العملية `_preflightFetch`.
+  /// Runs the `_preflightFetch` operation.
   Future<void> _preflightFetch(String url, Map<String, String> headers) async {
     try {
       final api = sl<ApiClient>();
@@ -118,6 +202,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     } catch (_) {}
   }
 
+  /// ينفذ العملية `didUpdateWidget`.
+  /// Runs the `didUpdateWidget` operation.
   @override
   void didUpdateWidget(covariant AudioMessageWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -168,6 +254,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     }
   }
 
+  /// ينفذ العملية `_generateWaveformData`.
+  /// Runs the `_generateWaveformData` operation.
   void _generateWaveformData() {
     final random = math.Random();
     _waveformData = List.generate(_waveformBars, (index) {
@@ -182,6 +270,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     });
   }
 
+  /// ينفذ العملية `_startProgressTimer`.
+  /// Runs the `_startProgressTimer` operation.
   void _startProgressTimer() {
     _progressTimer?.cancel();
     if (_uploadProgress >= 1.0) {
@@ -213,6 +303,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     });
   }
 
+  /// ينفذ العملية `_initializeAudio`.
+  /// Runs the `_initializeAudio` operation.
   Future<void> _initializeAudio({bool forceReset = false}) async {
     if (!mounted) return;
     if (_uploadProgress < 1.0) return;
@@ -342,6 +434,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     }
   }
 
+  /// ينفذ العملية `_resolveUploadProgress`.
+  /// Runs the `_resolveUploadProgress` operation.
   double _resolveUploadProgress(Attachment attachment) {
     final progress = attachment.downloadProgress;
     final fileUrl = attachment.fileUrl.trim();
@@ -361,6 +455,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     return hasRemoteUrl ? 1.0 : 0.0;
   }
 
+  /// ينفذ العملية `_extractInitialDuration`.
+  /// Runs the `_extractInitialDuration` operation.
   Duration? _extractInitialDuration(Attachment attachment) {
     num? seconds = attachment.duration;
 
@@ -390,6 +486,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     return Duration(milliseconds: (seconds * 1000).round());
   }
 
+  /// ينفذ العملية `_tryParseNum`.
+  /// Runs the `_tryParseNum` operation.
   double? _tryParseNum(dynamic value) {
     if (value == null) return null;
     if (value is num) return value.toDouble();
@@ -399,6 +497,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     return null;
   }
 
+  /// ينفذ العملية `_resolvePlayableUrl`.
+  /// Runs the `_resolvePlayableUrl` operation.
   String? _resolvePlayableUrl() {
     final fileUrl = widget.attachment.fileUrl.trim();
     if (fileUrl.isNotEmpty) {
@@ -422,6 +522,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     return null;
   }
 
+  /// ينفذ العملية `_normalizePlayableUrl`.
+  /// Runs the `_normalizePlayableUrl` operation.
   String _normalizePlayableUrl(String playableUrl) {
     final lower = playableUrl.toLowerCase();
     if (lower.startsWith('http://') || lower.startsWith('https://')) {
@@ -436,6 +538,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
         : ImageUtils.resolveUrl(playableUrl);
   }
 
+  /// ينفذ العملية `_buildAuthHeaders`.
+  /// Runs the `_buildAuthHeaders` operation.
   Map<String, String>? _buildAuthHeaders() {
     try {
       final local = sl<LocalStorageService>();
@@ -447,6 +551,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     return null;
   }
 
+  /// ينفذ العملية `_togglePlayback`.
+  /// Runs the `_togglePlayback` operation.
   void _togglePlayback() async {
     if (_isLoading || _hasError || _uploadProgress < 1.0) return;
 
@@ -459,6 +565,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     }
   }
 
+  /// ينفذ العملية `_changePlaybackSpeed`.
+  /// Runs the `_changePlaybackSpeed` operation.
   void _changePlaybackSpeed() async {
     if (_audioPlayer == null) return;
 
@@ -477,6 +585,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     await _audioPlayer!.setSpeed(newSpeed);
   }
 
+  /// ينفذ العملية `_seek`.
+  /// Runs the `_seek` operation.
   void _seek(double value) async {
     if (_audioPlayer == null || _duration.inMilliseconds == 0) return;
 
@@ -486,6 +596,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     await _audioPlayer!.seek(position);
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _progressTimer?.cancel();
@@ -496,6 +608,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -556,6 +670,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     );
   }
 
+  /// ينفذ العملية `_buildAvatarSection`.
+  /// Runs the `_buildAvatarSection` operation.
   Widget _buildAvatarSection() {
     const size = 34.0;
 
@@ -611,6 +727,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     }
   }
 
+  /// ينفذ العملية `_buildPlayPauseButton`.
+  /// Runs the `_buildPlayPauseButton` operation.
   Widget _buildPlayPauseButton() {
     final isUploading = _uploadProgress < 1.0;
     final iconColor =
@@ -674,6 +792,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     );
   }
 
+  /// ينفذ العملية `_buildUploadProgress`.
+  /// Runs the `_buildUploadProgress` operation.
   Widget _buildUploadProgress() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -697,6 +817,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     );
   }
 
+  /// ينفذ العملية `_buildWaveformSection`.
+  /// Runs the `_buildWaveformSection` operation.
   Widget _buildWaveformSection() {
     final progress = _duration.inMilliseconds > 0
         ? _position.inMilliseconds / _duration.inMilliseconds
@@ -737,6 +859,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     );
   }
 
+  /// ينفذ العملية `_buildBottomControls`.
+  /// Runs the `_buildBottomControls` operation.
   Widget _buildBottomControls() {
     return Padding(
       padding: const EdgeInsets.only(top: 4, left: 42),
@@ -800,6 +924,8 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     );
   }
 
+  /// ينفذ العملية `_formatDuration`.
+  /// Runs the `_formatDuration` operation.
   String _formatDuration(Duration duration) {
     final minutes = duration.inMinutes;
     final seconds = duration.inSeconds % 60;
@@ -808,14 +934,35 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
 }
 
 // WhatsApp-style waveform painter
+/// يعرّف الكلاس `_WhatsAppWaveformPainter`.
+/// Describes the `_WhatsAppWaveformPainter` class.
 class _WhatsAppWaveformPainter extends CustomPainter {
+  /// Holds the `waveformData` value.
+  /// العربية: يخزن القيمة `waveformData`.
   final List<double> waveformData;
+
+  /// يخزن العضو `progress`.
+  /// Holds the `progress` member.
   final double progress;
+
+  /// يخزن العضو `activeColor`.
+  /// Holds the `activeColor` member.
   final Color activeColor;
+
+  /// يخزن العضو `inactiveColor`.
+  /// Holds the `inactiveColor` member.
   final Color inactiveColor;
+
+  /// يخزن العضو `isPlaying`.
+  /// Holds the `isPlaying` member.
   final bool isPlaying;
+
+  /// يخزن العضو `animationValue`.
+  /// Holds the `animationValue` member.
   final double animationValue;
 
+  /// ينشئ مثيلاً من `_WhatsAppWaveformPainter`.
+  /// Builds an instance of `_WhatsAppWaveformPainter`.
   _WhatsAppWaveformPainter({
     required this.waveformData,
     required this.progress,
@@ -825,6 +972,8 @@ class _WhatsAppWaveformPainter extends CustomPainter {
     required this.animationValue,
   });
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     const barWidth = 2.0; // عرض العمود كما في WhatsApp
@@ -880,6 +1029,8 @@ class _WhatsAppWaveformPainter extends CustomPainter {
     }
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant _WhatsAppWaveformPainter oldDelegate) {
     return oldDelegate.progress != progress ||

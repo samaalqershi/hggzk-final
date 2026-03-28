@@ -27,7 +27,7 @@ class IconHelper {
     'gite': Icons.gite,
     'domain': Icons.domain,
     'foundation': Icons.foundation,
-    
+
     // أيقونات الغرف
     'bed': Icons.bed,
     'king_bed': Icons.king_bed,
@@ -45,7 +45,7 @@ class IconHelper {
     'balcony': Icons.balcony,
     'deck': Icons.deck,
     'yard': Icons.yard,
-    
+
     // أيقونات المرافق
     'pool': Icons.pool,
     'hot_tub': Icons.hot_tub,
@@ -61,7 +61,7 @@ class IconHelper {
     'fireplace': Icons.fireplace,
     'water_drop': Icons.water_drop,
     'electric_bolt': Icons.electric_bolt,
-    
+
     // أيقونات عامة
     'star': Icons.star,
     'favorite': Icons.favorite,
@@ -100,20 +100,42 @@ class IconHelper {
       case 'property':
       case 'عقارات':
         return _iconMap.entries
-            .where((e) => ['home', 'apartment', 'villa', 'business', 'store', 
-                          'hotel', 'house', 'cabin'].contains(e.key))
+            .where((e) => [
+                  'home',
+                  'apartment',
+                  'villa',
+                  'business',
+                  'store',
+                  'hotel',
+                  'house',
+                  'cabin'
+                ].contains(e.key))
             .toList();
       case 'room':
       case 'غرف':
         return _iconMap.entries
-            .where((e) => ['bed', 'bedroom_parent', 'bedroom_child', 'living',
-                          'dining_room', 'kitchen', 'bathroom'].contains(e.key))
+            .where((e) => [
+                  'bed',
+                  'bedroom_parent',
+                  'bedroom_child',
+                  'living',
+                  'dining_room',
+                  'kitchen',
+                  'bathroom'
+                ].contains(e.key))
             .toList();
       case 'facility':
       case 'مرافق':
         return _iconMap.entries
-            .where((e) => ['pool', 'hot_tub', 'fitness_center', 'spa',
-                          'local_parking', 'elevator', 'wifi'].contains(e.key))
+            .where((e) => [
+                  'pool',
+                  'hot_tub',
+                  'fitness_center',
+                  'spa',
+                  'local_parking',
+                  'elevator',
+                  'wifi'
+                ].contains(e.key))
             .toList();
       default:
         return _iconMap.entries.toList();

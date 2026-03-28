@@ -5,7 +5,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../domain/entities/chart_of_account.dart';
 
-/// 🌳 عرض شجرة الحسابات
 class AccountTreeWidget extends StatelessWidget {
   final List<ChartOfAccount> accounts;
   final ChartOfAccount? selectedAccount;
@@ -13,7 +12,6 @@ class AccountTreeWidget extends StatelessWidget {
   final Function(ChartOfAccount?) onAddSubAccount;
   final Function(ChartOfAccount) onEditAccount;
   final Function(ChartOfAccount) onDeleteAccount;
-
   const AccountTreeWidget({
     super.key,
     required this.accounts,
@@ -23,7 +21,6 @@ class AccountTreeWidget extends StatelessWidget {
     required this.onEditAccount,
     required this.onDeleteAccount,
   });
-
   @override
   Widget build(BuildContext context) {
     // Build tree structure
@@ -61,7 +58,6 @@ class _AccountNode extends StatefulWidget {
   final Function(ChartOfAccount) onEditAccount;
   final Function(ChartOfAccount) onDeleteAccount;
   final int level;
-
   const _AccountNode({
     required this.account,
     required this.allAccounts,
@@ -72,7 +68,6 @@ class _AccountNode extends StatefulWidget {
     required this.onDeleteAccount,
     required this.level,
   });
-
   @override
   State<_AccountNode> createState() => _AccountNodeState();
 }
@@ -83,7 +78,6 @@ class _AccountNodeState extends State<_AccountNode>
   late Animation<double> _expandAnimation;
   bool _isExpanded = false;
   bool _isHovered = false;
-
   @override
   void initState() {
     super.initState();
@@ -146,32 +140,32 @@ class _AccountNodeState extends State<_AccountNode>
                 gradient: LinearGradient(
                   colors: isSelected
                       ? [
-                          AppColors.primary.withOpacity(0.15),
-                          AppColors.primary.withOpacity(0.08),
+                          AppColors.primary.withValues(alpha: 0.15),
+                          AppColors.primary.withValues(alpha: 0.08),
                         ]
                       : _isHovered
                           ? [
                               AppColors.surface,
-                              AppColors.surface.withOpacity(0.8),
+                              AppColors.surface.withValues(alpha: 0.8),
                             ]
                           : [
                               AppColors.background,
-                              AppColors.background.withOpacity(0.95),
+                              AppColors.background.withValues(alpha: 0.95),
                             ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isSelected
-                      ? AppColors.primary.withOpacity(0.5)
+                      ? AppColors.primary.withValues(alpha: 0.5)
                       : _isHovered
-                          ? AppColors.primary.withOpacity(0.3)
-                          : AppColors.primary.withOpacity(0.1),
+                          ? AppColors.primary.withValues(alpha: 0.3)
+                          : AppColors.primary.withValues(alpha: 0.1),
                   width: isSelected ? 2 : 1,
                 ),
                 boxShadow: isSelected || _isHovered
                     ? [
                         BoxShadow(
-                          color: AppColors.primary.withOpacity(0.1),
+                          color: AppColors.primary.withValues(alpha: 0.1),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -188,7 +182,7 @@ class _AccountNodeState extends State<_AccountNode>
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
+                          color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: AnimatedRotation(
@@ -211,7 +205,7 @@ class _AccountNodeState extends State<_AccountNode>
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: _getAccountTypeColor(widget.account.accountType)
-                          .withOpacity(0.15),
+                          .withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -239,10 +233,12 @@ class _AccountNodeState extends State<_AccountNode>
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.accent.withOpacity(0.15),
+                                    color: AppColors.accent
+                                        .withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: AppColors.accent.withOpacity(0.3),
+                                      color: AppColors.accent
+                                          .withValues(alpha: 0.3),
                                       width: 1,
                                     ),
                                   ),
@@ -266,10 +262,12 @@ class _AccountNodeState extends State<_AccountNode>
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.error.withOpacity(0.15),
+                                    color:
+                                        AppColors.error.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: AppColors.error.withOpacity(0.3),
+                                      color: AppColors.error
+                                          .withValues(alpha: 0.3),
                                       width: 1,
                                     ),
                                   ),
@@ -299,8 +297,8 @@ class _AccountNodeState extends State<_AccountNode>
                                         vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
-                                        color:
-                                            AppColors.primary.withOpacity(0.1),
+                                        color: AppColors.primary
+                                            .withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
@@ -469,7 +467,7 @@ class _AccountNodeState extends State<_AccountNode>
         child: Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(

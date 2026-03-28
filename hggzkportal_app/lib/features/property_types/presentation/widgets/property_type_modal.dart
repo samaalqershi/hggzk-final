@@ -5,7 +5,9 @@ import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import 'icon_picker_modal.dart';
 
 class PropertyTypeModal extends StatefulWidget {
+  /// العربية: يخزن القيمة `propertyType`.
   final dynamic propertyType;
+
   final Function(Map<String, dynamic>) onSave;
 
   const PropertyTypeModal({
@@ -20,9 +22,13 @@ class PropertyTypeModal extends StatefulWidget {
 
 class _PropertyTypeModalState extends State<PropertyTypeModal> {
   final _formKey = GlobalKey<FormState>();
+
   late TextEditingController _nameController;
+
   late TextEditingController _descriptionController;
+
   late List<String> _amenities;
+
   late String _selectedIcon;
 
   @override
@@ -66,13 +72,13 @@ class _PropertyTypeModalState extends State<PropertyTypeModal> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -118,13 +124,13 @@ class _PropertyTypeModalState extends State<PropertyTypeModal> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryBlue.withOpacity(0.1),
-            AppTheme.primaryPurple.withOpacity(0.05),
+            AppTheme.primaryBlue.withValues(alpha: 0.1),
+            AppTheme.primaryPurple.withValues(alpha: 0.05),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -190,26 +196,26 @@ class _PropertyTypeModalState extends State<PropertyTypeModal> {
           decoration: InputDecoration(
             hintText: 'أدخل اسم نوع الكيان',
             hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             filled: true,
-            fillColor: AppTheme.darkSurface.withOpacity(0.5),
+            fillColor: AppTheme.darkSurface.withValues(alpha: 0.5),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.primaryBlue.withOpacity(0.5),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -241,10 +247,10 @@ class _PropertyTypeModalState extends State<PropertyTypeModal> {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.darkSurface.withOpacity(0.5),
+              color: AppTheme.darkSurface.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -314,26 +320,26 @@ class _PropertyTypeModalState extends State<PropertyTypeModal> {
           decoration: InputDecoration(
             hintText: 'أدخل وصف نوع الكيان (اختياري)',
             hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             filled: true,
-            fillColor: AppTheme.darkSurface.withOpacity(0.5),
+            fillColor: AppTheme.darkSurface.withValues(alpha: 0.5),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.primaryBlue.withOpacity(0.5),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -359,10 +365,10 @@ class _PropertyTypeModalState extends State<PropertyTypeModal> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppTheme.darkSurface.withOpacity(0.5),
+            color: AppTheme.darkSurface.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
             ),
           ),
           child: Column(
@@ -377,7 +383,7 @@ class _PropertyTypeModalState extends State<PropertyTypeModal> {
                       decoration: InputDecoration(
                         hintText: 'أضف مرفق',
                         hintStyle: AppTextStyles.bodyMedium.copyWith(
-                          color: AppTheme.textMuted.withOpacity(0.5),
+                          color: AppTheme.textMuted.withValues(alpha: 0.5),
                         ),
                         border: InputBorder.none,
                       ),
@@ -419,13 +425,13 @@ class _PropertyTypeModalState extends State<PropertyTypeModal> {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            AppTheme.primaryBlue.withOpacity(0.2),
-                            AppTheme.primaryPurple.withOpacity(0.1),
+                            AppTheme.primaryBlue.withValues(alpha: 0.2),
+                            AppTheme.primaryPurple.withValues(alpha: 0.1),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: AppTheme.primaryBlue.withOpacity(0.3),
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -470,13 +476,13 @@ class _PropertyTypeModalState extends State<PropertyTypeModal> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.7),
-            AppTheme.darkSurface.withOpacity(0.5),
+            AppTheme.darkSurface.withValues(alpha: 0.7),
+            AppTheme.darkSurface.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -489,10 +495,10 @@ class _PropertyTypeModalState extends State<PropertyTypeModal> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkSurface.withOpacity(0.5),
+                  color: AppTheme.darkSurface.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.darkBorder.withOpacity(0.3),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -518,7 +524,7 @@ class _PropertyTypeModalState extends State<PropertyTypeModal> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),

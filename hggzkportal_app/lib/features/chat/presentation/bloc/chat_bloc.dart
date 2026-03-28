@@ -1,96 +1,193 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hggzkportal/core/error/failures.dart';
+import 'package:hggzkportal/core/usecases/usecase.dart';
+import 'package:hggzkportal/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:hggzkportal/features/chat/data/datasources/chat_local_datasource.dart';
+import 'package:hggzkportal/features/chat/domain/entities/attachment.dart';
+import 'package:hggzkportal/features/chat/domain/entities/conversation.dart';
+import 'package:hggzkportal/features/chat/domain/entities/message.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/add_reaction_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/archive_conversation_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/create_conversation_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/delete_conversation_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/delete_message_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/edit_message_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/get_admin_users_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/get_available_users_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/get_chat_settings_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/get_conversations_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/get_messages_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/mark_as_read_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/remove_reaction_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/search_chats_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/send_message_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/send_typing_indicator_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/unarchive_conversation_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/update_chat_settings_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/update_user_status_usecase.dart';
+import 'package:hggzkportal/features/chat/domain/usecases/upload_attachment_usecase.dart';
 import 'package:hggzkportal/features/chat/presentation/models/image_upload_info.dart';
 import 'package:hggzkportal/features/helpers/domain/entities/search_result.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
-import 'package:collection/collection.dart';
-
-import '../../../../core/error/failures.dart';
-import '../../../../core/usecases/usecase.dart';
-import '../../../../services/websocket_service.dart';
 import 'package:hggzkportal/services/notification_service.dart';
 import 'package:hggzkportal/injection_container.dart' as di;
 import 'package:hggzkportal/services/media_pipeline.dart';
-import '../../data/datasources/chat_local_datasource.dart';
-import '../../domain/entities/attachment.dart';
-import '../../domain/entities/conversation.dart';
-import '../../domain/entities/message.dart';
-import '../../domain/usecases/get_conversations_usecase.dart';
-import '../../domain/usecases/get_messages_usecase.dart';
-import '../../domain/usecases/send_message_usecase.dart';
-import '../../domain/usecases/create_conversation_usecase.dart';
-import '../../domain/usecases/delete_conversation_usecase.dart';
-import '../../domain/usecases/archive_conversation_usecase.dart';
-import '../../domain/usecases/unarchive_conversation_usecase.dart';
-import '../../domain/usecases/delete_message_usecase.dart';
-import '../../domain/usecases/edit_message_usecase.dart';
-import '../../domain/usecases/add_reaction_usecase.dart';
-import '../../domain/usecases/remove_reaction_usecase.dart';
-import '../../domain/usecases/mark_as_read_usecase.dart';
-import '../../../auth/domain/usecases/get_current_user_usecase.dart';
-import '../../domain/usecases/send_typing_indicator_usecase.dart';
-import '../../domain/usecases/upload_attachment_usecase.dart';
-import '../../domain/usecases/search_chats_usecase.dart';
-import '../../domain/usecases/get_available_users_usecase.dart';
-import '../../domain/usecases/get_admin_users_usecase.dart';
-import '../../domain/usecases/update_user_status_usecase.dart';
-import '../../domain/usecases/get_chat_settings_usecase.dart';
-import '../../domain/usecases/update_chat_settings_usecase.dart';
+import 'package:hggzkportal/services/websocket_service.dart';
+
 part 'chat_event.dart';
 part 'chat_state.dart';
 
-/// BLoC لإدارة الشات بالكامل مع جميع المزايا المتقدمة
+/// يدير دورة حياة الشات كاملة من تحميل المحادثات والرسائل إلى
+/// التفاعل اللحظي والرفع والبحث والإعدادات.
+/// Manages the full chat lifecycle from loading conversations and
+/// messages to realtime updates, uploads, search, and settings.
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
-  // Use Cases
+  /// يجلب قائمة المحادثات مع التصفح الصفحي.
+  /// Fetches the conversation list with pagination support.
   final GetConversationsUseCase getConversationsUseCase;
+
+  /// يجلب رسائل محادثة محددة عند فتحها أو إعادة تحميلها.
+  /// Fetches messages for a specific conversation when it opens or
+  /// refreshes.
   final GetMessagesUseCase getMessagesUseCase;
+
+  /// يرسل الرسائل النصية أو الرسائل المرتبطة بالمرفقات والموقع.
+  /// Sends text messages or messages tied to attachments and
+  /// locations.
   final SendMessageUseCase sendMessageUseCase;
+
+  /// ينشئ محادثة جديدة مع المشاركين المحددين.
+  /// Initializes a new conversation with the selected participants.
   final CreateConversationUseCase createConversationUseCase;
+
+  /// يحذف المحادثات عندما يطلب المستخدم أو الإدارة ذلك.
+  /// Deletes conversations when requested by the user or admin.
   final DeleteConversationUseCase deleteConversationUseCase;
+
+  /// ينقل المحادثة إلى الأرشيف دون فقدان تاريخها.
+  /// Moves a conversation to the archive without losing history.
   final ArchiveConversationUseCase archiveConversationUseCase;
+
+  /// يعيد المحادثة من الأرشيف إلى الحالة النشطة.
+  /// Restores a conversation from the archive to active state.
   final UnarchiveConversationUseCase unarchiveConversationUseCase;
+
+  /// يحذف رسالة مفردة من سجل المحادثة.
+  /// Deletes a single message from the conversation history.
   final DeleteMessageUseCase deleteMessageUseCase;
+
+  /// يعدل نص الرسالة مع إبقاء هويتها وسياقها.
+  /// Edits a message while keeping its identity and context.
   final EditMessageUseCase editMessageUseCase;
+
+  /// يضيف تفاعلًا إلى رسالة.
+  /// Adds a reaction to a message.
   final AddReactionUseCase addReactionUseCase;
+
+  /// يزيل تفاعلًا سابقًا من رسالة.
+  /// Removes an existing reaction from a message.
   final RemoveReactionUseCase removeReactionUseCase;
+
+  /// يعلّم الرسائل كمقروءة حتى تتحدث مؤشرات غير المقروءة.
+  /// Marks messages as read so unread counters can update.
   final MarkAsReadUseCase markMessagesAsReadUseCase;
+
+  /// يرفع الملفات ويربطها بالرسائل داخل المحادثة.
+  /// Uploads files and binds them to messages in the conversation.
   final UploadAttachmentUseCase uploadAttachmentUseCase;
+
+  /// يبحث في المحادثات والرسائل وفق النص والمرشحات.
+  /// Searches conversations and messages using text and filters.
   final SearchChatsUseCase searchChatsUseCase;
+
+  /// يجلب المستخدمين المتاحين للبدء في محادثة جديدة.
+  /// Fetches users available for starting a new conversation.
   final GetAvailableUsersUseCase getAvailableUsersUseCase;
+
+  /// يجلب المستخدمين الإداريين لإعدادات أو مسارات خاصة.
+  /// Fetches admin users for special settings or flows.
   final GetAdminUsersUseCase getAdminUsersUseCase;
+
+  /// يحدث حالة المستخدم مثل online أو offline.
+  /// Updates a user's status such as online or offline.
   final UpdateUserStatusUseCase updateUserStatusUseCase;
+
+  /// يجلب إعدادات الشات الحالية حتى تبني الواجهة قيمها الأولية.
+  /// Fetches the current chat settings so the UI can build defaults.
   final GetChatSettingsUseCase getChatSettingsUseCase;
+
+  /// يحفظ تغييرات إعدادات الشات.
+  /// Persists chat-settings changes.
   final UpdateChatSettingsUseCase updateChatSettingsUseCase;
+
+  /// يرسل مؤشر الكتابة إلى المحادثة المستهدفة.
+  /// Sends typing indicators to the target conversation.
   final SendTypingIndicatorUseCase sendTypingIndicatorUseCase;
+
+  /// يحدد المستخدم الحالي لاستخدامه في الرسائل المتفائلة والحضور.
+  /// Resolves the current user for optimistic messaging and presence.
   final GetCurrentUserUseCase getCurrentUserUseCase;
 
-  // WebSocket Service
+  /// يغذي الـ BLoC برسائل الـ realtime القادمة من الخادم.
+  /// Streams realtime updates from the server into the BLoC.
   final ChatWebSocketService webSocketService;
+
+  /// يدير معالجة الوسائط قبل الرفع أو الإرسال.
+  /// Receives media processing before upload or sending.
   final MediaPipeline mediaPipeline;
 
-  // الاشتراكات
+  /// يراقب تدفق الرسائل الصادرة من WebSocket.
+  /// Observes incoming message events from the WebSocket stream.
   StreamSubscription? _webSocketMessagesSubscription;
+
+  /// يراقب مؤشرات الكتابة الواردة.
+  /// Observes incoming typing indicators.
   StreamSubscription? _webSocketTypingSubscription;
+
+  /// يراقب تحديثات حضور المستخدمين.
+  /// Observes user presence updates.
   StreamSubscription? _webSocketPresenceSubscription;
+
+  /// يراقب تحديثات المحادثات نفسها مثل التفعيل أو الأرشفة.
+  /// Observes conversation-level updates such as activation or
+  /// archiving.
   StreamSubscription? _webSocketConversationSubscription;
 
-  // حالات التحميل لكل محادثة
+  /// يحتفظ بحالة التحميل لكل محادثة حتى لا تتكرر الطلبات نفسها.
+  /// Keeps per-conversation loading state so duplicate requests are
+  /// avoided.
   final Map<String, bool> _conversationLoadingStates = {};
+
+  /// يتتبع آخر صفحة رسالة محملة لكل محادثة.
+  /// Tracks the last loaded message page for each conversation.
   final Map<String, int> _messagePages = {};
+
+  /// يحدد ما إذا كانت هناك رسائل أقدم قابلة للتحميل لكل محادثة.
+  /// Indicates whether older messages remain available per
+  /// conversation.
   final Map<String, bool> _hasMoreMessages = {};
 
-  // ذاكرة تخزين مؤقتة للرسائل المحملة
+  /// يمنع تكرار الرسائل عبر تخزين المعرفات التي جرى تحميلها.
+  /// Prevents duplicate messages by caching the ids that were already
+  /// loaded.
   final Map<String, Set<String>> _loadedMessageIds = {};
 
-  // قائمة انتظار الرسائل المتفائلة
+  /// يحتفظ بالرسائل المتفائلة لحين وصول التأكيد من الخادم.
+  /// Stores optimistic messages until the server confirms them.
   final Map<String, List<Message>> _optimisticMessages = {};
 
-  // تتبع عمليات الرفع النشطة
+  /// يتابع عمليات الرفع الجارية كي يمكن إلغاؤها أو تحديث تقدمها.
+  /// Tracks active uploads so they can be cancelled or updated.
   final Map<String, UploadTask> _activeUploads = {};
 
+  /// يربط الشات بكل استخداماته الأساسية ثم يبدأ من حالة ابتدائية
+  /// نظيفة.
+  /// Wires chat to all of its core use cases and starts from a clean
+  /// initial state.
   ChatBloc({
     required this.getConversationsUseCase,
     required this.getMessagesUseCase,
@@ -116,7 +213,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     required this.webSocketService,
     required this.mediaPipeline,
   }) : super(const ChatInitial()) {
-    // تسجيل معالجات الأحداث
+    // Register chat event handlers.
     on<InitializeChatEvent>(_onInitializeChat);
     on<LoadConversationsEvent>(_onLoadConversations);
     on<LoadMessagesEvent>(_onLoadMessages);
@@ -133,7 +230,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<MarkMessagesAsReadEvent>(_onMarkMessagesAsRead);
     on<UploadAttachmentEvent>(_onUploadAttachment);
     on<UploadMultipleAttachmentsEvent>(_onUploadMultipleAttachments);
-    // In-bubble image upload UI-driven events
+    // UI-driven events for in-bubble image uploads.
     on<StartImageUploadsEvent>(_onStartImageUploads);
     on<UpdateImageUploadProgressEvent>(_onUpdateImageUploadProgress);
     on<FinishImageUploadsEvent>(_onFinishImageUploads);
@@ -153,11 +250,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<RetryFailedMessageEvent>(_onRetryFailedMessage);
     on<CancelUploadEvent>(_onCancelUpload);
 
-    // تهيئة WebSocket
+    // Initialize realtime streams after the handlers are in place.
     _initializeWebSocket();
   }
 
   /// إعادة محاولة إرسال رسالة فاشلة (يدعم إعادة رفع المرفق المحلي)
+  /// يعيد محاولة رسالة فاشلة ويعيد ربط أي مرفق محلي إذا لزم.
+  /// Retries a failed message and reattaches any local media when
+  /// needed.
   Future<void> _onRetryFailedMessage(
     RetryFailedMessageEvent event,
     Emitter<ChatState> emit,
@@ -296,6 +396,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تهيئة اتصال WebSocket والاستماع للأحداث
+  /// يربط بث الشات اللحظي ويستقبل تحديثات الرسائل والحضور.
+  /// Connects the realtime chat stream and receives message and
+  /// presence updates.
   void _initializeWebSocket() {
     // الاستماع لرسائل WebSocket
     _webSocketMessagesSubscription =
@@ -335,6 +438,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تهيئة الشات
+  /// يجهز الشات للمرة الأولى عبر تحميل البيانات الأساسية وربط
+  /// المستمعين.
+  /// Prepares chat for first use by loading the core data and wiring
+  /// listeners.
   Future<void> _onInitializeChat(
     InitializeChatEvent event,
     Emitter<ChatState> emit,
@@ -382,6 +489,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تحميل المحادثات
+  /// يحمّل قائمة المحادثات مع دعم التصفح الصفحي والتحميل الأولي.
+  /// Loads the conversation list with pagination and initial fetch
+  /// support.
   Future<void> _onLoadConversations(
     LoadConversationsEvent event,
     Emitter<ChatState> emit,
@@ -428,6 +538,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تحميل الرسائل
+  /// يجلب رسائل محادثة واحدة ويهيئ مؤشرات التحميل الخاصة بها.
+  /// Fetches one conversation's messages and prepares its loading
+  /// indicators.
   Future<void> _onLoadMessages(
     LoadMessagesEvent event,
     Emitter<ChatState> emit,
@@ -497,6 +610,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تحميل المزيد من الرسائل (التمرير اللانهائي)
+  /// يطلب الرسائل الأقدم عند التمرير داخل المحادثة.
+  /// Requests older messages while the user scrolls inside the
+  /// conversation.
   Future<void> _onLoadMoreMessages(
     LoadMoreMessagesEvent event,
     Emitter<ChatState> emit,
@@ -568,6 +684,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// إرسال رسالة مع التحديث المتفائل
+  /// يرسل الرسالة ويضبط حالة الإرسال المتفائل والمرفقات المرتبطة بها.
+  /// Sends the message while managing optimistic state and its
+  /// attached media.
   Future<void> _onSendMessage(
     SendMessageEvent event,
     Emitter<ChatState> emit,
@@ -731,6 +850,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// رفع المرفقات المتعددة
+  /// يرفع دفعة مرفقات كاملة ثم يربط نتائجها بالمحادثة.
+  /// Uploads a full batch of attachments and binds the results back
+  /// to the conversation.
   Future<void> _onUploadMultipleAttachments(
     UploadMultipleAttachmentsEvent event,
     Emitter<ChatState> emit,
@@ -871,6 +993,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// رفع مرفق واحد
+  /// يرفع مرفقًا منفردًا ويحدّث تقدم العملية على الواجهة.
+  /// Uploads a single attachment and updates progress in the UI.
   Future<void> _onUploadAttachment(
     UploadAttachmentEvent event,
     Emitter<ChatState> emit,
@@ -1612,6 +1736,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// بدء دفعة رفع صور (تهيئة العناصر في الحالة)
+  /// يبدأ تتبع دفعة صور داخل المحادثة قبل بدء الرفع الفعلي.
+  /// Starts tracking an image batch in the conversation before the
+  /// actual upload begins.
   Future<void> _onStartImageUploads(
     StartImageUploadsEvent event,
     Emitter<ChatState> emit,
@@ -1637,6 +1764,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تحديث تقدّم/حالة عنصر رفع واحد داخل الدفعة
+  /// يحدّث نسبة تقدم صورة واحدة داخل الدفعة الجارية.
+  /// Updates the progress of a single image inside the active batch.
   Future<void> _onUpdateImageUploadProgress(
     UpdateImageUploadProgressEvent event,
     Emitter<ChatState> emit,
@@ -1668,6 +1797,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// إنهاء دفعة الرفع لمسح واجهة الرفع المؤقتة
+  /// ينهي تتبع دفعة الصور عندما تكتمل كل عمليات الرفع.
+  /// Ends image-batch tracking once all uploads finish.
   Future<void> _onFinishImageUploads(
     FinishImageUploadsEvent event,
     Emitter<ChatState> emit,
@@ -1683,6 +1814,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   // واجهة مساعدة عامة حتى تتمكن الواجهة من تتبع التقدم بدقة
+  /// يرفع مرفقًا مع بث التقدم خطوة بخطوة أثناء النقل.
+  /// Uploads an attachment while streaming progress updates during the
+  /// transfer.
   Future<void> uploadAttachmentWithProgress({
     required String conversationId,
     required String filePath,
@@ -1701,6 +1835,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تحديث تقدم الرفع
+  /// يضبط التقدم الداخلي لعملية رفع نشطة.
+  /// Adjusts the internal progress for an active upload.
   void _updateUploadProgress(
     Emitter<ChatState> emit,
     ChatLoaded currentState,
@@ -1725,6 +1861,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تحديث حالة الرفع
+  /// يغيّر حالة الرفع النشط عند النجاح أو الخطأ أو الإلغاء.
+  /// Changes the active upload state on success, failure, or cancel.
   void _updateUploadStatus(
     Emitter<ChatState> emit,
     ChatLoaded currentState,
@@ -1756,6 +1894,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// إلغاء عملية الرفع
+  /// يلغي رفعًا نشطًا ويزيل أثره من الحالة.
+  /// Cancels an active upload and clears it from state.
   Future<void> _onCancelUpload(
     CancelUploadEvent event,
     Emitter<ChatState> emit,
@@ -1784,6 +1924,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   // Duplicate older implementation removed to avoid duplicate definition
 
   /// إنشاء محادثة جديدة
+  /// ينشئ محادثة جديدة ثم ينعكس ذلك مباشرة في قائمة المحادثات.
+  /// Initializes a new conversation and reflects it immediately in the
+  /// conversation list.
   Future<void> _onCreateConversation(
     CreateConversationEvent event,
     Emitter<ChatState> emit,
@@ -1822,6 +1965,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// حذف محادثة
+  /// ينفذ العملية `_onDeleteConversation`.
+  /// Runs the `_onDeleteConversation` operation.
   Future<void> _onDeleteConversation(
     DeleteConversationEvent event,
     Emitter<ChatState> emit,
@@ -1861,6 +2006,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// أرشفة محادثة
+  /// ينفذ العملية `_onArchiveConversation`.
+  /// Runs the `_onArchiveConversation` operation.
   Future<void> _onArchiveConversation(
     ArchiveConversationEvent event,
     Emitter<ChatState> emit,
@@ -1908,6 +2055,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// إلغاء أرشفة محادثة
+  /// ينفذ العملية `_onUnarchiveConversation`.
+  /// Runs the `_onUnarchiveConversation` operation.
   Future<void> _onUnarchiveConversation(
     UnarchiveConversationEvent event,
     Emitter<ChatState> emit,
@@ -1955,6 +2104,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// حذف رسالة
+  /// ينفذ العملية `_onDeleteMessage`.
+  /// Runs the `_onDeleteMessage` operation.
   Future<void> _onDeleteMessage(
     DeleteMessageEvent event,
     Emitter<ChatState> emit,
@@ -2012,6 +2163,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تعديل رسالة
+  /// ينفذ العملية `_onEditMessage`.
+  /// Runs the `_onEditMessage` operation.
   Future<void> _onEditMessage(
     EditMessageEvent event,
     Emitter<ChatState> emit,
@@ -2089,6 +2242,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// إضافة تفاعل
+  /// ينفذ العملية `_onAddReaction`.
+  /// Runs the `_onAddReaction` operation.
   Future<void> _onAddReaction(
     AddReactionEvent event,
     Emitter<ChatState> emit,
@@ -2145,6 +2300,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// إزالة تفاعل
+  /// ينفذ العملية `_onRemoveReaction`.
+  /// Runs the `_onRemoveReaction` operation.
   Future<void> _onRemoveReaction(
     RemoveReactionEvent event,
     Emitter<ChatState> emit,
@@ -2209,6 +2366,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// وضع علامة قراءة على الرسائل
+  /// ينفذ العملية `_onMarkMessagesAsRead`.
+  /// Runs the `_onMarkMessagesAsRead` operation.
   Future<void> _onMarkMessagesAsRead(
     MarkMessagesAsReadEvent event,
     Emitter<ChatState> emit,
@@ -2293,6 +2452,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// البحث في الرسائل
+  /// ينفذ العملية `_onSearchChats`.
+  /// Runs the `_onSearchChats` operation.
   Future<void> _onSearchChats(
     SearchChatsEvent event,
     Emitter<ChatState> emit,
@@ -2333,6 +2494,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تحميل المستخدمين المتاحين
+  /// ينفذ العملية `_onLoadAvailableUsers`.
+  /// Runs the `_onLoadAvailableUsers` operation.
   Future<void> _onLoadAvailableUsers(
     LoadAvailableUsersEvent event,
     Emitter<ChatState> emit,
@@ -2361,6 +2524,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تحميل المشرفين
+  /// ينفذ العملية `_onLoadAdminUsers`.
+  /// Runs the `_onLoadAdminUsers` operation.
   Future<void> _onLoadAdminUsers(
     LoadAdminUsersEvent event,
     Emitter<ChatState> emit,
@@ -2384,6 +2549,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تحديث حالة المستخدم
+  /// ينفذ العملية `_onUpdateUserStatus`.
+  /// Runs the `_onUpdateUserStatus` operation.
   Future<void> _onUpdateUserStatus(
     UpdateUserStatusEvent event,
     Emitter<ChatState> emit,
@@ -2417,6 +2584,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تحميل إعدادات الشات
+  /// ينفذ العملية `_onLoadChatSettings`.
+  /// Runs the `_onLoadChatSettings` operation.
   Future<void> _onLoadChatSettings(
     LoadChatSettingsEvent event,
     Emitter<ChatState> emit,
@@ -2440,6 +2609,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تحديث إعدادات الشات
+  /// ينفذ العملية `_onUpdateChatSettings`.
+  /// Runs the `_onUpdateChatSettings` operation.
   Future<void> _onUpdateChatSettings(
     UpdateChatSettingsEvent event,
     Emitter<ChatState> emit,
@@ -2502,6 +2673,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// إرسال مؤشر الكتابة
+  /// ينفذ العملية `_onSendTypingIndicator`.
+  /// Runs the `_onSendTypingIndicator` operation.
   Future<void> _onSendTypingIndicator(
     SendTypingIndicatorEvent event,
     Emitter<ChatState> emit,
@@ -2515,6 +2688,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// معالجة رسالة WebSocket
+  /// ينفذ العملية `_onWebSocketMessageReceived`.
+  /// Runs the `_onWebSocketMessageReceived` operation.
   Future<void> _onWebSocketMessageReceived(
     WebSocketMessageReceivedEvent event,
     Emitter<ChatState> emit,
@@ -2547,6 +2722,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// معالجة رسالة جديدة من WebSocket
+  /// ينفذ العملية `_handleNewMessage`.
+  /// Runs the `_handleNewMessage` operation.
   Future<void> _handleNewMessage(
     MessageEvent event,
     ChatLoaded currentState,
@@ -2654,6 +2831,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// معالجة تحديث رسالة من WebSocket
+  /// ينفذ العملية `_handleMessageUpdated`.
+  /// Runs the `_handleMessageUpdated` operation.
   Future<void> _handleMessageUpdated(
     MessageEvent event,
     ChatLoaded currentState,
@@ -2677,6 +2856,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// معالجة حذف رسالة من WebSocket
+  /// ينفذ العملية `_handleMessageDeleted`.
+  /// Runs the `_handleMessageDeleted` operation.
   Future<void> _handleMessageDeleted(
     MessageEvent event,
     ChatLoaded currentState,
@@ -2717,6 +2898,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// معالجة إضافة تفاعل من WebSocket
+  /// ينفذ العملية `_handleReactionAdded`.
+  /// Runs the `_handleReactionAdded` operation.
   Future<void> _handleReactionAdded(
     MessageEvent event,
     ChatLoaded currentState,
@@ -2736,6 +2919,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// معالجة إزالة تفاعل من WebSocket
+  /// ينفذ العملية `_handleReactionRemoved`.
+  /// Runs the `_handleReactionRemoved` operation.
   Future<void> _handleReactionRemoved(
     MessageEvent event,
     ChatLoaded currentState,
@@ -2755,6 +2940,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// معالجة تحديث حالة الرسالة من WebSocket
+  /// ينفذ العملية `_handleStatusUpdated`.
+  /// Runs the `_handleStatusUpdated` operation.
   Future<void> _handleStatusUpdated(
     MessageEvent event,
     ChatLoaded currentState,
@@ -2798,6 +2985,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   /// معالجة تحديث المحادثة من WebSocket
   /// معالجة تحديث المحادثة من WebSocket
+  /// ينفذ العملية `_onWebSocketConversationUpdated`.
+  /// Runs the `_onWebSocketConversationUpdated` operation.
   Future<void> _onWebSocketConversationUpdated(
     WebSocketConversationUpdatedEvent event,
     Emitter<ChatState> emit,
@@ -2819,6 +3008,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// معالجة مؤشر الكتابة من WebSocket
+  /// ينفذ العملية `_onWebSocketTypingIndicator`.
+  /// Runs the `_onWebSocketTypingIndicator` operation.
   Future<void> _onWebSocketTypingIndicator(
     WebSocketTypingIndicatorEvent event,
     Emitter<ChatState> emit,
@@ -2848,6 +3039,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// معالجة تحديث الحضور من WebSocket
+  /// ينفذ العملية `_onWebSocketPresenceUpdate`.
+  /// Runs the `_onWebSocketPresenceUpdate` operation.
   Future<void> _onWebSocketPresenceUpdate(
     WebSocketPresenceUpdateEvent event,
     Emitter<ChatState> emit,
@@ -2926,6 +3119,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// مسح ذاكرة التخزين المؤقت للمحادثة
+  /// ينفذ العملية `_onClearConversationCache`.
+  /// Runs the `_onClearConversationCache` operation.
   Future<void> _onClearConversationCache(
     ClearConversationCacheEvent event,
     Emitter<ChatState> emit,
@@ -2957,6 +3152,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تحديث المحادثة
+  /// ينفذ العملية `_onRefreshConversation`.
+  /// Runs the `_onRefreshConversation` operation.
   Future<void> _onRefreshConversation(
     RefreshConversationEvent event,
     Emitter<ChatState> emit,
@@ -2973,6 +3170,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// دمج المحادثات الجديدة مع القديمة
+  /// ينفذ العملية `_mergeConversations`.
+  /// Runs the `_mergeConversations` operation.
   List<Conversation> _mergeConversations(
     List<Conversation> existing,
     List<Conversation> newConversations,
@@ -2997,6 +3196,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// دمج الرسائل الجديدة مع القديمة
+  /// ينفذ العملية `_mergeMessages`.
+  /// Runs the `_mergeMessages` operation.
   List<Message> _mergeMessages(
     List<Message> existing,
     List<Message> newMessages,
@@ -3024,6 +3225,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   /// تحديث تفاعل الرسالة
+  /// ينفذ العملية `_updateMessageReaction`.
+  /// Runs the `_updateMessageReaction` operation.
   Map<String, List<Message>> _updateMessageReaction(
       Map<String, List<Message>> messages,
       String messageId,
@@ -3076,52 +3279,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     return updatedMessages;
   }
 
-  /// استبدال التفاعل المتفائل بالفعلي
-  Map<String, List<Message>> _replaceOptimisticReaction(
-    Map<String, List<Message>> messages,
-    String messageId,
-    String optimisticReactionId,
-    MessageReaction actualReaction,
-  ) {
-    final updatedMessages = Map<String, List<Message>>.from(messages);
-
-    updatedMessages.forEach((conversationId, messageList) {
-      final messageIndex = messageList.indexWhere((msg) => msg.id == messageId);
-      if (messageIndex != -1) {
-        final message = messageList[messageIndex];
-        final updatedReactions = message.reactions.map((r) {
-          if (r.id == optimisticReactionId) {
-            return actualReaction;
-          }
-          return r;
-        }).toList();
-
-        messageList[messageIndex] = Message(
-          id: message.id,
-          conversationId: message.conversationId,
-          senderId: message.senderId,
-          senderName: message.senderName,
-          messageType: message.messageType,
-          content: message.content,
-          location: message.location,
-          replyToMessageId: message.replyToMessageId,
-          attachments: message.attachments,
-          reactions: updatedReactions,
-          createdAt: message.createdAt,
-          updatedAt: message.updatedAt,
-          status: message.status,
-          isEdited: message.isEdited,
-          editedAt: message.editedAt,
-          isDeleted: message.isDeleted,
-          deliveryReceipt: message.deliveryReceipt,
-        );
-      }
-    });
-
-    return updatedMessages;
-  }
-
   /// تحويل الفشل إلى رسالة
+  /// ينفذ العملية `_mapFailureToMessage`.
+  /// Runs the `_mapFailureToMessage` operation.
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
       case ServerFailure:
@@ -3145,6 +3305,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }
   }
 
+  /// ينفذ العملية `close`.
+  /// Runs the `close` operation.
   @override
   Future<void> close() {
     // إلغاء جميع الاشتراكات
@@ -3171,38 +3333,67 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 }
 
-/// فئة لتتبع مهام الرفع
+/// تمثل مهمة رفع واحدة مرتبطة بملف محدد.
+/// Represents a single upload task tied to a file path.
 class UploadTask {
+  /// Holds the `controller` value.
+  /// العربية: يخزن القيمة `controller`.
   final UploadController controller;
+
+  /// يخزن العضو `filePath`.
+  /// Holds the `filePath` member.
   final String filePath;
 
+  /// ينشئ مثيلاً من `UploadTask`.
+  /// Builds an instance of `UploadTask`.
   UploadTask({
     required this.controller,
     required this.filePath,
   });
 }
 
-/// وحدة تحكم في عملية الرفع
+/// تتحكم في إلغاء عملية الرفع وتتابع حالتها.
+/// Controls upload cancellation and tracks its state.
 class UploadController {
   final cancelToken = CancelToken();
+
+  /// يخزن العضو `_isCancelled`.
+  /// Holds the `_isCancelled` member.
   bool _isCancelled = false;
 
+  /// يعيد قيمة `isCancelled`.
+  /// Exposes the `isCancelled` value.
   bool get isCancelled => _isCancelled;
 
+  /// ينفذ العملية `cancel`.
+  /// Runs the `cancel` operation.
   void cancel() {
     _isCancelled = true;
     cancelToken.cancel('Upload cancelled by user');
   }
 }
 
-/// رمز إلغاء (محاكاة Dio CancelToken)
+/// رمز إلغاء مبسط يحاكي `Dio CancelToken`.
+/// A lightweight cancellation token that mimics `Dio CancelToken`.
 class CancelToken {
+  /// Indicates whether `isCancelled` is enabled.
+  /// العربية: يحدد ما إذا كانت القيمة `isCancelled` مفعلة.
   bool _isCancelled = false;
+
+  /// يخزن العضو `_cancelReason`.
+  /// Holds the `_cancelReason` member.
   String? _cancelReason;
 
+  /// يعيد قيمة `isCancelled`.
+  /// Exposes the `isCancelled` value.
   bool get isCancelled => _isCancelled;
+
+  /// يعيد قيمة `cancelReason`.
+  /// Exposes the `cancelReason` value.
   String? get cancelReason => _cancelReason;
 
+  /// ينفذ العملية `cancel`.
+  /// Runs the `cancel` operation.
   void cancel([String? reason]) {
     _isCancelled = true;
     _cancelReason = reason;

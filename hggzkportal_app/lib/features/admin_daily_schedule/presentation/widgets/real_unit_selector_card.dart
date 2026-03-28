@@ -7,10 +7,15 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../admin_units/domain/entities/unit.dart';
 
 class RealUnitSelectorCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `selectedUnitId`.
   final String? selectedUnitId;
+
   final String? selectedUnitName;
+
   final String? selectedPropertyId;
+
   final Function(String id, String name) onUnitSelected;
+
   final bool isCompact;
 
   const RealUnitSelectorCard({
@@ -29,6 +34,7 @@ class RealUnitSelectorCard extends StatefulWidget {
 class _RealUnitSelectorCardState extends State<RealUnitSelectorCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   late Animation<double> _glowAnimation;
 
   @override
@@ -64,20 +70,20 @@ class _RealUnitSelectorCardState extends State<RealUnitSelectorCard>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.7),
-                AppTheme.darkCard.withOpacity(0.5),
+                AppTheme.darkCard.withValues(alpha: 0.7),
+                AppTheme.darkCard.withValues(alpha: 0.5),
               ],
             ),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: AppTheme.primaryBlue
-                  .withOpacity(0.2 + 0.1 * _glowAnimation.value),
+                  .withValues(alpha: 0.2 + 0.1 * _glowAnimation.value),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
                 color: AppTheme.primaryBlue
-                    .withOpacity(0.1 * _glowAnimation.value),
+                    .withValues(alpha: 0.1 * _glowAnimation.value),
                 blurRadius: 15,
                 spreadRadius: 1,
               ),
@@ -185,7 +191,7 @@ class _RealUnitSelectorCardState extends State<RealUnitSelectorCard>
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.caption.copyWith(
                       color: widget.selectedUnitName == null
-                          ? AppTheme.textMuted.withOpacity(0.5)
+                          ? AppTheme.textMuted.withValues(alpha: 0.5)
                           : AppTheme.textWhite,
                       fontWeight: FontWeight.w600,
                     ),

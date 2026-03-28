@@ -1,7 +1,13 @@
 import '../../domain/entities/auth_response.dart';
 import 'user_model.dart';
 
+/// يترجم استجابة المصادقة الخام من الخادم إلى تمثيل موحد يمكن لبقية طبقات
+/// التطبيق الاعتماد عليه.
+/// Converts raw authentication responses from the backend into a normalized
+/// representation consumable by the rest of the app.
 class AuthResponseModel extends AuthResponse {
+  /// ينشئ النموذج مع الحقول الأساسية للجلسة والمستخدم.
+  /// Creates the model with the essential user and session fields.
   const AuthResponseModel({
     required super.user,
     required super.accessToken,
@@ -9,6 +15,10 @@ class AuthResponseModel extends AuthResponse {
     super.expiresAt,
   });
 
+  /// يبني النموذج من JSON مع دعم أكثر من شكل للحمولة كما تأتي من نقاط النهاية
+  /// المختلفة.
+  /// Builds the model from JSON while supporting multiple payload shapes used
+  /// by different authentication endpoints.
   factory AuthResponseModel.fromJson(Map<String, dynamic> json) {
     // Tokens from Common AuthResultDto or Client DTOs
     final accessToken = json['accessToken'] ?? json['newAccessToken'] ?? '';
@@ -45,6 +55,8 @@ class AuthResponseModel extends AuthResponse {
     );
   }
 
+  /// يحول النموذج إلى JSON لتخزينه محليًا أو إعادة استخدامه داخل التطبيق.
+  /// Converts the model to JSON for local caching or reuse inside the app.
   Map<String, dynamic> toJson() {
     return {
       'userId': user.userId,
@@ -58,6 +70,8 @@ class AuthResponseModel extends AuthResponse {
     };
   }
 
+  /// ينشئ نموذج بيانات من كيان المجال عندما نحتاج تمريره إلى طبقة التخزين.
+  /// Creates a data model from the domain entity when it needs to be cached.
   factory AuthResponseModel.fromEntity(AuthResponse authResponse) {
     return AuthResponseModel(
       user: authResponse.user,

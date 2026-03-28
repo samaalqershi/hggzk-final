@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -17,36 +16,80 @@ import '../bloc/cities_bloc.dart';
 import '../bloc/cities_event.dart';
 import '../bloc/cities_state.dart';
 
+/// Form page used to create a new city or edit an existing one.
+///
+/// صفحة نموذج تُستخدم لإنشاء مدينة جديدة أو تعديل مدينة موجودة.
 class CityFormPage extends StatefulWidget {
+  /// Existing city data when the form is opened in edit mode.
+  ///
+  /// بيانات المدينة الحالية عندما يفتح النموذج في وضع التعديل.
   final City? city;
 
+  /// Opens the form in either create or edit mode based on the provided city.
+  ///
+  /// يفتح النموذج في وضع الإنشاء أو التعديل بحسب المدينة الممررة.
   const CityFormPage({
     super.key,
     this.city,
   });
-
   @override
   State<CityFormPage> createState() => _CityFormPageState();
 }
 
+/// Arabic: يدير حالة نموذج المدينة بما في ذلك التحرير والرفع والحفظ والتحقق من التغييرات.
+/// English: Manages the city form state, including editing, uploads, saving, and change tracking.
 class _CityFormPageState extends State<CityFormPage>
     with TickerProviderStateMixin {
+  /// Arabic: يتحكم في الحركة العامة لظهور الصفحة.
+  /// English: Drives the overall page entrance animation.
   late AnimationController _animationController;
+
+  /// Arabic: ينسق حركة ظهور أجزاء النموذج نفسها.
+  /// English: Controls the entrance animation for the form sections.
   late AnimationController _formAnimationController;
+
+  /// Arabic: يفعّل نبضًا مرئيًا لزر الحفظ في الشريط السفلي.
+  /// English: Creates the pulsing visual cue for the bottom save button.
   late AnimationController _saveButtonAnimationController;
 
+  /// Arabic: يتحكم في إدخال اسم المدينة.
+  /// English: Controls the city name input field.
   late TextEditingController _nameController;
+
+  /// Arabic: يتحكم في إدخال اسم الدولة.
+  /// English: Controls the country input field.
   late TextEditingController _countryController;
 
+  /// Arabic: يحتفظ بروابط الصور الحالية المرتبطة بالمدينة.
+  /// English: Stores the current image URLs associated with the city.
   List<String> _images = [];
+
+  /// Arabic: يتابع تقدم رفع كل صورة محلية قيد المعالجة.
+  /// English: Tracks upload progress for each local image being processed.
   final Map<String, double> _uploadProgress = {};
+
+  /// Arabic: يحدد ما إذا كانت المدينة ستظهر للواجهة العامة.
+  /// English: Tracks whether the city is active in the public listing.
   bool _isActive = true;
+
+  /// Arabic: يحدد ما إذا كانت عملية الحفظ ما زالت جارية.
+  /// English: Tracks whether the save operation is currently running.
   bool _isLoading = false;
+
+  /// Arabic: يوضح ما إذا كانت هناك تغييرات لم تُحفظ بعد.
+  /// English: Indicates whether there are unsaved changes in the form.
   bool _hasChanges = false;
 
+  /// Arabic: مفتاح التحقق من صحة النموذج قبل الحفظ.
+  /// English: The form key used to validate inputs before saving.
   final _formKey = GlobalKey<FormState>();
+
+  /// Arabic: يراقب التمرير داخل صفحة النموذج.
+  /// English: Tracks scrolling within the form page.
   final ScrollController _scrollController = ScrollController();
 
+  /// Arabic: يهيئ المتحكمات ويملأ الحقول بالقيم الحالية إن كانت موجودة.
+  /// English: Initializes controllers and preloads current values when editing.
   @override
   void initState() {
     super.initState();
@@ -72,17 +115,22 @@ class _CityFormPageState extends State<CityFormPage>
     _images = List.from(widget.city?.images ?? []);
     _isActive = widget.city?.isActive ?? true;
 
-    // Listen for changes
+    // Arabic: يراقب تغيّر الحقول الأساسية حتى تظهر حالة وجود تعديلات.
+    // English: Watches the main fields so the unsaved-changes state can be shown.
     _nameController.addListener(_onFormChanged);
     _countryController.addListener(_onFormChanged);
   }
 
+  /// Arabic: يعلّم النموذج على أنه تغيّر بمجرد تعديل أي حقل أساسي.
+  /// English: Marks the form as changed once any primary field is edited.
   void _onFormChanged() {
     if (!_hasChanges) {
       setState(() => _hasChanges = true);
     }
   }
 
+  /// Arabic: يحرر المتحكمات قبل إغلاق صفحة النموذج.
+  /// English: Disposes controllers before the form page is closed.
   @override
   void dispose() {
     _animationController.dispose();
@@ -94,10 +142,19 @@ class _CityFormPageState extends State<CityFormPage>
     super.dispose();
   }
 
+  /// Arabic: يبني الصفحة مع مراقبة النجاح أو الفشل من طبقة الـ bloc.
+  /// English: Builds the page while observing success and failure from the bloc layer.
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final navigator = Navigator.of(context);
+        if (await _onWillPop() && mounted) {
+          navigator.pop();
+        }
+      },
       child: Scaffold(
         backgroundColor: AppTheme.darkBackground,
         body: BlocListener<CitiesBloc, CitiesState>(
@@ -122,6 +179,8 @@ class _CityFormPageState extends State<CityFormPage>
     );
   }
 
+  /// Arabic: ينشئ شريط العنوان المتدرج مع العنوان والحالة الحالية.
+  /// English: Builds the gradient app bar with the title and current state.
   Widget _buildSliverAppBar() {
     return SliverAppBar(
       expandedHeight: 200,
@@ -281,6 +340,8 @@ class _CityFormPageState extends State<CityFormPage>
     );
   }
 
+  /// Arabic: يبني زر الرجوع الذي يتحقق من وجود تغييرات غير محفوظة.
+  /// English: Builds the back button that guards against leaving unsaved changes.
   Widget _buildBackButton() {
     return Container(
       margin: const EdgeInsets.all(8),
@@ -296,8 +357,10 @@ class _CityFormPageState extends State<CityFormPage>
         color: Colors.transparent,
         child: InkWell(
           onTap: () async {
+            final navigator = Navigator.of(context);
             if (await _onWillPop()) {
-              context.pop();
+              if (!mounted) return;
+              navigator.pop();
             }
           },
           borderRadius: BorderRadius.circular(12),
@@ -313,6 +376,8 @@ class _CityFormPageState extends State<CityFormPage>
     );
   }
 
+  /// Arabic: يعرض مؤشرًا صغيرًا يلفت الانتباه إلى وجود تغييرات غير محفوظة.
+  /// English: Shows a small indicator that highlights unsaved changes.
   Widget _buildSaveIndicator() {
     return AnimatedBuilder(
       animation: _saveButtonAnimationController,
@@ -370,6 +435,8 @@ class _CityFormPageState extends State<CityFormPage>
     );
   }
 
+  /// Arabic: يجمع أقسام النموذج الرئيسة في محتوى قابل للتمرير.
+  /// English: Assembles the main form sections into scrollable content.
   Widget _buildFormContent() {
     return SliverToBoxAdapter(
       child: Padding(
@@ -407,6 +474,8 @@ class _CityFormPageState extends State<CityFormPage>
     );
   }
 
+  /// Arabic: يبني عنوانًا بصريًا لقسم من أقسام النموذج.
+  /// English: Builds a visual title for one form section.
   Widget _buildSectionTitle(String title) {
     return Row(
       children: [
@@ -430,6 +499,8 @@ class _CityFormPageState extends State<CityFormPage>
     );
   }
 
+  /// Arabic: يبني حقل اسم المدينة مع التحقق من صحته.
+  /// English: Builds the city name field with validation.
   Widget _buildNameField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -549,6 +620,8 @@ class _CityFormPageState extends State<CityFormPage>
     );
   }
 
+  /// Arabic: يبني حقل الدولة مع التحقق من صحة الإدخال.
+  /// English: Builds the country field with input validation.
   Widget _buildCountryField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -668,6 +741,8 @@ class _CityFormPageState extends State<CityFormPage>
     );
   }
 
+  /// Arabic: يعرض مفتاح الحالة النشطة مع شرح لحالة المدينة.
+  /// English: Displays the active-state switch with a clear status explanation.
   Widget _buildActiveSwitch() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -772,6 +847,8 @@ class _CityFormPageState extends State<CityFormPage>
     );
   }
 
+  /// Arabic: يعرض قسم صور المدينة مع إدارة الرفع والاستبدال.
+  /// English: Displays the city images section with upload and replacement handling.
   Widget _buildImagesSection() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -924,6 +1001,8 @@ class _CityFormPageState extends State<CityFormPage>
     );
   }
 
+  /// Arabic: يبني شريط الإجراءات السفلي للحفظ أو الإلغاء.
+  /// English: Builds the bottom action bar for save or cancel.
   Widget _buildBottomBar() {
     return Container(
       decoration: BoxDecoration(
@@ -962,8 +1041,10 @@ class _CityFormPageState extends State<CityFormPage>
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: () async {
+                            final navigator = Navigator.of(context);
                             if (await _onWillPop()) {
-                              context.pop();
+                              if (!mounted) return;
+                              navigator.pop();
                             }
                           },
                           borderRadius: BorderRadius.circular(16),
@@ -1065,6 +1146,8 @@ class _CityFormPageState extends State<CityFormPage>
     );
   }
 
+  /// Arabic: يتحقق من وجود تغييرات غير محفوظة قبل السماح بالمغادرة.
+  /// English: Checks for unsaved changes before allowing navigation away.
   Future<bool> _onWillPop() async {
     if (_hasChanges) {
       return await showCupertinoDialog<bool>(
@@ -1094,11 +1177,14 @@ class _CityFormPageState extends State<CityFormPage>
     return true;
   }
 
+  /// Arabic: يجمع البيانات النهائية ويحفّز عملية إنشاء المدينة أو تحديثها.
+  /// English: Gathers the final data and triggers city creation or update.
   Future<void> _handleSave() async {
     if (_formKey.currentState!.validate()) {
       HapticFeedback.mediumImpact();
 
       setState(() => _isLoading = true);
+      final citiesBloc = context.read<CitiesBloc>();
 
       // Ensure all images are uploaded and replaced with proper URLs
       final List<String> finalImages = [];
@@ -1154,16 +1240,18 @@ class _CityFormPageState extends State<CityFormPage>
       );
 
       if (widget.city == null) {
-        context.read<CitiesBloc>().add(CreateCityEvent(city: city));
+        citiesBloc.add(CreateCityEvent(city: city));
       } else {
-        context.read<CitiesBloc>().add(UpdateCityEvent(
-              oldName: widget.city!.name,
-              city: city,
-            ));
+        citiesBloc.add(UpdateCityEvent(
+          oldName: widget.city!.name,
+          city: city,
+        ));
       }
     }
   }
 
+  /// Arabic: يعرض حركة نجاح قصيرة ثم يعود إلى الصفحة السابقة.
+  /// English: Shows a short success animation and then returns to the previous page.
   void _showSuccessAnimation() {
     setState(() => _isLoading = false);
 
@@ -1212,12 +1300,16 @@ class _CityFormPageState extends State<CityFormPage>
       ),
     );
 
+    final navigator = Navigator.of(context);
     Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pop(context); // Close dialog
-      context.pop(); // Return to previous page
+      if (!mounted) return;
+      navigator.pop(); // Close dialog
+      navigator.pop(); // Return to previous page
     });
   }
 
+  /// Arabic: يعرض رسالة خطأ عند فشل الحفظ أو الرفع.
+  /// English: Shows an error message when saving or uploading fails.
   void _showErrorMessage(String message) {
     setState(() => _isLoading = false);
 

@@ -6,10 +6,15 @@ import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import '../../domain/entities/unit_type.dart';
 
 class UnitTypeCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `unitType`.
   final UnitType unitType;
+
   final bool isSelected;
+
   final VoidCallback onTap;
+
   final VoidCallback onEdit;
+
   final VoidCallback onDelete;
 
   const UnitTypeCard({
@@ -28,7 +33,9 @@ class UnitTypeCard extends StatefulWidget {
 class _UnitTypeCardState extends State<UnitTypeCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   late Animation<double> _scaleAnimation;
+
   bool _isHovered = false;
 
   @override
@@ -108,32 +115,32 @@ class _UnitTypeCardState extends State<UnitTypeCard>
                   gradient: LinearGradient(
                     colors: widget.isSelected
                         ? [
-                            AppTheme.neonGreen.withOpacity(0.2),
-                            AppTheme.primaryBlue.withOpacity(0.1),
+                            AppTheme.neonGreen.withValues(alpha: 0.2),
+                            AppTheme.primaryBlue.withValues(alpha: 0.1),
                           ]
                         : _isHovered
                             ? [
-                                AppTheme.darkCard.withOpacity(0.8),
-                                AppTheme.darkCard.withOpacity(0.6),
+                                AppTheme.darkCard.withValues(alpha: 0.8),
+                                AppTheme.darkCard.withValues(alpha: 0.6),
                               ]
                             : [
-                                AppTheme.darkCard.withOpacity(0.5),
-                                AppTheme.darkCard.withOpacity(0.3),
+                                AppTheme.darkCard.withValues(alpha: 0.5),
+                                AppTheme.darkCard.withValues(alpha: 0.3),
                               ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: widget.isSelected
-                        ? AppTheme.neonGreen.withOpacity(0.5)
+                        ? AppTheme.neonGreen.withValues(alpha: 0.5)
                         : _isHovered
-                            ? AppTheme.darkBorder.withOpacity(0.5)
-                            : AppTheme.darkBorder.withOpacity(0.3),
+                            ? AppTheme.darkBorder.withValues(alpha: 0.5)
+                            : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                   boxShadow: widget.isSelected
                       ? [
                           BoxShadow(
-                            color: AppTheme.neonGreen.withOpacity(0.2),
+                            color: AppTheme.neonGreen.withValues(alpha: 0.2),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -155,7 +162,7 @@ class _UnitTypeCardState extends State<UnitTypeCard>
                               gradient: LinearGradient(
                                 colors: [
                                   AppTheme.neonGreen,
-                                  AppTheme.neonGreen.withOpacity(0.7),
+                                  AppTheme.neonGreen.withValues(alpha: 0.7),
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(10),
@@ -201,7 +208,8 @@ class _UnitTypeCardState extends State<UnitTypeCard>
                                         'متعدد',
                                         AppTheme.warning,
                                       ),
-                                    if (widget.unitType.isRequiredToDetermineTheHour)
+                                    if (widget
+                                        .unitType.isRequiredToDetermineTheHour)
                                       _buildFeatureBadge(
                                         Icons.access_time_rounded,
                                         'بالساعة',
@@ -242,8 +250,7 @@ class _UnitTypeCardState extends State<UnitTypeCard>
                                 size: 18,
                               ),
                             ),
-                          ]
-                          else if (isSmall) ...[
+                          ] else if (isSmall) ...[
                             PopupMenuButton<String>(
                               color: AppTheme.darkCard,
                               onSelected: (value) {
@@ -258,7 +265,8 @@ class _UnitTypeCardState extends State<UnitTypeCard>
                                   value: 'edit',
                                   child: Row(
                                     children: [
-                                      Icon(Icons.edit_rounded, color: AppTheme.neonGreen, size: 18),
+                                      Icon(Icons.edit_rounded,
+                                          color: AppTheme.neonGreen, size: 18),
                                       const SizedBox(width: 8),
                                       const Text('تعديل'),
                                     ],
@@ -268,14 +276,16 @@ class _UnitTypeCardState extends State<UnitTypeCard>
                                   value: 'delete',
                                   child: Row(
                                     children: [
-                                      Icon(Icons.delete_rounded, color: AppTheme.error, size: 18),
+                                      Icon(Icons.delete_rounded,
+                                          color: AppTheme.error, size: 18),
                                       const SizedBox(width: 8),
                                       const Text('حذف'),
                                     ],
                                   ),
                                 ),
                               ],
-                              icon: Icon(Icons.more_vert_rounded, color: AppTheme.textMuted),
+                              icon: Icon(Icons.more_vert_rounded,
+                                  color: AppTheme.textMuted),
                             ),
                           ],
                         ],
@@ -295,10 +305,10 @@ class _UnitTypeCardState extends State<UnitTypeCard>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),

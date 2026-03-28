@@ -6,11 +6,28 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/icon_mapper.dart';
 import '../../domain/entities/unit_type.dart';
 
+/// يعرض شريط اختيار نوع الوحدة بعد اختيار نوع العقار، ويضبط بقية الفلاتر
+/// والحقول المرتبطة بذلك النوع.
+/// Renders the unit-type selector after a property type is chosen and drives
+/// the remaining filters and fields tied to that context.
 class ElegantUnitTypesSection extends StatefulWidget {
+  /// أنواع الوحدات المتاحة في السياق الحالي.
+  /// Unit types available in the current context.
   final List<UnitType> unitTypes;
+
+  /// معرّف نوع الوحدة المحدد حاليًا إذا كانت هناك قيمة نشطة.
+  /// Identifier of the currently selected unit type when an active value
+  /// exists.
   final String? selectedUnitTypeId;
+
+  /// الاستدعاء الذي يخبر الطبقة الأعلى بأن المستخدم غيّر نوع الوحدة.
+  /// Callback that informs higher-level state that the user changed the unit
+  /// type.
   final Function(String?) onUnitTypeSelected;
 
+  /// ينشئ أداة اختيار نوع الوحدة بالبيانات الحالية ومنطق التغيير الخارجي.
+  /// Creates the unit-type selector with the current data and external change
+  /// logic.
   const ElegantUnitTypesSection({
     super.key,
     required this.unitTypes,
@@ -18,11 +35,16 @@ class ElegantUnitTypesSection extends StatefulWidget {
     required this.onUnitTypeSelected,
   });
 
+  /// ينشئ كائن الحالة الذي يدير الحركة وسلوك التفاعل داخل القسم.
+  /// Creates the state object that manages animation and interaction inside
+  /// the section.
   @override
   State<ElegantUnitTypesSection> createState() =>
       _ElegantUnitTypesSectionState();
 }
 
+/// تدير حركات الظهور والنبض وسلوك فتح القائمة واختيار نوع الوحدة.
+/// Manages the entrance, pulse, picker, and unit-type selection behavior.
 class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
     with TickerProviderStateMixin {
   late AnimationController _entranceController;
@@ -31,18 +53,17 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
   late Animation<Offset> _slideAnimation;
   late Animation<double> _pulseAnimation;
 
-  final ScrollController _scrollController = ScrollController();
-  bool _showLeftGradient = false;
-  bool _showRightGradient = true;
-
+  /// تجهز الحركات وتبدأ تسلسل الظهور الافتتاحي.
+  /// Prepares the animations and starts the entrance sequence.
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
     _startAnimations();
-    _setupScrollListener();
   }
 
+  /// تهيئ حركات الظهور والنبض التي يعتمد عليها القسم عند العرض.
+  /// Configures the entrance and pulse animations used by the section.
   void _initializeAnimations() {
     _entranceController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -79,18 +100,9 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
     ));
   }
 
-  void _setupScrollListener() {
-    _scrollController.addListener(() {
-      if (_scrollController.hasClients) {
-        setState(() {
-          _showLeftGradient = _scrollController.offset > 10;
-          _showRightGradient = _scrollController.offset <
-              _scrollController.position.maxScrollExtent - 10;
-        });
-      }
-    });
-  }
-
+  /// تبدأ الحركة بعد تأخير بسيط حتى يظهر القسم بسلاسة أكبر عند فتح الصفحة.
+  /// Starts the animation after a short delay so the section reveals more
+  /// smoothly on page load.
   void _startAnimations() {
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
@@ -99,14 +111,20 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
     });
   }
 
+  /// يحرر متحكمات الحركة عندما تُزال الأداة من الشجرة.
+  /// Releases the animation controllers when the widget is removed from the
+  /// tree.
   @override
   void dispose() {
     _entranceController.dispose();
     _pulseController.dispose();
-    _scrollController.dispose();
     super.dispose();
   }
 
+  /// يبني واجهة اختيار نوع الوحدة بالاعتماد على الخيارات الحالية والاختيار
+  /// النشط.
+  /// Builds the unit-type selector using the current options and active
+  /// selection.
   @override
   Widget build(BuildContext context) {
     if (widget.unitTypes.isEmpty) return const SizedBox.shrink();
@@ -140,6 +158,10 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
     );
   }
 
+  /// يعرض رسالة موجزة تشرح للمستخدم أن هذه الخطوة مطلوبة قبل متابعة التصفح
+  /// الدقيق.
+  /// Shows a short hint explaining that this step is required before deeper
+  /// browsing can continue.
   Widget _buildHintMessage() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -172,6 +194,9 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
     );
   }
 
+  /// يبني الزر الرئيسي الذي يعرض النوع الحالي ويفتح لوحة اختيار الوحدات.
+  /// Builds the main launcher button that shows the current type and opens the
+  /// unit picker sheet.
   Widget _buildPickerButton(
     BuildContext context,
     UnitType? selectedUnitType,
@@ -260,6 +285,10 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
     );
   }
 
+  /// يفتح اللوحة السفلية التي تسمح باستعراض أنواع الوحدات واختيار أحدها من
+  /// قائمة قابلة للتمرير.
+  /// Opens the bottom sheet that lets the user browse unit types and choose
+  /// one from a scrollable list.
   Future<void> _showUnitTypePickerSheet(
     BuildContext context,
     UnitType? selectedUnitType,
@@ -275,7 +304,8 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
           child: Container(
             decoration: BoxDecoration(
               color: AppTheme.darkBackground.withOpacity(0.92),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(22)),
               border: Border.all(
                 color: AppTheme.darkBorder.withOpacity(0.18),
                 width: 1,
@@ -329,7 +359,8 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
                     const SizedBox(height: 10),
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(sheetContext).size.height * 0.62,
+                        maxHeight:
+                            MediaQuery.of(sheetContext).size.height * 0.62,
                       ),
                       child: Scrollbar(
                         controller: scrollController,
@@ -338,7 +369,8 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
                         thickness: 4,
                         child: SingleChildScrollView(
                           controller: scrollController,
-                          child: _buildUnitTypesList(sheetContext: sheetContext),
+                          child:
+                              _buildUnitTypesList(sheetContext: sheetContext),
                         ),
                       ),
                     ),
@@ -365,7 +397,8 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
               onTap: () => _handleSelection(u.id, popContext: sheetContext),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppTheme.primaryPurple.withOpacity(0.12)
@@ -451,158 +484,6 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
     );
   }
 
-  Widget _buildSectionHeader() {
-    return Row(
-      children: [
-        AnimatedBuilder(
-          animation: _pulseAnimation,
-          builder: (context, child) {
-            return Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.primaryPurple.withOpacity(
-                      0.12 + 0.08 * _pulseAnimation.value,
-                    ),
-                    AppTheme.primaryCyan.withOpacity(
-                      0.08 + 0.05 * _pulseAnimation.value,
-                    ),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppTheme.primaryPurple.withOpacity(
-                    0.2 + 0.1 * _pulseAnimation.value,
-                  ),
-                  width: 1,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.primaryPurple.withOpacity(
-                      0.15 * _pulseAnimation.value,
-                    ),
-                    blurRadius: 12,
-                    spreadRadius: 1,
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.meeting_room_rounded,
-                size: 20,
-                color: AppTheme.primaryPurple.withOpacity(0.9),
-              ),
-            );
-          },
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'أنواع الوحدات المتاحة',
-                style: AppTextStyles.bodyLarge.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textWhite,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'اختر نوع الوحدة المناسب لك',
-                style: AppTextStyles.caption.copyWith(
-                  color: AppTheme.textMuted.withOpacity(0.7),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildUnitTypesCarousel() {
-    return SizedBox(
-      height: 120,
-      child: Stack(
-        children: [
-          ListView.builder(
-            controller: _scrollController,
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-            itemCount: widget.unitTypes.length,
-            itemBuilder: (context, index) {
-              return _ElegantUnitTypeCard(
-                unitType: widget.unitTypes[index],
-                isSelected: widget.selectedUnitTypeId ==
-                    widget.unitTypes[index].id,
-                onTap: () => _handleSelection(widget.unitTypes[index].id),
-                animationDelay: Duration(milliseconds: index * 60),
-              );
-            },
-          ),
-          if (_showLeftGradient || _showRightGradient)
-            _buildScrollIndicators(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildScrollIndicators() {
-    return IgnorePointer(
-      child: Row(
-        children: [
-          AnimatedOpacity(
-            duration: const Duration(milliseconds: 200),
-            opacity: _showLeftGradient ? 1.0 : 0.0,
-            child: Container(
-              width: 30,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.darkBackground.withOpacity(0.8),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.chevron_left_rounded,
-                  size: 20,
-                  color: AppTheme.primaryPurple.withOpacity(0.6),
-                ),
-              ),
-            ),
-          ),
-          const Spacer(),
-          AnimatedOpacity(
-            duration: const Duration(milliseconds: 200),
-            opacity: _showRightGradient ? 1.0 : 0.0,
-            child: Container(
-              width: 30,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    AppTheme.darkBackground.withOpacity(0.8),
-                  ],
-                ),
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.chevron_right_rounded,
-                  size: 20,
-                  color: AppTheme.primaryPurple.withOpacity(0.6),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _handleSelection(String unitTypeId, {BuildContext? popContext}) {
     HapticFeedback.selectionClick();
     if (widget.selectedUnitTypeId == unitTypeId) return;
@@ -611,296 +492,5 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
     if (popContext != null) {
       Navigator.of(popContext).pop();
     }
-  }
-}
-
-class _ElegantUnitTypeCard extends StatefulWidget {
-  final UnitType unitType;
-  final bool isSelected;
-  final VoidCallback onTap;
-  final Duration animationDelay;
-
-  const _ElegantUnitTypeCard({
-    required this.unitType,
-    required this.isSelected,
-    required this.onTap,
-    this.animationDelay = Duration.zero,
-  });
-
-  @override
-  State<_ElegantUnitTypeCard> createState() => _ElegantUnitTypeCardState();
-}
-
-class _ElegantUnitTypeCardState extends State<_ElegantUnitTypeCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _glowController;
-  late Animation<double> _glowAnimation;
-  bool _isPressed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _glowController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
-
-    _glowAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _glowController,
-      curve: Curves.easeInOut,
-    ));
-
-    if (widget.isSelected) {
-      _glowController.repeat(reverse: true);
-    }
-  }
-
-  @override
-  void didUpdateWidget(_ElegantUnitTypeCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.isSelected != oldWidget.isSelected) {
-      if (widget.isSelected) {
-        _glowController.repeat(reverse: true);
-      } else {
-        _glowController.stop();
-        _glowController.reset();
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _glowController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration:
-          Duration(milliseconds: 500 + widget.animationDelay.inMilliseconds),
-      curve: Curves.easeOutBack,
-      builder: (context, animValue, child) {
-        return Transform.scale(
-          scale: 0.7 + 0.3 * animValue,
-          child: Opacity(
-            opacity: animValue.clamp(0.0, 1.0),
-            child: GestureDetector(
-              onTapDown: (_) => setState(() => _isPressed = true),
-              onTapUp: (_) {
-                setState(() => _isPressed = false);
-                widget.onTap();
-              },
-              onTapCancel: () => setState(() => _isPressed = false),
-              child: AnimatedScale(
-                scale: _isPressed ? 0.92 : 1.0,
-                duration: const Duration(milliseconds: 150),
-                child: AnimatedBuilder(
-                  animation: _glowAnimation,
-                  builder: (context, child) {
-                    return Container(
-                      width: 115,
-                      margin: const EdgeInsets.symmetric(horizontal: 6),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: widget.isSelected
-                            ? [
-                                BoxShadow(
-                                  color: AppTheme.primaryPurple.withOpacity(
-                                    0.2 + 0.15 * _glowAnimation.value,
-                                  ),
-                                  blurRadius: 16 + 8 * _glowAnimation.value,
-                                  spreadRadius: 2,
-                                ),
-                                BoxShadow(
-                                  color: AppTheme.primaryCyan.withOpacity(
-                                    0.1 + 0.05 * _glowAnimation.value,
-                                  ),
-                                  blurRadius: 20,
-                                  spreadRadius: 1,
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(
-                            sigmaX: 15,
-                            sigmaY: 15,
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: widget.isSelected
-                                    ? [
-                                        AppTheme.primaryPurple.withOpacity(
-                                          isDarkMode ? 0.15 : 0.2,
-                                        ),
-                                        AppTheme.primaryCyan.withOpacity(
-                                          isDarkMode ? 0.10 : 0.15,
-                                        ),
-                                      ]
-                                    : [
-                                        isDarkMode
-                                            ? Colors.white.withOpacity(0.04)
-                                            : Colors.white.withOpacity(0.7),
-                                        isDarkMode
-                                            ? Colors.white.withOpacity(0.02)
-                                            : Colors.white.withOpacity(0.5),
-                                      ],
-                              ),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: widget.isSelected
-                                    ? AppTheme.primaryPurple.withOpacity(
-                                        0.4 + 0.2 * _glowAnimation.value,
-                                      )
-                                    : isDarkMode
-                                        ? Colors.white.withOpacity(0.1)
-                                        : Colors.white.withOpacity(0.5),
-                                width: widget.isSelected ? 1.5 : 1,
-                              ),
-                            ),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                _buildContent(isDarkMode),
-                                if (widget.isSelected)
-                                  Positioned(
-                                    top: 6,
-                                    right: 6,
-                                    child: _buildSelectionIndicator(),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildContent(bool isDarkMode) {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _buildIcon(isDarkMode),
-          const SizedBox(height: 8),
-          Text(
-            widget.unitType.name,
-            style: AppTextStyles.caption.copyWith(
-              color: widget.isSelected
-                  ? AppTheme.primaryPurple
-                  : isDarkMode
-                      ? AppTheme.textWhite.withOpacity(0.85)
-                      : AppTheme.textDark.withOpacity(0.9),
-              fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w600,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildIcon(bool isDarkMode) {
-    return Container(
-      width: 44,
-      height: 44,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: widget.isSelected
-              ? [
-                  AppTheme.primaryPurple.withOpacity(0.2),
-                  AppTheme.primaryCyan.withOpacity(0.15),
-                ]
-              : [
-                  isDarkMode
-                      ? AppTheme.darkCard.withOpacity(0.3)
-                      : Colors.white.withOpacity(0.6),
-                  isDarkMode
-                      ? AppTheme.darkCard.withOpacity(0.2)
-                      : Colors.white.withOpacity(0.4),
-                ],
-        ),
-        border: Border.all(
-          color: widget.isSelected
-              ? AppTheme.primaryPurple.withOpacity(0.3)
-              : isDarkMode
-                  ? Colors.white.withOpacity(0.08)
-                  : Colors.white.withOpacity(0.4),
-          width: 1.5,
-        ),
-        boxShadow: widget.isSelected
-            ? [
-                BoxShadow(
-                  color: AppTheme.primaryPurple.withOpacity(0.2),
-                  blurRadius: 8,
-                  spreadRadius: 1,
-                ),
-              ]
-            : null,
-      ),
-      child: Icon(
-        IconMapper.getIconFromString(widget.unitType.icon),
-        size: 22,
-        color: widget.isSelected
-            ? AppTheme.primaryPurple
-            : isDarkMode
-                ? AppTheme.textWhite.withOpacity(0.7)
-                : AppTheme.textDark.withOpacity(0.8),
-      ),
-    );
-  }
-
-  Widget _buildSelectionIndicator() {
-    return Container(
-      width: 18,
-      height: 18,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.primaryPurple,
-            AppTheme.primaryCyan,
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryPurple.withOpacity(0.4),
-            blurRadius: 6,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: const Icon(
-        Icons.check_rounded,
-        size: 12,
-        color: Colors.white,
-      ),
-    );
   }
 }

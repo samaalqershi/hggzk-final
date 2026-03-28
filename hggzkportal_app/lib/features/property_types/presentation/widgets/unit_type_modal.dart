@@ -4,11 +4,18 @@ import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import 'icon_picker_modal.dart';
 
+/// نموذج إضافة أو تعديل نوع وحدة مع خصائص السعة والسلوك والحركات المرتبطة به.
 class UnitTypeModal extends StatefulWidget {
+  /// بيانات النوع الجاري تحريره عند التعديل، أو قيمة فارغة عند الإنشاء.
   final dynamic unitType;
+
+  /// معرّف نوع العقار المرتبط بهذا النوع.
   final String propertyTypeId;
+
+  /// يستدعى بعد جمع البيانات الصحيحة لإرسالها إلى طبقة الحفظ.
   final Function(Map<String, dynamic>) onSave;
 
+  /// يبني نافذة النوع مع البيانات السابقة إن وجدت.
   const UnitTypeModal({
     super.key,
     this.unitType,
@@ -16,21 +23,40 @@ class UnitTypeModal extends StatefulWidget {
     required this.onSave,
   });
 
+  /// ينشئ حالة النموذج المسؤولة عن الحقول والاختيارات.
   @override
   State<UnitTypeModal> createState() => _UnitTypeModalState();
 }
 
+/// تدير هذه الحالة حقول النموذج وقيمه الافتراضية وحفظ النوع.
 class _UnitTypeModalState extends State<UnitTypeModal> {
   final _formKey = GlobalKey<FormState>();
+
+  /// متحكم اسم النوع.
   late TextEditingController _nameController;
+
+  /// السعة القصوى المسموح بها.
   late int _maxCapacity;
+
+  /// الرمز المختار لتمثيل النوع.
   late String _selectedIcon;
+
+  /// نسبة العمولة النظامية إن كانت معرفة.
   late double? _systemCommissionRate;
+
+  /// يوضح ما إذا كان النوع يعتمد على عدد البالغين.
   late bool _isHasAdults;
+
+  /// يوضح ما إذا كان النوع يعتمد على عدد الأطفال.
   late bool _isHasChildren;
+
+  /// يحدد إن كان الحجز يمتد لعدة أيام.
   late bool _isMultiDays;
+
+  /// يحدد إن كان اختيار الساعة إلزاميًا قبل الإكمال.
   late bool _isRequiredToDetermineTheHour;
 
+  /// يهيئ القيم من النوع الحالي أو يضبط القيم الافتراضية عند الإنشاء.
   @override
   void initState() {
     super.initState();
@@ -45,12 +71,14 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
         widget.unitType?.isRequiredToDetermineTheHour ?? false;
   }
 
+  /// يحرر متحكم الاسم عند إغلاق النافذة.
   @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
   }
 
+  /// يبني نافذة الإدخال ويعرض الحقول والإعدادات الأساسية لنوع الوحدة.
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -74,13 +102,13 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.neonGreen.withOpacity(0.3),
+            color: AppTheme.neonGreen.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -122,19 +150,21 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
     );
   }
 
+  /// يبني رأس النافذة الذي يوضح هل المستخدم يضيف نوعًا جديدًا أو يعدل
+  /// نوعًا موجودًا.
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.neonGreen.withOpacity(0.1),
-            AppTheme.primaryBlue.withOpacity(0.05),
+            AppTheme.neonGreen.withValues(alpha: 0.1),
+            AppTheme.primaryBlue.withValues(alpha: 0.05),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -148,7 +178,7 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
               gradient: LinearGradient(
                 colors: [
                   AppTheme.neonGreen,
-                  AppTheme.neonGreen.withOpacity(0.7)
+                  AppTheme.neonGreen.withValues(alpha: 0.7)
                 ],
               ),
               borderRadius: BorderRadius.circular(10),
@@ -205,26 +235,26 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
           decoration: InputDecoration(
             hintText: 'أدخل اسم نوع الوحدة',
             hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             filled: true,
-            fillColor: AppTheme.darkSurface.withOpacity(0.5),
+            fillColor: AppTheme.darkSurface.withValues(alpha: 0.5),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.neonGreen.withOpacity(0.5),
+                color: AppTheme.neonGreen.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -256,10 +286,10 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.darkSurface.withOpacity(0.5),
+              color: AppTheme.darkSurface.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -271,7 +301,7 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
                     gradient: LinearGradient(
                       colors: [
                         AppTheme.neonGreen,
-                        AppTheme.neonGreen.withOpacity(0.7)
+                        AppTheme.neonGreen.withValues(alpha: 0.7)
                       ],
                     ),
                     borderRadius: BorderRadius.circular(8),
@@ -330,10 +360,10 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: AppTheme.darkSurface.withOpacity(0.5),
+            color: AppTheme.darkSurface.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -352,12 +382,12 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
                     gradient: LinearGradient(
                       colors: [
                         AppTheme.darkSurface,
-                        AppTheme.darkSurface.withOpacity(0.7),
+                        AppTheme.darkSurface.withValues(alpha: 0.7),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Icon(
@@ -385,7 +415,7 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
                     gradient: LinearGradient(
                       colors: [
                         AppTheme.neonGreen,
-                        AppTheme.neonGreen.withOpacity(0.7)
+                        AppTheme.neonGreen.withValues(alpha: 0.7)
                       ],
                     ),
                     borderRadius: BorderRadius.circular(8),
@@ -423,26 +453,26 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
           decoration: InputDecoration(
             hintText: 'مثال: 12.5',
             hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             filled: true,
-            fillColor: AppTheme.darkSurface.withOpacity(0.5),
+            fillColor: AppTheme.darkSurface.withValues(alpha: 0.5),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.neonGreen.withOpacity(0.5),
+                color: AppTheme.neonGreen.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -477,10 +507,10 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppTheme.darkSurface.withOpacity(0.3),
+            color: AppTheme.darkSurface.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.2),
+              color: AppTheme.darkBorder.withValues(alpha: 0.2),
             ),
           ),
           child: Column(
@@ -542,17 +572,17 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
         gradient: value
             ? LinearGradient(
                 colors: [
-                  color.withOpacity(0.1),
-                  color.withOpacity(0.05),
+                  color.withValues(alpha: 0.1),
+                  color.withValues(alpha: 0.05),
                 ],
               )
             : null,
-        color: value ? null : AppTheme.darkSurface.withOpacity(0.3),
+        color: value ? null : AppTheme.darkSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: value
-              ? color.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.2),
+              ? color.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -562,7 +592,7 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -596,7 +626,7 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
             value: value,
             onChanged: onChanged,
             activeThumbColor: color,
-            activeTrackColor: color.withOpacity(0.3),
+            activeTrackColor: color.withValues(alpha: 0.3),
             inactiveThumbColor: AppTheme.textMuted,
             inactiveTrackColor: AppTheme.darkSurface,
           ),
@@ -611,13 +641,13 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.7),
-            AppTheme.darkSurface.withOpacity(0.5),
+            AppTheme.darkSurface.withValues(alpha: 0.7),
+            AppTheme.darkSurface.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -630,10 +660,10 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkSurface.withOpacity(0.5),
+                  color: AppTheme.darkSurface.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.darkBorder.withOpacity(0.3),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -658,13 +688,13 @@ class _UnitTypeModalState extends State<UnitTypeModal> {
                   gradient: LinearGradient(
                     colors: [
                       AppTheme.neonGreen,
-                      AppTheme.neonGreen.withOpacity(0.7)
+                      AppTheme.neonGreen.withValues(alpha: 0.7)
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.neonGreen.withOpacity(0.3),
+                      color: AppTheme.neonGreen.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),

@@ -5,33 +5,44 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/error_widget.dart';
-import '../../../../core/utils/formatters.dart';
 import '../../../../core/utils/date_utils.dart' as app_date;
 import '../bloc/bookings_list/bookings_list_bloc.dart';
 import '../bloc/bookings_list/bookings_list_event.dart';
 import '../bloc/bookings_list/bookings_list_state.dart';
 import '../widgets/booking_timeline_widget.dart';
-import '../widgets/booking_status_badge.dart';
 import 'package:go_router/go_router.dart';
-import 'booking_details_page.dart';
 
+/// Arabic: صفحة تعرض جدول الحجوزات في خط زمني يومي.
+/// English: Page that presents bookings in a daily timeline view.
 class BookingTimelinePage extends StatefulWidget {
+  /// Arabic: ينشئ صفحة الخط الزمني بدون أي مدخلات إضافية.
+  /// English: Creates the timeline page without any additional inputs.
   const BookingTimelinePage({super.key});
-
   @override
   State<BookingTimelinePage> createState() => _BookingTimelinePageState();
 }
 
+/// Arabic: يدير حالة الخط الزمني اليومي بما في ذلك التاريخ المحدد والتحديثات.
+/// English: Manages the daily timeline state, including the selected date and refreshes.
 class _BookingTimelinePageState extends State<BookingTimelinePage>
     with SingleTickerProviderStateMixin {
+  /// Arabic: يتحكم في الحركة الافتتاحية لعناصر الصفحة.
+  /// English: Drives the page entrance animation.
   late AnimationController _animationController;
+
+  /// Arabic: يربط التمرير داخل قائمة الخط الزمني.
+  /// English: Tracks scrolling within the timeline list.
   final ScrollController _scrollController = ScrollController();
+
+  /// Arabic: يحفظ اليوم الذي تُحمّل الحجوزات الخاصة به.
+  /// English: Stores the day whose bookings are currently shown.
   DateTime _selectedDate = DateTime.now();
 
+  /// Arabic: يجهز الحركة ثم يطلب الحجوزات الخاصة باليوم المحدد.
+  /// English: Sets up the animation and loads bookings for the selected day.
   @override
   void initState() {
     super.initState();
@@ -43,6 +54,8 @@ class _BookingTimelinePageState extends State<BookingTimelinePage>
     _animationController.forward();
   }
 
+  /// Arabic: يحمّل الحجوزات التي تبدأ وتنتهي ضمن اليوم المحدد.
+  /// English: Loads bookings whose time range falls within the selected day.
   void _loadBookings() {
     context.read<BookingsListBloc>().add(
           LoadBookingsEvent(
@@ -56,6 +69,8 @@ class _BookingTimelinePageState extends State<BookingTimelinePage>
         );
   }
 
+  /// Arabic: يحرر المتحكمات قبل إتلاف الصفحة.
+  /// English: Disposes the controllers before the page is torn down.
   @override
   void dispose() {
     _animationController.dispose();
@@ -63,6 +78,8 @@ class _BookingTimelinePageState extends State<BookingTimelinePage>
     super.dispose();
   }
 
+  /// Arabic: يبني واجهة الخط الزمني اليومي مع الحالة الحالية للبيانات.
+  /// English: Builds the daily timeline UI against the current data state.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,6 +96,8 @@ class _BookingTimelinePageState extends State<BookingTimelinePage>
     );
   }
 
+  /// Arabic: ينشئ شريط العنوان مع أزرار التقويم والتحديث.
+  /// English: Builds the header with calendar and refresh actions.
   Widget _buildSliverAppBar() {
     return SliverAppBar(
       expandedHeight: 120,
@@ -93,7 +112,7 @@ class _BookingTimelinePageState extends State<BookingTimelinePage>
             color: AppTheme.textWhite,
             shadows: [
               Shadow(
-                color: AppTheme.primaryViolet.withOpacity(0.3),
+                color: AppTheme.primaryViolet.withValues(alpha: 0.3),
                 blurRadius: 10,
               ),
             ],
@@ -105,7 +124,7 @@ class _BookingTimelinePageState extends State<BookingTimelinePage>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.primaryViolet.withOpacity(0.1),
+                AppTheme.primaryViolet.withValues(alpha: 0.1),
                 AppTheme.darkBackground,
               ],
             ),
@@ -126,6 +145,8 @@ class _BookingTimelinePageState extends State<BookingTimelinePage>
     );
   }
 
+  /// Arabic: يعرض شريطًا أفقيًا لاختيار الأيام القريبة بسرعة.
+  /// English: Displays a horizontal strip for quickly switching among nearby days.
   Widget _buildDateSelector() {
     return SliverToBoxAdapter(
       child: Container(
@@ -151,20 +172,22 @@ class _BookingTimelinePageState extends State<BookingTimelinePage>
                 margin: const EdgeInsets.only(right: 12),
                 decoration: BoxDecoration(
                   gradient: isSelected ? AppTheme.primaryGradient : null,
-                  color: isSelected ? null : AppTheme.darkCard.withOpacity(0.5),
+                  color: isSelected
+                      ? null
+                      : AppTheme.darkCard.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: isSelected
                         ? Colors.transparent
                         : isToday
                             ? AppTheme.primaryBlue
-                            : AppTheme.darkBorder.withOpacity(0.3),
+                            : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: isToday ? 2 : 1,
                   ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: AppTheme.primaryBlue.withOpacity(0.3),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           ),
@@ -193,7 +216,7 @@ class _BookingTimelinePageState extends State<BookingTimelinePage>
                       _getMonthName(date),
                       style: AppTextStyles.caption.copyWith(
                         color: isSelected
-                            ? Colors.white.withOpacity(0.8)
+                            ? Colors.white.withValues(alpha: 0.8)
                             : AppTheme.textMuted,
                       ),
                     ),
@@ -207,6 +230,8 @@ class _BookingTimelinePageState extends State<BookingTimelinePage>
     );
   }
 
+  /// Arabic: يقدّم محتوى الخط الزمني أو حالات التحميل والخطأ.
+  /// English: Renders the timeline content or its loading/error states.
   Widget _buildTimelineContent() {
     return BlocBuilder<BookingsListBloc, BookingsListState>(
       builder: (context, state) {
@@ -240,7 +265,7 @@ class _BookingTimelinePageState extends State<BookingTimelinePage>
                     Icon(
                       CupertinoIcons.calendar_badge_minus,
                       size: 80,
-                      color: AppTheme.textMuted.withOpacity(0.3),
+                      color: AppTheme.textMuted.withValues(alpha: 0.3),
                     ),
                     const SizedBox(height: 24),
                     Text(
@@ -291,6 +316,8 @@ class _BookingTimelinePageState extends State<BookingTimelinePage>
     );
   }
 
+  /// Arabic: يجمع الحجوزات تحت مفاتيح زمنية مرتبة لعرضها في الخط الزمني.
+  /// English: Groups bookings under ordered time keys for timeline rendering.
   Map<String, List<Booking>> _groupBookingsByTime(List<Booking> bookings) {
     final Map<String, List<Booking>> grouped = {};
 
@@ -321,6 +348,8 @@ class _BookingTimelinePageState extends State<BookingTimelinePage>
     return sortedMap;
   }
 
+  /// Arabic: يحول اليوم إلى اسم عربي مناسب لبطاقة التاريخ.
+  /// English: Converts a date into an Arabic weekday label.
   String _getDayName(DateTime date) {
     const days = [
       'الأحد',
@@ -334,6 +363,8 @@ class _BookingTimelinePageState extends State<BookingTimelinePage>
     return days[date.weekday % 7];
   }
 
+  /// Arabic: يحول الشهر إلى اسم عربي مناسب للعرض.
+  /// English: Converts a month into an Arabic month label.
   String _getMonthName(DateTime date) {
     const months = [
       'يناير',
@@ -352,14 +383,20 @@ class _BookingTimelinePageState extends State<BookingTimelinePage>
     return months[date.month - 1];
   }
 
+  /// Arabic: ينسق التاريخ بصيغة نصية واضحة داخل الواجهة.
+  /// English: Formats a date into a readable on-screen string.
   String _formatDate(DateTime date) {
     return '${date.day} ${_getMonthName(date)} ${date.year}';
   }
 
+  /// Arabic: ينسق الوقت إلى صيغة ساعتين ودقيقتين.
+  /// English: Formats a time into a compact hour-and-minute string.
   String _formatTime(DateTime dateTime) {
     return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
+  /// Arabic: يفتح منتقي التاريخ لتبديل اليوم المعروض في الخط الزمني.
+  /// English: Opens the date picker to change the day shown in the timeline.
   void _showDatePicker() async {
     final picked = await showDatePicker(
       context: context,

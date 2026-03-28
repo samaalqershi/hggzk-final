@@ -1,10 +1,9 @@
 import 'package:intl/intl.dart'; // Add intl package to pubspec.yaml
 import '../constants/app_constants.dart';
-
 class DateUtils {
   DateUtils._();
-
-  static DateTime? parseDate(String? dateString, {String format = AppConstants.dateFormat}) {
+  static DateTime? parseDate(String? dateString,
+      {String format = AppConstants.dateFormat}) {
     if (dateString == null || dateString.isEmpty) return null;
     try {
       return DateFormat(format).parse(dateString);
@@ -12,16 +11,15 @@ class DateUtils {
       return null; // Handle parsing errors
     }
   }
-
-  static DateTime? parseDateTime(String? dateTimeString, {String format = AppConstants.dateTimeFormat}) {
-     if (dateTimeString == null || dateTimeString.isEmpty) return null;
+  static DateTime? parseDateTime(String? dateTimeString,
+      {String format = AppConstants.dateTimeFormat}) {
+    if (dateTimeString == null || dateTimeString.isEmpty) return null;
     try {
       return DateFormat(format).parse(dateTimeString);
     } on FormatException {
       return null; // Handle parsing errors
     }
   }
-
   static String formatRelativeTime(DateTime dateTime) {
     final Duration difference = DateTime.now().difference(dateTime);
 
@@ -45,21 +43,17 @@ class DateUtils {
       return 'الآن'; // just now
     }
   }
-
   static bool isSameDay(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
-           date1.month == date2.month &&
-           date1.day == date2.day;
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
-
   static DateTime addDays(DateTime date, int days) {
     return date.add(Duration(days: days));
   }
-
   static DateTime subtractDays(DateTime date, int days) {
     return date.subtract(Duration(days: days));
   }
-
   static int daysBetween(DateTime from, DateTime to) {
     from = DateTime(from.year, from.month, from.day);
     to = DateTime(to.year, to.month, to.day);

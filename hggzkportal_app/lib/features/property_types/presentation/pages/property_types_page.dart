@@ -21,10 +21,10 @@ import '../widgets/unit_type_field_card.dart';
 import '../widgets/property_type_modal.dart';
 import '../widgets/unit_type_modal.dart';
 import '../widgets/unit_type_field_modal.dart';
-import 'package:flutter/src/painting/edge_insets.dart';
 import 'package:hggzkportal/core/widgets/loading_widget.dart';
 
 class AdminPropertyTypesPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `AdminPropertyTypesPage`.
   const AdminPropertyTypesPage({super.key});
 
   @override
@@ -34,9 +34,13 @@ class AdminPropertyTypesPage extends StatefulWidget {
 class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
     with TickerProviderStateMixin {
   late AnimationController _backgroundAnimationController;
+
   late AnimationController _glowController;
+
   late AnimationController _particleController;
+
   late Animation<double> _backgroundRotation;
+
   late Animation<double> _glowAnimation;
 
   final ScrollController _propertyTypesScrollController = ScrollController();
@@ -44,13 +48,17 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
   final ScrollController _fieldsScrollController = ScrollController();
 
   String? _selectedPropertyTypeId;
+
   String? _selectedUnitTypeId;
+
   String _searchFieldsQuery = '';
 
   @override
   void initState() {
     super.initState();
+
     _initializeAnimations();
+
     _loadInitialData();
   }
 
@@ -136,8 +144,8 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -159,13 +167,13 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -324,13 +332,13 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -424,13 +432,13 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -522,13 +530,13 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -622,13 +630,13 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            color.withOpacity(0.1),
-            color.withOpacity(0.05),
+            color.withValues(alpha: 0.1),
+            color.withValues(alpha: 0.05),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -642,7 +650,7 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
                 height: 32,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [color, color.withOpacity(0.7)],
+                    colors: [color, color.withValues(alpha: 0.7)],
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -668,12 +676,12 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [color, color.withOpacity(0.7)],
+                      colors: [color, color.withValues(alpha: 0.7)],
                     ),
                     borderRadius: BorderRadius.circular(8),
                     boxShadow: [
                       BoxShadow(
-                        color: color.withOpacity(0.3),
+                        color: color.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -701,10 +709,10 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
             Container(
               height: 36,
               decoration: BoxDecoration(
-                color: AppTheme.darkSurface.withOpacity(0.5),
+                color: AppTheme.darkSurface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -716,11 +724,11 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
                 decoration: InputDecoration(
                   hintText: 'البحث في الحقول...',
                   hintStyle: AppTextStyles.bodyMedium.copyWith(
-                    color: AppTheme.textMuted.withOpacity(0.5),
+                    color: AppTheme.textMuted.withValues(alpha: 0.5),
                   ),
                   prefixIcon: Icon(
                     Icons.search_rounded,
-                    color: AppTheme.textMuted.withOpacity(0.5),
+                    color: AppTheme.textMuted.withValues(alpha: 0.5),
                     size: 18,
                   ),
                   border: InputBorder.none,
@@ -752,7 +760,7 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
           Icon(
             Icons.error_outline_rounded,
             size: 48,
-            color: AppTheme.error.withOpacity(0.7),
+            color: AppTheme.error.withValues(alpha: 0.7),
           ),
           const SizedBox(height: 16),
           Text(
@@ -781,8 +789,8 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.darkSurface.withOpacity(0.5),
-                  AppTheme.darkSurface.withOpacity(0.3),
+                  AppTheme.darkSurface.withValues(alpha: 0.5),
+                  AppTheme.darkSurface.withValues(alpha: 0.3),
                 ],
               ),
               shape: BoxShape.circle,
@@ -790,7 +798,7 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
             child: Icon(
               icon,
               size: 40,
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
           ),
           const SizedBox(height: 16),
@@ -948,12 +956,12 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.error.withOpacity(0.3),
+                color: AppTheme.error.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.error.withOpacity(0.2),
+                  color: AppTheme.error.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -966,7 +974,7 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.error.withOpacity(0.1),
+                    color: AppTheme.error.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.delete_outline,
@@ -1063,7 +1071,9 @@ class _AdminPropertyTypesPageState extends State<AdminPropertyTypesPage>
 }
 
 class _FuturisticBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `rotation`.
   final double rotation;
+
   final double glowIntensity;
 
   _FuturisticBackgroundPainter({
@@ -1077,7 +1087,7 @@ class _FuturisticBackgroundPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.5;
 
-    paint.color = AppTheme.primaryBlue.withOpacity(0.05);
+    paint.color = AppTheme.primaryBlue.withValues(alpha: 0.05);
     const spacing = 50.0;
 
     for (double x = 0; x < size.width; x += spacing) {
@@ -1097,7 +1107,7 @@ class _FuturisticBackgroundPainter extends CustomPainter {
     }
 
     final center = Offset(size.width / 2, size.height / 2);
-    paint.color = AppTheme.primaryBlue.withOpacity(0.03 * glowIntensity);
+    paint.color = AppTheme.primaryBlue.withValues(alpha: 0.03 * glowIntensity);
 
     for (int i = 0; i < 3; i++) {
       final radius = 200.0 + i * 100;
@@ -1112,139 +1122,4 @@ class _FuturisticBackgroundPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
-}
-
-class _DeleteConfirmationDialog extends StatelessWidget {
-  final String title;
-  final String message;
-  final VoidCallback onConfirm;
-
-  const _DeleteConfirmationDialog({
-    required this.title,
-    required this.message,
-    required this.onConfirm,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      insetPadding: const EdgeInsets.all(10),
-      backgroundColor: Colors.transparent,
-      child: Container(
-        width: 400,
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: AppTheme.error.withOpacity(0.3),
-            width: 1,
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
-                  ],
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.warning_rounded,
-                color: AppTheme.error,
-                size: 32,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: AppTextStyles.heading3.copyWith(
-                color: AppTheme.textWhite,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: AppTheme.darkSurface.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.3),
-                          width: 1,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'إلغاء',
-                          style: AppTextStyles.buttonMedium.copyWith(
-                            color: AppTheme.textMuted,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      HapticFeedback.mediumImpact();
-                      onConfirm();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppTheme.error,
-                            AppTheme.error.withOpacity(0.8),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'حذف',
-                          style: AppTextStyles.buttonMedium.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

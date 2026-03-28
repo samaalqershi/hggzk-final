@@ -1,46 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hggzkportal/features/chat/presentation/pages/chat_page.dart';
 import 'package:hggzkportal/features/chat/presentation/widgets/pinned_admins_widget.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/widgets/loading_widget.dart';
-import '../../../../core/widgets/empty_widget.dart';
 import '../../domain/entities/conversation.dart';
 import '../bloc/chat_bloc.dart';
-import '../widgets/participant_item_widget.dart';
-import 'package:characters/characters.dart';
 
+/// يعرّف الكلاس `NewConversationPage`.
+/// Describes the `NewConversationPage` class.
 class NewConversationPage extends StatefulWidget {
+  /// Initializes a new `NewConversationPage` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `NewConversationPage`.
   const NewConversationPage({super.key});
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<NewConversationPage> createState() => _NewConversationPageState();
 }
 
+/// يعرّف الكلاس `_NewConversationPageState`.
+/// Describes the `_NewConversationPageState` class.
 class _NewConversationPageState extends State<NewConversationPage>
     with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _groupNameController = TextEditingController();
+
+  /// يخزن العضو `_selectedUsers`.
+  /// Holds the `_selectedUsers` member.
   final Set<ChatUser> _selectedUsers = {};
 
+  /// يخزن العضو `_isCreatingGroup`.
+  /// Holds the `_isCreatingGroup` member.
   bool _isCreatingGroup = false; // المجموعات معطلة
+  /// يخزن العضو `_availableUsers`.
+  /// Holds the `_availableUsers` member.
   List<ChatUser> _availableUsers = [];
+
+  /// يخزن العضو `_filteredUsers`.
+  /// Holds the `_filteredUsers` member.
   List<ChatUser> _filteredUsers = [];
 
   // Animation Controllers
+  /// يخزن العضو `_fadeController`.
+  /// Holds the `_fadeController` member.
   late AnimationController _fadeController;
+
+  /// يخزن العضو `_slideController`.
+  /// Holds the `_slideController` member.
   late AnimationController _slideController;
+
+  /// يخزن العضو `_pulseController`.
+  /// Holds the `_pulseController` member.
   late AnimationController _pulseController;
 
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-  late Animation<double> _pulseAnimation;
 
+  /// يخزن العضو `_slideAnimation`.
+  /// Holds the `_slideAnimation` member.
+  late Animation<Offset> _slideAnimation;
+
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -49,6 +75,8 @@ class _NewConversationPageState extends State<NewConversationPage>
     _searchController.addListener(_filterUsers);
   }
 
+  /// ينفذ العملية `_initializeAnimations`.
+  /// Runs the `_initializeAnimations` operation.
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 500),
@@ -78,18 +106,12 @@ class _NewConversationPageState extends State<NewConversationPage>
       curve: Curves.easeOutQuart,
     ));
 
-    _pulseAnimation = Tween<double>(
-      begin: 0.95,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
-
     _fadeController.forward();
     _slideController.forward();
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _searchController.dispose();
@@ -100,12 +122,16 @@ class _NewConversationPageState extends State<NewConversationPage>
     super.dispose();
   }
 
+  /// ينفذ العملية `_loadAvailableUsers`.
+  /// Runs the `_loadAvailableUsers` operation.
   void _loadAvailableUsers() {
     final bloc = context.read<ChatBloc>();
     bloc.add(const LoadAdminUsersEvent());
     bloc.add(const LoadAvailableUsersEvent());
   }
 
+  /// ينفذ العملية `_filterUsers`.
+  /// Runs the `_filterUsers` operation.
   void _filterUsers() {
     final query = _searchController.text.toLowerCase();
     setState(() {
@@ -119,6 +145,8 @@ class _NewConversationPageState extends State<NewConversationPage>
     });
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return BlocListener<ChatBloc, ChatState>(
@@ -223,15 +251,15 @@ class _NewConversationPageState extends State<NewConversationPage>
               child: Column(
                 children: [
                   _buildPremiumAppBar(),
-                Expanded(
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: SlideTransition(
-                      position: _slideAnimation,
-                      child: _buildUserSelectionView(),
+                  Expanded(
+                    child: FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: SlideTransition(
+                        position: _slideAnimation,
+                        child: _buildUserSelectionView(),
+                      ),
                     ),
                   ),
-                ),
                 ],
               ),
             ),
@@ -243,6 +271,8 @@ class _NewConversationPageState extends State<NewConversationPage>
   }
 
 // أضف دالة بناء dialog التحميل الاحترافي
+  /// ينفذ العملية `_buildCreatingDialog`.
+  /// Runs the `_buildCreatingDialog` operation.
   Widget _buildCreatingDialog() {
     return Center(
       child: Container(
@@ -361,6 +391,8 @@ class _NewConversationPageState extends State<NewConversationPage>
   }
 
 // تحديث دالة _startDirectChat - إزالة Navigator.pop
+  /// ينفذ العملية `_startDirectChat`.
+  /// Runs the `_startDirectChat` operation.
   void _startDirectChat(ChatUser user) {
     HapticFeedback.lightImpact();
 
@@ -374,144 +406,8 @@ class _NewConversationPageState extends State<NewConversationPage>
     // لا Navigator.pop هنا!
   }
 
-  void _handleExistingConversation(Conversation conversation) {
-    // إذا كانت المحادثة موجودة بالفعل، انتقل إليها مباشرة
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => ChatPage(conversation: conversation),
-      ),
-    );
-  }
-
-// أضف validation محسّن
-  bool _validateGroupCreation() {
-    if (_groupNameController.text.trim().isEmpty) {
-      _showValidationError('الرجاء إدخال اسم المجموعة');
-      return false;
-    }
-
-    if (_groupNameController.text.trim().length < 3) {
-      _showValidationError('اسم المجموعة يجب أن يكون 3 أحرف على الأقل');
-      return false;
-    }
-
-    if (_selectedUsers.length < 2) {
-      _showValidationError('يجب اختيار شخصين على الأقل للمجموعة');
-      return false;
-    }
-
-    if (_selectedUsers.length > 100) {
-      _showValidationError('الحد الأقصى للمجموعة هو 100 عضو');
-      return false;
-    }
-
-    return true;
-  }
-
-  void _showValidationError(String message) {
-    HapticFeedback.mediumImpact();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(
-              Icons.warning_amber_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                message,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: Colors.white,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: AppTheme.warning,
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        duration: const Duration(seconds: 3),
-        action: SnackBarAction(
-          label: 'حسناً',
-          textColor: Colors.white,
-          onPressed: () {},
-        ),
-      ),
-    );
-  }
-
-  void _createGroup() {
-    if (!_validateGroupCreation()) {
-      return;
-    }
-
-    HapticFeedback.lightImpact();
-
-    // تنظيف اسم المجموعة
-    final cleanGroupName = _groupNameController.text.trim();
-
-    context.read<ChatBloc>().add(
-          CreateConversationEvent(
-            participantIds: _selectedUsers.map((u) => u.id).toList(),
-            conversationType: 'group',
-            title: cleanGroupName,
-            description: 'مجموعة تضم ${_selectedUsers.length} أعضاء',
-          ),
-        );
-  }
-
-// دالة مساعدة لإظهار رسائل الخطأ
-  void _showErrorSnackBar(String message) {
-    HapticFeedback.mediumImpact();
-
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.warning_amber_rounded,
-                color: Colors.white,
-                size: 16,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: Colors.white,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: AppTheme.warning,
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
-
+  /// ينفذ العملية `_buildPremiumBackground`.
+  /// Runs the `_buildPremiumBackground` operation.
   Widget _buildPremiumBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -532,6 +428,8 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
+  /// ينفذ العملية `_buildPremiumAppBar`.
+  /// Runs the `_buildPremiumAppBar` operation.
   Widget _buildPremiumAppBar() {
     return ClipRRect(
       child: BackdropFilter(
@@ -603,6 +501,8 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
+  /// ينفذ العملية `_buildAppBarButton`.
+  /// Runs the `_buildAppBarButton` operation.
   Widget _buildAppBarButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -634,6 +534,8 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
+  /// ينفذ العملية `_buildUserSelectionView`.
+  /// Runs the `_buildUserSelectionView` operation.
   Widget _buildUserSelectionView() {
     return Column(
       children: [
@@ -707,6 +609,8 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
+  /// ينفذ العملية `_buildRegularUsersList`.
+  /// Runs the `_buildRegularUsersList` operation.
   Widget _buildRegularUsersList() {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -719,8 +623,8 @@ class _NewConversationPageState extends State<NewConversationPage>
   }
 
   // تم تعطيل واجهة إنشاء المجموعات
-  Widget _buildGroupCreationView() => _buildUserSelectionView();
-
+  /// ينفذ العملية `_buildPremiumSearchBar`.
+  /// Runs the `_buildPremiumSearchBar` operation.
   Widget _buildPremiumSearchBar() {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -766,6 +670,8 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
+  /// ينفذ العملية `_buildSelectedUsersChips`.
+  /// Runs the `_buildSelectedUsersChips` operation.
   Widget _buildSelectedUsersChips() {
     return Container(
       height: 90, // زيادة الارتفاع من 80 إلى 90 لحل مشكلة overflow
@@ -884,17 +790,8 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
-  Widget _buildUsersList() {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: _filteredUsers.length,
-      itemBuilder: (context, index) {
-        final user = _filteredUsers[index];
-        return _buildUserListTile(user, listIndex: index);
-      },
-    );
-  }
-
+  /// ينفذ العملية `_buildUserListTile`.
+  /// Runs the `_buildUserListTile` operation.
   Widget _buildUserListTile(ChatUser user, {required int listIndex}) {
     final isSelected = _selectedUsers.contains(user);
     return TweenAnimationBuilder<double>(
@@ -979,6 +876,8 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
+  /// ينفذ العملية `_buildUserAvatar`.
+  /// Runs the `_buildUserAvatar` operation.
   Widget _buildUserAvatar(ChatUser user, bool isSelected) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -1018,6 +917,8 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
+  /// ينفذ العملية `_buildUserSubtitle`.
+  /// Runs the `_buildUserSubtitle` operation.
   Widget? _buildUserSubtitle(ChatUser user) {
     if (user.isOnline) {
       return Row(
@@ -1055,6 +956,8 @@ class _NewConversationPageState extends State<NewConversationPage>
     return null;
   }
 
+  /// ينفذ العملية `_buildPremiumLoadingState`.
+  /// Runs the `_buildPremiumLoadingState` operation.
   Widget _buildPremiumLoadingState() {
     return Center(
       child: Column(
@@ -1083,6 +986,8 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
+  /// ينفذ العملية `_buildPremiumEmptyState`.
+  /// Runs the `_buildPremiumEmptyState` operation.
   Widget _buildPremiumEmptyState() {
     return Center(
       child: Container(
@@ -1143,8 +1048,8 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
-  Widget? _buildPremiumFAB() => null;
-
+  /// ينفذ العملية `_formatLastSeen`.
+  /// Runs the `_formatLastSeen` operation.
   String _formatLastSeen(DateTime dt) {
     final now = DateTime.now();
     final diff = now.difference(dt);
@@ -1154,6 +1059,8 @@ class _NewConversationPageState extends State<NewConversationPage>
     return '${diff.inDays} يوم';
   }
 
+  /// ينفذ العملية `_getInitials`.
+  /// Runs the `_getInitials` operation.
   String _getInitials(String name) {
     final parts = name.trim().split(' ').where((e) => e.isNotEmpty).toList();
     if (parts.isEmpty) return '?';
@@ -1164,7 +1071,11 @@ class _NewConversationPageState extends State<NewConversationPage>
 }
 
 // Subtle Pattern Painter
+/// يعرّف الكلاس `_SubtlePatternPainter`.
+/// Describes the `_SubtlePatternPainter` class.
 class _SubtlePatternPainter extends CustomPainter {
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1185,6 +1096,8 @@ class _SubtlePatternPainter extends CustomPainter {
     }
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

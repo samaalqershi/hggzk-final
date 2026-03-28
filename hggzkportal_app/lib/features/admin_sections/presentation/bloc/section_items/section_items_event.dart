@@ -3,6 +3,7 @@ import '../../../../../core/enums/section_target.dart';
 import '../../../../../core/models/section_item_dto.dart';
 
 abstract class SectionItemsEvent extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `SectionItemsEvent`.
   const SectionItemsEvent();
 
   @override
@@ -10,10 +11,15 @@ abstract class SectionItemsEvent extends Equatable {
 }
 
 class LoadSectionItemsEvent extends SectionItemsEvent {
+  /// العربية: يخزن القيمة `sectionId`.
   final String sectionId;
+
   final SectionTarget target;
+
   final int pageNumber;
+
   final int pageSize;
+
   const LoadSectionItemsEvent({
     required this.sectionId,
     required this.target,
@@ -23,9 +29,13 @@ class LoadSectionItemsEvent extends SectionItemsEvent {
 }
 
 class AddItemsToSectionEvent extends SectionItemsEvent {
+  /// العربية: يخزن القيمة `sectionId`.
   final String sectionId;
+
   final List<String> propertyIds;
+
   final List<String> unitIds;
+
   const AddItemsToSectionEvent({
     required this.sectionId,
     this.propertyIds = const [],
@@ -34,14 +44,21 @@ class AddItemsToSectionEvent extends SectionItemsEvent {
 }
 
 class RemoveItemsFromSectionEvent extends SectionItemsEvent {
+  /// العربية: يخزن القيمة `sectionId`.
   final String sectionId;
+
   final List<String> itemIds;
-  const RemoveItemsFromSectionEvent({required this.sectionId, required this.itemIds});
+
+  const RemoveItemsFromSectionEvent(
+      {required this.sectionId, required this.itemIds});
 }
 
 class ReorderSectionItemsEvent extends SectionItemsEvent {
+  /// العربية: يخزن القيمة `sectionId`.
   final String sectionId;
-  final List<ItemOrderDto> orders;
-  const ReorderSectionItemsEvent({required this.sectionId, required this.orders});
-}
 
+  final List<ItemOrderDto> orders;
+
+  const ReorderSectionItemsEvent(
+      {required this.sectionId, required this.orders});
+}

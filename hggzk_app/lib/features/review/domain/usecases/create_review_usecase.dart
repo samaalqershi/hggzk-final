@@ -4,11 +4,19 @@ import '../../../../core/error/failures.dart';
 import '../entities/review.dart';
 import '../repositories/review_repository.dart';
 
+/// Submits a completed booking review to the review repository.
+/// يرسل مراجعة الحجز المكتملة إلى مستودع المراجعات.
 class CreateReviewUseCase {
+  /// Repository bridge that handles review persistence.
+  /// جسر المستودع الذي يتولى حفظ المراجعة.
   final ReviewRepository repository;
 
+  /// Creates the use case around the repository contract.
+  /// ينشئ حالة الاستخدام اعتمادًا على عقد المستودع.
   CreateReviewUseCase(this.repository);
 
+  /// Sends the review payload and returns the stored review record.
+  /// يرسل حمولة المراجعة ويعيد السجل المحفوظ.
   Future<Either<Failure, Review>> call(CreateReviewParams params) async {
     return await repository.createReview(
       bookingId: params.bookingId,
@@ -23,16 +31,43 @@ class CreateReviewUseCase {
   }
 }
 
+/// Parameters required to create a booking review.
+/// المعطيات المطلوبة لإنشاء مراجعة لحجز.
 class CreateReviewParams extends Equatable {
+  /// Booking that the review belongs to.
+  /// الحجز الذي تنتمي إليه المراجعة.
   final String bookingId;
+
+  /// Property being reviewed.
+  /// العقار محل المراجعة.
   final String propertyId;
+
+  /// Cleanliness score on the feature's rating scale.
+  /// درجة النظافة وفق مقياس التقييم الخاص بالميزة.
   final int cleanliness;
+
+  /// Service score on the feature's rating scale.
+  /// درجة الخدمة وفق مقياس التقييم الخاص بالميزة.
   final int service;
+
+  /// Location score on the feature's rating scale.
+  /// درجة الموقع وفق مقياس التقييم الخاص بالميزة.
   final int location;
+
+  /// Value-for-money score on the feature's rating scale.
+  /// درجة القيمة مقابل المال وفق مقياس التقييم الخاص بالميزة.
   final int value;
+
+  /// Free-text feedback written by the guest.
+  /// التعليق الحر الذي يكتبه الضيف.
   final String comment;
+
+  /// Optional images encoded for upload with the review.
+  /// صور اختيارية مشفّرة للرفع مع المراجعة.
   final List<String>? imagesBase64;
 
+  /// Bundles the full review payload used by the submission flow.
+  /// يجمع حمولة المراجعة الكاملة المستخدمة في مسار الإرسال.
   const CreateReviewParams({
     required this.bookingId,
     required this.propertyId,
@@ -44,6 +79,8 @@ class CreateReviewParams extends Equatable {
     this.imagesBase64,
   });
 
+  /// Keeps request comparisons stable for repeated submissions.
+  /// يحافظ على ثبات مقارنة الطلبات عند تكرار الإرسال.
   @override
   List<Object?> get props => [
         bookingId,

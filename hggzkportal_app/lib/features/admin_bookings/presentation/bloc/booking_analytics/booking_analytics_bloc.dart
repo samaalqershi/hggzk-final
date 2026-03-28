@@ -8,18 +8,41 @@ import '../../../domain/usecases/reports/get_booking_window_analysis_usecase.dar
 import 'booking_analytics_event.dart';
 import 'booking_analytics_state.dart';
 
+/// العربية: يدير تحميل التقارير والاتجاهات وتحليل نافذة الحجز ومقارنة الفترات.
+/// English: Manages report loading, trend loading, window analysis, and period comparison.
 class BookingAnalyticsBloc
     extends Bloc<BookingAnalyticsEvent, BookingAnalyticsState> {
+  /// العربية: يجلب ملخص تقرير الحجوزات للفترة المطلوبة.
+  /// English: Fetches the booking report summary for the requested range.
   final GetBookingReportUseCase getBookingReportUseCase;
+
+  /// العربية: يجلب بيانات الاتجاهات الخاصة بالحجوزات.
+  /// English: Fetches booking trend data.
   final GetBookingTrendsUseCase getBookingTrendsUseCase;
+
+  /// العربية: يجلب تحليل نافذة الحجز عندما يكون العقار محددًا.
+  /// English: Fetches booking window analysis when a property is selected.
   final GetBookingWindowAnalysisUseCase getBookingWindowAnalysisUseCase;
 
+  /// العربية: بداية الفترة الحالية المستخدمة عند التحديث أو المقارنة.
+  /// English: The current period start reused by refresh or comparison actions.
   DateTime _currentStartDate =
       DateTime.now().subtract(const Duration(days: 30));
+
+  /// العربية: نهاية الفترة الحالية المستخدمة عند التحديث أو المقارنة.
+  /// English: The current period end reused by refresh or comparison actions.
   DateTime _currentEndDate = DateTime.now();
+
+  /// العربية: العقار النشط الذي تُحسب عليه التحليلات عند وجوده.
+  /// English: The active property scope used for analytics when present.
   String? _currentPropertyId;
+
+  /// العربية: الفترة الزمنية النشطة في الواجهة.
+  /// English: The active time period shown in the UI.
   AnalyticsPeriod _currentPeriod = AnalyticsPeriod.month;
 
+  /// العربية: ينشئ BLoC التحليلات ويربط الأحداث بمعالجاتها.
+  /// English: Creates the analytics bloc and wires events to their handlers.
   BookingAnalyticsBloc({
     required this.getBookingReportUseCase,
     required this.getBookingTrendsUseCase,
@@ -36,6 +59,8 @@ class BookingAnalyticsBloc
     on<ComparePeriodsEvent>(_onComparePeriods);
   }
 
+  /// العربية: يجلب التقرير والاتجاهات وتحليل النافذة ثم يبني حالة التحليلات المكتملة.
+  /// English: Loads the report, trends, and window analysis before building the full analytics state.
   Future<void> _onLoadBookingAnalytics(
     LoadBookingAnalyticsEvent event,
     Emitter<BookingAnalyticsState> emit,
@@ -112,6 +137,8 @@ class BookingAnalyticsBloc
     }
   }
 
+  /// العربية: يعيد تحميل التحليلات باستخدام آخر فترة وعقار محفوظين.
+  /// English: Reloads analytics using the last saved period and property scope.
   Future<void> _onRefreshAnalytics(
     RefreshAnalyticsEvent event,
     Emitter<BookingAnalyticsState> emit,
@@ -123,6 +150,8 @@ class BookingAnalyticsBloc
     ));
   }
 
+  /// العربية: يغيّر الفترة المختارة ثم يحسب نطاقًا زمنيًا مناسبًا لها.
+  /// English: Changes the selected period and recalculates a matching date range.
   Future<void> _onChangePeriod(
     ChangePeriodEvent event,
     Emitter<BookingAnalyticsState> emit,
@@ -138,6 +167,8 @@ class BookingAnalyticsBloc
     ));
   }
 
+  /// العربية: يبدّل العقار النشط ثم يعيد تحميل التحليلات ضمن نفس الفترة.
+  /// English: Switches the active property and reloads analytics for the same period.
   Future<void> _onChangePropertyFilter(
     ChangePropertyFilterEvent event,
     Emitter<BookingAnalyticsState> emit,
@@ -151,6 +182,8 @@ class BookingAnalyticsBloc
     ));
   }
 
+  /// العربية: يعيد تحميل التقرير فقط مع الحفاظ على بقية البيانات الحالية.
+  /// English: Reloads only the report while keeping the rest of the current data.
   Future<void> _onLoadBookingReport(
     LoadBookingReportEvent event,
     Emitter<BookingAnalyticsState> emit,
@@ -177,6 +210,8 @@ class BookingAnalyticsBloc
     }
   }
 
+  /// العربية: يعيد تحميل الاتجاهات فقط مع الحفاظ على بقية بيانات التحليلات.
+  /// English: Reloads only the trends while preserving the rest of the analytics data.
   Future<void> _onLoadBookingTrends(
     LoadBookingTrendsEvent event,
     Emitter<BookingAnalyticsState> emit,
@@ -203,6 +238,8 @@ class BookingAnalyticsBloc
     }
   }
 
+  /// العربية: يعيد تحميل تحليل نافذة الحجز فقط عندما يكون هناك حالة مكتملة.
+  /// English: Reloads only the booking window analysis when a loaded state is available.
   Future<void> _onLoadBookingWindowAnalysis(
     LoadBookingWindowAnalysisEvent event,
     Emitter<BookingAnalyticsState> emit,
@@ -225,6 +262,8 @@ class BookingAnalyticsBloc
     }
   }
 
+  /// العربية: يحاكي أو ينفذ تصدير التقرير ثم يعيد حالة العرض الأصلية بعد الانتهاء.
+  /// English: Simulates or performs the export and then restores the original view state.
   Future<void> _onExportAnalyticsReport(
     ExportAnalyticsReportEvent event,
     Emitter<BookingAnalyticsState> emit,
@@ -253,6 +292,8 @@ class BookingAnalyticsBloc
     }
   }
 
+  /// العربية: يجلب تقريري فترتين مختلفتين ثم ينتج مقارنة مباشرة بينهما.
+  /// English: Fetches two period reports and produces a direct comparison between them.
   Future<void> _onComparePeriods(
     ComparePeriodsEvent event,
     Emitter<BookingAnalyticsState> emit,
@@ -313,6 +354,8 @@ class BookingAnalyticsBloc
     }
   }
 
+  /// العربية: يحول الفترة المختارة إلى نطاق تاريخ مناسب للتحميل من الخادم.
+  /// English: Converts the selected period into a backend-friendly date range.
   DateRange _calculateDateRangeForPeriod(AnalyticsPeriod period) {
     final now = DateTime.now();
     DateTime start, end;
@@ -343,6 +386,8 @@ class BookingAnalyticsBloc
     return DateRange(start: start, end: end);
   }
 
+  /// العربية: يقارن بين ملخصي تقريرين ويعيد الفروقات الأساسية كنسب مئوية.
+  /// English: Compares two report summaries and returns the main percentage deltas.
   Map<String, dynamic> _compareReports(
     BookingReport report1,
     BookingReport report2,
@@ -376,15 +421,26 @@ class BookingAnalyticsBloc
     return comparison;
   }
 
+  /// العربية: يحسب نسبة التغيّر بين قيمة قديمة وأخرى جديدة مع حماية من القسمة على صفر.
+  /// English: Calculates percentage change between old and new values while guarding against division by zero.
   double _calculatePercentageChange(double oldValue, double newValue) {
     if (oldValue == 0) return newValue > 0 ? 100 : 0;
     return ((newValue - oldValue) / oldValue) * 100;
   }
 }
 
+/// العربية: يمثل نطاقًا زمنيًا بسيطًا يستخدمه BLoC التحليلات عند طلب البيانات.
+/// English: Represents a simple time range used by the analytics bloc when requesting data.
 class DateRange {
+  /// العربية: بداية النطاق الزمني.
+  /// English: The start of the time range.
   final DateTime start;
+
+  /// العربية: نهاية النطاق الزمني.
+  /// English: The end of the time range.
   final DateTime end;
 
+  /// العربية: ينشئ نطاق التاريخ من البداية إلى النهاية.
+  /// English: Creates a date range from the start to the end.
   DateRange({required this.start, required this.end});
 }

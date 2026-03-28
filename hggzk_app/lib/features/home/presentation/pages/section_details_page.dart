@@ -17,16 +17,13 @@ import '../widgets/sections/base_section_widget.dart';
 class SectionDetailsPage extends StatefulWidget {
   final String sectionId;
   final Section? section;
-
   const SectionDetailsPage({super.key, required this.sectionId, this.section});
-
   @override
   State<SectionDetailsPage> createState() => _SectionDetailsPageState();
 }
 
 class _SectionDetailsPageState extends State<SectionDetailsPage> {
   final ScrollController _scrollController = ScrollController();
-
   @override
   void initState() {
     super.initState();

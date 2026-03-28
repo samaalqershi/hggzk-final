@@ -15,21 +15,59 @@ import '../../domain/usecases/delete_account_usecase.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
-import '../../../../injection_container.dart' as di;
+import 'package:hggzk/app/dependency_injection/injection_container.dart' as di;
 
+/// ينسّق عمليات المصادقة على مستوى الواجهة، من فحص الجلسة إلى تسجيل الدخول
+/// والتسجيل وتحديث الملف الشخصي.
+/// Coordinates presentation-layer authentication flows, from session checks to
+/// login, registration, and profile updates.
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  /// حالة الاستخدام الخاصة بتسجيل الدخول التقليدي.
+  /// Use case dedicated to classic sign-in.
   final LoginUseCase loginUseCase;
+
+  /// حالة الاستخدام الخاصة بإنشاء الحساب.
+  /// Use case dedicated to registration.
   final RegisterUseCase registerUseCase;
+
+  /// حالة الاستخدام الخاصة بإنهاء الجلسة.
+  /// Use case responsible for logout.
   final LogoutUseCase logoutUseCase;
+
+  /// حالة الاستخدام الخاصة بإعادة تعيين كلمة المرور.
+  /// Use case that starts password recovery.
   final ResetPasswordUseCase resetPasswordUseCase;
+
+  /// حالة الاستخدام الخاصة بفحص حالة الجلسة الحالية.
+  /// Use case that checks the current session status.
   final CheckAuthStatusUseCase checkAuthStatusUseCase;
+
+  /// حالة الاستخدام الخاصة بجلب ملف المستخدم الحالي.
+  /// Use case that fetches the current user profile.
   final GetCurrentUserUseCase getCurrentUserUseCase;
+
+  /// حالة الاستخدام الخاصة بتحديث الملف الشخصي.
+  /// Use case that updates the user profile.
   final UpdateProfileUseCase updateProfileUseCase;
+
+  /// حالة الاستخدام الخاصة برفع صورة الملف الشخصي.
+  /// Use case that uploads a profile image.
   final UploadUserImageUseCase uploadUserImageUseCase;
+
+  /// حالة الاستخدام الخاصة بتغيير كلمة المرور.
+  /// Use case that changes the password.
   final ChangePasswordUseCase changePasswordUseCase;
+
+  /// حالة الاستخدام الخاصة بحذف الحساب.
+  /// Use case that deletes the account.
   final DeleteAccountUseCase deleteAccountUseCase;
+
+  /// حالة الاستخدام الخاصة بالمصادقة الاجتماعية.
+  /// Use case that handles social authentication.
   final SocialLoginUseCase socialLoginUseCase;
 
+  /// ينشئ الـ bloc ويصل كل حدث بالمعالج الموافق له.
+  /// Creates the bloc and wires each incoming event to its handler.
   AuthBloc({
     required this.loginUseCase,
     required this.registerUseCase,
@@ -55,7 +93,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<DeleteAccountEvent>(_onDeleteAccount);
     on<SocialLoginEvent>(_onSocialLogin);
   }
-
   Future<void> _onDeleteAccount(
     DeleteAccountEvent event,
     Emitter<AuthState> emit,

@@ -2,21 +2,18 @@ import 'package:hggzkportal/core/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:ui';
 import '../widgets/revenue_chart_widget.dart';
-import '../widgets/payment_stats_cards.dart';
 import '../widgets/payment_breakdown_pie_chart.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_dimensions.dart';
-import '../../domain/entities/payment_analytics.dart';
 import '../bloc/payment_analytics/payment_analytics_bloc.dart';
 import '../bloc/payment_analytics/payment_analytics_event.dart';
 import '../bloc/payment_analytics/payment_analytics_state.dart';
 
 class RevenueDashboardPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `RevenueDashboardPage`.
   const RevenueDashboardPage({super.key});
-
   @override
   State<RevenueDashboardPage> createState() => _RevenueDashboardPageState();
 }
@@ -31,7 +28,6 @@ class _RevenueDashboardPageState extends State<RevenueDashboardPage>
 
   final PageController _pageController = PageController();
   int _currentPage = 0;
-
   @override
   void initState() {
     super.initState();

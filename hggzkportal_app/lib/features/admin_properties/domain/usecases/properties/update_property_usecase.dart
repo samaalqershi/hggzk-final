@@ -6,6 +6,7 @@ import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../../repositories/properties_repository.dart';
 
 class UpdatePropertyParams {
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
   final String? name;
   final String? address;
@@ -21,7 +22,6 @@ class UpdatePropertyParams {
   final double? systemCommissionRate;
   final String? ownerId;
   final List<String>? amenityIds;
-
   UpdatePropertyParams({
     required this.propertyId,
     this.name,
@@ -39,7 +39,6 @@ class UpdatePropertyParams {
     this.ownerId,
     this.amenityIds,
   });
-
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
     if (name != null) data['name'] = name;
@@ -63,10 +62,9 @@ class UpdatePropertyParams {
 }
 
 class UpdatePropertyUseCase implements UseCase<bool, UpdatePropertyParams> {
+  /// العربية: يخزن القيمة `repository`.
   final PropertiesRepository repository;
-
   UpdatePropertyUseCase(this.repository);
-
   @override
   Future<Either<Failure, bool>> call(UpdatePropertyParams params) async {
     return await repository.updateProperty(params.propertyId, params.toJson());

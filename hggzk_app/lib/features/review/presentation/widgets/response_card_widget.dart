@@ -5,14 +5,22 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/review.dart';
 
+/// Displays the management reply attached to a property review.
+/// يعرض رد الإدارة المرفق بمراجعة العقار.
 class ResponseCardWidget extends StatelessWidget {
+  /// Reply content that will be rendered as the card body.
+  /// محتوى الرد الذي سيُعرض داخل البطاقة.
   final ReviewReply reply;
 
+  /// Builds the reply card for a single management response.
+  /// ينشئ بطاقة الرد لرسالة إدارة واحدة.
   const ResponseCardWidget({
     super.key,
     required this.reply,
   });
 
+  /// Renders the response container, header, and formatted message body.
+  /// يرسم حاوية الرد والعنوان ومحتوى الرسالة منسقًا.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -48,6 +56,8 @@ class ResponseCardWidget extends StatelessWidget {
     );
   }
 
+  /// Builds the author header and response meta row.
+  /// يبني ترويسة الكاتب وصف بيانات الرد.
   Widget _buildHeader() {
     return Row(
       children: [
@@ -113,6 +123,8 @@ class ResponseCardWidget extends StatelessWidget {
     );
   }
 
+  /// Renders the response body using the shared review typography.
+  /// يرسم نص الرد باستخدام أنماط الخط المشتركة للمراجعات.
   Widget _buildContent() {
     return Text(
       reply.content,
@@ -122,6 +134,8 @@ class ResponseCardWidget extends StatelessWidget {
     );
   }
 
+  /// Formats the response timestamp for the current locale.
+  /// ينسق طابع زمن الرد وفق اللغة الحالية.
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);

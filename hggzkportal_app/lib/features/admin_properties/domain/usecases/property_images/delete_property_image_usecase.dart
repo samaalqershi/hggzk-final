@@ -6,10 +6,9 @@ import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../../repositories/property_images_repository.dart';
 
 class DeletePropertyImageUseCase implements UseCase<bool, String> {
+  /// العربية: يخزن القيمة `repository`.
   final PropertyImagesRepository repository;
-
   DeletePropertyImageUseCase(this.repository);
-
   @override
   Future<Either<Failure, bool>> call(String imageId) async {
     return await repository.deleteImage(imageId);

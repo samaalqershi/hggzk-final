@@ -1,5 +1,5 @@
-/// تعداد طرق الدفع
-/// Payment Methods enumeration
+/// يعرّف طرق الدفع المعتمدة في النظام مع تمثيل عرضي وBackend ثابت.
+/// Defines the payment methods supported by the system with display and backend mappings.
 enum PaymentMethod {
   jwaliWallet,
   cashWallet,
@@ -13,9 +13,11 @@ enum PaymentMethod {
   sabaCashWallet,
 }
 
-/// Extension for PaymentMethod enum
+/// يربط طريقة الدفع بالمعرّف الخلفي واسم العرض وأيقونة التمثيل.
+/// Maps payment methods to backend ids, display names, and icon keys.
 extension PaymentMethodExtension on PaymentMethod {
-  /// Get the backend value for the payment method
+  /// يعيد القيمة الرقمية التي يتوقعها الخادم لهذه الطريقة.
+  /// Returns the numeric backend value expected for this method.
   int get backendValue {
     switch (this) {
       case PaymentMethod.jwaliWallet:
@@ -41,7 +43,8 @@ extension PaymentMethodExtension on PaymentMethod {
     }
   }
 
-  /// Get display name in Arabic
+  /// يعيد الاسم العربي الظاهر للمستخدم.
+  /// Returns the Arabic label shown to users.
   String get displayNameAr {
     switch (this) {
       case PaymentMethod.jwaliWallet:
@@ -67,7 +70,8 @@ extension PaymentMethodExtension on PaymentMethod {
     }
   }
 
-  /// Get display name in English
+  /// يعيد الاسم الإنجليزي الظاهر في السجلات أو الواجهات الثنائية.
+  /// Returns the English label used in logs or bilingual UIs.
   String get displayNameEn {
     switch (this) {
       case PaymentMethod.jwaliWallet:
@@ -93,7 +97,8 @@ extension PaymentMethodExtension on PaymentMethod {
     }
   }
 
-  /// Get icon name for the payment method
+  /// يعيد اسم الأيقونة أو المفتاح البصري المرتبط بطريقة الدفع.
+  /// Returns the icon or visual key associated with the payment method.
   String get iconName {
     switch (this) {
       case PaymentMethod.jwaliWallet:
@@ -119,7 +124,8 @@ extension PaymentMethodExtension on PaymentMethod {
     }
   }
 
-  /// Check if the payment method is a wallet
+  /// يحدد ما إذا كانت طريقة الدفع من فئة المحافظ.
+  /// Indicates whether the method belongs to the wallet family.
   bool get isWallet {
     switch (this) {
       case PaymentMethod.jwaliWallet:
@@ -135,7 +141,8 @@ extension PaymentMethodExtension on PaymentMethod {
     }
   }
 
-  /// Check if the payment method is online
+  /// يحدد ما إذا كانت طريقة الدفع تعتمد على قناة إلكترونية.
+  /// Indicates whether the method is processed online.
   bool get isOnline {
     switch (this) {
       case PaymentMethod.cash:
@@ -145,7 +152,8 @@ extension PaymentMethodExtension on PaymentMethod {
     }
   }
 
-  /// Create PaymentMethod from backend value
+  /// يحول القيمة الرقمية القادمة من الخادم إلى طريقة الدفع المناسبة.
+  /// Converts a backend integer into the matching payment method.
   static PaymentMethod fromBackendValue(int value) {
     switch (value) {
       case 1:
@@ -173,7 +181,8 @@ extension PaymentMethodExtension on PaymentMethod {
     }
   }
 
-  /// Create PaymentMethod from string
+  /// يحول النص الحر أو المختصر إلى طريقة الدفع المطابقة.
+  /// Converts a free-form or shortened string into the matching payment method.
   static PaymentMethod fromString(String value) {
     final normalizedValue = value.toLowerCase().replaceAll('_', '');
     switch (normalizedValue) {
@@ -209,8 +218,8 @@ extension PaymentMethodExtension on PaymentMethod {
   }
 }
 
-/// تعداد حالات الدفع
-/// Payment Status enumeration
+/// يصف الحالات النهائية أو المرحلية لعملية الدفع.
+/// Describes the final or transitional states of a payment transaction.
 enum PaymentStatus {
   successful,
   failed,
@@ -220,9 +229,11 @@ enum PaymentStatus {
   partiallyRefunded,
 }
 
-/// Extension for PaymentStatus enum
+/// يربط حالة الدفع بالنصوص وخصائص السلوك المطلوبة في الواجهة والخادم.
+/// Maps payment status to display labels and behavioral helpers.
 extension PaymentStatusExtension on PaymentStatus {
-  /// Backend key used in APIs
+  /// يعيد المفتاح النصي الذي يستخدمه الخادم في الـ APIs.
+  /// Returns the backend key used by APIs.
   String get backendKey {
     switch (this) {
       case PaymentStatus.successful:
@@ -240,7 +251,8 @@ extension PaymentStatusExtension on PaymentStatus {
     }
   }
 
-  /// Get display name in Arabic
+  /// يعيد الاسم العربي الظاهر للمستخدم.
+  /// Returns the Arabic display label for the status.
   String get displayNameAr {
     switch (this) {
       case PaymentStatus.successful:
@@ -258,7 +270,8 @@ extension PaymentStatusExtension on PaymentStatus {
     }
   }
 
-  /// Get display name in English
+  /// يعيد الاسم الإنجليزي المقابل للحالة.
+  /// Returns the matching English label for the status.
   String get displayNameEn {
     switch (this) {
       case PaymentStatus.successful:
@@ -276,7 +289,8 @@ extension PaymentStatusExtension on PaymentStatus {
     }
   }
 
-  /// Get color for status
+  /// يعيد كود اللون المرتبط بالحالة لعرضها بصريًا.
+  /// Returns the color code used to visualize the status.
   String get colorCode {
     switch (this) {
       case PaymentStatus.successful:
@@ -294,17 +308,20 @@ extension PaymentStatusExtension on PaymentStatus {
     }
   }
 
-  /// Check if payment is complete
+  /// يحدد ما إذا كانت العملية وصلت إلى حالة نجاح نهائية.
+  /// Indicates whether the payment has reached a final successful state.
   bool get isComplete {
     return this == PaymentStatus.successful;
   }
 
-  /// Check if payment can be refunded
+  /// يحدد ما إذا كانت الحالة تسمح باسترداد المبلغ.
+  /// Indicates whether the payment can still be refunded.
   bool get canRefund {
     return this == PaymentStatus.successful;
   }
 
-  /// Create PaymentStatus from string
+  /// يحول النص القادم من الخادم أو الواجهة إلى حالة دفع معروفة.
+  /// Converts a backend or UI string into a known payment status.
   static PaymentStatus fromString(String value) {
     final normalizedValue = value.toLowerCase();
     switch (normalizedValue) {

@@ -3,37 +3,68 @@ import 'section_image_model.dart';
 import '../../domain/entities/section_image.dart' as section_img;
 
 class PropertyInSectionModel {
+  /// العربية: يخزن القيمة `id`.
   final String id;
+
   final String? propertyInSectionId;
+
   final String sectionId;
+
   final String propertyId;
+
   final String propertyName;
+
   final String address;
+
   final String city;
+
   final double latitude;
+
   final double longitude;
+
   final String propertyType;
+
   final int starRating;
+
   final double averageRating;
+
   final int reviewsCount;
+
   final double basePrice;
+
   final String currency;
+
   final String? mainImageUrl;
+
   final String? mainImageId;
   final List<section_img.SectionImage> additionalImages;
+
   final String? shortDescription;
+
   final int displayOrder;
+
   final bool isFeatured;
+
   final double? discountPercentage;
+
   final String? promotionalText;
+
   final String? badge;
+
   final String? badgeColor;
+
   final DateTime? displayFrom;
+
   final DateTime? displayUntil;
+
   final int priority;
+
   final int viewsFromSection;
+
   final int clickCount;
+
   final double? conversionRate;
+
   final Map<String, dynamic>? metadata;
 
   const PropertyInSectionModel({

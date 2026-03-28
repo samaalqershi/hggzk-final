@@ -12,15 +12,23 @@ import 'notification_state.dart';
 
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final GetNotificationsUseCase? getNotificationsUseCase;
+
   final MarkAsReadUseCase? markAsReadUseCase;
+
   final DismissNotificationUseCase? dismissNotificationUseCase;
+
   final UpdateNotificationSettingsUseCase? updateNotificationSettingsUseCase;
+
   final GetUnreadCountUseCase? getUnreadCountUseCase;
+
   final GetNotificationSettingsUseCase? getNotificationSettingsUseCase;
 
   List<NotificationEntity> _cachedNotifications = [];
+
   int _currentPage = 1;
+
   bool _hasReachedMax = false;
+
   int _unreadCount = 0;
 
   NotificationBloc({

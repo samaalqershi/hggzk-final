@@ -1,7 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
-
 class TimezoneHelper {
   static String? _cachedTimezone;
   static int? _cachedOffset;
@@ -18,7 +17,7 @@ class TimezoneHelper {
       // الحصول على timezone مباشرة عند التهيئة
       await getDeviceTimezone();
     } catch (e) {
-      print('Error initializing timezone: $e');
+      debugPrint('Error initializing timezone: $e');
     }
   }
 
@@ -35,12 +34,12 @@ class TimezoneHelper {
       final now = DateTime.now();
       _cachedOffset = now.timeZoneOffset.inMinutes;
 
-      print('📍 Device Timezone: $_cachedTimezone');
-      print('⏰ UTC Offset: $_cachedOffset minutes');
+      debugPrint('📍 Device Timezone: $_cachedTimezone');
+      debugPrint('⏰ UTC Offset: $_cachedOffset minutes');
 
       return _cachedTimezone!;
     } catch (e) {
-      print('Error getting timezone: $e');
+      debugPrint('Error getting timezone: $e');
 
       // في حالة الفشل، استخدم UTC offset
       final offset = DateTime.now().timeZoneOffset;

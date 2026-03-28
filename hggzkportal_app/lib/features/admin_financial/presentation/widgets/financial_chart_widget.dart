@@ -12,13 +12,11 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../domain/entities/financial_report.dart';
 
-/// 📊 ويدجت الرسوم البيانية المالية
 class FinancialChartWidget extends StatefulWidget {
   final List<ChartData> chartData;
   final String chartType; // revenue, expense, cashflow
   final bool isFullScreen;
   final VoidCallback? onToggleFullScreen;
-
   const FinancialChartWidget({
     super.key,
     required this.chartData,
@@ -26,7 +24,6 @@ class FinancialChartWidget extends StatefulWidget {
     this.isFullScreen = false,
     this.onToggleFullScreen,
   });
-
   @override
   State<FinancialChartWidget> createState() => _FinancialChartWidgetState();
 }
@@ -36,13 +33,10 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
   late AnimationController _animationController;
   late AnimationController _rotationController;
   late Animation<double> _animation;
-  
   int? _touchedIndex;
-  double? _touchedValue;
-  
+
   // Chart type: 0 = Bar, 1 = Line, 2 = Pie
   int _currentChartType = 0;
-
   @override
   void initState() {
     super.initState();
@@ -50,19 +44,19 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     );
-    
+
     _rotationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 20),
     )..repeat();
-    
+
     _animation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOutCubic,
     );
-    
+
     _animationController.forward();
-    
+
     // Set default chart type based on data type
     if (widget.chartType == 'cashflow') {
       _currentChartType = 1; // Line chart for cash flow
@@ -89,9 +83,9 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
           children: [
             // Chart Controls
             _buildChartControls(),
-            
+
             const SizedBox(height: 20),
-            
+
             // Chart
             Expanded(
               child: AnimatedSwitcher(
@@ -101,7 +95,7 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
             ),
           ],
         ),
-        
+
         // Full Screen Toggle
         if (widget.onToggleFullScreen != null)
           Positioned(
@@ -113,7 +107,6 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
     );
   }
 
-  /// 🎮 Chart Controls
   Widget _buildChartControls() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -145,7 +138,7 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
     required int index,
   }) {
     final isSelected = _currentChartType == index;
-    
+
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -161,17 +154,17 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    AppTheme.primaryCyan.withOpacity(0.3),
-                    AppTheme.primaryPurple.withOpacity(0.3),
+                    AppTheme.primaryCyan.withValues(alpha: 0.3),
+                    AppTheme.primaryPurple.withValues(alpha: 0.3),
                   ],
                 )
               : null,
-          color: isSelected ? null : AppTheme.darkCard.withOpacity(0.3),
+          color: isSelected ? null : AppTheme.darkCard.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
-                ? AppTheme.primaryCyan.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.2),
+                ? AppTheme.primaryCyan.withValues(alpha: 0.5)
+                : AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -197,7 +190,6 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
     );
   }
 
-  /// 📊 Build Chart based on type
   Widget _buildChart() {
     switch (_currentChartType) {
       case 0:
@@ -211,7 +203,6 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
     }
   }
 
-  /// 📊 Bar Chart
   Widget _buildBarChart() {
     return AnimatedBuilder(
       animation: _animation,
@@ -250,11 +241,9 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
                       barTouchResponse == null ||
                       barTouchResponse.spot == null) {
                     _touchedIndex = null;
-                    _touchedValue = null;
                     return;
                   }
                   _touchedIndex = barTouchResponse.spot!.touchedBarGroupIndex;
-                  _touchedValue = barTouchResponse.spot!.touchedRodData.toY;
                 });
               },
             ),
@@ -298,7 +287,8 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
                 ),
               ),
               topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles:
+                  AxisTitles(sideTitles: SideTitles(showTitles: false)),
             ),
             gridData: FlGridData(
               show: true,
@@ -307,7 +297,7 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
               horizontalInterval: _getMaxValue() / 5,
               getDrawingHorizontalLine: (value) {
                 return FlLine(
-                  color: AppTheme.darkBorder.withOpacity(0.1),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.1),
                   strokeWidth: 1,
                 );
               },
@@ -317,7 +307,7 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
               final index = entry.key;
               final data = entry.value;
               final isTouched = index == _touchedIndex;
-              
+
               return BarChartGroupData(
                 x: index,
                 barRods: [
@@ -335,7 +325,7 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
                     backDrawRodData: BackgroundBarChartRodData(
                       show: true,
                       toY: _getMaxValue(),
-                      color: AppTheme.darkBorder.withOpacity(0.05),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.05),
                     ),
                   ),
                 ],
@@ -347,7 +337,6 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
     );
   }
 
-  /// 📈 Line Chart
   Widget _buildLineChart() {
     return AnimatedBuilder(
       animation: _animation,
@@ -387,7 +376,7 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
                 return spotIndexes.map((spotIndex) {
                   return TouchedSpotIndicatorData(
                     FlLine(
-                      color: AppTheme.primaryCyan.withOpacity(0.3),
+                      color: AppTheme.primaryCyan.withValues(alpha: 0.3),
                       strokeWidth: 2,
                       dashArray: [5, 5],
                     ),
@@ -413,13 +402,13 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
               verticalInterval: 1,
               getDrawingHorizontalLine: (value) {
                 return FlLine(
-                  color: AppTheme.darkBorder.withOpacity(0.1),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.1),
                   strokeWidth: 1,
                 );
               },
               getDrawingVerticalLine: (value) {
                 return FlLine(
-                  color: AppTheme.darkBorder.withOpacity(0.05),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.05),
                   strokeWidth: 1,
                 );
               },
@@ -463,7 +452,8 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
                 ),
               ),
               topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles:
+                  AxisTitles(sideTitles: SideTitles(showTitles: false)),
             ),
             borderData: FlBorderData(show: false),
             lineBarsData: [
@@ -501,8 +491,8 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      AppTheme.primaryCyan.withOpacity(0.3),
-                      AppTheme.primaryPurple.withOpacity(0.1),
+                      AppTheme.primaryCyan.withValues(alpha: 0.3),
+                      AppTheme.primaryPurple.withValues(alpha: 0.1),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.5, 1.0],
@@ -516,10 +506,9 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
     );
   }
 
-  /// 🥧 Pie Chart
   Widget _buildPieChart() {
     final total = widget.chartData.fold(0.0, (sum, data) => sum + data.value);
-    
+
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -546,7 +535,8 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
                           _touchedIndex = -1;
                           return;
                         }
-                        _touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                        _touchedIndex = pieTouchResponse
+                            .touchedSection!.touchedSectionIndex;
                       });
                     },
                   ),
@@ -559,7 +549,7 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
             },
           ),
         ),
-        
+
         // Center Text
         Column(
           mainAxisSize: MainAxisSize.min,
@@ -572,7 +562,8 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
             ),
             const SizedBox(height: 4),
             ShaderMask(
-              shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+              shaderCallback: (bounds) =>
+                  AppTheme.primaryGradient.createShader(bounds),
               child: Text(
                 CurrencyFormatter.formatCompact(total),
                 style: AppTextStyles.heading3.copyWith(
@@ -596,12 +587,12 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
       final radius = widget.isFullScreen
           ? (isTouched ? 120.0 : 100.0)
           : (isTouched ? 80.0 : 60.0);
-      
+
       // Generate color from data or use default gradient
       final color = data.color != null
           ? Color(int.parse(data.color!.replaceFirst('#', '0xFF')))
           : _getPieColor(index);
-      
+
       return PieChartSectionData(
         color: color,
         value: data.value * _animation.value,
@@ -623,7 +614,7 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
                   color: AppTheme.darkCard,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: color.withOpacity(0.5),
+                    color: color.withValues(alpha: 0.5),
                     width: 1,
                   ),
                 ),
@@ -653,35 +644,33 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
     }).toList();
   }
 
-  /// 🎨 Get gradient colors for bar
   List<Color> _getGradientColors(ChartData data, bool isTouched) {
     if (data.color != null) {
       final color = Color(int.parse(data.color!.replaceFirst('#', '0xFF')));
       return [
-        color.withOpacity(isTouched ? 1.0 : 0.8),
-        color.withOpacity(isTouched ? 0.8 : 0.6),
+        color.withValues(alpha: isTouched ? 1.0 : 0.8),
+        color.withValues(alpha: isTouched ? 0.8 : 0.6),
       ];
     }
-    
+
     if (widget.chartType == 'revenue') {
       return [
-        AppTheme.success.withOpacity(isTouched ? 1.0 : 0.8),
-        AppTheme.success.withOpacity(isTouched ? 0.8 : 0.6),
+        AppTheme.success.withValues(alpha: isTouched ? 1.0 : 0.8),
+        AppTheme.success.withValues(alpha: isTouched ? 0.8 : 0.6),
       ];
     } else if (widget.chartType == 'expense') {
       return [
-        AppTheme.error.withOpacity(isTouched ? 1.0 : 0.8),
-        AppTheme.error.withOpacity(isTouched ? 0.8 : 0.6),
+        AppTheme.error.withValues(alpha: isTouched ? 1.0 : 0.8),
+        AppTheme.error.withValues(alpha: isTouched ? 0.8 : 0.6),
       ];
     } else {
       return [
-        AppTheme.primaryCyan.withOpacity(isTouched ? 1.0 : 0.8),
-        AppTheme.primaryPurple.withOpacity(isTouched ? 0.8 : 0.6),
+        AppTheme.primaryCyan.withValues(alpha: isTouched ? 1.0 : 0.8),
+        AppTheme.primaryPurple.withValues(alpha: isTouched ? 0.8 : 0.6),
       ];
     }
   }
 
-  /// 🎨 Get pie chart color by index
   Color _getPieColor(int index) {
     final colors = [
       AppTheme.primaryCyan,
@@ -696,13 +685,11 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
     return colors[index % colors.length];
   }
 
-  /// 📏 Get maximum value from chart data
   double _getMaxValue() {
     if (widget.chartData.isEmpty) return 100;
     return widget.chartData.map((e) => e.value).reduce(math.max);
   }
 
-  /// 🔳 Full Screen Button
   Widget _buildFullScreenButton() {
     return GestureDetector(
       onTap: () {
@@ -713,10 +700,10 @@ class _FinancialChartWidgetState extends State<FinancialChartWidget>
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withOpacity(0.5),
+          color: AppTheme.darkCard.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),

@@ -5,8 +5,16 @@ import '../../domain/entities/message.dart';
 import '../../domain/entities/attachment.dart';
 import 'attachment_model.dart';
 
-/// نموذج الرسالة مع دعم كامل لجميع أنواع الرسائل
+/// يحول رسالة الشات القادمة من الخادم إلى كائن غني يعرف النص،
+/// المرفقات، الموقع، التفاعلات، وحالة التسليم.
+/// Converts the server payload for a chat message into a rich object
+/// that understands text, attachments, location, reactions, and delivery
+/// state.
 class MessageModel extends Message {
+  /// يبني الرسالة مع كل حقولها الموروثة حتى تبقى قابلة للإعادة
+  /// والتعديل بشكل آمن.
+  /// Builds the message with all inherited fields so it remains safe
+  /// to reuse and edit.
   const MessageModel({
     required super.id,
     required super.conversationId,
@@ -37,7 +45,10 @@ class MessageModel extends Message {
     super.metadata,
   });
 
-  /// إنشاء نموذج من JSON مع معالجة شاملة
+  /// يطبع أكثر من شكل JSON وارد من الخادم إلى بنية رسالة موحدة
+  /// داخل التطبيق.
+  /// Normalizes the different JSON shapes returned by the server into
+  /// one message structure inside the app.
   factory MessageModel.fromJson(Map<String, dynamic> json) {
     return MessageModel(
       id: json['id'] ?? json['message_id'] ?? '',
@@ -72,7 +83,10 @@ class MessageModel extends Message {
     );
   }
 
-  /// تحويل النموذج إلى JSON
+  /// يعيد الرسالة إلى JSON مناسب للإرسال أو التخزين المؤقت مع
+  /// إسقاط الحقول الفارغة لتقليل الضوضاء.
+  /// Serializes the message for transport or caching while omitting
+  /// empty fields to keep the payload lean.
   Map<String, dynamic> toJson() {
     return {
       'message_id': id,
@@ -109,7 +123,10 @@ class MessageModel extends Message {
     };
   }
 
-  /// إنشاء نموذج من Entity
+  /// ينسخ بيانات الـ entity إلى model عندما يحتاج التطبيق إلى طبقة
+  /// قابلة للتسلسل.
+  /// Copies entity data into a model when the app needs a serializable
+  /// representation.
   factory MessageModel.fromEntity(Message message) {
     if (message is MessageModel) return message;
 
@@ -144,7 +161,9 @@ class MessageModel extends Message {
     );
   }
 
-  /// نسخ النموذج مع التحديثات
+  /// ينشئ نسخة معدلة من الرسالة مع الاحتفاظ ببقية التفاصيل كما هي.
+  /// Creates a modified copy of the message while preserving the rest
+  /// of the details.
   MessageModel copyWith({
     String? id,
     String? conversationId,
@@ -205,9 +224,12 @@ class MessageModel extends Message {
     );
   }
 
-  // ========== دوال مساعدة خاصة ==========
+  // Helper functions that normalize the message payload.
 
-  /// استخراج نوع الرسالة
+  /// يستنتج نوع الرسالة من الحقول المباشرة أو من المرفقات عند غياب
+  /// النوع الصريح.
+  /// Infers the message type from direct fields or from attachments
+  /// when the explicit type is missing.
   static String _extractMessageType(Map<String, dynamic> json) {
     final type = json['message_type'] ?? json['messageType'] ?? json['type'];
     if (type != null && type.toString().isNotEmpty) {
@@ -231,7 +253,10 @@ class MessageModel extends Message {
     return 'text';
   }
 
-  /// استخراج المحتوى
+  /// يختار المحتوى النصي من الحقول البديلة أو يحوله من كائن إلى نص
+  /// إذا لزم.
+  /// Picks the textual body from fallback fields or stringifies an
+  /// object when needed.
   static String? _extractContent(Map<String, dynamic> json) {
     final content = json['content'] ?? json['text'] ?? json['message'];
     if (content == null) return null;
@@ -246,7 +271,9 @@ class MessageModel extends Message {
     return content.toString();
   }
 
-  /// تحليل الموقع
+  /// يطبع الموقع القادم من أي صيغة JSON مدعومة إلى نموذج موقع موحد.
+  /// Normalizes location data from supported JSON shapes into one
+  /// location model.
   static LocationModel? _parseLocation(Map<String, dynamic> json) {
     final location = json['location'];
     if (location == null) return null;
@@ -267,7 +294,8 @@ class MessageModel extends Message {
     return null;
   }
 
-  /// تحليل الرسالة المُرد عليها
+  /// يبني الرسالة المرجعية التي يجري الرد عليها إن كانت موجودة.
+  /// Builds the referenced message being replied to when present.
   static Message? _parseReplyToMessage(Map<String, dynamic> json) {
     final reply = json['reply_to_message'] ?? json['replyToMessage'];
     if (reply == null) return null;
@@ -279,7 +307,8 @@ class MessageModel extends Message {
     return null;
   }
 
-  /// تحليل التفاعلات
+  /// يحول التفاعلات الخام إلى نماذج قابلة للعرض والمعالجة.
+  /// Converts raw reactions into displayable and processable models.
   static List<MessageReaction> _parseReactions(Map<String, dynamic> json) {
     final reactions = json['reactions'];
     if (reactions == null) return [];
@@ -294,7 +323,8 @@ class MessageModel extends Message {
     return [];
   }
 
-  /// تحليل المرفقات
+  /// يحول المرفقات الخام إلى نماذج يمكن للشات التعامل معها.
+  /// Converts raw attachments into models the chat layer can handle.
   static List<Attachment> _parseAttachments(Map<String, dynamic> json) {
     final attachments = json['attachments'];
     if (attachments == null) return [];
@@ -309,7 +339,10 @@ class MessageModel extends Message {
     return [];
   }
 
-  /// استخراج حالة الرسالة
+  /// يستنتج حالة التسليم أو القراءة عندما لا تكون قادمة صراحة من
+  /// الخادم.
+  /// Infers delivery or read state when the server does not provide
+  /// it explicitly.
   static String _extractStatus(Map<String, dynamic> json) {
     final status = json['status'] ?? json['message_status'];
     if (status != null && status.toString().isNotEmpty) {
@@ -324,7 +357,9 @@ class MessageModel extends Message {
     return 'sent';
   }
 
-  /// استخراج اسم المرسل
+  /// يستخرج اسم المرسل من الحقل المباشر أو من كائن المرسل البديل.
+  /// Extracts the sender name from a direct field or from a fallback
+  /// sender object.
   static String? _extractSenderName(Map<String, dynamic> json) {
     // محاولة مباشرة
     final directName = json['sender_name'] ?? json['senderName'];
@@ -347,7 +382,8 @@ class MessageModel extends Message {
     return null;
   }
 
-  /// استخراج صورة المرسل
+  /// يلتقط صورة المرسل من أكثر من موضع محتمل في payload.
+  /// Captures the sender avatar from the available payload fields.
   static String? _extractSenderAvatar(Map<String, dynamic> json) {
     final avatar = json['sender_avatar'] ?? json['senderAvatar'];
     if (avatar != null && avatar.toString().isNotEmpty) {
@@ -368,7 +404,9 @@ class MessageModel extends Message {
     return null;
   }
 
-  /// تحليل إيصال التسليم
+  /// يبني إيصال التسليم من البنية الخام أو من الحقول المسطحة.
+  /// Builds a delivery receipt from either the raw object or flat
+  /// fields.
   static DeliveryReceiptModel? _parseDeliveryReceipt(
       Map<String, dynamic> json) {
     final receipt = json['delivery_receipt'] ?? json['deliveryReceipt'];
@@ -388,7 +426,8 @@ class MessageModel extends Message {
     return null;
   }
 
-  /// تحليل قائمة المنشنات
+  /// يطبع قائمة الإشارات إلى مجموعة معرفات نصية نظيفة.
+  /// Normalizes the mentions list into clean string identifiers.
   static List<String> _parseMentions(Map<String, dynamic> json) {
     final mentions = json['mentions'];
     if (mentions == null) return [];
@@ -411,7 +450,8 @@ class MessageModel extends Message {
     return [];
   }
 
-  /// تحليل قائمة القراء
+  /// يجمع معرفات المستخدمين الذين قرؤوا الرسالة.
+  /// Collects the ids of users who have read the message.
   static List<String> _parseReadBy(Map<String, dynamic> json) {
     final readBy = json['read_by'] ?? json['readBy'];
     if (readBy == null) return [];
@@ -426,7 +466,9 @@ class MessageModel extends Message {
     return [];
   }
 
-  /// تحليل البيانات الوصفية
+  /// يلتقط البيانات الوصفية الإضافية إذا أرسلها الخادم كنص أو كائن.
+  /// Captures extra metadata when the server sends it as an object or
+  /// string.
   static Map<String, dynamic>? _parseMetadata(Map<String, dynamic> json) {
     final meta = json['metadata'] ?? json['meta'] ?? json['extra'];
     if (meta == null) return null;
@@ -443,7 +485,9 @@ class MessageModel extends Message {
     return null;
   }
 
-  /// تحليل التاريخ والوقت
+  /// يحاول تحويل الطابع الزمني من أي مفتاح متاح إلى `DateTime`.
+  /// Tries to convert a timestamp from any available key into
+  /// `DateTime`.
   static DateTime _parseDateTime(
       Map<String, dynamic> json, String key1, String key2) {
     final dateStr = json[key1] ?? json[key2];
@@ -454,7 +498,8 @@ class MessageModel extends Message {
     return DateTime.now();
   }
 
-  /// تحليل التاريخ والوقت الاختياري
+  /// يحول الطابع الزمني الاختياري فقط عندما يكون موجودًا.
+  /// Converts an optional timestamp only when it is present.
   static DateTime? _parseOptionalDateTime(
       Map<String, dynamic> json, String key1, String key2) {
     final dateStr = json[key1] ?? json[key2];
@@ -464,7 +509,8 @@ class MessageModel extends Message {
     return null;
   }
 
-  /// تحليل القيم المنطقية
+  /// يطبع القيم التي تشبه المنطق إلى `bool` بشكل آمن.
+  /// Safely normalizes boolean-like values into `bool`.
   static bool _parseBool(dynamic value) {
     if (value == null) return false;
     if (value is bool) return value;
@@ -477,8 +523,13 @@ class MessageModel extends Message {
   }
 }
 
-/// نموذج الموقع الجغرافي
+/// يمثل موقع الرسالة مع الإحداثيات والعنوان والتسمية الاختيارية.
+/// Represents a message location with coordinates, address, and an
+/// optional label.
 class LocationModel extends Location {
+  /// يبني الموقع من القيم المطبعة حتى يمكن إعادة استخدامه بأمان.
+  /// Builds the location from normalized values so it can be reused
+  /// safely.
   const LocationModel({
     required super.latitude,
     required super.longitude,
@@ -487,6 +538,8 @@ class LocationModel extends Location {
     super.accuracy,
   });
 
+  /// يحول JSON الموقع إلى كائن موقع موحد.
+  /// Converts the location JSON into a normalized location object.
   factory LocationModel.fromJson(Map<String, dynamic> json) {
     return LocationModel(
       latitude: _parseDouble(json['latitude']) ?? 0.0,
@@ -497,6 +550,8 @@ class LocationModel extends Location {
     );
   }
 
+  /// يعيد الموقع إلى JSON مناسب للإرسال أو التخزين المؤقت.
+  /// Serializes the location into JSON for transport or caching.
   Map<String, dynamic> toJson() {
     return {
       'latitude': latitude,
@@ -507,6 +562,8 @@ class LocationModel extends Location {
     };
   }
 
+  /// يحول أي قيمة رقمية محتملة إلى `double` بشكل آمن.
+  /// Safely converts any numeric-like value into `double`.
   static double? _parseDouble(dynamic value) {
     if (value == null) return null;
     if (value is double) return value;

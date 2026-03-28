@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/payment_model.dart';
 
 abstract class PaymentsLocalDataSource {
+  /// العربية: يعالج `cachePayments`.
   Future<void> cachePayments(List<PaymentModel> payments);
   Future<List<PaymentModel>> getCachedPayments();
   Future<void> cachePaymentDetails(String paymentId, PaymentModel payment);
@@ -11,13 +12,11 @@ abstract class PaymentsLocalDataSource {
 }
 
 class PaymentsLocalDataSourceImpl implements PaymentsLocalDataSource {
+  /// العربية: يخزن القيمة `sharedPreferences`.
   final SharedPreferences sharedPreferences;
-
   static const CACHED_PAYMENTS = 'CACHED_PAYMENTS';
   static const CACHED_PAYMENT_PREFIX = 'CACHED_PAYMENT_';
-
   PaymentsLocalDataSourceImpl({required this.sharedPreferences});
-
   @override
   Future<void> cachePayments(List<PaymentModel> payments) async {
     final jsonList = payments.map((payment) => payment.toJson()).toList();

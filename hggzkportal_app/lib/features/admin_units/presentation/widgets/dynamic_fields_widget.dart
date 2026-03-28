@@ -8,12 +8,27 @@ import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import '../../domain/entities/unit_type.dart';
 import 'package:intl/intl.dart';
 
+/// يمثل هذا الكلاس DynamicFieldsWidget البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for DynamicFieldsWidget in the admin unit workflow.
 class DynamicFieldsWidget extends StatefulWidget {
+  /// This field keeps the fields value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة fields التي يعتمد عليها مسار إدارة الوحدات.
   final List<UnitTypeField> fields;
+
+  /// يحتفظ هذا الحقل بقيمة values التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the values value used by the admin unit workflow.
   final Map<String, dynamic> values;
+
+  /// ينفذ هذا الأسلوب عملية Function ضمن مسار إدارة الوحدات.
+  /// This method performs the Function operation in the admin unit workflow.
   final Function(Map<String, dynamic>) onChanged;
+
+  /// يحتفظ هذا الحقل بقيمة isReadOnly التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the isReadOnly value used by the admin unit workflow.
   final bool isReadOnly;
 
+  /// ينشئ هذا المُنشئ مثيلاً من DynamicFieldsWidget.
+  /// This constructor creates an instance of DynamicFieldsWidget.
   const DynamicFieldsWidget({
     super.key,
     required this.fields,
@@ -22,15 +37,26 @@ class DynamicFieldsWidget extends StatefulWidget {
     this.isReadOnly = false,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<DynamicFieldsWidget> createState() => _DynamicFieldsWidgetState();
 }
 
+/// يمثل هذا الكلاس _DynamicFieldsWidgetState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _DynamicFieldsWidgetState in the admin unit workflow.
 class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
+  /// This field keeps the textControllers value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة textControllers التي يعتمد عليها مسار إدارة الوحدات.
   late Map<String, TextEditingController> _textControllers;
+
+  /// يحتفظ هذا الحقل بقيمة _currentValues التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _currentValues value used by the admin unit workflow.
   late Map<String, dynamic> _currentValues;
 
   // Safely coerce dynamic values into a boolean
+  /// ينفذ هذا الأسلوب عملية _asBool ضمن مسار إدارة الوحدات.
+  /// This method performs the _asBool operation in the admin unit workflow.
   bool _asBool(dynamic v) {
     if (v is bool) return v;
     if (v is String) {
@@ -41,6 +67,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     return false;
   }
 
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
@@ -65,6 +93,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _initializeControllers ضمن مسار إدارة الوحدات.
+  /// This method performs the _initializeControllers operation in the admin unit workflow.
   void _initializeControllers() {
     _textControllers = {};
     for (final field in widget.fields) {
@@ -76,6 +106,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية didUpdateWidget ضمن مسار إدارة الوحدات.
+  /// This method performs the didUpdateWidget operation in the admin unit workflow.
   @override
   void didUpdateWidget(covariant DynamicFieldsWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -134,6 +166,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _isTextBasedField ضمن مسار إدارة الوحدات.
+  /// This method performs the _isTextBasedField operation in the admin unit workflow.
   bool _isTextBasedField(String fieldType) {
     return ['text', 'textarea', 'email', 'phone', 'number', 'currency']
         .contains(fieldType);
@@ -141,6 +175,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
 
   /// استخراج الخيارات من fieldOptions بشكل آمن
   /// Safely extract options from fieldOptions regardless of type
+  /// ينفذ هذا الأسلوب عملية _extractOptions ضمن مسار إدارة الوحدات.
+  /// This method performs the _extractOptions operation in the admin unit workflow.
   List<String> _extractOptions(Map<String, dynamic>? fieldOptions) {
     if (fieldOptions == null) return [];
 
@@ -182,6 +218,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     return [];
   }
 
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     for (final controller in _textControllers.values) {
@@ -190,6 +228,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     super.dispose();
   }
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     if (widget.fields.isEmpty) {
@@ -202,13 +242,13 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.2),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -257,19 +297,21 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildEmptyState ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildEmptyState operation in the admin unit workflow.
   Widget _buildEmptyState() {
     return Container(
       padding: const EdgeInsets.all(40),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.3),
-            AppTheme.darkCard.withOpacity(0.1),
+            AppTheme.darkCard.withValues(alpha: 0.3),
+            AppTheme.darkCard.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -282,8 +324,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withOpacity(0.2),
-                    AppTheme.primaryPurple.withOpacity(0.1),
+                    AppTheme.primaryBlue.withValues(alpha: 0.2),
+                    AppTheme.primaryPurple.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -291,7 +333,7 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
               child: Icon(
                 Icons.dynamic_form_rounded,
                 size: 30,
-                color: AppTheme.primaryBlue.withOpacity(0.5),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 16),
@@ -307,6 +349,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildField operation in the admin unit workflow.
   Widget _buildField(UnitTypeField field) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -325,6 +369,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFieldLabel ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFieldLabel operation in the admin unit workflow.
   Widget _buildFieldLabel(UnitTypeField field) {
     return Row(
       children: [
@@ -346,18 +392,22 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFieldDescription ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFieldDescription operation in the admin unit workflow.
   Widget _buildFieldDescription(String description) {
     return Padding(
       padding: const EdgeInsets.only(left: 12),
       child: Text(
         description,
         style: AppTextStyles.caption.copyWith(
-          color: AppTheme.textMuted.withOpacity(0.7),
+          color: AppTheme.textMuted.withValues(alpha: 0.7),
         ),
       ),
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFieldInput ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFieldInput operation in the admin unit workflow.
   Widget _buildFieldInput(UnitTypeField field) {
     switch (field.fieldTypeId) {
       case 'text':
@@ -389,18 +439,20 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildTextField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildTextField operation in the admin unit workflow.
   Widget _buildTextField(UnitTypeField field) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.5),
-            AppTheme.darkSurface.withOpacity(0.3),
+            AppTheme.darkSurface.withValues(alpha: 0.5),
+            AppTheme.darkSurface.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -411,14 +463,14 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
         decoration: InputDecoration(
           hintText: 'أدخل ${field.displayName}',
           hintStyle: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textMuted.withOpacity(0.5),
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
           prefixIcon: Icon(
             Icons.text_fields_rounded,
             size: 20,
-            color: AppTheme.primaryBlue.withOpacity(0.7),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.7),
           ),
         ),
         onChanged: widget.isReadOnly
@@ -430,18 +482,20 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildTextArea ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildTextArea operation in the admin unit workflow.
   Widget _buildTextArea(UnitTypeField field) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.5),
-            AppTheme.darkSurface.withOpacity(0.3),
+            AppTheme.darkSurface.withValues(alpha: 0.5),
+            AppTheme.darkSurface.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -453,7 +507,7 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
         decoration: InputDecoration(
           hintText: 'أدخل ${field.displayName}',
           hintStyle: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textMuted.withOpacity(0.5),
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
@@ -463,7 +517,7 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
             child: Icon(
               Icons.subject_rounded,
               size: 20,
-              color: AppTheme.primaryPurple.withOpacity(0.7),
+              color: AppTheme.primaryPurple.withValues(alpha: 0.7),
             ),
           ),
         ),
@@ -476,18 +530,20 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildNumberField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildNumberField operation in the admin unit workflow.
   Widget _buildNumberField(UnitTypeField field) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.5),
-            AppTheme.darkSurface.withOpacity(0.3),
+            AppTheme.darkSurface.withValues(alpha: 0.5),
+            AppTheme.darkSurface.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -500,14 +556,14 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
         decoration: InputDecoration(
           hintText: 'أدخل ${field.displayName}',
           hintStyle: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textMuted.withOpacity(0.5),
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
           prefixIcon: Icon(
             Icons.numbers_rounded,
             size: 20,
-            color: AppTheme.success.withOpacity(0.7),
+            color: AppTheme.success.withValues(alpha: 0.7),
           ),
         ),
         onChanged: widget.isReadOnly
@@ -520,18 +576,20 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildCurrencyField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildCurrencyField operation in the admin unit workflow.
   Widget _buildCurrencyField(UnitTypeField field) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.5),
-            AppTheme.darkSurface.withOpacity(0.3),
+            AppTheme.darkSurface.withValues(alpha: 0.5),
+            AppTheme.darkSurface.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -546,14 +604,14 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
         decoration: InputDecoration(
           hintText: 'أدخل ${field.displayName}',
           hintStyle: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textMuted.withOpacity(0.5),
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
           prefixIcon: Icon(
             Icons.attach_money_rounded,
             size: 20,
-            color: AppTheme.warning.withOpacity(0.7),
+            color: AppTheme.warning.withValues(alpha: 0.7),
           ),
           suffixText: 'ريال',
           suffixStyle: AppTextStyles.bodySmall.copyWith(
@@ -570,18 +628,20 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildEmailField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildEmailField operation in the admin unit workflow.
   Widget _buildEmailField(UnitTypeField field) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.5),
-            AppTheme.darkSurface.withOpacity(0.3),
+            AppTheme.darkSurface.withValues(alpha: 0.5),
+            AppTheme.darkSurface.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -596,14 +656,14 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
         decoration: InputDecoration(
           hintText: 'example@email.com',
           hintStyle: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textMuted.withOpacity(0.5),
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
           prefixIcon: Icon(
             Icons.email_rounded,
             size: 20,
-            color: AppTheme.primaryBlue.withOpacity(0.7),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.7),
           ),
         ),
         onChanged: widget.isReadOnly
@@ -615,18 +675,20 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildPhoneField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildPhoneField operation in the admin unit workflow.
   Widget _buildPhoneField(UnitTypeField field) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.5),
-            AppTheme.darkSurface.withOpacity(0.3),
+            AppTheme.darkSurface.withValues(alpha: 0.5),
+            AppTheme.darkSurface.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -642,14 +704,14 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
         decoration: InputDecoration(
           hintText: '05XXXXXXXX',
           hintStyle: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textMuted.withOpacity(0.5),
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
           prefixIcon: Icon(
             Icons.phone_rounded,
             size: 20,
-            color: AppTheme.success.withOpacity(0.7),
+            color: AppTheme.success.withValues(alpha: 0.7),
           ),
         ),
         onChanged: widget.isReadOnly
@@ -661,6 +723,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildBooleanField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildBooleanField operation in the admin unit workflow.
   Widget _buildBooleanField(UnitTypeField field) {
     final bool value = _asBool(_currentValues[field.fieldId]);
 
@@ -677,19 +741,19 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
           gradient: LinearGradient(
             colors: value
                 ? [
-                    AppTheme.primaryBlue.withOpacity(0.2),
-                    AppTheme.primaryPurple.withOpacity(0.1),
+                    AppTheme.primaryBlue.withValues(alpha: 0.2),
+                    AppTheme.primaryPurple.withValues(alpha: 0.1),
                   ]
                 : [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: value
-                ? AppTheme.primaryBlue.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.3),
+                ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                : AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -706,7 +770,7 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
                 border: Border.all(
                   color: value
                       ? AppTheme.primaryBlue
-                      : AppTheme.darkBorder.withOpacity(0.5),
+                      : AppTheme.darkBorder.withValues(alpha: 0.5),
                   width: 1,
                 ),
               ),
@@ -732,6 +796,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildSelectField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildSelectField operation in the admin unit workflow.
   Widget _buildSelectField(UnitTypeField field) {
     final options = _extractOptions(field.fieldOptions);
     final value = _currentValues[field.fieldId];
@@ -740,13 +806,13 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.5),
-            AppTheme.darkSurface.withOpacity(0.3),
+            AppTheme.darkSurface.withValues(alpha: 0.5),
+            AppTheme.darkSurface.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -760,14 +826,14 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
               const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           prefixIcon: Icon(
             Icons.arrow_drop_down_circle_rounded,
-            color: AppTheme.neonPurple.withOpacity(0.7),
+            color: AppTheme.neonPurple.withValues(alpha: 0.7),
             size: 20,
           ),
         ),
         hint: Text(
           'اختر ${field.displayName}',
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textMuted.withOpacity(0.5),
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
           ),
         ),
         items: options.map((option) {
@@ -790,6 +856,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildMultiSelectField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildMultiSelectField operation in the admin unit workflow.
   Widget _buildMultiSelectField(UnitTypeField field) {
     final options = _extractOptions(field.fieldOptions);
     final selectedValues =
@@ -800,13 +868,13 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.5),
-            AppTheme.darkSurface.withOpacity(0.3),
+            AppTheme.darkSurface.withValues(alpha: 0.5),
+            AppTheme.darkSurface.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -847,7 +915,7 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
                     border: Border.all(
                       color: isSelected
                           ? AppTheme.primaryBlue
-                          : AppTheme.darkBorder.withOpacity(0.5),
+                          : AppTheme.darkBorder.withValues(alpha: 0.5),
                       width: 1,
                     ),
                   ),
@@ -868,6 +936,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildDateField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildDateField operation in the admin unit workflow.
   Widget _buildDateField(UnitTypeField field) {
     final value = _currentValues[field.fieldId];
     DateTime? selectedDate;
@@ -913,13 +983,13 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkSurface.withOpacity(0.5),
-              AppTheme.darkSurface.withOpacity(0.3),
+              AppTheme.darkSurface.withValues(alpha: 0.5),
+              AppTheme.darkSurface.withValues(alpha: 0.3),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -928,7 +998,7 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
             Icon(
               Icons.calendar_today_rounded,
               size: 20,
-              color: AppTheme.primaryPurple.withOpacity(0.7),
+              color: AppTheme.primaryPurple.withValues(alpha: 0.7),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -939,7 +1009,7 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: selectedDate != null
                       ? AppTheme.textWhite
-                      : AppTheme.textMuted.withOpacity(0.5),
+                      : AppTheme.textMuted.withValues(alpha: 0.5),
                 ),
               ),
             ),
@@ -960,6 +1030,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFileField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFileField operation in the admin unit workflow.
   Widget _buildFileField(UnitTypeField field) {
     final fileName = _currentValues[field.fieldId];
 
@@ -978,13 +1050,13 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkSurface.withOpacity(0.5),
-              AppTheme.darkSurface.withOpacity(0.3),
+              AppTheme.darkSurface.withValues(alpha: 0.5),
+              AppTheme.darkSurface.withValues(alpha: 0.3),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -993,7 +1065,7 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
             Icon(
               Icons.attach_file_rounded,
               size: 20,
-              color: AppTheme.warning.withOpacity(0.7),
+              color: AppTheme.warning.withValues(alpha: 0.7),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1002,7 +1074,7 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: fileName != null
                       ? AppTheme.textWhite
-                      : AppTheme.textMuted.withOpacity(0.5),
+                      : AppTheme.textMuted.withValues(alpha: 0.5),
                 ),
               ),
             ),
@@ -1018,6 +1090,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildImageField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildImageField operation in the admin unit workflow.
   Widget _buildImageField(UnitTypeField field) {
     final imagePath = _currentValues[field.fieldId];
 
@@ -1036,13 +1110,13 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkSurface.withOpacity(0.5),
-              AppTheme.darkSurface.withOpacity(0.3),
+              AppTheme.darkSurface.withValues(alpha: 0.5),
+              AppTheme.darkSurface.withValues(alpha: 0.3),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1062,6 +1136,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildImagePlaceholder ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildImagePlaceholder operation in the admin unit workflow.
   Widget _buildImagePlaceholder() {
     return Center(
       child: Column(
@@ -1070,13 +1146,13 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
           Icon(
             Icons.image_rounded,
             size: 40,
-            color: AppTheme.info.withOpacity(0.5),
+            color: AppTheme.info.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 8),
           Text(
             'اختر صورة',
             style: AppTextStyles.caption.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
           ),
         ],
@@ -1084,6 +1160,8 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _updateValue ضمن مسار إدارة الوحدات.
+  /// This method performs the _updateValue operation in the admin unit workflow.
   void _updateValue(String fieldId, dynamic value) {
     setState(() {
       _currentValues[fieldId] = value;

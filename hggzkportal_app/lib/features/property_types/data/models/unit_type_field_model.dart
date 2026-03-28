@@ -1,6 +1,7 @@
 import '../../domain/entities/unit_type_field.dart';
 
 class UnitTypeFieldModel extends UnitTypeField {
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitTypeFieldModel`.
   const UnitTypeFieldModel({
     required String fieldId,
     required String unitTypeId,

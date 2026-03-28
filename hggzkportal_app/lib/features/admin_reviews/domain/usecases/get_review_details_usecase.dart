@@ -5,12 +5,10 @@ import 'package:hggzkportal/core/error/failures.dart';
 import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../entities/review.dart';
 import '../repositories/reviews_repository.dart';
-
 class GetReviewDetailsUseCase implements UseCase<Review, String> {
+  /// العربية: يخزن القيمة `repository`.
   final ReviewsRepository repository;
-  
   GetReviewDetailsUseCase(this.repository);
-  
   @override
   Future<Either<Failure, Review>> call(String reviewId) {
     return repository.getReviewDetails(reviewId);

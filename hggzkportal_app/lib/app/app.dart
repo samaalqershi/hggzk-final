@@ -1,0 +1,90 @@
+import 'package:hggzkportal/core/bloc/locale/locale_cubit.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:hggzkportal/core/bloc/theme/theme_bloc.dart';
+import 'package:hggzkportal/core/bloc/theme/theme_state.dart';
+import 'package:hggzkportal/core/localization/app_localizations.dart';
+import 'package:hggzkportal/core/localization/locale_manager.dart';
+import 'package:hggzkportal/app/router/app_router.dart';
+import 'package:hggzkportal/core/bloc/app_bloc.dart';
+import 'package:hggzkportal/core/theme/app_theme.dart';
+import 'package:hggzkportal/services/message_service.dart';
+
+/// نقطة تركيب التطبيق العليا التي تجمع الـ blocs والـ router والـ theme.
+/// The top-level composition that wires blocs, routing, localization, and theming together.
+class HggzkPortalApp extends StatelessWidget {
+  /// ينشئ نقطة دخول التطبيق من دون أي حالة محلية خاصة به.
+  /// Creates the app entry widget without any private local state.
+  const HggzkPortalApp({super.key});
+
+  /// يبني غلاف التطبيق الكامل بعد قراءة حالة الثيم واللغة الحالية.
+  /// Builds the full app shell after reading the current theme and locale state.
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        // TypingIndicatorProvider removed; ChatBloc maintains typingUsers state
+        ...AppBloc.providers,
+      ],
+      child: BlocBuilder<ThemeBloc, ThemeState>(
+        bloc: AppBloc.theme,
+        builder: (context, themeState) {
+          return BlocBuilder<LocaleCubit, Locale>(
+            bloc: AppBloc.locale,
+            builder: (context, localeState) {
+              return MaterialApp.router(
+                title: 'hggzkportal',
+                debugShowCheckedModeBanner: false,
+                theme: _buildAppTheme(Brightness.light),
+                darkTheme: _buildAppTheme(Brightness.dark),
+                themeMode: themeState.themeMode,
+                locale: localeState,
+                scaffoldMessengerKey: MessageService.scaffoldMessengerKey,
+                localizationsDelegates: const [
+                  AppLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: LocaleManager.supportedLocales,
+                routerConfig: AppRouter.build(context),
+                builder: (context, child) {
+                  AppTheme.init(context, mode: themeState.themeMode);
+                  return child!;
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  /// يدمج خطوط Google Fonts مع ThemeData الافتراضي ليحافظ على هوية نصية واحدة.
+  /// Merges Google Fonts with the default ThemeData so the portal keeps a consistent typography system.
+  ThemeData _buildAppTheme(Brightness brightness) {
+    final base =
+        brightness == Brightness.dark ? ThemeData.dark() : ThemeData.light();
+
+    final tajawal = GoogleFonts.tajawalTextTheme(base.textTheme);
+    final cairo = GoogleFonts.cairoTextTheme(base.textTheme);
+
+    final textTheme = tajawal.copyWith(
+      displayLarge: cairo.displayLarge,
+      displayMedium: cairo.displayMedium,
+      displaySmall: cairo.displaySmall,
+      headlineLarge: cairo.headlineLarge,
+      headlineMedium: cairo.headlineMedium,
+      headlineSmall: cairo.headlineSmall,
+      titleLarge: cairo.titleLarge,
+    );
+
+    return base.copyWith(
+      textTheme: textTheme,
+      primaryTextTheme: textTheme,
+    );
+  }
+}

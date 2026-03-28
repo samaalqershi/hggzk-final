@@ -8,16 +8,34 @@ import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/attachment.dart';
 import 'reaction_picker_widget.dart';
 
+/// يعرّف الكلاس `ExpandableImageViewer`.
+/// Describes the `ExpandableImageViewer` class.
 class ExpandableImageViewer extends StatefulWidget {
+  /// Holds the `images` value.
+  /// العربية: يخزن القيمة `images`.
   final List<Attachment> images;
+
+  /// يخزن العضو `initialIndex`.
+  /// Holds the `initialIndex` member.
   final int initialIndex;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(String)? onReaction; // message-level reaction
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final void Function(Attachment)? onReply;
   // Optional: initial reactions by attachment id to render overlay per image
+  /// يخزن العضو `initialReactionsByAttachment`.
+  /// Holds the `initialReactionsByAttachment` member.
   final Map<String, String>? initialReactionsByAttachment;
   // Optional: per-attachment reaction callback to sync overlay with parent
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final void Function(Attachment, String)? onReactForAttachment;
 
+  /// ينشئ مثيلاً من `ExpandableImageViewer`.
+  /// Builds an instance of `ExpandableImageViewer`.
   const ExpandableImageViewer({
     super.key,
     required this.images,
@@ -28,16 +46,33 @@ class ExpandableImageViewer extends StatefulWidget {
     this.onReactForAttachment,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<ExpandableImageViewer> createState() => _ExpandableImageViewerState();
 }
 
+/// يعرّف الكلاس `_ExpandableImageViewerState`.
+/// Describes the `_ExpandableImageViewerState` class.
 class _ExpandableImageViewerState extends State<ExpandableImageViewer> {
+  /// Holds the `currentIndex` value.
+  /// العربية: يخزن القيمة `currentIndex`.
   late int _currentIndex;
+
+  /// يخزن العضو `_pageController`.
+  /// Holds the `_pageController` member.
   late final PageController _pageController;
+
+  /// يخزن العضو `_imageReactions`.
+  /// Holds the `_imageReactions` member.
   final Map<String, String> _imageReactions = {};
+
+  /// يخزن العضو `_showReactionPicker`.
+  /// Holds the `_showReactionPicker` member.
   bool _showReactionPicker = false;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -49,6 +84,8 @@ class _ExpandableImageViewerState extends State<ExpandableImageViewer> {
     }
   }
 
+  /// ينفذ العملية `_buildPhotoChild`.
+  /// Runs the `_buildPhotoChild` operation.
   Widget _buildPhotoChild(Attachment image) {
     if (image.localFile != null && image.localFile!.existsSync()) {
       return Image.file(image.localFile!, fit: BoxFit.contain);
@@ -60,12 +97,16 @@ class _ExpandableImageViewerState extends State<ExpandableImageViewer> {
     return CachedImageWidget(imageUrl: image.fileUrl, fit: BoxFit.contain);
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -152,7 +193,7 @@ class _ExpandableImageViewerState extends State<ExpandableImageViewer> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -177,11 +218,11 @@ class _ExpandableImageViewerState extends State<ExpandableImageViewer> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: _showReactionPicker
-                      ? Colors.white.withOpacity(0.25)
-                      : Colors.white.withOpacity(0.15),
+                      ? Colors.white.withValues(alpha: 0.25)
+                      : Colors.white.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -198,6 +239,8 @@ class _ExpandableImageViewerState extends State<ExpandableImageViewer> {
     );
   }
 
+  /// ينفذ العملية `_showImageOptions`.
+  /// Runs the `_showImageOptions` operation.
   void _showImageOptions() {
     showModalBottomSheet(
       context: context,
@@ -222,6 +265,8 @@ class _ExpandableImageViewerState extends State<ExpandableImageViewer> {
     );
   }
 
+  /// ينفذ العملية `_buildReactionOverlay`.
+  /// Runs the `_buildReactionOverlay` operation.
   Widget _buildReactionOverlay() {
     if (widget.images.isEmpty) return const SizedBox.shrink();
     final current = widget.images[_currentIndex];
@@ -237,10 +282,10 @@ class _ExpandableImageViewerState extends State<ExpandableImageViewer> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.12),
+              color: Colors.white.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Colors.white.withOpacity(0.25),
+                color: Colors.white.withValues(alpha: 0.25),
                 width: 0.5,
               ),
             ),
@@ -254,6 +299,8 @@ class _ExpandableImageViewerState extends State<ExpandableImageViewer> {
     );
   }
 
+  /// ينفذ العملية `_emojiForReaction`.
+  /// Runs the `_emojiForReaction` operation.
   String _emojiForReaction(String type) {
     switch (type) {
       case 'like':
@@ -274,11 +321,27 @@ class _ExpandableImageViewerState extends State<ExpandableImageViewer> {
   }
 }
 
+/// يعرّف الكلاس `_ImageViewerOptionsSheet`.
+/// Describes the `_ImageViewerOptionsSheet` class.
 class _ImageViewerOptionsSheet extends StatelessWidget {
+  /// Receives `Function`.
+  /// العربية: يعالج `Function`.
   final void Function(String) onReact;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final void Function(Attachment)? onReply;
+
+  /// يخزن العضو `parentNavigatorContext`.
+  /// Holds the `parentNavigatorContext` member.
   final BuildContext parentNavigatorContext;
+
+  /// يخزن العضو `currentAttachment`.
+  /// Holds the `currentAttachment` member.
   final Attachment currentAttachment;
+
+  /// ينشئ مثيلاً من `_ImageViewerOptionsSheet`.
+  /// Builds an instance of `_ImageViewerOptionsSheet`.
   const _ImageViewerOptionsSheet({
     required this.onReact,
     this.onReply,
@@ -286,6 +349,8 @@ class _ImageViewerOptionsSheet extends StatelessWidget {
     required this.currentAttachment,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -307,7 +372,7 @@ class _ImageViewerOptionsSheet extends StatelessWidget {
           Container(
             margin: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.6),
+              color: Colors.black.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -337,6 +402,8 @@ class _ImageViewerOptionsSheet extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_reactionChip`.
+  /// Runs the `_reactionChip` operation.
   Widget _reactionChip(
     BuildContext context,
     String emoji,
@@ -354,7 +421,7 @@ class _ImageViewerOptionsSheet extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Text(emoji, style: const TextStyle(fontSize: 22)),
@@ -363,6 +430,8 @@ class _ImageViewerOptionsSheet extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_actionTile`.
+  /// Runs the `_actionTile` operation.
   Widget _actionTile(
     BuildContext context,
     IconData icon,
@@ -371,7 +440,7 @@ class _ImageViewerOptionsSheet extends StatelessWidget {
   ) {
     return ListTile(
       onTap: onTap,
-      leading: Icon(icon, color: Colors.white.withOpacity(0.9)),
+      leading: Icon(icon, color: Colors.white.withValues(alpha: 0.9)),
       title: Text(title, style: const TextStyle(color: Colors.white)),
     );
   }

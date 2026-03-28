@@ -4,6 +4,7 @@ import '../../domain/entities/pricing_model.dart';
 
 /// 📋 Model لتفاصيل الخدمة
 class ServiceDetailsModel extends ServiceDetails {
+  /// العربية: ينشئ مثيلًا جديدًا من `ServiceDetailsModel`.
   const ServiceDetailsModel({
     required super.id,
     required super.propertyId,
@@ -16,16 +17,16 @@ class ServiceDetailsModel extends ServiceDetails {
     super.updatedAt,
     super.description,
   });
-
   factory ServiceDetailsModel.fromJson(Map<String, dynamic> json) {
     // Handle pricing model from backend format
     final pricingModelData = json['pricingModel'];
     PricingModel pricingModel;
-    
+
     if (pricingModelData is Map) {
       pricingModel = PricingModel.fromValue(pricingModelData.keys.first);
     } else {
-      pricingModel = PricingModel.fromValue('${pricingModelData ?? 'PerBooking'}');
+      pricingModel =
+          PricingModel.fromValue('${pricingModelData ?? 'PerBooking'}');
     }
 
     return ServiceDetailsModel(
@@ -36,16 +37,13 @@ class ServiceDetailsModel extends ServiceDetails {
       price: MoneyModel.fromJson(json['price'] ?? {}),
       pricingModel: pricingModel,
       icon: json['icon'] ?? 'room_service',
-      createdAt: json['createdAt'] != null 
-          ? DateTime.parse(json['createdAt']) 
-          : null,
-      updatedAt: json['updatedAt'] != null 
-          ? DateTime.parse(json['updatedAt']) 
-          : null,
+      createdAt:
+          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      updatedAt:
+          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
       description: json['description'],
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -64,7 +62,6 @@ class ServiceDetailsModel extends ServiceDetails {
       'description': description,
     };
   }
-
   ServiceDetails toEntity() => ServiceDetails(
         id: id,
         propertyId: propertyId,

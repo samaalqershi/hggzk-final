@@ -6,6 +6,7 @@ import 'package:hggzkportal/core/models/paginated_result.dart';
 import '../entities/property.dart';
 
 abstract class PropertiesRepository {
+  /// العربية: يعيد all properties.
   Future<Either<Failure, PaginatedResult<Property>>> getAllProperties({
     int? pageNumber,
     int? pageSize,
@@ -21,17 +22,22 @@ abstract class PropertiesRepository {
     bool? isApproved,
     bool? hasActiveBookings,
   });
-  
   Future<Either<Failure, Property>> getPropertyById(String propertyId);
-  Future<Either<Failure, Property>> getPropertyDetails(String propertyId, {bool includeUnits = false});
-  Future<Either<Failure, Property>> getPropertyDetailsPublic(String propertyId, {bool includeUnits = false});
-  Future<Either<Failure, String>> createProperty(Map<String, dynamic> propertyData);
-  Future<Either<Failure, bool>> updateProperty(String propertyId, Map<String, dynamic> propertyData);
-  Future<Either<Failure, bool>> updatePropertyAsOwner(String propertyId, Map<String, dynamic> propertyData);
+  Future<Either<Failure, Property>> getPropertyDetails(String propertyId,
+      {bool includeUnits = false});
+  Future<Either<Failure, Property>> getPropertyDetailsPublic(String propertyId,
+      {bool includeUnits = false});
+  Future<Either<Failure, String>> createProperty(
+      Map<String, dynamic> propertyData);
+  Future<Either<Failure, bool>> updateProperty(
+      String propertyId, Map<String, dynamic> propertyData);
+  Future<Either<Failure, bool>> updatePropertyAsOwner(
+      String propertyId, Map<String, dynamic> propertyData);
   Future<Either<Failure, bool>> deleteProperty(String propertyId);
   Future<Either<Failure, bool>> approveProperty(String propertyId);
   Future<Either<Failure, bool>> rejectProperty(String propertyId);
-  Future<Either<Failure, PaginatedResult<Property>>> getPendingProperties({int? pageNumber, int? pageSize});
-  Future<Either<Failure, bool>> addPropertyToSections(String propertyId, List<String> sectionIds);
-
+  Future<Either<Failure, PaginatedResult<Property>>> getPendingProperties(
+      {int? pageNumber, int? pageSize});
+  Future<Either<Failure, bool>> addPropertyToSections(
+      String propertyId, List<String> sectionIds);
 }

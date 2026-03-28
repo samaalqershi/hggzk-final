@@ -1,10 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
 import '../../../../../core/enums/section_content_type.dart';
 import '../../../../../core/enums/section_display_style.dart';
 import '../../../../../core/enums/section_target.dart';
 import '../../../../../core/enums/section_type.dart';
-import '../../../../../core/enums/section_class.dart';
 import '../../../domain/entities/section.dart' as domain;
 import '../../../domain/usecases/sections/create_section_usecase.dart';
 import '../../../domain/usecases/sections/update_section_usecase.dart';
@@ -12,9 +10,15 @@ import '../../../domain/usecases/sections/get_section_by_id_usecase.dart';
 import 'section_form_event.dart';
 import 'section_form_state.dart';
 
+/// يدير نموذج إنشاء الأقسام وتعديلها وتحميل بياناتها الأولية.
 class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
+  /// ينشئ قسمًا جديدًا.
   final CreateSectionUseCase createSection;
+
+  /// يحدث قسمًا موجودًا.
   final UpdateSectionUseCase updateSection;
+
+  /// يجلب بيانات قسم محدد لملء النموذج عند التعديل.
   final GetSectionByIdUseCase getSectionById;
 
   // Store form data internally
@@ -31,6 +35,7 @@ class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
     isVisibleToRegistered: true,
   );
 
+  /// يبني البلوك مع الاعتماديات الخاصة به.
   SectionFormBloc({
     required this.createSection,
     required this.updateSection,
@@ -47,16 +52,11 @@ class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
     on<SubmitSectionFormEvent>(_onSubmit);
   }
 
-  void _updateFormData(SectionFormReady newData) {
-    _formData = newData;
-  }
-
+  /// يهيئ النموذج عند الإنشاء أو التعديل.
   Future<void> _onInit(
     InitializeSectionFormEvent event,
     Emitter<SectionFormState> emit,
   ) async {
-    print('🟡 _onInit called with sectionId: ${event.sectionId}');
-
     // If we have a sectionId, we're editing - load the section data
     if (event.sectionId != null && event.sectionId!.isNotEmpty) {
       emit(SectionFormLoading());
@@ -67,14 +67,8 @@ class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
             await getSectionById(GetSectionByIdParams(event.sectionId!));
 
         result.fold((failure) {
-          print('❌ Failed to load section: ${failure.message}');
           emit(SectionFormError(message: failure.message));
         }, (section) {
-          print('✅ Section loaded successfully');
-          print('  - Name: ${section.name}');
-          print('  - Title: ${section.title}');
-          print('  - Type: ${section.type}');
-
           // Map section entity to form data
           _formData = SectionFormReady(
             sectionId: section.id,
@@ -113,10 +107,8 @@ class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
           );
 
           emit(_formData);
-          print('🟡 Section data emitted to form');
         });
       } catch (e) {
-        print('❌ Exception loading section: $e');
         emit(const SectionFormError(message: 'حدث خطأ في تحميل بيانات القسم'));
       }
     } else {
@@ -134,24 +126,23 @@ class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
         isVisibleToRegistered: true,
       );
       emit(_formData);
-      print('🟡 New section form initialized');
     }
   }
 
+  /// يربط مفتاحًا مؤقتًا بالبيانات الداخلية للنموذج.
   Future<void> _onAttachTempKey(
     AttachSectionTempKeyEvent event,
     Emitter<SectionFormState> emit,
   ) async {
-    print('🟡 _onAttachTempKey called with key: ${event.tempKey}');
     _formData = _formData.copyWith(tempKey: event.tempKey);
     emit(_formData);
   }
 
+  /// يحدّث البيانات الأساسية للقسم.
   Future<void> _onUpdateBasic(
     UpdateSectionBasicInfoEvent event,
     Emitter<SectionFormState> emit,
   ) async {
-    print('🟡 _onUpdateBasic called');
     _formData = _formData.copyWith(
       name: event.name ?? _formData.name,
       title: event.title ?? _formData.title,
@@ -162,11 +153,11 @@ class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
     emit(_formData);
   }
 
+  /// يحدّث إعدادات القسم وسلوكه العام.
   Future<void> _onUpdateConfig(
     UpdateSectionConfigEvent event,
     Emitter<SectionFormState> emit,
   ) async {
-    print('🟡 _onUpdateConfig called');
     _formData = _formData.copyWith(
       type: event.type ?? _formData.type,
       contentType: event.contentType ?? _formData.contentType,
@@ -182,11 +173,11 @@ class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
     emit(_formData);
   }
 
+  /// يحدّث مظهر القسم والعناصر البصرية المرتبطة به.
   Future<void> _onUpdateAppearance(
     UpdateSectionAppearanceEvent event,
     Emitter<SectionFormState> emit,
   ) async {
-    print('🟡 _onUpdateAppearance called');
     _formData = _formData.copyWith(
       icon: event.icon ?? _formData.icon,
       colorTheme: event.colorTheme ?? _formData.colorTheme,
@@ -195,11 +186,11 @@ class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
     emit(_formData);
   }
 
+  /// يحدّث معايير التصفية والفرز والربط.
   Future<void> _onUpdateFilters(
     UpdateSectionFiltersEvent event,
     Emitter<SectionFormState> emit,
   ) async {
-    print('🟡 _onUpdateFilters called');
     _formData = _formData.copyWith(
       filterCriteriaJson:
           event.filterCriteriaJson ?? _formData.filterCriteriaJson,
@@ -214,11 +205,11 @@ class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
     emit(_formData);
   }
 
+  /// يحدّث حالة الظهور والصلاحيات والفترة الزمنية.
   Future<void> _onUpdateVisibility(
     UpdateSectionVisibilityEvent event,
     Emitter<SectionFormState> emit,
   ) async {
-    print('🟡 _onUpdateVisibility called');
     _formData = _formData.copyWith(
       isVisibleToGuests: event.isVisibleToGuests ?? _formData.isVisibleToGuests,
       isVisibleToRegistered:
@@ -231,11 +222,11 @@ class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
     emit(_formData);
   }
 
+  /// يحدّث الحمولة الوصفية للنموذج.
   Future<void> _onUpdateMetadata(
     UpdateSectionMetadataEvent event,
     Emitter<SectionFormState> emit,
   ) async {
-    print('🟡 _onUpdateMetadata called');
     _formData = _formData.copyWith(
         metadataJson: event.metadataJson ?? _formData.metadataJson);
     emit(_formData);
@@ -245,17 +236,8 @@ class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
     SubmitSectionFormEvent event,
     Emitter<SectionFormState> emit,
   ) async {
-    print('🟢 _onSubmit called in Bloc');
-    print('🟢 Current form data:');
-    print('  - sectionId: ${_formData.sectionId}');
-    print('  - name: ${_formData.name}');
-    print('  - title: ${_formData.title}');
-    print('  - type: ${_formData.type}');
-    print('  - target: ${_formData.target}');
-
     // التحقق من الحقول المطلوبة
     if (_formData.name == null || _formData.name!.isEmpty) {
-      print('❌ Name is null or empty');
       emit(const SectionFormError(message: 'اسم القسم مطلوب'));
       await Future.delayed(const Duration(milliseconds: 100));
       emit(_formData);
@@ -263,14 +245,12 @@ class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
     }
 
     if (_formData.title == null || _formData.title!.isEmpty) {
-      print('❌ Title is null or empty');
       emit(const SectionFormError(message: 'عنوان القسم مطلوب'));
       await Future.delayed(const Duration(milliseconds: 100));
       emit(_formData);
       return;
     }
 
-    print('🟢 All validations passed, creating payload...');
     emit(SectionFormLoading());
 
     try {
@@ -310,11 +290,8 @@ class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
         metadata: _formData.metadataJson,
       );
 
-      print('🟢 Payload created');
-
       if ((_formData.sectionId ?? '').isEmpty) {
         // إنشاء قسم جديد
-        print('🟢 Creating new section...');
         final res = await createSection(CreateSectionParams(
           payload,
           tempKey: _formData.tempKey,
@@ -322,18 +299,15 @@ class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
 
         res.fold(
           (failure) {
-            print('❌ CreateSection failed: ${failure.message}');
             emit(SectionFormError(message: failure.message));
             // ✅ إصلاح: استخدام emit.isDone للتحقق قبل emit
           },
           (created) {
-            print('✅ Section created successfully with ID: ${created.id}');
             emit(SectionFormSubmitted(sectionId: created.id));
           },
         );
       } else {
         // تحديث قسم موجود
-        print('🟢 Updating existing section with ID: ${_formData.sectionId}');
         final res = await updateSection(UpdateSectionParams(
           sectionId: _formData.sectionId!,
           section: payload,
@@ -341,19 +315,15 @@ class SectionFormBloc extends Bloc<SectionFormEvent, SectionFormState> {
 
         res.fold(
           (failure) {
-            print('❌ UpdateSection failed: ${failure.message}');
             emit(SectionFormError(message: failure.message));
             // ✅ إصلاح: إزالة Future.delayed بدون await
           },
           (updated) {
-            print('✅ Section updated successfully');
             emit(SectionFormSubmitted(sectionId: updated.id));
           },
         );
       }
-    } catch (e, stackTrace) {
-      print('❌ Exception in _onSubmit: $e');
-      print('❌ StackTrace: $stackTrace');
+    } catch (e) {
       emit(SectionFormError(message: 'حدث خطأ: ${e.toString()}'));
       await Future.delayed(const Duration(milliseconds: 100));
       emit(_formData);

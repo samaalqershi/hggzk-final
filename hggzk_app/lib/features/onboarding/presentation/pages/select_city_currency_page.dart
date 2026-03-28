@@ -19,6 +19,8 @@ import '../../../reference/presentation/bloc/reference_state.dart';
 import '../../../reference/domain/entities/city.dart';
 import '../../../reference/domain/entities/currency.dart';
 
+/// Guides the user through the last onboarding choice before entering the app.
+/// يقود المستخدم عبر آخر خطوة في الإعداد الأولي قبل دخول التطبيق.
 class SelectCityCurrencyPage extends StatefulWidget {
   const SelectCityCurrencyPage({super.key});
 
@@ -26,31 +28,47 @@ class SelectCityCurrencyPage extends StatefulWidget {
   State<SelectCityCurrencyPage> createState() => _SelectCityCurrencyPageState();
 }
 
+/// Coordinates the onboarding animations and the city/currency search flow.
+/// ينسق حركات الإعداد الأولي ومسار البحث عن المدينة والعملة واختيارها.
 class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
     with TickerProviderStateMixin {
   // Animation Controllers
   late AnimationController _backgroundAnimationController;
+
   late AnimationController _contentAnimationController;
+
   late AnimationController _particleController;
+
   late AnimationController _glowController;
+
   late AnimationController _waveController;
+
   late AnimationController _buttonAnimationController;
 
   // Animations
   late Animation<double> _fadeAnimation;
+
   late Animation<Offset> _slideAnimation;
+
   late Animation<double> _scaleAnimation;
+
   late Animation<double> _rotationAnimation;
+
   late Animation<double> _glowAnimation;
+
   late Animation<double> _waveAnimation;
+
   late Animation<double> _buttonScaleAnimation;
 
   // State
   String? _selectedCity;
+
   String? _selectedCurrency;
   final _searchCityController = TextEditingController();
   final _searchCurrencyController = TextEditingController();
+
   String _citySearchQuery = '';
+
   String _currencySearchQuery = '';
   int _currentStep = 0; // 0: city, 1: currency
   bool _isButtonPressed = false;
@@ -1054,8 +1072,11 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
 // Compact City Card Widget
 class _CompactCityCard extends StatefulWidget {
   final City city;
+
   final bool isSelected;
+
   final VoidCallback onTap;
+
   final Duration animationDelay;
 
   const _CompactCityCard({
@@ -1072,7 +1093,9 @@ class _CompactCityCard extends StatefulWidget {
 class _CompactCityCardState extends State<_CompactCityCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+
   late Animation<double> _scaleAnimation;
+
   bool _isPressed = false;
 
   @override
@@ -1233,8 +1256,11 @@ class _CompactCityCardState extends State<_CompactCityCard>
 // Compact Currency Card Widget
 class _CompactCurrencyCard extends StatefulWidget {
   final Currency currency;
+
   final bool isSelected;
+
   final VoidCallback onTap;
+
   final Duration animationDelay;
 
   const _CompactCurrencyCard({
@@ -1251,7 +1277,9 @@ class _CompactCurrencyCard extends StatefulWidget {
 class _CompactCurrencyCardState extends State<_CompactCurrencyCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+
   late Animation<double> _slideAnimation;
+
   bool _isPressed = false;
 
   @override
@@ -1446,9 +1474,13 @@ class _CompactCurrencyCardState extends State<_CompactCurrencyCard>
 // Floating Particle Model
 class _FloatingParticle {
   late double x, y;
+
   late double vx, vy;
+
   late double radius;
+
   late double opacity;
+
   late Color color;
 
   _FloatingParticle() {
@@ -1484,6 +1516,7 @@ class _FloatingParticle {
 // Custom Painters
 class _ParticlePainter extends CustomPainter {
   final List<_FloatingParticle> particles;
+
   final double animationValue;
 
   _ParticlePainter({
@@ -1515,6 +1548,7 @@ class _ParticlePainter extends CustomPainter {
 
 class _WavePatternPainter extends CustomPainter {
   final double animation;
+
   final Color color;
 
   _WavePatternPainter({
@@ -1550,6 +1584,7 @@ class _WavePatternPainter extends CustomPainter {
 
 class _GridPatternPainter extends CustomPainter {
   final double rotation;
+
   final double opacity;
 
   _GridPatternPainter({

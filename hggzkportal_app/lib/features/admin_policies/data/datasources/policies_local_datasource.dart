@@ -3,17 +3,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/policy_model.dart';
 
 abstract class PoliciesLocalDataSource {
+  /// العربية: يعالج `cachePolicies`.
   Future<void> cachePolicies(List<PolicyModel> policies);
+
   Future<List<PolicyModel>> getCachedPolicies();
+
   Future<void> cachePolicy(PolicyModel policy);
+
   Future<PolicyModel?> getCachedPolicy(String policyId);
+
   Future<void> clearCache();
 }
 
 class PoliciesLocalDataSourceImpl implements PoliciesLocalDataSource {
+  /// العربية: يخزن القيمة `sharedPreferences`.
   final SharedPreferences sharedPreferences;
-  
+
   static const String _cachedPoliciesKey = 'CACHED_POLICIES';
+
   static const String _cachedPolicyPrefix = 'CACHED_POLICY_';
 
   PoliciesLocalDataSourceImpl({required this.sharedPreferences});
@@ -47,7 +54,8 @@ class PoliciesLocalDataSourceImpl implements PoliciesLocalDataSource {
 
   @override
   Future<PolicyModel?> getCachedPolicy(String policyId) async {
-    final jsonString = sharedPreferences.getString('$_cachedPolicyPrefix$policyId');
+    final jsonString =
+        sharedPreferences.getString('$_cachedPolicyPrefix$policyId');
     if (jsonString != null) {
       return PolicyModel.fromJson(jsonDecode(jsonString));
     }

@@ -3,14 +3,17 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// قصيرة وواضحة حتى يقرأها المشرف بسرعة.
+/// so an admin can scan it quickly.
 class ChannelStatisticsCard extends StatelessWidget {
   final String title;
   final String value;
   final IconData icon;
   final Color color;
   final String? subtitle;
-  final VoidCallback? onTap;
 
+  /// للنقر.
+  final VoidCallback? onTap;
   const ChannelStatisticsCard({
     super.key,
     required this.title,
@@ -21,6 +24,8 @@ class ChannelStatisticsCard extends StatelessWidget {
     this.onTap,
   });
 
+  /// الإحصاءات.
+  /// dashboard.
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -34,20 +39,20 @@ class ChannelStatisticsCard extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                color.withOpacity(0.15),
-                color.withOpacity(0.05),
+                color.withValues(alpha: 0.15),
+                color.withValues(alpha: 0.05),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -61,7 +66,7 @@ class ChannelStatisticsCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.2),
+                      color: color.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
@@ -74,7 +79,7 @@ class ChannelStatisticsCard extends StatelessWidget {
                   if (onTap != null)
                     Icon(
                       Icons.arrow_forward_ios,
-                      color: color.withOpacity(0.5),
+                      color: color.withValues(alpha: 0.5),
                       size: 14,
                     ),
                 ],

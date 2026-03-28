@@ -12,14 +12,20 @@ import '../bloc/reference_bloc.dart';
 import '../bloc/reference_event.dart';
 import '../bloc/reference_state.dart';
 
+/// يعرّف الكلاس `CitySelectorDialog`.
+/// Describes the `CitySelectorDialog` class.
 class CitySelectorDialog extends StatelessWidget {
+  /// Initializes a new `CitySelectorDialog` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `CitySelectorDialog`.
   const CitySelectorDialog({super.key});
 
+  /// ينفذ العملية `show`.
+  /// Runs the `show` operation.
   static Future<String?> show(BuildContext context) async {
     return showDialog<String>(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.8),
+      barrierColor: Colors.black.withValues(alpha: 0.8),
       builder: (ctx) => BlocProvider(
         create: (_) => GetIt.instance<ReferenceBloc>()
           ..add(const LoadCitiesEvent())
@@ -33,6 +39,8 @@ class CitySelectorDialog extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -48,12 +56,12 @@ class CitySelectorDialog extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.3),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.2),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
             blurRadius: 20,
             spreadRadius: 5,
           ),
@@ -70,20 +78,43 @@ class CitySelectorDialog extends StatelessWidget {
   }
 }
 
+/// يعرّف الكلاس `_DialogContent`.
+/// Describes the `_DialogContent` class.
 class _DialogContent extends StatefulWidget {
+  /// Initializes a new `DialogContent` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `DialogContent`.
   const _DialogContent();
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<_DialogContent> createState() => _DialogContentState();
 }
 
-class _DialogContentState extends State<_DialogContent> with SingleTickerProviderStateMixin {
+/// يعرّف الكلاس `_DialogContentState`.
+/// Describes the `_DialogContentState` class.
+class _DialogContentState extends State<_DialogContent>
+    with SingleTickerProviderStateMixin {
   final _searchController = TextEditingController();
+
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
+
+  /// يخزن العضو `_slideAnimation`.
+  /// Holds the `_slideAnimation` member.
   late Animation<Offset> _slideAnimation;
+
+  /// يخزن العضو `_searchQuery`.
+  /// Holds the `_searchQuery` member.
   String _searchQuery = '';
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -91,7 +122,7 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -99,7 +130,7 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
       parent: _animationController,
       curve: Curves.easeOut,
     ));
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.1),
       end: Offset.zero,
@@ -107,10 +138,12 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
       parent: _animationController,
       curve: Curves.easeOutBack,
     ));
-    
+
     _animationController.forward();
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _searchController.dispose();
@@ -118,6 +151,8 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -143,6 +178,8 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
     );
   }
 
+  /// ينفذ العملية `_buildHeader`.
+  /// Runs the `_buildHeader` operation.
   Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
@@ -154,7 +191,7 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -171,7 +208,8 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ShaderMask(
-              shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+              shaderCallback: (bounds) =>
+                  AppTheme.primaryGradient.createShader(bounds),
               child: Text(
                 'اختر مدينتك',
                 style: AppTextStyles.heading3.copyWith(
@@ -198,10 +236,10 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: AppTheme.darkCard.withOpacity(0.5),
+              color: AppTheme.darkCard.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 0.5,
               ),
             ),
@@ -216,19 +254,21 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
     );
   }
 
+  /// ينفذ العملية `_buildSearchField`.
+  /// Runs the `_buildSearchField` operation.
   Widget _buildSearchField() {
     return Container(
       height: 48,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.6),
-            AppTheme.darkSurface.withOpacity(0.4),
+            AppTheme.darkSurface.withValues(alpha: 0.6),
+            AppTheme.darkSurface.withValues(alpha: 0.4),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.2),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -240,15 +280,16 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
         decoration: InputDecoration(
           hintText: 'ابحث عن مدينة...',
           hintStyle: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textMuted.withOpacity(0.5),
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
           ),
           prefixIcon: Icon(
             Icons.search_rounded,
-            color: AppTheme.primaryBlue.withOpacity(0.7),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.7),
             size: 20,
           ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
         onChanged: (value) {
           setState(() {
@@ -260,40 +301,49 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
     );
   }
 
+  /// ينفذ العملية `_buildCitiesList`.
+  /// Runs the `_buildCitiesList` operation.
   Widget _buildCitiesList() {
     return BlocBuilder<ReferenceBloc, ReferenceState>(
       builder: (context, state) {
         if (state is ReferenceLoading) {
           return _buildLoadingState();
         }
-        
+
         if (state is CitiesLoaded) {
           final filteredCities = _searchQuery.isEmpty
               ? state.cities
-              : state.cities.where((city) => 
-                  city.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                  city.country.toLowerCase().contains(_searchQuery.toLowerCase())
-                ).toList();
-          
+              : state.cities
+                  .where((city) =>
+                      city.name
+                          .toLowerCase()
+                          .contains(_searchQuery.toLowerCase()) ||
+                      city.country
+                          .toLowerCase()
+                          .contains(_searchQuery.toLowerCase()))
+                  .toList();
+
           if (filteredCities.isEmpty) {
             return _buildEmptyState();
           }
-          
+
           return _buildCitiesGrid(
             cities: filteredCities,
             selectedCity: state.selectedCity,
           );
         }
-        
+
         if (state is ReferenceError) {
           return _buildErrorState(state.message);
         }
-        
+
         return const SizedBox.shrink();
       },
     );
   }
 
+  /// ينفذ العملية `_buildLoadingState`.
+  /// Runs the `_buildLoadingState` operation.
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -326,6 +376,8 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
     );
   }
 
+  /// ينفذ العملية `_buildEmptyState`.
+  /// Runs the `_buildEmptyState` operation.
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -334,7 +386,7 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
           Icon(
             Icons.search_off_rounded,
             size: 64,
-            color: AppTheme.textMuted.withOpacity(0.3),
+            color: AppTheme.textMuted.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
@@ -347,7 +399,7 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
           Text(
             'جرب البحث بكلمات أخرى',
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.7),
+              color: AppTheme.textMuted.withValues(alpha: 0.7),
             ),
           ),
         ],
@@ -355,6 +407,8 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
     );
   }
 
+  /// ينفذ العملية `_buildErrorState`.
+  /// Runs the `_buildErrorState` operation.
   Widget _buildErrorState(String message) {
     return Center(
       child: Column(
@@ -363,7 +417,7 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
           Icon(
             Icons.error_outline_rounded,
             size: 64,
-            color: AppTheme.error.withOpacity(0.7),
+            color: AppTheme.error.withValues(alpha: 0.7),
           ),
           const SizedBox(height: 16),
           Text(
@@ -400,6 +454,8 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
     );
   }
 
+  /// ينفذ العملية `_buildCitiesGrid`.
+  /// Runs the `_buildCitiesGrid` operation.
   Widget _buildCitiesGrid({
     required List<City> cities,
     required String? selectedCity,
@@ -416,21 +472,21 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
       itemBuilder: (context, index) {
         final city = cities[index];
         final isSelected = city.name == selectedCity;
-        
+
         return _CityCard(
           city: city,
           isSelected: isSelected,
           onTap: () async {
             HapticFeedback.lightImpact();
-            
+
             // حفظ المدينة المختارة
             context.read<ReferenceBloc>().add(
-              SelectCityEvent(city: city),
-            );
-            
+                  SelectCityEvent(city: city),
+                );
+
             // انتظار قليل للسماح بعرض الانيميشن
             await Future.delayed(const Duration(milliseconds: 200));
-            
+
             if (context.mounted) {
               Navigator.of(context).pop(city.name);
             }
@@ -442,12 +498,27 @@ class _DialogContentState extends State<_DialogContent> with SingleTickerProvide
   }
 }
 
+/// يعرّف الكلاس `_CityCard`.
+/// Describes the `_CityCard` class.
 class _CityCard extends StatefulWidget {
+  /// Holds the `city` value.
+  /// العربية: يخزن القيمة `city`.
   final City city;
+
+  /// يخزن العضو `isSelected`.
+  /// Holds the `isSelected` member.
   final bool isSelected;
+
+  /// يخزن العضو `onTap`.
+  /// Holds the `onTap` member.
   final VoidCallback onTap;
+
+  /// يخزن العضو `animationDelay`.
+  /// Holds the `animationDelay` member.
   final Duration animationDelay;
 
+  /// ينشئ مثيلاً من `_CityCard`.
+  /// Builds an instance of `_CityCard`.
   const _CityCard({
     required this.city,
     required this.isSelected,
@@ -455,15 +526,30 @@ class _CityCard extends StatefulWidget {
     required this.animationDelay,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<_CityCard> createState() => _CityCardState();
 }
 
-class _CityCardState extends State<_CityCard> with SingleTickerProviderStateMixin {
+/// يعرّف الكلاس `_CityCardState`.
+/// Describes the `_CityCardState` class.
+class _CityCardState extends State<_CityCard>
+    with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_controller`.
+  /// Holds the `_controller` member.
   late AnimationController _controller;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
+
+  /// يخزن العضو `_isPressed`.
+  /// Holds the `_isPressed` member.
   bool _isPressed = false;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -471,7 +557,7 @@ class _CityCardState extends State<_CityCard> with SingleTickerProviderStateMixi
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -479,7 +565,7 @@ class _CityCardState extends State<_CityCard> with SingleTickerProviderStateMixi
       parent: _controller,
       curve: Curves.elasticOut,
     ));
-    
+
     Future.delayed(widget.animationDelay, () {
       if (mounted) {
         _controller.forward();
@@ -487,12 +573,16 @@ class _CityCardState extends State<_CityCard> with SingleTickerProviderStateMixi
     });
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return ScaleTransition(
@@ -504,28 +594,27 @@ class _CityCardState extends State<_CityCard> with SingleTickerProviderStateMixi
         onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          transform: Matrix4.identity()
-            ..scale(_isPressed ? 0.95 : 1.0),
+          transform: Matrix4.identity()..scale(_isPressed ? 0.95 : 1.0),
           decoration: BoxDecoration(
             gradient: widget.isSelected
                 ? AppTheme.primaryGradient
                 : LinearGradient(
                     colors: [
-                      AppTheme.darkCard.withOpacity(0.7),
-                      AppTheme.darkCard.withOpacity(0.5),
+                      AppTheme.darkCard.withValues(alpha: 0.7),
+                      AppTheme.darkCard.withValues(alpha: 0.5),
                     ],
                   ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: widget.isSelected
                   ? AppTheme.primaryBlue
-                  : AppTheme.darkBorder.withOpacity(0.3),
+                  : AppTheme.darkBorder.withValues(alpha: 0.3),
               width: widget.isSelected ? 1.5 : 0.5,
             ),
             boxShadow: widget.isSelected
                 ? [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -537,7 +626,8 @@ class _CityCardState extends State<_CityCard> with SingleTickerProviderStateMixi
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 child: Row(
                   children: [
                     Icon(
@@ -545,7 +635,7 @@ class _CityCardState extends State<_CityCard> with SingleTickerProviderStateMixi
                       size: 16,
                       color: widget.isSelected
                           ? Colors.white
-                          : AppTheme.primaryBlue.withOpacity(0.7),
+                          : AppTheme.primaryBlue.withValues(alpha: 0.7),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -570,8 +660,8 @@ class _CityCardState extends State<_CityCard> with SingleTickerProviderStateMixi
                             widget.city.country,
                             style: AppTextStyles.caption.copyWith(
                               color: widget.isSelected
-                                  ? Colors.white.withOpacity(0.8)
-                                  : AppTheme.textMuted.withOpacity(0.7),
+                                  ? Colors.white.withValues(alpha: 0.8)
+                                  : AppTheme.textMuted.withValues(alpha: 0.7),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

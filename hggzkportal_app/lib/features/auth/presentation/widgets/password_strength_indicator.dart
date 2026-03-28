@@ -3,26 +3,46 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// يعرّف الكلاس `PasswordStrengthIndicator`.
+/// Describes the `PasswordStrengthIndicator` class.
 class PasswordStrengthIndicator extends StatefulWidget {
+  /// Holds the `password` value.
+  /// العربية: يخزن القيمة `password`.
   final String password;
+
+  /// يخزن العضو `showRequirements`.
+  /// Holds the `showRequirements` member.
   final bool showRequirements;
-  
+
+  /// ينشئ مثيلاً من `PasswordStrengthIndicator`.
+  /// Builds an instance of `PasswordStrengthIndicator`.
   const PasswordStrengthIndicator({
     super.key,
     required this.password,
     this.showRequirements = true,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
-  State<PasswordStrengthIndicator> createState() => 
+  State<PasswordStrengthIndicator> createState() =>
       _PasswordStrengthIndicatorState();
 }
 
+/// يعرّف الكلاس `_PasswordStrengthIndicatorState`.
+/// Describes the `_PasswordStrengthIndicatorState` class.
 class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_strengthAnimation`.
+  /// Holds the `_strengthAnimation` member.
   late Animation<double> _strengthAnimation;
-  
+
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -39,13 +59,17 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
     ));
     _animationController.forward();
   }
-  
+
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-  
+
+  /// ينفذ العملية `didUpdateWidget`.
+  /// Runs the `didUpdateWidget` operation.
   @override
   void didUpdateWidget(PasswordStrengthIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -54,10 +78,12 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
     }
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     final strength = _calculateStrength(widget.password);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -89,7 +115,8 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: strength.gradientColors[0].withValues(alpha: 0.5),
+                              color: strength.gradientColors[0]
+                                  .withValues(alpha: 0.5),
                               blurRadius: 8,
                               spreadRadius: 1,
                             ),
@@ -121,7 +148,7 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
             ),
           ),
         ),
-        
+
         if (strength.text.isNotEmpty) ...[
           const SizedBox(height: 8),
           Row(
@@ -153,7 +180,7 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
             ],
           ),
         ],
-        
+
         if (widget.showRequirements && widget.password.isNotEmpty) ...[
           const SizedBox(height: 12),
           _buildFuturisticRequirements(),
@@ -161,7 +188,9 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
       ],
     );
   }
-  
+
+  /// ينفذ العملية `_buildFuturisticRequirements`.
+  /// Runs the `_buildFuturisticRequirements` operation.
   Widget _buildFuturisticRequirements() {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -208,7 +237,8 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
               ),
               _FuturisticRequirementChip(
                 label: 'رمز خاص',
-                isMet: widget.password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]')),
+                isMet:
+                    widget.password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]')),
                 icon: Icons.star,
               ),
             ],
@@ -217,7 +247,9 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
       ),
     );
   }
-  
+
+  /// ينفذ العملية `_calculateStrength`.
+  /// Runs the `_calculateStrength` operation.
   PasswordStrength _calculateStrength(String password) {
     if (password.isEmpty) {
       return PasswordStrength(
@@ -228,7 +260,7 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
     }
 
     int score = 0;
-    
+
     if (password.length >= 8) score++;
     if (password.length >= 12) score++;
     if (password.contains(RegExp(r'[A-Z]'))) score++;
@@ -245,7 +277,10 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
     } else if (score <= 4) {
       return PasswordStrength(
         value: 0.5,
-        gradientColors: [AppTheme.warning, AppTheme.warning.withValues(alpha: 0.7)],
+        gradientColors: [
+          AppTheme.warning,
+          AppTheme.warning.withValues(alpha: 0.7)
+        ],
         text: 'متوسطة',
       );
     } else if (score <= 5) {
@@ -264,27 +299,50 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
   }
 }
 
+/// يعرّف الكلاس `_FuturisticRequirementChip`.
+/// Describes the `_FuturisticRequirementChip` class.
 class _FuturisticRequirementChip extends StatefulWidget {
+  /// Holds the `label` value.
+  /// العربية: يخزن القيمة `label`.
   final String label;
+
+  /// يخزن العضو `isMet`.
+  /// Holds the `isMet` member.
   final bool isMet;
+
+  /// يخزن العضو `icon`.
+  /// Holds the `icon` member.
   final IconData icon;
 
+  /// ينشئ مثيلاً من `_FuturisticRequirementChip`.
+  /// Builds an instance of `_FuturisticRequirementChip`.
   const _FuturisticRequirementChip({
     required this.label,
     required this.isMet,
     required this.icon,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
-  State<_FuturisticRequirementChip> createState() => 
+  State<_FuturisticRequirementChip> createState() =>
       _FuturisticRequirementChipState();
 }
 
+/// يعرّف الكلاس `_FuturisticRequirementChipState`.
+/// Describes the `_FuturisticRequirementChipState` class.
 class _FuturisticRequirementChipState extends State<_FuturisticRequirementChip>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
-  
+
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -299,12 +357,14 @@ class _FuturisticRequirementChipState extends State<_FuturisticRequirementChip>
       parent: _animationController,
       curve: Curves.elasticOut,
     ));
-    
+
     if (widget.isMet) {
       _animationController.forward();
     }
   }
-  
+
+  /// ينفذ العملية `didUpdateWidget`.
+  /// Runs the `didUpdateWidget` operation.
   @override
   void didUpdateWidget(_FuturisticRequirementChip oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -314,13 +374,17 @@ class _FuturisticRequirementChipState extends State<_FuturisticRequirementChip>
       _animationController.reverse();
     }
   }
-  
+
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -381,7 +445,8 @@ class _FuturisticRequirementChipState extends State<_FuturisticRequirementChip>
                         ? AppTheme.success
                         : AppTheme.textMuted.withValues(alpha: 0.7),
                     fontSize: 11,
-                    fontWeight: widget.isMet ? FontWeight.bold : FontWeight.normal,
+                    fontWeight:
+                        widget.isMet ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
               ],
@@ -393,11 +458,23 @@ class _FuturisticRequirementChipState extends State<_FuturisticRequirementChip>
   }
 }
 
+/// يعرّف الكلاس `PasswordStrength`.
+/// Describes the `PasswordStrength` class.
 class PasswordStrength {
+  /// Holds the `value` value.
+  /// العربية: يخزن القيمة `value`.
   final double value;
+
+  /// يخزن العضو `gradientColors`.
+  /// Holds the `gradientColors` member.
   final List<Color> gradientColors;
+
+  /// يخزن العضو `text`.
+  /// Holds the `text` member.
   final String text;
 
+  /// ينشئ مثيلاً من `PasswordStrength`.
+  /// Builds an instance of `PasswordStrength`.
   PasswordStrength({
     required this.value,
     required this.gradientColors,

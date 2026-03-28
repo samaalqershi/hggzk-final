@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import '../../../domain/entities/section_image.dart';
 
 abstract class PropertyInSectionImagesState extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyInSectionImagesState`.
   const PropertyInSectionImagesState();
 
   @override
@@ -11,7 +12,9 @@ abstract class PropertyInSectionImagesState extends Equatable {
 }
 
 class PropertyInSectionImageUpdated extends PropertyInSectionImagesState {
+  /// العربية: يخزن القيمة `updatedImages`.
   final List<SectionImage> updatedImages;
+
   final String successMessage;
 
   const PropertyInSectionImageUpdated({
@@ -24,8 +27,11 @@ class PropertyInSectionImageUpdated extends PropertyInSectionImagesState {
 }
 
 class PrimaryPropertyInSectionImageSet extends PropertyInSectionImagesState {
+  /// العربية: يخزن القيمة `updatedImages`.
   final List<SectionImage> updatedImages;
+
   final String primaryImageId;
+
   final String successMessage;
 
   const PrimaryPropertyInSectionImageSet({
@@ -39,10 +45,12 @@ class PrimaryPropertyInSectionImageSet extends PropertyInSectionImagesState {
 }
 
 class PropertyInSectionImagesInitial extends PropertyInSectionImagesState {
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyInSectionImagesInitial`.
   const PropertyInSectionImagesInitial();
 }
 
 class PropertyInSectionImagesLoading extends PropertyInSectionImagesState {
+  /// العربية: يخزن القيمة `message`.
   final String? message;
 
   const PropertyInSectionImagesLoading({this.message});
@@ -52,9 +60,13 @@ class PropertyInSectionImagesLoading extends PropertyInSectionImagesState {
 }
 
 class PropertyInSectionImagesLoaded extends PropertyInSectionImagesState {
+  /// العربية: يخزن القيمة `images`.
   final List<SectionImage> images;
+
   final String? propertyInSectionId;
+
   final Set<String> selected;
+
   final bool isSelectionMode;
 
   const PropertyInSectionImagesLoaded({
@@ -70,7 +82,9 @@ class PropertyInSectionImagesLoaded extends PropertyInSectionImagesState {
 }
 
 class PropertyInSectionImagesError extends PropertyInSectionImagesState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
+
   final List<SectionImage>? previousImages;
 
   const PropertyInSectionImagesError(this.message, {this.previousImages});
@@ -80,10 +94,15 @@ class PropertyInSectionImagesError extends PropertyInSectionImagesState {
 }
 
 class PropertyInSectionImageUploading extends PropertyInSectionImagesState {
+  /// العربية: يخزن القيمة `current`.
   final List<SectionImage> current;
+
   final String? fileName;
+
   final double? progress;
+
   final int? total;
+
   final int? index;
 
   const PropertyInSectionImageUploading({
@@ -99,7 +118,9 @@ class PropertyInSectionImageUploading extends PropertyInSectionImagesState {
 }
 
 class PropertyInSectionImageUploaded extends PropertyInSectionImagesState {
+  /// العربية: يخزن القيمة `uploaded`.
   final SectionImage uploaded;
+
   final List<SectionImage> all;
 
   const PropertyInSectionImageUploaded({
@@ -114,9 +135,13 @@ class PropertyInSectionImageUploaded extends PropertyInSectionImagesState {
 class MultiplePropertyInSectionImagesUploaded
     extends PropertyInSectionImagesState {
   final List<SectionImage> uploadedImages;
+
   final List<SectionImage> allImages;
+
   final int successCount;
+
   final int failedCount;
+
   final String successMessage;
 
   const MultiplePropertyInSectionImagesUploaded({
@@ -138,7 +163,9 @@ class MultiplePropertyInSectionImagesUploaded
 }
 
 class PropertyInSectionImageUpdating extends PropertyInSectionImagesState {
+  /// العربية: يخزن القيمة `current`.
   final List<SectionImage> current;
+
   final String imageId;
 
   const PropertyInSectionImageUpdating({
@@ -151,7 +178,9 @@ class PropertyInSectionImageUpdating extends PropertyInSectionImagesState {
 }
 
 class PropertyInSectionImageDeleting extends PropertyInSectionImagesState {
+  /// العربية: يخزن القيمة `current`.
   final List<SectionImage> current;
+
   final String imageId;
 
   const PropertyInSectionImageDeleting({
@@ -164,6 +193,7 @@ class PropertyInSectionImageDeleting extends PropertyInSectionImagesState {
 }
 
 class PropertyInSectionImageDeleted extends PropertyInSectionImagesState {
+  /// العربية: يخزن القيمة `remaining`.
   final List<SectionImage> remaining;
 
   const PropertyInSectionImageDeleted({required this.remaining});
@@ -183,6 +213,7 @@ class MultiplePropertyInSectionImagesDeleted
 }
 
 class PropertyInSectionImagesReordering extends PropertyInSectionImagesState {
+  /// العربية: يخزن القيمة `current`.
   final List<SectionImage> current;
 
   const PropertyInSectionImagesReordering({required this.current});
@@ -192,6 +223,7 @@ class PropertyInSectionImagesReordering extends PropertyInSectionImagesState {
 }
 
 class PropertyInSectionImagesReordered extends PropertyInSectionImagesState {
+  /// العربية: يخزن القيمة `reordered`.
   final List<SectionImage> reordered;
 
   const PropertyInSectionImagesReordered({required this.reordered});

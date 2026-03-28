@@ -3,29 +3,47 @@
 import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:ui' as ui;
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 
+/// يمثل هذا الكلاس UnitFiltersWidget البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitFiltersWidget in the admin unit workflow.
 class UnitFiltersWidget extends StatefulWidget {
+  /// Callback fired whenever the active unit filters change.
+  /// استدعاء يُستخدم عند تعديل معايير التصفية حتى تعيد الواجهة بناء قائمة الوحدات وفق القيم الجديدة.
   final Function(Map<String, dynamic>) onFiltersChanged;
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitFiltersWidget.
+  /// This constructor creates an instance of UnitFiltersWidget.
   const UnitFiltersWidget({
     super.key,
     required this.onFiltersChanged,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<UnitFiltersWidget> createState() => _UnitFiltersWidgetState();
 }
 
+/// يمثل هذا الكلاس _UnitFiltersWidgetState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _UnitFiltersWidgetState in the admin unit workflow.
 class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     with SingleTickerProviderStateMixin {
+  /// يحتفظ هذا الحقل بقيمة _animationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _animationController value used by the admin unit workflow.
   late AnimationController _animationController;
+
+  /// يحتفظ هذا الحقل بقيمة _fadeAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _fadeAnimation value used by the admin unit workflow.
   late Animation<double> _fadeAnimation;
+
+  /// يحتفظ هذا الحقل بقيمة _scaleAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _scaleAnimation value used by the admin unit workflow.
   late Animation<double> _scaleAnimation;
 
+  /// يحتفظ هذا الحقل بقيمة _filters التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _filters value used by the admin unit workflow.
   final Map<String, dynamic> _filters = {
     'propertyId': null,
     'unitTypeId': null,
@@ -53,9 +71,16 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
   final _nameSearchController = TextEditingController();
 
   // متغيرات الموقع المحدد
+  /// يحتفظ هذا الحقل بقيمة _selectedLocation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectedLocation value used by the admin unit workflow.
   LatLng? _selectedLocation;
+
+  /// يحتفظ هذا الحقل بقيمة _selectedAddress التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectedAddress value used by the admin unit workflow.
   String? _selectedAddress;
 
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
@@ -83,6 +108,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     _animationController.forward();
   }
 
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _animationController.dispose();
@@ -95,12 +122,16 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     super.dispose();
   }
 
+  /// ينفذ هذا الأسلوب عملية _updateFilter ضمن مسار إدارة الوحدات.
+  /// This method performs the _updateFilter operation in the admin unit workflow.
   void _updateFilter(String key, dynamic value) {
     setState(() => _filters[key] = value);
     widget.onFiltersChanged(_filters);
     HapticFeedback.lightImpact();
   }
 
+  /// ينفذ هذا الأسلوب عملية _resetFilters ضمن مسار إدارة الوحدات.
+  /// This method performs the _resetFilters operation in the admin unit workflow.
   void _resetFilters() {
     setState(() {
       _filters.forEach((key, value) {
@@ -119,8 +150,12 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     HapticFeedback.mediumImpact();
   }
 
+  /// يعيد هذا getter قيمة _activeFiltersCount المشتقة من الحالة الحالية.
+  /// This getter derives the _activeFiltersCount value from the current state.
   int get _activeFiltersCount => _filters.values.where((v) => v != null).length;
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -167,6 +202,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildHeader ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildHeader operation in the admin unit workflow.
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -217,6 +254,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildResetButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildResetButton operation in the admin unit workflow.
   Widget _buildResetButton() {
     return Material(
       color: Colors.transparent,
@@ -253,6 +292,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildNameSearchFilter ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildNameSearchFilter operation in the admin unit workflow.
   Widget _buildNameSearchFilter() {
     return _buildFilterContainer(
       label: 'البحث بالاسم أو الرقم',
@@ -295,6 +336,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildPriceRangeFilter ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildPriceRangeFilter operation in the admin unit workflow.
   Widget _buildPriceRangeFilter() {
     return _buildFilterContainer(
       label: 'نطاق السعر (ريال)',
@@ -342,6 +385,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildPriceField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildPriceField operation in the admin unit workflow.
   Widget _buildPriceField(
     String hint,
     TextEditingController controller,
@@ -394,6 +439,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildQuickPriceChip ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildQuickPriceChip operation in the admin unit workflow.
   Widget _buildQuickPriceChip(String label, int? min, int? max) {
     final isActive = _filters['minPrice'] == min && _filters['maxPrice'] == max;
 
@@ -434,87 +481,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
-  Widget _buildAvailabilityFilter() {
-    return _buildFilterContainer(
-      label: 'حالة التوفر',
-      icon: Icons.check_circle_outline_rounded,
-      child: Column(
-        children: [
-          _buildToggleOption(
-            'متاحة',
-            true,
-            Icons.check_circle_rounded,
-            AppTheme.success,
-            _filters['isAvailable'] == true,
-            () => _updateFilter(
-                'isAvailable', _filters['isAvailable'] == true ? null : true),
-          ),
-          const SizedBox(height: 8),
-          _buildToggleOption(
-            'غير متاحة',
-            false,
-            Icons.cancel_rounded,
-            AppTheme.error,
-            _filters['isAvailable'] == false,
-            () => _updateFilter(
-                'isAvailable', _filters['isAvailable'] == false ? null : false),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildToggleOption(
-    String label,
-    dynamic value,
-    IconData icon,
-    Color color,
-    bool isSelected,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          gradient: isSelected
-              ? LinearGradient(
-                  colors: [
-                    color.withValues(alpha: 0.2),
-                    color.withValues(alpha: 0.1),
-                  ],
-                )
-              : null,
-          color:
-              !isSelected ? AppTheme.darkSurface.withValues(alpha: 0.2) : null,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected
-                ? color.withValues(alpha: 0.5)
-                : AppTheme.darkBorder.withValues(alpha: 0.2),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon,
-                size: 16, color: isSelected ? color : AppTheme.textMuted),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: isSelected ? color : AppTheme.textMuted,
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
+  /// ينفذ هذا الأسلوب عملية _buildPricingMethodFilter ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildPricingMethodFilter operation in the admin unit workflow.
   Widget _buildPricingMethodFilter() {
     final methods = [
       {
@@ -608,6 +576,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildDateRangeFilter ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildDateRangeFilter operation in the admin unit workflow.
   Widget _buildDateRangeFilter() {
     DateTime? checkIn = _filters['checkInDate'];
     DateTime? checkOut = _filters['checkOutDate'];
@@ -675,6 +645,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildDateButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildDateButton operation in the admin unit workflow.
   Widget _buildDateButton(
       String label, DateTime? value, IconData icon, VoidCallback onTap) {
     return GestureDetector(
@@ -715,6 +687,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _pickDate ضمن مسار إدارة الوحدات.
+  /// This method performs the _pickDate operation in the admin unit workflow.
   Future<void> _pickDate(String key, DateTime? initial) async {
     final now = DateTime.now();
     final picked = await showDatePicker(
@@ -739,6 +713,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildGuestsFilter ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildGuestsFilter operation in the admin unit workflow.
   Widget _buildGuestsFilter() {
     return _buildFilterContainer(
       label: 'عدد الضيوف',
@@ -786,6 +762,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildActiveBookingsFilter ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildActiveBookingsFilter operation in the admin unit workflow.
   Widget _buildActiveBookingsFilter() {
     return _buildFilterContainer(
       label: 'الحجوزات',
@@ -856,6 +834,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildLocationFilter ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildLocationFilter operation in the admin unit workflow.
   Widget _buildLocationFilter() {
     return _buildFilterContainer(
       label: 'الموقع الجغرافي',
@@ -980,6 +960,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildMapButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildMapButton operation in the admin unit workflow.
   Widget _buildMapButton() {
     return Material(
       color: Colors.transparent,
@@ -1030,6 +1012,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildRadiusField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildRadiusField operation in the admin unit workflow.
   Widget _buildRadiusField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1120,6 +1104,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildRadiusChip ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildRadiusChip operation in the admin unit workflow.
   Widget _buildRadiusChip(String label, double radius) {
     final isActive = _filters['radiusKm'] == radius;
 
@@ -1163,6 +1149,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _openMapPicker ضمن مسار إدارة الوحدات.
+  /// This method performs the _openMapPicker operation in the admin unit workflow.
   void _openMapPicker() {
     showDialog(
       fullscreenDialog: true,
@@ -1187,6 +1175,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildSortFilter ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildSortFilter operation in the admin unit workflow.
   Widget _buildSortFilter() {
     const options = {
       'popularity': {
@@ -1265,6 +1255,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFilterContainer ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFilterContainer operation in the admin unit workflow.
   Widget _buildFilterContainer({
     required String label,
     required IconData icon,
@@ -1329,6 +1321,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildApplyButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildApplyButton operation in the admin unit workflow.
   Widget _buildApplyButton() {
     return Material(
       color: Colors.transparent,
@@ -1373,6 +1367,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildActiveFiltersChips ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildActiveFiltersChips operation in the admin unit workflow.
   Widget _buildActiveFiltersChips() {
     List<Widget> chips = [];
 
@@ -1504,6 +1500,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     return Wrap(children: chips);
   }
 
+  /// ينفذ هذا الأسلوب عملية _getPricingMethodLabel ضمن مسار إدارة الوحدات.
+  /// This method performs the _getPricingMethodLabel operation in the admin unit workflow.
   String _getPricingMethodLabel(String value) {
     switch (value) {
       case 'Hourly':
@@ -1519,6 +1517,8 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _getSortLabel ضمن مسار إدارة الوحدات.
+  /// This method performs the _getSortLabel operation in the admin unit workflow.
   String _getSortLabel(String value) {
     switch (value) {
       case 'popularity':
@@ -1538,25 +1538,47 @@ class _UnitFiltersWidgetState extends State<UnitFiltersWidget>
 }
 
 // Dialog لاختيار الموقع على الخريطة
+/// يمثل هذا الكلاس _MapPickerDialog البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _MapPickerDialog in the admin unit workflow.
 class _MapPickerDialog extends StatefulWidget {
+  /// This field keeps the initialLocation value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة initialLocation التي يعتمد عليها مسار إدارة الوحدات.
   final LatLng? initialLocation;
+
+  /// ينفذ هذا الأسلوب عملية Function ضمن مسار إدارة الوحدات.
+  /// This method performs the Function operation in the admin unit workflow.
   final Function(LatLng, String?) onLocationSelected;
 
+  /// ينشئ هذا المُنشئ مثيلاً من _MapPickerDialog.
+  /// This constructor creates an instance of _MapPickerDialog.
   const _MapPickerDialog({
     this.initialLocation,
     required this.onLocationSelected,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<_MapPickerDialog> createState() => _MapPickerDialogState();
 }
 
+/// يمثل هذا الكلاس _MapPickerDialogState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _MapPickerDialogState in the admin unit workflow.
 class _MapPickerDialogState extends State<_MapPickerDialog> {
-  GoogleMapController? _mapController;
+  /// This field keeps the selectedLocation value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة selectedLocation التي يعتمد عليها مسار إدارة الوحدات.
   LatLng? _selectedLocation;
+
+  /// يحتفظ هذا الحقل بقيمة _selectedAddress التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectedAddress value used by the admin unit workflow.
   String? _selectedAddress;
+
+  /// يحتفظ هذا الحقل بقيمة _markers التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _markers value used by the admin unit workflow.
   Set<Marker> _markers = {};
 
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
@@ -1566,6 +1588,8 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _updateMarker ضمن مسار إدارة الوحدات.
+  /// This method performs the _updateMarker operation in the admin unit workflow.
   void _updateMarker(LatLng location) {
     setState(() {
       _selectedLocation = location;
@@ -1579,6 +1603,8 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
     });
   }
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -1601,7 +1627,6 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                     zoom: 12,
                   ),
                   onMapCreated: (controller) {
-                    _mapController = controller;
                     controller.setMapStyle('''
                       [
                         {
@@ -1737,7 +1762,7 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                       color: AppTheme.primaryBlue,
                       shadows: [
                         Shadow(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.3),
                           blurRadius: 8,
                         ),
                       ],

@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'dart:convert';
-import '../../../../core/constants/api_constants.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../../../../core/models/result_dto.dart';
@@ -8,14 +7,15 @@ import '../../../../core/network/api_client.dart';
 import '../models/unit_type_model.dart';
 
 abstract class UnitTypesRemoteDataSource {
+  /// العربية: يعيد unit types by property type.
   Future<PaginatedResult<UnitTypeModel>> getUnitTypesByPropertyType({
     required String propertyTypeId,
     required int pageNumber,
     required int pageSize,
   });
-  
+
   Future<UnitTypeModel> getUnitTypeById(String id);
-  
+
   Future<String> createUnitType({
     required String propertyTypeId,
     required String name,
@@ -27,7 +27,7 @@ abstract class UnitTypesRemoteDataSource {
     required bool isMultiDays,
     required bool isRequiredToDetermineTheHour,
   });
-  
+
   Future<bool> updateUnitType({
     required String unitTypeId,
     required String name,
@@ -39,12 +39,14 @@ abstract class UnitTypesRemoteDataSource {
     required bool isMultiDays,
     required bool isRequiredToDetermineTheHour,
   });
-  
+
   Future<bool> deleteUnitType(String unitTypeId);
 }
 
 class UnitTypesRemoteDataSourceImpl implements UnitTypesRemoteDataSource {
+  /// العربية: يخزن القيمة `apiClient`.
   final ApiClient apiClient;
+
   static const String _baseEndpoint = '/api/admin/unit-types';
 
   UnitTypesRemoteDataSourceImpl({required this.apiClient});
@@ -63,10 +65,12 @@ class UnitTypesRemoteDataSourceImpl implements UnitTypesRemoteDataSource {
           'pageSize': pageSize,
         },
       );
-      
+
       dynamic raw = response.data;
       if (raw is String) {
-        try { raw = json.decode(raw); } catch (_) {}
+        try {
+          raw = json.decode(raw);
+        } catch (_) {}
       }
 
       dynamic payload = (raw is Map<String, dynamic> && raw.containsKey('data'))
@@ -74,14 +78,16 @@ class UnitTypesRemoteDataSourceImpl implements UnitTypesRemoteDataSource {
           : raw;
 
       if (payload is String) {
-        try { payload = json.decode(payload); } catch (_) {}
+        try {
+          payload = json.decode(payload);
+        } catch (_) {}
       }
 
       if (payload is Map<String, dynamic>) {
-      return PaginatedResult<UnitTypeModel>.fromJson(
+        return PaginatedResult<UnitTypeModel>.fromJson(
           payload,
-        (json) => UnitTypeModel.fromJson(json as Map<String, dynamic>),
-      );
+          (json) => UnitTypeModel.fromJson(json),
+        );
       }
 
       if (payload is List) {
@@ -109,7 +115,9 @@ class UnitTypesRemoteDataSourceImpl implements UnitTypesRemoteDataSource {
       final response = await apiClient.get('$_baseEndpoint/$id');
       dynamic raw = response.data;
       if (raw is String) {
-        try { raw = json.decode(raw); } catch (_) {}
+        try {
+          raw = json.decode(raw);
+        } catch (_) {}
       }
       final result = ResultDto.fromJson((raw as Map<String, dynamic>), null);
       final data = result.data;
@@ -117,7 +125,7 @@ class UnitTypesRemoteDataSourceImpl implements UnitTypesRemoteDataSource {
         final map = data is String ? json.decode(data) : data;
         return UnitTypeModel.fromJson(map as Map<String, dynamic>);
       }
-        throw ServerException(result.message ?? 'Failed to get unit type');
+      throw ServerException(result.message ?? 'Failed to get unit type');
     } on DioException catch (e) {
       throw ServerException(e.message ?? 'Server error occurred');
     }
@@ -143,16 +151,17 @@ class UnitTypesRemoteDataSourceImpl implements UnitTypesRemoteDataSource {
           'name': name,
           'maxCapacity': maxCapacity,
           'icon': icon,
-          if (systemCommissionRate != null) 'systemCommissionRate': systemCommissionRate,
+          if (systemCommissionRate != null)
+            'systemCommissionRate': systemCommissionRate,
           'isHasAdults': isHasAdults,
           'isHasChildren': isHasChildren,
           'isMultiDays': isMultiDays,
           'isRequiredToDetermineTheHour': isRequiredToDetermineTheHour,
         },
       );
-      
+
       final result = ResultDto.fromJson(response.data, null);
-      
+
       if (result.isSuccess && result.data != null) {
         return result.data as String;
       } else {
@@ -183,14 +192,15 @@ class UnitTypesRemoteDataSourceImpl implements UnitTypesRemoteDataSource {
           'name': name,
           'maxCapacity': maxCapacity,
           'icon': icon,
-          if (systemCommissionRate != null) 'systemCommissionRate': systemCommissionRate,
+          if (systemCommissionRate != null)
+            'systemCommissionRate': systemCommissionRate,
           'isHasAdults': isHasAdults,
           'isHasChildren': isHasChildren,
           'isMultiDays': isMultiDays,
           'isRequiredToDetermineTheHour': isRequiredToDetermineTheHour,
         },
       );
-      
+
       final result = ResultDto.fromJson(response.data, null);
       return result.isSuccess;
     } on DioException catch (e) {

@@ -7,13 +7,31 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/formatters.dart';
 
+/// مجموعة فلاتر قابلة لإعادة الاستخدام لتصفية سجلات التدقيق.
+/// Reusable filter bundle for narrowing audit logs by user, date range, type, and search term.
 class AuditLogFilters {
+  /// المستخدم المراد تقييده ضمن النتائج، أو null لعدم التقييد.
+  /// User to scope the results to, or null when not filtering by user.
   final String? userId;
+
+  /// تاريخ البداية لنطاق السجل، أو null لعدم تحديد حد أدنى.
+  /// Start date for the log range, or null when no lower bound is applied.
   final DateTime? startDate;
+
+  /// تاريخ النهاية لنطاق السجل، أو null لعدم تحديد حد أعلى.
+  /// End date for the log range, or null when no upper bound is applied.
   final DateTime? endDate;
+
+  /// نوع العملية المطلوب عرضه مثل create أو update أو delete.
+  /// Operation type to show, such as create, update, or delete.
   final String? operationType;
+
+  /// نص البحث الحر داخل السجلات.
+  /// Free-text search term used across the audit logs.
   final String? searchTerm;
 
+  /// ينشئ مجموعة الفلاتر بقيم اختيارية مستقلة لكل حقل.
+  /// Creates a filter bundle with independent optional values for each field.
   const AuditLogFilters({
     this.userId,
     this.startDate,
@@ -22,6 +40,8 @@ class AuditLogFilters {
     this.searchTerm,
   });
 
+  /// ينسخ الفلاتر مع استبدال أي قيمة يمررها المستدعي.
+  /// Returns a copy of the filters with any supplied overrides applied.
   AuditLogFilters copyWith({
     String? userId,
     DateTime? startDate,
@@ -39,25 +59,46 @@ class AuditLogFilters {
   }
 }
 
+/// واجهة تفاعلية تسمح بتحديد نطاق التاريخ ونوع العملية ونص البحث.
+/// Interactive filter panel that lets the user choose date range, type, and search text.
 class AuditLogFiltersWidget extends StatefulWidget {
+  /// الفلاتر الأولية التي تبدأ بها الواجهة، إن وجدت.
+  /// Initial filters used when the widget opens, if any.
   final AuditLogFilters? initialFilters;
+
+  /// يستدعى كلما تغيرت الفلاتر ليتم تطبيقها على القائمة الأعلى.
+  /// Called whenever filters change so the parent can refresh the list.
   final Function(AuditLogFilters) onFiltersChanged;
 
+  /// ينشئ الواجهة مع فلاتر ابتدائية ورد التحديث.
   const AuditLogFiltersWidget({
     super.key,
     this.initialFilters,
     required this.onFiltersChanged,
   });
 
+  /// ينشئ الحالة التي تدير الحقول الزمانية والنصية.
   @override
   State<AuditLogFiltersWidget> createState() => _AuditLogFiltersWidgetState();
 }
 
+/// تدير هذه الحالة حقول الإدخال والفلاتر السريعة ونطاق التاريخ.
+/// Manages text input, quick filters, and the date-range controls.
 class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
+  /// نسخة العمل الحالية من الفلاتر أثناء تعديل المستخدم.
+  /// Working filter snapshot updated as the user edits controls.
   late AuditLogFilters _filters;
+
+  /// يتحكم في نص البحث الحر.
+  /// Controls the free-text search field.
   final TextEditingController _searchController = TextEditingController();
+
+  /// يحدد ما إذا كانت الفلاتر الإضافية ظاهرة في العرض المضغوط.
+  /// Indicates whether extra filters are visible in the compact layout.
   bool _isExpanded = false;
 
+  /// يهيئ الحالة بقيم الفلاتر الابتدائية.
+  /// Initializes state using the provided initial filters.
   @override
   void initState() {
     super.initState();
@@ -65,12 +106,14 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     _searchController.text = _filters.searchTerm ?? '';
   }
 
+  /// يحرر متحكم البحث عند إزالة الواجهة.
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
 
+  /// يبني واجهة الفلاتر المناسبة حسب عرض الشاشة.
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -93,6 +136,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     );
   }
 
+  /// يبني نسخة مدمجة من الفلاتر للشاشات الضيقة.
   Widget _buildCompactFilters() {
     return Column(
       children: [
@@ -111,6 +155,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     );
   }
 
+  /// يبني النسخة الكاملة من الفلاتر للشاشات الأوسع.
   Widget _buildFullFilters() {
     return Column(
       children: [
@@ -123,6 +168,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     );
   }
 
+  /// يبني زر التوسيع الذي يكشف المزيد من الفلاتر.
   Widget _buildExpandButton() {
     return GestureDetector(
       onTap: () => setState(() => _isExpanded = !_isExpanded),
@@ -160,6 +206,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     );
   }
 
+  /// يبني محدد التاريخ المختصر الخاص بالعرض المضغوط.
   Widget _buildCompactDateSelector() {
     return Container(
       decoration: BoxDecoration(
@@ -198,6 +245,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     );
   }
 
+  /// يبني شريط تحديد نطاق التاريخ في العرض الكامل.
   Widget _buildDateRangeSelector() {
     return Container(
       decoration: BoxDecoration(
@@ -249,6 +297,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     );
   }
 
+  /// يبني زر تاريخ فردي يعرض التاريخ المختار أو نصًا بديلًا.
   Widget _buildDateButton({
     required String label,
     DateTime? date,
@@ -310,6 +359,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     );
   }
 
+  /// يبني صف البحث مع قائمة نوع العملية في العرض الكامل.
   Widget _buildSearchAndTypeRow() {
     return Row(
       children: [
@@ -325,6 +375,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     );
   }
 
+  /// يبني حقل البحث الحر ويحدث الفلاتر عند كل تغيير.
   Widget _buildSearchField({bool isCompact = false}) {
     return Container(
       height: isCompact ? 40 : null,
@@ -368,6 +419,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     );
   }
 
+  /// يبني قائمة منسدلة لتحديد نوع العملية المطلوبة.
   Widget _buildOperationTypeDropdown({bool isCompact = false}) {
     return Container(
       height: isCompact ? 40 : null,
@@ -418,6 +470,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     );
   }
 
+  /// يبني الفلاتر السريعة مثل اليوم والأسبوع والشهر.
   Widget _buildQuickFilters({bool isCompact = false}) {
     return SizedBox(
       height: isCompact ? 32 : 36,
@@ -461,6 +514,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     );
   }
 
+  /// يبني شارة فلتر سريعة قابلة للنقر لتطبيق نطاق جاهز.
   Widget _buildQuickFilterChip({
     required String label,
     required bool isSelected,
@@ -525,6 +579,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     );
   }
 
+  /// يفتح منتقي التاريخ ويحدّث بداية أو نهاية النطاق.
   void _selectDate(bool isStartDate) async {
     final picked = await showDatePicker(
       context: context,
@@ -560,6 +615,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     }
   }
 
+  /// يتحقق من كون الفلاتر الحالية تمثل اليوم.
   bool _isToday() {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -567,6 +623,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
         _filters.endDate == today.add(const Duration(days: 1));
   }
 
+  /// يتحقق من كون الفلاتر الحالية تمثل هذا الأسبوع.
   bool _isThisWeek() {
     final now = DateTime.now();
     final weekStart = now.subtract(Duration(days: now.weekday - 1));
@@ -574,6 +631,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     return _filters.startDate == weekStart && _filters.endDate == weekEnd;
   }
 
+  /// يتحقق من كون الفلاتر الحالية تمثل هذا الشهر.
   bool _isThisMonth() {
     final now = DateTime.now();
     final monthStart = DateTime(now.year, now.month, 1);
@@ -581,6 +639,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     return _filters.startDate == monthStart && _filters.endDate == monthEnd;
   }
 
+  /// يضبط الفلاتر على نطاق اليوم الحالي.
   void _selectToday() {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -593,6 +652,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     _applyFilters();
   }
 
+  /// يضبط الفلاتر على نطاق الأسبوع الحالي.
   void _selectThisWeek() {
     final now = DateTime.now();
     final weekStart = now.subtract(Duration(days: now.weekday - 1));
@@ -606,6 +666,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     _applyFilters();
   }
 
+  /// يضبط الفلاتر على نطاق الشهر الحالي.
   void _selectThisMonth() {
     final now = DateTime.now();
     final monthStart = DateTime(now.year, now.month, 1);
@@ -619,6 +680,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     _applyFilters();
   }
 
+  /// يمسح جميع الفلاتر ويعيد حقل البحث إلى حالته الافتراضية.
   void _clearFilters() {
     setState(() {
       _filters = const AuditLogFilters();
@@ -627,6 +689,7 @@ class _AuditLogFiltersWidgetState extends State<AuditLogFiltersWidget> {
     _applyFilters();
   }
 
+  /// يرسل الفلاتر الحالية إلى الطبقة الأعلى لتطبيقها على النتائج.
   void _applyFilters() {
     widget.onFiltersChanged(_filters);
   }

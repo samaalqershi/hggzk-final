@@ -15,17 +15,16 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/property.dart';
 
 class PropertyMapClusterView extends StatefulWidget {
+  /// العربية: يخزن القيمة `properties`.
   final List<Property> properties;
   final Function(Property) onPropertySelected;
   final Function(Map<String, dynamic>) onFilterChanged;
-
   const PropertyMapClusterView({
     super.key,
     required this.properties,
     required this.onPropertySelected,
     required this.onFilterChanged,
   });
-
   @override
   State<PropertyMapClusterView> createState() => _PropertyMapClusterViewState();
 }
@@ -67,7 +66,6 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
   double _averageRating = 0;
   int _approvedCount = 0;
   int _pendingCount = 0;
-
   @override
   void initState() {
     super.initState();
@@ -350,8 +348,8 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
       isSelected
           ? [AppTheme.primaryPurple, AppTheme.primaryBlue]
           : property.isApproved
-              ? [AppTheme.success, AppTheme.success.withOpacity(0.8)]
-              : [AppTheme.warning, AppTheme.warning.withOpacity(0.8)],
+              ? [AppTheme.success, AppTheme.success.withValues(alpha: 0.8)]
+              : [AppTheme.warning, AppTheme.warning.withValues(alpha: 0.8)],
     );
 
     final RRect rrect = RRect.fromRectAndRadius(
@@ -439,12 +437,12 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
       radius,
       isSelected
           ? [
-              AppTheme.primaryPurple.withOpacity(0.4),
-              AppTheme.primaryPurple.withOpacity(0.1),
+              AppTheme.primaryPurple.withValues(alpha: 0.4),
+              AppTheme.primaryPurple.withValues(alpha: 0.1),
             ]
           : [
-              AppTheme.primaryBlue.withOpacity(0.4),
-              AppTheme.primaryBlue.withOpacity(0.1),
+              AppTheme.primaryBlue.withValues(alpha: 0.4),
+              AppTheme.primaryBlue.withValues(alpha: 0.1),
             ],
     );
     canvas.drawCircle(const Offset(radius, radius), radius, paint);
@@ -455,7 +453,7 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
       const Offset(size, size),
       isSelected
           ? [AppTheme.primaryPurple, AppTheme.primaryBlue]
-          : [AppTheme.primaryBlue, AppTheme.primaryBlue.withOpacity(0.8)],
+          : [AppTheme.primaryBlue, AppTheme.primaryBlue.withValues(alpha: 0.8)],
     );
     canvas.drawCircle(const Offset(radius, radius), radius * 0.7, paint);
 
@@ -703,14 +701,14 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
     return Container(
       padding: EdgeInsets.all(isCompact ? 8 : 12),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.9),
+        color: AppTheme.darkCard.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.1),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -829,10 +827,10 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
           child: Container(
             height: 36,
             decoration: BoxDecoration(
-              color: AppTheme.darkSurface.withOpacity(0.5),
+              color: AppTheme.darkSurface.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.2),
+                color: AppTheme.darkBorder.withValues(alpha: 0.2),
               ),
             ),
             child: TextField(
@@ -912,7 +910,7 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
             color: AppTheme.darkCard,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.2),
+              color: AppTheme.darkBorder.withValues(alpha: 0.2),
             ),
           ),
           child: Column(
@@ -935,19 +933,19 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: AppTheme.darkBorder.withOpacity(0.2),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.2),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: AppTheme.darkBorder.withOpacity(0.2),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.2),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: AppTheme.primaryBlue.withOpacity(0.5),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                     ),
                   ),
                 ),
@@ -969,10 +967,10 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
       padding: EdgeInsets.all(isCompact ? 12 : 16),
       width: isCompact ? 180 : 200,
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.9),
+        color: AppTheme.darkCard.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
       ),
       child: ClipRRect(
@@ -1081,18 +1079,18 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
         height: size,
         decoration: BoxDecoration(
           gradient: isPrimary ? AppTheme.primaryGradient : null,
-          color: isPrimary ? null : AppTheme.darkCard.withOpacity(0.9),
+          color: isPrimary ? null : AppTheme.darkCard.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(size * 0.32),
           border: isPrimary
               ? null
               : Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.2),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.2),
                 ),
           boxShadow: [
             BoxShadow(
               color: isPrimary
-                  ? AppTheme.primaryBlue.withOpacity(0.3)
-                  : Colors.black.withOpacity(0.1),
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                  : Colors.black.withValues(alpha: 0.1),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -1130,12 +1128,12 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
         margin: EdgeInsets.only(left: isCompact ? 2 : 4),
         decoration: BoxDecoration(
           gradient: isActive ? AppTheme.primaryGradient : null,
-          color: isActive ? null : AppTheme.darkSurface.withOpacity(0.5),
+          color: isActive ? null : AppTheme.darkSurface.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isActive
-                ? AppTheme.primaryBlue.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.2),
+                ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                : AppTheme.darkBorder.withValues(alpha: 0.2),
           ),
         ),
         child: Icon(
@@ -1228,10 +1226,10 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
       ),
       padding: EdgeInsets.all(isCompact ? 12 : 16),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.95),
+        color: AppTheme.darkCard.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
       ),
       child: ClipRRect(
@@ -1278,7 +1276,7 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
                 Container(
                   padding: EdgeInsets.all(isCompact ? 8 : 12),
                   decoration: BoxDecoration(
-                    color: AppTheme.darkSurface.withOpacity(0.5),
+                    color: AppTheme.darkSurface.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
@@ -1382,12 +1380,13 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
         ),
         decoration: BoxDecoration(
           gradient: isSelected ? AppTheme.primaryGradient : null,
-          color: isSelected ? null : AppTheme.darkSurface.withOpacity(0.5),
+          color:
+              isSelected ? null : AppTheme.darkSurface.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? AppTheme.primaryBlue.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.2),
+                ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                : AppTheme.darkBorder.withValues(alpha: 0.2),
           ),
         ),
         child: Text(
@@ -1410,18 +1409,17 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
 }
 
 class _PropertyDetailsCard extends StatelessWidget {
+  /// العربية: يخزن القيمة `property`.
   final Property property;
   final VoidCallback onClose;
   final VoidCallback onViewDetails;
   final bool isCompact;
-
   const _PropertyDetailsCard({
     required this.property,
     required this.onClose,
     required this.onViewDetails,
     this.isCompact = false,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1429,17 +1427,17 @@ class _PropertyDetailsCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.95),
-            AppTheme.darkCard.withOpacity(0.85),
+            AppTheme.darkCard.withValues(alpha: 0.95),
+            AppTheme.darkCard.withValues(alpha: 0.85),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.3),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.2),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -1459,8 +1457,8 @@ class _PropertyDetailsCard extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppTheme.primaryBlue.withOpacity(0.05),
-                        AppTheme.primaryPurple.withOpacity(0.02),
+                        AppTheme.primaryBlue.withValues(alpha: 0.05),
+                        AppTheme.primaryPurple.withValues(alpha: 0.02),
                       ],
                     ),
                   ),
@@ -1546,7 +1544,8 @@ class _PropertyDetailsCard extends StatelessWidget {
                             width: isCompact ? 28 : 32,
                             height: isCompact ? 28 : 32,
                             decoration: BoxDecoration(
-                              color: AppTheme.darkSurface.withOpacity(0.5),
+                              color:
+                                  AppTheme.darkSurface.withValues(alpha: 0.5),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
@@ -1641,7 +1640,7 @@ class _PropertyDetailsCard extends StatelessWidget {
           vertical: isCompact ? 3 : 4,
         ),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -1690,14 +1689,13 @@ class _PropertyDetailsCard extends StatelessWidget {
 
 // Cluster Properties Sheet
 class _ClusterPropertiesSheet extends StatelessWidget {
+  /// العربية: يخزن القيمة `properties`.
   final List<Property> properties;
   final Function(Property) onPropertySelected;
-
   const _ClusterPropertiesSheet({
     required this.properties,
     required this.onPropertySelected,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1706,7 +1704,7 @@ class _ClusterPropertiesSheet extends StatelessWidget {
         color: AppTheme.darkCard,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -1770,10 +1768,10 @@ class _ClusterPropertiesSheet extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.darkSurface.withOpacity(0.5),
+                      color: AppTheme.darkSurface.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppTheme.darkBorder.withOpacity(0.2),
+                        color: AppTheme.darkBorder.withValues(alpha: 0.2),
                       ),
                     ),
                     child: Row(

@@ -8,6 +8,7 @@ import '../../entities/property.dart';
 import '../../repositories/properties_repository.dart';
 
 class GetAllPropertiesParams {
+  /// العربية: يخزن القيمة `pageNumber`.
   final int? pageNumber;
   final int? pageSize;
   final String? searchTerm;
@@ -21,7 +22,6 @@ class GetAllPropertiesParams {
   final double? minAverageRating;
   final bool? isApproved;
   final bool? hasActiveBookings;
-  
   GetAllPropertiesParams({
     this.pageNumber = 1,
     this.pageSize = 1000,
@@ -39,13 +39,13 @@ class GetAllPropertiesParams {
   });
 }
 
-class GetAllPropertiesUseCase implements UseCase<PaginatedResult<Property>, GetAllPropertiesParams> {
+class GetAllPropertiesUseCase
+    implements UseCase<PaginatedResult<Property>, GetAllPropertiesParams> {
   final PropertiesRepository repository;
-  
   GetAllPropertiesUseCase(this.repository);
-  
   @override
-  Future<Either<Failure, PaginatedResult<Property>>> call(GetAllPropertiesParams params) async {
+  Future<Either<Failure, PaginatedResult<Property>>> call(
+      GetAllPropertiesParams params) async {
     return await repository.getAllProperties(
       pageNumber: params.pageNumber,
       pageSize: params.pageSize,

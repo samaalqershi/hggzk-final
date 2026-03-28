@@ -4,26 +4,49 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/conversation.dart';
 
+/// يعرّف الكلاس `TypingIndicatorWidget`.
+/// Describes the `TypingIndicatorWidget` class.
 class TypingIndicatorWidget extends StatefulWidget {
+  /// Holds the `typingUserIds` value.
+  /// العربية: يخزن القيمة `typingUserIds`.
   final List<String> typingUserIds;
+
+  /// يخزن العضو `conversation`.
+  /// Holds the `conversation` member.
   final Conversation conversation;
 
+  /// ينشئ مثيلاً من `TypingIndicatorWidget`.
+  /// Builds an instance of `TypingIndicatorWidget`.
   const TypingIndicatorWidget({
     super.key,
     required this.typingUserIds,
     required this.conversation,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<TypingIndicatorWidget> createState() => _TypingIndicatorWidgetState();
 }
 
+/// يعرّف الكلاس `_TypingIndicatorWidgetState`.
+/// Describes the `_TypingIndicatorWidgetState` class.
 class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_dotAnimations`.
+  /// Holds the `_dotAnimations` member.
   late List<Animation<double>> _dotAnimations;
+
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -57,12 +80,16 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
     });
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     if (widget.typingUserIds.isEmpty) {
@@ -132,6 +159,8 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalDots`.
+  /// Runs the `_buildMinimalDots` operation.
   Widget _buildMinimalDots() {
     return SizedBox(
       width: 24, // Reduced from 30
@@ -150,14 +179,20 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.primaryBlue.withValues(alpha: 0.3 + 0.5 * _dotAnimations[index].value,),
-                        AppTheme.primaryPurple.withValues(alpha: 0.2 + 0.4 * _dotAnimations[index].value,),
+                        AppTheme.primaryBlue.withValues(
+                          alpha: 0.3 + 0.5 * _dotAnimations[index].value,
+                        ),
+                        AppTheme.primaryPurple.withValues(
+                          alpha: 0.2 + 0.4 * _dotAnimations[index].value,
+                        ),
                       ],
                     ),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withValues(alpha: 0.2 * _dotAnimations[index].value,),
+                        color: AppTheme.primaryBlue.withValues(
+                          alpha: 0.2 * _dotAnimations[index].value,
+                        ),
                         blurRadius: 4,
                         spreadRadius: 0.5,
                       ),
@@ -172,9 +207,11 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
     );
   }
 
+  /// ينفذ العملية `_getTypingText`.
+  /// Runs the `_getTypingText` operation.
   String _getTypingText(List<ChatUser> typingUsers) {
     if (typingUsers.isEmpty) return '';
-    
+
     if (typingUsers.length == 1) {
       return '${typingUsers.first.name} يكتب';
     } else if (typingUsers.length == 2) {

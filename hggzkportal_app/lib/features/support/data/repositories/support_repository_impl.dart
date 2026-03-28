@@ -6,11 +6,24 @@ import '../../domain/entities/support_message.dart';
 import '../../domain/repositories/support_repository.dart';
 import '../models/support_message_model.dart';
 
+/// يحول عقد الدعم إلى طلب شبكة فعلي مع إبقاء الأخطاء محصورة
+/// داخل طبقة البيانات.
+/// Turns the support contract into a real network request while
+/// keeping errors contained inside the data layer.
 class SupportRepositoryImpl implements SupportRepository {
+  /// العميل الذي يتحدث مع نقطة النهاية الخاصة بالدعم.
+  /// Client that talks to the support endpoint.
   final ApiClient apiClient;
 
+  /// يربط المستودع بعميل الشبكة المستخدم للإرسال.
+  /// Connects the repository to the network client used for
+  /// sending.
   SupportRepositoryImpl({required this.apiClient});
 
+  /// يحول الرسالة إلى نموذج إرسال ثم يعيد ما يرجعه الخادم بعد
+  /// المعالجة.
+  /// Converts the message to a send model and returns what the
+  /// server gives back after processing.
   @override
   Future<Either<Failure, Map<String, dynamic>>> sendSupportMessage(
     SupportMessage message,

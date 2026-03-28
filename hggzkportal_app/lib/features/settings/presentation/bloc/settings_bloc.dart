@@ -15,6 +15,7 @@ import 'settings_event.dart';
 import 'settings_state.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
+  /// العربية: يخزن القيمة `getSettingsUseCase`.
   final GetSettingsUseCase getSettingsUseCase;
   final UpdateLanguageUseCase updateLanguageUseCase;
   final UpdateThemeUseCase updateThemeUseCase;
@@ -22,9 +23,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final UpdateNotificationSettingsUseCase updateNotificationSettingsUseCase;
   final AuthLocalDataSource localDataSource;
   final BiometricAuthService biometricAuthService;
-
   AppSettings? _currentSettings;
-
   SettingsBloc({
     required this.getSettingsUseCase,
     required this.updateLanguageUseCase,
@@ -48,7 +47,6 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     // Load settings on initialization
     add(LoadSettingsEvent());
   }
-
   Future<void> _onLoadSettings(
     LoadSettingsEvent event,
     Emitter<SettingsState> emit,

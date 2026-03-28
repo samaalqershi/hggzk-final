@@ -1,42 +1,39 @@
 import 'package:equatable/equatable.dart';
 import 'package:hggzk/core/enums/search_relaxation_level.dart';
 
-/// معلومات تفصيلية عن تخفيف معايير البحث
-/// Search Relaxation Information Entity
-/// 
-/// يحتوي على جميع المعلومات المتعلقة بالتخفيف الذي تم تطبيقه
-/// على معايير البحث للحصول على نتائج
+/// Captures how the backend relaxed a search query to produce matches.
+/// يلتقط طريقة تخفيف الخادم لاستعلام البحث حتى يتمكن من إنتاج نتائج.
 class SearchRelaxationInfo extends Equatable {
-  /// مستوى التخفيف المطبق
-  /// Applied relaxation level
+  /// Exact relaxation tier chosen by the backend.
+  /// مستوى التخفيف المحدد من الخادم.
   final SearchRelaxationLevel relaxationLevel;
 
-  /// قائمة الفلاتر التي تم تخفيفها
-  /// List of relaxed filters
-  /// مثال: ["توسيع نطاق السعر 15%", "تقليل المرافق المطلوبة"]
+  /// Filters that were loosened to broaden the result set.
+  /// الفلاتر التي تم تخفيفها لتوسيع مجموعة النتائج.
   final List<String> relaxedFilters;
 
-  /// استراتيجية البحث المطبقة
-  /// Applied search strategy
+  /// Search strategy label returned with the relaxed response.
+  /// وسم استراتيجية البحث المعاد مع الاستجابة المخففة.
   final String searchStrategy;
 
-  /// المعايير الأصلية (قبل التخفيف)
-  /// Original criteria (before relaxation)
+  /// Original query criteria before the backend widened them.
+  /// معايير الاستعلام الأصلية قبل أن يوسعها الخادم.
   final Map<String, dynamic> originalCriteria;
 
-  /// المعايير الفعلية (بعد التخفيف)
-  /// Actual criteria (after relaxation)
+  /// Criteria actually applied after relaxation.
+  /// المعايير الفعلية المطبقة بعد التخفيف.
   final Map<String, dynamic> actualCriteria;
 
-  /// رسالة للمستخدم توضح التخفيف المطبق
-  /// User message explaining applied relaxation
+  /// Optional message shown to explain why the search broadened.
+  /// رسالة اختيارية تشرح لماذا تم توسيع البحث.
   final String? userMessage;
 
-  /// اقتراحات لتحسين البحث
-  /// Suggestions to improve search
-  /// مثال: ["جرب تغيير تواريخ السفر", "عدّل نطاق السعر"]
+  /// Suggestions that help the user tighten the search again.
+  /// اقتراحات تساعد المستخدم على تضييق البحث من جديد.
   final List<String> suggestedActions;
 
+  /// Builds a structured explanation for relaxed search results.
+  /// ينشئ شرحًا منظمًا للنتائج التي بُنيت عبر بحث مخفف.
   const SearchRelaxationInfo({
     required this.relaxationLevel,
     required this.relaxedFilters,
@@ -47,24 +44,24 @@ class SearchRelaxationInfo extends Equatable {
     required this.suggestedActions,
   });
 
-  /// هل تم تطبيق تخفيف؟
-  /// Was relaxation applied?
+  /// True when the backend had to relax the original query.
+  /// تكون صحيحة عندما يضطر الخادم إلى تخفيف الاستعلام الأصلي.
   bool get wasRelaxed => relaxationLevel != SearchRelaxationLevel.exact;
 
-  /// عدد الفلاتر المخففة
-  /// Number of relaxed filters
+  /// Number of filters that were widened or ignored.
+  /// عدد الفلاتر التي تم توسيعها أو تجاهلها.
   int get relaxedFiltersCount => relaxedFilters.length;
 
-  /// هل هناك رسالة للمستخدم؟
-  /// Is there a user message?
+  /// True when a user-facing explanation is available.
+  /// تكون صحيحة عندما تتوفر رسالة موجهة للمستخدم.
   bool get hasUserMessage => userMessage != null && userMessage!.isNotEmpty;
 
-  /// هل هناك اقتراحات؟
-  /// Are there suggestions?
+  /// True when the backend returned suggestions for a tighter retry.
+  /// تكون صحيحة عندما يعيد الخادم اقتراحات لإعادة بحث أدق.
   bool get hasSuggestions => suggestedActions.isNotEmpty;
 
-  /// نسخة فارغة (بدون تخفيف)
-  /// Empty instance (no relaxation)
+  /// Empty baseline used when no relaxation metadata is available.
+  /// نسخة أساسية فارغة تستخدم عندما لا تتوفر بيانات التخفيف.
   static const SearchRelaxationInfo empty = SearchRelaxationInfo(
     relaxationLevel: SearchRelaxationLevel.exact,
     relaxedFilters: [],
@@ -75,8 +72,8 @@ class SearchRelaxationInfo extends Equatable {
     suggestedActions: [],
   );
 
-  /// إنشاء من SearchPropertiesResponseModel
-  /// Create from response model
+  /// Rebuilds the relaxation summary from a search response payload.
+  /// يعيد بناء ملخص التخفيف من حمولة استجابة البحث.
   factory SearchRelaxationInfo.fromResponse({
     required SearchRelaxationLevel relaxationLevel,
     required List<String> relaxedFilters,
@@ -97,8 +94,8 @@ class SearchRelaxationInfo extends Equatable {
     );
   }
 
-  /// نسخ مع تعديل بعض الحقول
-  /// Copy with modified fields
+  /// Returns a new instance with any supplied fields replaced.
+  /// يعيد نسخة جديدة مع استبدال أي حقول يتم تمريرها.
   SearchRelaxationInfo copyWith({
     SearchRelaxationLevel? relaxationLevel,
     List<String>? relaxedFilters,
@@ -119,6 +116,8 @@ class SearchRelaxationInfo extends Equatable {
     );
   }
 
+  /// Keeps equality aligned with the relaxation payload.
+  /// يحافظ على ثبات المقارنة مع حمولة التخفيف.
   @override
   List<Object?> get props => [
         relaxationLevel,
@@ -130,6 +129,8 @@ class SearchRelaxationInfo extends Equatable {
         suggestedActions,
       ];
 
+  /// Produces a compact debug representation of the relaxation summary.
+  /// ينتج تمثيلًا مختصرًا للتصحيح الخاص بملخص التخفيف.
   @override
   String toString() {
     return 'SearchRelaxationInfo('

@@ -6,14 +6,33 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'theme_event.dart';
 import 'theme_state.dart';
 
+/// يدير قراءة وتبديل وحفظ ثيم البورتال كي تبقى الواجهة متسقة عبر الجلسات.
+/// Loads, toggles, and persists the portal theme so the interface stays consistent across sessions.
 class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
+  /// مفتاح التخزين المستخدم لحفظ تفضيل الثيم محليًا.
+  /// Storage key used to persist the selected theme mode locally.
   static const String _themeKey = 'app_theme_mode';
+
+  /// تمثيل نصي لوضع الثيم الفاتح داخل SharedPreferences.
+  /// String token for the light theme stored in SharedPreferences.
   static const String _themeModeLight = 'light';
+
+  /// تمثيل نصي لوضع الثيم الداكن داخل SharedPreferences.
+  /// String token for the dark theme stored in SharedPreferences.
   static const String _themeModeDark = 'dark';
+
+  /// تمثيل نصي لوضع الثيم الذي يتبع إعدادات النظام.
+  /// String token for the system-following theme mode.
   static const String _themeModeSystem = 'system';
-  
+
+  /// طبقة التخزين المحلية المستخدمة لقراءة وحفظ التفضيل.
+  /// Local storage handle used to read and persist the preference.
   final SharedPreferences _prefs;
 
+  /// Builds the theme bloc with its storage dependency and kicks off theme
+  /// restoration immediately.
+  /// ينشئ bloc الثيم مع اعتماد التخزين الخاص به ثم يبدأ استعادة الثيم
+  /// مباشرة.
   ThemeBloc({required SharedPreferences prefs})
       : _prefs = prefs,
         super(ThemeState.initial()) {
@@ -21,20 +40,22 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
     on<ToggleThemeEvent>(_onToggleTheme);
     on<SetThemeEvent>(_onSetTheme);
     on<SetSystemThemeEvent>(_onSetSystemTheme);
-    
-    // Load saved theme on initialization
+
+    // Restore the saved choice immediately so the first build uses the right colors.
     add(const LoadThemeEvent());
   }
 
+  /// Restores the saved theme token and maps it back to a ThemeMode.
+  /// يعيد قراءة الثيم المخزن ويحوّله إلى ThemeMode مناسب قبل عرض الواجهة.
   Future<void> _onLoadTheme(
     LoadThemeEvent event,
     Emitter<ThemeState> emit,
   ) async {
     emit(state.copyWith(isLoading: true));
-    
+
     try {
       final savedTheme = _prefs.getString(_themeKey);
-      
+
       ThemeMode themeMode;
       switch (savedTheme) {
         case _themeModeLight:
@@ -47,15 +68,15 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
           themeMode = ThemeMode.system;
           break;
         default:
-          themeMode = ThemeMode.dark; // Default to dark
+          themeMode = ThemeMode.dark;
       }
-      
+
       emit(ThemeState(
         themeMode: themeMode,
         isLoading: false,
       ));
     } catch (e) {
-      // If error, default to dark theme
+      // Fallback to dark theme if persistence fails or the value is invalid.
       emit(const ThemeState(
         themeMode: ThemeMode.dark,
         isLoading: false,
@@ -63,14 +84,15 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
     }
   }
 
+  /// Switches between light and dark while keeping the choice persisted.
+  /// يبدل بين الفاتح والداكن مع حفظ الاختيار في التخزين المحلي.
   Future<void> _onToggleTheme(
     ToggleThemeEvent event,
     Emitter<ThemeState> emit,
   ) async {
-    final newMode = state.themeMode == ThemeMode.dark
-        ? ThemeMode.light
-        : ThemeMode.dark;
-    
+    final newMode =
+        state.themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+
     await _saveThemeMode(newMode);
     emit(ThemeState(
       themeMode: newMode,
@@ -78,6 +100,8 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
     ));
   }
 
+  /// Applies an explicit theme mode coming from settings or system controls.
+  /// يطبق ثيمًا محددًا واردًا من إعدادات المستخدم أو منطق النظام.
   Future<void> _onSetTheme(
     SetThemeEvent event,
     Emitter<ThemeState> emit,
@@ -89,6 +113,8 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
     ));
   }
 
+  /// Restores system-following behavior so the device controls the appearance.
+  /// يعيد سلوك اتباع النظام حتى يتحكم الجهاز في المظهر.
   Future<void> _onSetSystemTheme(
     SetSystemThemeEvent event,
     Emitter<ThemeState> emit,
@@ -100,6 +126,8 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
     ));
   }
 
+  /// Persists the symbolic theme token that matches the selected ThemeMode.
+  /// يحفظ الرمز النصي المطابق لـ ThemeMode المختار.
   Future<void> _saveThemeMode(ThemeMode mode) async {
     String value;
     switch (mode) {

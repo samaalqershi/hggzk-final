@@ -8,9 +8,7 @@ import '../../repositories/payments_repository.dart';
 class GetPaymentTrendsUseCase
     implements UseCase<List<PaymentTrend>, GetPaymentTrendsParams> {
   final PaymentsRepository repository;
-
   GetPaymentTrendsUseCase(this.repository);
-
   @override
   Future<Either<Failure, List<PaymentTrend>>> call(
     GetPaymentTrendsParams params,
@@ -24,16 +22,15 @@ class GetPaymentTrendsUseCase
 }
 
 class GetPaymentTrendsParams extends Equatable {
+  /// العربية: يخزن القيمة `startDate`.
   final DateTime startDate;
   final DateTime endDate;
   final String? propertyId;
-
   const GetPaymentTrendsParams({
     required this.startDate,
     required this.endDate,
     this.propertyId,
   });
-
   @override
   List<Object?> get props => [startDate, endDate, propertyId];
 }

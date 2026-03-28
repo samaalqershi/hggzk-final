@@ -5,10 +5,15 @@ import '../repositories/daily_schedule_repository.dart';
 
 /// معاملات نسخ الجدول
 class CloneScheduleParams {
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
+
   final DateTime sourceStartDate;
+
   final DateTime sourceEndDate;
+
   final DateTime targetStartDate;
+
   final bool overwrite;
 
   const CloneScheduleParams({
@@ -22,6 +27,7 @@ class CloneScheduleParams {
 
 /// Use case لنسخ الجدول
 class CloneScheduleUseCase implements UseCase<int, CloneScheduleParams> {
+  /// العربية: يخزن القيمة `repository`.
   final DailyScheduleRepository repository;
 
   CloneScheduleUseCase(this.repository);

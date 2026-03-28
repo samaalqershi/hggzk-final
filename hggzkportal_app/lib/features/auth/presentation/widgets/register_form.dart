@@ -4,10 +4,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/validators.dart';
@@ -15,19 +13,22 @@ import '../../../../core/enums/payment_method_enum.dart';
 import 'password_strength_indicator.dart';
 import 'package:hggzkportal/injection_container.dart';
 import 'package:hggzkportal/core/models/paginated_result.dart';
-import 'package:hggzkportal/features/admin_properties/data/datasources/property_types_remote_datasource.dart'
-    as ap_ds_pt_remote;
-import 'package:hggzkportal/features/admin_properties/data/models/property_type_model.dart'
-    as ap_models;
+import 'package:hggzkportal/features/property_types/data/datasources/property_types_remote_datasource.dart'
+    as pt_ds;
+import 'package:hggzkportal/features/property_types/data/models/property_type_model.dart'
+    as pt_models;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:dio/dio.dart' as dio;
 import '../../../../core/constants/api_constants.dart';
 import '../../../../services/location_service.dart' as loc;
-import 'package:async/async.dart';
 import 'package:hggzkportal/features/admin_cities/domain/usecases/get_cities_usecase.dart'
     as ci_uc;
 
+/// يعرّف الكلاس `RegisterForm`.
+/// Describes the `RegisterForm` class.
 class RegisterForm extends StatefulWidget {
+  /// Receives `Function`.
+  /// العربية: يعالج `Function`.
   final Function(
     String name,
     String email,
@@ -43,12 +44,29 @@ class RegisterForm extends StatefulWidget {
     String? description,
     List<Map<String, dynamic>>? walletAccounts,
   ) onSubmit;
+
+  /// يخزن العضو `isLoading`.
+  /// Holds the `isLoading` member.
   final bool isLoading;
+
+  /// يخزن العضو `isProfileCompletion`.
+  /// Holds the `isProfileCompletion` member.
   final bool isProfileCompletion;
+
+  /// يخزن العضو `initialName`.
+  /// Holds the `initialName` member.
   final String? initialName;
+
+  /// يخزن العضو `initialEmail`.
+  /// Holds the `initialEmail` member.
   final String? initialEmail;
+
+  /// يخزن العضو `initialPhone`.
+  /// Holds the `initialPhone` member.
   final String? initialPhone;
 
+  /// ينشئ مثيلاً من `RegisterForm`.
+  /// Builds an instance of `RegisterForm`.
   const RegisterForm({
     super.key,
     required this.onSubmit,
@@ -59,10 +77,14 @@ class RegisterForm extends StatefulWidget {
     this.initialPhone,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<RegisterForm> createState() => _RegisterFormState();
 }
 
+/// يعرّف الكلاس `_RegisterFormState`.
+/// Describes the `_RegisterFormState` class.
 class _RegisterFormState extends State<RegisterForm>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
@@ -94,41 +116,105 @@ class _RegisterFormState extends State<RegisterForm>
   final _longitudeFocusNode = FocusNode();
 
   // State variables
+  /// يخزن العضو `_obscurePassword`.
+  /// Holds the `_obscurePassword` member.
   bool _obscurePassword = true;
+
+  /// يخزن العضو `_obscureConfirmPassword`.
+  /// Holds the `_obscureConfirmPassword` member.
   bool _obscureConfirmPassword = true;
+
+  /// يخزن العضو `_acceptTerms`.
+  /// Holds the `_acceptTerms` member.
   bool _acceptTerms = false;
+
+  /// يخزن العضو `_showPasswordStrength`.
+  /// Holds the `_showPasswordStrength` member.
   bool _showPasswordStrength = false;
 
+  /// يخزن العضو `_termsRecognizer`.
+  /// Holds the `_termsRecognizer` member.
   late TapGestureRecognizer _termsRecognizer;
+
+  /// يخزن العضو `_privacyRecognizer`.
+  /// Holds the `_privacyRecognizer` member.
   late TapGestureRecognizer _privacyRecognizer;
+
+  /// يخزن العضو `_selectedPropertyTypeId`.
+  /// Holds the `_selectedPropertyTypeId` member.
   String _selectedPropertyTypeId = '';
-  List<ap_models.PropertyTypeModel> _propertyTypes = const [];
+  List<pt_models.PropertyTypeModel> _propertyTypes = const [];
+
+  /// يخزن العضو `_loadingPropertyTypes`.
+  /// Holds the `_loadingPropertyTypes` member.
   bool _loadingPropertyTypes = false;
+
+  /// يخزن العضو `_cities`.
+  /// Holds the `_cities` member.
   List<String> _cities = const [];
+
+  /// يخزن العضو `_loadingCities`.
+  /// Holds the `_loadingCities` member.
   bool _loadingCities = false;
+
+  /// يخزن العضو `_selectedCity`.
+  /// Holds the `_selectedCity` member.
   String? _selectedCity;
+
+  /// يخزن العضو `_citiesError`.
+  /// Holds the `_citiesError` member.
   String? _citiesError;
+
+  /// يخزن العضو `_addressSuggestions`.
+  /// Holds the `_addressSuggestions` member.
   List<_PlaceSuggestion> _addressSuggestions = const [];
-  bool _loadingSuggestions = false;
+
+  /// يخزن العضو `_debounce`.
+  /// Holds the `_debounce` member.
   Timer? _debounce;
   String _placesSessionToken = _generatePlacesSessionToken();
 
+  /// يخزن العضو `_walletAccounts`.
+  /// Holds the `_walletAccounts` member.
   final List<_WalletAccountDraft> _walletAccounts = [];
 
   /// حماية ضد الضغط المتكرر على زر التسجيل
+  /// يخزن العضو `_isSubmitting`.
+  /// Holds the `_isSubmitting` member.
   bool _isSubmitting = false;
 
   // Animation Controllers
+  /// يخزن العضو `_fieldAnimationController`.
+  /// Holds the `_fieldAnimationController` member.
   late AnimationController _fieldAnimationController;
+
+  /// يخزن العضو `_checkboxAnimationController`.
+  /// Holds the `_checkboxAnimationController` member.
   late AnimationController _checkboxAnimationController;
+
+  /// يخزن العضو `_sectionAnimationController`.
+  /// Holds the `_sectionAnimationController` member.
   late AnimationController _sectionAnimationController;
+
+  /// يخزن العضو `_floatingAnimationController`.
+  /// Holds the `_floatingAnimationController` member.
   late AnimationController _floatingAnimationController;
+
+  /// يخزن العضو `_floatingAnimation`.
+  /// Holds the `_floatingAnimation` member.
   late Animation<double> _floatingAnimation;
 
   // Page tracking
+  /// يخزن العضو `_currentStep`.
+  /// Holds the `_currentStep` member.
   int _currentStep = 0;
+
+  /// يخزن العضو `_totalSteps`.
+  /// Holds the `_totalSteps` member.
   final int _totalSteps = 2;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -187,7 +273,12 @@ class _RegisterFormState extends State<RegisterForm>
     _cityFocusNode.addListener(() => setState(() {}));
     _addressFocusNode.addListener(() => setState(() {}));
 
+    /// ينفذ العملية `_loadPropertyTypes`.
+    /// Runs the `_loadPropertyTypes` operation.
     _loadPropertyTypes();
+
+    /// ينفذ العملية `_loadCities`.
+    /// Runs the `_loadCities` operation.
     _loadCities();
 
     _walletAccounts.add(
@@ -207,6 +298,8 @@ class _RegisterFormState extends State<RegisterForm>
       };
   }
 
+  /// ينفذ العملية `didUpdateWidget`.
+  /// Runs the `didUpdateWidget` operation.
   @override
   void didUpdateWidget(covariant RegisterForm oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -218,6 +311,8 @@ class _RegisterFormState extends State<RegisterForm>
     }
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _debounce?.cancel();
@@ -255,6 +350,8 @@ class _RegisterFormState extends State<RegisterForm>
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -319,6 +416,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildFloatingShape`.
+  /// Runs the `_buildFloatingShape` operation.
   Widget _buildFloatingShape({required Color color, required double size}) {
     return Container(
       width: size,
@@ -337,6 +436,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildStepIndicator`.
+  /// Runs the `_buildStepIndicator` operation.
   Widget _buildStepIndicator() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -384,6 +485,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildStepCircle`.
+  /// Runs the `_buildStepCircle` operation.
   Widget _buildStepCircle(int index, bool isActive, bool isCompleted) {
     final stepTitles = ['المعلومات الشخصية', 'بيانات الكيان'];
 
@@ -446,6 +549,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildPersonalInfoStep`.
+  /// Runs the `_buildPersonalInfoStep` operation.
   Widget _buildPersonalInfoStep() {
     return Column(
       key: const ValueKey('personal_info'),
@@ -595,6 +700,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildPropertyInfoStep`.
+  /// Runs the `_buildPropertyInfoStep` operation.
   Widget _buildPropertyInfoStep() {
     return Column(
       key: const ValueKey('property_info'),
@@ -718,6 +825,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildOwnerWalletAccountsSection`.
+  /// Runs the `_buildOwnerWalletAccountsSection` operation.
   Widget _buildOwnerWalletAccountsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -915,6 +1024,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_normalizeDefaultWallet`.
+  /// Runs the `_normalizeDefaultWallet` operation.
   void _normalizeDefaultWallet() {
     if (_walletAccounts.isEmpty) return;
     final hasDefault = _walletAccounts.any((e) => e.isDefault);
@@ -923,6 +1034,8 @@ class _RegisterFormState extends State<RegisterForm>
     }
   }
 
+  /// ينفذ العملية `_buildWalletAccountsPayload`.
+  /// Runs the `_buildWalletAccountsPayload` operation.
   List<Map<String, dynamic>>? _buildWalletAccountsPayload() {
     final items = _walletAccounts
         .map((e) {
@@ -949,6 +1062,8 @@ class _RegisterFormState extends State<RegisterForm>
     return items;
   }
 
+  /// ينفذ العملية `_buildSectionHeader`.
+  /// Runs the `_buildSectionHeader` operation.
   Widget _buildSectionHeader(String title, IconData icon) {
     return SlideTransition(
       position: Tween<Offset>(
@@ -1004,6 +1119,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildEnhancedField`.
+  /// Runs the `_buildEnhancedField` operation.
   Widget _buildEnhancedField({
     required TextEditingController controller,
     required FocusNode focusNode,
@@ -1116,6 +1233,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildFieldIcon`.
+  /// Runs the `_buildFieldIcon` operation.
   Widget _buildFieldIcon(IconData icon, bool isFocused) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -1145,6 +1264,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildEnhancedDropdown`.
+  /// Runs the `_buildEnhancedDropdown` operation.
   Widget _buildEnhancedDropdown({
     required String label,
     required IconData icon,
@@ -1213,6 +1334,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildEnhancedTextarea`.
+  /// Runs the `_buildEnhancedTextarea` operation.
   Widget _buildEnhancedTextarea({
     required TextEditingController controller,
     required String label,
@@ -1277,6 +1400,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildMapPickerButton`.
+  /// Runs the `_buildMapPickerButton` operation.
   Widget _buildMapPickerButton() {
     return Material(
       color: Colors.transparent,
@@ -1330,6 +1455,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildPasswordToggle`.
+  /// Runs the `_buildPasswordToggle` operation.
   Widget _buildPasswordToggle({
     required bool obscure,
     required VoidCallback onTap,
@@ -1360,6 +1487,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildTermsCheckbox`.
+  /// Runs the `_buildTermsCheckbox` operation.
   Widget _buildTermsCheckbox() {
     return GestureDetector(
       onTap: widget.isLoading
@@ -1474,6 +1603,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildNavigationButtons`.
+  /// Runs the `_buildNavigationButtons` operation.
   Widget _buildNavigationButtons() {
     return Row(
       children: [
@@ -1511,6 +1642,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildPrimaryButton`.
+  /// Runs the `_buildPrimaryButton` operation.
   Widget _buildPrimaryButton({
     required VoidCallback onTap,
     required String label,
@@ -1567,6 +1700,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildSecondaryButton`.
+  /// Runs the `_buildSecondaryButton` operation.
   Widget _buildSecondaryButton({
     required VoidCallback onTap,
     required String label,
@@ -1607,6 +1742,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_buildSubmitButton`.
+  /// Runs the `_buildSubmitButton` operation.
   Widget _buildSubmitButton() {
     // منع الضغط إذا كان التحميل جاريًا أو تم الإرسال مسبقًا
     final canSubmit = !widget.isLoading && !_isSubmitting;
@@ -1694,6 +1831,8 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_validateCurrentStep`.
+  /// Runs the `_validateCurrentStep` operation.
   bool _validateCurrentStep() {
     if (_currentStep == 0) {
       // Validate personal info
@@ -1721,6 +1860,8 @@ class _RegisterFormState extends State<RegisterForm>
     return true;
   }
 
+  /// ينفذ العملية `_onSubmit`.
+  /// Runs the `_onSubmit` operation.
   void _onSubmit() {
     // حماية مزدوجة: منع الإرسال إذا كان التحميل جاريًا أو تم الإرسال مسبقًا
     if (widget.isLoading || _isSubmitting) {
@@ -1767,6 +1908,8 @@ class _RegisterFormState extends State<RegisterForm>
     }
   }
 
+  /// ينفذ العملية `_showError`.
+  /// Runs the `_showError` operation.
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1817,11 +1960,15 @@ class _RegisterFormState extends State<RegisterForm>
     );
   }
 
+  /// ينفذ العملية `_tryParseDouble`.
+  /// Runs the `_tryParseDouble` operation.
   double? _tryParseDouble(String v) {
     if (v.isEmpty) return null;
     return double.tryParse(v);
   }
 
+  /// ينفذ العملية `_buildAddressSuggestionsPanel`.
+  /// Runs the `_buildAddressSuggestionsPanel` operation.
   Widget _buildAddressSuggestionsPanel() {
     return Container(
       constraints: const BoxConstraints(maxHeight: 200),
@@ -1893,11 +2040,13 @@ class _RegisterFormState extends State<RegisterForm>
   }
 
   // Helper methods remain the same
+  /// ينفذ العملية `_loadPropertyTypes`.
+  /// Runs the `_loadPropertyTypes` operation.
   Future<void> _loadPropertyTypes() async {
     setState(() => _loadingPropertyTypes = true);
     try {
-      final ds = sl<ap_ds_pt_remote.PropertyTypesRemoteDataSource>();
-      final PaginatedResult<ap_models.PropertyTypeModel> result =
+      final ds = sl<pt_ds.PropertyTypesRemoteDataSource>();
+      final PaginatedResult<pt_models.PropertyTypeModel> result =
           await ds.getAllPropertyTypes(pageNumber: 1, pageSize: 1000);
       setState(() {
         _propertyTypes = result.items;
@@ -1909,6 +2058,8 @@ class _RegisterFormState extends State<RegisterForm>
     }
   }
 
+  /// ينفذ العملية `_loadCities`.
+  /// Runs the `_loadCities` operation.
   Future<void> _loadCities() async {
     setState(() {
       _loadingCities = true;
@@ -1941,6 +2092,8 @@ class _RegisterFormState extends State<RegisterForm>
     }
   }
 
+  /// ينفذ العملية `_onAddressChanged`.
+  /// Runs the `_onAddressChanged` operation.
   void _onAddressChanged(String value) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
@@ -1952,10 +2105,10 @@ class _RegisterFormState extends State<RegisterForm>
     });
   }
 
+  /// ينفذ العملية `_fetchPlaceAutocomplete`.
+  /// Runs the `_fetchPlaceAutocomplete` operation.
   Future<void> _fetchPlaceAutocomplete(String input) async {
     final apiKey = ApiConstants.googlePlacesApiKey;
-
-    setState(() => _loadingSuggestions = true);
 
     try {
       final client = dio.Dio();
@@ -1992,11 +2145,11 @@ class _RegisterFormState extends State<RegisterForm>
       }
     } catch (e) {
       print('Error: $e');
-    } finally {
-      setState(() => _loadingSuggestions = false);
     }
   }
 
+  /// ينفذ العملية `_selectPlaceSuggestion`.
+  /// Runs the `_selectPlaceSuggestion` operation.
   Future<void> _selectPlaceSuggestion(_PlaceSuggestion s) async {
     _addressController.text = s.description;
     setState(() => _addressSuggestions = const []);
@@ -2038,6 +2191,8 @@ class _RegisterFormState extends State<RegisterForm>
     _placesSessionToken = _generatePlacesSessionToken();
   }
 
+  /// ينفذ العملية `_openMapPicker`.
+  /// Runs the `_openMapPicker` operation.
   void _openMapPicker() {
     showDialog(
       fullscreenDialog: true,
@@ -2078,35 +2233,73 @@ class _RegisterFormState extends State<RegisterForm>
   }
 }
 
+/// يعرّف الكلاس `_PlaceSuggestion`.
+/// Describes the `_PlaceSuggestion` class.
 class _PlaceSuggestion {
+  /// Holds the `description` value.
+  /// العربية: يخزن القيمة `description`.
   final String description;
+
+  /// يخزن العضو `placeId`.
+  /// Holds the `placeId` member.
   final String placeId;
+
+  /// ينشئ مثيلاً من `_PlaceSuggestion`.
+  /// Builds an instance of `_PlaceSuggestion`.
   _PlaceSuggestion({required this.description, required this.placeId});
 }
 
+/// يعرّف الكلاس `_EnhancedMapPickerDialog`.
+/// Describes the `_EnhancedMapPickerDialog` class.
 class _EnhancedMapPickerDialog extends StatefulWidget {
+  /// Holds the `initialLocation` value.
+  /// العربية: يخزن القيمة `initialLocation`.
   final LatLng? initialLocation;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(LatLng, String?) onLocationSelected;
 
+  /// ينشئ مثيلاً من `_EnhancedMapPickerDialog`.
+  /// Builds an instance of `_EnhancedMapPickerDialog`.
   const _EnhancedMapPickerDialog({
     this.initialLocation,
     required this.onLocationSelected,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<_EnhancedMapPickerDialog> createState() =>
       _EnhancedMapPickerDialogState();
 }
 
+/// يعرّف الكلاس `_EnhancedMapPickerDialogState`.
+/// Describes the `_EnhancedMapPickerDialogState` class.
 class _EnhancedMapPickerDialogState extends State<_EnhancedMapPickerDialog>
     with SingleTickerProviderStateMixin {
-  GoogleMapController? _mapController;
+  /// يخزن العضو `_selectedLocation`.
+  /// Holds the `_selectedLocation` member.
   LatLng? _selectedLocation;
+
+  /// يخزن العضو `_selectedAddress`.
+  /// Holds the `_selectedAddress` member.
   String? _selectedAddress;
+
+  /// يخزن العضو `_markers`.
+  /// Holds the `_markers` member.
   Set<Marker> _markers = {};
+
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -2129,12 +2322,16 @@ class _EnhancedMapPickerDialogState extends State<_EnhancedMapPickerDialog>
     }
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `_updateMarker`.
+  /// Runs the `_updateMarker` operation.
   void _updateMarker(LatLng location) {
     setState(() {
       _selectedLocation = location;
@@ -2148,6 +2345,8 @@ class _EnhancedMapPickerDialogState extends State<_EnhancedMapPickerDialog>
     });
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return ScaleTransition(
@@ -2179,9 +2378,6 @@ class _EnhancedMapPickerDialogState extends State<_EnhancedMapPickerDialog>
                           _selectedLocation ?? const LatLng(15.3694, 44.1910),
                       zoom: 12,
                     ),
-                    onMapCreated: (controller) {
-                      _mapController = controller;
-                    },
                     markers: _markers,
                     onTap: (location) {
                       _updateMarker(location);
@@ -2361,22 +2557,35 @@ class _EnhancedMapPickerDialogState extends State<_EnhancedMapPickerDialog>
   }
 }
 
+/// Generates the places session token.
+/// العربية: ينشئ places session token.
 String _generatePlacesSessionToken() =>
     'sess_${DateTime.now().microsecondsSinceEpoch}';
 
+/// يعرّف الكلاس `_WalletAccountDraft`.
+/// Describes the `_WalletAccountDraft` class.
 class _WalletAccountDraft {
+  /// Holds the `walletType` value.
+  /// العربية: يخزن القيمة `walletType`.
   PaymentMethod walletType;
+
+  /// يخزن العضو `isDefault`.
+  /// Holds the `isDefault` member.
   bool isDefault;
   final TextEditingController accountNumberController = TextEditingController();
   final TextEditingController accountNameController = TextEditingController();
   final FocusNode accountNumberFocusNode = FocusNode();
   final FocusNode accountNameFocusNode = FocusNode();
 
+  /// ينشئ مثيلاً من `_WalletAccountDraft`.
+  /// Builds an instance of `_WalletAccountDraft`.
   _WalletAccountDraft({
     required this.walletType,
     required this.isDefault,
   });
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   void dispose() {
     accountNumberController.dispose();
     accountNameController.dispose();

@@ -18,59 +18,90 @@ import '../../domain/entities/monthly_schedule.dart';
 import '../../domain/usecases/delete_schedule.dart';
 import '../widgets/widgets_barrel.dart';
 
-/// صفحة الجدول اليومي الموحد للإتاحة والتسعير
-///
-/// توفر واجهة شاملة لإدارة الإتاحة والتسعير في مكان واحد
-/// مع دعم العمليات المتقدمة مثل:
-/// - التحديث الفردي واليومي
-/// - التحديث الجماعي
-/// - نسخ الجداول
-/// - التحقق من التوفر
-/// - حساب الأسعار
+/// العربية: تجمع شاشة الجدول اليومي إدارة الإتاحة والتسعير والتحقق والنسخ
+/// في مساحة واحدة حتى لا يضطر المدير للتنقل بين أكثر من واجهة.
+/// into one workspace so admins do not need to jump across multiple screens.
 class DailySchedulePage extends StatefulWidget {
-  /// ✅ معرف الوحدة الاختياري للتحديد المسبق
+  /// العربية: يحدد الوحدة التي يجب فتح الصفحة عليها مباشرة إذا كانت معروفة
+  /// من المسار السابق.
+  /// target unit.
   final String? initialUnitId;
 
-  /// ✅ اسم الوحدة الاختياري للعرض
+  /// العربية: اسم الوحدة المسبق الاختيار حتى يظهر السياق بوضوح للمستخدم.
   final String? initialUnitName;
 
+  /// العربية: يبني الصفحة مع الحفاظ على أي سياق للوحدة قادم من التنقل.
   const DailySchedulePage({
     super.key,
     this.initialUnitId,
     this.initialUnitName,
   });
 
+  /// العربية: ينشئ الحالة التي تدير الحركة والاختيار والتحميل التلقائي.
+  /// automatic loading.
   @override
   State<DailySchedulePage> createState() => _DailySchedulePageState();
 }
 
+/// العربية: تنسق هذه الحالة حركة الخلفية واختيار الوحدة والتصفية والتحميل
+/// الشهري حتى تظل الصفحة عملية وواضحة.
+/// monthly loading so the page stays practical and readable.
 class _DailySchedulePageState extends State<DailySchedulePage>
     with TickerProviderStateMixin {
   // ===== Animation Controllers =====
+  /// العربية: يحرك طبقة الخلفية المتدرجة.
   late AnimationController _backgroundAnimationController;
+
+  /// العربية: يشغّل توهج المشهد الافتتاحي.
   late AnimationController _glowController;
+
+  /// العربية: يحرك الجسيمات الخلفية الصغيرة.
   late AnimationController _particleController;
+
+  /// العربية: يشغل ظهور المحتوى الأساسي.
   late AnimationController _contentAnimationController;
 
   // ===== Animations =====
+  /// العربية: يحدد مقدار دوران الخلفية.
   late Animation<double> _backgroundRotation;
+
+  /// العربية: يضبط شدة الوهج المتحرك.
   late Animation<double> _glowAnimation;
+
+  /// العربية: يحرك شفافية المحتوى عند الظهور.
   late Animation<double> _contentFadeAnimation;
+
+  /// العربية: يضيف انزلاقًا خفيفًا للمحتوى أثناء الظهور.
   late Animation<Offset> _contentSlideAnimation;
 
   // ===== State Variables =====
+  /// العربية: معرف الوحدة الجاري تحرير جدولها.
   String? _selectedUnitId;
+
+  /// العربية: اسم الوحدة المعروضة في الواجهة.
   String? _selectedUnitName;
+
+  /// العربية: معرف العقار المرتبط بالوحدة الحالية.
   String? _selectedPropertyId;
+
+  /// العربية: اسم العقار الظاهر للمستخدم.
   String? _selectedPropertyName;
+
+  /// العربية: العملة المستخدمة في الحسابات الخاصة بهذا العقار.
   String? _selectedPropertyCurrency;
+
+  /// profile already pins them to one property.
   bool _ownerPropertySelectionLocked = false;
+
   bool _didInitOwnerProperty = false;
+
+  /// loads.
   bool _didAutoLoadInitialUnit = false;
   DateTime _currentDate = DateTime.now();
 
   /// نطاق الاختيار الحالي (للتحديثات الجماعية)
   DateTime? _selectionStart;
+
   DateTime? _selectionEnd;
 
   /// حالة التصفية الحالية
@@ -90,8 +121,11 @@ class _DailySchedulePageState extends State<DailySchedulePage>
       _selectedUnitId = widget.initialUnitId;
       _selectedUnitName = widget.initialUnitName;
     }
+
     _initializeAnimations();
+
     _generateParticles();
+
     _startAnimations();
   }
 
@@ -252,12 +286,12 @@ class _DailySchedulePageState extends State<DailySchedulePage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: AppTheme.error.withOpacity(0.4),
+                color: AppTheme.error.withValues(alpha: 0.4),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.error.withOpacity(0.25),
+                  color: AppTheme.error.withValues(alpha: 0.25),
                   blurRadius: 24,
                   spreadRadius: 2,
                 ),
@@ -273,7 +307,7 @@ class _DailySchedulePageState extends State<DailySchedulePage>
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppTheme.error.withOpacity(0.15),
+                        color: AppTheme.error.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
@@ -371,12 +405,12 @@ class _DailySchedulePageState extends State<DailySchedulePage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.25),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.25),
                   blurRadius: 24,
                   spreadRadius: 2,
                 ),
@@ -392,7 +426,7 @@ class _DailySchedulePageState extends State<DailySchedulePage>
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppTheme.info.withOpacity(0.15),
+                        color: AppTheme.info.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
@@ -543,8 +577,8 @@ class _DailySchedulePageState extends State<DailySchedulePage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -621,13 +655,13 @@ class _DailySchedulePageState extends State<DailySchedulePage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.2),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -713,13 +747,13 @@ class _DailySchedulePageState extends State<DailySchedulePage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkSurface.withOpacity(0.6),
-                AppTheme.darkSurface.withOpacity(0.4),
+                AppTheme.darkSurface.withValues(alpha: 0.6),
+                AppTheme.darkSurface.withValues(alpha: 0.4),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: (color ?? AppTheme.primaryBlue).withOpacity(0.3),
+              color: (color ?? AppTheme.primaryBlue).withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -846,9 +880,9 @@ class _DailySchedulePageState extends State<DailySchedulePage>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3), width: 0.5),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 0.5),
       ),
       child: Row(
         children: [
@@ -865,7 +899,7 @@ class _DailySchedulePageState extends State<DailySchedulePage>
           Text(
             label,
             style: AppTextStyles.caption.copyWith(
-              color: color.withOpacity(0.8),
+              color: color.withValues(alpha: 0.8),
             ),
           ),
         ],
@@ -977,7 +1011,7 @@ class _DailySchedulePageState extends State<DailySchedulePage>
                       Icon(
                         Icons.calendar_month_rounded,
                         size: 80,
-                        color: AppTheme.primaryBlue.withOpacity(0.5),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                       ),
                       const SizedBox(height: 24),
                       Text(
@@ -990,7 +1024,7 @@ class _DailySchedulePageState extends State<DailySchedulePage>
                       Text(
                         'يمكنك إدارة الإتاحة والتسعير من هنا',
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppTheme.textMuted.withOpacity(0.7),
+                          color: AppTheme.textMuted.withValues(alpha: 0.7),
                         ),
                       ),
                     ],
@@ -1041,7 +1075,7 @@ class _DailySchedulePageState extends State<DailySchedulePage>
                   Icon(
                     Icons.calendar_month_rounded,
                     size: 80,
-                    color: AppTheme.primaryBlue.withOpacity(0.5),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -1054,7 +1088,7 @@ class _DailySchedulePageState extends State<DailySchedulePage>
                   Text(
                     'يمكنك إدارة الإتاحة والتسعير من هنا',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppTheme.textMuted.withOpacity(0.7),
+                      color: AppTheme.textMuted.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
@@ -1113,7 +1147,7 @@ class _DailySchedulePageState extends State<DailySchedulePage>
           Icon(
             Icons.error_outline_rounded,
             size: 80,
-            color: AppTheme.error.withOpacity(0.7),
+            color: AppTheme.error.withValues(alpha: 0.7),
           ),
           const SizedBox(height: 24),
           Text(
@@ -1331,12 +1365,12 @@ class _DailySchedulePageState extends State<DailySchedulePage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
+        border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1364,21 +1398,6 @@ class _DailySchedulePageState extends State<DailySchedulePage>
             color: AppTheme.textWhite,
           ),
         ],
-      ),
-    );
-  }
-
-  /// بناء زر الإجراءات العائم
-  Widget? _buildFloatingActionButton() {
-    return FloatingActionButton.extended(
-      onPressed: _showQuickActionsMenu,
-      icon: const Icon(Icons.flash_on_rounded),
-      label: const Text('إجراءات سريعة'),
-      backgroundColor: AppTheme.primaryBlue,
-      focusColor: AppTheme.textWhite.withOpacity(0.1),
-      extendedTextStyle: AppTextStyles.bodyMedium.copyWith(
-        color: AppTheme.textWhite,
-        fontWeight: FontWeight.w600,
       ),
     );
   }
@@ -1515,155 +1534,6 @@ class _DailySchedulePageState extends State<DailySchedulePage>
 
   // ===== Dialog Methods =====
 
-  /// عرض مربع حوار الفلاتر
-  void _showFilterDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => FilterDialog(
-        currentFilter: _currentFilter,
-        onApplyFilter: (filter) {
-          setState(() {
-            _currentFilter = filter;
-          });
-          context.read<DailyScheduleBloc>().add(
-                FilterScheduleEvent(filterStatus: filter),
-              );
-        },
-      ),
-    );
-  }
-
-  /// عرض مربع حوار الإعدادات
-  void _showSettingsDialog() {
-    final currentSettings = <String, dynamic>{
-      'showWeekends': true,
-      'highlightToday': true,
-      'showPrices': true,
-      'showStatistics': true,
-      'autoRefresh': false,
-      'compactMode': false,
-      'defaultCurrency': 'YER',
-      'dateFormat': 'yyyy-MM-dd',
-    };
-
-    showDialog(
-      context: context,
-      builder: (context) => SettingsDialog(
-        currentSettings: currentSettings,
-        onSaveSettings: (settings) {
-          _showSuccessSnackbar('تم حفظ الإعدادات بنجاح');
-        },
-      ),
-    );
-  }
-
-  /// عرض قائمة الإجراءات السريعة
-  void _showQuickActionsMenu() {
-    HapticFeedback.mediumImpact();
-
-    if (_selectedUnitId == null) {
-      _showErrorSnackbar('يرجى اختيار وحدة أولاً');
-      return;
-    }
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _buildQuickActionsBottomSheet(),
-    );
-  }
-
-  /// بناء قائمة الإجراءات السريعة
-  Widget _buildQuickActionsBottomSheet() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.darkCard,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'الإجراءات السريعة',
-            style: AppTextStyles.heading3.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 20),
-          _buildQuickActionTile(
-            icon: Icons.update_rounded,
-            title: 'التحديث الجماعي',
-            subtitle: 'تحديث عدة أيام دفعة واحدة',
-            onTap: () {
-              Navigator.pop(context);
-              _showBulkUpdateDialog();
-            },
-          ),
-          _buildQuickActionTile(
-            icon: Icons.copy_rounded,
-            title: 'نسخ الجدول',
-            subtitle: 'نسخ جدول من فترة إلى أخرى',
-            onTap: () {
-              Navigator.pop(context);
-              _showCloneScheduleDialog();
-            },
-          ),
-          _buildQuickActionTile(
-            icon: Icons.search_rounded,
-            title: 'التحقق من التوفر',
-            subtitle: 'فحص توفر الوحدة لفترة محددة',
-            onTap: () {
-              Navigator.pop(context);
-              _showCheckAvailabilityDialog();
-            },
-          ),
-          _buildQuickActionTile(
-            icon: Icons.calculate_rounded,
-            title: 'حساب السعر الإجمالي',
-            subtitle: 'احسب السعر لفترة محددة',
-            onTap: () {
-              Navigator.pop(context);
-              _showCalculatePriceDialog();
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// بناء عنصر في قائمة الإجراءات السريعة
-  Widget _buildQuickActionTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          gradient: AppTheme.primaryGradient,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(icon, color: Colors.white, size: 24),
-      ),
-      title: Text(
-        title,
-        style: AppTextStyles.bodyLarge.copyWith(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
-      ),
-      onTap: onTap,
-    );
-  }
-
   /// عرض مربع حوار التحديث الجماعي
   void _showBulkUpdateDialog() {
     if (_selectedUnitId == null) {
@@ -1730,58 +1600,6 @@ class _DailySchedulePageState extends State<DailySchedulePage>
               },
             );
           },
-        ),
-      ),
-    );
-  }
-
-  /// عرض مربع حوار التحقق من التوفر
-  void _showCheckAvailabilityDialog() {
-    if (_selectedUnitId == null) {
-      _showErrorSnackbar('الرجاء اختيار وحدة أولاً');
-      return;
-    }
-
-    final bloc = context.read<DailyScheduleBloc>();
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => BlocProvider.value(
-        value: bloc,
-        child: CheckAvailabilityDialog(
-          unitId: _selectedUnitId!,
-          initialStartDate: _selectionStart,
-          initialEndDate: _selectionEnd,
-        ),
-      ),
-    );
-  }
-
-  /// عرض مربع حوار حساب السعر الإجمالي
-  void _showCalculatePriceDialog() {
-    if (_selectedUnitId == null) {
-      _showErrorSnackbar('الرجاء اختيار وحدة أولاً');
-      return;
-    }
-
-    final bloc = context.read<DailyScheduleBloc>();
-    final state = bloc.state;
-    String currency = 'YER';
-
-    if (state is DailyScheduleLoaded) {
-      currency =
-          state.monthlySchedule.schedules.firstOrNull?.displayCurrency ?? 'YER';
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => BlocProvider.value(
-        value: bloc,
-        child: CalculatePriceDialog(
-          unitId: _selectedUnitId!,
-          initialStartDate: _selectionStart,
-          initialEndDate: _selectionEnd,
-          currencyCode: currency,
         ),
       ),
     );
@@ -1905,12 +1723,13 @@ class _DailySchedulePageState extends State<DailySchedulePage>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkSurface.withOpacity(0.6),
-              AppTheme.darkSurface.withOpacity(0.4),
+              AppTheme.darkSurface.withValues(alpha: 0.6),
+              AppTheme.darkSurface.withValues(alpha: 0.4),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.primaryPurple.withOpacity(0.3)),
+          border:
+              Border.all(color: AppTheme.primaryPurple.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
@@ -2127,7 +1946,9 @@ class _DailySchedulePageState extends State<DailySchedulePage>
 
 /// رسام الخلفية المتحركة
 class _BackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `rotation`.
   final double rotation;
+
   final double glowIntensity;
 
   _BackgroundPainter({required this.rotation, required this.glowIntensity});
@@ -2137,7 +1958,7 @@ class _BackgroundPainter extends CustomPainter {
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.5
-      ..color = AppTheme.primaryBlue.withOpacity(0.05);
+      ..color = AppTheme.primaryBlue.withValues(alpha: 0.05);
 
     // رسم الشبكة
     const spacing = 30.0;
@@ -2153,8 +1974,8 @@ class _BackgroundPainter extends CustomPainter {
     final glowPaint = Paint()
       ..shader = RadialGradient(
         colors: [
-          AppTheme.primaryBlue.withOpacity(0.1 * glowIntensity),
-          AppTheme.primaryPurple.withOpacity(0.05 * glowIntensity),
+          AppTheme.primaryBlue.withValues(alpha: 0.1 * glowIntensity),
+          AppTheme.primaryPurple.withValues(alpha: 0.05 * glowIntensity),
           Colors.transparent,
         ],
       ).createShader(Rect.fromCircle(center: center, radius: size.width / 2));
@@ -2175,8 +1996,11 @@ class _BackgroundPainter extends CustomPainter {
 
 /// صنف الجزيء
 class _Particle {
+  /// العربية: يخزن القيمة `vy`.
   late double x, y, vx, vy;
+
   late double radius;
+
   late Color color;
 
   _Particle() {
@@ -2209,7 +2033,9 @@ class _Particle {
 
 /// رسام الجزيئات
 class _ParticlePainter extends CustomPainter {
+  /// العربية: يخزن القيمة `particles`.
   final List<_Particle> particles;
+
   final double animationValue;
 
   _ParticlePainter({required this.particles, required this.animationValue});
@@ -2220,7 +2046,7 @@ class _ParticlePainter extends CustomPainter {
       particle.update();
 
       final paint = Paint()
-        ..color = particle.color.withOpacity(0.3)
+        ..color = particle.color.withValues(alpha: 0.3)
         ..style = PaintingStyle.fill
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
 

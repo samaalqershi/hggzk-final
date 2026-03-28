@@ -8,8 +8,8 @@ import 'package:flutter/services.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/review.dart';
-
 class FuturisticReviewCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `review`.
   final Review review;
   final VoidCallback onTap;
   final VoidCallback onApprove;
@@ -17,7 +17,6 @@ class FuturisticReviewCard extends StatefulWidget {
   final bool isApproving;
   final VoidCallback? onDisable;
   final bool showAdminActions;
-
   const FuturisticReviewCard({
     super.key,
     required this.review,
@@ -28,17 +27,14 @@ class FuturisticReviewCard extends StatefulWidget {
     this.onDisable,
     this.showAdminActions = true,
   });
-
   @override
   State<FuturisticReviewCard> createState() => _FuturisticReviewCardState();
 }
-
 class _FuturisticReviewCardState extends State<FuturisticReviewCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   bool _isHovered = false;
-
   @override
   void initState() {
     super.initState();
@@ -55,13 +51,11 @@ class _FuturisticReviewCardState extends State<FuturisticReviewCard>
       curve: Curves.easeInOut,
     ));
   }
-
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -88,21 +82,23 @@ class _FuturisticReviewCardState extends State<FuturisticReviewCard>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppTheme.darkCard.withOpacity(_isHovered ? 0.9 : 0.7),
-                      AppTheme.darkCard.withOpacity(_isHovered ? 0.7 : 0.5),
+                      AppTheme.darkCard
+                          .withValues(alpha: _isHovered ? 0.9 : 0.7),
+                      AppTheme.darkCard
+                          .withValues(alpha: _isHovered ? 0.7 : 0.5),
                     ],
                   ),
                   border: Border.all(
                     color: _isHovered
-                        ? AppTheme.glowBlue.withOpacity(0.3)
-                        : AppTheme.darkBorder.withOpacity(0.3),
+                        ? AppTheme.glowBlue.withValues(alpha: 0.3)
+                        : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: _isHovered
-                          ? AppTheme.glowBlue.withOpacity(0.2)
-                          : Colors.black.withOpacity(0.1),
+                          ? AppTheme.glowBlue.withValues(alpha: 0.2)
+                          : Colors.black.withValues(alpha: 0.1),
                       blurRadius: _isHovered ? 30 : 20,
                       spreadRadius: _isHovered ? 5 : 0,
                     ),
@@ -126,8 +122,9 @@ class _FuturisticReviewCardState extends State<FuturisticReviewCard>
                                 shape: BoxShape.circle,
                                 gradient: RadialGradient(
                                   colors: [
-                                    AppTheme.primaryBlue.withOpacity(0.1),
-                                    AppTheme.primaryBlue.withOpacity(0.01),
+                                    AppTheme.primaryBlue.withValues(alpha: 0.1),
+                                    AppTheme.primaryBlue
+                                        .withValues(alpha: 0.01),
                                   ],
                                 ),
                               ),
@@ -154,7 +151,7 @@ class _FuturisticReviewCardState extends State<FuturisticReviewCard>
                                       boxShadow: [
                                         BoxShadow(
                                           color: AppTheme.glowBlue
-                                              .withOpacity(0.3),
+                                              .withValues(alpha: 0.3),
                                           blurRadius: 15,
                                           spreadRadius: 2,
                                         ),
@@ -269,10 +266,10 @@ class _FuturisticReviewCardState extends State<FuturisticReviewCard>
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                             color: AppTheme.primaryBlue
-                                                .withOpacity(0.1),
+                                                .withValues(alpha: 0.1),
                                             border: Border.all(
                                               color: AppTheme.primaryBlue
-                                                  .withOpacity(0.3),
+                                                  .withValues(alpha: 0.3),
                                               width: 0.5,
                                             ),
                                           ),
@@ -306,10 +303,10 @@ class _FuturisticReviewCardState extends State<FuturisticReviewCard>
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                             color: AppTheme.success
-                                                .withOpacity(0.1),
+                                                .withValues(alpha: 0.1),
                                             border: Border.all(
                                               color: AppTheme.success
-                                                  .withOpacity(0.3),
+                                                  .withValues(alpha: 0.3),
                                               width: 0.5,
                                             ),
                                           ),
@@ -407,7 +404,6 @@ class _FuturisticReviewCardState extends State<FuturisticReviewCard>
       },
     );
   }
-
   Widget _buildStatusBadge() {
     final color = widget.review.isPending
         ? AppTheme.warning
@@ -425,7 +421,7 @@ class _FuturisticReviewCardState extends State<FuturisticReviewCard>
         color: color,
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.5),
+            color: color.withValues(alpha: 0.5),
             blurRadius: 8,
             spreadRadius: 2,
           ),
@@ -433,7 +429,6 @@ class _FuturisticReviewCardState extends State<FuturisticReviewCard>
       ),
     );
   }
-
   Widget _buildActionButton({
     required IconData icon,
     required Color color,
@@ -448,9 +443,9 @@ class _FuturisticReviewCardState extends State<FuturisticReviewCard>
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           border: Border.all(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             width: 0.5,
           ),
         ),
@@ -462,15 +457,14 @@ class _FuturisticReviewCardState extends State<FuturisticReviewCard>
       ),
     );
   }
-
   Widget _buildLoadingPill({required Color color}) {
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -484,7 +478,6 @@ class _FuturisticReviewCardState extends State<FuturisticReviewCard>
       ),
     );
   }
-
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);

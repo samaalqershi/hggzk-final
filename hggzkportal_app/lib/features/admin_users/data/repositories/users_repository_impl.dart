@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/exceptions.dart';
-import '../../../../core/network/api_exceptions.dart' hide ApiException;
 import '../../../../core/error/failures.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../../../../core/network/network_info.dart';
@@ -13,7 +12,9 @@ import '../datasources/users_remote_datasource.dart';
 
 class UsersRepositoryImpl implements UsersRepository {
   final UsersRemoteDataSource remoteDataSource;
+
   final UsersLocalDataSource localDataSource;
+
   final NetworkInfo networkInfo;
 
   UsersRepositoryImpl({

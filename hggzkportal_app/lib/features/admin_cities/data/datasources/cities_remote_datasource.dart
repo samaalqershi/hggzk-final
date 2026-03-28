@@ -7,38 +7,68 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/media_file_safety.dart';
 import '../../../../core/utils/video_utils.dart';
 
-/// 🌐 Remote Data Source للمدن
+/// يعرّف العمليات البعيدة المسؤولة عن دورة إدارة المدن في لوحة التحكم،
+/// بما يشمل القراءة، الحفظ، البحث، الإحصاءات، ووسائط المدينة.
+/// Defines the remote operations that power the admin city-management flow,
+/// including reads, saves, search, statistics, and city media handling.
 abstract class CitiesRemoteDataSource {
-  /// الحصول على جميع المدن
+  /// يجلب القائمة الكاملة للمدن كما يعتمدها نظام الإعدادات في الخادم.
+  /// Fetches the full city list exactly as maintained by the backend settings
+  /// workflow.
   Future<List<CityModel>> getCities();
 
-  /// حفظ قائمة المدن (إضافة أو تحديث)
+  /// يحفظ اللقطة الكاملة الحالية للمدن بعد تعديلها في لوحة التحكم، سواء كان
+  /// التغيير إضافة أو تحديثًا أو إعادة تنظيم.
+  /// Persists the current full city snapshot after admin edits, whether the
+  /// change was a create, update, or broader reorganization.
   Future<bool> saveCities(List<CityModel> cities);
 
-  /// إضافة مدينة جديدة
+  /// ينشئ مدينة جديدة ضمن الكتالوج الإداري ويعيد الاسم الذي اعتُمد بعد الحفظ.
+  /// Creates a new city inside the admin catalog and returns the name that was
+  /// ultimately persisted.
   Future<String> createCity(CityModel city);
 
-  /// تحديث مدينة موجودة
+  /// يحدّث مدينة موجودة بالاستناد إلى اسمها السابق حتى يمكن التعامل مع
+  /// حالات تغيير الاسم نفسه.
+  /// Updates an existing city by referencing its previous name so rename
+  /// scenarios can be handled safely.
   Future<bool> updateCity(String oldName, CityModel city);
 
-  /// حذف مدينة
+  /// يحذف مدينة من النظام عندما يسمح الخادم بالإزالة ولا توجد تبعيات تمنعها.
+  /// Deletes a city when the backend allows removal and no dependency blocks
+  /// the operation.
   Future<bool> deleteCity(String name);
 
-  /// البحث في المدن
+  /// يبحث في المدن بالاعتماد على الاسم أو الدولة لتغذية الفلاتر والجداول
+  /// الإدارية السريعة.
+  /// Searches cities by name or country to support quick admin filters and
+  /// management tables.
   Future<List<CityModel>> searchCities(String query);
 
-  /// الحصول على إحصائيات المدن
+  /// يجلب ملخصًا إحصائيًا عن المدن خلال نطاق زمني اختياري لعرض المؤشرات
+  /// الإدارية أو التقارير السريعة.
+  /// Retrieves an aggregate city summary for an optional time range so admin
+  /// dashboards and quick reports can render their metrics.
   Future<Map<String, dynamic>> getCitiesStatistics(
       {DateTime? startDate, DateTime? endDate});
 
-  /// رفع صورة للمدينة
+  /// يرفع صورة أو فيديو مرتبطًا بمدينة ويعيد الرابط النهائي الذي سيُحفظ داخل
+  /// بياناتها.
+  /// Uploads city-related media and returns the final URL that should be stored
+  /// in the city payload.
   Future<String> uploadCityImage(String cityName, String imagePath,
       {ProgressCallback? onSendProgress});
 
-  /// حذف صورة من المدينة
+  /// يحذف صورة مرتبطة بمدينة بعد مطابقة الرابط مع السجل الفعلي داخل خدمة
+  /// الوسائط.
+  /// Deletes a city image after matching the provided URL to the actual record
+  /// stored in the media service.
   Future<bool> deleteCityImage(String imageUrl);
 
-  /// الحصول على المدن بصفحات
+  /// يقسم المدن إلى صفحات بعد تطبيق معايير البحث والدولة والحالة لتغذية
+  /// الجداول الإدارية الكبيرة.
+  /// Produces a paginated city slice after applying search, country, and
+  /// activity filters for large admin tables.
   Future<PaginatedResult<CityModel>> getCitiesPaginated({
     int? pageNumber,
     int? pageSize,
@@ -48,18 +78,31 @@ abstract class CitiesRemoteDataSource {
   });
 }
 
+/// ينفذ التكامل الفعلي مع واجهات خادم المدن، مع بدائل عملية عندما يكون
+/// الـ backend مبنيًا على تحديث القائمة كاملة بدل نقاط CRUD مستقلة.
+/// Implements the actual city API integration, including pragmatic fallbacks
+/// when the backend favors whole-list updates over dedicated CRUD endpoints.
 class CitiesRemoteDataSourceImpl implements CitiesRemoteDataSource {
+  /// عميل الشبكة الذي ينفذ الطلبات ويحوّل أخطاء Dio إلى أخطاء نطاقية مفهومة.
+  /// Network client that executes requests and translates Dio failures into
+  /// domain-level exceptions.
   final ApiClient apiClient;
 
-  /// 🔗 المسار الأساسي لـ API المدن
+  /// المسار الأساسي الذي يستخدمه نظام الإعدادات لحفظ وإدارة المدن.
+  /// Base path used by the system-settings backend for city management.
   static const String _basePath = '/api/admin/system-settings/cities';
-  // لا يوجد CitiesController على الـ backend؛ نُبقي فقط على مسارات system-settings
-  static const String _adminPath = '/api/admin/cities';
+  // The backend exposes city actions via system settings rather than a dedicated controller.
+
+  /// المسار الموحد لخدمة الصور التي تخزن وسائط المدن.
+  /// Shared media endpoint used to store city-related images and videos.
   static const String _imagesPath = '/api/images';
 
+  /// يربط مصدر البيانات البعيد بعميل الشبكة المشترك مع بقية لوحة التحكم.
+  /// Binds the remote datasource to the API client shared across the dashboard.
   CitiesRemoteDataSourceImpl({required this.apiClient});
 
-  /// 📋 الحصول على جميع المدن
+  /// يجلب جميع المدن كما يعرضها الخادم في إعدادات النظام الحالية.
+  /// Loads every city currently exposed by the backend system settings.
   @override
   Future<List<CityModel>> getCities() async {
     try {
@@ -78,7 +121,10 @@ class CitiesRemoteDataSourceImpl implements CitiesRemoteDataSource {
     }
   }
 
-  /// 💾 حفظ قائمة المدن
+  /// يرسل القائمة الكاملة إلى الخادم لأن البنية الحالية تحفظ المدن عبر
+  /// تحديث جماعي بدلاً من تحديث عنصر منفرد.
+  /// Sends the full collection to the backend because the current contract
+  /// persists cities through bulk updates rather than item-level endpoints.
   @override
   Future<bool> saveCities(List<CityModel> cities) async {
     try {
@@ -101,7 +147,10 @@ class CitiesRemoteDataSourceImpl implements CitiesRemoteDataSource {
     }
   }
 
-  /// ➕ إضافة مدينة جديدة
+  /// يضيف مدينة جديدة عبر دمجها مع القائمة الحالية ثم إعادة حفظ المجموعة
+  /// كاملة بما يتوافق مع شكل الـ backend.
+  /// Adds a city by merging it into the current list and re-saving the entire
+  /// collection to match the backend contract.
   @override
   Future<String> createCity(CityModel city) async {
     try {
@@ -118,7 +167,10 @@ class CitiesRemoteDataSourceImpl implements CitiesRemoteDataSource {
     }
   }
 
-  /// ✏️ تحديث مدينة موجودة
+  /// يحدّث مدينة قائمة عبر استبدالها داخل القائمة ثم رفع النسخة الكاملة
+  /// المعدلة إلى الخادم.
+  /// Updates an existing city by replacing it inside the list and then sending
+  /// the modified full collection back to the backend.
   @override
   Future<bool> updateCity(String oldName, CityModel city) async {
     try {
@@ -134,7 +186,10 @@ class CitiesRemoteDataSourceImpl implements CitiesRemoteDataSource {
     }
   }
 
-  /// 🗑️ حذف مدينة
+  /// يحذف مدينة بالاسم بعد ترميز المسار، مع تمرير سبب التعارض إذا منع الخادم
+  /// الحذف لوجود تبعيات مرتبطة.
+  /// Deletes a city by encoded name and preserves conflict details when the
+  /// backend refuses removal because of linked dependencies.
   @override
   Future<bool> deleteCity(String name) async {
     try {
@@ -155,7 +210,10 @@ class CitiesRemoteDataSourceImpl implements CitiesRemoteDataSource {
     }
   }
 
-  /// 🔍 البحث في المدن
+  /// ينفذ بحثًا محليًا فوق القائمة الكاملة عندما لا يوفر الخادم نقطة نهاية
+  /// مستقلة للبحث.
+  /// Performs in-memory searching over the fetched collection when the backend
+  /// does not expose a dedicated search endpoint.
   @override
   Future<List<CityModel>> searchCities(String query) async {
     try {
@@ -171,7 +229,10 @@ class CitiesRemoteDataSourceImpl implements CitiesRemoteDataSource {
     }
   }
 
-  /// 📊 الحصول على إحصائيات المدن
+  /// يطلب الإحصاءات من الخادم أولًا، ثم يحسب بدائل محلية موثوقة إذا كانت
+  /// الاستجابة ناقصة أو غير مدعومة.
+  /// Requests city metrics from the backend first, then derives trustworthy
+  /// local fallback values when the response is missing or unsupported.
   @override
   Future<Map<String, dynamic>> getCitiesStatistics(
       {DateTime? startDate, DateTime? endDate}) async {
@@ -208,7 +269,10 @@ class CitiesRemoteDataSourceImpl implements CitiesRemoteDataSource {
     }
   }
 
-  /// 📤 رفع صورة للمدينة
+  /// يرفع صورة أو فيديو لمدينة، مع توليد Poster للفيديوهات حتى تتوفر معاينة
+  /// مرئية قبل التشغيل.
+  /// Uploads image or video media for a city and generates a poster for videos
+  /// so the UI can show a visual preview before playback.
   @override
   Future<String> uploadCityImage(String cityName, String imagePath,
       {ProgressCallback? onSendProgress}) async {
@@ -281,11 +345,17 @@ class CitiesRemoteDataSourceImpl implements CitiesRemoteDataSource {
     }
   }
 
-  /// 🗑️ حذف صورة من المدينة
+  /// يحاول مطابقة الرابط المرسل مع سجل الوسائط الحقيقي عبر أكثر من أسلوب بحث
+  /// قبل تنفيذ الحذف النهائي بالمعرف.
+  /// Tries several matching strategies to resolve the actual media record from
+  /// the supplied URL before issuing the final delete by id.
   @override
   Future<bool> deleteCityImage(String imageUrl) async {
     try {
-      // محاولة إيجاد صورة عبر GET /api/images ثم حذفها عبر ID
+      /// يطبّع الروابط حتى تصبح قابلة للمقارنة سواء جاءت كاملة أو كمسار
+      /// نسبي أو على شكل URL مشفّر.
+      /// Normalizes URLs so they can be compared whether they arrive as full
+      /// URLs, relative paths, or encoded strings.
       String normalizeToPath(String url) {
         final trimmed = (url).trim();
         try {
@@ -299,6 +369,10 @@ class CitiesRemoteDataSourceImpl implements CitiesRemoteDataSource {
         }
       }
 
+      /// يستخرج اسم الملف من المسار المطبّع لاستخدامه في البحث الأولي عن
+      /// الوسائط المطابقة.
+      /// Extracts the file name from the normalized path for the first-pass
+      /// media lookup.
       String basename(String path) {
         final p = normalizeToPath(path);
         final idx = p.lastIndexOf('/');
@@ -309,6 +383,10 @@ class CitiesRemoteDataSourceImpl implements CitiesRemoteDataSource {
       final inputPath = normalizeToPath(imageUrl);
       final fileName = basename(inputPath);
 
+      /// يجلب دفعة من الصور المرشحة مع خيار البحث النصي حتى نتمكن من مطابقة
+      /// السجل الصحيح قبل تنفيذ الحذف.
+      /// Loads a batch of candidate images with optional text search so we can
+      /// match the correct record before deletion.
       Future<List<dynamic>> fetchImages(String? searchTerm) async {
         final qp = <String, dynamic>{
           'page': 1,
@@ -327,18 +405,28 @@ class CitiesRemoteDataSourceImpl implements CitiesRemoteDataSource {
         return const [];
       }
 
-      // 1) جرّب بالاسم فقط لزيادة فرصة التطابق عبر Contains في الـ backend
+      /// يبدأ بأضيق تطابق ممكن عبر الاسم لرفع احتمال العثور على السجل المقصود.
+      /// Starts with the narrowest match by file name to increase the chance
+      /// of finding the intended record.
       List<dynamic> images = await fetchImages(fileName);
-      // 2) إن لم نجد، جرّب المسار كاملاً بدون النطاق
+
+      /// إذا لم يظهر تطابق واضح، نحاول المسار الكامل بدون النطاق.
+      /// If no clear match appears, try the full path without the domain.
       if (images.isEmpty) {
         images = await fetchImages(inputPath);
       }
-      // 3) كملاذ أخير، اجلب أول صفحة بدون بحث
+
+      /// كحل أخير، نجلب أول صفحة بدون بحث لنبحث داخل كل العناصر المتاحة.
+      /// As a final fallback, fetch the first page without a search term and
+      /// inspect every available item.
       if (images.isEmpty) {
         images = await fetchImages(null);
       }
 
-      // طابق بدقة مع مراعاة اختلاف النطاق والترميز
+      /// يطابق السجل بدقة مع مراعاة اختلاف النطاق والترميز بين الخدمة
+      /// والطلب الأصلي.
+      /// Resolves the record precisely while accounting for domain and
+      /// encoding differences between the service and the original request.
       Map<String, dynamic>? match;
       for (final raw in images) {
         if (raw is! Map<String, dynamic>) continue;
@@ -364,7 +452,10 @@ class CitiesRemoteDataSourceImpl implements CitiesRemoteDataSource {
     }
   }
 
-  /// 📑 الحصول على المدن بصفحات
+  /// يطبق البحث والتصفية محليًا ثم يبني نتيجة صفحات متوافقة مع الجداول
+  /// الإدارية التي تتوقع رقم صفحة وإجماليًا واضحًا.
+  /// Applies local filtering and then builds a paginated result tailored for
+  /// admin tables that expect explicit page numbers and totals.
   @override
   Future<PaginatedResult<CityModel>> getCitiesPaginated({
     int? pageNumber,

@@ -3,7 +3,6 @@ import 'dart:io'; // إضافة للحصول على Platform
 import 'package:hggzkportal/core/utils/timezone_helper.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:convert';
 import '../../services/local_storage_service.dart';
 import '../../services/message_service.dart';
 import '../constants/storage_constants.dart';
@@ -16,9 +15,15 @@ import '../../injection_container.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/data/datasources/auth_local_datasource.dart';
 
+/// Interceptor that injects auth, locale, property, and timezone context into outgoing requests.
+/// معترض يضيف سياق المصادقة واللغة والموقع العقاري والمنطقة الزمنية إلى الطلبات الصادرة.
 class AuthInterceptor extends Interceptor {
-  bool _isForceLogoutExecuting = false;
+  /// Creates the request interceptor responsible for app-wide request headers.
+  /// ينشئ معترض الطلبات المسؤول عن رؤوس الشبكة المشتركة للتطبيق.
+  AuthInterceptor();
 
+  /// Adds the active access token, locale, property headers, and timezone metadata before the request is sent.
+  /// يضيف رمز الوصول الحالي واللغة ورؤوس العقار وبيانات المنطقة الزمنية قبل إرسال الطلب.
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
@@ -77,7 +82,8 @@ class AuthInterceptor extends Interceptor {
     handler.next(options);
   }
 
-  /// إضافة headers المنطقة الزمنية
+  /// Resolves and persists timezone headers so the backend can interpret local dates correctly.
+  /// يحل ويخزن رؤوس المنطقة الزمنية حتى يفسر الخادم التواريخ المحلية بشكل صحيح.
   Future<void> _addTimezoneHeaders(RequestOptions options) async {
     try {
       // التأكد من التهيئة
@@ -135,10 +141,19 @@ class AuthInterceptor extends Interceptor {
   }
 }
 
-// يمكن أيضاً إنشاء interceptor منفصل للـ timezone إذا أردت
+/// Interceptor that can be used when timezone context needs to be added independently from auth headers.
+/// معترض يمكن استخدامه عندما تحتاج رؤوس المنطقة الزمنية إلى الإضافة بشكل مستقل عن رؤوس المصادقة.
 class TimezoneInterceptor extends Interceptor {
+  /// Creates a timezone-only interceptor that caches its initialization state.
+  /// ينشئ معترضًا خاصًا بالمنطقة الزمنية مع تخزين حالة التهيئة.
+  TimezoneInterceptor();
+
+  /// Tracks whether timezone support has already been bootstrapped in memory.
+  /// يتتبع ما إذا كانت تهيئة دعم المنطقة الزمنية قد نُفذت في الذاكرة.
   static bool _initialized = false;
 
+  /// Adds timezone headers and platform metadata before the request leaves the device.
+  /// يضيف رؤوس المنطقة الزمنية وبيانات المنصة قبل مغادرة الطلب للجهاز.
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
@@ -166,6 +181,8 @@ class TimezoneInterceptor extends Interceptor {
     handler.next(options);
   }
 
+  /// Optionally enriches response payloads with local-time and formatted date mirrors.
+  /// يثري الاستجابات اختياريًا بنسخ محلية ومنسقة من حقول التاريخ.
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     // يمكن هنا معالجة التواريخ المرجعة من الخادم إذا أردت
@@ -184,7 +201,8 @@ class TimezoneInterceptor extends Interceptor {
     handler.next(response);
   }
 
-  /// تحويل التواريخ في الاستجابة من UTC إلى المحلي (اختياري)
+  /// Scans known date fields and adds local-time and formatted copies beside them.
+  /// يفحص حقول التاريخ المعروفة ويضيف نسخًا محلية ومنسقة بجانبها.
   void _convertDatesInResponse(Map<String, dynamic> data) {
     // قائمة بأسماء الحقول التي تحتوي على تواريخ
     final dateFields = [
@@ -210,6 +228,8 @@ class TimezoneInterceptor extends Interceptor {
     }
   }
 
+  /// Formats a DateTime value as `dd/MM/yyyy HH:mm` for quick display and logging.
+  /// ينسق قيمة DateTime بصيغة `dd/MM/yyyy HH:mm` للعرض السريع أو التسجيل.
   String _formatDateTime(DateTime dt) {
     return '${dt.day.toString().padLeft(2, '0')}/'
         '${dt.month.toString().padLeft(2, '0')}/'
@@ -219,9 +239,15 @@ class TimezoneInterceptor extends Interceptor {
   }
 }
 
-/// Interceptor to surface server messages on successful HTTP responses
-/// when backend embeds ResultDto with success/isSuccess flags.
+/// Interceptor that surfaces backend messages when a response signals failure through `success` or `isSuccess`.
+/// معترض يعرض رسائل الخادم عندما تشير الاستجابة إلى الفشل عبر `success` أو `isSuccess`.
 class UserFeedbackInterceptor extends Interceptor {
+  /// Creates a response interceptor that can show backend messages to end users.
+  /// ينشئ معترض استجابة يمكنه عرض رسائل الخادم للمستخدم النهائي.
+  UserFeedbackInterceptor();
+
+  /// Extracts user-facing messages from a failed response and shows them unless the caller suppressed them.
+  /// يستخرج الرسائل الموجهة للمستخدم من الاستجابة الفاشلة ويعرضها ما لم يطلب المستدعي كتمها.
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     try {
@@ -281,12 +307,14 @@ class UserFeedbackInterceptor extends Interceptor {
   }
 }
 
+/// Extracts the most useful message from a backend response envelope.
+/// يستخرج أوضح رسالة ممكنة من غلاف الاستجابة القادم من الخادم.
 String _extractResponseMessage(Map<String, dynamic> data) {
   if (kDebugMode) {
     print('🔍 [_extractResponseMessage] Input data: $data');
   }
 
-  // Priority 1: Check for errors array/object first (contains specific validation messages)
+  // Priority 1: Check for structured validation errors before any generic message.
   final errors = data['errors'];
 
   if (kDebugMode) {
@@ -354,7 +382,7 @@ String _extractResponseMessage(Map<String, dynamic> data) {
     }
   }
 
-  // Priority 2: Fall back to general message if no specific errors
+  // Priority 2: Fall back to a general message when no structured errors exist.
   final msg = (data['message'] ?? data['error'] ?? '').toString().trim();
   if (kDebugMode) {
     print('🔍 [_extractResponseMessage] message field: "$msg"');
@@ -393,14 +421,31 @@ String _extractResponseMessage(Map<String, dynamic> data) {
   return '';
 }
 
+/// Interceptor that handles failures, token refresh, and forced logout flows in one place.
+/// معترض يتولى الأخطاء وتجديد الرمز وتسجيل الخروج الإجباري في مكان واحد.
 class ErrorInterceptor extends Interceptor {
+  /// Creates an error interceptor bound to the Dio instance used for refresh retries.
+  /// ينشئ معترض أخطاء مرتبطًا بنسخة Dio المستخدمة لإعادة المحاولة بعد التجديد.
   ErrorInterceptor(this._dio);
 
+  /// The Dio instance used to replay requests after a successful token refresh.
+  /// نسخة Dio المستخدمة لإعادة إرسال الطلبات بعد نجاح تجديد الرمز.
   final Dio _dio;
+
+  /// Guards the refresh flow so only one token refresh runs at a time.
+  /// يحمي مسار التجديد بحيث لا يعمل إلا تجديد واحد في الوقت نفسه.
   static bool _isRefreshing = false;
+
+  /// Completes when the current refresh attempt finishes, allowing waiting requests to continue.
+  /// يكتمل عند انتهاء محاولة التجديد الحالية حتى تستطيع الطلبات المنتظرة المتابعة.
   static Completer<void>? _refreshCompleter;
+
+  /// Prevents repeated logout work when multiple requests fail at the same time.
+  /// يمنع تكرار منطق تسجيل الخروج عندما تفشل عدة طلبات في الوقت نفسه.
   static bool _isForceLoggingOut = false;
 
+  /// Handles server-side failures, message surfacing, refresh retries, and the final logout fallback.
+  /// يعالج أخطاء الخادم، وإظهار الرسائل، وإعادة المحاولة بعد التجديد، ثم مسار تسجيل الخروج النهائي.
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final int? status = err.response?.statusCode;
@@ -555,6 +600,8 @@ class ErrorInterceptor extends Interceptor {
     handler.next(err);
   }
 
+  /// Requests a new access token and throws when the refresh flow fails.
+  /// يطلب رمز وصول جديدًا ويرمي استثناءً عندما يفشل مسار التجديد.
   Future<void> _refreshAccessToken(String refreshToken) async {
     final authRepository = sl<AuthRepository>();
     final result =
@@ -566,6 +613,8 @@ class ErrorInterceptor extends Interceptor {
     );
   }
 
+  /// Clears persisted auth state, informs the user, and redirects to the login screen once.
+  /// يمسح حالة المصادقة المخزنة، وينبه المستخدم، ويوجه إلى شاشة الدخول مرة واحدة.
   Future<void> _forceLogout() async {
     if (_isForceLoggingOut) return;
     _isForceLoggingOut = true;
@@ -587,36 +636,13 @@ class ErrorInterceptor extends Interceptor {
   }
 }
 
-bool _isJwtExpired(String jwt, {int skewSeconds = 0}) {
-  try {
-    final parts = jwt.split('.');
-    if (parts.length != 3) return false;
-    final payload = parts[1].replaceAll('-', '+').replaceAll('_', '/');
-    var normalized = payload;
-    while (normalized.length % 4 != 0) {
-      normalized += '=';
-    }
-    final decoded = String.fromCharCodes(base64Url.decode(normalized));
-    final map = jsonDecode(decoded) as Map<String, dynamic>;
-    final exp = map['exp'];
-    if (exp is int) {
-      final expiresAt = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
-      return DateTime.now()
-          .isAfter(expiresAt.subtract(Duration(seconds: skewSeconds)));
-    }
-    return false;
-  } catch (_) {
-    return false;
-  }
-}
-
-Dio _dioForLogout() => Dio();
-
+/// Pulls the most specific readable message from Dio error payloads before falling back to status-code text.
+/// يستخرج أوضح رسالة ممكنة من حمولة خطأ Dio ثم يعود إلى نص رموز الحالة عند الحاجة.
 String _extractErrorMessage(DioException err) {
   final data = err.response?.data;
-  // Backend ResultDto pattern: { success, message, errors, errorCode, ... }
+  // Backend ResultDto pattern: { success, message, errors, errorCode, ... }.
   if (data is Map<String, dynamic>) {
-    // Priority 1: Check for errors array/object first (specific validation messages)
+    // Priority 1: Prefer structured validation errors over generic text.
     final errors = data['errors'];
 
     if (errors is List && errors.isNotEmpty) {
@@ -653,7 +679,7 @@ String _extractErrorMessage(DioException err) {
       }
     }
 
-    // Priority 2: Fall back to explicit message
+    // Priority 2: Fall back to an explicit message when no structured errors exist.
     final explicitMessage =
         (data['message'] ?? data['error'] ?? '').toString().trim();
     if (explicitMessage.isNotEmpty) {
@@ -674,7 +700,7 @@ String _extractErrorMessage(DioException err) {
     }
   }
 
-  // Fallback based on status code
+  // Final fallback based on status code.
   final statusCode = err.response?.statusCode;
   switch (statusCode) {
     case 400:
@@ -703,13 +729,19 @@ String _extractErrorMessage(DioException err) {
   }
 }
 
+/// Lightweight interceptor that prints request, response, and error traces in debug builds.
+/// معترض خفيف يطبع آثار الطلب والاستجابة والخطأ في نسخ التصحيح فقط.
 class LoggingInterceptor extends Interceptor {
+  /// Logs outgoing requests to help trace API calls during development.
+  /// يسجل الطلبات الصادرة لتسهيل تتبع استدعاءات الـ API أثناء التطوير.
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     debugPrint('REQUEST[${options.method}] => PATH: ${options.path}');
     handler.next(options);
   }
 
+  /// Logs successful responses so developers can inspect status codes and endpoints quickly.
+  /// يسجل الاستجابات الناجحة حتى يتمكن المطور من مراجعة رمز الحالة والمسار بسرعة.
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     debugPrint(
@@ -717,6 +749,8 @@ class LoggingInterceptor extends Interceptor {
     handler.next(response);
   }
 
+  /// Logs failed requests so transport or server issues are visible in debug output.
+  /// يسجل الطلبات الفاشلة حتى تظهر مشاكل النقل أو الخادم في مخرجات التصحيح.
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     debugPrint(
@@ -725,7 +759,11 @@ class LoggingInterceptor extends Interceptor {
   }
 }
 
+/// Debug interceptor that prints the effective outgoing headers without mutating the request.
+/// معترض تصحيح يطبع الرؤوس الصادرة الفعلية من دون تعديل الطلب نفسه.
 class RequestHeadersLoggingInterceptor extends Interceptor {
+  /// Prints the resolved URL and important headers so header issues are easy to diagnose.
+  /// يطبع الرابط المحلل والرؤوس المهمة حتى يسهل تشخيص مشاكل الرؤوس.
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (kDebugMode) {

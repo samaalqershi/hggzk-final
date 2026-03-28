@@ -7,8 +7,8 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/review.dart';
 import 'futuristic_review_card.dart';
-
 class FuturisticReviewsTable extends StatefulWidget {
+  /// العربية: يخزن القيمة `reviews`.
   final List<Review> reviews;
   final Function(Review) onReviewTap;
   final Function(Review) onApproveTap;
@@ -17,7 +17,6 @@ class FuturisticReviewsTable extends StatefulWidget {
   final Set<String> approvingReviewIds;
   final bool shrinkWrap;
   final bool showAdminActions;
-  
   const FuturisticReviewsTable({
     super.key,
     required this.reviews,
@@ -29,22 +28,20 @@ class FuturisticReviewsTable extends StatefulWidget {
     this.shrinkWrap = false,
     this.showAdminActions = true,
   });
-  
   @override
   State<FuturisticReviewsTable> createState() => _FuturisticReviewsTableState();
 }
-
 class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
+  /// العربية: يخزن القيمة `hoveredIndex`.
   int? _hoveredIndex;
   String _sortBy = 'date';
   bool _ascending = false;
-  
   List<Review> get _sortedReviews {
     final sorted = List<Review>.from(widget.reviews);
-    
+
     switch (_sortBy) {
       case 'date':
-        sorted.sort((a, b) => _ascending 
+        sorted.sort((a, b) => _ascending
             ? a.createdAt.compareTo(b.createdAt)
             : b.createdAt.compareTo(a.createdAt));
         break;
@@ -67,22 +64,21 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
         sorted.sort((a, b) {
           final statusA = a.isPending ? 0 : (a.isApproved ? 1 : 2);
           final statusB = b.isPending ? 0 : (b.isApproved ? 1 : 2);
-          return _ascending 
+          return _ascending
               ? statusA.compareTo(statusB)
               : statusB.compareTo(statusA);
         });
         break;
     }
-    
+
     return sorted;
   }
-  
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width > 1200;
     final isCompact = size.width < 480;
-    
+
     // في الشاشات الصغيرة جداً، نعرض كروت بدلاً من جدول
     if (isCompact) {
       return ListView.builder(
@@ -116,17 +112,17 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 0.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.shadowDark.withOpacity(0.2),
+            color: AppTheme.shadowDark.withValues(alpha: 0.2),
             blurRadius: 30,
             offset: const Offset(0, 10),
           ),
@@ -143,14 +139,14 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: AppTheme.darkBorder.withOpacity(0.2),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.2),
                       width: 0.5,
                     ),
                   ),
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.primaryBlue.withOpacity(0.05),
-                      AppTheme.primaryPurple.withOpacity(0.05),
+                      AppTheme.primaryBlue.withValues(alpha: 0.05),
+                      AppTheme.primaryPurple.withValues(alpha: 0.05),
                     ],
                   ),
                 ),
@@ -204,7 +200,7 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
                   ),
                 ),
               ),
-              
+
               // جسم الجدول
               widget.shrinkWrap
                   ? ListView.builder(
@@ -232,7 +228,6 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
       ),
     );
   }
-  
   Widget _buildHeaderCell(
     String title, {
     required int flex,
@@ -242,7 +237,7 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
     bool isCompact = false,
   }) {
     final isActive = _sortBy == sortKey;
-    
+
     return Expanded(
       flex: flex,
       child: InkWell(
@@ -278,9 +273,7 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
                   style: AppTextStyles.bodySmall.copyWith(
                     fontSize: isCompact ? 11 : null,
                     fontWeight: FontWeight.w600,
-                    color: isActive 
-                        ? AppTheme.primaryBlue
-                        : AppTheme.textMuted,
+                    color: isActive ? AppTheme.primaryBlue : AppTheme.textMuted,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -295,7 +288,7 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
                     size: 14,
                     color: isActive
                         ? AppTheme.primaryBlue
-                        : AppTheme.textMuted.withOpacity(0.3),
+                        : AppTheme.textMuted.withValues(alpha: 0.3),
                   ),
                 ),
               ],
@@ -305,11 +298,10 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
       ),
     );
   }
-  
   Widget _buildTableRow(Review review, int index, bool isDesktop) {
     final isHovered = _hoveredIndex == index;
     final bool isApproving = widget.approvingReviewIds.contains(review.id);
-    
+
     return MouseRegion(
       onEnter: (_) => setState(() => _hoveredIndex = index),
       onExit: (_) => setState(() => _hoveredIndex = null),
@@ -317,11 +309,11 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
           color: isHovered
-              ? AppTheme.primaryBlue.withOpacity(0.05)
+              ? AppTheme.primaryBlue.withValues(alpha: 0.05)
               : Colors.transparent,
           border: Border(
             bottom: BorderSide(
-              color: AppTheme.darkBorder.withOpacity(0.1),
+              color: AppTheme.darkBorder.withValues(alpha: 0.1),
               width: 0.5,
             ),
           ),
@@ -336,7 +328,7 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
               horizontal: isDesktop ? 24 : 16,
               vertical: 16,
             ),
-                  child: Row(
+            child: Row(
               children: [
                 // خلية المستخدم
                 Expanded(
@@ -390,7 +382,7 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
                     ],
                   ),
                 ),
-                
+
                 // خلية العقار
                 Expanded(
                   flex: 2,
@@ -406,7 +398,7 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
                     ),
                   ),
                 ),
-                
+
                 // خلية التقييم
                 Expanded(
                   flex: 1,
@@ -416,18 +408,20 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
                       Flexible(
                         fit: FlexFit.loose,
                         child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: _getRatingColor(review.averageRating).withOpacity(0.1),
-                          border: Border.all(
-                            color: _getRatingColor(review.averageRating).withOpacity(0.3),
-                            width: 0.5,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
                           ),
-                        ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: _getRatingColor(review.averageRating)
+                                .withValues(alpha: 0.1),
+                            border: Border.all(
+                              color: _getRatingColor(review.averageRating)
+                                  .withValues(alpha: 0.3),
+                              width: 0.5,
+                            ),
+                          ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -442,7 +436,8 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
                                   review.averageRating.toStringAsFixed(1),
                                   style: AppTextStyles.caption.copyWith(
                                     fontWeight: FontWeight.w600,
-                                    color: _getRatingColor(review.averageRating),
+                                    color:
+                                        _getRatingColor(review.averageRating),
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -454,7 +449,7 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
                     ],
                   ),
                 ),
-                
+
                 // خلية التاريخ (سطح المكتب فقط)
                 if (isDesktop) ...[
                   Expanded(
@@ -466,14 +461,14 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
                       ),
                     ),
                   ),
-                  
+
                   // خلية الحالة
                   Expanded(
                     flex: 1,
                     child: _buildStatusBadge(review),
                   ),
                 ],
-                
+
                 // خلية الإجراءات
                 Expanded(
                   flex: 1,
@@ -513,7 +508,6 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
       ),
     );
   }
-  
   Widget _buildStatusBadge(Review review) {
     final bool isDisabled = review.isDisabled;
 
@@ -524,7 +518,7 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
             : review.isApproved
                 ? AppTheme.success
                 : AppTheme.error;
-    
+
     final text = review.isPending
         ? 'قيد المراجعة'
         : isDisabled
@@ -532,14 +526,14 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
             : review.isApproved
                 ? 'معتمد'
                 : 'مرفوض';
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -566,7 +560,6 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
       ),
     );
   }
-  
   Widget _buildActionButton({
     required IconData icon,
     required Color color,
@@ -584,7 +577,7 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
           ),
           child: Icon(
             icon,
@@ -595,13 +588,12 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
       ),
     );
   }
-
   Widget _buildLoadingPill({required Color color}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
       ),
       child: SizedBox(
         width: 16,
@@ -613,18 +605,16 @@ class _FuturisticReviewsTableState extends State<FuturisticReviewsTable> {
       ),
     );
   }
-  
   Color _getRatingColor(double rating) {
     if (rating >= 4.5) return AppTheme.success;
     if (rating >= 3.5) return AppTheme.warning;
     if (rating >= 2.5) return Colors.orange;
     return AppTheme.error;
   }
-  
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays == 0) {
       return 'اليوم';
     } else if (difference.inDays == 1) {

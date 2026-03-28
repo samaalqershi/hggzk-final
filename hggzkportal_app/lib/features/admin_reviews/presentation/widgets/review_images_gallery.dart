@@ -6,28 +6,24 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/review_image.dart';
-
 class ReviewImagesGallery extends StatefulWidget {
+  /// العربية: يخزن القيمة `images`.
   final List<ReviewImage> images;
   final bool isDesktop;
-
   const ReviewImagesGallery({
     super.key,
     required this.images,
     required this.isDesktop,
   });
-
   @override
   State<ReviewImagesGallery> createState() => _ReviewImagesGalleryState();
 }
-
 class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   int? _selectedImageIndex;
   final PageController _pageController = PageController();
-
   @override
   void initState() {
     super.initState();
@@ -46,14 +42,12 @@ class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
 
     _animationController.forward();
   }
-
   @override
   void dispose() {
     _animationController.dispose();
     _pageController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     final crossAxisCount = widget.isDesktop ? 4 : 3;
@@ -90,7 +84,6 @@ class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
       ],
     );
   }
-
   Widget _buildImageThumbnail(int index) {
     final image = widget.images[index];
     final isSelected = _selectedImageIndex == index;
@@ -115,14 +108,14 @@ class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
                 border: Border.all(
                   color: isSelected
                       ? AppTheme.primaryBlue
-                      : AppTheme.darkBorder.withOpacity(0.3),
+                      : AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: isSelected ? 2 : 0.5,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: isSelected
-                        ? AppTheme.primaryBlue.withOpacity(0.3)
-                        : Colors.black.withOpacity(0.2),
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                        : Colors.black.withValues(alpha: 0.2),
                     blurRadius: isSelected ? 20 : 10,
                     spreadRadius: isSelected ? 2 : 0,
                   ),
@@ -159,7 +152,7 @@ class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
                             gradient: LinearGradient(
                               colors: [
                                 AppTheme.darkCard,
-                                AppTheme.darkCard.withOpacity(0.8),
+                                AppTheme.darkCard.withValues(alpha: 0.8),
                               ],
                             ),
                           ),
@@ -183,7 +176,7 @@ class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            Colors.black.withOpacity(0.5),
+                            Colors.black.withValues(alpha: 0.5),
                           ],
                           stops: const [0.6, 1.0],
                         ),
@@ -202,9 +195,9 @@ class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
                       ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        color: AppTheme.inputBackground.withOpacity(0.8),
+                        color: AppTheme.inputBackground.withValues(alpha: 0.8),
                         border: Border.all(
-                          color: AppTheme.glowWhite.withOpacity(0.2),
+                          color: AppTheme.glowWhite.withValues(alpha: 0.2),
                           width: 0.5,
                         ),
                       ),
@@ -229,7 +222,7 @@ class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
                       ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        color: AppTheme.inputBackground.withOpacity(0.8),
+                        color: AppTheme.inputBackground.withValues(alpha: 0.8),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -259,7 +252,6 @@ class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
       },
     );
   }
-
   Widget _buildImageInfo() {
     final totalSize = widget.images.fold<int>(
       0,
@@ -276,9 +268,9 @@ class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: AppTheme.inputBackground.withOpacity(0.3),
+        color: AppTheme.inputBackground.withValues(alpha: 0.3),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -313,9 +305,9 @@ class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
                   ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color: AppTheme.primaryBlue.withOpacity(0.1),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                     border: Border.all(
-                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                       width: 0.5,
                     ),
                   ),
@@ -334,7 +326,6 @@ class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
       ),
     );
   }
-
   Widget _buildInfoItem({
     required IconData icon,
     required String label,
@@ -369,7 +360,6 @@ class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
       ],
     );
   }
-
   void _showImageViewer(int initialIndex) {
     showDialog(
       fullscreenDialog: true,
@@ -381,7 +371,6 @@ class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
       ),
     );
   }
-
   String _getCategoryName(ImageCategory category) {
     switch (category) {
       case ImageCategory.exterior:
@@ -402,7 +391,6 @@ class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
         return 'معرض';
     }
   }
-
   String _formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes بايت';
     if (bytes < 1024 * 1024)
@@ -416,25 +404,22 @@ class _ReviewImagesGalleryState extends State<ReviewImagesGallery>
 
 // نافذة عرض الصور
 class _ImageViewerDialog extends StatefulWidget {
+  /// العربية: يخزن القيمة `images`.
   final List<ReviewImage> images;
   final int initialIndex;
-
   const _ImageViewerDialog({
     required this.images,
     required this.initialIndex,
   });
-
   @override
   State<_ImageViewerDialog> createState() => _ImageViewerDialogState();
 }
-
 class _ImageViewerDialogState extends State<_ImageViewerDialog>
     with SingleTickerProviderStateMixin {
   late PageController _pageController;
   late int _currentIndex;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-
   @override
   void initState() {
     super.initState();
@@ -456,14 +441,12 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog>
 
     _animationController.forward();
   }
-
   @override
   void dispose() {
     _pageController.dispose();
     _animationController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -480,7 +463,7 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog>
             borderRadius: BorderRadius.circular(24),
             color: AppTheme.darkBackground,
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 0.5,
             ),
           ),
@@ -496,7 +479,7 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog>
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
-                          color: AppTheme.darkBorder.withOpacity(0.2),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.2),
                           width: 0.5,
                         ),
                       ),
@@ -536,7 +519,8 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog>
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppTheme.inputBackground.withOpacity(0.5),
+                              color: AppTheme.inputBackground
+                                  .withValues(alpha: 0.5),
                             ),
                             child: Icon(
                               Icons.close,
@@ -638,7 +622,7 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog>
                     decoration: BoxDecoration(
                       border: Border(
                         top: BorderSide(
-                          color: AppTheme.darkBorder.withOpacity(0.2),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.2),
                           width: 0.5,
                         ),
                       ),
@@ -666,7 +650,8 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog>
                               border: Border.all(
                                 color: isSelected
                                     ? AppTheme.primaryBlue
-                                    : AppTheme.darkBorder.withOpacity(0.3),
+                                    : AppTheme.darkBorder
+                                        .withValues(alpha: 0.3),
                                 width: isSelected ? 2 : 0.5,
                               ),
                             ),
@@ -690,7 +675,6 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog>
       ),
     );
   }
-
   Widget _buildNavButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -704,9 +688,9 @@ class _ImageViewerDialogState extends State<_ImageViewerDialog>
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: AppTheme.inputBackground.withOpacity(0.8),
+          color: AppTheme.inputBackground.withValues(alpha: 0.8),
           border: Border.all(
-            color: AppTheme.glowWhite.withOpacity(0.2),
+            color: AppTheme.glowWhite.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),

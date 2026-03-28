@@ -11,9 +11,12 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
+/// تعرض نموذج تغيير كلمة المرور مع مؤشرات القوة والتحقق من صحة الإدخال.
+/// Presents the change-password form with strength feedback and validation.
 class ChangePasswordPage extends StatefulWidget {
+  /// ينشئ شاشة تغيير كلمة المرور.
+  /// Creates the change-password page.
   const ChangePasswordPage({super.key});
-
   @override
   State<ChangePasswordPage> createState() => _ChangePasswordPageState();
 }
@@ -28,7 +31,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
   final _currentFocusNode = FocusNode();
   final _newFocusNode = FocusNode();
   final _confirmFocusNode = FocusNode();
-
   bool _obscureCurrent = true;
   bool _obscureNew = true;
   bool _obscureConfirm = true;
@@ -55,7 +57,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
 
   // Particles
   final List<_FloatingParticle> _particles = [];
-
   @override
   void initState() {
     super.initState();
@@ -1074,12 +1075,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
 class _BackgroundPatternPainter extends CustomPainter {
   final double rotation;
   final double glowIntensity;
-
   _BackgroundPatternPainter({
     required this.rotation,
     required this.glowIntensity,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1125,11 +1124,9 @@ class _FloatingParticle {
   late double radius;
   late double opacity;
   late Color color;
-
   _FloatingParticle() {
     reset();
   }
-
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -1159,12 +1156,10 @@ class _FloatingParticle {
 class _ParticlePainter extends CustomPainter {
   final List<_FloatingParticle> particles;
   final double animationValue;
-
   _ParticlePainter({
     required this.particles,
     required this.animationValue,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {

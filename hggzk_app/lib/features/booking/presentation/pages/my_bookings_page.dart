@@ -6,7 +6,6 @@ import 'dart:async';
 import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/enums/booking_status.dart';
 import '../../../../core/widgets/loading_widget.dart';
@@ -17,41 +16,75 @@ import '../bloc/booking_event.dart';
 import '../bloc/booking_state.dart';
 import '../widgets/booking_card_widget.dart';
 
+/// العربية: يمثل عنصر الصفحة `MyBookingsPage`.
 class MyBookingsPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `MyBookingsPage`.
   const MyBookingsPage({super.key});
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<MyBookingsPage> createState() => _MyBookingsPageState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `MyBookingsPageState`.
 class _MyBookingsPageState extends State<MyBookingsPage>
     with TickerProviderStateMixin {
   // Animation Controllers
+  /// العربية: يخزن القيمة `backgroundAnimationController`.
   late AnimationController _backgroundAnimationController;
+
+  /// العربية: يخزن القيمة `floatingAnimationController`.
   late AnimationController _floatingAnimationController;
+
+  /// العربية: يخزن القيمة `fadeController`.
   late AnimationController _fadeController;
+
+  /// العربية: يخزن القيمة `headerMorphController`.
   late AnimationController _headerMorphController;
+
+  /// العربية: يخزن القيمة `tabController`.
   late TabController _tabController;
 
+  /// العربية: يخزن القيمة `fadeStartTimer`.
   Timer? _fadeStartTimer;
 
   // Animations
+  /// العربية: يخزن القيمة `fadeAnimation`.
   late Animation<double> _fadeAnimation;
+
+  /// العربية: يخزن القيمة `scaleAnimation`.
   late Animation<double> _scaleAnimation;
+
+  /// العربية: يخزن القيمة `headerMorphAnimation`.
   late Animation<double> _headerMorphAnimation;
 
   // State
   final ScrollController _scrollController = ScrollController();
+
+  /// العربية: يخزن القيمة `selectedStatus`.
   BookingStatus? _selectedStatus;
+
+  /// العربية: يخزن القيمة `scrollOffset`.
   double _scrollOffset = 0;
   double _scrollProgress = 0; // نسبة التمرير من 0 إلى 1
 
   // Constants for smooth transitions
+  /// العربية: يخزن القيمة `expandedHeight`.
   static const double _expandedHeight = 160.0;
+
+  /// العربية: يخزن القيمة `collapsedHeight`.
   static const double _collapsedHeight = 56.0;
+
+  /// العربية: يخزن القيمة `tabBarHeight`.
   static const double _tabBarHeight = 44.0;
+
+  /// العربية: يخزن القيمة `statsHeight`.
   static const double _statsHeight = 100.0;
+
+  /// العربية: يخزن القيمة `minStatsHeight`.
   static const double _minStatsHeight = 128.0;
+
+  /// العربية: يخزن القيمة `totalScrollRange`.
   static const double _totalScrollRange = _expandedHeight + _statsHeight;
 
   // Statistics
@@ -64,13 +97,22 @@ class _MyBookingsPageState extends State<MyBookingsPage>
   };
 
   // Subtle Particles
+  /// العربية: يخزن القيمة `particles`.
   final List<_SubtleParticle> _particles = [];
   // Cache last loaded bookings to avoid empty list when bloc state changes externally
+  /// العربية: يخزن القيمة `cachedBookings`.
   List<dynamic> _cachedBookings = [];
+
+  /// العربية: يخزن القيمة `pendingCancelReason`.
   String? _pendingCancelReason;
+
+  /// العربية: يخزن القيمة `pendingCancelBookingId`.
   String? _pendingCancelBookingId;
+
+  /// العربية: يخزن القيمة `pendingCancelUserId`.
   String? _pendingCancelUserId;
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -85,6 +127,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     _loadBookings();
   }
 
+  /// العربية: ينتقل إلى to edit.
   Future<void> _navigateToEdit(dynamic booking) async {
     HapticFeedback.selectionClick();
     // Prepare initially selected services from booking
@@ -113,6 +156,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     _loadBookings();
   }
 
+  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     // Slow background animation for subtlety
     _backgroundAnimationController = AnimationController(
@@ -163,12 +207,14 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     ));
   }
 
+  /// العربية: ينشئ subtle particles.
   void _generateSubtleParticles() {
     for (int i = 0; i < 6; i++) {
       _particles.add(_SubtleParticle());
     }
   }
 
+  /// العربية: يبدأ animations.
   void _startAnimations() {
     _fadeStartTimer?.cancel();
     _fadeStartTimer = Timer(const Duration(milliseconds: 100), () {
@@ -177,6 +223,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     });
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _fadeStartTimer?.cancel();
@@ -189,6 +236,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     super.dispose();
   }
 
+  /// العربية: يعالج `onTabChanged`.
   void _onTabChanged() {
     if (!_tabController.indexIsChanging) {
       HapticFeedback.selectionClick();
@@ -212,6 +260,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     }
   }
 
+  /// العربية: يعالج `onScroll`.
   void _onScroll() {
     setState(() {
       _scrollOffset = _scrollController.offset;
@@ -232,6 +281,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     }
   }
 
+  /// العربية: يحمل bookings.
   void _loadBookings() {
     final authState = context.read<AuthBloc>().state;
     if (authState is AuthAuthenticated) {
@@ -246,6 +296,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     }
   }
 
+  /// العربية: يحمل more bookings.
   void _loadMoreBookings() {
     final state = context.read<BookingBloc>().state;
     if (state is UserBookingsLoaded && !state.isLoadingMore && state.hasMore) {
@@ -264,6 +315,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     }
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
@@ -297,6 +349,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
+  /// العربية: يبني subtle background.
   Widget _buildSubtleBackground() {
     return AnimatedBuilder(
       animation: _backgroundAnimationController,
@@ -325,6 +378,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
+  /// العربية: يبني subtle particles.
   Widget _buildSubtleParticles() {
     return AnimatedBuilder(
       animation: _floatingAnimationController,
@@ -340,6 +394,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
+  /// العربية: يبني advanced sliver app bar.
   Widget _buildAdvancedSliverAppBar() {
     return SliverAppBar(
       expandedHeight: _expandedHeight,
@@ -431,6 +486,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
+  /// العربية: يبني morphing header.
   Widget _buildMorphingHeader(double progress) {
     // حساب القيم التدريجية
     final double iconSize = 24 + (24 * progress);
@@ -540,6 +596,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
+  /// العربية: يبني smooth tab bar.
   Widget _buildSmoothTabBar(double progress) {
     return Container(
       height: _tabBarHeight,
@@ -599,36 +656,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  Widget _buildMinimalBackButton() {
-    return Container(
-      margin: const EdgeInsets.all(8),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppTheme.darkCard.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.2),
-                width: 0.5,
-              ),
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, size: 16),
-              color: AppTheme.textWhite.withOpacity(0.9),
-              onPressed: () {
-                HapticFeedback.selectionClick();
-                Navigator.pop(context);
-              },
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
+  /// العربية: يبني minimal action button.
   Widget _buildMinimalActionButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -659,6 +687,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
+  /// العربية: يبني compact tab.
   Widget _buildCompactTab(String label, int count, double progress) {
     return Tab(
       height: 36,
@@ -702,6 +731,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
+  /// العربية: يبني compact statistics.
   Widget _buildCompactStatistics() {
     return SliverToBoxAdapter(
       child: AnimatedOpacity(
@@ -783,6 +813,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
+  /// العربية: يبني minimal stat card.
   Widget _buildMinimalStatCard({
     required IconData icon,
     required String title,
@@ -856,6 +887,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
+  /// العربية: يبني body sliver.
   Widget _buildBodySliver() {
     return SliverPadding(
       padding: const EdgeInsets.only(left: 18, right: 18, top: 12, bottom: 12),
@@ -958,6 +990,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
+  /// العربية: يبني minimal loader.
   Widget _buildMinimalLoader() {
     return const LoadingWidget(
       type: LoadingType.futuristic,
@@ -965,6 +998,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
+  /// العربية: يبني minimal error.
   Widget _buildMinimalError(BookingError state) {
     return Center(
       child: Container(
@@ -1019,6 +1053,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
+  /// العربية: يبني minimal retry button.
   Widget _buildMinimalRetryButton() {
     return Container(
       decoration: BoxDecoration(
@@ -1061,106 +1096,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  Widget _buildMinimalEmpty() {
-    String message;
-    IconData icon;
-    Color color;
-
-    switch (_selectedStatus) {
-      case BookingStatus.confirmed:
-        message = 'لا توجد حجوزات مؤكدة';
-        icon = Icons.check_circle_outline_rounded;
-        color = AppTheme.success.withOpacity(0.8);
-        break;
-      case BookingStatus.pending:
-        message = 'لا توجد حجوزات في انتظار التأكيد';
-        icon = Icons.hourglass_empty_rounded;
-        color = AppTheme.warning.withOpacity(0.8);
-        break;
-      case BookingStatus.completed:
-        message = 'لا توجد حجوزات مكتملة';
-        icon = Icons.done_all_rounded;
-        color = AppTheme.info.withOpacity(0.8);
-        break;
-      default:
-        message = 'لا توجد حجوزات';
-        icon = Icons.calendar_today_rounded;
-        color = AppTheme.primaryBlue.withOpacity(0.8);
-    }
-
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: 48,
-                color: color.withOpacity(0.4),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              message,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.7),
-              ),
-            ),
-            const SizedBox(height: 32),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.primaryBlue.withOpacity(0.8),
-                    AppTheme.primaryPurple.withOpacity(0.6),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => context.push('/search'),
-                  borderRadius: BorderRadius.circular(14),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.search_rounded,
-                            color: Colors.white, size: 18),
-                        const SizedBox(width: 8),
-                        Text(
-                          'ابحث عن عقارات',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
+  /// العربية: يحدّث statistics.
   void _updateStatistics(dynamic bookings) {
     _statusCounts = {
       BookingStatus.confirmed: 0,
@@ -1178,6 +1114,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     }
   }
 
+  /// العربية: يحدّث statistics from counts.
   void _updateStatisticsFromCounts(Map<dynamic, dynamic> counts) {
     int _read(dynamic key) {
       final v = counts[key];
@@ -1196,6 +1133,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     };
   }
 
+  /// العربية: ينتقل إلى to details.
   Future<void> _navigateToDetails(String bookingId) async {
     HapticFeedback.selectionClick();
     await context.push('/booking/$bookingId');
@@ -1203,6 +1141,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     _loadBookings();
   }
 
+  /// العربية: ينتقل إلى to review.
   void _navigateToReview(dynamic booking) {
     HapticFeedback.selectionClick();
     context.push<bool>('/review/write', extra: {
@@ -1217,6 +1156,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     });
   }
 
+  /// العربية: يعرض cancel dialog.
   void _showCancelDialog(dynamic booking) {
     HapticFeedback.mediumImpact();
     final authState = context.read<AuthBloc>().state;
@@ -1358,6 +1298,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     ).then((_) => reasonController.dispose());
   }
 
+  /// العربية: يعالج booking state.
   void _handleBookingState(BuildContext context, BookingState state) {
     if (state is BookingCancelled) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1413,6 +1354,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     }
   }
 
+  /// العربية: يعرض policy dialog.
   void _showPolicyDialog({required String title, required String description}) {
     showDialog(
       context: context,
@@ -1485,6 +1427,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
+  /// العربية: يعرض refund then cancel dialog.
   void _showRefundThenCancelDialog() {
     final authState = context.read<AuthBloc>().state;
     if (authState is! AuthAuthenticated) {
@@ -1610,11 +1553,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  void _showFilterDialog() {
-    HapticFeedback.selectionClick();
-    // Implementation for filter dialog
-  }
-
+  /// العربية: يبني unauthenticated view.
   Widget _buildUnauthenticatedView(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
@@ -1739,15 +1678,21 @@ class _MyBookingsPageState extends State<MyBookingsPage>
 }
 
 // [نفس الـ Painters السابقة بدون تغيير]
+/// العربية: يمثل `SubtleGridPainter`.
 class _SubtleGridPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
+
+  /// العربية: يخزن القيمة `scrollOffset`.
   final double scrollOffset;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `SubtleGridPainter`.
   _SubtleGridPainter({
     required this.animationValue,
     required this.scrollOffset,
   });
 
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1778,22 +1723,37 @@ class _SubtleGridPainter extends CustomPainter {
     }
   }
 
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+/// العربية: يمثل `SubtleParticle`.
 class _SubtleParticle {
+  /// العربية: يخزن القيمة `x`.
   late double x;
+
+  /// العربية: يخزن القيمة `y`.
   late double y;
+
+  /// العربية: يخزن القيمة `size`.
   late double size;
+
+  /// العربية: يخزن القيمة `opacity`.
   late double opacity;
+
+  /// العربية: يخزن القيمة `color`.
   late Color color;
+
+  /// العربية: يخزن القيمة `speed`.
   late double speed;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `SubtleParticle`.
   _SubtleParticle() {
     reset();
   }
 
+  /// العربية: يعالج `reset`.
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -1809,6 +1769,7 @@ class _SubtleParticle {
     color = colors[math.Random().nextInt(colors.length)];
   }
 
+  /// العربية: يحدّث العملية المطلوبة لـ `update`.
   void update(double animationValue) {
     y -= speed;
     if (y < -0.1) {
@@ -1818,15 +1779,21 @@ class _SubtleParticle {
   }
 }
 
+/// العربية: يمثل `SubtleParticlePainter`.
 class _SubtleParticlePainter extends CustomPainter {
+  /// العربية: يخزن القيمة `particles`.
   final List<_SubtleParticle> particles;
+
+  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `SubtleParticlePainter`.
   _SubtleParticlePainter({
     required this.particles,
     required this.animationValue,
   });
 
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
@@ -1845,6 +1812,7 @@ class _SubtleParticlePainter extends CustomPainter {
     }
   }
 
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

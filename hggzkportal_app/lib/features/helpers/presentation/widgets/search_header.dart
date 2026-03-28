@@ -2,13 +2,31 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// يعرّف الكلاس `SearchHeader`.
+/// Describes the `SearchHeader` class.
 class SearchHeader extends StatelessWidget {
+  /// Holds the `title` value.
+  /// العربية: يخزن القيمة `title`.
   final String title;
+
+  /// يخزن العضو `searchHint`.
+  /// Holds the `searchHint` member.
   final String searchHint;
+
+  /// يخزن العضو `searchController`.
+  /// Holds the `searchController` member.
   final TextEditingController searchController;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(String) onSearchChanged;
+
+  /// يخزن العضو `onClearSearch`.
+  /// Holds the `onClearSearch` member.
   final VoidCallback onClearSearch;
 
+  /// ينشئ مثيلاً من `SearchHeader`.
+  /// Builds an instance of `SearchHeader`.
   const SearchHeader({
     super.key,
     required this.title,
@@ -18,12 +36,14 @@ class SearchHeader extends StatelessWidget {
     required this.onClearSearch,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(20),
           bottomRight: Radius.circular(20),
@@ -40,14 +60,14 @@ class SearchHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Search Field
           Container(
             decoration: BoxDecoration(
-              color: AppTheme.darkSurface.withOpacity(0.5),
+              color: AppTheme.darkSurface.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -60,7 +80,7 @@ class SearchHeader extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: searchHint,
                 hintStyle: AppTextStyles.bodyMedium.copyWith(
-                  color: AppTheme.textMuted.withOpacity(0.5),
+                  color: AppTheme.textMuted.withValues(alpha: 0.5),
                 ),
                 prefixIcon: Icon(
                   Icons.search_rounded,

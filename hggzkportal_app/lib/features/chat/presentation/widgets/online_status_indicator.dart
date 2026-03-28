@@ -1,12 +1,27 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 
+/// يعرّف الكلاس `OnlineStatusIndicator`.
+/// Describes the `OnlineStatusIndicator` class.
 class OnlineStatusIndicator extends StatefulWidget {
+  /// Indicates whether `isOnline` is enabled.
+  /// العربية: يحدد ما إذا كانت القيمة `isOnline` مفعلة.
   final bool isOnline;
+
+  /// يخزن العضو `size`.
+  /// Holds the `size` member.
   final double size;
+
+  /// يخزن العضو `showBorder`.
+  /// Holds the `showBorder` member.
   final bool showBorder;
+
+  /// يخزن العضو `animate`.
+  /// Holds the `animate` member.
   final bool animate;
 
+  /// ينشئ مثيلاً من `OnlineStatusIndicator`.
+  /// Builds an instance of `OnlineStatusIndicator`.
   const OnlineStatusIndicator({
     super.key,
     required this.isOnline,
@@ -15,15 +30,26 @@ class OnlineStatusIndicator extends StatefulWidget {
     this.animate = true,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<OnlineStatusIndicator> createState() => _OnlineStatusIndicatorState();
 }
 
+/// يعرّف الكلاس `_OnlineStatusIndicatorState`.
+/// Describes the `_OnlineStatusIndicatorState` class.
 class _OnlineStatusIndicatorState extends State<OnlineStatusIndicator>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_controller`.
+  /// Holds the `_controller` member.
   late AnimationController _controller;
+
+  /// يخزن العضو `_pulseAnimation`.
+  /// Holds the `_pulseAnimation` member.
   late Animation<double> _pulseAnimation;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -31,7 +57,7 @@ class _OnlineStatusIndicatorState extends State<OnlineStatusIndicator>
       duration: const Duration(seconds: 2),
       vsync: this,
     );
-    
+
     _pulseAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -39,12 +65,14 @@ class _OnlineStatusIndicatorState extends State<OnlineStatusIndicator>
       parent: _controller,
       curve: Curves.easeInOut,
     ));
-    
+
     if (widget.isOnline && widget.animate) {
       _controller.repeat();
     }
   }
 
+  /// ينفذ العملية `didUpdateWidget`.
+  /// Runs the `didUpdateWidget` operation.
   @override
   void didUpdateWidget(OnlineStatusIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -57,12 +85,16 @@ class _OnlineStatusIndicatorState extends State<OnlineStatusIndicator>
     }
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -77,12 +109,13 @@ class _OnlineStatusIndicatorState extends State<OnlineStatusIndicator>
                 width: widget.size + 6 * _pulseAnimation.value,
                 height: widget.size + 6 * _pulseAnimation.value,
                 decoration: BoxDecoration(
-                  color: AppTheme.success.withValues(alpha: 0.3 * (1 - _pulseAnimation.value),
+                  color: AppTheme.success.withValues(
+                    alpha: 0.3 * (1 - _pulseAnimation.value),
                   ),
                   shape: BoxShape.circle,
                 ),
               ),
-            
+
             // Main indicator
             Container(
               width: widget.size,
@@ -95,7 +128,7 @@ class _OnlineStatusIndicatorState extends State<OnlineStatusIndicator>
                         end: Alignment.bottomRight,
                       )
                     : null,
-                color: !widget.isOnline 
+                color: !widget.isOnline
                     ? AppTheme.textMuted.withValues(alpha: 0.3)
                     : null,
                 shape: BoxShape.circle,

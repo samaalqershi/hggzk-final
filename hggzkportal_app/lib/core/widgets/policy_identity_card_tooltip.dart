@@ -10,7 +10,6 @@ import '../../features/admin_properties/domain/entities/policy.dart';
 class PolicyIdentityCardTooltip {
   static OverlayEntry? _overlayEntry;
   static final GlobalKey<_PolicyCardContentState> _contentKey = GlobalKey();
-
   static void show({
     required BuildContext context,
     required GlobalKey targetKey,
@@ -40,7 +39,6 @@ class PolicyIdentityCardTooltip {
 
     Overlay.of(context).insert(_overlayEntry!);
   }
-
   static void hide() {
     _contentKey.currentState?.animateOut(() {
       _overlayEntry?.remove();
@@ -48,7 +46,6 @@ class PolicyIdentityCardTooltip {
     });
   }
 }
-
 class _PolicyCardOverlay extends StatelessWidget {
   final GlobalKey targetKey;
   final String policyId;
@@ -59,7 +56,6 @@ class _PolicyCardOverlay extends StatelessWidget {
   final String? propertyName;
   final DateTime? effectiveDate;
   final GlobalKey<_PolicyCardContentState> contentKey;
-
   const _PolicyCardOverlay({
     required this.targetKey,
     required this.policyId,
@@ -71,7 +67,6 @@ class _PolicyCardOverlay extends StatelessWidget {
     this.effectiveDate,
     required this.contentKey,
   });
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -79,7 +74,7 @@ class _PolicyCardOverlay extends StatelessWidget {
         GestureDetector(
           onTap: PolicyIdentityCardTooltip.hide,
           child: Container(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
           ),
         ),
         _PolicyCardContent(
@@ -97,7 +92,6 @@ class _PolicyCardOverlay extends StatelessWidget {
     );
   }
 }
-
 class _PolicyCardContent extends StatefulWidget {
   final GlobalKey targetKey;
   final String policyId;
@@ -107,7 +101,6 @@ class _PolicyCardContent extends StatefulWidget {
   final bool isActive;
   final String? propertyName;
   final DateTime? effectiveDate;
-
   const _PolicyCardContent({
     super.key,
     required this.targetKey,
@@ -119,17 +112,14 @@ class _PolicyCardContent extends StatefulWidget {
     this.propertyName,
     this.effectiveDate,
   });
-
   @override
   State<_PolicyCardContent> createState() => _PolicyCardContentState();
 }
-
 class _PolicyCardContentState extends State<_PolicyCardContent>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
-
   @override
   void initState() {
     super.initState();
@@ -148,22 +138,18 @@ class _PolicyCardContentState extends State<_PolicyCardContent>
 
     _controller.forward();
   }
-
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-
   void animateOut(VoidCallback onComplete) {
     _controller.reverse().then((_) => onComplete());
   }
-
   Color get statusColor {
     if (!widget.isActive) return AppTheme.error;
     return _getPolicyColor();
   }
-
   Color _getPolicyColor() {
     switch (widget.policyType) {
       case PolicyType.cancellation:
@@ -184,7 +170,6 @@ class _PolicyCardContentState extends State<_PolicyCardContent>
         return AppTheme.textMuted;
     }
   }
-
   IconData _getPolicyIcon() {
     switch (widget.policyType) {
       case PolicyType.cancellation:
@@ -205,7 +190,6 @@ class _PolicyCardContentState extends State<_PolicyCardContent>
         return CupertinoIcons.doc_text_fill;
     }
   }
-
   String _getPolicyLabel() {
     switch (widget.policyType) {
       case PolicyType.cancellation:
@@ -226,7 +210,6 @@ class _PolicyCardContentState extends State<_PolicyCardContent>
         return 'أخرى';
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -248,7 +231,7 @@ class _PolicyCardContentState extends State<_PolicyCardContent>
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: statusColor.withOpacity(0.3),
+                      color: statusColor.withValues(alpha: 0.3),
                       blurRadius: 30,
                       offset: const Offset(0, 10),
                     ),
@@ -260,10 +243,10 @@ class _PolicyCardContentState extends State<_PolicyCardContent>
                     filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: AppTheme.darkCard.withOpacity(0.95),
+                        color: AppTheme.darkCard.withValues(alpha: 0.95),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: statusColor.withOpacity(0.4),
+                          color: statusColor.withValues(alpha: 0.4),
                           width: 1.5,
                         ),
                       ),
@@ -328,15 +311,14 @@ class _PolicyCardContentState extends State<_PolicyCardContent>
       },
     );
   }
-
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.1),
+        color: statusColor.withValues(alpha: 0.1),
         border: Border(
           bottom: BorderSide(
-            color: statusColor.withOpacity(0.2),
+            color: statusColor.withValues(alpha: 0.2),
           ),
         ),
       ),
@@ -345,7 +327,7 @@ class _PolicyCardContentState extends State<_PolicyCardContent>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.2),
+              color: statusColor.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -377,15 +359,14 @@ class _PolicyCardContentState extends State<_PolicyCardContent>
       ),
     );
   }
-
   Widget _buildIconSection() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.05),
+        color: statusColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: statusColor.withOpacity(0.2),
+          color: statusColor.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -397,11 +378,11 @@ class _PolicyCardContentState extends State<_PolicyCardContent>
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
-                colors: [statusColor, statusColor.withOpacity(0.6)],
+                colors: [statusColor, statusColor.withValues(alpha: 0.6)],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: statusColor.withOpacity(0.4),
+                  color: statusColor.withValues(alpha: 0.4),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -427,10 +408,10 @@ class _PolicyCardContentState extends State<_PolicyCardContent>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.15),
+              color: statusColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: statusColor.withOpacity(0.4),
+                color: statusColor.withValues(alpha: 0.4),
               ),
             ),
             child: Row(
@@ -444,7 +425,7 @@ class _PolicyCardContentState extends State<_PolicyCardContent>
                     color: statusColor,
                     boxShadow: [
                       BoxShadow(
-                        color: statusColor.withOpacity(0.5),
+                        color: statusColor.withValues(alpha: 0.5),
                         blurRadius: 6,
                       ),
                     ],
@@ -465,16 +446,15 @@ class _PolicyCardContentState extends State<_PolicyCardContent>
       ),
     );
   }
-
   Widget _buildInfoCard(
       IconData icon, String label, String value, Color color) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.15),
+          color: color.withValues(alpha: 0.15),
         ),
       ),
       child: Row(
@@ -510,15 +490,14 @@ class _PolicyCardContentState extends State<_PolicyCardContent>
       ),
     );
   }
-
   Widget _buildRulesCard() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.warning.withOpacity(0.05),
+        color: AppTheme.warning.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.2),
+          color: AppTheme.warning.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -553,13 +532,12 @@ class _PolicyCardContentState extends State<_PolicyCardContent>
       ),
     );
   }
-
   Widget _buildPolicyId() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.5),
+        color: AppTheme.darkSurface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(

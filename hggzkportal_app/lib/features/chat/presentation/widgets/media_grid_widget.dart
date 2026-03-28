@@ -4,16 +4,27 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/message.dart';
 
+/// يعرّف الكلاس `MediaGridWidget`.
+/// Describes the `MediaGridWidget` class.
 class MediaGridWidget extends StatelessWidget {
+  /// Holds the `messages` value.
+  /// العربية: يخزن القيمة `messages`.
   final List<Message> messages;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(Message) onMediaTap;
 
+  /// ينشئ مثيلاً من `MediaGridWidget`.
+  /// Builds an instance of `MediaGridWidget`.
   const MediaGridWidget({
     super.key,
     required this.messages,
     required this.onMediaTap,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
@@ -37,27 +48,53 @@ class MediaGridWidget extends StatelessWidget {
   }
 }
 
+/// يعرّف الكلاس `_MediaItem`.
+/// Describes the `_MediaItem` class.
 class _MediaItem extends StatefulWidget {
+  /// Holds the `message` value.
+  /// العربية: يخزن القيمة `message`.
   final Message message;
+
+  /// يخزن العضو `index`.
+  /// Holds the `index` member.
   final int index;
+
+  /// يخزن العضو `onTap`.
+  /// Holds the `onTap` member.
   final VoidCallback onTap;
 
+  /// ينشئ مثيلاً من `_MediaItem`.
+  /// Builds an instance of `_MediaItem`.
   const _MediaItem({
     required this.message,
     required this.index,
     required this.onTap,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<_MediaItem> createState() => _MediaItemState();
 }
 
-class _MediaItemState extends State<_MediaItem> 
+/// يعرّف الكلاس `_MediaItemState`.
+/// Describes the `_MediaItemState` class.
+class _MediaItemState extends State<_MediaItem>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_controller`.
+  /// Holds the `_controller` member.
   late AnimationController _controller;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
+
+  /// يخزن العضو `_isPressed`.
+  /// Holds the `_isPressed` member.
   bool _isPressed = false;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -65,7 +102,7 @@ class _MediaItemState extends State<_MediaItem>
       duration: Duration(milliseconds: 300 + (widget.index * 50)),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -73,26 +110,30 @@ class _MediaItemState extends State<_MediaItem>
       parent: _controller,
       curve: Curves.easeOutBack,
     ));
-    
+
     _controller.forward();
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     String? imageUrl;
     bool isVideo = false;
 
-    if (widget.message.messageType == 'image' && 
+    if (widget.message.messageType == 'image' &&
         widget.message.attachments.isNotEmpty) {
       imageUrl = widget.message.attachments.first.fileUrl;
-    } else if (widget.message.messageType == 'video' && 
-               widget.message.attachments.isNotEmpty) {
+    } else if (widget.message.messageType == 'video' &&
+        widget.message.attachments.isNotEmpty) {
       imageUrl = widget.message.attachments.first.thumbnailUrl;
       isVideo = true;
     }
@@ -132,7 +173,7 @@ class _MediaItemState extends State<_MediaItem>
                     imageUrl: imageUrl,
                     fit: BoxFit.cover,
                   ),
-                  
+
                   // Gradient overlay for video
                   if (isVideo)
                     Container(
@@ -147,7 +188,7 @@ class _MediaItemState extends State<_MediaItem>
                         ),
                       ),
                     ),
-                  
+
                   // Play button for video
                   if (isVideo)
                     Center(
@@ -180,7 +221,7 @@ class _MediaItemState extends State<_MediaItem>
                         ),
                       ),
                     ),
-                  
+
                   // Shimmer effect on load
                   if (_controller.isAnimating)
                     Container(

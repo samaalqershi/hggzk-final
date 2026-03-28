@@ -3,6 +3,7 @@ import '../../domain/entities/daily_schedule.dart';
 /// نموذج DailyScheduleModel يمتد من Entity
 /// يستخدم للتحويل من/إلى JSON من/إلى Backend
 class DailyScheduleModel extends DailySchedule {
+  /// العربية: ينشئ مثيلًا جديدًا من `DailyScheduleModel`.
   const DailyScheduleModel({
     required super.id,
     required super.unitId,
@@ -84,7 +85,8 @@ class DailyScheduleModel extends DailySchedule {
       if (priceAmount != null) 'PriceAmount': priceAmount,
       if (currency != null) 'Currency': currency,
       if (priceType != null) 'PriceType': _priceTypeToString(priceType!),
-      if (pricingTier != null) 'PricingTier': _pricingTierToString(pricingTier!),
+      if (pricingTier != null)
+        'PricingTier': _pricingTierToString(pricingTier!),
       if (percentageChange != null) 'PercentageChange': percentageChange,
       if (minPrice != null) 'MinPrice': minPrice,
       if (maxPrice != null) 'MaxPrice': maxPrice,

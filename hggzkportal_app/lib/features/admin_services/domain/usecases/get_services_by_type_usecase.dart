@@ -7,13 +7,13 @@ import '../entities/service.dart';
 import '../repositories/services_repository.dart';
 
 /// 🏷️ Use Case لجلب الخدمات حسب النوع
-class GetServicesByTypeUseCase implements UseCase<PaginatedResult<Service>, GetServicesByTypeParams> {
+class GetServicesByTypeUseCase
+    implements UseCase<PaginatedResult<Service>, GetServicesByTypeParams> {
   final ServicesRepository repository;
-
   GetServicesByTypeUseCase(this.repository);
-
   @override
-  Future<Either<Failure, PaginatedResult<Service>>> call(GetServicesByTypeParams params) async {
+  Future<Either<Failure, PaginatedResult<Service>>> call(
+      GetServicesByTypeParams params) async {
     return await repository.getServicesByType(
       serviceType: params.serviceType,
       pageNumber: params.pageNumber,
@@ -21,18 +21,16 @@ class GetServicesByTypeUseCase implements UseCase<PaginatedResult<Service>, GetS
     );
   }
 }
-
 class GetServicesByTypeParams extends Equatable {
+  /// العربية: يخزن القيمة `serviceType`.
   final String serviceType;
   final int? pageNumber;
   final int? pageSize;
-
   const GetServicesByTypeParams({
     required this.serviceType,
     this.pageNumber,
     this.pageSize,
   });
-
   @override
   List<Object?> get props => [serviceType, pageNumber, pageSize];
 }

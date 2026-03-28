@@ -7,17 +7,31 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 
+/// يعرّف الكلاس `UploadUserImage`.
+/// Describes the `UploadUserImage` class.
 class UploadUserImage extends StatefulWidget {
+  /// Holds the `currentImageUrl` value.
+  /// العربية: يخزن القيمة `currentImageUrl`.
   final String? currentImageUrl;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(String imagePath) onImageSelected;
+
+  /// يخزن العضو `size`.
+  /// Holds the `size` member.
   final double size;
+
+  /// يخزن العضو `enabled`.
+  /// Holds the `enabled` member.
   final bool enabled;
 
+  /// ينشئ مثيلاً من `UploadUserImage`.
+  /// Builds an instance of `UploadUserImage`.
   const UploadUserImage({
     super.key,
     this.currentImageUrl,
@@ -26,22 +40,36 @@ class UploadUserImage extends StatefulWidget {
     this.enabled = true,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<UploadUserImage> createState() => _UploadUserImageState();
 }
 
+/// يعرّف الكلاس `_UploadUserImageState`.
+/// Describes the `_UploadUserImageState` class.
 class _UploadUserImageState extends State<UploadUserImage>
     with TickerProviderStateMixin {
   final ImagePicker _picker = ImagePicker();
+
+  /// يخزن العضو `_selectedImage`.
+  /// Holds the `_selectedImage` member.
   File? _selectedImage;
+
+  /// يخزن العضو `_isLoading`.
+  /// Holds the `_isLoading` member.
   bool _isLoading = false;
-  bool _isHovered = false;
 
+  /// يخزن العضو `_pulseController`.
+  /// Holds the `_pulseController` member.
   late AnimationController _pulseController;
-  late AnimationController _rotateController;
-  late Animation<double> _pulseAnimation;
-  late Animation<double> _rotateAnimation;
 
+  /// يخزن العضو `_rotateController`.
+  /// Holds the `_rotateController` member.
+  late AnimationController _rotateController;
+
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -51,25 +79,14 @@ class _UploadUserImageState extends State<UploadUserImage>
       vsync: this,
     )..repeat(reverse: true);
 
-    _pulseAnimation = Tween<double>(
-      begin: 0.98,
-      end: 1.02,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
-
     _rotateController = AnimationController(
       duration: const Duration(seconds: 10), // Faster rotation
       vsync: this,
     )..repeat();
-
-    _rotateAnimation = Tween<double>(
-      begin: 0,
-      end: 2 * math.pi,
-    ).animate(_rotateController);
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _pulseController.dispose();
@@ -77,14 +94,11 @@ class _UploadUserImageState extends State<UploadUserImage>
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown:
-          widget.enabled ? (_) => setState(() => _isHovered = true) : null,
-      onTapUp:
-          widget.enabled ? (_) => setState(() => _isHovered = false) : null,
-      onTapCancel: () => setState(() => _isHovered = false),
       onTap: widget.enabled ? _showImageSourceDialog : null,
       child: Stack(
         alignment: Alignment.center,
@@ -145,6 +159,8 @@ class _UploadUserImageState extends State<UploadUserImage>
     );
   }
 
+  /// ينفذ العملية `_buildUltraMinimalImageContent`.
+  /// Runs the `_buildUltraMinimalImageContent` operation.
   Widget _buildUltraMinimalImageContent() {
     if (_selectedImage != null) {
       return Image.file(
@@ -182,6 +198,8 @@ class _UploadUserImageState extends State<UploadUserImage>
     }
   }
 
+  /// ينفذ العملية `_buildLoadingOverlay`.
+  /// Runs the `_buildLoadingOverlay` operation.
   Widget _buildLoadingOverlay() {
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
@@ -203,6 +221,8 @@ class _UploadUserImageState extends State<UploadUserImage>
     );
   }
 
+  /// ينفذ العملية `_showImageSourceDialog`.
+  /// Runs the `_showImageSourceDialog` operation.
   void _showImageSourceDialog() {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
@@ -231,6 +251,8 @@ class _UploadUserImageState extends State<UploadUserImage>
     );
   }
 
+  /// ينفذ العملية `_pickImage`.
+  /// Runs the `_pickImage` operation.
   Future<void> _pickImage(ImageSource source) async {
     try {
       bool hasPermission = await _checkPermission(source);
@@ -268,6 +290,8 @@ class _UploadUserImageState extends State<UploadUserImage>
     }
   }
 
+  /// ينفذ العملية `_checkPermission`.
+  /// Runs the `_checkPermission` operation.
   Future<bool> _checkPermission(ImageSource source) async {
     if (source == ImageSource.camera) {
       final status = await Permission.camera.status;
@@ -287,6 +311,8 @@ class _UploadUserImageState extends State<UploadUserImage>
     }
   }
 
+  /// ينفذ العملية `_cropImage`.
+  /// Runs the `_cropImage` operation.
   Future<CroppedFile?> _cropImage(String imagePath) async {
     return await ImageCropper().cropImage(
       sourcePath: imagePath,
@@ -322,6 +348,8 @@ class _UploadUserImageState extends State<UploadUserImage>
     );
   }
 
+  /// ينفذ العملية `_showMinimalPermissionDialog`.
+  /// Runs the `_showMinimalPermissionDialog` operation.
   void _showMinimalPermissionDialog() {
     HapticFeedback.lightImpact();
     showDialog(
@@ -342,6 +370,8 @@ class _UploadUserImageState extends State<UploadUserImage>
     );
   }
 
+  /// ينفذ العملية `_showMinimalErrorSnackBar`.
+  /// Runs the `_showMinimalErrorSnackBar` operation.
   void _showMinimalErrorSnackBar(String message) {
     HapticFeedback.heavyImpact();
 
@@ -363,12 +393,27 @@ class _UploadUserImageState extends State<UploadUserImage>
 }
 
 // Ultra Minimal Image Source Sheet
+/// يعرّف الكلاس `_UltraMinimalImageSourceSheet`.
+/// Describes the `_UltraMinimalImageSourceSheet` class.
 class _UltraMinimalImageSourceSheet extends StatelessWidget {
+  /// Indicates whether `hasCurrentImage` is enabled.
+  /// العربية: يحدد ما إذا كانت القيمة `hasCurrentImage` مفعلة.
   final bool hasCurrentImage;
+
+  /// يخزن العضو `onCameraPressed`.
+  /// Holds the `onCameraPressed` member.
   final VoidCallback onCameraPressed;
+
+  /// يخزن العضو `onGalleryPressed`.
+  /// Holds the `onGalleryPressed` member.
   final VoidCallback onGalleryPressed;
+
+  /// يخزن العضو `onRemovePressed`.
+  /// Holds the `onRemovePressed` member.
   final VoidCallback onRemovePressed;
 
+  /// ينشئ مثيلاً من `_UltraMinimalImageSourceSheet`.
+  /// Builds an instance of `_UltraMinimalImageSourceSheet`.
   const _UltraMinimalImageSourceSheet({
     required this.hasCurrentImage,
     required this.onCameraPressed,
@@ -376,6 +421,8 @@ class _UltraMinimalImageSourceSheet extends StatelessWidget {
     required this.onRemovePressed,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -458,6 +505,8 @@ class _UltraMinimalImageSourceSheet extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildMinimalOption`.
+  /// Runs the `_buildMinimalOption` operation.
   Widget _buildMinimalOption({
     required IconData icon,
     required String title,
@@ -541,14 +590,35 @@ class _UltraMinimalImageSourceSheet extends StatelessWidget {
 }
 
 // Ultra Minimal Dialog
+/// يعرّف الكلاس `_UltraMinimalDialog`.
+/// Describes the `_UltraMinimalDialog` class.
 class _UltraMinimalDialog extends StatelessWidget {
+  /// Holds the `icon` value.
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
+
+  /// يخزن العضو `iconColor`.
+  /// Holds the `iconColor` member.
   final Color iconColor;
+
+  /// يخزن العضو `title`.
+  /// Holds the `title` member.
   final String title;
+
+  /// يخزن العضو `message`.
+  /// Holds the `message` member.
   final String message;
+
+  /// يخزن العضو `confirmText`.
+  /// Holds the `confirmText` member.
   final String confirmText;
+
+  /// يخزن العضو `onConfirm`.
+  /// Holds the `onConfirm` member.
   final VoidCallback onConfirm;
 
+  /// ينشئ مثيلاً من `_UltraMinimalDialog`.
+  /// Builds an instance of `_UltraMinimalDialog`.
   const _UltraMinimalDialog({
     required this.icon,
     required this.iconColor,
@@ -558,6 +628,8 @@ class _UltraMinimalDialog extends StatelessWidget {
     required this.onConfirm,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -679,27 +751,53 @@ class _UltraMinimalDialog extends StatelessWidget {
 }
 
 // Ultra Minimal SnackBar
+/// يعرّف الكلاس `_UltraMinimalSnackBar`.
+/// Describes the `_UltraMinimalSnackBar` class.
 class _UltraMinimalSnackBar extends StatefulWidget {
+  /// Holds the `message` value.
+  /// العربية: يخزن القيمة `message`.
   final String message;
+
+  /// يخزن العضو `icon`.
+  /// Holds the `icon` member.
   final IconData icon;
+
+  /// يخزن العضو `backgroundColor`.
+  /// Holds the `backgroundColor` member.
   final Color backgroundColor;
 
+  /// ينشئ مثيلاً من `_UltraMinimalSnackBar`.
+  /// Builds an instance of `_UltraMinimalSnackBar`.
   const _UltraMinimalSnackBar({
     required this.message,
     required this.icon,
     required this.backgroundColor,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<_UltraMinimalSnackBar> createState() => _UltraMinimalSnackBarState();
 }
 
+/// يعرّف الكلاس `_UltraMinimalSnackBarState`.
+/// Describes the `_UltraMinimalSnackBarState` class.
 class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_controller`.
+  /// Holds the `_controller` member.
   late AnimationController _controller;
+
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
+
+  /// يخزن العضو `_slideAnimation`.
+  /// Holds the `_slideAnimation` member.
   late Animation<Offset> _slideAnimation;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -730,12 +828,16 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
     });
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Positioned(

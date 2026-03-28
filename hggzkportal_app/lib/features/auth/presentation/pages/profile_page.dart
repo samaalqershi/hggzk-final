@@ -28,21 +28,45 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/upload_user_image.dart';
 
+/// يعرّف الكلاس `ProfilePage`.
+/// Describes the `ProfilePage` class.
 class ProfilePage extends StatefulWidget {
+  /// Initializes a new `ProfilePage` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ProfilePage`.
   const ProfilePage({super.key});
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
+/// يعرّف الكلاس `_ProfilePageState`.
+/// Describes the `_ProfilePageState` class.
 class _ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
+  /// يخزن العضو `_fadeController`.
+  /// Holds the `_fadeController` member.
   late AnimationController _fadeController;
+
+  /// يخزن العضو `_subtleGlowController`.
+  /// Holds the `_subtleGlowController` member.
   late AnimationController _subtleGlowController;
+
+  /// يخزن العضو `_themeSwitchController`.
+  /// Holds the `_themeSwitchController` member.
   late AnimationController _themeSwitchController;
+
+  /// يخزن العضو `_themeSwitchRotation`.
+  /// Holds the `_themeSwitchRotation` member.
   late Animation<double> _themeSwitchRotation;
+
+  /// يخزن العضو `_themeSwitchScale`.
+  /// Holds the `_themeSwitchScale` member.
   late Animation<double> _themeSwitchScale;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -79,6 +103,8 @@ class _ProfilePageState extends State<ProfilePage>
     ));
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _fadeController.dispose();
@@ -87,6 +113,8 @@ class _ProfilePageState extends State<ProfilePage>
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -169,6 +197,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalBackground`.
+  /// Runs the `_buildMinimalBackground` operation.
   Widget _buildMinimalBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -196,6 +226,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildUnauthenticatedView`.
+  /// Runs the `_buildUnauthenticatedView` operation.
   Widget _buildUnauthenticatedView(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -288,6 +320,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalAppBar`.
+  /// Runs the `_buildMinimalAppBar` operation.
   Widget _buildMinimalAppBar(BuildContext context, dynamic user) {
     return SliverAppBar(
       expandedHeight: 180,
@@ -357,6 +391,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildProfileHeader`.
+  /// Runs the `_buildProfileHeader` operation.
   Widget _buildProfileHeader(BuildContext context, dynamic user) {
     return Transform.translate(
       offset: const Offset(0, -30),
@@ -450,6 +486,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalInfoCard`.
+  /// Runs the `_buildMinimalInfoCard` operation.
   Widget _buildMinimalInfoCard(dynamic user) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -490,6 +528,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalInfoRow`.
+  /// Runs the `_buildMinimalInfoRow` operation.
   Widget _buildMinimalInfoRow({
     required IconData icon,
     required String label,
@@ -559,23 +599,9 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Widget _buildDivider() {
-    return Container(
-      height: 0.5,
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.transparent,
-            AppTheme.darkBorder.withValues(alpha: 0.1),
-            Colors.transparent,
-          ],
-        ),
-      ),
-    );
-  }
-
   // زر تبديل الثيم العائم - يستخدم AppBloc.theme
+  /// ينفذ العملية `_buildFloatingThemeToggle`.
+  /// Runs the `_buildFloatingThemeToggle` operation.
   Widget _buildFloatingThemeToggle() {
     return BlocBuilder<ThemeBloc, ThemeState>(
       bloc: AppBloc.theme, // استخدام ThemeBloc من AppBloc
@@ -730,6 +756,8 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   // إضافة خيار تبديل الثيم في القائمة
+  /// ينفذ العملية `_buildThemeToggleMenuItem`.
+  /// Runs the `_buildThemeToggleMenuItem` operation.
   Widget _buildThemeToggleMenuItem() {
     return BlocBuilder<ThemeBloc, ThemeState>(
       bloc: AppBloc.theme, // استخدام AppBloc.theme
@@ -839,6 +867,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildUltraSwitch`.
+  /// Runs the `_buildUltraSwitch` operation.
   Widget _buildUltraSwitch(bool value) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -915,6 +945,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildUltraSwitchForFingerprint`.
+  /// Runs the `_buildUltraSwitchForFingerprint` operation.
   Widget _buildUltraSwitchForFingerprint(bool value) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -991,6 +1023,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalMenuOptions`.
+  /// Runs the `_buildMinimalMenuOptions` operation.
   Widget _buildMinimalMenuOptions(BuildContext context) {
     final menuItems = [
       {
@@ -1123,6 +1157,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalMenuItem`.
+  /// Runs the `_buildMinimalMenuItem` operation.
   Widget _buildMinimalMenuItem({
     required IconData icon,
     required String title,
@@ -1191,6 +1227,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalToggleMenuItem`.
+  /// Runs the `_buildMinimalToggleMenuItem` operation.
   Widget _buildMinimalToggleMenuItem({
     required IconData icon,
     required String title,
@@ -1290,6 +1328,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildBiometricToggleMenuItem`.
+  /// Runs the `_buildBiometricToggleMenuItem` operation.
   Widget _buildBiometricToggleMenuItem(BuildContext context) {
     return BlocBuilder<SettingsBloc, SettingsState>(
       builder: (context, state) {
@@ -1330,6 +1370,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildLogoutButton`.
+  /// Runs the `_buildLogoutButton` operation.
   Widget _buildLogoutButton(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -1357,6 +1399,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildDeleteAccountButton`.
+  /// Runs the `_buildDeleteAccountButton` operation.
   Widget _buildDeleteAccountButton(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -1366,7 +1410,7 @@ class _ProfilePageState extends State<ProfilePage>
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Colors.red.withOpacity(0.5),
+            color: Colors.red.withValues(alpha: 0.5),
             width: 1,
           ),
         ),
@@ -1400,6 +1444,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_showDeleteOwnerAccountDialog`.
+  /// Runs the `_showDeleteOwnerAccountDialog` operation.
   void _showDeleteOwnerAccountDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -1447,6 +1493,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalButton`.
+  /// Runs the `_buildMinimalButton` operation.
   Widget _buildMinimalButton({
     required Widget child,
     required VoidCallback onPressed,
@@ -1488,6 +1536,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  /// ينفذ العملية `_showLogoutDialog`.
+  /// Runs the `_showLogoutDialog` operation.
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       fullscreenDialog: true,
@@ -1567,32 +1617,22 @@ class _ProfilePageState extends State<ProfilePage>
       ),
     );
   }
-
-  String _formatDate(DateTime date) {
-    final months = [
-      'يناير',
-      'فبراير',
-      'مارس',
-      'أبريل',
-      'مايو',
-      'يونيو',
-      'يوليو',
-      'أغسطس',
-      'سبتمبر',
-      'أكتوبر',
-      'نوفمبر',
-      'ديسمبر'
-    ];
-    return '${date.day} ${months[date.month - 1]} ${date.year}';
-  }
 }
 
 // Minimal Background Painter
+/// يعرّف الكلاس `_MinimalBackgroundPainter`.
+/// Describes the `_MinimalBackgroundPainter` class.
 class _MinimalBackgroundPainter extends CustomPainter {
+  /// Holds the `animationValue` value.
+  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
 
+  /// ينشئ مثيلاً من `_MinimalBackgroundPainter`.
+  /// Builds an instance of `_MinimalBackgroundPainter`.
   _MinimalBackgroundPainter({required this.animationValue});
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -1622,12 +1662,18 @@ class _MinimalBackgroundPainter extends CustomPainter {
     }
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 /// ديالوج حذف حساب المالك
+/// يعرّف الكلاس `_DeleteOwnerAccountDialog`.
+/// Describes the `_DeleteOwnerAccountDialog` class.
 class _DeleteOwnerAccountDialog extends StatefulWidget {
+  /// Receives `Function`.
+  /// العربية: يعالج `Function`.
   final void Function({
     String? password,
     String? reason,
@@ -1635,28 +1681,57 @@ class _DeleteOwnerAccountDialog extends StatefulWidget {
     String? socialToken,
     String? socialNonce,
   }) onConfirm;
+
+  /// يخزن العضو `onSuccess`.
+  /// Holds the `onSuccess` member.
   final VoidCallback onSuccess;
 
+  /// ينشئ مثيلاً من `_DeleteOwnerAccountDialog`.
+  /// Builds an instance of `_DeleteOwnerAccountDialog`.
   const _DeleteOwnerAccountDialog({
     required this.onConfirm,
     required this.onSuccess,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<_DeleteOwnerAccountDialog> createState() =>
       _DeleteOwnerAccountDialogState();
 }
 
+/// يعرّف الكلاس `_DeleteOwnerAccountDialogState`.
+/// Describes the `_DeleteOwnerAccountDialogState` class.
 class _DeleteOwnerAccountDialogState extends State<_DeleteOwnerAccountDialog> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _reasonController = TextEditingController();
+
+  /// يخزن العضو `_isLoading`.
+  /// Holds the `_isLoading` member.
   bool _isLoading = false;
+
+  /// يخزن العضو `_isSocialAuthLoading`.
+  /// Holds the `_isSocialAuthLoading` member.
   bool _isSocialAuthLoading = false;
+
+  /// يخزن العضو `_errorMessage`.
+  /// Holds the `_errorMessage` member.
   String? _errorMessage;
+
+  /// يخزن العضو `_socialProvider`.
+  /// Holds the `_socialProvider` member.
   String? _socialProvider;
+
+  /// يخزن العضو `_socialToken`.
+  /// Holds the `_socialToken` member.
   String? _socialToken;
+
+  /// يخزن العضو `_socialNonce`.
+  /// Holds the `_socialNonce` member.
   String? _socialNonce;
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _passwordController.dispose();
@@ -1664,6 +1739,8 @@ class _DeleteOwnerAccountDialogState extends State<_DeleteOwnerAccountDialog> {
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     final isBusy = _isLoading || _isSocialAuthLoading;
@@ -1690,7 +1767,7 @@ class _DeleteOwnerAccountDialogState extends State<_DeleteOwnerAccountDialog> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
-            color: Colors.red.withOpacity(0.3),
+            color: Colors.red.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1717,9 +1794,9 @@ class _DeleteOwnerAccountDialogState extends State<_DeleteOwnerAccountDialog> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.red.withOpacity(0.3)),
+                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1750,9 +1827,10 @@ class _DeleteOwnerAccountDialogState extends State<_DeleteOwnerAccountDialog> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                    border:
+                        Border.all(color: Colors.orange.withValues(alpha: 0.3)),
                   ),
                   child: Row(
                     children: [
@@ -1786,21 +1864,21 @@ class _DeleteOwnerAccountDialogState extends State<_DeleteOwnerAccountDialog> {
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: 'أدخل كلمة المرور أو استخدم Google/Apple',
-                  hintStyle:
-                      TextStyle(color: AppTheme.textMuted.withOpacity(0.5)),
+                  hintStyle: TextStyle(
+                      color: AppTheme.textMuted.withValues(alpha: 0.5)),
                   prefixIcon:
                       Icon(Icons.lock_outline, color: AppTheme.textMuted),
                   filled: true,
-                  fillColor: AppTheme.darkBackground.withOpacity(0.5),
+                  fillColor: AppTheme.darkBackground.withValues(alpha: 0.5),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                        color: AppTheme.primaryBlue.withOpacity(0.3)),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.3)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                        color: AppTheme.primaryBlue.withOpacity(0.3)),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.3)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1949,21 +2027,21 @@ class _DeleteOwnerAccountDialogState extends State<_DeleteOwnerAccountDialog> {
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: 'أخبرنا لماذا تريد حذف حسابك...',
-                  hintStyle:
-                      TextStyle(color: AppTheme.textMuted.withOpacity(0.5)),
+                  hintStyle: TextStyle(
+                      color: AppTheme.textMuted.withValues(alpha: 0.5)),
                   prefixIcon:
                       Icon(Icons.comment_outlined, color: AppTheme.textMuted),
                   filled: true,
-                  fillColor: AppTheme.darkBackground.withOpacity(0.5),
+                  fillColor: AppTheme.darkBackground.withValues(alpha: 0.5),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                        color: AppTheme.primaryBlue.withOpacity(0.3)),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.3)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                        color: AppTheme.primaryBlue.withOpacity(0.3)),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.3)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -2031,6 +2109,8 @@ class _DeleteOwnerAccountDialogState extends State<_DeleteOwnerAccountDialog> {
     );
   }
 
+  /// ينفذ العملية `_authenticateWithGoogle`.
+  /// Runs the `_authenticateWithGoogle` operation.
   Future<void> _authenticateWithGoogle() async {
     setState(() {
       _isSocialAuthLoading = true;
@@ -2108,6 +2188,8 @@ class _DeleteOwnerAccountDialogState extends State<_DeleteOwnerAccountDialog> {
     }
   }
 
+  /// ينفذ العملية `_authenticateWithApple`.
+  /// Runs the `_authenticateWithApple` operation.
   Future<void> _authenticateWithApple() async {
     setState(() {
       _isSocialAuthLoading = true;
@@ -2171,6 +2253,8 @@ class _DeleteOwnerAccountDialogState extends State<_DeleteOwnerAccountDialog> {
     }
   }
 
+  /// ينفذ العملية `_generateNonce`.
+  /// Runs the `_generateNonce` operation.
   String _generateNonce([int length = 32]) {
     const charset =
         '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';

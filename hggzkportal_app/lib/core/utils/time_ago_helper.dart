@@ -1,7 +1,8 @@
-/// Helper functions for formatting time differences
+/// أدوات مساعدة لتحويل الفرق الزمني إلى نصوص عربية قصيرة ومفهومة.
+/// Helpers that turn time differences into concise Arabic human-readable labels.
 class TimeAgoHelper {
-  /// Returns a human-readable string representing how long ago a DateTime was
-  /// in Arabic language
+  /// يعرض وصفًا عربيًا واضحًا مثل "منذ 3 ساعات" أو "منذ أسبوع".
+  /// Returns an Arabic phrase such as "3 hours ago" or "1 week ago".
   static String getTimeAgoArabic(DateTime? dateTime) {
     if (dateTime == null) {
       return 'غير معروف';
@@ -36,7 +37,8 @@ class TimeAgoHelper {
     }
   }
 
-  /// Returns a shorter version of time ago in Arabic
+  /// يعرض نسخة أقصر جدًا مناسبة للمساحات الصغيرة مثل الشارات.
+  /// Returns a shorter variant suitable for compact UI surfaces.
   static String getTimeAgoShortArabic(DateTime? dateTime) {
     if (dateTime == null) {
       return 'غير معروف';
@@ -62,14 +64,16 @@ class TimeAgoHelper {
     }
   }
 
-  /// Check if user is online (last seen within 5 minutes)
+  /// يحدد إن كان المستخدم نشطًا الآن عبر نافذة زمنية صغيرة.
+  /// Treats the user as online when the last activity is within five minutes.
   static bool isUserOnline(DateTime? lastSeen) {
     if (lastSeen == null) return false;
     final difference = DateTime.now().difference(lastSeen);
     return difference.inMinutes < 5;
   }
 
-  /// Get online status text
+  /// يختار نص الحالة المناسب بين متصل الآن أو آخر ظهور.
+  /// Produces the appropriate online-status text for the user.
   static String getOnlineStatusArabic(DateTime? lastSeen) {
     if (isUserOnline(lastSeen)) {
       return 'متصل الآن';
@@ -80,12 +84,13 @@ class TimeAgoHelper {
     }
   }
 
-  /// Get activity status: online, recently_active, away, offline
+  /// يصنف النشاط إلى حالة تشغيلية تستفيد منها المؤشرات البصرية.
+  /// Classifies activity into a status the UI can map to presence indicators.
   static ActivityStatus getActivityStatus(DateTime? lastSeen) {
     if (lastSeen == null) return ActivityStatus.offline;
-    
+
     final difference = DateTime.now().difference(lastSeen);
-    
+
     if (difference.inMinutes < 5) {
       return ActivityStatus.online;
     } else if (difference.inMinutes < 30) {
@@ -98,7 +103,8 @@ class TimeAgoHelper {
   }
 }
 
-/// Enum for user activity status
+/// حالات الحضور التي تعتمد عليها واجهة الدردشة عند عرض النشاط.
+/// Presence states used by chat UI when rendering user activity.
 enum ActivityStatus {
   online,
   recentlyActive,

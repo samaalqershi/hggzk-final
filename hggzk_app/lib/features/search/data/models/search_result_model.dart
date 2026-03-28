@@ -1,7 +1,9 @@
 import '../../domain/entities/search_result.dart';
 import 'property_filter_mismatch_model.dart';
 
+/// العربية: يمثل نموذج البيانات `SearchResultModel`.
 class SearchResultModel extends SearchResult {
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchResultModel`.
   const SearchResultModel({
     required super.id,
     required super.name,
@@ -36,6 +38,7 @@ class SearchResultModel extends SearchResult {
     super.filterMismatches = const [],
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchResultModel.fromJson`.
   factory SearchResultModel.fromJson(Map<String, dynamic> json) {
     // Debug: Check filterMismatches
     final filterMismatchesRaw = json['filterMismatches'];
@@ -88,6 +91,7 @@ class SearchResultModel extends SearchResult {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -125,7 +129,9 @@ class SearchResultModel extends SearchResult {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `ReviewModel`.
 class ReviewModel extends Review {
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewModel`.
   const ReviewModel({
     required super.id,
     required super.userId,
@@ -135,6 +141,7 @@ class ReviewModel extends Review {
     required super.createdAt,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewModel.fromJson`.
   factory ReviewModel.fromJson(Map<String, dynamic> json) {
     return ReviewModel(
       id: json['id'] ?? '',
@@ -147,6 +154,7 @@ class ReviewModel extends Review {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -159,12 +167,22 @@ class ReviewModel extends Review {
   }
 }
 
+/// العربية: يعرّف الامتداد `SearchResultUi`.
 extension SearchResultUi on SearchResultModel {
+  /// العربية: يعيد القيمة `imageUrl`.
   String? get imageUrl =>
       mainImageUrl ?? (imageUrls.isNotEmpty ? imageUrls.first : null);
+
+  /// العربية: يعيد القيمة `location`.
   String? get location => address.isNotEmpty ? address : city;
+
+  /// العربية: يعيد القيمة `price`.
   double? get price => (discountedPrice > 0 ? discountedPrice : minPrice);
+
+  /// العربية: يعيد القيمة `rating`.
   double? get rating => averageRating;
+
+  /// العربية: يعيد القيمة `bedrooms`.
   int? get bedrooms {
     final v =
         dynamicFieldValues['bedrooms'] ?? dynamicFieldValues['numBedrooms'];
@@ -173,6 +191,7 @@ extension SearchResultUi on SearchResultModel {
     return null;
   }
 
+  /// العربية: يعيد القيمة `bathrooms`.
   int? get bathrooms {
     final v =
         dynamicFieldValues['bathrooms'] ?? dynamicFieldValues['numBathrooms'];
@@ -181,6 +200,7 @@ extension SearchResultUi on SearchResultModel {
     return null;
   }
 
+  /// العربية: يعيد القيمة `area`.
   double? get area {
     final v = dynamicFieldValues['area'] ?? dynamicFieldValues['size'];
     if (v is num) return v.toDouble();
@@ -188,6 +208,7 @@ extension SearchResultUi on SearchResultModel {
     return null;
   }
 
+  /// العربية: يعيد القيمة `discount`.
   int? get discount {
     if (minPrice > 0 && discountedPrice > 0 && discountedPrice < minPrice) {
       final pct = ((minPrice - discountedPrice) / minPrice) * 100;
@@ -196,6 +217,7 @@ extension SearchResultUi on SearchResultModel {
     return null;
   }
 
+  /// العربية: يعيد القيمة `propertiesCount`.
   int get propertiesCount {
     final v = dynamicFieldValues['propertiesCount'];
     if (v is int) return v;

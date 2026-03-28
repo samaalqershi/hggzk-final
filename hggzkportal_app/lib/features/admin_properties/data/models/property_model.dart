@@ -9,7 +9,15 @@ import 'property_image_model.dart';
 import 'amenity_model.dart';
 import 'policy_model.dart';
 
+/// Maps property payloads from the backend into the domain entity while also
+/// normalizing images, amenities, policies, and dashboard stats.
+///
+/// يطابق حمولة العقار القادمة من الخادم مع كيان المجال مع تطبيع الصور
+/// والمزايا والسياسات وإحصاءات اللوحة.
 class PropertyModel extends Property {
+  /// Creates the immutable property snapshot used by the management screens.
+  ///
+  /// ينشئ لقطة العقار غير القابلة للتعديل المستخدمة في شاشات الإدارة.
   const PropertyModel({
     required super.id,
     required super.ownerId,
@@ -40,28 +48,32 @@ class PropertyModel extends Property {
     super.stats,
   });
 
-  // دالة للتحقق من صحة URL
+  /// Normalizes image URLs so relative or filename-only values still render in
+  /// the portal.
+  ///
+  /// يوحّد روابط الصور حتى تعمل القيم النسبية أو أسماء الملفات داخل البوابة.
   static String _validateAndFixUrl(String? url) {
     if (url == null || url.isEmpty) {
       return 'https://via.placeholder.com/400x300?text=No+Image';
     }
 
-    // التحقق من أن URL يبدأ بـ http أو https
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      // إذا كان URL نسبي، أضف البروتوكول والدومين
       if (url.startsWith('/')) {
-        // استبدل هذا بـ base URL الخاص بك
         return '${ApiConstants.imageBaseUrl}$url';
       }
-      // إذا كان مجرد اسم ملف أو placeholder
       return 'https://via.placeholder.com/400x300?text=$url';
     }
 
     return url;
   }
 
+  /// Builds the property model while tolerating mixed image, amenity, and
+  /// policy payload shapes from the backend.
+  ///
+  /// تبني نموذج العقار مع تحمل اختلاف صيغ الصور والمزايا والسياسات القادمة
+  /// من الخادم.
   factory PropertyModel.fromJson(Map<String, dynamic> json) {
-    // معالجة آمنة للصور
+    // Images may arrive as nested objects, plain URLs, or a single string.
     List<PropertyImage> parsedImages = [];
     if (json['images'] != null) {
       if (json['images'] is List) {
@@ -70,7 +82,6 @@ class PropertyModel extends Property {
               if (e is Map<String, dynamic>) {
                 return PropertyImageModel.fromJson(e);
               } else if (e is String) {
-                // إذا كانت الصورة عبارة عن URL string فقط
                 final validUrl = _validateAndFixUrl(e);
                 return PropertyImageModel(
                   id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -99,7 +110,6 @@ class PropertyModel extends Property {
             .whereType<PropertyImage>()
             .toList();
       } else if (json['images'] is String) {
-        // إذا كانت images عبارة عن URL واحد
         final imageUrl = _validateAndFixUrl(json['images'] as String);
         parsedImages = [
           PropertyImageModel(
@@ -149,8 +159,7 @@ class PropertyModel extends Property {
       averageRating: (json['averageRating'] as num?)?.toDouble() ?? 0.0,
       currency: json['currency'] as String? ?? 'YER',
       isFeatured: json['isFeatured'] as bool? ?? false,
-      systemCommissionRate:
-          (json['systemCommissionRate'] as num?)?.toDouble(),
+      systemCommissionRate: (json['systemCommissionRate'] as num?)?.toDouble(),
       ownerName: json['ownerName'] as String? ?? '',
       typeName: json['typeName'] as String? ?? '',
       distanceKm: (json['distanceKm'] as num?)?.toDouble(),
@@ -185,6 +194,9 @@ class PropertyModel extends Property {
     );
   }
 
+  /// Serializes the property using the data-layer shape expected by the API.
+  ///
+  /// يعيد العقار بصيغة طبقة البيانات التي يتوقعها الـ API.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -217,7 +229,13 @@ class PropertyModel extends Property {
   }
 }
 
+/// Concrete model for the dashboard metrics attached to a property payload.
+///
+/// النموذج الفعلي لمؤشرات اللوحة المرفقة بحمولة العقار.
 class PropertyStatsModel extends PropertyStats {
+  /// Creates the property metrics snapshot used by admin dashboards.
+  ///
+  /// ينشئ لقطة الإحصاءات المستخدمة في لوحات الإدارة.
   const PropertyStatsModel({
     required super.totalBookings,
     required super.activeBookings,
@@ -227,6 +245,9 @@ class PropertyStatsModel extends PropertyStats {
     required super.monthlyRevenue,
   });
 
+  /// Parses the lightweight statistics block returned with the property.
+  ///
+  /// يحلل كتلة الإحصاءات الخفيفة العائدة مع العقار.
   factory PropertyStatsModel.fromJson(Map<String, dynamic> json) {
     return PropertyStatsModel(
       totalBookings: (json['totalBookings'] as num?)?.toInt() ?? 0,
@@ -238,6 +259,9 @@ class PropertyStatsModel extends PropertyStats {
     );
   }
 
+  /// Serializes the metrics into the backend property payload shape.
+  ///
+  /// يعيد المؤشرات إلى صيغة حمولة العقار المتوقعة.
   Map<String, dynamic> toJson() {
     return {
       'totalBookings': totalBookings,

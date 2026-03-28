@@ -7,30 +7,58 @@ import 'package:image_editor_plus/image_editor_plus.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// يعرّف الكلاس `ImagePreviewScreen`.
+/// Describes the `ImagePreviewScreen` class.
 class ImagePreviewScreen extends StatefulWidget {
+  /// Holds the `images` value.
+  /// العربية: يخزن القيمة `images`.
   final List<File> images;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(List<File>) onSend;
 
+  /// ينشئ مثيلاً من `ImagePreviewScreen`.
+  /// Builds an instance of `ImagePreviewScreen`.
   const ImagePreviewScreen({
     super.key,
     required this.images,
     required this.onSend,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<ImagePreviewScreen> createState() => _ImagePreviewScreenState();
 }
 
+/// يعرّف الكلاس `_ImagePreviewScreenState`.
+/// Describes the `_ImagePreviewScreenState` class.
 class _ImagePreviewScreenState extends State<ImagePreviewScreen>
     with TickerProviderStateMixin {
+  /// يخزن العضو `_pageController`.
+  /// Holds the `_pageController` member.
   late PageController _pageController;
+
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
 
+  /// يخزن العضو `_currentIndex`.
+  /// Holds the `_currentIndex` member.
   int _currentIndex = 0;
+
+  /// يخزن العضو `_editedImages`.
+  /// Holds the `_editedImages` member.
   List<File> _editedImages = [];
   final TextEditingController _captionController = TextEditingController();
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -53,6 +81,8 @@ class _ImagePreviewScreenState extends State<ImagePreviewScreen>
     _animationController.forward();
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _pageController.dispose();
@@ -61,6 +91,8 @@ class _ImagePreviewScreenState extends State<ImagePreviewScreen>
     super.dispose();
   }
 
+  /// ينفذ العملية `_editImage`.
+  /// Runs the `_editImage` operation.
   Future<void> _editImage(int index) async {
     HapticFeedback.lightImpact();
     // Read image bytes before building the route to avoid using 'await' in builder
@@ -84,6 +116,8 @@ class _ImagePreviewScreenState extends State<ImagePreviewScreen>
     }
   }
 
+  /// ينفذ العملية `_removeImage`.
+  /// Runs the `_removeImage` operation.
   void _removeImage(int index) {
     HapticFeedback.mediumImpact();
 
@@ -101,6 +135,8 @@ class _ImagePreviewScreenState extends State<ImagePreviewScreen>
     });
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -161,6 +197,8 @@ class _ImagePreviewScreenState extends State<ImagePreviewScreen>
     );
   }
 
+  /// ينفذ العملية `_buildTopBar`.
+  /// Runs the `_buildTopBar` operation.
   Widget _buildTopBar() {
     return ClipRect(
       child: BackdropFilter(
@@ -273,6 +311,8 @@ class _ImagePreviewScreenState extends State<ImagePreviewScreen>
     );
   }
 
+  /// ينفذ العملية `_buildThumbnails`.
+  /// Runs the `_buildThumbnails` operation.
   Widget _buildThumbnails() {
     if (_editedImages.length <= 1) return const SizedBox.shrink();
 
@@ -321,6 +361,8 @@ class _ImagePreviewScreenState extends State<ImagePreviewScreen>
     );
   }
 
+  /// ينفذ العملية `_buildBottomControls`.
+  /// Runs the `_buildBottomControls` operation.
   Widget _buildBottomControls() {
     return ClipRect(
       child: BackdropFilter(

@@ -3,17 +3,27 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
-/// ❌ Error State Widget
+/// واجهة خطأ بسيطة تستخدم في الشاشات التي تحتاج رسالة فشل واضحة وإجراء إعادة محاولة.
+/// Simple error surface for screens that need a clear failure message and a retry action.
 class ErrorStateWidget extends StatelessWidget {
+  /// الرسالة التي تشرح سبب الفشل أو ما الذي يجب أن يفعله المستخدم بعده.
+  /// Message that explains the failure or the next step the user should take.
   final String message;
+
+  /// استدعاء اختياري يُنفّذ عندما يضغط المستخدم زر إعادة المحاولة.
+  /// Optional callback executed when the user taps retry.
   final VoidCallback? onRetry;
 
+  /// ينشئ حالة خطأ جاهزة لإعادة الاستخدام داخل القوائم والصفحات والحوارات.
+  /// Creates a reusable error state for lists, pages, and dialogs.
   const ErrorStateWidget({
     super.key,
     required this.message,
     this.onRetry,
   });
 
+  /// يبني حالة الخطأ مع أيقونة مناسبة وزر إعادة محاولة اختياري.
+  /// Builds the error state with a matching icon and an optional retry button.
   @override
   Widget build(BuildContext context) {
     return Center(

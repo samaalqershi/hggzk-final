@@ -5,13 +5,23 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/chat_repository.dart';
 
-class CreateConversationUseCase implements UseCase<Conversation, CreateConversationParams> {
+/// يعرّف الكلاس `CreateConversationUseCase`.
+/// Describes the `CreateConversationUseCase` class.
+class CreateConversationUseCase
+    implements UseCase<Conversation, CreateConversationParams> {
+  /// يخزن العضو `repository`.
+  /// Holds the `repository` member.
   final ChatRepository repository;
 
+  /// ينشئ مثيلاً من `CreateConversationUseCase`.
+  /// Builds an instance of `CreateConversationUseCase`.
   CreateConversationUseCase(this.repository);
 
+  /// ينفذ العملية `call`.
+  /// Runs the `call` operation.
   @override
-  Future<Either<Failure, Conversation>> call(CreateConversationParams params) async {
+  Future<Either<Failure, Conversation>> call(
+      CreateConversationParams params) async {
     return await repository.createConversation(
       participantIds: params.participantIds,
       conversationType: params.conversationType,
@@ -22,13 +32,31 @@ class CreateConversationUseCase implements UseCase<Conversation, CreateConversat
   }
 }
 
+/// يعرّف الكلاس `CreateConversationParams`.
+/// Describes the `CreateConversationParams` class.
 class CreateConversationParams extends Equatable {
+  /// Holds the `participantIds` value.
+  /// العربية: يخزن القيمة `participantIds`.
   final List<String> participantIds;
+
+  /// يخزن العضو `conversationType`.
+  /// Holds the `conversationType` member.
   final String conversationType;
+
+  /// يخزن العضو `title`.
+  /// Holds the `title` member.
   final String? title;
+
+  /// يخزن العضو `description`.
+  /// Holds the `description` member.
   final String? description;
+
+  /// يخزن العضو `propertyId`.
+  /// Holds the `propertyId` member.
   final String? propertyId;
 
+  /// ينشئ مثيلاً من `CreateConversationParams`.
+  /// Builds an instance of `CreateConversationParams`.
   const CreateConversationParams({
     required this.participantIds,
     required this.conversationType,
@@ -37,12 +65,14 @@ class CreateConversationParams extends Equatable {
     this.propertyId,
   });
 
+  /// يعيد قيمة `props`.
+  /// Exposes the `props` value.
   @override
   List<Object?> get props => [
-    participantIds,
-    conversationType,
-    title,
-    description,
-    propertyId,
-  ];
+        participantIds,
+        conversationType,
+        title,
+        description,
+        propertyId,
+      ];
 }

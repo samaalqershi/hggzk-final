@@ -6,11 +6,28 @@ import '../../domain/entities/support_message.dart';
 import '../../domain/repositories/support_repository.dart';
 import '../models/support_message_model.dart';
 
+/// Implements the support repository by translating the domain message into
+/// the HTTP payload expected by the backend.
+///
+/// ينفذ مستودع الدعم عبر تحويل رسالة المجال إلى حمولة HTTP التي يتوقعها
+/// الخادم.
 class SupportRepositoryImpl implements SupportRepository {
+  /// HTTP client used to submit support requests.
+  ///
+  /// عميل HTTP المستخدم لإرسال طلبات الدعم.
   final ApiClient apiClient;
 
+  /// Wires the repository to the transport client responsible for the API
+  /// call.
+  ///
+  /// يربط المستودع بعميل النقل المسؤول عن استدعاء الـ API.
   SupportRepositoryImpl({required this.apiClient});
 
+  /// Converts the domain message into the backend payload and returns either
+  /// the parsed response data or a domain failure.
+  ///
+  /// يحول رسالة المجال إلى حمولة الخادم ثم يعيد البيانات المحللة أو فشلًا
+  /// في المجال.
   @override
   Future<Either<Failure, Map<String, dynamic>>> sendSupportMessage(
     SupportMessage message,

@@ -6,6 +6,7 @@ import '../repositories/daily_schedule_repository.dart';
 
 /// Use case لتحديث الإتاحة والتسعير
 class UpdateScheduleUseCase implements UseCase<int, UpdateScheduleParams> {
+  /// العربية: يخزن القيمة `repository`.
   final DailyScheduleRepository repository;
 
   UpdateScheduleUseCase(this.repository);

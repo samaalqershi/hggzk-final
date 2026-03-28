@@ -4,15 +4,30 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// العربية: يمثل العنصر `GuestSelectorWidget`.
 class GuestSelectorWidget extends StatefulWidget {
+  /// العربية: يخزن القيمة `label`.
   final String label;
+
+  /// العربية: يخزن القيمة `subtitle`.
   final String? subtitle;
+
+  /// العربية: يخزن القيمة `count`.
   final int count;
+
+  /// العربية: يخزن القيمة `minCount`.
   final int minCount;
+
+  /// العربية: يخزن القيمة `maxCount`.
   final int maxCount;
+
+  /// العربية: يعالج `Function`.
   final Function(int) onChanged;
+
+  /// العربية: يخزن القيمة `enabled`.
   final bool enabled;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `GuestSelectorWidget`.
   const GuestSelectorWidget({
     super.key,
     required this.label,
@@ -24,36 +39,46 @@ class GuestSelectorWidget extends StatefulWidget {
     this.enabled = true,
   });
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<GuestSelectorWidget> createState() => _GuestSelectorWidgetState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `GuestSelectorWidgetState`.
 class _GuestSelectorWidgetState extends State<GuestSelectorWidget>
     with TickerProviderStateMixin {
+  /// العربية: يخزن القيمة `increaseController`.
   late AnimationController _increaseController;
+
+  /// العربية: يخزن القيمة `decreaseController`.
   late AnimationController _decreaseController;
+
+  /// العربية: يخزن القيمة `numberController`.
   late AnimationController _numberController;
+
+  /// العربية: يخزن القيمة `numberScaleAnimation`.
   late Animation<double> _numberScaleAnimation;
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
-    
+
     _increaseController = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    
+
     _decreaseController = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    
+
     _numberController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    
+
     _numberScaleAnimation = Tween<double>(
       begin: 1.0,
       end: 1.08,
@@ -63,6 +88,7 @@ class _GuestSelectorWidgetState extends State<GuestSelectorWidget>
     ));
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _increaseController.dispose();
@@ -71,6 +97,7 @@ class _GuestSelectorWidgetState extends State<GuestSelectorWidget>
     super.dispose();
   }
 
+  /// العربية: يعالج `onIncrease`.
   void _onIncrease() {
     if (widget.enabled && widget.count < widget.maxCount) {
       HapticFeedback.selectionClick();
@@ -84,6 +111,7 @@ class _GuestSelectorWidgetState extends State<GuestSelectorWidget>
     }
   }
 
+  /// العربية: يعالج `onDecrease`.
   void _onDecrease() {
     if (widget.enabled && widget.count > widget.minCount) {
       HapticFeedback.selectionClick();
@@ -97,6 +125,7 @@ class _GuestSelectorWidgetState extends State<GuestSelectorWidget>
     }
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -186,6 +215,7 @@ class _GuestSelectorWidgetState extends State<GuestSelectorWidget>
     );
   }
 
+  /// العربية: يبني compact button.
   Widget _buildCompactButton({
     required IconData icon,
     VoidCallback? onPressed,
@@ -195,7 +225,7 @@ class _GuestSelectorWidgetState extends State<GuestSelectorWidget>
       animation: animationController,
       builder: (context, child) {
         final scale = 1.0 + (animationController.value * 0.1);
-        
+
         return Transform.scale(
           scale: scale,
           child: Material(

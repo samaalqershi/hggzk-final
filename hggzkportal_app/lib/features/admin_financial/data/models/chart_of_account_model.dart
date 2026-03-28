@@ -2,7 +2,6 @@
 
 import '../../domain/entities/chart_of_account.dart';
 
-/// 🏦 نموذج دليل الحسابات
 class ChartOfAccountModel extends ChartOfAccount {
   const ChartOfAccountModel({
     required super.id,
@@ -27,7 +26,6 @@ class ChartOfAccountModel extends ChartOfAccount {
     required super.createdAt,
     super.updatedAt,
   });
-
   factory ChartOfAccountModel.fromJson(Map<String, dynamic> json) {
     return ChartOfAccountModel(
       id: json['id']?.toString() ?? '',
@@ -55,15 +53,13 @@ class ChartOfAccountModel extends ChartOfAccount {
           : null,
       userId: json['userId']?.toString(),
       propertyId: json['propertyId']?.toString(),
-      createdAt: json['createdAt'] != null 
-          ? DateTime.parse(json['createdAt']) 
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
           : DateTime.now(),
-      updatedAt: json['updatedAt'] != null 
-          ? DateTime.parse(json['updatedAt']) 
-          : null,
+      updatedAt:
+          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -90,7 +86,7 @@ class ChartOfAccountModel extends ChartOfAccount {
 
   static AccountType _parseAccountType(dynamic value) {
     if (value == null) return AccountType.assets;
-    
+
     // Handle integer values (backend enum indices start at 1)
     if (value is int) {
       final index = value - 1; // Backend starts at 1, Flutter at 0
@@ -98,7 +94,7 @@ class ChartOfAccountModel extends ChartOfAccount {
         return AccountType.values[index];
       }
     }
-    
+
     // Handle string values
     if (value is String) {
       // Try to parse as number first
@@ -106,7 +102,7 @@ class ChartOfAccountModel extends ChartOfAccount {
       if (intValue != null) {
         return _parseAccountType(intValue);
       }
-      
+
       // Map backend string names to Flutter enum values
       final enumMap = <String, AccountType>{
         'Assets': AccountType.assets,
@@ -115,12 +111,12 @@ class ChartOfAccountModel extends ChartOfAccount {
         'Revenue': AccountType.revenue,
         'Expenses': AccountType.expenses,
       };
-      
+
       // Try exact match
       if (enumMap.containsKey(value)) {
         return enumMap[value]!;
       }
-      
+
       // Try case-insensitive match
       final lowerValue = value.toLowerCase();
       for (final entry in enumMap.entries) {
@@ -129,13 +125,13 @@ class ChartOfAccountModel extends ChartOfAccount {
         }
       }
     }
-    
+
     return AccountType.assets;
   }
 
   static AccountCategory _parseAccountCategory(dynamic value) {
     if (value == null) return AccountCategory.main;
-    
+
     // Handle integer values (backend enum indices start at 1)
     if (value is int) {
       final index = value - 1; // Backend starts at 1, Flutter at 0
@@ -143,7 +139,7 @@ class ChartOfAccountModel extends ChartOfAccount {
         return AccountCategory.values[index];
       }
     }
-    
+
     // Handle string values
     if (value is String) {
       // Try to parse as number first
@@ -151,18 +147,18 @@ class ChartOfAccountModel extends ChartOfAccount {
       if (intValue != null) {
         return _parseAccountCategory(intValue);
       }
-      
+
       // Map backend string names to Flutter enum values
       final enumMap = <String, AccountCategory>{
         'Main': AccountCategory.main,
         'Sub': AccountCategory.sub,
       };
-      
+
       // Try exact match
       if (enumMap.containsKey(value)) {
         return enumMap[value]!;
       }
-      
+
       // Try case-insensitive match
       final lowerValue = value.toLowerCase();
       for (final entry in enumMap.entries) {
@@ -171,13 +167,13 @@ class ChartOfAccountModel extends ChartOfAccount {
         }
       }
     }
-    
+
     return AccountCategory.main;
   }
 
   static AccountNature _parseAccountNature(dynamic value) {
     if (value == null) return AccountNature.debit;
-    
+
     // Handle integer values (backend enum indices start at 1)
     if (value is int) {
       final index = value - 1; // Backend starts at 1, Flutter at 0
@@ -185,7 +181,7 @@ class ChartOfAccountModel extends ChartOfAccount {
         return AccountNature.values[index];
       }
     }
-    
+
     // Handle string values
     if (value is String) {
       // Try to parse as number first
@@ -193,18 +189,18 @@ class ChartOfAccountModel extends ChartOfAccount {
       if (intValue != null) {
         return _parseAccountNature(intValue);
       }
-      
+
       // Map backend string names to Flutter enum values
       final enumMap = <String, AccountNature>{
         'Debit': AccountNature.debit,
         'Credit': AccountNature.credit,
       };
-      
+
       // Try exact match
       if (enumMap.containsKey(value)) {
         return enumMap[value]!;
       }
-      
+
       // Try case-insensitive match
       final lowerValue = value.toLowerCase();
       for (final entry in enumMap.entries) {
@@ -213,7 +209,7 @@ class ChartOfAccountModel extends ChartOfAccount {
         }
       }
     }
-    
+
     return AccountNature.debit;
   }
 }

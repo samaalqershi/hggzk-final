@@ -5,6 +5,7 @@ import 'daily_schedule.dart';
 /// يمثل مجموعة من الأيام (DailySchedule) لشهر كامل مع إحصائياته
 class MonthlySchedule extends Equatable {
   /// معرّف الوحدة
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
 
   /// السنة
@@ -44,24 +45,19 @@ class MonthlySchedule extends Equatable {
   int get totalDays => schedules.length;
 
   /// عدد الأيام المتاحة
-  int get availableDays =>
-      schedules.where((s) => s.isAvailable).length;
+  int get availableDays => schedules.where((s) => s.isAvailable).length;
 
   /// عدد الأيام المحجوزة
-  int get bookedDays =>
-      schedules.where((s) => s.isBooked).length;
+  int get bookedDays => schedules.where((s) => s.isBooked).length;
 
   /// عدد الأيام المحظورة
-  int get blockedDays =>
-      schedules.where((s) => s.isBlocked).length;
+  int get blockedDays => schedules.where((s) => s.isBlocked).length;
 
   /// عدد أيام الصيانة
-  int get maintenanceDays =>
-      schedules.where((s) => s.isMaintenance).length;
+  int get maintenanceDays => schedules.where((s) => s.isMaintenance).length;
 
   /// عدد الأيام في استخدام المالك
-  int get ownerUseDays =>
-      schedules.where((s) => s.isOwnerUse).length;
+  int get ownerUseDays => schedules.where((s) => s.isOwnerUse).length;
 
   /// نسبة الإشغال (%)
   double get occupancyRate {
@@ -78,9 +74,12 @@ class MonthlySchedule extends Equatable {
 
   /// متوسط السعر
   double get averagePrice {
-    final pricesSchedules = schedules.where((s) => s.priceAmount != null && s.priceAmount! > 0).toList();
+    final pricesSchedules = schedules
+        .where((s) => s.priceAmount != null && s.priceAmount! > 0)
+        .toList();
     if (pricesSchedules.isEmpty) return 0.0;
-    final total = pricesSchedules.fold<double>(0.0, (sum, s) => sum + (s.priceAmount ?? 0.0));
+    final total = pricesSchedules.fold<double>(
+        0.0, (sum, s) => sum + (s.priceAmount ?? 0.0));
     return total / pricesSchedules.length;
   }
 
@@ -88,9 +87,10 @@ class MonthlySchedule extends Equatable {
   DailySchedule? getScheduleForDate(DateTime date) {
     try {
       return schedules.firstWhere(
-        (s) => s.date.year == date.year &&
-               s.date.month == date.month &&
-               s.date.day == date.day,
+        (s) =>
+            s.date.year == date.year &&
+            s.date.month == date.month &&
+            s.date.day == date.day,
       );
     } catch (_) {
       return null;
@@ -104,10 +104,11 @@ class MonthlySchedule extends Equatable {
 
   /// الحصول على الجداول في فترة محددة
   List<DailySchedule> getSchedulesInRange(DateTime start, DateTime end) {
-    return schedules.where((s) =>
-      s.date.isAfter(start.subtract(const Duration(days: 1))) &&
-      s.date.isBefore(end.add(const Duration(days: 1)))
-    ).toList();
+    return schedules
+        .where((s) =>
+            s.date.isAfter(start.subtract(const Duration(days: 1))) &&
+            s.date.isBefore(end.add(const Duration(days: 1))))
+        .toList();
   }
 
   // ===== Methods =====

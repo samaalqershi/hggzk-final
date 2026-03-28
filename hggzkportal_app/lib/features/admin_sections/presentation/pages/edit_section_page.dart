@@ -15,6 +15,7 @@ import '../widgets/section_image_gallery.dart';
 import 'package:hggzkportal/injection_container.dart' as di;
 
 class EditSectionPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `sectionId`.
   final String sectionId;
 
   const EditSectionPage({
@@ -30,25 +31,33 @@ class _EditSectionPageState extends State<EditSectionPage>
     with TickerProviderStateMixin {
   // Gallery State
   final GlobalKey<SectionImageGalleryState> _galleryKey = GlobalKey();
-  List<SectionImage> _selectedImages = [];
+
   List<String> _selectedLocalImages = [];
+
   bool _isDataLoaded = false;
+
   bool _isNavigating = false;
+
   bool _isDisposed = false;
 
   // Store the bloc instances
   late final SectionFormBloc _formBloc;
+
   late final SectionImagesBloc _imagesBloc;
 
   // Animation Controllers
   late AnimationController _animationController;
+
   late AnimationController _glowController;
+
   late Animation<double> _fadeAnimation;
+
   late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
+
     _initializeAnimations();
 
     // Initialize the blocs
@@ -223,8 +232,8 @@ class _EditSectionPageState extends State<EditSectionPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -239,13 +248,13 @@ class _EditSectionPageState extends State<EditSectionPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -260,13 +269,13 @@ class _EditSectionPageState extends State<EditSectionPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -311,13 +320,13 @@ class _EditSectionPageState extends State<EditSectionPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryPurple.withOpacity(0.3),
-                    AppTheme.primaryViolet.withOpacity(0.2),
+                    AppTheme.primaryPurple.withValues(alpha: 0.3),
+                    AppTheme.primaryViolet.withValues(alpha: 0.2),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.primaryPurple.withOpacity(0.4),
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.4),
                 ),
               ),
               child: Row(
@@ -375,8 +384,8 @@ class _EditSectionPageState extends State<EditSectionPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
+                    AppTheme.error.withValues(alpha: 0.2),
+                    AppTheme.error.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -445,10 +454,10 @@ class _EditSectionPageState extends State<EditSectionPage>
           backgroundColor: Colors.transparent,
           child: Container(
             decoration: BoxDecoration(
-              color: AppTheme.darkCard.withOpacity(0.98),
+              color: AppTheme.darkCard.withValues(alpha: 0.98),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.2),
+                color: AppTheme.darkBorder.withValues(alpha: 0.2),
               ),
             ),
             padding: const EdgeInsets.all(12),
@@ -463,7 +472,6 @@ class _EditSectionPageState extends State<EditSectionPage>
                       images = state.images;
                       // Update selected images when loaded from server
                       if (!_isDataLoaded && images.isNotEmpty) {
-                        _selectedImages = images;
                         _isDataLoaded = true;
                       }
                     }
@@ -477,13 +485,12 @@ class _EditSectionPageState extends State<EditSectionPage>
                       maxVideos: 5,
                       initialImages: images,
                       onImagesChanged: (images) {
-                        setState(() {
-                          _selectedImages = images;
-                        });
+                        setState(() {});
                         // إذا كانت هناك صورة رئيسية محددة ضمن الصور، يتم تحديث الخلفية عند المستوى الدومين بواسطة الخلفية
                         // هنا نضمن إعادة التحميل بعد أي تغيير لتنعكس صورة رئيسية جديدة في الواجهة
                         try {
-                          _imagesBloc.add(RefreshSectionImagesEvent(sectionId: widget.sectionId));
+                          _imagesBloc.add(RefreshSectionImagesEvent(
+                              sectionId: widget.sectionId));
                         } catch (_) {}
                       },
                       onLocalImagesChanged: (paths) {

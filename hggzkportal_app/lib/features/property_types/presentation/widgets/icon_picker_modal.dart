@@ -5,8 +5,11 @@ import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 
 class IconPickerModal extends StatefulWidget {
+  /// العربية: يخزن القيمة `selectedIcon`.
   final String selectedIcon;
+
   final Function(String) onSelectIcon;
+
   final String? iconCategory;
 
   const IconPickerModal({
@@ -104,7 +107,9 @@ class IconPickerModal extends StatefulWidget {
 }
 
 class _IconPickerModalState extends State<IconPickerModal> {
+  /// العربية: يخزن القيمة `searchQuery`.
   String _searchQuery = '';
+
   String _selectedCategory = 'الكل';
 
   final Map<String, List<Map<String, dynamic>>> _iconCategories = {
@@ -234,13 +239,13 @@ class _IconPickerModalState extends State<IconPickerModal> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -269,13 +274,13 @@ class _IconPickerModalState extends State<IconPickerModal> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryBlue.withOpacity(0.1),
-            AppTheme.primaryPurple.withOpacity(0.05),
+            AppTheme.primaryBlue.withValues(alpha: 0.1),
+            AppTheme.primaryPurple.withValues(alpha: 0.05),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -334,10 +339,10 @@ class _IconPickerModalState extends State<IconPickerModal> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: AppTheme.darkSurface.withOpacity(0.5),
+          color: AppTheme.darkSurface.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -347,11 +352,11 @@ class _IconPickerModalState extends State<IconPickerModal> {
           decoration: InputDecoration(
             hintText: 'ابحث عن أيقونة...',
             hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             prefixIcon: Icon(
               Icons.search_rounded,
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             border: InputBorder.none,
           ),
@@ -386,13 +391,14 @@ class _IconPickerModalState extends State<IconPickerModal> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   gradient: isSelected ? AppTheme.primaryGradient : null,
-                  color:
-                      isSelected ? null : AppTheme.darkSurface.withOpacity(0.5),
+                  color: isSelected
+                      ? null
+                      : AppTheme.darkSurface.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: isSelected
-                        ? AppTheme.primaryBlue.withOpacity(0.5)
-                        : AppTheme.darkBorder.withOpacity(0.3),
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                        : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -436,7 +442,7 @@ class _IconPickerModalState extends State<IconPickerModal> {
             Icon(
               Icons.search_off_rounded,
               size: 64,
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 16),
             Text(
@@ -476,21 +482,21 @@ class _IconPickerModalState extends State<IconPickerModal> {
                   ? AppTheme.primaryGradient
                   : LinearGradient(
                       colors: [
-                        AppTheme.darkCard.withOpacity(0.5),
-                        AppTheme.darkCard.withOpacity(0.3),
+                        AppTheme.darkCard.withValues(alpha: 0.5),
+                        AppTheme.darkCard.withValues(alpha: 0.3),
                       ],
                     ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isSelected
-                    ? AppTheme.primaryBlue.withOpacity(0.5)
-                    : AppTheme.darkBorder.withOpacity(0.3),
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                    : AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -537,10 +543,10 @@ class _IconPickerModalState extends State<IconPickerModal> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.3),
+        color: AppTheme.darkSurface.withValues(alpha: 0.3),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -550,10 +556,10 @@ class _IconPickerModalState extends State<IconPickerModal> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),

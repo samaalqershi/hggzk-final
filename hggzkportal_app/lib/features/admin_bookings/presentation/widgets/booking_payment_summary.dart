@@ -19,15 +19,39 @@ import '../bloc/booking_details/booking_details_event.dart';
 import '../bloc/register_payment/register_payment_bloc.dart';
 import '../../../../injection_container.dart';
 
+/// تعرض ملخص المدفوعات للحجز مع ما تم دفعه والخدمات والمتبقي.
+/// Shows the booking payment summary with paid amounts, services, and remaining balance.
 class BookingPaymentSummary extends StatelessWidget {
+  /// بيانات الحجز الأساسية المستخدمة كمرجع للحساب والعرض.
+  /// Core booking data used as the reference for calculations and display.
   final Booking booking;
+
+  /// تفاصيل الحجز الموسعة عندما تكون محمّلة من الخادم.
+  /// Expanded booking details when loaded from the backend.
   final BookingDetails? bookingDetails;
+
+  /// قائمة الدفعات المرتبطة بالحجز.
+  /// Payments associated with the booking.
   final List<Payment> payments;
+
+  /// الخدمات الإضافية التي ترفع الإجمالي النهائي.
+  /// Extra services that affect the final total.
   final List<Service> services;
+
+  /// يستدعى عند طلب عرض الفاتورة.
+  /// Called when the invoice should be shown.
   final VoidCallback? onShowInvoice;
+
+  /// متحكم حالة تفاصيل الحجز المستخدم داخل الواجهة.
+  /// Booking-details state manager used by the UI.
   final BookingDetailsBloc? bookingDetailsBloc;
+
+  /// يحدد ما إذا كانت اللوحة تعرض حالة إعادة تحميل.
+  /// Indicates whether the summary is currently refreshing.
   final bool isRefreshing;
 
+  /// ينشئ لوحة الملخص مع المدخلات الأساسية والاختيارية.
+  /// Creates the summary card with its required and optional inputs.
   const BookingPaymentSummary({
     super.key,
     required this.booking,
@@ -40,6 +64,8 @@ class BookingPaymentSummary extends StatelessWidget {
   })  : payments = payments ?? const [],
         services = services ?? const [];
 
+  /// يبني لوحة الملخص مع الحسابات التفصيلية والصفوف المساندة.
+  /// Builds the summary panel with its detailed calculations and helper rows.
   @override
   Widget build(BuildContext context) {
     final effectivePayments = bookingDetails?.payments ?? payments;
@@ -53,7 +79,8 @@ class BookingPaymentSummary extends StatelessWidget {
 
     final detailsTotalMoney = bookingDetails?.booking.totalPrice;
     final fallbackTotalMoney = booking.totalPrice;
-    final currency = (detailsTotalMoney?.currency ?? fallbackTotalMoney.currency);
+    final currency =
+        (detailsTotalMoney?.currency ?? fallbackTotalMoney.currency);
 
     final hasValidDetailsTotal =
         detailsTotalMoney != null && detailsTotalMoney.amount > 0;
@@ -67,19 +94,21 @@ class BookingPaymentSummary extends StatelessWidget {
     final inferredTotalAmount = looksLikeBaseOnly
         ? (sourceTotalAmount + servicesTotal)
         : sourceTotalAmount;
-    final inferredBaseAmount =
-        (looksLikeBaseOnly ? sourceTotalAmount : (inferredTotalAmount - servicesTotal))
-            .clamp(0.0, double.infinity)
-            .toDouble();
+    final inferredBaseAmount = (looksLikeBaseOnly
+            ? sourceTotalAmount
+            : (inferredTotalAmount - servicesTotal))
+        .clamp(0.0, double.infinity)
+        .toDouble();
 
     final servicesTotalMoney = _createMoney(servicesTotal, currency);
     final bookingBaseMoney = _createMoney(inferredBaseAmount, currency);
     final totalPriceMoney = _createMoney(inferredTotalAmount, currency);
-    
+
     final totalPaidMoney =
         _calculateTotalPaidMoney(effectivePayments, totalPriceMoney.currency);
     final remainingMoney = _createMoney(
-        totalPriceMoney.amount - totalPaidMoney.amount, totalPriceMoney.currency);
+        totalPriceMoney.amount - totalPaidMoney.amount,
+        totalPriceMoney.currency);
     final isFullyPaid = remainingMoney.amount <= 0;
     final isCancelled = booking.status.name == 'cancelled';
 
@@ -88,7 +117,7 @@ class BookingPaymentSummary extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.shadowDark.withOpacity(0.1),
+            color: AppTheme.shadowDark.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -104,15 +133,15 @@ class BookingPaymentSummary extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.8),
-                  AppTheme.darkCard.withOpacity(0.6),
+                  AppTheme.darkCard.withValues(alpha: 0.8),
+                  AppTheme.darkCard.withValues(alpha: 0.6),
                 ],
               ),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: isFullyPaid
-                    ? AppTheme.success.withOpacity(0.3)
-                    : AppTheme.warning.withOpacity(0.3),
+                    ? AppTheme.success.withValues(alpha: 0.3)
+                    : AppTheme.warning.withValues(alpha: 0.3),
                 width: 1.5,
               ),
             ),
@@ -127,7 +156,8 @@ class BookingPaymentSummary extends StatelessWidget {
                   remainingMoney,
                 ),
                 if (effectiveServices.isNotEmpty)
-                  _buildServicesDetails(effectiveServices, totalPriceMoney.currency),
+                  _buildServicesDetails(
+                      effectiveServices, totalPriceMoney.currency),
                 if (effectivePayments.isNotEmpty)
                   _buildPaymentsList(effectivePayments),
                 _buildFooter(context, isFullyPaid, isCancelled),
@@ -139,6 +169,8 @@ class BookingPaymentSummary extends StatelessWidget {
     );
   }
 
+  /// يبني رأس الملخص الذي يوضح حالة السداد الحالية.
+  /// Builds the summary header that explains the current payment state.
   Widget _buildHeader(bool isFullyPaid) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -146,17 +178,17 @@ class BookingPaymentSummary extends StatelessWidget {
         gradient: LinearGradient(
           colors: isFullyPaid
               ? [
-                  AppTheme.success.withOpacity(0.15),
-                  AppTheme.success.withOpacity(0.05),
+                  AppTheme.success.withValues(alpha: 0.15),
+                  AppTheme.success.withValues(alpha: 0.05),
                 ]
               : [
-                  AppTheme.warning.withOpacity(0.15),
-                  AppTheme.warning.withOpacity(0.05),
+                  AppTheme.warning.withValues(alpha: 0.15),
+                  AppTheme.warning.withValues(alpha: 0.05),
                 ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
           ),
         ),
       ),
@@ -167,8 +199,14 @@ class BookingPaymentSummary extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: isFullyPaid
-                    ? [AppTheme.success, AppTheme.success.withOpacity(0.7)]
-                    : [AppTheme.warning, AppTheme.warning.withOpacity(0.7)],
+                    ? [
+                        AppTheme.success,
+                        AppTheme.success.withValues(alpha: 0.7)
+                      ]
+                    : [
+                        AppTheme.warning,
+                        AppTheme.warning.withValues(alpha: 0.7)
+                      ],
               ),
               borderRadius: BorderRadius.circular(12),
             ),
@@ -195,8 +233,8 @@ class BookingPaymentSummary extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: isFullyPaid
-                      ? AppTheme.success.withOpacity(0.1)
-                      : AppTheme.warning.withOpacity(0.1),
+                      ? AppTheme.success.withValues(alpha: 0.1)
+                      : AppTheme.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -214,6 +252,8 @@ class BookingPaymentSummary extends StatelessWidget {
     );
   }
 
+  /// يعرض تفاصيل الخدمات الإضافية التي دخلت في حساب الإجمالي.
+  /// Shows the extra services included in the total calculation.
   Widget _buildServicesDetails(List<Service> services, String currency) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -247,17 +287,18 @@ class BookingPaymentSummary extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           ...services.map((service) {
-            final unitPrice = Formatters.formatCurrency(service.price.amount, currency);
-            final totalPrice =
-                Formatters.formatCurrency(service.price.amount * service.quantity, currency);
+            final unitPrice =
+                Formatters.formatCurrency(service.price.amount, currency);
+            final totalPrice = Formatters.formatCurrency(
+                service.price.amount * service.quantity, currency);
             return Container(
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.darkBackground.withOpacity(0.25),
+                color: AppTheme.darkBackground.withValues(alpha: 0.25),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.15),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.15),
                 ),
               ),
               child: Column(
@@ -306,8 +347,8 @@ class BookingPaymentSummary extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       service.description,
-                      style:
-                          AppTextStyles.caption.copyWith(color: AppTheme.textMuted),
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppTheme.textMuted),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -321,6 +362,8 @@ class BookingPaymentSummary extends StatelessWidget {
     );
   }
 
+  /// يبني صفوف الملخص المالي التي توضح الأساس والخدمات والإجمالي والمتبقي.
+  /// Builds the financial summary rows for base, services, total, and remaining.
   Widget _buildSummary(
     Money bookingBase,
     Money servicesTotal,
@@ -372,19 +415,19 @@ class BookingPaymentSummary extends StatelessWidget {
               gradient: LinearGradient(
                 colors: hasRemaining
                     ? [
-                        AppTheme.warning.withOpacity(0.15),
-                        AppTheme.warning.withOpacity(0.05),
+                        AppTheme.warning.withValues(alpha: 0.15),
+                        AppTheme.warning.withValues(alpha: 0.05),
                       ]
                     : [
-                        AppTheme.success.withOpacity(0.15),
-                        AppTheme.success.withOpacity(0.05),
+                        AppTheme.success.withValues(alpha: 0.15),
+                        AppTheme.success.withValues(alpha: 0.05),
                       ],
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: hasRemaining
-                    ? AppTheme.warning.withOpacity(0.3)
-                    : AppTheme.success.withOpacity(0.3),
+                    ? AppTheme.warning.withValues(alpha: 0.3)
+                    : AppTheme.success.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -440,6 +483,8 @@ class BookingPaymentSummary extends StatelessWidget {
     );
   }
 
+  /// يبني صفًا واحدًا داخل الملخص المالي مع التسمية والقيمة واللون.
+  /// Builds a single financial summary row with label, value, and color.
   Widget _buildSummaryRow({
     required String label,
     required String value,
@@ -452,7 +497,7 @@ class BookingPaymentSummary extends StatelessWidget {
         Icon(
           icon,
           size: 18,
-          color: color.withOpacity(0.7),
+          color: color.withValues(alpha: 0.7),
         ),
         const SizedBox(width: 8),
         Text(
@@ -482,6 +527,8 @@ class BookingPaymentSummary extends StatelessWidget {
     );
   }
 
+  /// يعرض قائمة الدفعات المنفذة مع حالتها ووسيلة الدفع الخاصة بها.
+  /// Renders the executed payments list with status and payment method.
   Widget _buildPaymentsList(List<Payment> payments) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -502,6 +549,8 @@ class BookingPaymentSummary extends StatelessWidget {
     );
   }
 
+  /// يبني بطاقة دفعة واحدة مع المبلغ والطريقة والحالة.
+  /// Builds one payment card with amount, method, and status.
   Widget _buildPaymentItem(Payment payment) {
     final isSuccessful = payment.status == PaymentStatus.successful;
 
@@ -509,12 +558,12 @@ class BookingPaymentSummary extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.3),
+        color: AppTheme.darkBackground.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isSuccessful
-              ? AppTheme.success.withOpacity(0.2)
-              : AppTheme.error.withOpacity(0.2),
+              ? AppTheme.success.withValues(alpha: 0.2)
+              : AppTheme.error.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -524,8 +573,8 @@ class BookingPaymentSummary extends StatelessWidget {
             height: 36,
             decoration: BoxDecoration(
               color: isSuccessful
-                  ? AppTheme.success.withOpacity(0.1)
-                  : AppTheme.error.withOpacity(0.1),
+                  ? AppTheme.success.withValues(alpha: 0.1)
+                  : AppTheme.error.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -568,8 +617,8 @@ class BookingPaymentSummary extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: isSuccessful
-                      ? AppTheme.success.withOpacity(0.1)
-                      : AppTheme.error.withOpacity(0.1),
+                      ? AppTheme.success.withValues(alpha: 0.1)
+                      : AppTheme.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -587,14 +636,17 @@ class BookingPaymentSummary extends StatelessWidget {
     );
   }
 
-  Widget _buildFooter(BuildContext context, bool isFullyPaid, bool isCancelled) {
+  /// يبني التذييل الذي يربط الحالة المالية بإجراء المستخدم التالي.
+  /// Builds the footer that links the financial state to the next user action.
+  Widget _buildFooter(
+      BuildContext context, bool isFullyPaid, bool isCancelled) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.3),
+        color: AppTheme.darkBackground.withValues(alpha: 0.3),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
           ),
         ),
         borderRadius: const BorderRadius.only(
@@ -611,14 +663,14 @@ class BookingPaymentSummary extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.warning.withOpacity(0.8),
+                      AppTheme.warning.withValues(alpha: 0.8),
                       AppTheme.warning,
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.warning.withOpacity(0.3),
+                      color: AppTheme.warning.withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -666,7 +718,8 @@ class BookingPaymentSummary extends StatelessWidget {
                           ),
                         ).then((result) {
                           if (result == true) {
-                            bookingDetailsBloc!.add(const RefreshBookingDetailsEvent());
+                            bookingDetailsBloc!
+                                .add(const RefreshBookingDetailsEvent());
                           }
                         });
                       } else {
@@ -710,10 +763,10 @@ class BookingPaymentSummary extends StatelessWidget {
             child: Container(
               height: 44,
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.5),
+                color: AppTheme.darkCard.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 ),
               ),
               child: Material(
@@ -749,6 +802,8 @@ class BookingPaymentSummary extends StatelessWidget {
     );
   }
 
+  /// يحسب إجمالي ما دُفع مع توحيد العملة المستخدمة في العرض.
+  /// Calculates the total paid amount while normalizing the display currency.
   Money _calculateTotalPaidMoney(List<Payment> payments, String currency) {
     final paidAmount = payments
         .where((p) => p.status == PaymentStatus.successful)
@@ -757,6 +812,8 @@ class BookingPaymentSummary extends StatelessWidget {
     return _createMoney(paidAmount, currency);
   }
 
+  /// يختار الأيقونة المناسبة لطريقة الدفع المعروضة.
+  /// Chooses the icon that matches the displayed payment method.
   IconData _getPaymentMethodIcon(PaymentMethod method) {
     switch (method) {
       case PaymentMethod.cash:
@@ -770,6 +827,8 @@ class BookingPaymentSummary extends StatelessWidget {
     }
   }
 
+  /// ينشئ قيمة مالية موحدة من مبلغ خام وعملة محددة.
+  /// Creates a normalized money value from a raw amount and currency code.
   Money _createMoney(double amount, String currency) {
     return Money(
       amount: amount,
@@ -778,6 +837,8 @@ class BookingPaymentSummary extends StatelessWidget {
     );
   }
 
+  /// ينسق القيمة المالية للعرض داخل الواجهة.
+  /// Formats the money value for display in the UI.
   String _formatMoney(Money money) {
     if (money.formattedAmount.trim().isNotEmpty) {
       return money.formattedAmount;

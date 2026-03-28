@@ -10,18 +10,16 @@ import '../../../domain/usecases/disable_review_usecase.dart';
 
 part 'reviews_list_event.dart';
 part 'reviews_list_state.dart';
-
 class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
+  /// العربية: يخزن القيمة `getAllReviews`.
   final GetAllReviewsUseCase getAllReviews;
   final ApproveReviewUseCase approveReview;
   final DeleteReviewUseCase deleteReview;
   final DisableReviewUseCase disableReview;
-  
   List<Review> _allReviews = [];
   int _currentPageNumber = 1;
   int _currentPageSize = 20;
   bool _isLoadingMore = false;
-  
   ReviewsListBloc({
     required this.getAllReviews,
     required this.approveReview,
@@ -35,18 +33,18 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
     on<RefreshReviewsEvent>(_onRefreshReviews);
     on<DisableReviewEvent>(_onDisableReview);
   }
-  
   Future<void> _onLoadReviews(
     LoadReviewsEvent event,
     Emitter<ReviewsListState> emit,
   ) async {
-    final isLoadMore = state is ReviewsListLoaded && (event.pageNumber ?? 1) > 1;
+    final isLoadMore =
+        state is ReviewsListLoaded && (event.pageNumber ?? 1) > 1;
     if (!isLoadMore) {
       emit(ReviewsListLoading());
     } else {
       if (_isLoadingMore) return; // guard against duplicate triggers
       _isLoadingMore = true;
-      
+
       // 🎯 عرض حالة LoadingMore بدلاً من إخفاء المحتوى
       final current = state as ReviewsListLoaded;
       emit(ReviewsListLoadingMore(
@@ -58,8 +56,9 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
         stats: current.stats,
       ));
     }
-    
-    final nextPageNumber = event.pageNumber ?? (isLoadMore ? _currentPageNumber + 1 : 1);
+
+    final nextPageNumber =
+        event.pageNumber ?? (isLoadMore ? _currentPageNumber + 1 : 1);
     final nextPageSize = event.pageSize ?? _currentPageSize;
 
     final result = await getAllReviews(GetAllReviewsParams(
@@ -73,9 +72,10 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
       endDate: event.endDate,
       pageNumber: nextPageNumber,
       pageSize: nextPageSize,
-      includeStats: true, // Always include stats so UI is consistent across pages
+      includeStats:
+          true, // Always include stats so UI is consistent across pages
     ));
-    
+
     result.fold(
       (failure) {
         _isLoadingMore = false;
@@ -95,8 +95,10 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
           emit(ReviewsListLoaded(
             reviews: combined,
             filteredReviews: combined,
-            pendingCount: _computePendingCount(combined, stats ?? current.stats),
-            averageRating: _computeAverageRating(combined, stats ?? current.stats),
+            pendingCount:
+                _computePendingCount(combined, stats ?? current.stats),
+            averageRating:
+                _computeAverageRating(combined, stats ?? current.stats),
             stats: stats ?? current.stats,
             approvingReviewIds: current.approvingReviewIds,
           ));
@@ -117,7 +119,6 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
       },
     );
   }
-  
   Future<void> _onFilterReviews(
     FilterReviewsEvent event,
     Emitter<ReviewsListState> emit,
@@ -127,7 +128,8 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
 
       // If high-level filters that impact backend stats are provided (minRating or isPending),
       // refetch from server to update metadata. Keep search locally.
-      final bool requiresServerRefetch = event.minRating != null || event.isPending != null;
+      final bool requiresServerRefetch =
+          event.minRating != null || event.isPending != null;
       if (requiresServerRefetch) {
         emit(ReviewsListLoading());
         final result = await getAllReviews(GetAllReviewsParams(
@@ -147,14 +149,23 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
             // Apply only the text/response filters locally after refetch
             var filtered = _allReviews;
             if (event.searchQuery.isNotEmpty) {
-              filtered = filtered.where((review) =>
-                review.userName.toLowerCase().contains(event.searchQuery.toLowerCase()) ||
-                review.propertyName.toLowerCase().contains(event.searchQuery.toLowerCase()) ||
-                review.comment.toLowerCase().contains(event.searchQuery.toLowerCase())
-              ).toList();
+              filtered = filtered
+                  .where((review) =>
+                      review.userName
+                          .toLowerCase()
+                          .contains(event.searchQuery.toLowerCase()) ||
+                      review.propertyName
+                          .toLowerCase()
+                          .contains(event.searchQuery.toLowerCase()) ||
+                      review.comment
+                          .toLowerCase()
+                          .contains(event.searchQuery.toLowerCase()))
+                  .toList();
             }
             if (event.hasResponse != null) {
-              filtered = filtered.where((r) => r.hasResponse == event.hasResponse).toList();
+              filtered = filtered
+                  .where((r) => r.hasResponse == event.hasResponse)
+                  .toList();
             }
             final stats = _extractStats(page.metadata);
             emit(ReviewsListLoaded(
@@ -173,21 +184,28 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
       // Only local search/hasResponse filters; keep backend stats unchanged
       var filtered = _allReviews;
       if (event.searchQuery.isNotEmpty) {
-        filtered = filtered.where((review) =>
-          review.userName.toLowerCase().contains(event.searchQuery.toLowerCase()) ||
-          review.propertyName.toLowerCase().contains(event.searchQuery.toLowerCase()) ||
-          review.comment.toLowerCase().contains(event.searchQuery.toLowerCase())
-        ).toList();
+        filtered = filtered
+            .where((review) =>
+                review.userName
+                    .toLowerCase()
+                    .contains(event.searchQuery.toLowerCase()) ||
+                review.propertyName
+                    .toLowerCase()
+                    .contains(event.searchQuery.toLowerCase()) ||
+                review.comment
+                    .toLowerCase()
+                    .contains(event.searchQuery.toLowerCase()))
+            .toList();
       }
       if (event.hasResponse != null) {
-        filtered = filtered.where((r) => r.hasResponse == event.hasResponse).toList();
+        filtered =
+            filtered.where((r) => r.hasResponse == event.hasResponse).toList();
       }
       emit(currentState.copyWith(
         filteredReviews: filtered,
       ));
     }
   }
-  
   Future<void> _onApproveReview(
     ApproveReviewEvent event,
     Emitter<ReviewsListState> emit,
@@ -195,16 +213,18 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
     if (state is ReviewsListLoaded) {
       final currentState = state as ReviewsListLoaded;
       // Mark this review as approving
-      final Set<String> newApproving = Set<String>.from(currentState.approvingReviewIds)
-        ..add(event.reviewId);
+      final Set<String> newApproving =
+          Set<String>.from(currentState.approvingReviewIds)
+            ..add(event.reviewId);
       emit(currentState.copyWith(approvingReviewIds: newApproving));
 
       final result = await approveReview(event.reviewId);
-      
+
       result.fold(
         (failure) {
           // Remove from approving on failure and surface error
-          final Set<String> cleaned = Set<String>.from(newApproving)..remove(event.reviewId);
+          final Set<String> cleaned = Set<String>.from(newApproving)
+            ..remove(event.reviewId);
           emit(currentState.copyWith(approvingReviewIds: cleaned));
           emit(ReviewsListError(failure.message));
         },
@@ -232,9 +252,10 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
             }
             return review;
           }).toList();
-          
+
           _allReviews = updatedReviews;
-          final Set<String> cleaned = Set<String>.from(newApproving)..remove(event.reviewId);
+          final Set<String> cleaned = Set<String>.from(newApproving)
+            ..remove(event.reviewId);
           emit(currentState.copyWith(
             reviews: updatedReviews,
             filteredReviews: updatedReviews,
@@ -245,7 +266,6 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
       );
     }
   }
- 
   Future<void> _onDisableReview(
     DisableReviewEvent event,
     Emitter<ReviewsListState> emit,
@@ -294,23 +314,22 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
       );
     }
   }
-  
   Future<void> _onDeleteReview(
     DeleteReviewEvent event,
     Emitter<ReviewsListState> emit,
   ) async {
     if (state is ReviewsListLoaded) {
       final currentState = state as ReviewsListLoaded;
-      
+
       final result = await deleteReview(event.reviewId);
-      
+
       result.fold(
         (failure) => emit(ReviewsListError(failure.message)),
         (_) {
           final updatedReviews = currentState.reviews
               .where((r) => r.id != event.reviewId)
               .toList();
-          
+
           _allReviews = updatedReviews;
           emit(currentState.copyWith(
             reviews: updatedReviews,
@@ -322,14 +341,12 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
       );
     }
   }
-  
   Future<void> _onRefreshReviews(
     RefreshReviewsEvent event,
     Emitter<ReviewsListState> emit,
   ) async {
     add(LoadReviewsEvent());
   }
-  
   double _calculateAverageRating(List<Review> reviews) {
     if (reviews.isEmpty) return 0;
     final total = reviews.fold<double>(
@@ -338,7 +355,6 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
     );
     return total / reviews.length;
   }
-
   Map<String, dynamic>? _extractStats(Object? metadata) {
     if (metadata == null) return null;
     if (metadata is Map<String, dynamic>) return metadata;
@@ -347,7 +363,6 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
     }
     return null;
   }
-
   int _computePendingCount(List<Review> reviews, Map<String, dynamic>? stats) {
     final backendPending = stats != null ? stats['pendingReviews'] : null;
     if (backendPending is int) return backendPending;
@@ -357,8 +372,8 @@ class ReviewsListBloc extends Bloc<ReviewsListEvent, ReviewsListState> {
     }
     return reviews.where((r) => r.isPending).length;
   }
-
-  double _computeAverageRating(List<Review> reviews, Map<String, dynamic>? stats) {
+  double _computeAverageRating(
+      List<Review> reviews, Map<String, dynamic>? stats) {
     final backendAvg = stats != null ? stats['averageRating'] : null;
     if (backendAvg is num) return backendAvg.toDouble();
     if (backendAvg is String) {

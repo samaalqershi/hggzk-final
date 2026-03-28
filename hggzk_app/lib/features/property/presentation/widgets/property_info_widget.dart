@@ -4,29 +4,57 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/property_detail.dart';
 
+/// Expands the property description and supporting info blocks in the detail
+/// screen.
+/// يوسّع وصف العقار وكتل المعلومات الداعمة في شاشة التفاصيل.
 class PropertyInfoWidget extends StatefulWidget {
+  /// Property snapshot rendered by this section.
+  /// لقطة العقار المعروضة في هذا القسم.
   final PropertyDetail property;
 
+  /// Builds the animated property-info section.
+  /// ينشئ قسم معلومات العقار المتحرك.
   const PropertyInfoWidget({
     super.key,
     required this.property,
   });
 
+  /// Creates the widget state that drives description and grid animations.
+  /// ينشئ حالة العنصر التي تقود حركات الوصف والشبكة.
   @override
   State<PropertyInfoWidget> createState() => _PropertyInfoWidgetState();
 }
 
+/// Coordinates the expand, grid, and glow animations for the info section.
+/// ينسق حركات التوسيع والشبكة والتوهج في قسم المعلومات.
 class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
     with TickerProviderStateMixin {
+  /// Controls the description expand/collapse animation.
+  /// يتحكم في حركة توسيع الوصف أو طيه.
   late AnimationController _expandController;
+
+  /// Drives the entrance of the info grid.
+  /// يقود ظهور شبكة المعلومات.
   late AnimationController _gridController;
+
+  /// Repeats the ambient glow effect behind the section.
+  /// يكرر تأثير التوهج المحيط خلف القسم.
   late AnimationController _glowController;
 
+  /// Animation that mirrors the expanded description height.
+  /// حركة تعكس ارتفاع الوصف عند التوسيع.
   late Animation<double> _expandAnimation;
+
+  /// Animation that reveals the info grid with a gentle delay.
+  /// حركة تكشف شبكة المعلومات بتأخير لطيف.
   late Animation<double> _gridAnimation;
 
+  /// Tracks whether the description is fully expanded.
+  /// يتتبع ما إذا كان الوصف موسعًا بالكامل.
   bool _isDescriptionExpanded = false;
 
+  /// Prepares the widget state before the first frame.
+  /// يجهز حالة العنصر قبل الإطار الأول.
   @override
   void initState() {
     super.initState();
@@ -34,6 +62,8 @@ class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
     _startAnimations();
   }
 
+  /// Sets up the animation controllers and tweens used by the section.
+  /// يهيئ متحكمات وحركات القسم المستخدمة في العرض.
   void _initializeAnimations() {
     _expandController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -64,6 +94,8 @@ class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
     ));
   }
 
+  /// Starts the delayed entrance animation for the info grid.
+  /// يبدأ حركة الظهور المؤجلة لشبكة المعلومات.
   void _startAnimations() {
     Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted) {
@@ -72,6 +104,8 @@ class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
     });
   }
 
+  /// Releases the animation controllers owned by the widget.
+  /// يحرر متحكمات الحركة المملوكة للعنصر.
   @override
   void dispose() {
     _expandController.dispose();
@@ -80,6 +114,8 @@ class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
     super.dispose();
   }
 
+  /// Builds the property info section with description and quick facts.
+  /// يبني قسم معلومات العقار مع الوصف والحقائق السريعة.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -102,6 +138,8 @@ class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
     );
   }
 
+  /// Builds the futuristic section title.
+  /// العربية: يبني futuristic section title.
   Widget _buildFuturisticSectionTitle(String title, IconData icon) {
     return Row(
       children: [
@@ -136,6 +174,8 @@ class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
     );
   }
 
+  /// Builds the futuristic expandable text.
+  /// العربية: يبني futuristic expandable text.
   Widget _buildFuturisticExpandableText() {
     return AnimatedBuilder(
       animation: _expandAnimation,
@@ -236,6 +276,8 @@ class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
     );
   }
 
+  /// Builds the futuristic info grid.
+  /// العربية: يبني futuristic info grid.
   Widget _buildFuturisticInfoGrid() {
     final items = [
       _InfoItem(
@@ -289,6 +331,8 @@ class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
     );
   }
 
+  /// Builds the futuristic info card.
+  /// العربية: يبني futuristic info card.
   Widget _buildFuturisticInfoCard(_InfoItem item, int index) {
     return AnimatedBuilder(
       animation: _glowController,
@@ -363,6 +407,8 @@ class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
     );
   }
 
+  /// Builds the futuristic owner info.
+  /// العربية: يبني futuristic owner info.
   Widget _buildFuturisticOwnerInfo() {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -475,12 +521,27 @@ class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
   }
 }
 
+/// Describes the InfoItem type used in the property feature.
+/// العربية: يمثل `InfoItem`.
 class _InfoItem {
+  /// Keeps the icon value available to this object.
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
+
+  /// Keeps the label value available to this object.
+  /// العربية: يخزن القيمة `label`.
   final String label;
+
+  /// Keeps the value value available to this object.
+  /// العربية: يخزن القيمة `value`.
   final String value;
+
+  /// Keeps the color value available to this object.
+  /// العربية: يخزن القيمة `color`.
   final Color color;
 
+  /// Constructs the InfoItem value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `InfoItem`.
   _InfoItem({
     required this.icon,
     required this.label,

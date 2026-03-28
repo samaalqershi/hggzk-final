@@ -2,7 +2,9 @@ import 'package:equatable/equatable.dart';
 
 class UserLifetimeStats extends Equatable {
   final int totalNightsStayed;
+
   final double totalMoneySpent;
+
   final String? favoriteCity;
 
   const UserLifetimeStats({

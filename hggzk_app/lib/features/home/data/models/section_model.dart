@@ -5,18 +5,32 @@ import '../../../../core/enums/section_type_enum.dart';
 import '../../../../core/enums/section_target_enum.dart';
 import 'dart:convert';
 
+/// يمثل القسم كما يصل من الخادم قبل أن يُحوَّل إلى كيان مجال مناسب
+/// للاستخدام داخل الـ bloc والواجهة.
+/// Represents a section exactly as it arrives from the backend before being
+/// converted into the domain entity used by blocs and the UI.
 class SectionModel {
   final String id;
-  // UI type parsed directly from backend type string when it matches UI naming (backward-compat)
+
+  /// النوع الأصلي القادم من الخادم والذي نحتفظ به قبل إسقاطه على نوع العرض.
+  /// Original backend type retained before mapping it into a UI-facing type.
   final SectionType type;
   final int displayOrder;
   final SectionTarget target;
   final bool isActive;
 
-  // Backend-rich fields
-  final String backendType; // e.g., Featured, Discounted, Category, ...
-  final String? contentType; // Properties | Units | Mixed
-  final String? displayStyle; // Grid | List | Carousel | Map
+  /// القيمة النصية الخام القادمة من الخادم قبل تطبيق أي تحويلات.
+  /// Raw textual type received from the backend before applying presentation
+  /// mapping.
+  final String backendType;
+
+  /// فئة المحتوى التي يقدمها القسم مثل العقارات أو الوحدات.
+  /// Content family hosted by the section, such as properties or units.
+  final String? contentType;
+
+  /// أسلوب العرض المقترح لهذا القسم مثل الشبكة أو القائمة.
+  /// Suggested rendering style for the section, such as grid or list.
+  final String? displayStyle;
   final String? name;
   final String? title;
   final String? subtitle;
@@ -25,7 +39,10 @@ class SectionModel {
   final int? columnsCount;
   final int? itemsToShow;
   final int? homeItemsCount;
-  final String? categoryClass; // ClassA | ClassB | ClassC | ClassD
+
+  /// تصنيف داخلي يستخدم لتجميع الأقسام المتشابهة ومعالجتها كفئة واحدة.
+  /// Internal grouping label used to cluster similar sections into one family.
+  final String? categoryClass;
   final String? icon;
   final String? colorTheme;
   final String? backgroundImage;
@@ -42,8 +59,11 @@ class SectionModel {
   final String? requiresPermission;
   final DateTime? startDate;
   final DateTime? endDate;
-  final String? metadata; // JSON string
 
+  /// بيانات JSON إضافية قد تحمل إعدادات عرض أو قواعد خاصة بالقسم.
+  /// Extra JSON metadata that may carry presentation settings or special rules
+  /// for the section.
+  final String? metadata;
   const SectionModel({
     required this.id,
     required this.type,
@@ -81,14 +101,20 @@ class SectionModel {
     this.metadata,
   });
 
+  /// يبني النموذج من JSON مع التسامح مع اختلافات الخادم في أسماء الحقول
+  /// وأنواع القيم.
+  /// Builds the model from JSON while tolerating backend variations in field
+  /// names and value types.
   factory SectionModel.fromJson(Map<String, dynamic> json) {
     String asString(dynamic v) => v?.toString() ?? '';
-    int parseInt(dynamic v, int def) => v is int ? v : int.tryParse(asString(v)) ?? def;
+    int parseInt(dynamic v, int def) =>
+        v is int ? v : int.tryParse(asString(v)) ?? def;
     double? parseDouble(dynamic v) {
       if (v == null) return null;
       if (v is num) return v.toDouble();
       return double.tryParse(asString(v));
     }
+
     DateTime? parseDate(dynamic v) {
       if (v == null || asString(v).isEmpty) return null;
       return DateTime.tryParse(asString(v));
@@ -109,20 +135,33 @@ class SectionModel {
       id: asString(json['id']),
       type: SectionTypeExtension.tryFromString(rawType) ?? SectionType.grid,
       displayOrder: parseInt(json['displayOrder'] ?? json['order'], 0),
-      target: SectionTargetBackend.tryParse(targetStr) ?? SectionTarget.properties,
+      target:
+          SectionTargetBackend.tryParse(targetStr) ?? SectionTarget.properties,
       isActive: parsedIsActive,
       backendType: rawType,
-      contentType: asString(json['contentType']).isEmpty ? null : asString(json['contentType']),
-      displayStyle: asString(json['displayStyle']).isEmpty ? null : asString(json['displayStyle']),
+      contentType: asString(json['contentType']).isEmpty
+          ? null
+          : asString(json['contentType']),
+      displayStyle: asString(json['displayStyle']).isEmpty
+          ? null
+          : asString(json['displayStyle']),
       name: json['name']?.toString(),
       title: json['title']?.toString(),
       subtitle: json['subtitle']?.toString(),
       description: json['description']?.toString(),
       shortDescription: json['shortDescription']?.toString(),
-      columnsCount: json['columnsCount'] == null ? null : parseInt(json['columnsCount'], 2),
-      itemsToShow: json['itemsToShow'] == null ? null : parseInt(json['itemsToShow'], 10),
-      homeItemsCount: json['homeItemsCount'] == null ? null : parseInt(json['homeItemsCount'], 0),
-      categoryClass: asString(json['categoryClass']).isEmpty ? null : asString(json['categoryClass']),
+      columnsCount: json['columnsCount'] == null
+          ? null
+          : parseInt(json['columnsCount'], 2),
+      itemsToShow: json['itemsToShow'] == null
+          ? null
+          : parseInt(json['itemsToShow'], 10),
+      homeItemsCount: json['homeItemsCount'] == null
+          ? null
+          : parseInt(json['homeItemsCount'], 0),
+      categoryClass: asString(json['categoryClass']).isEmpty
+          ? null
+          : asString(json['categoryClass']),
       icon: json['icon']?.toString(),
       colorTheme: json['colorTheme']?.toString(),
       backgroundImage: json['backgroundImage']?.toString(),
@@ -134,8 +173,12 @@ class SectionModel {
       minPrice: parseDouble(json['minPrice']),
       maxPrice: parseDouble(json['maxPrice']),
       minRating: parseDouble(json['minRating']),
-      isVisibleToGuests: json['isVisibleToGuests'] is bool ? json['isVisibleToGuests'] as bool : null,
-      isVisibleToRegistered: json['isVisibleToRegistered'] is bool ? json['isVisibleToRegistered'] as bool : null,
+      isVisibleToGuests: json['isVisibleToGuests'] is bool
+          ? json['isVisibleToGuests'] as bool
+          : null,
+      isVisibleToRegistered: json['isVisibleToRegistered'] is bool
+          ? json['isVisibleToRegistered'] as bool
+          : null,
       requiresPermission: json['requiresPermission']?.toString(),
       startDate: parseDate(json['startDate']),
       endDate: parseDate(json['endDate']),
@@ -143,6 +186,10 @@ class SectionModel {
     );
   }
 
+  /// يحول النموذج إلى JSON مختصر يحتوي الحقول الأساسية اللازمة لإعادة الإرسال
+  /// أو التخزين.
+  /// Converts the model into a compact JSON payload that keeps the essential
+  /// fields needed for storage or retransmission.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -163,6 +210,9 @@ class SectionModel {
     };
   }
 
+  /// يفك `metadata` إلى خريطة قابلة للاستخدام عندما تكون السلسلة JSON صحيحة.
+  /// Decodes `metadata` into a usable map when the stored string contains
+  /// valid JSON.
   Map<String, dynamic>? get metadataJson {
     if (metadata == null || metadata!.trim().isEmpty) return null;
     try {
@@ -174,13 +224,19 @@ class SectionModel {
     }
   }
 
+  /// يشتق نوع العرض النهائي الذي يجب أن تعتمد عليه طبقة العرض بعد الجمع بين
+  /// بيانات الـ metadata والقواعد الافتراضية.
+  /// Derives the final UI type the presentation layer should use after
+  /// combining metadata hints with fallback rules.
   SectionType _computeUiType() {
     // 1) Explicit UI type in metadata (grid / bigCards / list)
     final uiTypeStr = metadataJson?['uiType']?.toString();
-    final byMeta = uiTypeStr == null ? null : SectionTypeExtension.tryFromString(uiTypeStr);
+    final byMeta = uiTypeStr == null
+        ? null
+        : SectionTypeExtension.tryFromString(uiTypeStr);
     if (byMeta != null) return byMeta;
 
-    // 2) Heuristics بسيطة حسب displayStyle
+    // 2) Simple heuristics based on displayStyle.
     final ds = (displayStyle ?? '').toLowerCase();
 
     if (ds == 'grid') {
@@ -188,7 +244,7 @@ class SectionModel {
     }
 
     if (ds == 'carousel') {
-      // العروض الدائرية نعرضها عادةً كـ Big Cards
+      // Circular carousels are usually rendered as big cards.
       return SectionType.bigCards;
     }
 
@@ -196,10 +252,13 @@ class SectionModel {
       return SectionType.list;
     }
 
-    // 3) Fallback عام
+    // 3) Safe fallback.
     return SectionType.grid;
   }
 
+  /// يحول النموذج الخام إلى كيان المجال الذي تتعامل معه طبقات الأعمال والعرض.
+  /// Converts the raw model into the domain entity consumed by business and
+  /// presentation layers.
   domain.Section toEntity() => domain.Section(
         id: id,
         type: type,
@@ -207,7 +266,7 @@ class SectionModel {
         displayOrder: displayOrder,
         target: target,
         isActive: isActive,
-        // Optional rich fields
+        // Optional rich fields.
         name: name,
         title: title,
         subtitle: subtitle,
@@ -221,13 +280,30 @@ class SectionModel {
       );
 }
 
+/// يمثل عنصر الربط بين القسم ومحتواه الفعلي حتى نعرف أي عقار أو وحدة يجب
+/// عرضه وبأي ترتيب داخل القسم.
+/// Represents the linkage between a section and its actual content so we know
+/// which property or unit should be shown and in what order.
 class SectionItemModel {
+  /// المعرّف الثابت لعنصر القسم.
+  /// Stable identifier for the section item.
   final String id;
-  final String sectionId;
-  final String? propertyId;
-  final String? unitId;
-  final int sortOrder;
 
+  /// معرّف القسم الأب الذي ينتمي إليه هذا العنصر.
+  /// Identifier of the parent section this item belongs to.
+  final String sectionId;
+
+  /// معرّف العقار عندما يشير هذا العنصر إلى عقار.
+  /// Property identifier when this item points to a property.
+  final String? propertyId;
+
+  /// معرّف الوحدة عندما يشير هذا العنصر إلى وحدة.
+  /// Unit identifier when this item points to a unit.
+  final String? unitId;
+
+  /// ترتيب العرض داخل القسم نفسه.
+  /// Display order within the section.
+  final int sortOrder;
   const SectionItemModel({
     required this.id,
     required this.sectionId,
@@ -236,6 +312,9 @@ class SectionItemModel {
     required this.sortOrder,
   });
 
+  /// ينشئ العنصر من JSON ويطبّع القيم إلى الشكل الذي تتوقعه طبقة المجال.
+  /// Builds the item from JSON and normalizes values into the shape expected
+  /// by the domain layer.
   factory SectionItemModel.fromJson(Map<String, dynamic> json) {
     return SectionItemModel(
       id: json['id']?.toString() ?? '',
@@ -248,6 +327,8 @@ class SectionItemModel {
     );
   }
 
+  /// يحول العنصر إلى JSON جاهز للنقل أو التخزين.
+  /// Converts the item into JSON ready for transport or storage.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -258,6 +339,8 @@ class SectionItemModel {
     };
   }
 
+  /// يحول العنصر إلى كيان المجال الذي تتعامل معه الطبقات العليا.
+  /// Converts the item into the domain entity used by upper layers.
   domain.SectionItem toEntity() => domain.SectionItem(
         id: id,
         sectionId: sectionId,

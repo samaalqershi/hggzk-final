@@ -1,7 +1,15 @@
 import '../../../../../core/enums/booking_status.dart';
 import '../../domain/entities/booking.dart';
 
+/// Adapts booking payloads from the backend into the canonical booking entity
+/// used by the portal.
+///
+/// يكيّف بيانات الحجز القادمة من الخادم إلى الكيان القياسي الذي تعتمد عليه
+/// البوابة.
 class BookingModel extends Booking {
+  /// Creates the immutable booking snapshot used throughout booking flows.
+  ///
+  /// ينشئ لقطة الحجز غير القابلة للتعديل المستخدمة في جميع تدفقات الحجز.
   const BookingModel({
     required super.id,
     required super.userId,
@@ -31,18 +39,23 @@ class BookingModel extends Booking {
     super.paymentStatus,
   });
 
+  /// Reads booking records from several backend shapes and normalizes pricing,
+  /// status, and timestamp fields before they reach the UI.
+  ///
+  /// تقرأ هذه الدالة سجلات الحجز من أكثر من صيغة للـ backend ثم توحد
+  /// السعر والحالة والطوابع الزمنية قبل وصولها إلى الواجهة.
   factory BookingModel.fromJson(Map<String, dynamic> json) {
-    // معالجة السعر الإجمالي من مصادر متعددة
+    // Price can arrive as a nested money object, a raw amount, or a flat
+    // totalAmount field depending on the endpoint.
     Money parsedTotalPrice;
     final totalPriceField = json['totalPrice'];
     final String currency = json['currency']?.toString() ?? 'YER';
-    
+
     if (totalPriceField is Map) {
-      // إذا كان totalPrice عبارة عن Map كامل
-      parsedTotalPrice = MoneyModel.fromJson(Map<String, dynamic>.from(totalPriceField));
+      parsedTotalPrice =
+          MoneyModel.fromJson(Map<String, dynamic>.from(totalPriceField));
     } else if (json['totalAmount'] != null) {
-      // إذا كان totalAmount متوفر كرقم
-      final double amount = (json['totalAmount'] is num) 
+      final double amount = (json['totalAmount'] is num)
           ? (json['totalAmount'] as num).toDouble()
           : double.tryParse(json['totalAmount'].toString()) ?? 0.0;
       parsedTotalPrice = MoneyModel(
@@ -51,7 +64,6 @@ class BookingModel extends Booking {
         formattedAmount: '$currency ${amount.toStringAsFixed(2)}',
       );
     } else if (totalPriceField is num) {
-      // إذا كان totalPrice رقم مباشر
       final double amount = totalPriceField.toDouble();
       parsedTotalPrice = MoneyModel(
         amount: amount,
@@ -59,20 +71,23 @@ class BookingModel extends Booking {
         formattedAmount: '$currency ${amount.toStringAsFixed(2)}',
       );
     } else {
-      // قيمة افتراضية
       parsedTotalPrice = MoneyModel(
         amount: 0.0,
         currency: currency,
         formattedAmount: '$currency 0.00',
       );
     }
-    
+
     return BookingModel(
       id: json['id']?.toString() ?? '',
       userId: json['userId']?.toString() ?? '',
       unitId: json['unitId']?.toString() ?? '',
-      checkIn: DateTime.parse(json['checkIn'] ?? json['checkInDate'] ?? DateTime.now().toIso8601String()),
-      checkOut: DateTime.parse(json['checkOut'] ?? json['checkOutDate'] ?? DateTime.now().toIso8601String()),
+      checkIn: DateTime.parse(json['checkIn'] ??
+          json['checkInDate'] ??
+          DateTime.now().toIso8601String()),
+      checkOut: DateTime.parse(json['checkOut'] ??
+          json['checkOutDate'] ??
+          DateTime.now().toIso8601String()),
       guestsCount: json['guestsCount'] ?? json['totalGuests'] ?? 1,
       totalPrice: parsedTotalPrice,
       status: _parseBookingStatus(json['status']),
@@ -108,6 +123,10 @@ class BookingModel extends Booking {
     );
   }
 
+  /// Serializes the booking back into the API contract expected by admin
+  /// workflows.
+  ///
+  /// يعيد الحجز إلى عقد الـ API المتوقع في تدفقات الإدارة.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -139,6 +158,10 @@ class BookingModel extends Booking {
     };
   }
 
+  /// Normalizes booking status labels that may arrive from different backend
+  /// services.
+  ///
+  /// يوحد أسماء حالات الحجز التي قد تأتي من خدمات خلفية مختلفة.
   static BookingStatus _parseBookingStatus(dynamic status) {
     if (status == null) return BookingStatus.pending;
 
@@ -160,6 +183,10 @@ class BookingModel extends Booking {
     }
   }
 
+  /// Rebuilds the model from an existing booking entity without re-parsing the
+  /// source payload.
+  ///
+  /// يعيد إنشاء النموذج من كيان الحجز نفسه دون إعادة تحليل الحمولة الأصلية.
   factory BookingModel.fromEntity(Booking entity) {
     return BookingModel(
       id: entity.id,
@@ -192,14 +219,25 @@ class BookingModel extends Booking {
   }
 }
 
-/// 💰 Model للمبلغ المالي
+/// Concrete money model used when the booking API returns or expects a typed
+/// money object.
+///
+/// نموذج مالي فعلي يستخدم عندما تعيد الواجهة الخلفية كائنًا ماليًا أو تتوقعه.
 class MoneyModel extends Money {
+  /// Creates the immutable money value used by booking totals.
+  ///
+  /// ينشئ القيمة المالية غير القابلة للتعديل المستخدمة في إجماليات الحجز.
   const MoneyModel({
     required super.amount,
     required super.currency,
     required super.formattedAmount,
   });
 
+  /// Parses a backend money object and preserves the formatted string if the
+  /// server already provided one.
+  ///
+  /// يحلل كائن المال القادم من الخادم مع الحفاظ على النص المنسق إذا كان
+  /// الخادم قد وفره مسبقًا.
   factory MoneyModel.fromJson(Map<String, dynamic> json) {
     return MoneyModel(
       amount: (json['amount'] ?? 0).toDouble(),
@@ -209,6 +247,9 @@ class MoneyModel extends Money {
     );
   }
 
+  /// Serializes the money snapshot using the API field names.
+  ///
+  /// يعيد لقطة المال باستخدام أسماء الحقول المعتمدة في الـ API.
   Map<String, dynamic> toJson() {
     return {
       'amount': amount,
@@ -217,6 +258,10 @@ class MoneyModel extends Money {
     };
   }
 
+  /// Converts a domain-level money object into the model variant used by the
+  /// data layer.
+  ///
+  /// يحول كائن المال من طبقة المجال إلى النسخة المستخدمة في طبقة البيانات.
   factory MoneyModel.fromEntity(Money entity) {
     return MoneyModel(
       amount: entity.amount,

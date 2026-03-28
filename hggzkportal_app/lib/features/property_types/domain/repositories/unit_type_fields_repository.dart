@@ -3,6 +3,7 @@ import '../../../../core/error/failures.dart';
 import '../entities/unit_type_field.dart';
 
 abstract class UnitTypeFieldsRepository {
+  /// العربية: يعيد fields by unit type.
   Future<Either<Failure, List<UnitTypeField>>> getFieldsByUnitType({
     required String unitTypeId,
     String? searchTerm,
@@ -12,9 +13,9 @@ abstract class UnitTypeFieldsRepository {
     bool? isForUnits,
     String? category,
   });
-  
+
   Future<Either<Failure, UnitTypeField>> getFieldById(String fieldId);
-  
+
   Future<Either<Failure, String>> createField({
     required String unitTypeId,
     required String fieldTypeId,
@@ -34,7 +35,7 @@ abstract class UnitTypeFieldsRepository {
     required bool isPrimaryFilter,
     required int priority,
   });
-  
+
   Future<Either<Failure, bool>> updateField({
     required String fieldId,
     String? fieldTypeId,
@@ -54,6 +55,6 @@ abstract class UnitTypeFieldsRepository {
     bool? isPrimaryFilter,
     int? priority,
   });
-  
+
   Future<Either<Failure, bool>> deleteField(String fieldId);
 }

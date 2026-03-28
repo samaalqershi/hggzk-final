@@ -5,8 +5,15 @@ import '../../domain/entities/audit_log.dart';
 
 part 'audit_log_model.g.dart';
 
+/// يمثل الشكل البرمجي لسجل التدقيق كما يمر بين الـ API وكيان الدومين،
+/// مع دعم مباشر للتوليد الآلي لـ JSON.
+/// Represents the programmatic shape of an audit log as it flows between the
+/// API and the domain entity, with direct JSON generation support.
 @JsonSerializable()
 class AuditLogModel extends AuditLog {
+  /// ينشئ سجل تدقيق كاملًا مع كل البيانات اللازمة للمراجعة والتتبع.
+  /// Creates a complete audit log with all data needed for review and
+  /// tracing.
   const AuditLogModel({
     required String id,
     required String tableName,
@@ -39,11 +46,23 @@ class AuditLogModel extends AuditLog {
           isSlowOperation: isSlowOperation,
         );
 
+  /// يبني نموذج السجل من خريطة JSON القادمة من الخادم أو من التخزين
+  /// المحلي.
+  /// Builds the log model from a JSON map received from the backend or local
+  /// storage.
   factory AuditLogModel.fromJson(Map<String, dynamic> json) =>
       _$AuditLogModelFromJson(json);
 
+  /// يحول السجل إلى JSON بحيث يمكن إرساله أو تخزينه كنسخة قابلة
+  /// لإعادة البناء.
+  /// Converts the log into JSON so it can be sent or stored as a rebuildable
+  /// snapshot.
   Map<String, dynamic> toJson() => _$AuditLogModelToJson(this);
 
+  /// يبني نموذج بيانات من كيان الدومين عندما تحتاج طبقة البيانات إلى
+  /// نسخة قابلة للتحويل.
+  /// Builds a data model from the domain entity when the data layer needs a
+  /// transport-ready copy.
   factory AuditLogModel.fromEntity(AuditLog entity) {
     return AuditLogModel(
       id: entity.id,

@@ -5,6 +5,7 @@ import '../entities/policy.dart';
 
 abstract class PoliciesRepository {
   /// إنشاء سياسة جديدة
+  /// العربية: ينشئ policy.
   Future<Either<Failure, String>> createPolicy({
     required String propertyId,
     required PolicyType type,
@@ -14,7 +15,6 @@ abstract class PoliciesRepository {
     bool requireFullPaymentBeforeConfirmation = false,
     double minimumDepositPercentage = 0.0,
     int minHoursBeforeCheckIn = 0,
-
     bool? cancellationFreeCancel,
     bool? cancellationFullRefund,
     int? cancellationRefundPercentage,
@@ -22,7 +22,6 @@ abstract class PoliciesRepository {
     int? cancellationHoursBeforeCheckIn,
     bool? cancellationNonRefundable,
     String? cancellationPenaltyAfterDeadline,
-
     bool? paymentDepositRequired,
     bool? paymentFullPaymentRequired,
     double? paymentDepositPercentage,
@@ -31,7 +30,6 @@ abstract class PoliciesRepository {
     bool? paymentPayAtProperty,
     bool? paymentCashPreferred,
     List<String>? paymentAcceptedMethods,
-
     String? checkInTime,
     String? checkOutTime,
     String? checkInFrom,
@@ -43,7 +41,6 @@ abstract class PoliciesRepository {
     String? checkInEarlyCheckInNote,
     String? checkInLateCheckOutNote,
     String? checkInLateCheckOutFee,
-
     bool? childrenAllowed,
     int? childrenFreeUnderAge,
     int? childrenHalfPriceUnderAge,
@@ -52,7 +49,6 @@ abstract class PoliciesRepository {
     String? childrenCribsNote,
     bool? childrenPlaygroundAvailable,
     bool? childrenKidsMenuAvailable,
-
     bool? petsAllowed,
     String? petsReason,
     double? petsFeeAmount,
@@ -62,7 +58,6 @@ abstract class PoliciesRepository {
     bool? petsPetFriendly,
     bool? petsOutdoorSpace,
     bool? petsStrict,
-
     bool? modificationAllowed,
     int? modificationFreeModificationHours,
     String? modificationFeesAfter,
@@ -80,7 +75,6 @@ abstract class PoliciesRepository {
     bool? requireFullPaymentBeforeConfirmation,
     double? minimumDepositPercentage,
     int? minHoursBeforeCheckIn,
-
     bool? cancellationFreeCancel,
     bool? cancellationFullRefund,
     int? cancellationRefundPercentage,
@@ -88,7 +82,6 @@ abstract class PoliciesRepository {
     int? cancellationHoursBeforeCheckIn,
     bool? cancellationNonRefundable,
     String? cancellationPenaltyAfterDeadline,
-
     bool? paymentDepositRequired,
     bool? paymentFullPaymentRequired,
     double? paymentDepositPercentage,
@@ -97,7 +90,6 @@ abstract class PoliciesRepository {
     bool? paymentPayAtProperty,
     bool? paymentCashPreferred,
     List<String>? paymentAcceptedMethods,
-
     String? checkInTime,
     String? checkOutTime,
     String? checkInFrom,
@@ -109,7 +101,6 @@ abstract class PoliciesRepository {
     String? checkInEarlyCheckInNote,
     String? checkInLateCheckOutNote,
     String? checkInLateCheckOutFee,
-
     bool? childrenAllowed,
     int? childrenFreeUnderAge,
     int? childrenHalfPriceUnderAge,
@@ -118,7 +109,6 @@ abstract class PoliciesRepository {
     String? childrenCribsNote,
     bool? childrenPlaygroundAvailable,
     bool? childrenKidsMenuAvailable,
-
     bool? petsAllowed,
     String? petsReason,
     double? petsFeeAmount,
@@ -128,7 +118,6 @@ abstract class PoliciesRepository {
     bool? petsPetFriendly,
     bool? petsOutdoorSpace,
     bool? petsStrict,
-
     bool? modificationAllowed,
     int? modificationFreeModificationHours,
     String? modificationFeesAfter,
@@ -152,7 +141,8 @@ abstract class PoliciesRepository {
   Future<Either<Failure, Policy>> getPolicyById(String policyId);
 
   /// الحصول على سياسات عقار معين
-  Future<Either<Failure, List<Policy>>> getPoliciesByProperty(String propertyId);
+  Future<Either<Failure, List<Policy>>> getPoliciesByProperty(
+      String propertyId);
 
   /// الحصول على سياسات حسب النوع
   Future<Either<Failure, PaginatedResult<Policy>>> getPoliciesByType({

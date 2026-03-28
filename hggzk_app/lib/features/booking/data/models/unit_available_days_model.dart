@@ -1,6 +1,8 @@
 import '../../domain/entities/unit_available_days.dart';
 
+/// العربية: يمثل نموذج البيانات `UnitAvailableDaysModel`.
 class UnitAvailableDaysModel extends UnitAvailableDays {
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitAvailableDaysModel`.
   const UnitAvailableDaysModel({
     required super.startDate,
     required super.endDate,
@@ -8,6 +10,7 @@ class UnitAvailableDaysModel extends UnitAvailableDays {
     required super.unpricedDates,
   });
 
+  /// العربية: يحلل date only.
   static DateTime _parseDateOnly(dynamic value) {
     final raw = value?.toString() ?? '';
     if (raw.isEmpty) {
@@ -29,6 +32,7 @@ class UnitAvailableDaysModel extends UnitAvailableDays {
     return DateTime(parsed.year, parsed.month, parsed.day);
   }
 
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitAvailableDaysModel.fromJson`.
   factory UnitAvailableDaysModel.fromJson(Map<String, dynamic> json) {
     final availableDates =
         (json['availableDates'] as List?)?.map(_parseDateOnly).toList() ??

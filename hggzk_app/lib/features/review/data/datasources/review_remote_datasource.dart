@@ -7,7 +7,11 @@ import '../../../../core/utils/request_logger.dart';
 import '../models/review_model.dart';
 import '../models/review_image_model.dart';
 
+/// Provides the data-source behavior for `ReviewRemoteDataSource`.
+/// العربية: يوفر سلوك مصدر البيانات الخاص بـ `ReviewRemoteDataSource`.
 abstract class ReviewRemoteDataSource {
+  /// Builds the review.
+  /// العربية: ينشئ review.
   Future<ReviewModel> createReview({
     required String bookingId,
     required String propertyId,
@@ -19,6 +23,8 @@ abstract class ReviewRemoteDataSource {
     List<String>? imagesBase64,
   });
 
+  /// Exposes the property reviews.
+  /// العربية: يعيد property reviews.
   Future<PaginatedResult<ReviewModel>> getPropertyReviews({
     required String propertyId,
     required int pageNumber,
@@ -30,21 +36,33 @@ abstract class ReviewRemoteDataSource {
     String? userId,
   });
 
+  /// Exposes the property reviews summary.
+  /// العربية: يعيد property reviews summary.
   Future<ReviewsSummaryModel> getPropertyReviewsSummary({
     required String propertyId,
   });
 
+  /// Processes `uploadReviewImages`.
+  /// العربية: يعالج `uploadReviewImages`.
   Future<List<ReviewImageModel>> uploadReviewImages({
     required String reviewId,
     required List<String> imagesBase64,
   });
 }
 
+/// Describes `ReviewRemoteDataSourceImpl`.
+/// العربية: يمثل `ReviewRemoteDataSourceImpl`.
 class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
+  /// Keeps the `apiClient` value.
+  /// العربية: يخزن القيمة `apiClient`.
   final ApiClient apiClient;
 
+  /// Builds a new `ReviewRemoteDataSourceImpl` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewRemoteDataSourceImpl`.
   ReviewRemoteDataSourceImpl({required this.apiClient});
 
+  /// Builds the review.
+  /// العربية: ينشئ review.
   @override
   Future<ReviewModel> createReview({
     required String bookingId,
@@ -131,6 +149,8 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
     }
   }
 
+  /// Exposes the property reviews.
+  /// العربية: يعيد property reviews.
   @override
   Future<PaginatedResult<ReviewModel>> getPropertyReviews({
     required String propertyId,
@@ -229,6 +249,8 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
     }
   }
 
+  /// Exposes the property reviews summary.
+  /// العربية: يعيد property reviews summary.
   @override
   Future<ReviewsSummaryModel> getPropertyReviewsSummary({
     required String propertyId,
@@ -263,6 +285,8 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
     }
   }
 
+  /// Processes `uploadReviewImages`.
+  /// العربية: يعالج `uploadReviewImages`.
   @override
   Future<List<ReviewImageModel>> uploadReviewImages({
     required String reviewId,

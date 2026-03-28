@@ -3,7 +3,15 @@ import 'package:hggzkportal/features/admin_payments/data/models/money_model.dart
 import '../../../../../core/enums/payment_method_enum.dart';
 import '../../domain/entities/payment.dart';
 
+/// Adapts payment payloads from the backend into the portal's canonical
+/// payment entity, including refund and void metadata.
+///
+/// يكيّف بيانات الدفعات القادمة من الخادم إلى الكيان المعتمد في البوابة،
+/// مع الحفاظ على بيانات الاسترداد والإلغاء.
 class PaymentModel extends Payment {
+  /// Creates the immutable payment snapshot used by dashboards and audit views.
+  ///
+  /// ينشئ لقطة الدفع غير القابلة للتعديل التي تعتمد عليها اللوحات وسجلات التدقيق.
   const PaymentModel({
     required super.id,
     required super.bookingId,
@@ -35,15 +43,19 @@ class PaymentModel extends Payment {
     super.voidReason,
   });
 
+  /// Reads the backend payment representation, which may use different casing
+  /// or nested money objects depending on the source endpoint.
+  ///
+  /// تقرأ هذه الدالة تمثيل الدفع القادم من الخادم، سواء استعمل أسماء حقول
+  /// مختلفة أو أدرج المبلغ داخل كائن مالي مستقل بحسب المصدر.
   factory PaymentModel.fromJson(Map<String, dynamic> json) {
-    // Parse amount and currency separately - Handle backend PaymentDto structure
+    // Amount can arrive either as a scalar, a nested money object, or a
+    // backend-specific alias such as Amount/Currency.
     final amountValue = json['amount'] ?? json['Amount'];
     final currencyValue = json['currency'] ?? json['Currency'];
 
-    // Create Money object based on amount type
     final Money money;
     if (amountValue is num && amountValue > 0) {
-      // Amount is a direct number from backend PaymentDto
       final currency = currencyValue?.toString().toUpperCase() ?? 'YER';
       money = MoneyModel(
         amount: amountValue.toDouble(),
@@ -52,17 +64,14 @@ class PaymentModel extends Payment {
             '$currency ${amountValue.toStringAsFixed(currency == "USD" ? 2 : 0)}',
       );
     } else if (amountValue is Map<String, dynamic>) {
-      // Amount is already a Money object
       money = MoneyModel.fromJson(amountValue);
     } else {
-      // Fallback - try to parse as string or default to 0
+      // Fall back to a safe zero value when the amount cannot be parsed.
       double parsedAmount = 0;
       if (amountValue != null) {
         try {
           parsedAmount = double.parse(amountValue.toString());
-        } catch (e) {
-          // Failed to parse amount
-        }
+        } catch (e) {}
       }
       final currency = currencyValue?.toString().toUpperCase() ?? 'YER';
       money = MoneyModel(
@@ -73,7 +82,8 @@ class PaymentModel extends Payment {
       );
     }
 
-    // Parse transaction ID - handle multiple possible field names from .NET backend
+    // The transaction identifier is often emitted under different aliases by
+    // .NET-based services, so we probe the common variants.
     String transactionId = '';
     final possibleTransactionIdFields = [
       'transactionId',
@@ -92,7 +102,6 @@ class PaymentModel extends Payment {
       }
     }
 
-    // Parse payment method - handle both 'method' and 'Method' fields
     final methodValue = json['method'] ?? json['Method'];
     final parsedMethod = _parsePaymentMethod(methodValue);
 
@@ -134,6 +143,11 @@ class PaymentModel extends Payment {
     );
   }
 
+  /// Serializes the payment back into the admin API contract, keeping the
+  /// field names expected by the server side.
+  ///
+  /// يعيد الدفع إلى عقد الـ API الخاص بالإدارة مع الحفاظ على أسماء الحقول
+  /// التي يتوقعها الخادم.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -169,6 +183,9 @@ class PaymentModel extends Payment {
     };
   }
 
+  /// Parses timestamps that may already be `DateTime` objects or plain strings.
+  ///
+  /// يحلل الطوابع الزمنية التي قد تكون كائنات `DateTime` أو نصوصًا خامًا.
   static DateTime? _parseDateTime(dynamic value) {
     if (value == null) return null;
     if (value is DateTime) return value;
@@ -179,6 +196,11 @@ class PaymentModel extends Payment {
     }
   }
 
+  /// Safely converts amount-like values to doubles without throwing on bad
+  /// input from the backend.
+  ///
+  /// يحول القيم الشبيهة بالمبالغ إلى `double` بأمان دون إسقاط الاستثناءات
+  /// على البيانات غير الصالحة القادمة من الخادم.
   static double _parseDouble(dynamic value) {
     if (value == null) return 0.0;
     if (value is num) return value.toDouble();
@@ -189,6 +211,9 @@ class PaymentModel extends Payment {
     }
   }
 
+  /// Normalizes payment-method values coming from enums, integers, or strings.
+  ///
+  /// يوحد قيم طريقة الدفع التي قد تأتي على شكل enum أو رقم أو نص.
   static PaymentMethod _parsePaymentMethod(dynamic method) {
     if (method == null) {
       return PaymentMethod.cash;
@@ -214,6 +239,10 @@ class PaymentModel extends Payment {
     return PaymentMethod.cash;
   }
 
+  /// Normalizes payment status labels that may arrive as enum names or API
+  /// display strings.
+  ///
+  /// يوحد أسماء حالة الدفع التي قد تأتي كأسماء enum أو كنصوص عرض من الـ API.
   static PaymentStatus _parsePaymentStatus(dynamic status) {
     if (status == null) return PaymentStatus.pending;
 
@@ -239,6 +268,10 @@ class PaymentModel extends Payment {
     }
   }
 
+  /// Rebuilds a model from an existing payment entity without re-parsing the
+  /// source payload.
+  ///
+  /// يعيد إنشاء النموذج من كيان الدفع نفسه دون إعادة تحليل حمولة المصدر.
   factory PaymentModel.fromEntity(Payment entity) {
     return PaymentModel(
       id: entity.id,

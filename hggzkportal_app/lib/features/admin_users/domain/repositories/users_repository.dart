@@ -55,5 +55,6 @@ abstract class UsersRepository {
     required String roleId,
   });
 
-  Future<Either<Failure, UserLifetimeStats>> getUserLifetimeStats(String userId);
+  Future<Either<Failure, UserLifetimeStats>> getUserLifetimeStats(
+      String userId);
 }

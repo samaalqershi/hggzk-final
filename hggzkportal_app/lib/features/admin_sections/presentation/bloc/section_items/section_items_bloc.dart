@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../core/usecases/usecase.dart';
 import '../../../../../core/models/section_item_dto.dart';
-import '../../../../../core/enums/section_target.dart';
 import '../../../domain/usecases/section_items/get_section_items_usecase.dart';
 import '../../../domain/usecases/section_items/add_items_to_section_usecase.dart';
 import '../../../domain/usecases/section_items/remove_items_from_section_usecase.dart';
@@ -11,9 +9,13 @@ import 'section_items_event.dart';
 import 'section_items_state.dart';
 
 class SectionItemsBloc extends Bloc<SectionItemsEvent, SectionItemsState> {
+  /// العربية: يخزن القيمة `getItems`.
   final GetSectionItemsUseCase getItems;
+
   final AddItemsToSectionUseCase addItems;
+
   final RemoveItemsFromSectionUseCase removeItems;
+
   final UpdateItemOrderUseCase reorderItems;
 
   SectionItemsBloc({
@@ -93,4 +95,3 @@ class SectionItemsBloc extends Bloc<SectionItemsEvent, SectionItemsState> {
     );
   }
 }
-

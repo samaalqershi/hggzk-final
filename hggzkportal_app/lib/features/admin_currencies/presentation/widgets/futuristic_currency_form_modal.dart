@@ -10,6 +10,7 @@ import '../../domain/entities/currency.dart';
 
 class FuturisticCurrencyFormModal extends StatefulWidget {
   final Currency? currency;
+
   final Function(Currency) onSave;
 
   const FuturisticCurrencyFormModal({
@@ -27,13 +28,19 @@ class _FuturisticCurrencyFormModalState
     extends State<FuturisticCurrencyFormModal>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   late TextEditingController _codeController;
+
   late TextEditingController _arabicCodeController;
+
   late TextEditingController _nameController;
+
   late TextEditingController _arabicNameController;
+
   late TextEditingController _exchangeRateController;
 
   bool _isDefault = false;
+
   final bool _isLoading = false;
 
   final _formKey = GlobalKey<FormState>();

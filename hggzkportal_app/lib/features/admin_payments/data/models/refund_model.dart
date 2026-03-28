@@ -1,9 +1,8 @@
-import 'package:hggzkportal/features/admin_payments/domain/entities/payment.dart';
-
 import '../../domain/entities/refund.dart';
 import 'money_model.dart';
 
 class RefundModel extends Refund {
+  /// العربية: ينشئ مثيلًا جديدًا من `RefundModel`.
   const RefundModel({
     required super.id,
     required super.paymentId,
@@ -18,7 +17,6 @@ class RefundModel extends Refund {
     super.type,
     super.metadata,
   });
-
   factory RefundModel.fromJson(Map<String, dynamic> json) {
     return RefundModel(
       id: json['id']?.toString() ?? '',
@@ -37,7 +35,6 @@ class RefundModel extends Refund {
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,

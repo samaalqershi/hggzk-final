@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../../../../../core/models/paginated_result.dart';
 import '../../../domain/entities/user.dart';
 import '../../../domain/usecases/get_all_users_usecase.dart';
 import '../../../domain/usecases/create_user_usecase.dart';
@@ -14,18 +13,29 @@ part 'users_list_state.dart';
 
 class UsersListBloc extends Bloc<UsersListEvent, UsersListState> {
   final GetAllUsersUseCase _getAllUsersUseCase;
+
   final CreateUserUseCase _createUserUseCase;
+
   final UpdateUserUseCase _updateUserUseCase;
+
   final AssignRoleUseCase _assignRoleUseCase;
+
   final ActivateUserUseCase _activateUserUseCase;
+
   final DeactivateUserUseCase _deactivateUserUseCase;
 
   static const int _pageSize = 20;
+
   List<User> _allUsers = [];
+
   int _currentPage = 1;
+
   bool _hasMoreData = true;
+
   String? _lastSearchTerm;
+
   String? _lastRoleFilter;
+
   bool? _lastActiveFilter;
 
   UsersListBloc({
@@ -112,7 +122,7 @@ class UsersListBloc extends Bloc<UsersListEvent, UsersListState> {
   ) async {
     // Emit loading state first
     emit(UsersListLoading());
-    
+
     try {
       final result = await _updateUserUseCase(UpdateUserParams(
         userId: event.userId,
@@ -244,7 +254,8 @@ class UsersListBloc extends Bloc<UsersListEvent, UsersListState> {
   ) async {
     if (state is UsersListLoaded) {
       final current = state as UsersListLoaded;
-      emit(UsersRefreshing(users: current.users, totalCount: current.totalCount));
+      emit(UsersRefreshing(
+          users: current.users, totalCount: current.totalCount));
 
       _currentPage = 1;
       _allUsers = [];
@@ -264,7 +275,8 @@ class UsersListBloc extends Bloc<UsersListEvent, UsersListState> {
         (failure) => emit(UsersListError(message: failure.message)),
         (paginatedResult) {
           _allUsers = paginatedResult.items;
-          _hasMoreData = paginatedResult.pageNumber < paginatedResult.totalPages;
+          _hasMoreData =
+              paginatedResult.pageNumber < paginatedResult.totalPages;
 
           emit(UsersListLoaded(
             users: _allUsers,
@@ -439,7 +451,7 @@ class UsersListBloc extends Bloc<UsersListEvent, UsersListState> {
     try {
       // Emit loading state first
       emit(UsersListLoading());
-      
+
       // Create user then reload and emit state to notify listeners
       final result = await _createUserUseCase(CreateUserParams(
         name: event.name,

@@ -5,16 +5,33 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/price_widget.dart';
 
+/// العربية: يمثل العنصر `PriceBreakdownWidget`.
 class PriceBreakdownWidget extends StatefulWidget {
+  /// العربية: يخزن القيمة `nights`.
   final int nights;
+
+  /// العربية: يخزن القيمة `pricePerNight`.
   final double pricePerNight;
+
+  /// العربية: يخزن القيمة `servicesTotal`.
   final double servicesTotal;
+
+  /// العربية: يخزن القيمة `taxRate`.
   final double taxRate;
+
+  /// العربية: يخزن القيمة `currency`.
   final String currency;
+
+  /// العربية: يخزن القيمة `discount`.
   final double? discount;
+
+  /// العربية: يخزن القيمة `promoCode`.
   final String? promoCode;
+
+  /// العربية: يخزن القيمة `services`.
   final List<Map<String, dynamic>>? services;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `PriceBreakdownWidget`.
   const PriceBreakdownWidget({
     super.key,
     required this.nights,
@@ -27,33 +44,44 @@ class PriceBreakdownWidget extends StatefulWidget {
     this.services,
   });
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<PriceBreakdownWidget> createState() => _PriceBreakdownWidgetState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `PriceBreakdownWidgetState`.
 class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     with TickerProviderStateMixin {
+  /// العربية: يخزن القيمة `expandController`.
   late AnimationController _expandController;
+
+  /// العربية: يخزن القيمة `shimmerController`.
   late AnimationController _shimmerController;
+
+  /// العربية: يخزن القيمة `itemControllers`.
   late List<AnimationController> _itemControllers;
+
+  /// العربية: يخزن القيمة `itemAnimations`.
   late List<Animation<double>> _itemAnimations;
-  
+
+  /// العربية: يحدد ما إذا كانت القيمة `isExpanded` مفعلة.
   bool _isExpanded = false;
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
-    
+
     _expandController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _shimmerController = AnimationController(
       duration: const Duration(seconds: 4),
       vsync: this,
     )..repeat();
-    
+
     // Create item animations
     _itemControllers = List.generate(
       5,
@@ -62,7 +90,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
         vsync: this,
       ),
     );
-    
+
     _itemAnimations = _itemControllers.map((controller) {
       return Tween<double>(
         begin: 0.0,
@@ -74,6 +102,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     }).toList();
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _expandController.dispose();
@@ -84,6 +113,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     super.dispose();
   }
 
+  /// العربية: يبدل expanded.
   void _toggleExpanded() {
     setState(() {
       _isExpanded = !_isExpanded;
@@ -101,13 +131,15 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     });
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     final accommodationTotal = widget.nights * widget.pricePerNight;
     final subtotal = accommodationTotal + widget.servicesTotal;
     final discountAmount = widget.discount ?? 0;
     final afterDiscount = subtotal - discountAmount;
-    final double taxAmount = 0; // Taxes are not applied; show services details instead
+    final double taxAmount =
+        0; // Taxes are not applied; show services details instead
     final total = afterDiscount;
 
     return Container(
@@ -133,8 +165,10 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          begin: Alignment(-1 + _shimmerController.value * 0.5, 0),
-                          end: Alignment(-0.5 + _shimmerController.value * 0.5, 0),
+                          begin:
+                              Alignment(-1 + _shimmerController.value * 0.5, 0),
+                          end: Alignment(
+                              -0.5 + _shimmerController.value * 0.5, 0),
                           colors: [
                             Colors.transparent,
                             AppTheme.primaryBlue.withOpacity(0.02),
@@ -146,7 +180,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
                   );
                 },
               ),
-              
+
               // Content
               Padding(
                 padding: const EdgeInsets.all(14),
@@ -155,23 +189,25 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
                   children: [
                     _buildCompactHeader(),
                     const SizedBox(height: 12),
-                    
+
                     // Summary (always visible)
                     _buildCompactSummaryRow(total),
-                    
+
                     // Expandable details
                     AnimatedSize(
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeOut,
-                      child: _isExpanded ? _buildCompactDetails(
-                        accommodationTotal: accommodationTotal,
-                        subtotal: subtotal,
-                        discountAmount: discountAmount,
-                        taxAmount: taxAmount,
-                        total: total,
-                      ) : const SizedBox.shrink(),
+                      child: _isExpanded
+                          ? _buildCompactDetails(
+                              accommodationTotal: accommodationTotal,
+                              subtotal: subtotal,
+                              discountAmount: discountAmount,
+                              taxAmount: taxAmount,
+                              total: total,
+                            )
+                          : const SizedBox.shrink(),
                     ),
-                    
+
                     const SizedBox(height: 8),
                     _buildCompactToggleButton(),
                   ],
@@ -184,6 +220,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     );
   }
 
+  /// العربية: يبني compact header.
   Widget _buildCompactHeader() {
     return Row(
       children: [
@@ -216,6 +253,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     );
   }
 
+  /// العربية: يبني compact summary row.
   Widget _buildCompactSummaryRow(double total) {
     return Container(
       padding: const EdgeInsets.all(10),
@@ -251,6 +289,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     );
   }
 
+  /// العربية: يبني compact details.
   Widget _buildCompactDetails({
     required double accommodationTotal,
     required double subtotal,
@@ -261,16 +300,17 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     return Column(
       children: [
         const SizedBox(height: 12),
-        
+
         // Accommodation
         _buildAnimatedCompactPriceRow(
-          label: 'الإقامة (${widget.nights} × ${widget.pricePerNight.toStringAsFixed(0)} ${widget.currency})',
+          label:
+              'الإقامة (${widget.nights} × ${widget.pricePerNight.toStringAsFixed(0)} ${widget.currency})',
           amount: accommodationTotal,
           index: 0,
           icon: Icons.hotel_rounded,
           color: AppTheme.primaryBlue.withOpacity(0.8),
         ),
-        
+
         // Services
         if (widget.servicesTotal > 0) ...[
           const SizedBox(height: 8),
@@ -321,7 +361,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
               );
             }).toList(),
         ],
-        
+
         // Subtotal
         const SizedBox(height: 10),
         _buildSubtleDivider(),
@@ -332,12 +372,13 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
           index: 2,
           isSubtotal: true,
         ),
-        
+
         // Discount
         if (discountAmount > 0) ...[
           const SizedBox(height: 8),
           _buildAnimatedCompactPriceRow(
-            label: 'الخصم${widget.promoCode != null ? ' (${widget.promoCode})' : ''}',
+            label:
+                'الخصم${widget.promoCode != null ? ' (${widget.promoCode})' : ''}',
             amount: -discountAmount,
             index: 3,
             icon: Icons.discount_rounded,
@@ -349,6 +390,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     );
   }
 
+  /// العربية: يبني animated compact price row.
   Widget _buildAnimatedCompactPriceRow({
     required String label,
     required double amount,
@@ -394,24 +436,26 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
                     child: Text(
                       label,
                       style: AppTextStyles.caption.copyWith(
-                        color: isSubtotal 
+                        color: isSubtotal
                             ? AppTheme.textWhite.withOpacity(0.9)
-                            : (isDiscount 
-                                ? AppTheme.success.withOpacity(0.8) 
+                            : (isDiscount
+                                ? AppTheme.success.withOpacity(0.8)
                                 : AppTheme.textMuted.withOpacity(0.7)),
-                        fontWeight: isSubtotal ? FontWeight.w600 : FontWeight.normal,
+                        fontWeight:
+                            isSubtotal ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
                   ),
                   Text(
                     '${isDiscount ? '' : ''}${amount.toStringAsFixed(0)} ${widget.currency}',
                     style: AppTextStyles.caption.copyWith(
-                      color: isDiscount 
+                      color: isDiscount
                           ? AppTheme.success.withOpacity(0.8)
-                          : (isSubtotal 
-                              ? AppTheme.textWhite.withOpacity(0.9) 
+                          : (isSubtotal
+                              ? AppTheme.textWhite.withOpacity(0.9)
                               : AppTheme.textWhite.withOpacity(0.8)),
-                      fontWeight: isSubtotal ? FontWeight.w600 : FontWeight.w500,
+                      fontWeight:
+                          isSubtotal ? FontWeight.w600 : FontWeight.w500,
                     ),
                   ),
                 ],
@@ -423,6 +467,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     );
   }
 
+  /// العربية: يبني subtle divider.
   Widget _buildSubtleDivider() {
     return Container(
       height: 0.5,
@@ -438,6 +483,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     );
   }
 
+  /// العربية: يبني compact toggle button.
   Widget _buildCompactToggleButton() {
     return GestureDetector(
       onTap: _toggleExpanded,

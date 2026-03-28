@@ -17,30 +17,48 @@ import '../bloc/booking_event.dart';
 import '../bloc/booking_state.dart';
 import '../widgets/price_breakdown_widget.dart';
 
+/// العربية: يمثل عنصر الصفحة `BookingSummaryPage`.
 class BookingSummaryPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `bookingData`.
   final Map<String, dynamic> bookingData;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingSummaryPage`.
   const BookingSummaryPage({
     super.key,
     required this.bookingData,
   });
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<BookingSummaryPage> createState() => _BookingSummaryPageState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `BookingSummaryPageState`.
 class _BookingSummaryPageState extends State<BookingSummaryPage>
     with SingleTickerProviderStateMixin {
+  /// العربية: يخزن القيمة `controller`.
   late AnimationController _controller;
 
   // Calculated values
+  /// العربية: يخزن القيمة `nights`.
   late int nights;
+
+  /// العربية: يخزن القيمة `pricePerNight`.
   late double pricePerNight;
+
+  /// العربية: يخزن القيمة `totalPrice`.
   late double totalPrice;
+
+  /// العربية: يخزن القيمة `servicesTotal`.
   late double servicesTotal;
+
+  /// العربية: يخزن القيمة `grandTotal`.
   late double grandTotal;
+
+  /// العربية: يخزن القيمة `currency`.
   late String currency;
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -51,6 +69,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
     )..forward();
   }
 
+  /// العربية: يعالج `calculatePrices`.
   void _calculatePrices() {
     final checkIn = widget.bookingData['checkIn'] as DateTime;
     final checkOut = widget.bookingData['checkOut'] as DateTime;
@@ -69,12 +88,14 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
     grandTotal = totalPrice + servicesTotal;
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,6 +118,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
     );
   }
 
+  /// العربية: يعالج booking state.
   void _handleBookingState(BuildContext context, BookingState state) {
     if (state is BookingCreated) {
       final booking = state.booking;
@@ -124,6 +146,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
   // ═══════════════════════════════════════════════════════════════
   // AppBar
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني app bar.
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       backgroundColor: AppTheme.darkCard.withOpacity(0.5),
@@ -161,6 +184,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
     );
   }
 
+  /// العربية: يبني back button.
   Widget _buildBackButton() {
     return Container(
       margin: const EdgeInsets.all(8),
@@ -188,6 +212,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
   // ═══════════════════════════════════════════════════════════════
   // المحتوى الرئيسي
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني content.
   Widget _buildContent() {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -236,6 +261,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
   // ═══════════════════════════════════════════════════════════════
   // بطاقة العقار
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني property card.
   Widget _buildPropertyCard() {
     final unitImages = (widget.bookingData['unitImages'] as List?)
         ?.map((e) => e.toString())
@@ -341,6 +367,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
   // ═══════════════════════════════════════════════════════════════
   // بطاقة تفاصيل الحجز
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني booking details card.
   Widget _buildBookingDetailsCard() {
     final checkIn = widget.bookingData['checkIn'] as DateTime;
     final checkOut = widget.bookingData['checkOut'] as DateTime;
@@ -384,6 +411,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
   // ═══════════════════════════════════════════════════════════════
   // بطاقة تفاصيل الضيوف
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني guest details card.
   Widget _buildGuestDetailsCard() {
     final adultsCount = widget.bookingData['adultsCount'] as int;
     final childrenCount = widget.bookingData['childrenCount'] as int;
@@ -448,6 +476,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
     );
   }
 
+  /// العربية: يبني guest badge.
   Widget _buildGuestBadge({
     required IconData icon,
     required String label,
@@ -480,6 +509,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
   // ═══════════════════════════════════════════════════════════════
   // بطاقة الخدمات
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني services card.
   Widget _buildServicesCard() {
     final services =
         widget.bookingData['selectedServices'] as List<Map<String, dynamic>>;
@@ -500,6 +530,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
     );
   }
 
+  /// العربية: يبني service item.
   Widget _buildServiceItem(Map<String, dynamic> service) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -544,6 +575,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
   // ═══════════════════════════════════════════════════════════════
   // بطاقة الطلبات الخاصة
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني special requests card.
   Widget _buildSpecialRequestsCard() {
     return _buildCard(
       gradient: LinearGradient(
@@ -599,6 +631,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
   // ═══════════════════════════════════════════════════════════════
   // تفصيل السعر
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني price breakdown.
   Widget _buildPriceBreakdown() {
     return PriceBreakdownWidget(
       nights: nights,
@@ -615,6 +648,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
   // ═══════════════════════════════════════════════════════════════
   // بطاقة السياسات
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني policies card.
   Widget _buildPoliciesCard() {
     final propertyId = widget.bookingData['propertyId'] as String?;
     final propertyName = widget.bookingData['propertyName'] as String? ?? '';
@@ -728,6 +762,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
   // ═══════════════════════════════════════════════════════════════
   // الشريط السفلي
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني bottom bar.
   Widget _buildBottomBar() {
     return Container(
       decoration: BoxDecoration(
@@ -848,6 +883,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
   // ═══════════════════════════════════════════════════════════════
   // مكونات مساعدة
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني card.
   Widget _buildCard({
     required Widget child,
     LinearGradient? gradient,
@@ -873,6 +909,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
     );
   }
 
+  /// العربية: يبني card header.
   Widget _buildCardHeader({
     required IconData icon,
     required String title,
@@ -900,6 +937,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
     );
   }
 
+  /// العربية: يبني info row.
   Widget _buildInfoRow({
     required IconData icon,
     required String label,
@@ -938,6 +976,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
     );
   }
 
+  /// العربية: يبني divider.
   Widget _buildDivider() {
     return Container(
       height: 1,
@@ -954,6 +993,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
     );
   }
 
+  /// العربية: يبني capacity text.
   String _buildCapacityText() {
     final adultsCapacity = widget.bookingData['adultsCapacity'] as int?;
     final childrenCapacity = widget.bookingData['childrenCapacity'] as int?;
@@ -971,6 +1011,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
   // ═══════════════════════════════════════════════════════════════
   // التنقل والإجراءات
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: ينتقل إلى to payment.
   void _navigateToPayment() {
     HapticFeedback.mediumImpact();
     final authState = context.read<AuthBloc>().state;
@@ -1022,6 +1063,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
         );
   }
 
+  /// العربية: يعرض snack bar.
   void _showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

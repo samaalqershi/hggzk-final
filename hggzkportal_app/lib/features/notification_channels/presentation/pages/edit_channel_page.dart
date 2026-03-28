@@ -9,20 +9,18 @@ import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/widgets/loading_widget.dart';
 import '../../domain/entities/notification_channel.dart';
 import '../bloc/channels_bloc.dart';
 import '../bloc/channels_event.dart';
 import '../bloc/channels_state.dart';
 
 class EditChannelPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `channelId`.
   final String channelId;
-
   const EditChannelPage({
     super.key,
     required this.channelId,
   });
-
   @override
   State<EditChannelPage> createState() => _EditChannelPageState();
 }
@@ -65,17 +63,6 @@ class _EditChannelPageState extends State<EditChannelPage>
   bool? _originalIsPrivate;
   bool? _originalIsActive;
   List<String> _originalRoles = [];
-
-  // Available Options
-  final List<String> _availableTypes = [
-    'CUSTOM',
-    'ROLE_BASED',
-    'EVENT_BASED',
-    'BROADCAST',
-    'PRIVATE',
-    'SYSTEM',
-  ];
-
   final List<String> _availableIcons = [
     '📢',
     '🔔',
@@ -102,7 +89,6 @@ class _EditChannelPageState extends State<EditChannelPage>
     '📃',
     '📋',
   ];
-
   final List<String> _availableColors = [
     '#1E88E5',
     '#43A047',
@@ -121,7 +107,6 @@ class _EditChannelPageState extends State<EditChannelPage>
     '#26A69A',
     '#AB47BC',
   ];
-
   final List<String> _availableRoles = [
     'Admin',
     'SuperAdmin',
@@ -131,7 +116,6 @@ class _EditChannelPageState extends State<EditChannelPage>
     'Moderator',
     'Support',
   ];
-
   @override
   void initState() {
     super.initState();
@@ -233,8 +217,13 @@ class _EditChannelPageState extends State<EditChannelPage>
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (!didPop && await _onWillPop() && mounted) {
+          context.pop();
+        }
+      },
       child: BlocListener<ChannelsBloc, ChannelsState>(
         listener: (context, state) {
           if (!_isDataLoaded &&
@@ -298,8 +287,8 @@ class _EditChannelPageState extends State<EditChannelPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -333,14 +322,14 @@ class _EditChannelPageState extends State<EditChannelPage>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppTheme.primaryBlue.withOpacity(0.3),
-                        AppTheme.primaryPurple.withOpacity(0.2),
-                        AppTheme.primaryViolet.withOpacity(0.1),
+                        AppTheme.primaryBlue.withValues(alpha: 0.3),
+                        AppTheme.primaryPurple.withValues(alpha: 0.2),
+                        AppTheme.primaryViolet.withValues(alpha: 0.1),
                       ],
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                         blurRadius: 30,
                         spreadRadius: 10,
                       ),
@@ -397,13 +386,13 @@ class _EditChannelPageState extends State<EditChannelPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -418,13 +407,13 @@ class _EditChannelPageState extends State<EditChannelPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -459,10 +448,10 @@ class _EditChannelPageState extends State<EditChannelPage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.warning.withOpacity(0.2),
+                          color: AppTheme.warning.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppTheme.warning.withOpacity(0.5),
+                            color: AppTheme.warning.withValues(alpha: 0.5),
                             width: 1,
                           ),
                         ),
@@ -493,10 +482,10 @@ class _EditChannelPageState extends State<EditChannelPage>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.error.withOpacity(0.1),
+                  color: AppTheme.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.error.withOpacity(0.3),
+                    color: AppTheme.error.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -512,10 +501,10 @@ class _EditChannelPageState extends State<EditChannelPage>
               margin: const EdgeInsets.only(left: 8),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppTheme.info.withOpacity(0.2),
+                color: AppTheme.info.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: AppTheme.info.withOpacity(0.5),
+                  color: AppTheme.info.withValues(alpha: 0.5),
                 ),
               ),
               child: Row(
@@ -568,23 +557,23 @@ class _EditChannelPageState extends State<EditChannelPage>
                   decoration: BoxDecoration(
                     gradient: isActive ? AppTheme.primaryGradient : null,
                     color: !isActive
-                        ? AppTheme.darkSurface.withOpacity(0.5)
+                        ? AppTheme.darkSurface.withValues(alpha: 0.5)
                         : null,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isModified
-                          ? AppTheme.warning.withOpacity(0.5)
+                          ? AppTheme.warning.withValues(alpha: 0.5)
                           : isActive
-                              ? AppTheme.primaryBlue.withOpacity(0.5)
-                              : AppTheme.darkBorder.withOpacity(0.3),
+                              ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                              : AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: isModified ? 2 : 1,
                     ),
                     boxShadow: isActive
                         ? [
                             BoxShadow(
                               color: isModified
-                                  ? AppTheme.warning.withOpacity(0.3)
-                                  : AppTheme.primaryBlue.withOpacity(0.3),
+                                  ? AppTheme.warning.withValues(alpha: 0.3)
+                                  : AppTheme.primaryBlue.withValues(alpha: 0.3),
                               blurRadius: 10,
                             ),
                           ]
@@ -619,12 +608,12 @@ class _EditChannelPageState extends State<EditChannelPage>
                             ? isModified
                                 ? LinearGradient(colors: [
                                     AppTheme.warning,
-                                    AppTheme.warning.withOpacity(0.5)
+                                    AppTheme.warning.withValues(alpha: 0.5)
                                   ])
                                 : AppTheme.primaryGradient
                             : null,
                         color: !isCompleted
-                            ? AppTheme.darkBorder.withOpacity(0.2)
+                            ? AppTheme.darkBorder.withValues(alpha: 0.2)
                             : null,
                         borderRadius: BorderRadius.circular(1),
                       ),
@@ -819,7 +808,7 @@ class _EditChannelPageState extends State<EditChannelPage>
                     gradient: LinearGradient(
                       colors: [
                         AppTheme.warning,
-                        AppTheme.warning.withOpacity(0.8),
+                        AppTheme.warning.withValues(alpha: 0.8),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
@@ -912,13 +901,13 @@ class _EditChannelPageState extends State<EditChannelPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.3),
-            AppTheme.darkCard.withOpacity(0.2),
+            AppTheme.darkCard.withValues(alpha: 0.3),
+            AppTheme.darkCard.withValues(alpha: 0.2),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -956,8 +945,7 @@ class _EditChannelPageState extends State<EditChannelPage>
               Expanded(
                 child: _buildMetadataItem(
                   'آخر تحديث',
-                  _formatDate(_originalChannel!.updatedAt ??
-                      _originalChannel!.createdAt),
+                  _formatDate(_originalChannel!.updatedAt),
                   Icons.update_rounded,
                 ),
               ),
@@ -974,7 +962,7 @@ class _EditChannelPageState extends State<EditChannelPage>
         Icon(
           icon,
           size: 14,
-          color: AppTheme.primaryBlue.withOpacity(0.6),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.6),
         ),
         const SizedBox(width: 6),
         Expanded(
@@ -1008,13 +996,13 @@ class _EditChannelPageState extends State<EditChannelPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1028,8 +1016,14 @@ class _EditChannelPageState extends State<EditChannelPage>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: _isActive
-                        ? [AppTheme.success, AppTheme.success.withOpacity(0.7)]
-                        : [AppTheme.error, AppTheme.error.withOpacity(0.7)],
+                        ? [
+                            AppTheme.success,
+                            AppTheme.success.withValues(alpha: 0.7)
+                          ]
+                        : [
+                            AppTheme.error,
+                            AppTheme.error.withValues(alpha: 0.7)
+                          ],
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -1073,10 +1067,10 @@ class _EditChannelPageState extends State<EditChannelPage>
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.warning.withOpacity(0.1),
+        color: AppTheme.warning.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1097,7 +1091,7 @@ class _EditChannelPageState extends State<EditChannelPage>
                     int.parse(colorValue.substring(1), radix: 16) + 0xFF000000),
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
-                  color: AppTheme.warning.withOpacity(0.5),
+                  color: AppTheme.warning.withValues(alpha: 0.5),
                   width: 1,
                 ),
               ),
@@ -1118,7 +1112,7 @@ class _EditChannelPageState extends State<EditChannelPage>
                   TextSpan(
                     text: value,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.warning.withOpacity(0.8),
+                      color: AppTheme.warning.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -1140,13 +1134,13 @@ class _EditChannelPageState extends State<EditChannelPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.warning.withOpacity(0.1),
-            AppTheme.warning.withOpacity(0.05),
+            AppTheme.warning.withValues(alpha: 0.1),
+            AppTheme.warning.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1250,19 +1244,19 @@ class _EditChannelPageState extends State<EditChannelPage>
         gradient: LinearGradient(
           colors: hasChanges
               ? [
-                  AppTheme.warning.withOpacity(0.05),
-                  AppTheme.darkCard.withOpacity(0.4),
+                  AppTheme.warning.withValues(alpha: 0.05),
+                  AppTheme.darkCard.withValues(alpha: 0.4),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasChanges
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1284,7 +1278,7 @@ class _EditChannelPageState extends State<EditChannelPage>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.warning.withOpacity(0.2),
+                    color: AppTheme.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -1311,8 +1305,8 @@ class _EditChannelPageState extends State<EditChannelPage>
                 decoration: BoxDecoration(
                   gradient: isNew
                       ? LinearGradient(colors: [
-                          AppTheme.success.withOpacity(0.7),
-                          AppTheme.success.withOpacity(0.5),
+                          AppTheme.success.withValues(alpha: 0.7),
+                          AppTheme.success.withValues(alpha: 0.5),
                         ])
                       : AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(20),
@@ -1344,7 +1338,7 @@ class _EditChannelPageState extends State<EditChannelPage>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.error.withOpacity(0.1),
+                color: AppTheme.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -1367,7 +1361,7 @@ class _EditChannelPageState extends State<EditChannelPage>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: AppTheme.error.withOpacity(0.2),
+                                color: AppTheme.error.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
@@ -1406,13 +1400,13 @@ class _EditChannelPageState extends State<EditChannelPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1427,7 +1421,7 @@ class _EditChannelPageState extends State<EditChannelPage>
                   gradient: LinearGradient(
                     colors: [
                       AppTheme.primaryPurple,
-                      AppTheme.primaryPurple.withOpacity(0.7)
+                      AppTheme.primaryPurple.withValues(alpha: 0.7)
                     ],
                   ),
                   borderRadius: BorderRadius.circular(8),
@@ -1483,10 +1477,10 @@ class _EditChannelPageState extends State<EditChannelPage>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1518,7 +1512,6 @@ class _EditChannelPageState extends State<EditChannelPage>
   }
 
   // All helper widgets and methods continue...
-
   Widget _buildIconGrid() {
     return SizedBox(
       height: 200,
@@ -1549,21 +1542,21 @@ class _EditChannelPageState extends State<EditChannelPage>
                 color: isSelected
                     ? null
                     : isOriginal
-                        ? AppTheme.warning.withOpacity(0.1)
-                        : AppTheme.darkBackground.withOpacity(0.5),
+                        ? AppTheme.warning.withValues(alpha: 0.1)
+                        : AppTheme.darkBackground.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isSelected
                       ? Colors.transparent
                       : isOriginal
-                          ? AppTheme.warning.withOpacity(0.3)
-                          : AppTheme.darkBorder.withOpacity(0.3),
+                          ? AppTheme.warning.withValues(alpha: 0.3)
+                          : AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: isOriginal ? 2 : 1,
                 ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: AppTheme.primaryBlue.withOpacity(0.3),
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                           blurRadius: 8,
                         ),
                       ]
@@ -1617,7 +1610,7 @@ class _EditChannelPageState extends State<EditChannelPage>
                       ? AppTheme.textWhite
                       : isOriginal
                           ? AppTheme.warning
-                          : AppTheme.darkBorder.withOpacity(0.3),
+                          : AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: isSelected || isOriginal ? 3 : 1,
                 ),
                 boxShadow: isSelected
@@ -1626,7 +1619,7 @@ class _EditChannelPageState extends State<EditChannelPage>
                           color: Color(
                                   int.parse(color.substring(1), radix: 16) +
                                       0xFF000000)
-                              .withOpacity(0.5),
+                              .withValues(alpha: 0.5),
                           blurRadius: 12,
                         ),
                       ]
@@ -1674,19 +1667,19 @@ class _EditChannelPageState extends State<EditChannelPage>
         gradient: LinearGradient(
           colors: hasChanges
               ? [
-                  AppTheme.warning.withOpacity(0.05),
-                  AppTheme.darkCard.withOpacity(0.4),
+                  AppTheme.warning.withValues(alpha: 0.05),
+                  AppTheme.darkCard.withValues(alpha: 0.4),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: hasChanges
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1708,7 +1701,7 @@ class _EditChannelPageState extends State<EditChannelPage>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.warning.withOpacity(0.2),
+                    color: AppTheme.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -1733,13 +1726,13 @@ class _EditChannelPageState extends State<EditChannelPage>
                   color: Color(
                           int.parse(_selectedColor.substring(1), radix: 16) +
                               0xFF000000)
-                      .withOpacity(0.2),
+                      .withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: Color(
                             int.parse(_selectedColor.substring(1), radix: 16) +
                                 0xFF000000)
-                        .withOpacity(0.5),
+                        .withValues(alpha: 0.5),
                     width: 1,
                   ),
                 ),
@@ -1794,19 +1787,19 @@ class _EditChannelPageState extends State<EditChannelPage>
         gradient: LinearGradient(
           colors: hasChanges
               ? [
-                  AppTheme.warning.withOpacity(0.05),
-                  AppTheme.darkCard.withOpacity(0.4),
+                  AppTheme.warning.withValues(alpha: 0.05),
+                  AppTheme.darkCard.withValues(alpha: 0.4),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: hasChanges
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1840,7 +1833,7 @@ class _EditChannelPageState extends State<EditChannelPage>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.warning.withOpacity(0.2),
+                    color: AppTheme.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -1877,19 +1870,19 @@ class _EditChannelPageState extends State<EditChannelPage>
         gradient: LinearGradient(
           colors: hasChanges
               ? [
-                  AppTheme.warning.withOpacity(0.05),
-                  AppTheme.darkCard.withOpacity(0.4),
+                  AppTheme.warning.withValues(alpha: 0.05),
+                  AppTheme.darkCard.withValues(alpha: 0.4),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: hasChanges
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1904,7 +1897,7 @@ class _EditChannelPageState extends State<EditChannelPage>
                   gradient: LinearGradient(
                     colors: [
                       AppTheme.primaryPurple,
-                      AppTheme.primaryPurple.withOpacity(0.7)
+                      AppTheme.primaryPurple.withValues(alpha: 0.7)
                     ],
                   ),
                   borderRadius: BorderRadius.circular(8),
@@ -1928,7 +1921,7 @@ class _EditChannelPageState extends State<EditChannelPage>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.warning.withOpacity(0.2),
+                    color: AppTheme.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -1974,23 +1967,23 @@ class _EditChannelPageState extends State<EditChannelPage>
                     gradient: isSelected
                         ? isNew
                             ? LinearGradient(colors: [
-                                AppTheme.success.withOpacity(0.7),
-                                AppTheme.success.withOpacity(0.5),
+                                AppTheme.success.withValues(alpha: 0.7),
+                                AppTheme.success.withValues(alpha: 0.5),
                               ])
                             : AppTheme.primaryGradient
                         : null,
                     color: isSelected
                         ? null
                         : isRemoved
-                            ? AppTheme.error.withOpacity(0.1)
-                            : AppTheme.darkBackground.withOpacity(0.5),
+                            ? AppTheme.error.withValues(alpha: 0.1)
+                            : AppTheme.darkBackground.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isSelected
                           ? Colors.transparent
                           : isRemoved
-                              ? AppTheme.error.withOpacity(0.3)
-                              : AppTheme.darkBorder.withOpacity(0.3),
+                              ? AppTheme.error.withValues(alpha: 0.3)
+                              : AppTheme.darkBorder.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
@@ -2082,72 +2075,6 @@ class _EditChannelPageState extends State<EditChannelPage>
     );
   }
 
-  Widget _buildCheckboxTile({
-    required String title,
-    required bool value,
-    required Function(bool?) onChanged,
-    bool hasChanged = false,
-  }) {
-    return GestureDetector(
-      onTap: () => onChanged(!value),
-      child: Row(
-        children: [
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              gradient: value
-                  ? hasChanged
-                      ? LinearGradient(colors: [
-                          AppTheme.warning,
-                          AppTheme.warning.withOpacity(0.7),
-                        ])
-                      : AppTheme.primaryGradient
-                  : null,
-              color: value ? null : AppTheme.darkBackground.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(
-                color: value
-                    ? Colors.transparent
-                    : hasChanged
-                        ? AppTheme.warning.withOpacity(0.3)
-                        : AppTheme.darkBorder.withOpacity(0.3),
-              ),
-            ),
-            child: value
-                ? const Icon(
-                    Icons.check_rounded,
-                    color: Colors.white,
-                    size: 16,
-                  )
-                : null,
-          ),
-          const SizedBox(width: 12),
-          Row(
-            children: [
-              if (hasChanged)
-                Container(
-                  width: 6,
-                  height: 6,
-                  margin: const EdgeInsets.only(right: 4),
-                  decoration: BoxDecoration(
-                    color: AppTheme.warning,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              Text(
-                title,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: hasChanged ? AppTheme.warning : AppTheme.textWhite,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildReviewCard({
     required String title,
     required List<Map<String, dynamic>> items,
@@ -2160,19 +2087,19 @@ class _EditChannelPageState extends State<EditChannelPage>
         gradient: LinearGradient(
           colors: hasChanges
               ? [
-                  AppTheme.warning.withOpacity(0.05),
-                  AppTheme.darkCard.withOpacity(0.4),
+                  AppTheme.warning.withValues(alpha: 0.05),
+                  AppTheme.darkCard.withValues(alpha: 0.4),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasChanges
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -2194,7 +2121,7 @@ class _EditChannelPageState extends State<EditChannelPage>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.warning.withOpacity(0.2),
+                    color: AppTheme.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -2267,13 +2194,13 @@ class _EditChannelPageState extends State<EditChannelPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2289,13 +2216,13 @@ class _EditChannelPageState extends State<EditChannelPage>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -2321,15 +2248,15 @@ class _EditChannelPageState extends State<EditChannelPage>
                   gradient: _hasChanges
                       ? LinearGradient(colors: [
                           AppTheme.warning,
-                          AppTheme.warning.withOpacity(0.8)
+                          AppTheme.warning.withValues(alpha: 0.8)
                         ])
                       : AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
                       color: _hasChanges
-                          ? AppTheme.warning.withOpacity(0.3)
-                          : AppTheme.primaryBlue.withOpacity(0.3),
+                          ? AppTheme.warning.withValues(alpha: 0.3)
+                          : AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -2409,13 +2336,13 @@ class _EditChannelPageState extends State<EditChannelPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(enabled ? 0.5 : 0.3),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: enabled ? 0.5 : 0.3),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -2430,12 +2357,12 @@ class _EditChannelPageState extends State<EditChannelPage>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: maxLines == 1
                   ? Icon(
                       icon,
-                      color: AppTheme.primaryBlue.withOpacity(0.7),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                       size: 20,
                     )
                   : null,
@@ -2471,13 +2398,13 @@ class _EditChannelPageState extends State<EditChannelPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.3),
-                AppTheme.darkCard.withOpacity(0.2),
+                AppTheme.darkCard.withValues(alpha: 0.3),
+                AppTheme.darkCard.withValues(alpha: 0.2),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.2),
+              color: AppTheme.darkBorder.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -2485,7 +2412,7 @@ class _EditChannelPageState extends State<EditChannelPage>
             children: [
               Icon(
                 icon,
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -2499,7 +2426,7 @@ class _EditChannelPageState extends State<EditChannelPage>
               ),
               Icon(
                 Icons.lock_outline_rounded,
-                color: AppTheme.textMuted.withOpacity(0.3),
+                color: AppTheme.textMuted.withValues(alpha: 0.3),
                 size: 16,
               ),
             ],
@@ -2886,10 +2813,9 @@ class _EditChannelPageState extends State<EditChannelPage>
 
 // Additional Dialogs
 class _ResetConfirmationDialog extends StatelessWidget {
+  /// العربية: يخزن القيمة `onConfirm`.
   final VoidCallback onConfirm;
-
   const _ResetConfirmationDialog({required this.onConfirm});
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -2899,13 +2825,13 @@ class _ResetConfirmationDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.warning.withOpacity(0.3),
+            color: AppTheme.warning.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2918,8 +2844,8 @@ class _ResetConfirmationDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.warning.withOpacity(0.2),
-                    AppTheme.warning.withOpacity(0.1),
+                    AppTheme.warning.withValues(alpha: 0.2),
+                    AppTheme.warning.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -2955,10 +2881,10 @@ class _ResetConfirmationDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkSurface.withOpacity(0.5),
+                        color: AppTheme.darkSurface.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.3),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -2986,7 +2912,7 @@ class _ResetConfirmationDialog extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             AppTheme.warning,
-                            AppTheme.warning.withOpacity(0.8),
+                            AppTheme.warning.withValues(alpha: 0.8),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -3022,13 +2948,13 @@ class _UnsavedChangesDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.error.withOpacity(0.3),
+            color: AppTheme.error.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -3041,8 +2967,8 @@ class _UnsavedChangesDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
+                    AppTheme.error.withValues(alpha: 0.2),
+                    AppTheme.error.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -3103,10 +3029,10 @@ class _UnsavedChangesDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.error.withOpacity(0.1),
+                        color: AppTheme.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.error.withOpacity(0.3),
+                          color: AppTheme.error.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -3133,10 +3059,9 @@ class _UnsavedChangesDialog extends StatelessWidget {
 
 // Background Painter
 class _EditChannelBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
-
   _EditChannelBackgroundPainter({required this.glowIntensity});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -3144,8 +3069,8 @@ class _EditChannelBackgroundPainter extends CustomPainter {
     // Draw glowing orbs with edit theme
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.warning.withOpacity(0.1 * glowIntensity),
-        AppTheme.warning.withOpacity(0.05 * glowIntensity),
+        AppTheme.warning.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.warning.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -3161,8 +3086,8 @@ class _EditChannelBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryPurple.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryPurple.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(

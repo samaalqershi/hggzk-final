@@ -7,15 +7,41 @@ import '../../domain/entities/search_result.dart';
 import 'search_result_card_widget.dart';
 import 'package:hggzk/core/enums/search_relaxation_level.dart';
 
+/// Compact search-result list used when the screen needs dense cards and fast
+/// scrolling instead of a full-width layout.
+/// قائمة نتائج بحث مضغوطة تُستخدم عندما تحتاج الشاشة بطاقات أكثر كثافة
+/// وتمريرًا أسرع بدل التخطيط العريض.
 class SearchResultCompactWidget extends StatefulWidget {
+  /// Search results to render in compact cards.
+  /// نتائج البحث المطلوب عرضها كبطاقات مضغوطة.
   final List<SearchResult> results;
+
+  /// Optional controller for synchronizing the surrounding scroll view.
+  /// متحكم اختياري لمزامنة التمرير مع الحاوية المحيطة.
   final ScrollController? scrollController;
+
+  /// Shows a footer loader while the next result page is being fetched.
+  /// يعرض مؤشر تحميل سفليًا أثناء جلب الصفحة التالية من النتائج.
   final bool isLoadingMore;
+
+  /// Requests the next result batch when the list reaches the end.
+  /// يطلب الدفعة التالية من النتائج عند الوصول إلى نهاية القائمة.
   final VoidCallback? onLoadMore;
+
+  /// Opens the selected result in its detail flow.
+  /// يفتح النتيجة المختارة في مسار التفاصيل.
   final Function(SearchResult)? onItemTap;
+
+  /// Toggles the favorite state for one result without leaving the list.
+  /// يبدّل حالة المفضلة لعنصر واحد دون مغادرة القائمة.
   final Function(SearchResult)? onFavoriteToggle;
+
+  /// Guides the card style when the result is a relaxed or premium match.
+  /// يوجّه أسلوب البطاقة عندما تكون النتيجة مطابقة مريحة أو مميزة.
   final SearchRelaxationLevel? relaxationLevel;
 
+  /// Builds the compact list with optional loading and selection callbacks.
+  /// ينشئ القائمة المضغوطة مع callbacks اختيارية للتحميل والاختيار.
   const SearchResultCompactWidget({
     super.key,
     required this.results,
@@ -27,16 +53,27 @@ class SearchResultCompactWidget extends StatefulWidget {
     this.relaxationLevel,
   });
 
+  /// Sets up the animated list state used for staggered compact cards.
+  /// يهيئ حالة القائمة المتحركة المستخدمة لتدرج البطاقات المضغوطة.
   @override
   State<SearchResultCompactWidget> createState() =>
       _SearchResultCompactWidgetState();
 }
 
+/// Coordinates list entrance animations and incremental item controllers.
+/// ينسق حركات ظهور القائمة ومتحكمات العناصر المتدرجة.
 class _SearchResultCompactWidgetState extends State<SearchResultCompactWidget>
     with TickerProviderStateMixin {
+  /// Drives the overall list entrance animation.
+  /// يقود حركة ظهور القائمة ككل.
   late AnimationController _listAnimationController;
+
+  /// Keeps one controller per visible result for staggered motion.
+  /// يحتفظ بمتحكم لكل نتيجة مرئية حتى تتحرك العناصر بتتابع.
   final Map<int, AnimationController> _itemAnimations = {};
 
+  /// Starts the list animation and prepares item controllers for every result.
+  /// يبدأ حركة القائمة ويجهز متحكمات العناصر لكل نتيجة.
   @override
   void initState() {
     super.initState();
@@ -45,7 +82,7 @@ class _SearchResultCompactWidgetState extends State<SearchResultCompactWidget>
       vsync: this,
     )..forward();
 
-    // Create animation for each item
+    // Stagger each card so the list feels intentionally layered.
     for (int i = 0; i < widget.results.length; i++) {
       _itemAnimations[i] = AnimationController(
         duration: Duration(milliseconds: 300 + (i * 50)),
@@ -54,10 +91,13 @@ class _SearchResultCompactWidgetState extends State<SearchResultCompactWidget>
     }
   }
 
+  /// Keeps the staggered animation controllers aligned with the current
+  /// result list.
+  /// يبقي متحكمات الحركة المتدرجة متزامنة مع قائمة النتائج الحالية.
   @override
   void didUpdateWidget(covariant SearchResultCompactWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Sync animation controllers with updated results length
+    // Add or remove controllers so animations match the current list length.
     final oldLen = oldWidget.results.length;
     final newLen = widget.results.length;
 
@@ -76,6 +116,8 @@ class _SearchResultCompactWidgetState extends State<SearchResultCompactWidget>
     }
   }
 
+  /// Disposes the list and per-item controllers owned by the widget.
+  /// يحرر متحكمات القائمة والعناصر المملوكة للعنصر.
   @override
   void dispose() {
     _listAnimationController.dispose();
@@ -85,6 +127,8 @@ class _SearchResultCompactWidgetState extends State<SearchResultCompactWidget>
     super.dispose();
   }
 
+  /// Renders the compact cards, empty state, or loading footer as needed.
+  /// يرسم البطاقات المضغوطة أو الحالة الفارغة أو مؤشر التحميل عند الحاجة.
   @override
   Widget build(BuildContext context) {
     if (widget.results.isEmpty) {
@@ -146,6 +190,8 @@ class _SearchResultCompactWidgetState extends State<SearchResultCompactWidget>
     );
   }
 
+  /// Renders the empty state shown when no results are available.
+  /// يرسم الحالة الفارغة التي تظهر عندما لا تتوفر نتائج.
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -206,6 +252,8 @@ class _SearchResultCompactWidgetState extends State<SearchResultCompactWidget>
     );
   }
 
+  /// Renders the footer loading indicator while pagination is active.
+  /// يرسم مؤشر التحميل السفلي أثناء تفعيل الترقيم.
   Widget _buildLoadingIndicator() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 32),

@@ -16,14 +16,31 @@ import '../../domain/entities/attachment.dart';
 import '../../data/datasources/chat_local_datasource.dart';
 import 'dart:io';
 
+/// يعرّف الكلاس `AttachmentPreviewWidget`.
+/// Describes the `AttachmentPreviewWidget` class.
 class AttachmentPreviewWidget extends StatefulWidget {
+  /// Holds the `attachment` value.
+  /// العربية: يخزن القيمة `attachment`.
   final Attachment attachment;
+
+  /// يخزن العضو `isMe`.
+  /// Holds the `isMe` member.
   final bool isMe;
+
+  /// يخزن العضو `onTap`.
+  /// Holds the `onTap` member.
   final VoidCallback? onTap;
+
+  /// يخزن العضو `onDownload`.
+  /// Holds the `onDownload` member.
   final VoidCallback? onDownload;
   // Optional override to force audio UI when server MIME is generic
+  /// يخزن العضو `forceAudio`.
+  /// Holds the `forceAudio` member.
   final bool forceAudio;
 
+  /// ينشئ مثيلاً من `AttachmentPreviewWidget`.
+  /// Builds an instance of `AttachmentPreviewWidget`.
   const AttachmentPreviewWidget({
     super.key,
     required this.attachment,
@@ -33,25 +50,56 @@ class AttachmentPreviewWidget extends StatefulWidget {
     this.forceAudio = false,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<AttachmentPreviewWidget> createState() =>
       _AttachmentPreviewWidgetState();
 }
 
+/// يعرّف الكلاس `_AttachmentPreviewWidgetState`.
+/// Describes the `_AttachmentPreviewWidgetState` class.
 class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_shimmerController`.
+  /// Holds the `_shimmerController` member.
   late AnimationController _shimmerController;
+
+  /// يخزن العضو `_shimmerAnimation`.
+  /// Holds the `_shimmerAnimation` member.
   late Animation<double> _shimmerAnimation;
+
+  /// يخزن العضو `_imageStream`.
+  /// Holds the `_imageStream` member.
   ImageStream? _imageStream;
+
+  /// يخزن العضو `_imageStreamListener`.
+  /// Holds the `_imageStreamListener` member.
   ImageStreamListener? _imageStreamListener;
+
+  /// يخزن العضو `_displaySize`.
+  /// Holds the `_displaySize` member.
   Size? _displaySize;
 
   // Audio player for voice messages
+  /// يخزن العضو `_audioPlayer`.
+  /// Holds the `_audioPlayer` member.
   AudioPlayer? _audioPlayer;
+
+  /// يخزن العضو `_playerState`.
+  /// Holds the `_playerState` member.
   PlayerState? _playerState;
+
+  /// يخزن العضو `_position`.
+  /// Holds the `_position` member.
   Duration _position = Duration.zero;
+
+  /// يخزن العضو `_duration`.
+  /// Holds the `_duration` member.
   Duration _duration = Duration.zero;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -71,11 +119,16 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
         widget.attachment.downloadProgress! < 1.0) {
       _shimmerController.repeat();
     }
+
+    /// ينفذ العملية `_resolveImageDimensions`.
+    /// Runs the `_resolveImageDimensions` operation.
     _resolveImageDimensions();
 
     // Lazy init audio only when needed
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _removeImageStreamListener();
@@ -84,6 +137,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     super.dispose();
   }
 
+  /// ينفذ العملية `didUpdateWidget`.
+  /// Runs the `didUpdateWidget` operation.
   @override
   void didUpdateWidget(covariant AttachmentPreviewWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -92,6 +147,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     }
   }
 
+  /// ينفذ العملية `_resolveImageDimensions`.
+  /// Runs the `_resolveImageDimensions` operation.
   void _resolveImageDimensions() {
     _removeImageStreamListener();
     final resolvedUrl = ImageUtils.resolveUrl(widget.attachment.fileUrl);
@@ -124,6 +181,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     _imageStreamListener = listener;
   }
 
+  /// ينفذ العملية `_removeImageStreamListener`.
+  /// Runs the `_removeImageStreamListener` operation.
   void _removeImageStreamListener() {
     if (_imageStream != null && _imageStreamListener != null) {
       _imageStream!.removeListener(_imageStreamListener!);
@@ -132,6 +191,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     _imageStreamListener = null;
   }
 
+  /// ينفذ العملية `_constrainSize`.
+  /// Runs the `_constrainSize` operation.
   Size _constrainSize(Size original) {
     const maxWidth = 300.0;
     const maxHeight = 300.0;
@@ -153,6 +214,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     return Size(width, height);
   }
 
+  /// ينفذ العملية `_buildAuthHeaders`.
+  /// Runs the `_buildAuthHeaders` operation.
   Map<String, String>? _buildAuthHeaders() {
     try {
       final local = sl<LocalStorageService>();
@@ -164,6 +227,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     return null;
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     if (widget.attachment.isImage) {
@@ -177,6 +242,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     }
   }
 
+  /// ينفذ العملية `_buildImagePreview`.
+  /// Runs the `_buildImagePreview` operation.
   Widget _buildImagePreview() {
     final size = _displaySize ?? const Size(180, 180);
     return GestureDetector(
@@ -222,6 +289,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     );
   }
 
+  /// ينفذ العملية `_loadLocalVideoThumb`.
+  /// Runs the `_loadLocalVideoThumb` operation.
   Future<String?> _loadLocalVideoThumb(String attachmentId) async {
     try {
       final local = sl<ChatLocalDataSource>();
@@ -231,6 +300,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     }
   }
 
+  /// ينفذ العملية `_buildVideoPreview`.
+  /// Runs the `_buildVideoPreview` operation.
   Widget _buildVideoPreview() {
     return GestureDetector(
       onTap: () {
@@ -250,7 +321,9 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
                 future: _loadLocalVideoThumb(widget.attachment.id),
                 builder: (context, snap) {
                   final path = snap.data;
-                  if (path != null && path.isNotEmpty && File(path).existsSync()) {
+                  if (path != null &&
+                      path.isNotEmpty &&
+                      File(path).existsSync()) {
                     return Image.file(File(path), fit: BoxFit.cover);
                   }
                   if (widget.attachment.thumbnailUrl != null) {
@@ -350,6 +423,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     );
   }
 
+  /// ينفذ العملية `_buildAudioPreview`.
+  /// Runs the `_buildAudioPreview` operation.
   Widget _buildAudioPreview() {
     _ensureAudioInitialized();
     final totalSeconds = widget.attachment.duration ?? _duration.inSeconds;
@@ -507,6 +582,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     );
   }
 
+  /// ينفذ العملية `_buildUploadAwareWaveform`.
+  /// Runs the `_buildUploadAwareWaveform` operation.
   Widget _buildUploadAwareWaveform(double progress) {
     return SizedBox(
       height: 24,
@@ -526,6 +603,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     );
   }
 
+  /// ينفذ العملية `_ensureAudioInitialized`.
+  /// Runs the `_ensureAudioInitialized` operation.
   void _ensureAudioInitialized() {
     if (_audioPlayer != null) return;
     _audioPlayer = AudioPlayer();
@@ -565,25 +644,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     });
   }
 
-  Widget _buildMinimalWaveform() {
-    return SizedBox(
-      height: 24, // Reduced from 30
-      child: AnimatedBuilder(
-        animation: _shimmerAnimation,
-        builder: (context, child) {
-          return CustomPaint(
-            painter: _MinimalWaveformPainter(
-              color: widget.isMe ? Colors.white : AppTheme.primaryBlue,
-              progress: 0.0,
-              shimmerPosition: _shimmerAnimation.value,
-            ),
-            child: const SizedBox.expand(),
-          );
-        },
-      ),
-    );
-  }
-
+  /// ينفذ العملية `_buildDocumentPreview`.
+  /// Runs the `_buildDocumentPreview` operation.
   Widget _buildDocumentPreview() {
     return GestureDetector(
       onTap: () {
@@ -707,6 +769,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalProgressOverlay`.
+  /// Runs the `_buildMinimalProgressOverlay` operation.
   Widget _buildMinimalProgressOverlay() {
     return Container(
       decoration: BoxDecoration(
@@ -730,6 +794,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     );
   }
 
+  /// ينفذ العملية `_getFileIcon`.
+  /// Runs the `_getFileIcon` operation.
   IconData _getFileIcon() {
     switch (widget.attachment.fileExtension.toLowerCase()) {
       case 'pdf':
@@ -751,6 +817,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     }
   }
 
+  /// ينفذ العملية `_getFileIconColor`.
+  /// Runs the `_getFileIconColor` operation.
   Color _getFileIconColor() {
     switch (widget.attachment.fileExtension.toLowerCase()) {
       case 'pdf':
@@ -772,6 +840,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     }
   }
 
+  /// ينفذ العملية `_formatDuration`.
+  /// Runs the `_formatDuration` operation.
   String _formatDuration(int? seconds) {
     if (seconds == null) return '0:00';
     final minutes = seconds ~/ 60;
@@ -779,6 +849,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
+  /// ينفذ العملية `_formatFileSize`.
+  /// Runs the `_formatFileSize` operation.
   String _formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
@@ -789,17 +861,31 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
   }
 }
 
+/// يعرّف الكلاس `_MinimalWaveformPainter`.
+/// Describes the `_MinimalWaveformPainter` class.
 class _MinimalWaveformPainter extends CustomPainter {
+  /// Holds the `color` value.
+  /// العربية: يخزن القيمة `color`.
   final Color color;
+
+  /// يخزن العضو `progress`.
+  /// Holds the `progress` member.
   final double progress;
+
+  /// يخزن العضو `shimmerPosition`.
+  /// Holds the `shimmerPosition` member.
   final double shimmerPosition;
 
+  /// ينشئ مثيلاً من `_MinimalWaveformPainter`.
+  /// Builds an instance of `_MinimalWaveformPainter`.
   _MinimalWaveformPainter({
     required this.color,
     required this.progress,
     this.shimmerPosition = 0,
   });
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -846,6 +932,8 @@ class _MinimalWaveformPainter extends CustomPainter {
     }
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

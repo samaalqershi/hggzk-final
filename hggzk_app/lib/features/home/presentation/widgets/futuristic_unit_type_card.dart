@@ -13,7 +13,6 @@ class FuturisticUnitTypeCard extends StatefulWidget {
   final bool isSelected;
   final VoidCallback onTap;
   final Duration animationDelay;
-
   const FuturisticUnitTypeCard({
     super.key,
     required this.id,
@@ -23,7 +22,6 @@ class FuturisticUnitTypeCard extends StatefulWidget {
     required this.onTap,
     this.animationDelay = Duration.zero,
   });
-
   @override
   State<FuturisticUnitTypeCard> createState() => _FuturisticUnitTypeCardState();
 }
@@ -36,16 +34,13 @@ class _FuturisticUnitTypeCardState extends State<FuturisticUnitTypeCard>
   late AnimationController _rippleController;
   late AnimationController _rotationController;
   late AnimationController _shimmerController;
-
   late Animation<double> _scaleAnimation;
   late Animation<double> _glowAnimation;
   late Animation<double> _entranceAnimation;
   late Animation<double> _rippleAnimation;
   late Animation<double> _rotationAnimation;
   late Animation<double> _shimmerAnimation;
-
   bool _isPressed = false;
-
   @override
   void initState() {
     super.initState();
@@ -642,9 +637,7 @@ class _FuturisticUnitTypeCardState extends State<FuturisticUnitTypeCard>
 // Custom Painter للتأثير اللامع
 class _ShimmerPainter extends CustomPainter {
   final double shimmerValue;
-
   _ShimmerPainter({required this.shimmerValue});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()

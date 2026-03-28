@@ -11,13 +11,31 @@ import '../widgets/search_header.dart';
 import '../widgets/search_item_card.dart';
 import '../widgets/simple_filter_bar.dart';
 
+/// يعرّف الكلاس `CitySearchPage`.
+/// Describes the `CitySearchPage` class.
 class CitySearchPage extends StatefulWidget {
+  /// Holds the `initialSearchTerm` value.
+  /// العربية: يخزن القيمة `initialSearchTerm`.
   final String? initialSearchTerm;
+
+  /// يخزن العضو `country`.
+  /// Holds the `country` member.
   final String? country;
+
+  /// يخزن العضو `allowMultiSelect`.
+  /// Holds the `allowMultiSelect` member.
   final bool allowMultiSelect;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(List<City>)? onCitiesSelected;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(City)? onCitySelected;
 
+  /// ينشئ مثيلاً من `CitySearchPage`.
+  /// Builds an instance of `CitySearchPage`.
   const CitySearchPage({
     super.key,
     this.initialSearchTerm,
@@ -27,28 +45,58 @@ class CitySearchPage extends StatefulWidget {
     this.onCitySelected,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<CitySearchPage> createState() => _CitySearchPageState();
 }
 
+/// يعرّف الكلاس `_CitySearchPageState`.
+/// Describes the `_CitySearchPageState` class.
 class _CitySearchPageState extends State<CitySearchPage> {
   final SearchCitiesUseCase _searchCitiesUseCase = di.sl<SearchCitiesUseCase>();
-  
+
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  
+
+  /// يخزن العضو `_cities`.
+  /// Holds the `_cities` member.
   List<SearchResult> _cities = [];
+
+  /// يخزن العضو `_selectedIds`.
+  /// Holds the `_selectedIds` member.
   List<String> _selectedIds = [];
+
+  /// يخزن العضو `_isLoading`.
+  /// Holds the `_isLoading` member.
   bool _isLoading = false;
+
+  /// يخزن العضو `_hasError`.
+  /// Holds the `_hasError` member.
   bool _hasError = false;
+
+  /// يخزن العضو `_errorMessage`.
+  /// Holds the `_errorMessage` member.
   String? _errorMessage;
-  
+
+  /// يخزن العضو `_selectedCountry`.
+  /// Holds the `_selectedCountry` member.
   String? _selectedCountry;
-  
+
+  /// يخزن العضو `_currentPage`.
+  /// Holds the `_currentPage` member.
   int _currentPage = 1;
+
+  /// يخزن العضو `_totalPages`.
+  /// Holds the `_totalPages` member.
   int _totalPages = 1;
+
+  /// يخزن العضو `_isLoadingMore`.
+  /// Holds the `_isLoadingMore` member.
   bool _isLoadingMore = false;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -58,6 +106,8 @@ class _CitySearchPageState extends State<CitySearchPage> {
     _loadCities();
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _searchController.dispose();
@@ -65,8 +115,10 @@ class _CitySearchPageState extends State<CitySearchPage> {
     super.dispose();
   }
 
+  /// ينفذ العملية `_onScroll`.
+  /// Runs the `_onScroll` operation.
   void _onScroll() {
-    if (_scrollController.position.pixels >= 
+    if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       if (!_isLoadingMore && _currentPage < _totalPages) {
         _loadMoreCities();
@@ -74,6 +126,8 @@ class _CitySearchPageState extends State<CitySearchPage> {
     }
   }
 
+  /// ينفذ العملية `_loadCities`.
+  /// Runs the `_loadCities` operation.
   Future<void> _loadCities({bool isRefresh = false}) async {
     if (isRefresh) {
       _currentPage = 1;
@@ -86,7 +140,8 @@ class _CitySearchPageState extends State<CitySearchPage> {
     });
 
     final result = await _searchCitiesUseCase(
-      searchTerm: _searchController.text.isEmpty ? null : _searchController.text,
+      searchTerm:
+          _searchController.text.isEmpty ? null : _searchController.text,
       country: _selectedCountry,
       pageNumber: _currentPage,
       pageSize: 20,
@@ -110,6 +165,8 @@ class _CitySearchPageState extends State<CitySearchPage> {
     );
   }
 
+  /// ينفذ العملية `_loadMoreCities`.
+  /// Runs the `_loadMoreCities` operation.
   Future<void> _loadMoreCities() async {
     if (_isLoadingMore) return;
 
@@ -118,9 +175,10 @@ class _CitySearchPageState extends State<CitySearchPage> {
     });
 
     _currentPage++;
-    
+
     final result = await _searchCitiesUseCase(
-      searchTerm: _searchController.text.isEmpty ? null : _searchController.text,
+      searchTerm:
+          _searchController.text.isEmpty ? null : _searchController.text,
       country: _selectedCountry,
       pageNumber: _currentPage,
       pageSize: 20,
@@ -145,6 +203,8 @@ class _CitySearchPageState extends State<CitySearchPage> {
     });
   }
 
+  /// ينفذ العملية `_toggleSelection`.
+  /// Runs the `_toggleSelection` operation.
   void _toggleSelection(String id) {
     setState(() {
       if (widget.allowMultiSelect) {
@@ -159,6 +219,8 @@ class _CitySearchPageState extends State<CitySearchPage> {
     });
   }
 
+  /// ينفذ العملية `_confirmSelection`.
+  /// Runs the `_confirmSelection` operation.
   void _confirmSelection() {
     final selectedCities = _cities
         .where((result) => _selectedIds.contains(result.id))
@@ -167,15 +229,17 @@ class _CitySearchPageState extends State<CitySearchPage> {
 
     if (widget.allowMultiSelect && widget.onCitiesSelected != null) {
       widget.onCitiesSelected!(selectedCities);
-    } else if (!widget.allowMultiSelect && 
-               widget.onCitySelected != null && 
-               selectedCities.isNotEmpty) {
+    } else if (!widget.allowMultiSelect &&
+        widget.onCitySelected != null &&
+        selectedCities.isNotEmpty) {
       widget.onCitySelected!(selectedCities.first);
     }
 
     Navigator.of(context).pop();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -199,7 +263,7 @@ class _CitySearchPageState extends State<CitySearchPage> {
                 _loadCities(isRefresh: true);
               },
             ),
-            
+
             // Filters
             SimpleFilterBar(
               filters: [
@@ -217,7 +281,8 @@ class _CitySearchPageState extends State<CitySearchPage> {
                   label: 'اليمن',
                   isSelected: _selectedCountry == 'Yemen',
                   onChanged: (selected) {
-                    setState(() => _selectedCountry = selected ? 'Yemen' : null);
+                    setState(
+                        () => _selectedCountry = selected ? 'Yemen' : null);
                     _loadCities(isRefresh: true);
                   },
                 ),
@@ -225,7 +290,8 @@ class _CitySearchPageState extends State<CitySearchPage> {
                   label: 'السعودية',
                   isSelected: _selectedCountry == 'Saudi Arabia',
                   onChanged: (selected) {
-                    setState(() => _selectedCountry = selected ? 'Saudi Arabia' : null);
+                    setState(() =>
+                        _selectedCountry = selected ? 'Saudi Arabia' : null);
                     _loadCities(isRefresh: true);
                   },
                 ),
@@ -237,21 +303,21 @@ class _CitySearchPageState extends State<CitySearchPage> {
                 _loadCities(isRefresh: true);
               },
             ),
-            
+
             // Results
             Expanded(
               child: _buildContent(),
             ),
-            
+
             // Action Buttons
             if (_selectedIds.isNotEmpty)
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.5),
+                  color: AppTheme.darkCard.withValues(alpha: 0.5),
                   border: Border(
                     top: BorderSide(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -288,6 +354,8 @@ class _CitySearchPageState extends State<CitySearchPage> {
     );
   }
 
+  /// ينفذ العملية `_buildContent`.
+  /// Runs the `_buildContent` operation.
   Widget _buildContent() {
     if (_isLoading && _cities.isEmpty) {
       return const LoadingWidget(

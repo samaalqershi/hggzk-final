@@ -10,10 +10,9 @@ import '../../../domain/repositories/financial_repository.dart';
 part 'financial_overview_event.dart';
 part 'financial_overview_state.dart';
 
-/// 📊 Bloc لإدارة النظرة العامة المالية
-class FinancialOverviewBloc extends Bloc<FinancialOverviewEvent, FinancialOverviewState> {
+class FinancialOverviewBloc
+    extends Bloc<FinancialOverviewEvent, FinancialOverviewState> {
   final FinancialRepository repository;
-
   FinancialOverviewBloc({
     required this.repository,
   }) : super(FinancialOverviewInitial()) {
@@ -23,7 +22,6 @@ class FinancialOverviewBloc extends Bloc<FinancialOverviewEvent, FinancialOvervi
     on<LoadChartData>(_onLoadChartData);
     on<ExportReport>(_onExportReport);
   }
-
   Future<void> _onLoadFinancialOverview(
     LoadFinancialOverview event,
     Emitter<FinancialOverviewState> emit,
@@ -48,8 +46,8 @@ class FinancialOverviewBloc extends Bloc<FinancialOverviewEvent, FinancialOvervi
       final transactionsResult = futures[2] as dynamic;
       final summaryResult = futures[3] as dynamic;
 
-      if (reportResult.isLeft() || 
-          accountsResult.isLeft() || 
+      if (reportResult.isLeft() ||
+          accountsResult.isLeft() ||
           transactionsResult.isLeft() ||
           summaryResult.isLeft()) {
         emit(FinancialOverviewError('فشل تحميل البيانات المالية'));

@@ -6,17 +6,36 @@ import '../../../domain/usecases/bookings/get_bookings_by_property_usecase.dart'
 import 'booking_calendar_event.dart';
 import 'booking_calendar_state.dart';
 
+/// العربية: يدير بيانات تقويم الحجوزات بما في ذلك التنقل بين الأشهر والاختيار والفلترة.
+/// English: Manages booking-calendar data including month navigation, selection, and filtering.
 class BookingCalendarBloc
     extends Bloc<BookingCalendarEvent, BookingCalendarState> {
+  /// العربية: يجلب الحجوزات حسب نطاق التاريخ الحالي للتقويم.
+  /// English: Fetches bookings for the calendar's current date range.
   final GetBookingsByDateRangeUseCase getBookingsByDateRangeUseCase;
+
+  /// العربية: يجلب الحجوزات الخاصة بوحدة معينة عند الحاجة.
+  /// English: Fetches bookings for a specific unit when needed.
   final GetBookingsByUnitUseCase getBookingsByUnitUseCase;
+
+  /// العربية: يجلب الحجوزات الخاصة بعقار محدد عند تطبيق الفلتر.
+  /// English: Fetches bookings for a specific property when the filter is applied.
   final GetBookingsByPropertyUseCase getBookingsByPropertyUseCase;
 
+  /// العربية: يحتفظ بالشهر المرجعي المستخدم في التنقل وإعادة التحميل.
+  /// English: Stores the reference month used for navigation and refreshes.
   DateTime _currentMonth = DateTime.now();
+
+  /// العربية: يحفظ فلتر الوحدة النشط عند تطبيقه.
+  /// English: Stores the active unit filter when applied.
   String? _currentUnitId;
-  String? _currentPropertyId;
+
+  /// العربية: يحفظ وضع عرض التقويم النشط.
+  /// English: Stores the active calendar view mode.
   CalendarView _currentView = CalendarView.month;
 
+  /// العربية: ينشئ BLoC التقويم ويربط كل حدث بمعالجه المناسب.
+  /// English: Creates the calendar bloc and wires every event to its handler.
   BookingCalendarBloc({
     required this.getBookingsByDateRangeUseCase,
     required this.getBookingsByUnitUseCase,
@@ -33,6 +52,8 @@ class BookingCalendarBloc
     on<ToggleCalendarLegendEvent>(_onToggleCalendarLegend);
   }
 
+  /// العربية: يحمّل الحجوزات ضمن النطاق الناتج عن الشهر وطريقة العرض الحالية.
+  /// English: Loads bookings within the range derived from the current month and view.
   Future<void> _onLoadCalendarBookings(
     LoadCalendarBookingsEvent event,
     Emitter<BookingCalendarState> emit,
@@ -76,6 +97,8 @@ class BookingCalendarBloc
     );
   }
 
+  /// العربية: يبدّل الشهر المرجعي ثم يعيد تحميل بيانات التقويم وفقًا له.
+  /// English: Changes the reference month and reloads the calendar data accordingly.
   Future<void> _onChangeCalendarMonth(
     ChangeCalendarMonthEvent event,
     Emitter<BookingCalendarState> emit,
@@ -86,6 +109,8 @@ class BookingCalendarBloc
     ));
   }
 
+  /// العربية: يغيّر طريقة العرض ثم يعيد تحميل البيانات بالنطاق المناسب.
+  /// English: Changes the calendar view and reloads data with a matching range.
   Future<void> _onChangeCalendarView(
     ChangeCalendarViewEvent event,
     Emitter<BookingCalendarState> emit,
@@ -96,6 +121,8 @@ class BookingCalendarBloc
     ));
   }
 
+  /// العربية: يحدد تاريخًا داخل التقويم ويستخرج الحجوزات التي تغطيه.
+  /// English: Selects a date in the calendar and extracts the bookings that span it.
   Future<void> _onSelectCalendarDate(
     SelectCalendarDateEvent event,
     Emitter<BookingCalendarState> emit,
@@ -118,6 +145,8 @@ class BookingCalendarBloc
     }
   }
 
+  /// العربية: يختار الحجز المطابق للمعرّف لعرض تفاصيله ضمن التقويم.
+  /// English: Selects the booking matching the id so its details can be shown in the calendar.
   Future<void> _onSelectCalendarBooking(
     SelectCalendarBookingEvent event,
     Emitter<BookingCalendarState> emit,
@@ -132,6 +161,8 @@ class BookingCalendarBloc
     }
   }
 
+  /// العربية: يضبط فلتر الوحدة ثم يعيد تحميل نطاق التقويم نفسه.
+  /// English: Sets the unit filter and reloads the same calendar range.
   Future<void> _onFilterCalendarByUnit(
     FilterCalendarByUnitEvent event,
     Emitter<BookingCalendarState> emit,
@@ -143,12 +174,12 @@ class BookingCalendarBloc
     ));
   }
 
+  /// العربية: يطبق فلتر العقار ويعيد بناء بيانات التقويم للنطاق نفسه.
+  /// English: Applies the property filter and rebuilds calendar data for the same range.
   Future<void> _onFilterCalendarByProperty(
     FilterCalendarByPropertyEvent event,
     Emitter<BookingCalendarState> emit,
   ) async {
-    _currentPropertyId = event.propertyId;
-
     if (state is BookingCalendarLoaded) {
       final currentState = state as BookingCalendarLoaded;
       emit(BookingCalendarLoading());
@@ -187,6 +218,8 @@ class BookingCalendarBloc
     }
   }
 
+  /// العربية: يعيد تحميل بيانات التقويم باستخدام آخر إعدادات معروفة.
+  /// English: Reloads calendar data using the last known settings.
   Future<void> _onRefreshCalendar(
     RefreshCalendarEvent event,
     Emitter<BookingCalendarState> emit,
@@ -197,6 +230,8 @@ class BookingCalendarBloc
     ));
   }
 
+  /// العربية: يبدّل ظهور وسيلة الإيضاح دون تغيير بيانات التقويم الأساسية.
+  /// English: Toggles the legend visibility without changing the core calendar data.
   Future<void> _onToggleCalendarLegend(
     ToggleCalendarLegendEvent event,
     Emitter<BookingCalendarState> emit,
@@ -207,6 +242,8 @@ class BookingCalendarBloc
     }
   }
 
+  /// العربية: يحول الشهر وطريقة العرض إلى نطاق تاريخ مناسب للجلب.
+  /// English: Converts the month and view mode into a fetchable date range.
   DateRange _calculateDateRange(DateTime month, CalendarView view) {
     DateTime start, end;
 
@@ -233,6 +270,8 @@ class BookingCalendarBloc
     return DateRange(start: start, end: end);
   }
 
+  /// العربية: يحوّل الحجوزات إلى أحداث تقويم مرتبة حسب اليوم لعرضها بصريًا.
+  /// English: Converts bookings into day-grouped calendar events for visual presentation.
   Map<DateTime, List<CalendarEvent>> _processBookingsForCalendar(
     List<Booking> bookings,
     DateTime start,
@@ -277,9 +316,18 @@ class BookingCalendarBloc
   }
 }
 
+/// العربية: يمثل نطاقًا زمنيًا بسيطًا يعتمد عليه BLoC عند طلب بيانات التقويم.
+/// English: Represents the simple time range used by the bloc when requesting calendar data.
 class DateRange {
+  /// العربية: بداية النطاق الزمني.
+  /// English: The start of the time range.
   final DateTime start;
+
+  /// العربية: نهاية النطاق الزمني.
+  /// English: The end of the time range.
   final DateTime end;
 
+  /// العربية: ينشئ نطاق التاريخ من البداية إلى النهاية.
+  /// English: Creates the date range from start to end.
   DateRange({required this.start, required this.end});
 }

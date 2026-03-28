@@ -10,15 +10,26 @@ import '../../domain/repositories/unit_images_repository.dart';
 import '../datasources/unit_images_remote_datasource.dart';
 import '../models/unit_image_model.dart';
 
+/// يمثل هذا الكلاس UnitImagesRepositoryImpl البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitImagesRepositoryImpl in the admin unit workflow.
 class UnitImagesRepositoryImpl implements UnitImagesRepository {
+  /// This field keeps the remoteDataSource value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة remoteDataSource التي يعتمد عليها مسار إدارة الوحدات.
   final UnitImagesRemoteDataSource remoteDataSource;
+
+  /// يحتفظ هذا الحقل بقيمة networkInfo التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the networkInfo value used by the admin unit workflow.
   final NetworkInfo networkInfo;
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitImagesRepositoryImpl.
+  /// This constructor creates an instance of UnitImagesRepositoryImpl.
   UnitImagesRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
 
+  /// ينفذ هذا الأسلوب عملية uploadImage ضمن مسار إدارة الوحدات.
+  /// This method performs the uploadImage operation in the admin unit workflow.
   @override
   Future<Either<Failure, UnitImage>> uploadImage({
     String? unitId,
@@ -62,6 +73,8 @@ class UnitImagesRepositoryImpl implements UnitImagesRepository {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية getUnitImages ضمن مسار إدارة الوحدات.
+  /// This method performs the getUnitImages operation in the admin unit workflow.
   @override
   Future<Either<Failure, List<UnitImage>>> getUnitImages(String? unitId,
       {String? tempKey}) async {
@@ -81,6 +94,8 @@ class UnitImagesRepositoryImpl implements UnitImagesRepository {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية updateImage ضمن مسار إدارة الوحدات.
+  /// This method performs the updateImage operation in the admin unit workflow.
   @override
   Future<Either<Failure, bool>> updateImage(
     String imageId,
@@ -101,6 +116,8 @@ class UnitImagesRepositoryImpl implements UnitImagesRepository {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية deleteImage ضمن مسار إدارة الوحدات.
+  /// This method performs the deleteImage operation in the admin unit workflow.
   @override
   Future<Either<Failure, bool>> deleteImage(String imageId) async {
     if (await networkInfo.isConnected) {
@@ -118,6 +135,8 @@ class UnitImagesRepositoryImpl implements UnitImagesRepository {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية reorderImages ضمن مسار إدارة الوحدات.
+  /// This method performs the reorderImages operation in the admin unit workflow.
   @override
   Future<Either<Failure, bool>> reorderImages(
     String? unitId,
@@ -140,6 +159,8 @@ class UnitImagesRepositoryImpl implements UnitImagesRepository {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية setAsPrimaryImage ضمن مسار إدارة الوحدات.
+  /// This method performs the setAsPrimaryImage operation in the admin unit workflow.
   @override
   Future<Either<Failure, bool>> setAsPrimaryImage(
     String? unitId,
@@ -162,6 +183,8 @@ class UnitImagesRepositoryImpl implements UnitImagesRepository {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية deleteMultipleImages ضمن مسار إدارة الوحدات.
+  /// This method performs the deleteMultipleImages operation in the admin unit workflow.
   @override
   Future<Either<Failure, bool>> deleteMultipleImages(
       List<String> imageIds) async {
@@ -187,6 +210,8 @@ class UnitImagesRepositoryImpl implements UnitImagesRepository {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية uploadMultipleImages ضمن مسار إدارة الوحدات.
+  /// This method performs the uploadMultipleImages operation in the admin unit workflow.
   @override
   Future<Either<Failure, List<UnitImage>>> uploadMultipleImages({
     String? unitId,

@@ -33,13 +33,21 @@ import '../../../../features/admin_cities/domain/usecases/get_cities_usecase.dar
     as ci_uc;
 import '../../../../core/usecases/usecase.dart';
 
+/// يعرّف الكلاس `EditProfilePage`.
+/// Describes the `EditProfilePage` class.
 class EditProfilePage extends StatefulWidget {
+  /// Initializes a new `EditProfilePage` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `EditProfilePage`.
   const EditProfilePage({super.key});
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
 }
 
+/// يعرّف الكلاس `_EditProfilePageState`.
+/// Describes the `_EditProfilePageState` class.
 class _EditProfilePageState extends State<EditProfilePage>
     with TickerProviderStateMixin {
   // Form Keys
@@ -69,42 +77,119 @@ class _EditProfilePageState extends State<EditProfilePage>
   final _emailFocusNode = FocusNode();
 
   // Animation Controllers
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_glowController`.
+  /// Holds the `_glowController` member.
   late AnimationController _glowController;
+
+  /// يخزن العضو `_loadingAnimationController`.
+  /// Holds the `_loadingAnimationController` member.
   late AnimationController _loadingAnimationController;
+
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
+
+  /// يخزن العضو `_slideAnimation`.
+  /// Holds the `_slideAnimation` member.
   late Animation<Offset> _slideAnimation;
+
+  /// يخزن العضو `_loadingRotation`.
+  /// Holds the `_loadingRotation` member.
   late Animation<double> _loadingRotation;
 
   // State Management
   domain.User? _originalUser;
   prop_entity.Property? _originalProperty;
+
+  /// يخزن العضو `_isDataLoaded`.
+  /// Holds the `_isDataLoaded` member.
   bool _isDataLoaded = false;
+
+  /// يخزن العضو `_hasChanges`.
+  /// Holds the `_hasChanges` member.
   bool _hasChanges = false;
+
+  /// يخزن العضو `_currentStep`.
+  /// Holds the `_currentStep` member.
   int _currentStep = 0;
+
+  /// يخزن العضو `_saving`.
+  /// Holds the `_saving` member.
   bool _saving = false;
+
+  /// يخزن العضو `_ownerPropertyId`.
+  /// Holds the `_ownerPropertyId` member.
   String? _ownerPropertyId;
+
+  /// يخزن العضو `_isOwner`.
+  /// Holds the `_isOwner` member.
   bool _isOwner = false;
 
   // Property specific state
+  /// يخزن العضو `_currency`.
+  /// Holds the `_currency` member.
   String _currency = 'YER';
+
+  /// يخزن العضو `_selectedCity`.
+  /// Holds the `_selectedCity` member.
   String? _selectedCity;
+
+  /// يخزن العضو `_starRating`.
+  /// Holds the `_starRating` member.
   int _starRating = 3;
+
+  /// يخزن العضو `_isFeatured`.
+  /// Holds the `_isFeatured` member.
   bool _isFeatured = false;
+
+  /// يخزن العضو `_selectedImages`.
+  /// Holds the `_selectedImages` member.
   List<PropertyImage> _selectedImages = [];
+
+  /// يخزن العضو `_originalImageUrls`.
+  /// Holds the `_originalImageUrls` member.
   List<String> _originalImageUrls = [];
+
+  /// يخزن العضو `_imagesChanged`.
+  /// Holds the `_imagesChanged` member.
   bool _imagesChanged = false;
+
+  /// يخزن العضو `_selectedAmenities`.
+  /// Holds the `_selectedAmenities` member.
   List<String> _selectedAmenities = [];
+
+  /// يخزن العضو `_originalAmenities`.
+  /// Holds the `_originalAmenities` member.
   List<String> _originalAmenities = [];
+
+  /// يخزن العضو `_currentImageUrl`.
+  /// Holds the `_currentImageUrl` member.
   String? _currentImageUrl;
+
+  /// يخزن العضو `_originalImageUrl`.
+  /// Holds the `_originalImageUrl` member.
   String? _originalImageUrl;
+
+  /// يخزن العضو `_initialPropertySnapshot`.
+  /// Holds the `_initialPropertySnapshot` member.
   Map<String, dynamic> _initialPropertySnapshot = {};
+
+  /// يخزن العضو `_isPropertyDataLoaded`.
+  /// Holds the `_isPropertyDataLoaded` member.
   bool _isPropertyDataLoaded = false;
 
+  /// يخزن العضو `_walletAccounts`.
+  /// Holds the `_walletAccounts` member.
   final List<_WalletAccountDraft> _walletAccounts = [];
 
   final GlobalKey<PropertyImageGalleryState> _galleryKey = GlobalKey();
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -112,6 +197,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     _loadUserData();
   }
 
+  /// ينفذ العملية `_initializeAnimations`.
+  /// Runs the `_initializeAnimations` operation.
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -159,6 +246,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     });
   }
 
+  /// ينفذ العملية `_loadUserData`.
+  /// Runs the `_loadUserData` operation.
   void _loadUserData() {
     final state = context.read<AuthBloc>().state;
     domain.User? user;
@@ -168,9 +257,9 @@ class _EditProfilePageState extends State<EditProfilePage>
     if (state is AuthProfileUpdateSuccess) user = state.user;
     if (state is AuthProfileImageUploadSuccess) user = state.user;
 
-    print('📱 Loading user data...');
-    print('   Is Owner: ${user?.isOwner}');
-    print('   Property ID: ${user?.propertyId}');
+    debugPrint('📱 Loading user data...');
+    debugPrint('   Is Owner: ${user?.isOwner}');
+    debugPrint('   Property ID: ${user?.propertyId}');
 
     if (user != null) {
       setState(() {
@@ -209,14 +298,17 @@ class _EditProfilePageState extends State<EditProfilePage>
       });
 
       if (_isOwner && _ownerPropertyId != null) {
-        print('🏢 Fetching property details for ID: $_ownerPropertyId');
+        debugPrint('🏢 Fetching property details for ID: $_ownerPropertyId');
         _fetchOwnerPropertyDetails(_ownerPropertyId!);
       } else {
-        print('ℹ️ Not an owner or no property ID - skipping property fetch');
+        debugPrint(
+            'ℹ️ Not an owner or no property ID - skipping property fetch');
       }
     }
   }
 
+  /// ينفذ العملية `_fetchOwnerPropertyDetails`.
+  /// Runs the `_fetchOwnerPropertyDetails` operation.
   Future<void> _fetchOwnerPropertyDetails(String propertyId) async {
     try {
       // Try internal details endpoint first (more complete), then fallback to public
@@ -235,7 +327,7 @@ class _EditProfilePageState extends State<EditProfilePage>
       );
 
       if (loadedProperty == null) {
-        print(
+        debugPrint(
             'ℹ️ Internal details failed or not available. Falling back to public details...');
         final getPublic =
             di.sl<ap_uc_prop_public_details.GetPropertyDetailsPublicUseCase>();
@@ -249,7 +341,7 @@ class _EditProfilePageState extends State<EditProfilePage>
         result.fold(
           (failure) {
             // On error, still mark as loaded so user can see their profile
-            print('❌ Error loading property data (public): $failure');
+            debugPrint('❌ Error loading property data (public): $failure');
             if (mounted) {
               setState(() {
                 _isDataLoaded = true;
@@ -267,11 +359,11 @@ class _EditProfilePageState extends State<EditProfilePage>
       if (property == null) return;
 
       // Debug: Log property data loading
-      print('✅ Property data loaded successfully:');
-      print('   Name: ${property.name}');
-      print('   Address: ${property.address}');
-      print('   City: ${property.city}');
-      print(
+      debugPrint('✅ Property data loaded successfully:');
+      debugPrint('   Name: ${property.name}');
+      debugPrint('   Address: ${property.address}');
+      debugPrint('   City: ${property.city}');
+      debugPrint(
           '   Description: ${property.description.substring(0, property.description.length > 50 ? 50 : property.description.length)}...');
 
       if (mounted) {
@@ -297,10 +389,10 @@ class _EditProfilePageState extends State<EditProfilePage>
           _isDataLoaded = true; // Mark as fully loaded now
         });
 
-        print('✅ Controllers updated:');
-        print('   Name controller: ${_propNameController.text}');
-        print('   Address controller: ${_propAddressController.text}');
-        print('   City controller: ${_propCityController.text}');
+        debugPrint('✅ Controllers updated:');
+        debugPrint('   Name controller: ${_propNameController.text}');
+        debugPrint('   Address controller: ${_propAddressController.text}');
+        debugPrint('   City controller: ${_propCityController.text}');
 
         // Set the initial snapshot AFTER setState completes to ensure all values are set
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -308,14 +400,15 @@ class _EditProfilePageState extends State<EditProfilePage>
             setState(() {
               _initialPropertySnapshot = _buildCurrentPropertySnapshot();
             });
-            print('📸 Initial property snapshot created');
-            print(
+            debugPrint('📸 Initial property snapshot created');
+            debugPrint(
                 '   Snapshot keys: ${_initialPropertySnapshot.keys.toList()}');
           }
         });
       }
 
       if (property.typeId.isNotEmpty) {
+        if (!mounted) return;
         context.read<AmenitiesBloc>().add(
               LoadAmenitiesEventWithType(
                 propertyTypeId: property.typeId,
@@ -333,6 +426,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     }
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _animationController.dispose();
@@ -357,6 +452,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     super.dispose();
   }
 
+  /// يعيد قيمة `_stepTitles`.
+  /// Exposes the `_stepTitles` value.
   List<String> get _stepTitles {
     if (_isOwner) {
       return [
@@ -371,20 +468,30 @@ class _EditProfilePageState extends State<EditProfilePage>
     }
   }
 
+  /// يعيد قيمة `_totalSteps`.
+  /// Exposes the `_totalSteps` value.
   int get _totalSteps => _stepTitles.length;
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
-    Widget mainWidget = WillPopScope(
-      onWillPop: _onWillPop,
+    Widget mainWidget = PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (!didPop && await _onWillPop()) {
+          if (!context.mounted) return;
+          context.pop();
+        }
+      },
       child: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthProfileUpdateSuccess) {
+            final router = GoRouter.of(context);
             _showSuccessMessage('تم تحديث الملف الشخصي بنجاح');
             Future.delayed(const Duration(milliseconds: 500), () {
-              if (mounted) {
-                context.pop(true);
-              }
+              if (!mounted) return;
+              router.pop(true);
             });
           } else if (state is AuthProfileImageUploadSuccess) {
             setState(() {
@@ -447,6 +554,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     return mainWidget;
   }
 
+  /// ينفذ العملية `_buildAnimatedBackground`.
+  /// Runs the `_buildAnimatedBackground` operation.
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: _glowController,
@@ -458,8 +567,8 @@ class _EditProfilePageState extends State<EditProfilePage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -474,6 +583,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildLoadingState`.
+  /// Runs the `_buildLoadingState` operation.
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -493,14 +604,14 @@ class _EditProfilePageState extends State<EditProfilePage>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppTheme.primaryBlue.withOpacity(0.3),
-                        AppTheme.primaryPurple.withOpacity(0.2),
-                        AppTheme.primaryViolet.withOpacity(0.1),
+                        AppTheme.primaryBlue.withValues(alpha: 0.3),
+                        AppTheme.primaryPurple.withValues(alpha: 0.2),
+                        AppTheme.primaryViolet.withValues(alpha: 0.1),
                       ],
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                         blurRadius: 30,
                         spreadRadius: 10,
                       ),
@@ -551,19 +662,21 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildHeader`.
+  /// Runs the `_buildHeader` operation.
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -578,13 +691,13 @@ class _EditProfilePageState extends State<EditProfilePage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -619,10 +732,10 @@ class _EditProfilePageState extends State<EditProfilePage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.warning.withOpacity(0.2),
+                          color: AppTheme.warning.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppTheme.warning.withOpacity(0.5),
+                            color: AppTheme.warning.withValues(alpha: 0.5),
                             width: 1,
                           ),
                         ),
@@ -653,10 +766,10 @@ class _EditProfilePageState extends State<EditProfilePage>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.error.withOpacity(0.1),
+                  color: AppTheme.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.error.withOpacity(0.3),
+                    color: AppTheme.error.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -672,6 +785,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildProgressIndicator`.
+  /// Runs the `_buildProgressIndicator` operation.
   Widget _buildProgressIndicator() {
     return Container(
       height: 80,
@@ -692,23 +807,23 @@ class _EditProfilePageState extends State<EditProfilePage>
                   decoration: BoxDecoration(
                     gradient: isActive ? AppTheme.primaryGradient : null,
                     color: !isActive
-                        ? AppTheme.darkSurface.withOpacity(0.5)
+                        ? AppTheme.darkSurface.withValues(alpha: 0.5)
                         : null,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isModified
-                          ? AppTheme.warning.withOpacity(0.5)
+                          ? AppTheme.warning.withValues(alpha: 0.5)
                           : isActive
-                              ? AppTheme.primaryBlue.withOpacity(0.5)
-                              : AppTheme.darkBorder.withOpacity(0.3),
+                              ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                              : AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: isModified ? 2 : 1,
                     ),
                     boxShadow: isActive
                         ? [
                             BoxShadow(
                               color: isModified
-                                  ? AppTheme.warning.withOpacity(0.3)
-                                  : AppTheme.primaryBlue.withOpacity(0.3),
+                                  ? AppTheme.warning.withValues(alpha: 0.3)
+                                  : AppTheme.primaryBlue.withValues(alpha: 0.3),
                               blurRadius: 10,
                             ),
                           ]
@@ -743,12 +858,12 @@ class _EditProfilePageState extends State<EditProfilePage>
                             ? isModified
                                 ? LinearGradient(colors: [
                                     AppTheme.warning,
-                                    AppTheme.warning.withOpacity(0.5)
+                                    AppTheme.warning.withValues(alpha: 0.5)
                                   ])
                                 : AppTheme.primaryGradient
                             : null,
                         color: !isCompleted
-                            ? AppTheme.darkBorder.withOpacity(0.2)
+                            ? AppTheme.darkBorder.withValues(alpha: 0.2)
                             : null,
                         borderRadius: BorderRadius.circular(1),
                       ),
@@ -762,6 +877,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildFormContent`.
+  /// Runs the `_buildFormContent` operation.
   Widget _buildFormContent(bool isLoading) {
     return Form(
       key: _formKey,
@@ -788,6 +905,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildUserInfoStep`.
+  /// Runs the `_buildUserInfoStep` operation.
   Widget _buildUserInfoStep(bool isLoading) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -807,8 +926,8 @@ class _EditProfilePageState extends State<EditProfilePage>
                       decoration: BoxDecoration(
                         gradient: RadialGradient(
                           colors: [
-                            AppTheme.primaryBlue.withOpacity(
-                              0.08 + (_glowController.value * 0.04),
+                            AppTheme.primaryBlue.withValues(
+                              alpha: 0.08 + (_glowController.value * 0.04),
                             ),
                             Colors.transparent,
                           ],
@@ -938,7 +1057,6 @@ class _EditProfilePageState extends State<EditProfilePage>
               });
             },
           ),
-
           if (_isOwner) ...[
             const SizedBox(height: 20),
             _buildOwnerWalletAccountsSection(isLoading),
@@ -948,6 +1066,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildOwnerWalletAccountsSection`.
+  /// Runs the `_buildOwnerWalletAccountsSection` operation.
   Widget _buildOwnerWalletAccountsSection(bool isLoading) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -968,10 +1088,10 @@ class _EditProfilePageState extends State<EditProfilePage>
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.12),
+                color: AppTheme.darkCard.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.15),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.15),
                 ),
               ),
               child: Column(
@@ -981,11 +1101,11 @@ class _EditProfilePageState extends State<EditProfilePage>
                     children: [
                       Expanded(
                         child: DropdownButtonFormField<PaymentMethod>(
-                          value: item.walletType,
+                          initialValue: item.walletType,
                           decoration: InputDecoration(
                             labelText: 'نوع المحفظة',
                             labelStyle: AppTextStyles.caption.copyWith(
-                              color: AppTheme.textMuted.withOpacity(0.6),
+                              color: AppTheme.textMuted.withValues(alpha: 0.6),
                             ),
                             filled: false,
                             border: InputBorder.none,
@@ -1022,7 +1142,8 @@ class _EditProfilePageState extends State<EditProfilePage>
                             ? null
                             : () {
                                 setState(() {
-                                  final removed = _walletAccounts.removeAt(index);
+                                  final removed =
+                                      _walletAccounts.removeAt(index);
                                   removed.dispose();
                                   _normalizeDefaultWallet();
                                   _hasChanges = _checkForChanges();
@@ -1030,7 +1151,7 @@ class _EditProfilePageState extends State<EditProfilePage>
                               },
                         icon: Icon(
                           Icons.delete_outline_rounded,
-                          color: AppTheme.error.withOpacity(0.9),
+                          color: AppTheme.error.withValues(alpha: 0.9),
                         ),
                       ),
                     ],
@@ -1080,13 +1201,13 @@ class _EditProfilePageState extends State<EditProfilePage>
                         gradient:
                             item.isDefault ? AppTheme.primaryGradient : null,
                         color: !item.isDefault
-                            ? AppTheme.darkCard.withOpacity(0.15)
+                            ? AppTheme.darkCard.withValues(alpha: 0.15)
                             : null,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: item.isDefault
                               ? Colors.transparent
-                              : AppTheme.darkBorder.withOpacity(0.2),
+                              : AppTheme.darkBorder.withValues(alpha: 0.2),
                         ),
                       ),
                       child: Row(
@@ -1118,7 +1239,7 @@ class _EditProfilePageState extends State<EditProfilePage>
               ),
             ),
           );
-        }).toList(),
+        }),
         Align(
           alignment: Alignment.centerLeft,
           child: TextButton.icon(
@@ -1148,6 +1269,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_normalizeDefaultWallet`.
+  /// Runs the `_normalizeDefaultWallet` operation.
   void _normalizeDefaultWallet() {
     if (_walletAccounts.isEmpty) return;
     final hasDefault = _walletAccounts.any((e) => e.isDefault);
@@ -1156,6 +1279,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     }
   }
 
+  /// ينفذ العملية `_buildWalletAccountsPayload`.
+  /// Runs the `_buildWalletAccountsPayload` operation.
   List<Map<String, dynamic>>? _buildWalletAccountsPayload() {
     final items = _walletAccounts
         .map((e) {
@@ -1182,13 +1307,14 @@ class _EditProfilePageState extends State<EditProfilePage>
 
     final firstDefaultIndex = items.indexWhere((e) => e['isDefault'] == true);
     for (int i = 0; i < items.length; i++) {
-      items[i]['isDefault'] = (firstDefaultIndex == -1)
-          ? (i == 0)
-          : (i == firstDefaultIndex);
+      items[i]['isDefault'] =
+          (firstDefaultIndex == -1) ? (i == 0) : (i == firstDefaultIndex);
     }
     return items;
   }
 
+  /// ينفذ العملية `_buildPropertyBasicInfoStep`.
+  /// Runs the `_buildPropertyBasicInfoStep` operation.
   Widget _buildPropertyBasicInfoStep(bool isLoading) {
     if (!_isOwner || _ownerPropertyId == null) {
       return Center(
@@ -1340,6 +1466,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildPropertyLocationDetailsStep`.
+  /// Runs the `_buildPropertyLocationDetailsStep` operation.
   Widget _buildPropertyLocationDetailsStep(bool isLoading) {
     if (!_isOwner || _ownerPropertyId == null) {
       return Center(
@@ -1372,13 +1500,13 @@ class _EditProfilePageState extends State<EditProfilePage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.7),
-                  AppTheme.darkCard.withOpacity(0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.7),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -1543,6 +1671,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildPropertyImagesAmenitiesStep`.
+  /// Runs the `_buildPropertyImagesAmenitiesStep` operation.
   Widget _buildPropertyImagesAmenitiesStep(bool isLoading) {
     if (!_isOwner || _ownerPropertyId == null) {
       return Center(
@@ -1646,6 +1776,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildReviewStep`.
+  /// Runs the `_buildReviewStep` operation.
   Widget _buildReviewStep(bool isLoading) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -1670,7 +1802,7 @@ class _EditProfilePageState extends State<EditProfilePage>
                     gradient: LinearGradient(
                       colors: [
                         AppTheme.warning,
-                        AppTheme.warning.withOpacity(0.8),
+                        AppTheme.warning.withValues(alpha: 0.8),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
@@ -1819,6 +1951,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildOriginalValueIndicator`.
+  /// Runs the `_buildOriginalValueIndicator` operation.
   Widget _buildOriginalValueIndicator(
       String label, String value, bool isChanged) {
     if (!isChanged) return const SizedBox.shrink();
@@ -1827,10 +1961,10 @@ class _EditProfilePageState extends State<EditProfilePage>
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.warning.withOpacity(0.1),
+        color: AppTheme.warning.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1856,7 +1990,7 @@ class _EditProfilePageState extends State<EditProfilePage>
                   TextSpan(
                     text: value,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.warning.withOpacity(0.8),
+                      color: AppTheme.warning.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -1870,6 +2004,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildInputField`.
+  /// Runs the `_buildInputField` operation.
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
@@ -1896,13 +2032,13 @@ class _EditProfilePageState extends State<EditProfilePage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1917,12 +2053,12 @@ class _EditProfilePageState extends State<EditProfilePage>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: maxLines == 1
                   ? Icon(
                       icon,
-                      color: AppTheme.primaryBlue.withOpacity(0.7),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                       size: 20,
                     )
                   : null,
@@ -1937,6 +2073,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildStarRatingSelector`.
+  /// Runs the `_buildStarRatingSelector` operation.
   Widget _buildStarRatingSelector() {
     final hasChanged = _starRating != _originalProperty?.starRating;
 
@@ -1987,7 +2125,7 @@ class _EditProfilePageState extends State<EditProfilePage>
                     size: 32,
                     color: isSelected
                         ? AppTheme.warning
-                        : AppTheme.textMuted.withOpacity(0.5),
+                        : AppTheme.textMuted.withValues(alpha: 0.5),
                   ),
                 ),
               ),
@@ -1998,6 +2136,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildFeaturedSwitch`.
+  /// Runs the `_buildFeaturedSwitch` operation.
   Widget _buildFeaturedSwitch() {
     final hasChanged = _isFeatured != _originalProperty?.isFeatured;
 
@@ -2007,21 +2147,21 @@ class _EditProfilePageState extends State<EditProfilePage>
         gradient: LinearGradient(
           colors: hasChanged
               ? [
-                  AppTheme.warning.withOpacity(0.1),
-                  AppTheme.warning.withOpacity(0.05),
+                  AppTheme.warning.withValues(alpha: 0.1),
+                  AppTheme.warning.withValues(alpha: 0.05),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.3),
-                  AppTheme.darkCard.withOpacity(0.2),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.2),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasChanged
-              ? AppTheme.warning.withOpacity(0.3)
+              ? AppTheme.warning.withValues(alpha: 0.3)
               : _isFeatured
-                  ? AppTheme.warning.withOpacity(0.3)
-                  : AppTheme.darkBorder.withOpacity(0.3),
+                  ? AppTheme.warning.withValues(alpha: 0.3)
+                  : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -2069,13 +2209,15 @@ class _EditProfilePageState extends State<EditProfilePage>
             },
             activeThumbColor: AppTheme.warning,
             inactiveThumbColor: AppTheme.textMuted,
-            inactiveTrackColor: AppTheme.darkBorder.withOpacity(0.3),
+            inactiveTrackColor: AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ],
       ),
     );
   }
 
+  /// ينفذ العملية `_buildChangesSummary`.
+  /// Runs the `_buildChangesSummary` operation.
   Widget _buildChangesSummary() {
     final changes = _getChangedFields();
 
@@ -2084,13 +2226,13 @@ class _EditProfilePageState extends State<EditProfilePage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.warning.withOpacity(0.1),
-            AppTheme.warning.withOpacity(0.05),
+            AppTheme.warning.withValues(alpha: 0.1),
+            AppTheme.warning.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -2185,6 +2327,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildReviewCard`.
+  /// Runs the `_buildReviewCard` operation.
   Widget _buildReviewCard({
     required String title,
     required List<Map<String, dynamic>> items,
@@ -2197,19 +2341,19 @@ class _EditProfilePageState extends State<EditProfilePage>
         gradient: LinearGradient(
           colors: hasChanges
               ? [
-                  AppTheme.warning.withOpacity(0.05),
-                  AppTheme.darkCard.withOpacity(0.4),
+                  AppTheme.warning.withValues(alpha: 0.05),
+                  AppTheme.darkCard.withValues(alpha: 0.4),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasChanges
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -2231,7 +2375,7 @@ class _EditProfilePageState extends State<EditProfilePage>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.warning.withOpacity(0.2),
+                    color: AppTheme.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -2294,14 +2438,16 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildErrorWidget`.
+  /// Runs the `_buildErrorWidget` operation.
   Widget _buildErrorWidget(String message, {VoidCallback? onRetry}) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.error.withOpacity(0.1),
+        color: AppTheme.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.error.withOpacity(0.3),
+          color: AppTheme.error.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -2337,6 +2483,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_buildActionButtons`.
+  /// Runs the `_buildActionButtons` operation.
   Widget _buildActionButtons(bool isLoading) {
     final lastStep = _totalSteps - 1;
 
@@ -2345,13 +2493,13 @@ class _EditProfilePageState extends State<EditProfilePage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2367,13 +2515,13 @@ class _EditProfilePageState extends State<EditProfilePage>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -2401,15 +2549,15 @@ class _EditProfilePageState extends State<EditProfilePage>
                   gradient: _hasChanges
                       ? LinearGradient(colors: [
                           AppTheme.warning,
-                          AppTheme.warning.withOpacity(0.8)
+                          AppTheme.warning.withValues(alpha: 0.8)
                         ])
                       : AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
                       color: _hasChanges
-                          ? AppTheme.warning.withOpacity(0.3)
-                          : AppTheme.primaryBlue.withOpacity(0.3),
+                          ? AppTheme.warning.withValues(alpha: 0.3)
+                          : AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -2459,6 +2607,8 @@ class _EditProfilePageState extends State<EditProfilePage>
   }
 
   // Helper Methods
+  /// ينفذ العملية `_checkForChanges`.
+  /// Runs the `_checkForChanges` operation.
   bool _checkForChanges() {
     if (_originalUser == null) return false;
 
@@ -2492,6 +2642,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     return userFieldsChanged || propertyFieldsChanged || walletAccountsChanged;
   }
 
+  /// ينفذ العملية `_buildCurrentPropertySnapshot`.
+  /// Runs the `_buildCurrentPropertySnapshot` operation.
   Map<String, dynamic> _buildCurrentPropertySnapshot() {
     return {
       'name': _propNameController.text.trim(),
@@ -2509,23 +2661,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     };
   }
 
-  Map<String, dynamic> _defaultPropertySnapshot() {
-    return {
-      'name': '',
-      'address': '',
-      'city': '',
-      'shortDescription': '',
-      'description': '',
-      'latitude': null,
-      'longitude': null,
-      'starRating': _starRating,
-      'currency': _currency,
-      'isFeatured': _isFeatured,
-      'imageUrls': <String>[],
-      'amenityIds': <String>[],
-    };
-  }
-
+  /// ينفذ العملية `_hasPropertySnapshotDiff`.
+  /// Runs the `_hasPropertySnapshotDiff` operation.
   bool _hasPropertySnapshotDiff(
     Map<String, dynamic> initial,
     Map<String, dynamic> current,
@@ -2542,17 +2679,21 @@ class _EditProfilePageState extends State<EditProfilePage>
     }
     if (current['description'] != initial['description']) return true;
 
-    if ((current['latitude'] as double?) != (initial['latitude'] as double?))
+    if ((current['latitude'] as double?) != (initial['latitude'] as double?)) {
       return true;
-    if ((current['longitude'] as double?) != (initial['longitude'] as double?))
+    }
+    if ((current['longitude'] as double?) !=
+        (initial['longitude'] as double?)) {
       return true;
+    }
 
     if ((current['starRating'] as int?) != (initial['starRating'] as int?)) {
       return true;
     }
     if (current['currency'] != initial['currency']) return true;
-    if ((current['isFeatured'] as bool?) != (initial['isFeatured'] as bool?))
+    if ((current['isFeatured'] as bool?) != (initial['isFeatured'] as bool?)) {
       return true;
+    }
 
     final initialImages = _stringListFromSnapshot(initial['imageUrls']);
     final currentImages = _stringListFromSnapshot(current['imageUrls']);
@@ -2565,6 +2706,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     return false;
   }
 
+  /// ينفذ العملية `_stringListFromSnapshot`.
+  /// Runs the `_stringListFromSnapshot` operation.
   List<String> _stringListFromSnapshot(dynamic value) {
     if (value is List<String>) {
       return List<String>.from(value);
@@ -2575,6 +2718,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     return <String>[];
   }
 
+  /// ينفذ العملية `_hasChangesInStep`.
+  /// Runs the `_hasChangesInStep` operation.
   bool _hasChangesInStep(int step) {
     if (_originalUser == null) return false;
 
@@ -2626,6 +2771,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     }
   }
 
+  /// ينفذ العملية `_getChangedFields`.
+  /// Runs the `_getChangedFields` operation.
   List<Map<String, String>> _getChangedFields() {
     final changes = <Map<String, String>>[];
     if (_originalUser == null) return changes;
@@ -2786,6 +2933,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     return changes;
   }
 
+  /// ينفذ العملية `_resetChanges`.
+  /// Runs the `_resetChanges` operation.
   void _resetChanges() {
     if (_originalUser == null) return;
 
@@ -2846,6 +2995,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_onWillPop`.
+  /// Runs the `_onWillPop` operation.
   Future<bool> _onWillPop() async {
     if (!_hasChanges) return true;
 
@@ -2857,24 +3008,28 @@ class _EditProfilePageState extends State<EditProfilePage>
     return result ?? false;
   }
 
-  void _handleBack() {
+  /// ينفذ العملية `_handleBack`.
+  /// Runs the `_handleBack` operation.
+  Future<void> _handleBack() async {
     if (_currentStep > 0) {
       setState(() {
         _currentStep--;
       });
     } else {
       if (_hasChanges) {
-        _onWillPop().then((canPop) {
-          if (canPop) {
-            context.pop();
-          }
-        });
+        final canPop = await _onWillPop();
+        if (!mounted) return;
+        if (canPop) {
+          context.pop();
+        }
       } else {
         context.pop();
       }
     }
   }
 
+  /// ينفذ العملية `_previousStep`.
+  /// Runs the `_previousStep` operation.
   void _previousStep() {
     if (_currentStep > 0) {
       setState(() {
@@ -2883,6 +3038,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     }
   }
 
+  /// ينفذ العملية `_nextStep`.
+  /// Runs the `_nextStep` operation.
   void _nextStep() {
     final lastStep = _totalSteps - 1;
     if (_currentStep < lastStep) {
@@ -2917,6 +3074,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     }
   }
 
+  /// ينفذ العملية `_validateUserInfo`.
+  /// Runs the `_validateUserInfo` operation.
   bool _validateUserInfo() {
     if (_nameController.text.trim().isEmpty) {
       _showErrorMessage('الرجاء إدخال الاسم');
@@ -2946,6 +3105,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     return true;
   }
 
+  /// ينفذ العملية `_validatePropertyBasicInfo`.
+  /// Runs the `_validatePropertyBasicInfo` operation.
   bool _validatePropertyBasicInfo() {
     if (!_isOwner || _originalProperty == null) return true;
 
@@ -2967,6 +3128,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     return true;
   }
 
+  /// ينفذ العملية `_validatePropertyLocationDetails`.
+  /// Runs the `_validatePropertyLocationDetails` operation.
   bool _validatePropertyLocationDetails() {
     if (!_isOwner || _originalProperty == null) return true;
 
@@ -2994,6 +3157,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     return true;
   }
 
+  /// ينفذ العملية `_submitForm`.
+  /// Runs the `_submitForm` operation.
   void _submitForm() {
     if (!_hasChanges) {
       _showInfoMessage('لا توجد تغييرات للحفظ');
@@ -3050,6 +3215,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     }
   }
 
+  /// ينفذ العملية `_submitPropertyChanges`.
+  /// Runs the `_submitPropertyChanges` operation.
   Future<void> _submitPropertyChanges() async {
     if (_ownerPropertyId == null) return;
 
@@ -3101,6 +3268,8 @@ class _EditProfilePageState extends State<EditProfilePage>
   }
 
   // Utility methods
+  /// ينفذ العملية `_areImagesEqual`.
+  /// Runs the `_areImagesEqual` operation.
   bool _areImagesEqual(List<String> current, List<String> original) {
     if (current.length != original.length) return false;
     for (var i = 0; i < current.length; i++) {
@@ -3109,6 +3278,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     return true;
   }
 
+  /// ينفذ العملية `_areListsEqual`.
+  /// Runs the `_areListsEqual` operation.
   bool _areListsEqual(List<String> a, List<String> b) {
     if (a.length != b.length) return false;
     final sortedA = List<String>.from(a)..sort();
@@ -3119,6 +3290,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     return true;
   }
 
+  /// ينفذ العملية `_showSuccessMessage`.
+  /// Runs the `_showSuccessMessage` operation.
   void _showSuccessMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -3143,6 +3316,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_showErrorMessage`.
+  /// Runs the `_showErrorMessage` operation.
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -3167,6 +3342,8 @@ class _EditProfilePageState extends State<EditProfilePage>
     );
   }
 
+  /// ينفذ العملية `_showInfoMessage`.
+  /// Runs the `_showInfoMessage` operation.
   void _showInfoMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -3190,20 +3367,30 @@ class _EditProfilePageState extends State<EditProfilePage>
       ),
     );
   }
-
 }
 
+/// يعرّف الكلاس `_WalletAccountDraft`.
+/// Describes the `_WalletAccountDraft` class.
 class _WalletAccountDraft {
+  /// Holds the `walletType` value.
+  /// العربية: يخزن القيمة `walletType`.
   PaymentMethod walletType;
+
+  /// يخزن العضو `isDefault`.
+  /// Holds the `isDefault` member.
   bool isDefault;
   final TextEditingController accountNumberController = TextEditingController();
   final TextEditingController accountNameController = TextEditingController();
 
+  /// ينشئ مثيلاً من `_WalletAccountDraft`.
+  /// Builds an instance of `_WalletAccountDraft`.
   _WalletAccountDraft({
     required this.walletType,
     required this.isDefault,
   });
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   void dispose() {
     accountNumberController.dispose();
     accountNameController.dispose();
@@ -3211,26 +3398,52 @@ class _WalletAccountDraft {
 }
 
 // Currency Dropdown Widget
+/// يعرّف الكلاس `_CurrencyDropdown`.
+/// Describes the `_CurrencyDropdown` class.
 class _CurrencyDropdown extends StatefulWidget {
+  /// Holds the `value` value.
+  /// العربية: يخزن القيمة `value`.
   final String value;
+
+  /// يخزن العضو `onChanged`.
+  /// Holds the `onChanged` member.
   final ValueChanged<String> onChanged;
+
+  /// ينشئ مثيلاً من `_CurrencyDropdown`.
+  /// Builds an instance of `_CurrencyDropdown`.
   const _CurrencyDropdown({required this.value, required this.onChanged});
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<_CurrencyDropdown> createState() => _CurrencyDropdownState();
 }
 
+/// يعرّف الكلاس `_CurrencyDropdownState`.
+/// Describes the `_CurrencyDropdownState` class.
 class _CurrencyDropdownState extends State<_CurrencyDropdown> {
+  /// Holds the `codes` value.
+  /// العربية: يخزن القيمة `codes`.
   List<String> _codes = const [];
+
+  /// يخزن العضو `_loading`.
+  /// Holds the `_loading` member.
   bool _loading = true;
+
+  /// يخزن العضو `_error`.
+  /// Holds the `_error` member.
   String? _error;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
     _load();
   }
 
+  /// ينفذ العملية `_load`.
+  /// Runs the `_load` operation.
   Future<void> _load() async {
     try {
       final usecase = di.sl<GetCurrenciesUseCase>();
@@ -3257,13 +3470,15 @@ class _CurrencyDropdownState extends State<_CurrencyDropdown> {
     }
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     final decoration = InputDecoration(
       labelText: 'العملة',
       labelStyle: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
       filled: true,
-      fillColor: AppTheme.darkSurface.withOpacity(0.3),
+      fillColor: AppTheme.darkSurface.withValues(alpha: 0.3),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
@@ -3319,31 +3534,60 @@ class _CurrencyDropdownState extends State<_CurrencyDropdown> {
 }
 
 // City Dropdown Widget
+/// يعرّف الكلاس `_CityDropdown`.
+/// Describes the `_CityDropdown` class.
 class _CityDropdown extends StatefulWidget {
+  /// Holds the `value` value.
+  /// العربية: يخزن القيمة `value`.
   final String? value;
+
+  /// يخزن العضو `onChanged`.
+  /// Holds the `onChanged` member.
   final ValueChanged<String?> onChanged;
+
+  /// يخزن العضو `requiredField`.
+  /// Holds the `requiredField` member.
   final bool requiredField;
+
+  /// ينشئ مثيلاً من `_CityDropdown`.
+  /// Builds an instance of `_CityDropdown`.
   const _CityDropdown({
     required this.value,
     required this.onChanged,
     this.requiredField = false,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<_CityDropdown> createState() => _CityDropdownState();
 }
 
+/// يعرّف الكلاس `_CityDropdownState`.
+/// Describes the `_CityDropdownState` class.
 class _CityDropdownState extends State<_CityDropdown> {
+  /// Holds the `cities` value.
+  /// العربية: يخزن القيمة `cities`.
   List<String> _cities = const [];
+
+  /// يخزن العضو `_loading`.
+  /// Holds the `_loading` member.
   bool _loading = true;
+
+  /// يخزن العضو `_error`.
+  /// Holds the `_error` member.
   String? _error;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
     _load();
   }
 
+  /// ينفذ العملية `_load`.
+  /// Runs the `_load` operation.
   Future<void> _load() async {
     try {
       final usecase = di.sl<ci_uc.GetCitiesUseCase>();
@@ -3371,6 +3615,8 @@ class _CityDropdownState extends State<_CityDropdown> {
     }
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     final decoration = InputDecoration(
@@ -3378,7 +3624,7 @@ class _CityDropdownState extends State<_CityDropdown> {
           widget.requiredField ? 'المدينة (إجباري)' : 'المدينة (اختياري)',
       labelStyle: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
       filled: true,
-      fillColor: AppTheme.darkSurface.withOpacity(0.3),
+      fillColor: AppTheme.darkSurface.withValues(alpha: 0.3),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
@@ -3435,11 +3681,19 @@ class _CityDropdownState extends State<_CityDropdown> {
 }
 
 // Additional Dialogs
+/// يعرّف الكلاس `_ResetConfirmationDialog`.
+/// Describes the `_ResetConfirmationDialog` class.
 class _ResetConfirmationDialog extends StatelessWidget {
+  /// Holds the `onConfirm` value.
+  /// العربية: يخزن القيمة `onConfirm`.
   final VoidCallback onConfirm;
 
+  /// ينشئ مثيلاً من `_ResetConfirmationDialog`.
+  /// Builds an instance of `_ResetConfirmationDialog`.
   const _ResetConfirmationDialog({required this.onConfirm});
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -3449,13 +3703,13 @@ class _ResetConfirmationDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.warning.withOpacity(0.3),
+            color: AppTheme.warning.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -3468,8 +3722,8 @@ class _ResetConfirmationDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.warning.withOpacity(0.2),
-                    AppTheme.warning.withOpacity(0.1),
+                    AppTheme.warning.withValues(alpha: 0.2),
+                    AppTheme.warning.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -3505,10 +3759,10 @@ class _ResetConfirmationDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkSurface.withOpacity(0.5),
+                        color: AppTheme.darkSurface.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.3),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -3536,7 +3790,7 @@ class _ResetConfirmationDialog extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             AppTheme.warning,
-                            AppTheme.warning.withOpacity(0.8),
+                            AppTheme.warning.withValues(alpha: 0.8),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -3562,7 +3816,11 @@ class _ResetConfirmationDialog extends StatelessWidget {
   }
 }
 
+/// يعرّف الكلاس `_UnsavedChangesDialog`.
+/// Describes the `_UnsavedChangesDialog` class.
 class _UnsavedChangesDialog extends StatelessWidget {
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -3572,13 +3830,13 @@ class _UnsavedChangesDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.error.withOpacity(0.3),
+            color: AppTheme.error.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -3591,8 +3849,8 @@ class _UnsavedChangesDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
+                    AppTheme.error.withValues(alpha: 0.2),
+                    AppTheme.error.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -3653,10 +3911,10 @@ class _UnsavedChangesDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.error.withOpacity(0.1),
+                        color: AppTheme.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.error.withOpacity(0.3),
+                          color: AppTheme.error.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -3682,11 +3940,19 @@ class _UnsavedChangesDialog extends StatelessWidget {
 }
 
 // Custom Background Painter for Edit Profile
+/// يعرّف الكلاس `_EditProfileBackgroundPainter`.
+/// Describes the `_EditProfileBackgroundPainter` class.
 class _EditProfileBackgroundPainter extends CustomPainter {
+  /// Holds the `glowIntensity` value.
+  /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
 
+  /// ينشئ مثيلاً من `_EditProfileBackgroundPainter`.
+  /// Builds an instance of `_EditProfileBackgroundPainter`.
   _EditProfileBackgroundPainter({required this.glowIntensity});
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -3694,8 +3960,8 @@ class _EditProfileBackgroundPainter extends CustomPainter {
     // Draw glowing orbs with edit theme
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryBlue.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryBlue.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryBlue.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryBlue.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -3711,8 +3977,8 @@ class _EditProfileBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryPurple.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryPurple.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -3729,7 +3995,7 @@ class _EditProfileBackgroundPainter extends CustomPainter {
     // Draw accent lines
     paint.shader = LinearGradient(
       colors: [
-        AppTheme.warning.withOpacity(0.05 * glowIntensity),
+        AppTheme.warning.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromLTRB(0, 0, size.width, size.height));
@@ -3754,6 +4020,8 @@ class _EditProfileBackgroundPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

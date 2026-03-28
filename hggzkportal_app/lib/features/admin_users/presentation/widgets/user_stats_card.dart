@@ -3,17 +3,23 @@
 import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import '../../../../core/widgets/glassmorphic_tooltip.dart';
 
 class UserStatsCard extends StatefulWidget {
   final String title;
+
   final String value;
+
   final IconData icon;
+
   final Color color;
+
   final String? trend;
+
   final bool isPositive;
+
   final String? detailedDescription;
+
   final Map<String, dynamic>? additionalStats;
 
   const UserStatsCard({
@@ -35,10 +41,15 @@ class UserStatsCard extends StatefulWidget {
 class _UserStatsCardState extends State<UserStatsCard>
     with SingleTickerProviderStateMixin {
   final GlobalKey _cardKey = GlobalKey();
+
   late AnimationController _animationController;
+
   late Animation<double> _scaleAnimation;
+
   late Animation<double> _fadeAnimation;
+
   bool _isHovered = false;
+
   bool _isPressed = false;
 
   @override
@@ -143,21 +154,21 @@ class _UserStatsCardState extends State<UserStatsCard>
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              widget.color.withOpacity(0.1),
-                              widget.color.withOpacity(0.05),
+                              widget.color.withValues(alpha: 0.1),
+                              widget.color.withValues(alpha: 0.05),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: _isPressed
-                                ? widget.color.withOpacity(0.6)
-                                : widget.color.withOpacity(0.2),
+                                ? widget.color.withValues(alpha: 0.6)
+                                : widget.color.withValues(alpha: 0.2),
                             width: _isPressed ? 2 : 1,
                           ),
                           boxShadow: [
                             BoxShadow(
                               color: widget.color
-                                  .withOpacity(_isHovered ? 0.2 : 0.1),
+                                  .withValues(alpha: _isHovered ? 0.2 : 0.1),
                               blurRadius: _isHovered ? 25 : 20,
                               offset: const Offset(0, 4),
                             ),
@@ -189,8 +200,10 @@ class _UserStatsCardState extends State<UserStatsCard>
                                           decoration: BoxDecoration(
                                             gradient: LinearGradient(
                                               colors: [
-                                                widget.color.withOpacity(0.3),
-                                                widget.color.withOpacity(0.1),
+                                                widget.color
+                                                    .withValues(alpha: 0.3),
+                                                widget.color
+                                                    .withValues(alpha: 0.1),
                                               ],
                                             ),
                                             borderRadius:
@@ -215,23 +228,22 @@ class _UserStatsCardState extends State<UserStatsCard>
                                               ),
                                               child: FittedBox(
                                                 fit: BoxFit.scaleDown,
-                                                alignment: Alignment.centerRight,
+                                                alignment:
+                                                    Alignment.centerRight,
                                                 child: Container(
-                                                  clipBehavior:
-                                                      Clip.hardEdge,
-                                                  padding:
-                                                      EdgeInsets.symmetric(
-                                                    horizontal:
-                                                        isSmall ? 4 : 6,
-                                                    vertical:
-                                                        isSmall ? 2 : 3,
+                                                  clipBehavior: Clip.hardEdge,
+                                                  padding: EdgeInsets.symmetric(
+                                                    horizontal: isSmall ? 4 : 6,
+                                                    vertical: isSmall ? 2 : 3,
                                                   ),
                                                   decoration: BoxDecoration(
                                                     color: widget.isPositive
                                                         ? AppTheme.success
-                                                            .withOpacity(0.1)
+                                                            .withValues(
+                                                                alpha: 0.1)
                                                         : AppTheme.error
-                                                            .withOpacity(0.1),
+                                                            .withValues(
+                                                                alpha: 0.1),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             8),
@@ -247,17 +259,13 @@ class _UserStatsCardState extends State<UserStatsCard>
                                                             : Icons
                                                                 .trending_down_rounded,
                                                         size: trendIconSize,
-                                                        color:
-                                                            widget.isPositive
-                                                                ? AppTheme
-                                                                    .success
-                                                                : AppTheme
-                                                                    .error,
+                                                        color: widget.isPositive
+                                                            ? AppTheme.success
+                                                            : AppTheme.error,
                                                       ),
                                                       SizedBox(
-                                                          width: isSmall
-                                                              ? 1
-                                                              : 2),
+                                                          width:
+                                                              isSmall ? 1 : 2),
                                                       Flexible(
                                                         child: Text(
                                                           widget.trend!,

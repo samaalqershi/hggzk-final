@@ -1,143 +1,99 @@
 import 'package:equatable/equatable.dart';
 import 'review_image.dart';
 
-/// <summary>
-/// كيان المراجعة
-/// Review entity
-/// </summary>
+/// Represents the review payload attached to a property booking experience.
+/// يمثل حمولة المراجعة المرتبطة بتجربة حجز العقار.
 class Review extends Equatable {
-  /// <summary>
-  /// معرف المراجعة
-  /// Review ID
-  /// </summary>
+  /// Backend identifier used to edit, like, or moderate this review later.
+  /// المعرّف الخلفي المستخدم عند تعديل المراجعة أو الإعجاب بها أو إدارتها.
   final String id;
 
-  /// <summary>
-  /// معرف المستخدم
-  /// User ID
-  /// </summary>
+  /// Identifies the guest who wrote the review.
+  /// يحدد الضيف الذي كتب المراجعة.
   final String userId;
 
-  /// <summary>
-  /// اسم المستخدم
-  /// User name
-  /// </summary>
+  /// Display name shown beside the review content.
+  /// اسم العرض الذي يظهر بجانب محتوى المراجعة.
   final String userName;
 
-  /// <summary>
-  /// صورة المستخدم
-  /// User avatar
-  /// </summary>
+  /// Optional profile image shown in review lists and cards.
+  /// صورة اختيارية للملف الشخصي تظهر في القوائم والبطاقات.
   final String? userAvatar;
 
-  /// <summary>
-  /// معرف الحجز
-  /// Booking ID
-  /// </summary>
+  /// Links the review back to the booking that produced it.
+  /// يربط المراجعة بالحجز الذي أنشأها.
   final String bookingId;
 
-  /// <summary>
-  /// معرف العقار
-  /// Property ID
-  /// </summary>
+  /// Identifies the property the guest stayed in.
+  /// يحدد العقار الذي أقام فيه الضيف.
   final String propertyId;
 
-  /// <summary>
-  /// تقييم النظافة (1-5)
-  /// Cleanliness rating (1-5)
-  /// </summary>
+  /// Cleanliness score submitted by the reviewer on a 1-5 scale.
+  /// درجة النظافة التي أدخلها المراجع على مقياس من 1 إلى 5.
   final int cleanliness;
 
-  /// <summary>
-  /// تقييم الخدمة (1-5)
-  /// Service rating (1-5)
-  /// </summary>
+  /// Service score submitted by the reviewer on a 1-5 scale.
+  /// درجة الخدمة التي أدخلها المراجع على مقياس من 1 إلى 5.
   final int service;
 
-  /// <summary>
-  /// تقييم الموقع (1-5)
-  /// Location rating (1-5)
-  /// </summary>
+  /// Location score submitted by the reviewer on a 1-5 scale.
+  /// درجة الموقع التي أدخلها المراجع على مقياس من 1 إلى 5.
   final int location;
 
-  /// <summary>
-  /// تقييم القيمة (1-5)
-  /// Value rating (1-5)
-  /// </summary>
+  /// Value-for-money score submitted by the reviewer on a 1-5 scale.
+  /// درجة القيمة مقابل المال التي أدخلها المراجع على مقياس من 1 إلى 5.
   final int value;
 
-  /// <summary>
-  /// التقييم الإجمالي
-  /// Overall rating
-  /// </summary>
+  /// Combined rating used by summary cards and ranking logic.
+  /// التقييم المجمّع المستخدم في البطاقات المختصرة ومنطق الترتيب.
   final double rating;
 
-  /// <summary>
-  /// العنوان
-  /// Title
-  /// </summary>
+  /// Short headline that captures the main opinion of the review.
+  /// عنوان قصير يلخص رأي المراجعة الأساسي.
   final String title;
 
-  /// <summary>
-  /// التعليق
-  /// Comment
-  /// </summary>
+  /// Main review body written by the guest.
+  /// النص الأساسي الذي كتبه الضيف.
   final String comment;
 
-  /// <summary>
-  /// تاريخ المراجعة
-  /// Review date
-  /// </summary>
+  /// Time when the review was originally submitted.
+  /// وقت إرسال المراجعة لأول مرة.
   final DateTime createdAt;
 
-  /// <summary>
-  /// تاريخ آخر تحديث
-  /// Last update date
-  /// </summary>
+  /// Optional timestamp used when the review was edited after publication.
+  /// طابع زمني اختياري يُستخدم عندما تُعدّل المراجعة بعد نشرها.
   final DateTime? updatedAt;
 
-  /// <summary>
-  /// صور المراجعة
-  /// Review images
-  /// </summary>
+  /// Attached media that supports the written review.
+  /// الوسائط المرفقة التي تدعم المراجعة المكتوبة.
   final List<ReviewImage> images;
 
-  /// <summary>
-  /// هل هذه مراجعة المستخدم الحالي
-  /// Is this the current user's review
-  /// </summary>
+  /// True when this review belongs to the signed-in user.
+  /// تكون صحيحة عندما تعود المراجعة للمستخدم الحالي.
   final bool isUserReview;
 
-  /// <summary>
-  /// عدد الإعجابات
-  /// Likes count
-  /// </summary>
+  /// Number of users who liked this review.
+  /// عدد المستخدمين الذين أعجبوا بهذه المراجعة.
   final int likesCount;
 
-  /// <summary>
-  /// هل أعجب المستخدم الحالي بالمراجعة
-  /// Did current user like this review
-  /// </summary>
+  /// True when the signed-in user already liked this review.
+  /// تكون صحيحة عندما يكون المستخدم الحالي قد أعجب بالمراجعة.
   final bool isLikedByUser;
 
-  /// <summary>
-  /// الرد من إدارة العقار
-  /// Reply from property management
-  /// </summary>
+  /// Optional response written by the property team after moderation.
+  /// رد اختياري يكتبه فريق العقار بعد المراجعة أو المراقبة.
   final ReviewReply? managementReply;
 
-  /// <summary>
-  /// نوع الحجز المرتبط بالمراجعة
-  /// Booking type associated with review
-  /// </summary>
+  /// Optional booking category that helps the UI show the trip context.
+  /// نوع الحجز الاختياري الذي يساعد الواجهة على إظهار سياق الرحلة.
   final String? bookingType;
 
-  /// <summary>
-  /// هل موصى بها
-  /// Is recommended
-  /// </summary>
+  /// Marks reviews that the backend wants to highlight.
+  /// يحدد المراجعات التي يريد الخادم إبرازها.
   final bool isRecommended;
 
+  /// Builds an immutable review record for the property review experience.
+  /// ينشئ سجل مراجعة ثابتًا لتجربة مراجعات العقار.
   const Review({
     required this.id,
     required this.userId,
@@ -163,26 +119,22 @@ class Review extends Equatable {
     required this.isRecommended,
   });
 
-  /// <summary>
-  /// حساب التقييم الإجمالي
-  /// Calculate overall rating
-  /// </summary>
+  /// Recomputes the aggregate score from the four visible category ratings.
+  /// يعيد حساب الدرجة المجمعة من فئات التقييم الأربع الظاهرة.
   double get calculatedRating {
     return (cleanliness + service + location + value) / 4.0;
   }
 
-  /// <summary>
-  /// التحقق من وجود صور
-  /// Check if has images
-  /// </summary>
+  /// Indicates whether the review includes at least one attached image.
+  /// يحدد ما إذا كانت المراجعة تحتوي على صورة مرفقة واحدة على الأقل.
   bool get hasImages => images.isNotEmpty;
 
-  /// <summary>
-  /// التحقق من وجود رد من الإدارة
-  /// Check if has management reply
-  /// </summary>
+  /// Indicates whether the property team has replied to the review.
+  /// يحدد ما إذا كان فريق العقار قد رد على المراجعة.
   bool get hasManagementReply => managementReply != null;
 
+  /// Keeps equality stable for the full review payload.
+  /// يحافظ على ثبات المقارنة مع حمولة المراجعة كاملة.
   @override
   List<Object?> get props => [
         id,
@@ -210,41 +162,31 @@ class Review extends Equatable {
       ];
 }
 
-/// <summary>
-/// كيان رد إدارة العقار
-/// Property management reply entity
-/// </summary>
+/// Represents a moderation or support reply attached to a review.
+/// يمثل رد المراجعة الصادر عن فريق العقار أو الدعم.
 class ReviewReply extends Equatable {
-  /// <summary>
-  /// معرف الرد
-  /// Reply ID
-  /// </summary>
+  /// Unique identifier of the reply record.
+  /// المعرّف الفريد لسجل الرد.
   final String id;
 
-  /// <summary>
-  /// محتوى الرد
-  /// Reply content
-  /// </summary>
+  /// Reply body shown to the guest.
+  /// نص الرد المعروض للضيف.
   final String content;
 
-  /// <summary>
-  /// تاريخ الرد
-  /// Reply date
-  /// </summary>
+  /// Time when the reply was posted.
+  /// وقت نشر الرد.
   final DateTime createdAt;
 
-  /// <summary>
-  /// اسم المرد
-  /// Replier name
-  /// </summary>
+  /// Display name of the person who wrote the reply.
+  /// اسم العرض للشخص الذي كتب الرد.
   final String replierName;
 
-  /// <summary>
-  /// منصب المرد
-  /// Replier position
-  /// </summary>
+  /// Job title or role of the replier within the property team.
+  /// المسمى الوظيفي أو دور الشخص داخل فريق العقار.
   final String replierPosition;
 
+  /// Builds an immutable reply model associated with a review.
+  /// ينشئ نموذجًا ثابتًا لرد مرتبط بمراجعة.
   const ReviewReply({
     required this.id,
     required this.content,
@@ -253,6 +195,8 @@ class ReviewReply extends Equatable {
     required this.replierPosition,
   });
 
+  /// Exposes the equality properties for this instance.
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object> get props => [
         id,
@@ -328,6 +272,8 @@ class ReviewsSummary extends Equatable {
   /// </summary>
   final double managementResponseRate;
 
+  /// Builds a new `ReviewsSummary` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewsSummary`.
   const ReviewsSummary({
     required this.totalReviews,
     required this.averageRating,
@@ -341,6 +287,8 @@ class ReviewsSummary extends Equatable {
     required this.managementResponseRate,
   });
 
+  /// Exposes the equality properties for this instance.
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object> get props => [
         totalReviews,
@@ -385,6 +333,8 @@ class ReviewKeyword extends Equatable {
   /// </summary>
   final String sentiment;
 
+  /// Builds a new `ReviewKeyword` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewKeyword`.
   const ReviewKeyword({
     required this.keyword,
     required this.count,
@@ -392,6 +342,8 @@ class ReviewKeyword extends Equatable {
     required this.sentiment,
   });
 
+  /// Exposes the equality properties for this instance.
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object> get props => [keyword, count, percentage, sentiment];
 }

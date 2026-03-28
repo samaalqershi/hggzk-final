@@ -1,837 +1,27 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'dart:ui';
-// import 'dart:math' as math;
-// import 'package:go_router/go_router.dart';
-// import '../../../../core/theme/app_theme.dart';
-// import '../../../../core/theme/app_text_styles.dart';
+import 'dart:ui';
 
-// class PoliciesDialog extends StatefulWidget {
-//   final String? propertyId;
-//   final String propertyName;
-
-//   const PoliciesDialog({
-//     super.key,
-//     this.propertyId,
-//     required this.propertyName,
-//   });
-
-//   static Future<void> show(
-//     BuildContext context, {
-//     String? propertyId,
-//     required String propertyName,
-//   }) {
-//     return showDialog(
-//       context: context,
-//       barrierColor: AppTheme.overlayDark.withOpacity(0.8),
-//       builder: (context) => PoliciesDialog(
-//         propertyId: propertyId,
-//         propertyName: propertyName,
-//       ),
-//     );
-//   }
-
-//   @override
-//   State<PoliciesDialog> createState() => _PoliciesDialogState();
-// }
-
-// class _PoliciesDialogState extends State<PoliciesDialog>
-//     with TickerProviderStateMixin {
-//   late AnimationController _controller;
-//   late AnimationController _contentController;
-//   late Animation<double> _scaleAnimation;
-//   late Animation<double> _fadeAnimation;
-//   late Animation<double> _slideAnimation;
-
-//   int _selectedTabIndex = 0;
-//   final PageController _pageController = PageController();
-
-//   final List<PolicyTab> _tabs = [
-//     PolicyTab(
-//       icon: Icons.cancel_presentation_rounded,
-//       title: 'الإلغاء',
-//       color: AppTheme.warning,
-//     ),
-//     PolicyTab(
-//       icon: Icons.payment_rounded,
-//       title: 'الدفع',
-//       color: AppTheme.primaryBlue,
-//     ),
-//     PolicyTab(
-//       icon: Icons.gavel_rounded,
-//       title: 'القوانين',
-//       color: AppTheme.primaryPurple,
-//     ),
-//   ];
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _controller = AnimationController(
-//       duration: const Duration(milliseconds: 600),
-//       vsync: this,
-//     );
-
-//     _contentController = AnimationController(
-//       duration: const Duration(milliseconds: 800),
-//       vsync: this,
-//     );
-
-//     _scaleAnimation = Tween<double>(
-//       begin: 0.7,
-//       end: 1.0,
-//     ).animate(CurvedAnimation(
-//       parent: _controller,
-//       curve: Curves.easeOutBack,
-//     ));
-
-//     _fadeAnimation = Tween<double>(
-//       begin: 0.0,
-//       end: 1.0,
-//     ).animate(CurvedAnimation(
-//       parent: _controller,
-//       curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
-//     ));
-
-//     _slideAnimation = Tween<double>(
-//       begin: 30.0,
-//       end: 0.0,
-//     ).animate(CurvedAnimation(
-//       parent: _contentController,
-//       curve: Curves.easeOutCubic,
-//     ));
-
-//     _controller.forward();
-//     _contentController.forward();
-//   }
-
-//   @override
-//   void dispose() {
-//     _controller.dispose();
-//     _contentController.dispose();
-//     _pageController.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final size = MediaQuery.of(context).size;
-
-//     return AnimatedBuilder(
-//       animation: _controller,
-//       builder: (context, child) {
-//         return FadeTransition(
-//           opacity: _fadeAnimation,
-//           child: ScaleTransition(
-//             scale: _scaleAnimation,
-//             child: Dialog(
-//               backgroundColor: Colors.transparent,
-//               elevation: 0,
-//               insetPadding: const EdgeInsets.all(16),
-//               child: Container(
-//                 constraints: BoxConstraints(
-//                   maxWidth: 500,
-//                   maxHeight: size.height * 0.85,
-//                 ),
-//                 child: Stack(
-//                   children: [
-//                     // Glass Background
-//                     _buildGlassBackground(),
-
-//                     // Main Content
-//                     _buildMainContent(),
-
-//                     // Close Button
-//                     _buildCloseButton(),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   Widget _buildGlassBackground() {
-//     return ClipRRect(
-//       borderRadius: BorderRadius.circular(24),
-//       child: BackdropFilter(
-//         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-//         child: Container(
-//           decoration: BoxDecoration(
-//             gradient: LinearGradient(
-//               begin: Alignment.topLeft,
-//               end: Alignment.bottomRight,
-//               colors: [
-//                 AppTheme.darkCard.withOpacity(0.8),
-//                 AppTheme.darkCard.withOpacity(0.6),
-//                 AppTheme.darkBackground.withOpacity(0.7),
-//               ],
-//             ),
-//             borderRadius: BorderRadius.circular(24),
-//             border: Border.all(
-//               color: AppTheme.glassLight.withOpacity(0.2),
-//               width: 1.5,
-//             ),
-//             boxShadow: [
-//               BoxShadow(
-//                 color: AppTheme.primaryBlue.withOpacity(0.1),
-//                 blurRadius: 30,
-//                 spreadRadius: 5,
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildMainContent() {
-//     return Column(
-//       children: [
-//         _buildHeader(),
-//         _buildTabBar(),
-//         Expanded(
-//           child: _buildTabContent(),
-//         ),
-//         _buildFooter(),
-//       ],
-//     );
-//   }
-
-//   Widget _buildHeader() {
-//     return Container(
-//       padding: const EdgeInsets.all(24),
-//       decoration: BoxDecoration(
-//         gradient: LinearGradient(
-//           begin: Alignment.topLeft,
-//           end: Alignment.bottomRight,
-//           colors: [
-//             AppTheme.primaryBlue.withOpacity(0.1),
-//             AppTheme.primaryPurple.withOpacity(0.05),
-//           ],
-//         ),
-//         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-//       ),
-//       child: Column(
-//         children: [
-//           // Icon with glow effect
-//           Container(
-//             width: 56,
-//             height: 56,
-//             decoration: BoxDecoration(
-//               shape: BoxShape.circle,
-//               gradient: LinearGradient(
-//                 colors: [
-//                   AppTheme.primaryBlue.withOpacity(0.2),
-//                   AppTheme.primaryPurple.withOpacity(0.2),
-//                 ],
-//               ),
-//               boxShadow: [
-//                 BoxShadow(
-//                   color: AppTheme.glowBlue.withOpacity(0.3),
-//                   blurRadius: 20,
-//                   spreadRadius: 2,
-//                 ),
-//               ],
-//             ),
-//             child: Icon(
-//               Icons.policy_rounded,
-//               size: 28,
-//               color: AppTheme.glowWhite,
-//             ),
-//           ),
-
-//           const SizedBox(height: 16),
-
-//           // Title
-//           ShaderMask(
-//             shaderCallback: (bounds) => LinearGradient(
-//               colors: [
-//                 AppTheme.textWhite,
-//                 AppTheme.textWhite.withOpacity(0.9),
-//               ],
-//             ).createShader(bounds),
-//             child: Text(
-//               'سياسات وقوانين الحجز',
-//               style: AppTextStyles.heading4.copyWith(
-//                 color: Colors.white,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//           ),
-
-//           const SizedBox(height: 8),
-
-//           // Property Name
-//           Container(
-//             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-//             decoration: BoxDecoration(
-//               color: AppTheme.darkBackground.withOpacity(0.3),
-//               borderRadius: BorderRadius.circular(20),
-//               border: Border.all(
-//                 color: AppTheme.darkBorder.withOpacity(0.2),
-//                 width: 1,
-//               ),
-//             ),
-//             child: Row(
-//               mainAxisSize: MainAxisSize.min,
-//               children: [
-//                 Icon(
-//                   Icons.apartment_rounded,
-//                   size: 14,
-//                   color: AppTheme.textLight,
-//                 ),
-//                 const SizedBox(width: 6),
-//                 Text(
-//                   widget.propertyName,
-//                   style: AppTextStyles.caption.copyWith(
-//                     color: AppTheme.textLight,
-//                     fontWeight: FontWeight.w500,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildTabBar() {
-//     return Container(
-//       height: 60,
-//       margin: const EdgeInsets.symmetric(horizontal: 24),
-//       decoration: BoxDecoration(
-//         color: AppTheme.darkBackground.withOpacity(0.3),
-//         borderRadius: BorderRadius.circular(16),
-//       ),
-//       child: Row(
-//         children: _tabs.asMap().entries.map((entry) {
-//           final index = entry.key;
-//           final tab = entry.value;
-//           final isSelected = _selectedTabIndex == index;
-
-//           return Expanded(
-//             child: GestureDetector(
-//               onTap: () {
-//                 HapticFeedback.lightImpact();
-//                 setState(() {
-//                   _selectedTabIndex = index;
-//                 });
-//                 _pageController.animateToPage(
-//                   index,
-//                   duration: const Duration(milliseconds: 300),
-//                   curve: Curves.easeOutCubic,
-//                 );
-//               },
-//               child: AnimatedContainer(
-//                 duration: const Duration(milliseconds: 300),
-//                 margin: const EdgeInsets.all(8),
-//                 decoration: BoxDecoration(
-//                   gradient: isSelected
-//                       ? LinearGradient(
-//                           colors: [
-//                             tab.color.withOpacity(0.2),
-//                             tab.color.withOpacity(0.1),
-//                           ],
-//                         )
-//                       : null,
-//                   borderRadius: BorderRadius.circular(12),
-//                   border: isSelected
-//                       ? Border.all(
-//                           color: tab.color.withOpacity(0.3),
-//                           width: 1.5,
-//                         )
-//                       : null,
-//                 ),
-//                 child: Row(
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   children: [
-//                     Icon(
-//                       tab.icon,
-//                       size: 18,
-//                       color: isSelected ? tab.color : AppTheme.textMuted,
-//                     ),
-//                     const SizedBox(width: 6),
-//                     Text(
-//                       tab.title,
-//                       style: AppTextStyles.bodySmall.copyWith(
-//                         color: isSelected
-//                             ? AppTheme.textWhite
-//                             : AppTheme.textMuted,
-//                         fontWeight:
-//                             isSelected ? FontWeight.w600 : FontWeight.w400,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           );
-//         }).toList(),
-//       ),
-//     );
-//   }
-
-//   Widget _buildTabContent() {
-//     return AnimatedBuilder(
-//       animation: _contentController,
-//       builder: (context, child) {
-//         return Transform.translate(
-//           offset: Offset(0, _slideAnimation.value),
-//           child: FadeTransition(
-//             opacity: _fadeAnimation,
-//             child: PageView(
-//               controller: _pageController,
-//               onPageChanged: (index) {
-//                 setState(() {
-//                   _selectedTabIndex = index;
-//                 });
-//               },
-//               children: [
-//                 _buildCancellationPolicy(),
-//                 _buildPaymentPolicy(),
-//                 _buildPropertyRules(),
-//               ],
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   Widget _buildCancellationPolicy() {
-//     return _buildPolicyContent(
-//       policies: [
-//         PolicyItem(
-//           icon: Icons.free_cancellation_rounded,
-//           title: 'إلغاء مجاني',
-//           description: 'يمكنك الإلغاء مجاناً قبل 24 ساعة من موعد تسجيل الوصول',
-//           type: PolicyType.success,
-//         ),
-//         PolicyItem(
-//           icon: Icons.discount_rounded,
-//           title: 'استرداد جزئي',
-//           description: 'إلغاء قبل 12 ساعة: استرداد 50% من المبلغ المدفوع',
-//           type: PolicyType.warning,
-//         ),
-//         PolicyItem(
-//           icon: Icons.cancel_rounded,
-//           title: 'عدم الاسترداد',
-//           description: 'لا يمكن الاسترداد في حالة الإلغاء قبل أقل من 12 ساعة',
-//           type: PolicyType.error,
-//         ),
-//         PolicyItem(
-//           icon: Icons.event_busy_rounded,
-//           title: 'عدم الحضور',
-//           description: 'في حالة عدم الحضور، سيتم خصم كامل المبلغ',
-//           type: PolicyType.error,
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildPaymentPolicy() {
-//     return _buildPolicyContent(
-//       policies: [
-//         PolicyItem(
-//           icon: Icons.payment_rounded,
-//           title: 'طرق الدفع المتاحة',
-//           description: 'نقداً، بطاقات ائتمانية، محافظ إلكترونية',
-//           type: PolicyType.info,
-//         ),
-//         PolicyItem(
-//           icon: Icons.security_rounded,
-//           title: 'دفع آمن',
-//           description: 'جميع المعاملات محمية بتشفير SSL 256-bit',
-//           type: PolicyType.success,
-//         ),
-//         PolicyItem(
-//           icon: Icons.schedule_rounded,
-//           title: 'توقيت الدفع',
-//           description: 'الدفع الكامل مطلوب عند تأكيد الحجز',
-//           type: PolicyType.warning,
-//         ),
-//         PolicyItem(
-//           icon: Icons.receipt_long_rounded,
-//           title: 'الفواتير',
-//           description: 'ستتلقى فاتورة إلكترونية بعد إتمام الدفع',
-//           type: PolicyType.info,
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildPropertyRules() {
-//     return _buildPolicyContent(
-//       policies: [
-//         PolicyItem(
-//           icon: Icons.access_time_rounded,
-//           title: 'أوقات تسجيل الدخول',
-//           description: 'الوصول: 2:00 مساءً | المغادرة: 12:00 ظهراً',
-//           type: PolicyType.info,
-//         ),
-//         PolicyItem(
-//           icon: Icons.smoke_free_rounded,
-//           title: 'ممنوع التدخين',
-//           description: 'التدخين ممنوع في جميع الأماكن المغلقة',
-//           type: PolicyType.warning,
-//         ),
-//         PolicyItem(
-//           icon: Icons.pets_rounded,
-//           title: 'الحيوانات الأليفة',
-//           description: 'غير مسموح باصطحاب الحيوانات الأليفة',
-//           type: PolicyType.error,
-//         ),
-//         PolicyItem(
-//           icon: Icons.volume_off_rounded,
-//           title: 'ساعات الهدوء',
-//           description: 'يرجى الحفاظ على الهدوء من 10 مساءً حتى 8 صباحاً',
-//           type: PolicyType.info,
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildPolicyContent({required List<PolicyItem> policies}) {
-//     return Container(
-//       padding: const EdgeInsets.all(24),
-//       child: ListView.separated(
-//         physics: const BouncingScrollPhysics(),
-//         itemCount: policies.length,
-//         separatorBuilder: (context, index) => const SizedBox(height: 16),
-//         itemBuilder: (context, index) {
-//           final policy = policies[index];
-//           return _buildPolicyCard(policy, index);
-//         },
-//       ),
-//     );
-//   }
-
-//   Widget _buildPolicyCard(PolicyItem policy, int index) {
-//     return TweenAnimationBuilder<double>(
-//       duration: Duration(milliseconds: 300 + (index * 100)),
-//       tween: Tween(begin: 0.0, end: 1.0),
-//       curve: Curves.easeOutBack,
-//       builder: (context, value, child) {
-//         // Ensure value is clamped between 0 and 1
-//         final clampedValue = value.clamp(0.0, 1.0);
-//         final scale = 0.8 + (0.2 * clampedValue);
-
-//         return Transform.scale(
-//           scale: scale,
-//           child: Opacity(
-//             opacity: clampedValue,
-//             child: Container(
-//               padding: const EdgeInsets.all(16),
-//               decoration: BoxDecoration(
-//                 gradient: LinearGradient(
-//                   begin: Alignment.topLeft,
-//                   end: Alignment.bottomRight,
-//                   colors: [
-//                     policy.getColor().withOpacity(0.1),
-//                     policy.getColor().withOpacity(0.05),
-//                   ],
-//                 ),
-//                 borderRadius: BorderRadius.circular(16),
-//                 border: Border.all(
-//                   color: policy.getColor().withOpacity(0.2),
-//                   width: 1,
-//                 ),
-//               ),
-//               child: Row(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Container(
-//                     width: 40,
-//                     height: 40,
-//                     decoration: BoxDecoration(
-//                       gradient: LinearGradient(
-//                         colors: [
-//                           policy.getColor().withOpacity(0.2),
-//                           policy.getColor().withOpacity(0.1),
-//                         ],
-//                       ),
-//                       borderRadius: BorderRadius.circular(10),
-//                     ),
-//                     child: Icon(
-//                       policy.icon,
-//                       size: 20,
-//                       color: policy.getColor(),
-//                     ),
-//                   ),
-//                   const SizedBox(width: 12),
-//                   Expanded(
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         Text(
-//                           policy.title,
-//                           style: AppTextStyles.bodyMedium.copyWith(
-//                             color: AppTheme.textWhite,
-//                             fontWeight: FontWeight.w600,
-//                           ),
-//                         ),
-//                         const SizedBox(height: 4),
-//                         Text(
-//                           policy.description,
-//                           style: AppTextStyles.caption.copyWith(
-//                             color: AppTheme.textLight.withOpacity(0.8),
-//                             height: 1.4,
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   Widget _buildFooter() {
-//     return Container(
-//       padding: const EdgeInsets.all(24),
-//       decoration: BoxDecoration(
-//         gradient: LinearGradient(
-//           begin: Alignment.topCenter,
-//           end: Alignment.bottomCenter,
-//           colors: [
-//             Colors.transparent,
-//             AppTheme.darkBackground.withOpacity(0.3),
-//           ],
-//         ),
-//         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
-//       ),
-//       child: Column(
-//         children: [
-//           // Info Note
-//           Container(
-//             padding: const EdgeInsets.all(12),
-//             decoration: BoxDecoration(
-//               color: AppTheme.info.withOpacity(0.1),
-//               borderRadius: BorderRadius.circular(12),
-//               border: Border.all(
-//                 color: AppTheme.info.withOpacity(0.2),
-//                 width: 1,
-//               ),
-//             ),
-//             child: Row(
-//               children: [
-//                 Icon(
-//                   Icons.info_outline_rounded,
-//                   size: 16,
-//                   color: AppTheme.info,
-//                 ),
-//                 const SizedBox(width: 8),
-//                 Expanded(
-//                   child: Text(
-//                     'بتأكيد الحجز، فإنك توافق على جميع السياسات المذكورة أعلاه',
-//                     style: AppTextStyles.caption.copyWith(
-//                       color: AppTheme.textLight.withOpacity(0.8),
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-
-//           const SizedBox(height: 16),
-
-//           // Action Buttons
-//           Row(
-//             children: [
-//               if (widget.propertyId != null && widget.propertyId!.isNotEmpty)
-//                 Expanded(
-//                   child: _buildActionButton(
-//                     onTap: () {
-//                       HapticFeedback.lightImpact();
-//                       Navigator.pop(context);
-//                       context.push('/property/${widget.propertyId}', extra: {
-//                         'fromBookingSummary': true,
-//                         'propertyName': widget.propertyName,
-//                       });
-//                     },
-//                     icon: Icons.open_in_new_rounded,
-//                     label: 'عرض العقار',
-//                     isPrimary: false,
-//                   ),
-//                 ),
-//               if (widget.propertyId != null && widget.propertyId!.isNotEmpty)
-//                 const SizedBox(width: 12),
-//               Expanded(
-//                 child: _buildActionButton(
-//                   onTap: () {
-//                     HapticFeedback.lightImpact();
-//                     Navigator.pop(context);
-//                   },
-//                   icon: Icons.check_rounded,
-//                   label: 'فهمت',
-//                   isPrimary: true,
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildActionButton({
-//     required VoidCallback onTap,
-//     required IconData icon,
-//     required String label,
-//     required bool isPrimary,
-//   }) {
-//     return GestureDetector(
-//       onTap: onTap,
-//       child: Container(
-//         height: 48,
-//         decoration: BoxDecoration(
-//           gradient: isPrimary
-//               ? LinearGradient(
-//                   begin: Alignment.topLeft,
-//                   end: Alignment.bottomRight,
-//                   colors: [
-//                     AppTheme.primaryBlue.withOpacity(0.8),
-//                     AppTheme.primaryPurple.withOpacity(0.8),
-//                   ],
-//                 )
-//               : null,
-//           color: isPrimary ? null : AppTheme.darkCard.withOpacity(0.5),
-//           borderRadius: BorderRadius.circular(12),
-//           border: Border.all(
-//             color: isPrimary
-//                 ? Colors.transparent
-//                 : AppTheme.darkBorder.withOpacity(0.3),
-//             width: 1,
-//           ),
-//           boxShadow: isPrimary
-//               ? [
-//                   BoxShadow(
-//                     color: AppTheme.primaryBlue.withOpacity(0.3),
-//                     blurRadius: 12,
-//                     offset: const Offset(0, 4),
-//                   ),
-//                 ]
-//               : null,
-//         ),
-//         child: Row(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             Icon(
-//               icon,
-//               size: 18,
-//               color: isPrimary ? Colors.white : AppTheme.textLight,
-//             ),
-//             const SizedBox(width: 8),
-//             Text(
-//               label,
-//               style: AppTextStyles.bodySmall.copyWith(
-//                 color: isPrimary ? Colors.white : AppTheme.textLight,
-//                 fontWeight: FontWeight.w600,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildCloseButton() {
-//     return Positioned(
-//       top: 12,
-//       right: 12,
-//       child: GestureDetector(
-//         onTap: () {
-//           HapticFeedback.lightImpact();
-//           Navigator.pop(context);
-//         },
-//         child: Container(
-//           width: 36,
-//           height: 36,
-//           decoration: BoxDecoration(
-//             color: AppTheme.darkBackground.withOpacity(0.5),
-//             shape: BoxShape.circle,
-//             border: Border.all(
-//               color: AppTheme.darkBorder.withOpacity(0.2),
-//               width: 1,
-//             ),
-//           ),
-//           child: Icon(
-//             Icons.close_rounded,
-//             size: 18,
-//             color: AppTheme.textLight,
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// // Supporting Classes
-// class PolicyTab {
-//   final IconData icon;
-//   final String title;
-//   final Color color;
-
-//   PolicyTab({
-//     required this.icon,
-//     required this.title,
-//     required this.color,
-//   });
-// }
-
-// enum PolicyType { success, warning, error, info }
-
-// class PolicyItem {
-//   final IconData icon;
-//   final String title;
-//   final String description;
-//   final PolicyType type;
-
-//   PolicyItem({
-//     required this.icon,
-//     required this.title,
-//     required this.description,
-//     required this.type,
-//   });
-
-//   Color getColor() {
-//     switch (type) {
-//       case PolicyType.success:
-//         return AppTheme.success;
-//       case PolicyType.warning:
-//         return AppTheme.warning;
-//       case PolicyType.error:
-//         return AppTheme.error;
-//       case PolicyType.info:
-//         return AppTheme.info;
-//     }
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// العربية: يمثل `PoliciesDialog`.
 class PoliciesDialog extends StatefulWidget {
+  /// العربية: يخزن القيمة `propertyId`.
   final String? propertyId;
+
+  /// العربية: يخزن القيمة `propertyName`.
   final String propertyName;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `PoliciesDialog`.
   const PoliciesDialog({
     super.key,
     this.propertyId,
     required this.propertyName,
   });
 
+  /// العربية: يعرض العملية المطلوبة لـ `show`.
   static Future<void> show(
     BuildContext context, {
     String? propertyId,
@@ -848,21 +38,35 @@ class PoliciesDialog extends StatefulWidget {
     );
   }
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<PoliciesDialog> createState() => _PoliciesDialogState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `PoliciesDialogState`.
 class _PoliciesDialogState extends State<PoliciesDialog>
     with TickerProviderStateMixin {
+  /// العربية: يخزن القيمة `controller`.
   late AnimationController _controller;
+
+  /// العربية: يخزن القيمة `scrollIndicatorController`.
   late AnimationController _scrollIndicatorController;
+
+  /// العربية: يخزن القيمة `scaleAnimation`.
   late Animation<double> _scaleAnimation;
+
+  /// العربية: يخزن القيمة `fadeAnimation`.
   late Animation<double> _fadeAnimation;
+
+  /// العربية: يخزن القيمة `scrollIndicatorAnimation`.
   late Animation<double> _scrollIndicatorAnimation;
 
   final ScrollController _scrollController = ScrollController();
+
+  /// العربية: يخزن القيمة `showScrollIndicator`.
   bool _showScrollIndicator = true;
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -906,6 +110,7 @@ class _PoliciesDialogState extends State<PoliciesDialog>
     _controller.forward();
   }
 
+  /// العربية: يعالج scroll.
   void _handleScroll() {
     if (_scrollController.hasClients) {
       final isAtBottom = _scrollController.offset >=
@@ -918,6 +123,7 @@ class _PoliciesDialogState extends State<PoliciesDialog>
     }
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _controller.dispose();
@@ -926,6 +132,7 @@ class _PoliciesDialogState extends State<PoliciesDialog>
     super.dispose();
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -988,6 +195,7 @@ class _PoliciesDialogState extends State<PoliciesDialog>
     );
   }
 
+  /// العربية: يبني professional background.
   Widget _buildProfessionalBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -1032,6 +240,7 @@ class _PoliciesDialogState extends State<PoliciesDialog>
     );
   }
 
+  /// العربية: يبني professional header.
   Widget _buildProfessionalHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
@@ -1132,6 +341,7 @@ class _PoliciesDialogState extends State<PoliciesDialog>
     );
   }
 
+  /// العربية: يبني scroll indicator.
   Widget _buildScrollIndicator() {
     return AnimatedBuilder(
       animation: _scrollIndicatorAnimation,
@@ -1175,6 +385,7 @@ class _PoliciesDialogState extends State<PoliciesDialog>
     );
   }
 
+  /// العربية: يبني policies list.
   Widget _buildPoliciesList() {
     final allPolicies = _getAllPolicies();
 
@@ -1210,6 +421,7 @@ class _PoliciesDialogState extends State<PoliciesDialog>
     );
   }
 
+  /// العربية: يبني policy section.
   Widget _buildPolicySection(PolicySection section) {
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
@@ -1288,6 +500,7 @@ class _PoliciesDialogState extends State<PoliciesDialog>
     );
   }
 
+  /// العربية: يبني professional policy card.
   Widget _buildProfessionalPolicyCard(PolicyItem policy, int number) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -1419,6 +632,7 @@ class _PoliciesDialogState extends State<PoliciesDialog>
     );
   }
 
+  /// العربية: يعيد all policies.
   List<PolicySection> _getAllPolicies() {
     return [
       PolicySection(
@@ -1578,6 +792,7 @@ class _PoliciesDialogState extends State<PoliciesDialog>
     ];
   }
 
+  /// العربية: يبني professional footer.
   Widget _buildProfessionalFooter() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1674,6 +889,7 @@ class _PoliciesDialogState extends State<PoliciesDialog>
     );
   }
 
+  /// العربية: يبني action button.
   Widget _buildActionButton({
     required VoidCallback onTap,
     required String label,
@@ -1735,6 +951,7 @@ class _PoliciesDialogState extends State<PoliciesDialog>
     );
   }
 
+  /// العربية: يبني elegant close button.
   Widget _buildElegantCloseButton() {
     return Positioned(
       top: 16,
@@ -1767,13 +984,24 @@ class _PoliciesDialogState extends State<PoliciesDialog>
 }
 
 // Supporting Classes
+/// العربية: يمثل `PolicySection`.
 class PolicySection {
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
+
+  /// العربية: يخزن القيمة `title`.
   final String title;
+
+  /// العربية: يخزن القيمة `subtitle`.
   final String subtitle;
+
+  /// العربية: يخزن القيمة `color`.
   final Color color;
+
+  /// العربية: يخزن القيمة `items`.
   final List<PolicyItem> items;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `PolicySection`.
   PolicySection({
     required this.icon,
     required this.title,
@@ -1783,15 +1011,27 @@ class PolicySection {
   });
 }
 
+/// العربية: يعرّف القيم المتاحة للنوع `PolicyType`.
 enum PolicyType { success, warning, error, info }
 
+/// العربية: يمثل `PolicyItem`.
 class PolicyItem {
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
+
+  /// العربية: يخزن القيمة `title`.
   final String title;
+
+  /// العربية: يخزن القيمة `description`.
   final String description;
+
+  /// العربية: يخزن القيمة `additionalInfo`.
   final String? additionalInfo;
+
+  /// العربية: يخزن القيمة `type`.
   final PolicyType type;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `PolicyItem`.
   PolicyItem({
     required this.icon,
     required this.title,
@@ -1800,6 +1040,7 @@ class PolicyItem {
     required this.type,
   });
 
+  /// العربية: يعيد color.
   Color getColor() {
     switch (type) {
       case PolicyType.success:

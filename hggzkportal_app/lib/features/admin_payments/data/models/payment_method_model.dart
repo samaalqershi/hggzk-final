@@ -2,6 +2,7 @@ import '../../../../../core/enums/payment_method_enum.dart';
 
 /// Model لمعلومات طريقة الدفع
 class PaymentMethodModel {
+  /// العربية: يخزن القيمة `method`.
   final PaymentMethod method;
   final String displayName;
   final String icon;
@@ -10,7 +11,6 @@ class PaymentMethodModel {
   final double? processingFee;
   final String? description;
   final Map<String, dynamic>? configuration;
-
   PaymentMethodModel({
     required this.method,
     required this.displayName,
@@ -21,7 +21,6 @@ class PaymentMethodModel {
     this.description,
     this.configuration,
   });
-
   factory PaymentMethodModel.fromJson(Map<String, dynamic> json) {
     return PaymentMethodModel(
       method: PaymentMethodExtension.fromBackendValue(json['methodId'] ?? 6),
@@ -34,7 +33,6 @@ class PaymentMethodModel {
       configuration: json['configuration'] as Map<String, dynamic>?,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'methodId': method.backendValue,

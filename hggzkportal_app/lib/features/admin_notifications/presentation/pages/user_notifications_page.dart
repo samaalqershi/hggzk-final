@@ -16,28 +16,23 @@ import '../../domain/entities/admin_notification.dart';
 import '../bloc/admin_notifications_bloc.dart';
 import '../bloc/admin_notifications_event.dart';
 import '../bloc/admin_notifications_state.dart';
-
 class UserNotificationsPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `userId`.
   final String userId;
-
   const UserNotificationsPage({
     super.key,
     required this.userId,
   });
-
   @override
   State<UserNotificationsPage> createState() => _UserNotificationsPageState();
 }
-
 class _UserNotificationsPageState extends State<UserNotificationsPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   final ScrollController _scrollController = ScrollController();
-
   bool? _showUnreadOnly;
   int _currentPage = 1;
   final int _pageSize = 20;
-
   @override
   void initState() {
     super.initState();
@@ -45,14 +40,12 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-
     _loadUserNotifications();
     context
         .read<UserDetailsBloc>()
         .add(LoadUserDetailsEvent(userId: widget.userId));
     _setupScrollListener();
   }
-
   void _loadUserNotifications() {
     context.read<AdminNotificationsBloc>().add(
           LoadUserNotificationsEvent(
@@ -63,7 +56,6 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
           ),
         );
   }
-
   void _setupScrollListener() {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -77,14 +69,12 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
       }
     });
   }
-
   @override
   void dispose() {
     _animationController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,7 +90,6 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
       ),
     );
   }
-
   Widget _buildSliverAppBar() {
     return SliverAppBar(
       expandedHeight: 180,
@@ -150,7 +139,6 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
       ),
     );
   }
-
   Widget _buildBackButton() {
     return Container(
       margin: const EdgeInsets.all(8),
@@ -175,7 +163,6 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
       ),
     );
   }
-
   Widget _buildUserInfo() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -216,7 +203,6 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
       ),
     );
   }
-
   Widget _buildFilterChips() {
     return SliverToBoxAdapter(
       child: Container(
@@ -262,7 +248,6 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
       ),
     );
   }
-
   Widget _buildFilterChip({
     required String label,
     required bool isSelected,
@@ -296,7 +281,6 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
       ),
     );
   }
-
   Widget _buildNotificationsList() {
     return BlocBuilder<AdminNotificationsBloc, AdminNotificationsState>(
       builder: (context, state) {
@@ -355,7 +339,6 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
       },
     );
   }
-
   Widget _buildNotificationCard(AdminNotificationEntity notification) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -482,7 +465,6 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
       ),
     );
   }
-
   Widget _buildNotificationIcon(String type) {
     IconData icon;
     Color color;
@@ -523,7 +505,6 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
       ),
     );
   }
-
   Widget _buildStatusBadge(AdminNotificationEntity notification) {
     Color statusColor;
     String statusText;
@@ -565,12 +546,10 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
       ),
     );
   }
-
   void _viewNotificationDetails(AdminNotificationEntity notification) {
     HapticFeedback.lightImpact();
     _showNotificationDetailsDialog(notification);
   }
-
   void _showNotificationDetailsDialog(AdminNotificationEntity notification) {
     showModalBottomSheet(
       context: context,
@@ -670,7 +649,6 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
       ),
     );
   }
-
   Widget _buildDetailRow(String label, String value, IconData icon) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -711,7 +689,6 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
       ),
     );
   }
-
   String _formatDateTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
@@ -727,12 +704,10 @@ class _UserNotificationsPageState extends State<UserNotificationsPage>
     }
   }
 }
-
 class _UserInfoHeader extends StatelessWidget {
+  /// العربية: يخزن القيمة `userId`.
   final String userId;
-
   const _UserInfoHeader({required this.userId});
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UserDetailsBloc, UserDetailsState>(

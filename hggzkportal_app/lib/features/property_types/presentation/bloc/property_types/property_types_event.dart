@@ -1,6 +1,9 @@
 import 'package:equatable/equatable.dart';
 
+/// Base event for canonical property-type presentation flows.
+/// الحدث الأساسي لتدفقات العرض الخاصة بميزة أنواع العقار القانونية.
 abstract class PropertyTypesEvent extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyTypesEvent`.
   const PropertyTypesEvent();
 
   @override
@@ -8,7 +11,9 @@ abstract class PropertyTypesEvent extends Equatable {
 }
 
 class LoadPropertyTypesEvent extends PropertyTypesEvent {
+  /// العربية: يخزن القيمة `pageNumber`.
   final int pageNumber;
+
   final int pageSize;
 
   const LoadPropertyTypesEvent({
@@ -21,9 +26,13 @@ class LoadPropertyTypesEvent extends PropertyTypesEvent {
 }
 
 class CreatePropertyTypeEvent extends PropertyTypesEvent {
+  /// العربية: يخزن القيمة `name`.
   final String name;
+
   final String description;
+
   final List<String> defaultAmenities;
+
   final String icon;
 
   const CreatePropertyTypeEvent({
@@ -38,10 +47,15 @@ class CreatePropertyTypeEvent extends PropertyTypesEvent {
 }
 
 class UpdatePropertyTypeEvent extends PropertyTypesEvent {
+  /// العربية: يخزن القيمة `propertyTypeId`.
   final String propertyTypeId;
+
   final String name;
+
   final String description;
+
   final List<String> defaultAmenities;
+
   final String icon;
 
   const UpdatePropertyTypeEvent({
@@ -53,10 +67,12 @@ class UpdatePropertyTypeEvent extends PropertyTypesEvent {
   });
 
   @override
-  List<Object> get props => [propertyTypeId, name, description, defaultAmenities, icon];
+  List<Object> get props =>
+      [propertyTypeId, name, description, defaultAmenities, icon];
 }
 
 class DeletePropertyTypeEvent extends PropertyTypesEvent {
+  /// العربية: يخزن القيمة `propertyTypeId`.
   final String propertyTypeId;
 
   const DeletePropertyTypeEvent({required this.propertyTypeId});
@@ -66,6 +82,7 @@ class DeletePropertyTypeEvent extends PropertyTypesEvent {
 }
 
 class SelectPropertyTypeEvent extends PropertyTypesEvent {
+  /// العربية: يخزن القيمة `propertyTypeId`.
   final String? propertyTypeId;
 
   const SelectPropertyTypeEvent({this.propertyTypeId});

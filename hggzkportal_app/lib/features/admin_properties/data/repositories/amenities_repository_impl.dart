@@ -3,21 +3,20 @@
 import 'package:dartz/dartz.dart';
 import 'package:hggzkportal/core/error/exceptions.dart';
 import 'package:hggzkportal/core/error/failures.dart';
-import 'package:hggzkportal/core/network/network_info.dart';
 import 'package:hggzkportal/core/models/paginated_result.dart';
-import '../../domain/entities/amenity.dart';
-import '../../domain/repositories/amenities_repository.dart';
-import '../datasources/amenities_remote_datasource.dart';
+import 'package:hggzkportal/core/network/network_info.dart';
+import 'package:hggzkportal/features/admin_properties/data/datasources/amenities_remote_datasource.dart';
+import 'package:hggzkportal/features/admin_properties/domain/entities/amenity.dart';
+import 'package:hggzkportal/features/admin_properties/domain/repositories/amenities_repository.dart';
 
 class AmenitiesRepositoryImpl implements AmenitiesRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final AmenitiesRemoteDataSource remoteDataSource;
   final NetworkInfo networkInfo;
-  
   AmenitiesRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
-  
   @override
   Future<Either<Failure, PaginatedResult<Amenity>>> getAllAmenities({
     int? pageNumber,
@@ -44,10 +43,10 @@ class AmenitiesRepositoryImpl implements AmenitiesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
   Future<Either<Failure, Amenity>> getAmenityById(String amenityId) async {
     if (await networkInfo.isConnected) {
@@ -58,12 +57,13 @@ class AmenitiesRepositoryImpl implements AmenitiesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
-  Future<Either<Failure, String>> createAmenity(Map<String, dynamic> data) async {
+  Future<Either<Failure, String>> createAmenity(
+      Map<String, dynamic> data) async {
     if (await networkInfo.isConnected) {
       try {
         final id = await remoteDataSource.createAmenity(data);
@@ -72,12 +72,13 @@ class AmenitiesRepositoryImpl implements AmenitiesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
-  Future<Either<Failure, bool>> updateAmenity(String amenityId, Map<String, dynamic> data) async {
+  Future<Either<Failure, bool>> updateAmenity(
+      String amenityId, Map<String, dynamic> data) async {
     if (await networkInfo.isConnected) {
       try {
         final success = await remoteDataSource.updateAmenity(amenityId, data);
@@ -86,10 +87,10 @@ class AmenitiesRepositoryImpl implements AmenitiesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
   Future<Either<Failure, bool>> deleteAmenity(String amenityId) async {
     if (await networkInfo.isConnected) {
@@ -100,10 +101,10 @@ class AmenitiesRepositoryImpl implements AmenitiesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
   Future<Either<Failure, bool>> assignAmenityToProperty(
     String amenityId,
@@ -112,13 +113,14 @@ class AmenitiesRepositoryImpl implements AmenitiesRepository {
   ) async {
     if (await networkInfo.isConnected) {
       try {
-        final success = await remoteDataSource.assignAmenityToProperty(amenityId, propertyId, data);
+        final success = await remoteDataSource.assignAmenityToProperty(
+            amenityId, propertyId, data);
         return Right(success);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
 
@@ -129,7 +131,8 @@ class AmenitiesRepositoryImpl implements AmenitiesRepository {
   ) async {
     if (await networkInfo.isConnected) {
       try {
-        final success = await remoteDataSource.unassignAmenityFromProperty(amenityId, propertyId);
+        final success = await remoteDataSource.unassignAmenityFromProperty(
+            amenityId, propertyId);
         return Right(success);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
@@ -140,18 +143,20 @@ class AmenitiesRepositoryImpl implements AmenitiesRepository {
       return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
   }
-  
+
   @override
-  Future<Either<Failure, List<Amenity>>> getPropertyAmenities(String propertyId) async {
+  Future<Either<Failure, List<Amenity>>> getPropertyAmenities(
+      String propertyId) async {
     if (await networkInfo.isConnected) {
       try {
-        final amenities = await remoteDataSource.getPropertyAmenities(propertyId);
+        final amenities =
+            await remoteDataSource.getPropertyAmenities(propertyId);
         return Right(amenities);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
 }

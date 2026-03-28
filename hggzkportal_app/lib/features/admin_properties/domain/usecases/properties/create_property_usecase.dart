@@ -6,6 +6,7 @@ import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../../repositories/properties_repository.dart';
 
 class CreatePropertyParams {
+  /// العربية: يخزن القيمة `name`.
   final String name;
   final String address;
   final String propertyTypeId;
@@ -22,7 +23,6 @@ class CreatePropertyParams {
   final String currency;
   final bool isFeatured;
   final double? systemCommissionRate;
-
   CreatePropertyParams({
     required this.name,
     required this.address,
@@ -41,7 +41,6 @@ class CreatePropertyParams {
     required this.isFeatured,
     this.systemCommissionRate,
   });
-
   Map<String, dynamic> toJson() {
     return {
       'name': name,
@@ -67,10 +66,9 @@ class CreatePropertyParams {
 }
 
 class CreatePropertyUseCase implements UseCase<String, CreatePropertyParams> {
+  /// العربية: يخزن القيمة `repository`.
   final PropertiesRepository repository;
-
   CreatePropertyUseCase(this.repository);
-
   @override
   Future<Either<Failure, String>> call(CreatePropertyParams params) async {
     // تحقق من صحة البيانات قبل الإرسال

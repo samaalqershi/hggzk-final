@@ -8,7 +8,17 @@ import 'package:hggzkportal/core/utils/media_file_safety.dart';
 import 'package:hggzkportal/core/utils/video_utils.dart';
 import '../models/city_image_model.dart';
 
+/// يعرّف العمليات البعيدة الخاصة بوسائط المدن، من رفع الصور والفيديوهات إلى
+/// إعادة ترتيبها وتعيين صورة الغلاف التي ستظهر في لوحة التحكم والواجهة العامة.
+/// Defines the remote city-media workflow, from uploading images and videos to
+/// reordering them and choosing the cover asset shown in admin and consumer
+/// views.
 abstract class CityImagesRemoteDataSource {
+  /// يرفع صورة أو فيديو لمدينة محفوظة أو لمسودة مؤقتة ويعيد التمثيل النهائي
+  /// للوسيط بعد أن يضيف الخادم معرفاته وبياناته الوصفية.
+  /// Uploads an image or video for a saved city or a temporary draft and
+  /// returns the final media representation after the backend assigns ids and
+  /// metadata.
   Future<CityImageModel> uploadImage({
     String? cityId,
     String? tempKey,
@@ -21,21 +31,59 @@ abstract class CityImagesRemoteDataSource {
     ProgressCallback? onSendProgress,
   });
 
+  /// يجلب الوسائط الحالية المرتبطة بمدينة أو بمسودة، مع الحفاظ على الترتيب
+  /// الذي تعتمد عليه الواجهة عند العرض.
+  /// Fetches the media currently linked to a city or draft while preserving the
+  /// order expected by the UI.
   Future<List<CityImageModel>> getCityImages(String? cityId, {String? tempKey});
+
+  /// يحدّث بيانات وسيط موجود مثل النص البديل أو الوسوم أو الترتيب بعد اكتمال
+  /// عملية الرفع.
+  /// Updates an existing media record with metadata changes such as alt text,
+  /// tags, or order after upload has finished.
   Future<bool> updateImage(String imageId, Map<String, dynamic> data);
+
+  /// يحذف وسيطًا واحدًا من المعرض البعيد بعد تحديده بمعرفه النهائي.
+  /// Deletes a single asset from the remote gallery once its final id is
+  /// known.
   Future<bool> deleteImage(String imageId);
+
+  /// يرسل ترتيبًا جديدًا للمعرض حتى يستخدم الخادم والواجهة التسلسل نفسه عند
+  /// عرض الصور.
+  /// Sends a new gallery sequence so the backend and UI render the same image
+  /// order.
   Future<bool> reorderImages(
       String? cityId, String? tempKey, List<String> imageIds);
+
+  /// يحدد وسيطًا معينًا كصورة الغلاف الرئيسية التي تمثل المدينة.
+  /// Marks a specific asset as the primary cover that represents the city.
   Future<bool> setAsPrimaryImage(
       String? cityId, String? tempKey, String imageId);
 }
 
+/// ينفذ تكامل وسائط المدن مع خدمة الصور المركزية في الخادم، بما يشمل الصور
+/// والفيديوهات والمصغرات التي تُنشأ تلقائيًا للفيديو.
+/// Implements city-media integration against the shared backend image service,
+/// including images, videos, and derived thumbnails for video assets.
 class CityImagesRemoteDataSourceImpl implements CityImagesRemoteDataSource {
+  /// عميل الشبكة المستخدم لإرسال عمليات الوسائط وتفسير استجابات الخادم.
+  /// Network client used to send media operations and interpret backend
+  /// responses.
   final ApiClient apiClient;
+
+  /// المسار الأساسي المشترك الذي تمر عبره كل عمليات وسائط المدن.
+  /// Shared base endpoint through which all city-media operations are routed.
   static const String _imagesEndpoint = '/api/images';
 
+  /// يربط مصدر البيانات بعميل الشبكة المشترك مع بقية لوحة التحكم.
+  /// Binds the datasource to the API client shared across the dashboard.
   CityImagesRemoteDataSourceImpl({required this.apiClient});
 
+  /// Uploads one city media file, generating thumbnails for videos when
+  /// needed before forwarding the multipart payload to the backend.
+  ///
+  /// يرفع ملف وسائط واحدًا لمدينة معينة، مع توليد صورة مصغرة للفيديو عند
+  /// الحاجة قبل إرسال الحمولة متعددة الأجزاء إلى الخادم.
   @override
   Future<CityImageModel> uploadImage({
     String? cityId,
@@ -115,6 +163,9 @@ class CityImagesRemoteDataSourceImpl implements CityImagesRemoteDataSource {
     }
   }
 
+  /// Retrieves the ordered media gallery for a saved city or temporary draft.
+  ///
+  /// يجلب معرض الوسائط المرتب لمدينة محفوظة أو لمسودة مؤقتة.
   @override
   Future<List<CityImageModel>> getCityImages(String? cityId,
       {String? tempKey}) async {
@@ -141,6 +192,9 @@ class CityImagesRemoteDataSourceImpl implements CityImagesRemoteDataSource {
     }
   }
 
+  /// Updates metadata for one existing city media item after upload.
+  ///
+  /// يحدّث البيانات الوصفية لوسيط مدينة موجود بعد اكتمال الرفع.
   @override
   Future<bool> updateImage(String imageId, Map<String, dynamic> data) async {
     try {
@@ -156,6 +210,9 @@ class CityImagesRemoteDataSourceImpl implements CityImagesRemoteDataSource {
     }
   }
 
+  /// Deletes one city media asset from the backend gallery by its final id.
+  ///
+  /// يحذف وسيط مدينة واحدًا من المعرض الخلفي باستخدام معرّفه النهائي.
   @override
   Future<bool> deleteImage(String imageId) async {
     try {

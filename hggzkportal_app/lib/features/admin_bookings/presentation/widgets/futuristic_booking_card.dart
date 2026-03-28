@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../../../core/utils/formatters.dart';
@@ -11,18 +10,51 @@ import '../../domain/entities/booking.dart';
 import 'booking_status_badge.dart';
 import '../../../../core/widgets/booking_identity_card_tooltip.dart';
 
+/// تعرض بطاقة حجز غنية بصريًا مع عرض مختصر أو مفصل وإجراءات سريعة.
+/// Shows a visually rich booking card with compact or expanded content and quick actions.
 class FuturisticBookingCard extends StatefulWidget {
+  /// بيانات الحجز الأساسية التي تغذي البطاقة.
+  /// Core booking data that drives the card.
   final Booking booking;
+
+  /// يحدد ما إذا كانت البطاقة محددة حاليًا.
+  /// Indicates whether the card is currently selected.
   final bool isSelected;
+
+  /// يستدعى عند الضغط على البطاقة.
+  /// Called when the card is tapped.
   final VoidCallback? onTap;
+
+  /// يستدعى عند الضغط المطول لفتح المعاينة أو التفاصيل.
+  /// Called on long press to open preview or details.
   final VoidCallback? onLongPress;
+
+  /// يحدد ما إذا كانت أزرار الإجراءات تظهر أسفل البطاقة.
+  /// Controls whether action buttons appear under the card.
   final bool showActions;
+
+  /// يحدد ما إذا كان يجب استخدام التخطيط المضغوط.
+  /// Controls whether the compact layout should be used.
   final bool isCompact;
+
+  /// يستدعى عند تنفيذ إجراء التأكيد السريع.
+  /// Called when the quick confirm action is triggered.
   final VoidCallback? onConfirm;
+
+  /// يستدعى عند تنفيذ إجراء الإلغاء السريع.
+  /// Called when the quick cancel action is triggered.
   final VoidCallback? onCancel;
+
+  /// يستدعى عند تنفيذ تسجيل الوصول السريع.
+  /// Called when the quick check-in action is triggered.
   final VoidCallback? onCheckIn;
+
+  /// يستدعى عند تنفيذ تسجيل المغادرة السريع.
+  /// Called when the quick check-out action is triggered.
   final VoidCallback? onCheckOut;
 
+  /// ينشئ البطاقة مع نمطها البصري وخيارات التفاعل.
+  /// Creates the card with its visual style and interaction options.
   const FuturisticBookingCard({
     super.key,
     required this.booking,
@@ -37,17 +69,34 @@ class FuturisticBookingCard extends StatefulWidget {
     this.onCheckOut,
   });
 
+  /// ينشئ حالة البطاقة المسؤولة عن التفاعل والرسوم الداخلية.
+  /// Creates the card state responsible for interaction and internal effects.
   @override
   State<FuturisticBookingCard> createState() => _FuturisticBookingCardState();
 }
 
+/// يدير الحركة والضغط والفتح التفصيلي لبطاقة الحجز.
+/// Manages motion, press feedback, and detailed booking preview for the card.
 class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     with SingleTickerProviderStateMixin {
+  /// مفتاح مرجعي لربط البطاقة بمعاينة التفاصيل.
+  /// Reference key used to anchor the detailed preview.
   final GlobalKey _cardKey = GlobalKey();
+
+  /// متحكم الحركة الذي يضبط تأثيرات الحالة والانتقال.
+  /// Animation controller that drives state and transition effects.
   late AnimationController _animationController;
+
+  /// يحدد ما إذا كانت البطاقة في حالة مرور المؤشر.
+  /// Indicates whether the card is in a hover-like state.
   bool _isHovered = false;
+
+  /// يحدد ما إذا كانت البطاقة مضغوطة بصريًا أثناء التفاعل.
+  /// Indicates whether the card is visually pressed during interaction.
   bool _isPressed = false;
 
+  /// يجهز متحكم الحركة قبل العرض الأول للبطاقة.
+  /// Initializes the animation controller before the first render.
   @override
   void initState() {
     super.initState();
@@ -57,17 +106,21 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
+  /// يحرر متحكم الحركة عند إزالة البطاقة من الشجرة.
+  /// Disposes the animation controller when the card leaves the tree.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// يفتح بطاقة التفاصيل الكاملة الخاصة بالحجز.
+  /// Opens the full booking identity card preview.
   void _showBookingCard() {
     setState(() => _isPressed = true);
-    
+
     HapticFeedback.mediumImpact();
-    
+
     final booking = widget.booking;
     BookingIdentityCardTooltip.show(
       context: context,
@@ -97,12 +150,14 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
       cancelledAt: booking.cancelledAt,
       cancellationReason: booking.cancellationReason,
     );
-    
+
     Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted) setState(() => _isPressed = false);
     });
   }
 
+  /// يبني البطاقة مع التحول بين العرض المضغوط والعرض الكامل.
+  /// Builds the card and switches between compact and full layouts.
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
@@ -170,7 +225,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
-  // إصلاح مشكلة overflow في Column (السطر 121)
+  /// يبني المحتوى الكامل للبطاقة ويمنع مشاكل الامتداد داخل العمود.
+  /// Builds the full card content while avoiding column overflow.
   Widget _buildFullContent() {
     return IntrinsicHeight(
       child: Column(
@@ -187,6 +243,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
+  /// يبني نسخة مختصرة من البطاقة لواجهات العرض الصغيرة.
+  /// Builds a compact version of the card for smaller layouts.
   Widget _buildCompactContent() {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -259,6 +317,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
+  /// يبني رأس البطاقة مع الصورة والحالة والتراكبات.
+  /// Builds the card header with image, status, and overlays.
   Widget _buildHeader() {
     return SizedBox(
       height: 140,
@@ -373,6 +433,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
+  /// يبني زر القائمة الموجزة الذي يفتح إجراءات البطاقة.
+  /// Builds the overflow menu button that opens card actions.
   Widget _buildOverflowMenu() {
     return Container(
       decoration: BoxDecoration(
@@ -394,6 +456,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
+  /// يعرض قائمة الإجراءات السريعة الخاصة بالحجز.
+  /// Shows the quick action sheet for the booking.
   void _showCardActionsMenu() {
     showModalBottomSheet(
       context: context,
@@ -410,32 +474,61 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
             children: [
               ListTile(
                 leading: const Icon(CupertinoIcons.eye, color: Colors.white),
-                title: Text('عرض التفاصيل', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white)),
-                onTap: () { Navigator.pop(context); widget.onTap?.call(); },
+                title: Text('عرض التفاصيل',
+                    style:
+                        AppTextStyles.bodyMedium.copyWith(color: Colors.white)),
+                onTap: () {
+                  Navigator.pop(context);
+                  widget.onTap?.call();
+                },
               ),
               if (widget.booking.canConfirm)
                 ListTile(
-                  leading: Icon(CupertinoIcons.checkmark_circle, color: AppTheme.success),
-                  title: Text('تأكيد الحجز', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white)),
-                  onTap: () { Navigator.pop(context); widget.onConfirm?.call(); },
+                  leading: Icon(CupertinoIcons.checkmark_circle,
+                      color: AppTheme.success),
+                  title: Text('تأكيد الحجز',
+                      style: AppTextStyles.bodyMedium
+                          .copyWith(color: Colors.white)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    widget.onConfirm?.call();
+                  },
                 ),
               if (widget.booking.canCancel)
                 ListTile(
-                  leading: Icon(CupertinoIcons.xmark_circle, color: AppTheme.error),
-                  title: Text('إلغاء الحجز', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white)),
-                  onTap: () { Navigator.pop(context); widget.onCancel?.call(); },
+                  leading:
+                      Icon(CupertinoIcons.xmark_circle, color: AppTheme.error),
+                  title: Text('إلغاء الحجز',
+                      style: AppTextStyles.bodyMedium
+                          .copyWith(color: Colors.white)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    widget.onCancel?.call();
+                  },
                 ),
               if (widget.booking.canCheckIn)
                 ListTile(
-                  leading: Icon(CupertinoIcons.arrow_down_circle, color: AppTheme.success),
-                  title: Text('تسجيل وصول', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white)),
-                  onTap: () { Navigator.pop(context); widget.onCheckIn?.call(); },
+                  leading: Icon(CupertinoIcons.arrow_down_circle,
+                      color: AppTheme.success),
+                  title: Text('تسجيل وصول',
+                      style: AppTextStyles.bodyMedium
+                          .copyWith(color: Colors.white)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    widget.onCheckIn?.call();
+                  },
                 ),
               if (widget.booking.canCheckOut)
                 ListTile(
-                  leading: Icon(CupertinoIcons.arrow_up_circle, color: AppTheme.warning),
-                  title: Text('تسجيل مغادرة', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white)),
-                  onTap: () { Navigator.pop(context); widget.onCheckOut?.call(); },
+                  leading: Icon(CupertinoIcons.arrow_up_circle,
+                      color: AppTheme.warning),
+                  title: Text('تسجيل مغادرة',
+                      style: AppTextStyles.bodyMedium
+                          .copyWith(color: Colors.white)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    widget.onCheckOut?.call();
+                  },
                 ),
             ],
           ),
@@ -444,6 +537,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
+  /// يبني جسم البطاقة الذي يعرض اسم الضيف والتواريخ والإحصاءات.
+  /// Builds the body that shows guest name, dates, and stats.
   Widget _buildBody() {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -465,6 +560,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
+  /// يعرض قسم التواريخ إما بشكل أفقي أو عمودي بحسب العرض.
+  /// Shows the dates section in a horizontal or vertical layout depending on width.
   Widget _buildDateSection() {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -516,6 +613,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
+  /// يعرض الإحصاءات المختصرة مثل الليالي وعدد الضيوف والسعر.
+  /// Shows compact stats such as nights, guests, and price.
   Widget _buildStatsSection() {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -542,6 +641,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
+  /// يبني تذييل البطاقة بأزرار الإجراءات السريعة.
+  /// Builds the card footer with quick action buttons.
   Widget _buildFooter() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -617,6 +718,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
+  /// يبني صف معلومات واحد مع أيقونة ونص متوافقين.
+  /// Builds one info row with a matching icon and label.
   Widget _buildInfoRow({
     required IconData icon,
     required String label,
@@ -638,6 +741,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
+  /// يبني شريحة تاريخ تعرض الوسم والتاريخ بطريقة صغيرة.
+  /// Builds a date chip that shows the label and date in a compact form.
   Widget _buildDateChip({
     required IconData icon,
     required String label,
@@ -689,7 +794,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
-  // إصلاح مشكلة overflow في Row (السطر 340)
+  /// يبني شريحة إحصائية صغيرة مع مراعاة ضيق المساحة.
+  /// Builds a compact stat chip while handling tight horizontal space.
   Widget _buildStatChip({
     required IconData icon,
     required String value,
@@ -746,6 +852,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
+  /// يعرض سعر الحجز داخل شارة مميزة.
+  /// Displays the booking price inside a highlighted tag.
   Widget _buildPriceTag() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -775,7 +883,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
-  // إصلاح مشكلة overflow في Row (السطر 441)
+  /// يبني زر إجراء مرنًا يراعي العرض المضغوط أو الكامل.
+  /// Builds a flexible action button that adapts to compact or full width.
   Widget _buildActionButton({
     required IconData icon,
     required String label,
@@ -843,6 +952,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
+  /// يبني الصورة المختصرة أو الأحرف البديلة للحجز.
+  /// Builds the compact booking image or fallback initials.
   Widget _buildCompactImage() {
     return Container(
       width: 60,
@@ -872,6 +983,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
+  /// يعرض السعر والليالي بشكل مضغوط بجانب صورة البطاقة.
+  /// Shows the price and nights in a compact block beside the image.
   Widget _buildCompactPrice() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -904,6 +1017,8 @@ class _FuturisticBookingCardState extends State<FuturisticBookingCard>
     );
   }
 
+  /// يحدّث حالة المرور للمؤشر ويشغّل الحركة المناسبة.
+  /// Updates the hover-like state and triggers the matching animation.
   void _setHovered(bool value) {
     setState(() => _isHovered = value);
     if (value) {

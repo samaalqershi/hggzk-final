@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/usecases/usecase.dart';
 import '../../domain/entities/city.dart';
 import '../../domain/usecases/get_cities_usecase.dart';
 import '../../domain/usecases/save_cities_usecase.dart';
@@ -14,21 +13,73 @@ import '../../domain/usecases/delete_city_image_usecase.dart';
 import 'cities_event.dart';
 import 'cities_state.dart';
 
+/// Coordinates city catalog actions, analytics, paging, and image operations.
+///
+/// ينسق عمليات دليل المدن والتحليلات والترقيم وعمليات الصور.
 class CitiesBloc extends Bloc<CitiesEvent, CitiesState> {
+  /// Use case that loads the city catalog from the repository.
+  ///
+  /// use case الذي يجلب دليل المدن من المستودع.
   final GetCitiesUseCase getCities;
+
+  /// Use case that persists a full batch of cities.
+  ///
+  /// use case الذي يحفظ دفعة كاملة من المدن.
   final SaveCitiesUseCase saveCities;
+
+  /// Use case that creates a single city entry.
+  ///
+  /// use case الذي ينشئ مدينة واحدة.
   final CreateCityUseCase createCity;
+
+  /// Use case that updates an existing city record.
+  ///
+  /// use case الذي يحدّث سجل مدينة موجودًا.
   final UpdateCityUseCase updateCity;
+
+  /// Use case that deletes a city from the catalog.
+  ///
+  /// use case الذي يحذف مدينة من الدليل.
   final DeleteCityUseCase deleteCity;
+
+  /// Use case that performs free-text search over cities.
+  ///
+  /// use case الذي ينفذ البحث النصي داخل المدن.
   final SearchCitiesUseCase searchCities;
+
+  /// Use case that loads dashboard statistics for cities.
+  ///
+  /// use case الذي يحمل إحصائيات لوحة المدن.
   final GetCitiesStatisticsUseCase getCitiesStatistics;
+
+  /// Use case that uploads one city image.
+  ///
+  /// use case الذي يرفع صورة مدينة واحدة.
   final UploadCityImageUseCase uploadCityImage;
+
+  /// Use case that removes a city image.
+  ///
+  /// use case الذي يحذف صورة مدينة.
   final DeleteCityImageUseCase deleteCityImage;
 
+  /// Number of rows shown on each page of the catalog.
+  ///
+  /// عدد الصفوف المعروضة في كل صفحة من الدليل.
   static const int _itemsPerPage = 10;
+
+  /// Snapshot of the full city list kept for local paging and filtering.
+  ///
+  /// لقطة قائمة المدن الكاملة المحفوظة للترقيم والتصفية المحلية.
   List<City> _allCities = [];
+
+  /// Cached statistics used when the loaded state is rebuilt.
+  ///
+  /// الإحصائيات المخزنة مؤقتًا لإعادة بناء الحالة المحملة.
   Map<String, dynamic>? _statistics;
 
+  /// Wires every use case into the city management event pipeline.
+  ///
+  /// يربط كل use case بخط معالجة الأحداث الخاص بإدارة المدن.
   CitiesBloc({
     required this.getCities,
     required this.saveCities,
@@ -54,6 +105,9 @@ class CitiesBloc extends Bloc<CitiesEvent, CitiesState> {
     on<CityImageProgressInternalEvent>(_onCityImageProgressInternal);
   }
 
+  /// Loads the catalog and calculates the first visible page.
+  ///
+  /// يحمل الدليل ويحسب الصفحة الأولى المعروضة.
   Future<void> _onLoadCities(
     LoadCitiesEvent event,
     Emitter<CitiesState> emit,
@@ -88,6 +142,9 @@ class CitiesBloc extends Bloc<CitiesEvent, CitiesState> {
     );
   }
 
+  /// Saves the edited city snapshot and refreshes the list after success.
+  ///
+  /// يحفظ لقطة المدن المعدلة ثم يحدّث القائمة بعد النجاح.
   Future<void> _onSaveCities(
     SaveCitiesEvent event,
     Emitter<CitiesState> emit,
@@ -111,6 +168,9 @@ class CitiesBloc extends Bloc<CitiesEvent, CitiesState> {
     );
   }
 
+  /// Creates one city and then reloads the catalog so the UI stays in sync.
+  ///
+  /// ينشئ مدينة واحدة ثم يعيد تحميل الدليل حتى تبقى الواجهة متزامنة.
   Future<void> _onCreateCity(
     CreateCityEvent event,
     Emitter<CitiesState> emit,
@@ -137,6 +197,9 @@ class CitiesBloc extends Bloc<CitiesEvent, CitiesState> {
     );
   }
 
+  /// Replaces an existing city row and refreshes the admin view afterward.
+  ///
+  /// يستبدل صف مدينة موجودًا ثم يحدّث عرض الإدارة بعد ذلك.
   Future<void> _onUpdateCity(
     UpdateCityEvent event,
     Emitter<CitiesState> emit,
@@ -166,6 +229,9 @@ class CitiesBloc extends Bloc<CitiesEvent, CitiesState> {
     );
   }
 
+  /// Deletes a city and updates the local pagination snapshot immediately.
+  ///
+  /// يحذف مدينة ويحدّث لقطة الترقيم المحلية فورًا.
   Future<void> _onDeleteCity(
     DeleteCityEvent event,
     Emitter<CitiesState> emit,
@@ -217,6 +283,9 @@ class CitiesBloc extends Bloc<CitiesEvent, CitiesState> {
     );
   }
 
+  /// Filters the in-memory snapshot to keep search responsive.
+  ///
+  /// يفلتر اللقطة الموجودة في الذاكرة لتبقى تجربة البحث سريعة.
   Future<void> _onSearchCities(
     SearchCitiesEvent event,
     Emitter<CitiesState> emit,
@@ -253,13 +322,17 @@ class CitiesBloc extends Bloc<CitiesEvent, CitiesState> {
     }
   }
 
+  /// Loads the latest statistics for the dashboard cards.
+  ///
+  /// يحمل أحدث الإحصائيات لبطاقات لوحة التحكم.
   Future<void> _onLoadStatistics(
     LoadCitiesStatisticsEvent event,
     Emitter<CitiesState> emit,
   ) async {
     final now = DateTime.now();
     final last30 = now.subtract(const Duration(days: 30));
-    final result = await getCitiesStatistics(GetCitiesStatsParams(startDate: last30, endDate: now));
+    final result = await getCitiesStatistics(
+        GetCitiesStatsParams(startDate: last30, endDate: now));
 
     result.fold(
       (failure) => null, // Silently fail for statistics
@@ -273,6 +346,9 @@ class CitiesBloc extends Bloc<CitiesEvent, CitiesState> {
     );
   }
 
+  /// Starts the upload flow and converts progress callbacks into bloc events.
+  ///
+  /// يبدأ مسار الرفع ويحوّل استدعاءات التقدم إلى أحداث داخل الـ BLoC.
   Future<void> _onUploadImage(
     UploadCityImageEvent event,
     Emitter<CitiesState> emit,
@@ -315,7 +391,9 @@ class CitiesBloc extends Bloc<CitiesEvent, CitiesState> {
     );
   }
 
-  // Internal event to reflect upload progress in state safely
+  /// Converts internal progress updates into a visible upload-progress state.
+  ///
+  /// يحول تحديثات التقدم الداخلية إلى حالة مرئية لتقدم الرفع.
   void _onCityImageProgressInternal(
     CityImageProgressInternalEvent event,
     Emitter<CitiesState> emit,
@@ -326,6 +404,9 @@ class CitiesBloc extends Bloc<CitiesEvent, CitiesState> {
     ));
   }
 
+  /// Removes a single city image and propagates the resulting city update.
+  ///
+  /// يحذف صورة مدينة واحدة ثم يرسل تحديث المدينة الناتج.
   Future<void> _onDeleteImage(
     DeleteCityImageEvent event,
     Emitter<CitiesState> emit,
@@ -361,6 +442,9 @@ class CitiesBloc extends Bloc<CitiesEvent, CitiesState> {
     );
   }
 
+  /// Replays the load flow so the screen returns to the default catalog view.
+  ///
+  /// يعيد تنفيذ مسار التحميل حتى تعود الشاشة إلى عرض الدليل الافتراضي.
   Future<void> _onRefreshCities(
     RefreshCitiesEvent event,
     Emitter<CitiesState> emit,
@@ -369,6 +453,9 @@ class CitiesBloc extends Bloc<CitiesEvent, CitiesState> {
     add(LoadCitiesStatisticsEvent());
   }
 
+  /// Moves the visible page forward or backward inside the current snapshot.
+  ///
+  /// ينقل الصفحة الظاهرة للأمام أو الخلف داخل اللقطة الحالية.
   Future<void> _onChangePage(
     ChangeCitiesPageEvent event,
     Emitter<CitiesState> emit,
@@ -386,10 +473,16 @@ class CitiesBloc extends Bloc<CitiesEvent, CitiesState> {
     }
   }
 
+  /// Returns the slice for a given page from the full in-memory snapshot.
+  ///
+  /// يعيد الشريحة الخاصة بصفحة معينة من اللقطة الكاملة في الذاكرة.
   List<City> _getPagedCities(int page) {
     return _getPagedCitiesFromList(_allCities, page);
   }
 
+  /// Slices a city list into a single page based on the configured page size.
+  ///
+  /// يقسّم قائمة المدن إلى صفحة واحدة بحسب حجم الصفحة المهيأ.
   List<City> _getPagedCitiesFromList(List<City> cities, int page) {
     final startIndex = (page - 1) * _itemsPerPage;
     final endIndex = startIndex + _itemsPerPage;
@@ -404,6 +497,9 @@ class CitiesBloc extends Bloc<CitiesEvent, CitiesState> {
     );
   }
 
+  /// Paginates the subset that matches the current search query.
+  ///
+  /// يرقم الجزء الذي يطابق نص البحث الحالي.
   List<City> _getFilteredPagedCities(String query, int page) {
     final filteredCities = _allCities
         .where((city) =>

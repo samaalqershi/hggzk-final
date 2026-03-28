@@ -4,7 +4,8 @@ import '../../../../../core/error/failures.dart';
 import '../../../../../core/usecases/usecase.dart';
 import '../../repositories/property_types_repository.dart';
 
-class CreatePropertyTypeUseCase implements UseCase<String, CreatePropertyTypeParams> {
+class CreatePropertyTypeUseCase
+    implements UseCase<String, CreatePropertyTypeParams> {
   final PropertyTypesRepository repository;
 
   CreatePropertyTypeUseCase(this.repository);
@@ -21,9 +22,13 @@ class CreatePropertyTypeUseCase implements UseCase<String, CreatePropertyTypePar
 }
 
 class CreatePropertyTypeParams extends Equatable {
+  /// العربية: يخزن القيمة `name`.
   final String name;
+
   final String description;
+
   final List<String> defaultAmenities;
+
   final String icon;
 
   const CreatePropertyTypeParams({

@@ -3,7 +3,11 @@ import 'package:hggzkportal/features/chat/data/models/chat_user_model.dart';
 import '../../domain/entities/conversation.dart';
 import 'message_model.dart';
 
+/// يعرّف الكلاس `ConversationModel`.
+/// Describes the `ConversationModel` class.
 class ConversationModel extends Conversation {
+  /// Initializes a new `ConversationModel` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ConversationModel`.
   const ConversationModel({
     required super.id,
     required super.conversationType,
@@ -20,10 +24,13 @@ class ConversationModel extends Conversation {
     required super.participants,
   });
 
+  /// ينشئ مثيلاً من `ConversationModel`.
+  /// Builds an instance of `ConversationModel`.
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
     return ConversationModel(
       id: json['conversation_id'] ?? json['id'] ?? '',
-      conversationType: json['conversationType'] ?? json['conversation_type'] ?? 'direct',
+      conversationType:
+          json['conversationType'] ?? json['conversation_type'] ?? 'direct',
       title: json['title'],
       description: json['description'],
       avatar: json['avatar'],
@@ -42,6 +49,8 @@ class ConversationModel extends Conversation {
     );
   }
 
+  /// ينفذ العملية `toJson`.
+  /// Runs the `toJson` operation.
   Map<String, dynamic> toJson() {
     return {
       'conversation_id': id,
@@ -51,15 +60,19 @@ class ConversationModel extends Conversation {
       if (avatar != null) 'avatar': avatar,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
-      if (lastMessage != null) 'last_message': (lastMessage as MessageModel).toJson(),
+      if (lastMessage != null)
+        'last_message': (lastMessage as MessageModel).toJson(),
       'unread_count': unreadCount,
       'is_archived': isArchived,
       'is_muted': isMuted,
       if (propertyId != null) 'property_id': propertyId,
-      'participants': participants.map((p) => (p as ChatUserModel).toJson()).toList(),
+      'participants':
+          participants.map((p) => (p as ChatUserModel).toJson()).toList(),
     };
   }
 
+  /// ينشئ مثيلاً من `ConversationModel`.
+  /// Builds an instance of `ConversationModel`.
   factory ConversationModel.fromEntity(Conversation conversation) {
     return ConversationModel(
       id: conversation.id,
@@ -77,5 +90,4 @@ class ConversationModel extends Conversation {
       participants: conversation.participants,
     );
   }
-
 }

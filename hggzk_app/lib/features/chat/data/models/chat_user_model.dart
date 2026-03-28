@@ -1,6 +1,8 @@
 import 'package:hggzk/features/chat/domain/entities/conversation.dart';
 
+/// العربية: يمثل نموذج البيانات `ChatUserModel`.
 class ChatUserModel extends ChatUser {
+  /// العربية: ينشئ مثيلًا جديدًا من `ChatUserModel`.
   const ChatUserModel({
     required super.id,
     required super.name,
@@ -14,6 +16,7 @@ class ChatUserModel extends ChatUser {
     required super.isOnline,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `ChatUserModel.fromJson`.
   factory ChatUserModel.fromJson(Map<String, dynamic> json) {
     return ChatUserModel(
       id: json['user_id'] ?? json['userId'] ?? json['id'] ?? '',
@@ -31,6 +34,7 @@ class ChatUserModel extends ChatUser {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'user_id': id,

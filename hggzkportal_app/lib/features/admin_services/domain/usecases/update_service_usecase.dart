@@ -8,10 +8,9 @@ import '../repositories/services_repository.dart';
 
 /// ✏️ Use Case لتحديث خدمة
 class UpdateServiceUseCase implements UseCase<bool, UpdateServiceParams> {
+  /// العربية: يخزن القيمة `repository`.
   final ServicesRepository repository;
-
   UpdateServiceUseCase(this.repository);
-
   @override
   Future<Either<Failure, bool>> call(UpdateServiceParams params) async {
     return await repository.updateService(
@@ -24,15 +23,14 @@ class UpdateServiceUseCase implements UseCase<bool, UpdateServiceParams> {
     );
   }
 }
-
 class UpdateServiceParams extends Equatable {
+  /// العربية: يخزن القيمة `serviceId`.
   final String serviceId;
   final String? name;
   final Money? price;
   final PricingModel? pricingModel;
   final String? icon;
   final String? description;
-
   const UpdateServiceParams({
     required this.serviceId,
     this.name,
@@ -41,7 +39,7 @@ class UpdateServiceParams extends Equatable {
     this.icon,
     this.description,
   });
-
   @override
-  List<Object?> get props => [serviceId, name, price, pricingModel, icon, description];
+  List<Object?> get props =>
+      [serviceId, name, price, pricingModel, icon, description];
 }

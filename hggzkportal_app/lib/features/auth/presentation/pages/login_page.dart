@@ -22,31 +22,63 @@ import '../../../settings/presentation/bloc/settings_bloc.dart';
 import '../../../settings/presentation/bloc/settings_state.dart';
 import '../../../settings/presentation/bloc/settings_event.dart';
 
+/// يعرّف الكلاس `LoginPage`.
+/// Describes the `LoginPage` class.
 class LoginPage extends StatefulWidget {
+  /// Initializes a new `LoginPage` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `LoginPage`.
   const LoginPage({super.key});
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
+/// يعرّف الكلاس `_LoginPageState`.
+/// Describes the `_LoginPageState` class.
 class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   // Optimized animation controllers
+  /// يخزن العضو `_mainAnimationController`.
+  /// Holds the `_mainAnimationController` member.
   late AnimationController _mainAnimationController;
+
+  /// يخزن العضو `_floatingAnimationController`.
+  /// Holds the `_floatingAnimationController` member.
   late AnimationController _floatingAnimationController;
 
   // Simplified animations
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
+
+  /// يخزن العضو `_slideAnimation`.
+  /// Holds the `_slideAnimation` member.
   late Animation<Offset> _slideAnimation;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
+
+  /// يخزن العضو `_floatingAnimation`.
+  /// Holds the `_floatingAnimation` member.
   late Animation<double> _floatingAnimation;
 
   // Remove complex particle systems for performance
   final ScrollController _scrollController = ScrollController();
 
   final BiometricAuthService _biometric = BiometricAuthService();
+
+  /// يخزن العضو `_biometricAvailable`.
+  /// Holds the `_biometricAvailable` member.
   bool _biometricAvailable = false;
+
+  /// يخزن العضو `_biometricEnabled`.
+  /// Holds the `_biometricEnabled` member.
   bool _biometricEnabled = false;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -54,6 +86,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     _startAnimations();
   }
 
+  /// ينفذ العملية `_initializeAnimations`.
+  /// Runs the `_initializeAnimations` operation.
   void _initializeAnimations() {
     // Main animations
     _mainAnimationController = AnimationController(
@@ -100,6 +134,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     ));
   }
 
+  /// ينفذ العملية `didChangeDependencies`.
+  /// Runs the `didChangeDependencies` operation.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -112,6 +148,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     _initBiometricStatus();
   }
 
+  /// ينفذ العملية `_initBiometricStatus`.
+  /// Runs the `_initBiometricStatus` operation.
   Future<void> _initBiometricStatus() async {
     final supported = await _biometric.isDeviceSupported();
     final canCheck = await _biometric.canCheckBiometrics();
@@ -129,6 +167,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     }
   }
 
+  /// ينفذ العملية `_startAnimations`.
+  /// Runs the `_startAnimations` operation.
   void _startAnimations() {
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
@@ -137,6 +177,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     });
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _scrollController.dispose();
@@ -145,6 +187,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -195,6 +239,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
+  /// ينفذ العملية `_buildOptimizedBackground`.
+  /// Runs the `_buildOptimizedBackground` operation.
   Widget _buildOptimizedBackground() {
     return AnimatedBuilder(
       animation: _floatingAnimation,
@@ -260,6 +306,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
+  /// ينفذ العملية `_buildHeader`.
+  /// Runs the `_buildHeader` operation.
   Widget _buildHeader() {
     return Column(
       children: [
@@ -316,6 +364,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
+  /// ينفذ العملية `_buildLoginCard`.
+  /// Runs the `_buildLoginCard` operation.
   Widget _buildLoginCard() {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -377,6 +427,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
+  /// ينفذ العملية `_buildBiometricButton`.
+  /// Runs the `_buildBiometricButton` operation.
   Widget _buildBiometricButton() {
     return Align(
       alignment: Alignment.center,
@@ -530,6 +582,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
+  /// ينفذ العملية `_onBiometricLoginPressed`.
+  /// Runs the `_onBiometricLoginPressed` operation.
   Future<void> _onBiometricLoginPressed() async {
     final result =
         await _biometric.authenticate(reason: 'تأكيد هويتك لتسجيل الدخول');
@@ -563,6 +617,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         );
   }
 
+  /// ينفذ العملية `_buildDivider`.
+  /// Runs the `_buildDivider` operation.
   Widget _buildDivider() {
     return Row(
       children: [
@@ -591,6 +647,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
+  /// ينفذ العملية `_buildFooter`.
+  /// Runs the `_buildFooter` operation.
   Widget _buildFooter() {
     return Column(
       children: [
@@ -633,6 +691,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
+  /// ينفذ العملية `_buildFooterLink`.
+  /// Runs the `_buildFooterLink` operation.
   Widget _buildFooterLink(String text) {
     return TextButton(
       onPressed: () {},
@@ -651,6 +711,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
+  /// ينفذ العملية `_buildDot`.
+  /// Runs the `_buildDot` operation.
   Widget _buildDot() {
     return Container(
       width: 3,
@@ -663,6 +725,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
+  /// ينفذ العملية `_handleAuthState`.
+  /// Runs the `_handleAuthState` operation.
   void _handleAuthState(BuildContext context, AuthState state) {
     if (state is AuthLoginSuccess || state is AuthAuthenticated) {
       HapticFeedback.mediumImpact();
@@ -684,6 +748,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     }
   }
 
+  /// ينفذ العملية `_showErrorSnackBar`.
+  /// Runs the `_showErrorSnackBar` operation.
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(

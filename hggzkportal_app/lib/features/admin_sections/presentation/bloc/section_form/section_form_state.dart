@@ -6,6 +6,7 @@ import '../../../../../core/enums/section_display_style.dart';
 import '../../../../../core/enums/section_class.dart';
 
 abstract class SectionFormState extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `SectionFormState`.
   const SectionFormState();
 
   @override
@@ -17,39 +18,73 @@ class SectionFormInitial extends SectionFormState {}
 class SectionFormLoading extends SectionFormState {}
 
 class SectionFormReady extends SectionFormState {
+  /// العربية: يخزن القيمة `tempKey`.
   final String? tempKey;
+
   final String? sectionId;
+
   final String? name;
+
   final String? title;
+
   final String? subtitle;
+
   final String? description;
+
   final String? shortDescription;
+
   final SectionTypeEnum? type;
+
   final SectionContentType? contentType;
+
   final SectionDisplayStyle? displayStyle;
+
   final SectionTarget? target;
+
   final int? displayOrder;
+
   final bool? isActive;
+
   final int? columnsCount;
+
   final int? itemsToShow;
+
   final SectionClass? categoryClass;
+
   final int? homeItemsCount;
+
   final String? icon;
+
   final String? colorTheme;
+
   final String? backgroundImage;
+
   final String? filterCriteriaJson;
+
   final String? sortCriteriaJson;
+
   final String? cityName;
+
   final String? propertyTypeId;
+
   final String? unitTypeId;
+
   final double? minPrice;
+
   final double? maxPrice;
+
   final double? minRating;
+
   final bool? isVisibleToGuests;
+
   final bool? isVisibleToRegistered;
+
   final String? requiresPermission;
+
   final DateTime? startDate;
+
   final DateTime? endDate;
+
   final String? metadataJson;
 
   const SectionFormReady({
@@ -155,7 +190,8 @@ class SectionFormReady extends SectionFormState {
       maxPrice: maxPrice ?? this.maxPrice,
       minRating: minRating ?? this.minRating,
       isVisibleToGuests: isVisibleToGuests ?? this.isVisibleToGuests,
-      isVisibleToRegistered: isVisibleToRegistered ?? this.isVisibleToRegistered,
+      isVisibleToRegistered:
+          isVisibleToRegistered ?? this.isVisibleToRegistered,
       requiresPermission: requiresPermission ?? this.requiresPermission,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
@@ -165,12 +201,15 @@ class SectionFormReady extends SectionFormState {
 }
 
 class SectionFormSubmitted extends SectionFormState {
+  /// العربية: يخزن القيمة `sectionId`.
   final String sectionId;
+
   const SectionFormSubmitted({required this.sectionId});
 }
 
 class SectionFormError extends SectionFormState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
+
   const SectionFormError({required this.message});
 }
-

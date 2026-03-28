@@ -8,13 +8,24 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/conversation.dart';
 
+/// Compact row used to render one chat participant in lists and sheets.
 class ParticipantItemWidget extends StatelessWidget {
+  /// Participant record rendered by this row.
   final ChatUser participant;
+
+  /// Flags users who have admin privileges in the conversation.
   final bool isAdmin;
+
+  /// Marks the row when it refers to the current signed-in user.
   final bool isCurrentUser;
+
+  /// Optional action when the row is tapped.
   final VoidCallback? onTap;
+
+  /// Optional action for removing the participant from the list.
   final VoidCallback? onRemove;
 
+  /// Builds the participant row used by participant pickers and member lists.
   const ParticipantItemWidget({
     super.key,
     required this.participant,
@@ -24,15 +35,18 @@ class ParticipantItemWidget extends StatelessWidget {
     this.onRemove,
   });
 
+  /// Builds the participant row with avatar, status, and optional actions.
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap != null ? () {
-          HapticFeedback.selectionClick();
-          onTap!();
-        } : null,
+        onTap: onTap != null
+            ? () {
+                HapticFeedback.selectionClick();
+                onTap!();
+              }
+            : null,
         borderRadius: BorderRadius.circular(10),
         child: Container(
           padding: const EdgeInsets.symmetric(
@@ -53,8 +67,7 @@ class ParticipantItemWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              if (onRemove != null)
-                _buildRemoveButton(),
+              if (onRemove != null) _buildRemoveButton(),
             ],
           ),
         ),
@@ -62,6 +75,7 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
+  /// Builds the avatar area with online badge when applicable.
   Widget _buildCompactAvatar() {
     return Stack(
       children: [
@@ -117,6 +131,7 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
+  /// Builds the name row and role badges.
   Widget _buildNameRow() {
     return Row(
       children: [
@@ -154,6 +169,7 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
+  /// Builds a small badge for the user role or self marker.
   Widget _buildMinimalBadge({
     required String label,
     required List<Color> gradient,
@@ -183,10 +199,11 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
+  /// Builds the online or last-seen status line.
   Widget _buildStatusText() {
     String statusText;
     Color statusColor;
-    
+
     if (participant.isOnline) {
       statusText = 'متصل الآن';
       statusColor = AppTheme.success;
@@ -196,7 +213,7 @@ class ParticipantItemWidget extends StatelessWidget {
     } else {
       return const SizedBox.shrink();
     }
-    
+
     return Padding(
       padding: const EdgeInsets.only(top: 2),
       child: Text(
@@ -209,6 +226,7 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
+  /// العربية: يبني remove button.
   Widget _buildRemoveButton() {
     return GestureDetector(
       onTap: () {
@@ -236,6 +254,7 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
+  /// العربية: يعيد initials.
   String _getInitials(String name) {
     final parts = name.trim().split(' ');
     if (parts.isEmpty) return '';
@@ -243,10 +262,11 @@ class ParticipantItemWidget extends StatelessWidget {
     return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
   }
 
+  /// العربية: ينسق last seen.
   String _formatLastSeen(DateTime lastSeen) {
     final now = DateTime.now();
     final difference = now.difference(lastSeen);
-    
+
     if (difference.inMinutes < 1) {
       return 'الآن';
     } else if (difference.inMinutes < 60) {

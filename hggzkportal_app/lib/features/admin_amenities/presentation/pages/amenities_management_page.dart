@@ -9,7 +9,6 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'dart:ui';
 import 'package:flutter/services.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/error_widget.dart';
@@ -20,35 +19,68 @@ import '../bloc/amenities_state.dart';
 import '../widgets/futuristic_amenity_card.dart';
 import '../widgets/futuristic_amenities_table.dart';
 import '../widgets/amenity_filters_widget.dart';
-import 'package:hggzkportal/features/admin_units/presentation/widgets/unit_stats_card.dart';
 import '../widgets/assign_amenity_dialog.dart';
+import 'package:hggzkportal/features/admin_units/presentation/widgets/unit_stats_card.dart';
 import '../../../../services/local_storage_service.dart';
 import '../../../../core/constants/storage_constants.dart';
 import '../../../../injection_container.dart' as di;
 
+/// Arabic: صفحة إدارة المرافق التي تعرض القائمة، الفلاتر، الإحصاءات، وإجراءات الحذف أو الإسناد.
+/// English: Admin amenities page that presents the list, filters, statistics, and destructive or assignment actions.
 class AmenitiesManagementPage extends StatefulWidget {
+  /// Arabic: ينشئ صفحة إدارة المرافق بدون أي معاملات إضافية لأن الحالة تُدار داخليًا.
+  /// English: Creates the amenities management page; all runtime state is handled internally.
   const AmenitiesManagementPage({super.key});
 
+  /// Arabic: ينشئ الحالة التي تدير التحميل، التبويبات، والفلاتر داخل الصفحة.
+  /// English: Creates the state object that manages loading, tabs, and filters inside the page.
   @override
   State<AmenitiesManagementPage> createState() =>
       _AmenitiesManagementPageState();
 }
 
+/// Arabic: تدير هذه الحالة جلب المرافق، تبديل طرق العرض، وتنفيذ التفاعلات الإدارية.
+/// English: Manages amenity loading, view switching, and administrative interactions for the page.
 class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     with TickerProviderStateMixin {
+  /// Arabic: يتحكم في حركة الدخول والانتقالات الافتتاحية داخل الصفحة.
+  /// English: Controls the page entrance and initial transition animations.
   late AnimationController _animationController;
+
+  /// Arabic: يتحكم في نبضات التوهج الخلفي المستخدمة للهوية البصرية.
+  /// English: Controls the background glow pulse used for the visual theme.
   late AnimationController _pulseAnimationController;
+
+  /// Arabic: يدير التبويبات الثلاثة التي تفصل طرق العرض داخل الصفحة.
+  /// English: Manages the three tabs that separate page view modes.
   late TabController _tabController;
+
+  /// Arabic: يتابع التمرير لتفعيل التحميل المسبق عند الاقتراب من نهاية القائمة.
+  /// English: Tracks scrolling to trigger prefetch or pagination near the list end.
   final ScrollController _scrollController = ScrollController();
 
+  /// Arabic: يحدد ما إذا كانت الصفحة تعرض شبكة بطاقات بدل الجدول.
+  /// English: Indicates whether the page is currently showing a grid instead of a table.
   bool _isGridView = false;
+
+  /// Arabic: يتحكم في إظهار قسم الفلاتر أو إخفائه.
+  /// English: Controls whether the filter section is expanded or collapsed.
   bool _showFilters = false;
+
+  /// Arabic: يحتفظ بالمرافق المحددة لتنفيذ عمليات جماعية أو سريعة لاحقًا.
+  /// English: Stores selected amenities for later bulk or quick actions.
   final List<Amenity> _selectedAmenities = [];
+
+  /// Arabic: يحدد ما إذا كان المستخدم الحالي يملك صلاحية الإدارة الكاملة.
+  /// English: Indicates whether the current user has full admin privileges.
   bool _isAdmin = false;
 
+  /// Arabic: يهيئ متحكمات الحركة، يقرأ صلاحيات الدور، ويبدأ أول تحميل للبيانات.
+  /// English: Initializes animation controllers, reads role permissions, and starts the first data load.
   @override
   void initState() {
     super.initState();
+
     _loadRoleContext();
     _animationController = AnimationController(
       vsync: this,
@@ -61,20 +93,27 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     )..repeat(reverse: true);
 
     _tabController = TabController(length: 3, vsync: this);
+
     _loadAmenities();
+
     _setupScrollListener();
   }
 
+  /// Arabic: يقرأ دور الحساب من التخزين المحلي لتفعيل عناصر الإدارة الحساسة فقط عند السماح.
+  /// English: Reads the stored account role so admin-only controls appear only when allowed.
   void _loadRoleContext() {
     try {
       final storage = di.sl<LocalStorageService>();
-      final role = storage.getData(StorageConstants.accountRole)?.toString() ?? '';
+      final role =
+          storage.getData(StorageConstants.accountRole)?.toString() ?? '';
       _isAdmin = role.toLowerCase() == 'admin';
     } catch (_) {
       _isAdmin = false;
     }
   }
 
+  /// Arabic: يطلب أول صفحة من المرافق عند فتح الشاشة أو تحديثها.
+  /// English: Requests the first amenities page when the screen opens or refreshes.
   void _loadAmenities() {
     context.read<AmenitiesBloc>().add(
           const LoadAmenitiesEvent(
@@ -84,6 +123,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
         );
   }
 
+  /// Arabic: يراقب التمرير الجانبي والطولي لتفعيل الجلب التالي عند الوصول إلى آخر القائمة.
+  /// English: Watches scrolling to trigger the next page when the user reaches the end.
   void _setupScrollListener() {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -103,6 +144,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     });
   }
 
+  /// Arabic: يحرر متحكمات الحركة والتمرير والتبويب عند إزالة الصفحة من الشجرة.
+  /// English: Disposes animation, scroll, and tab controllers when the page leaves the tree.
   @override
   void dispose() {
     _animationController.dispose();
@@ -112,6 +155,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     super.dispose();
   }
 
+  /// Arabic: يبني صفحة الإدارة كاملة مع الإحصاءات، الفلاتر، والقائمة أو الجدول الحالي.
+  /// English: Builds the full management page with stats, filters, and the active list or table view.
   @override
   Widget build(BuildContext context) {
     return BlocListener<AmenitiesBloc, AmenitiesState>(
@@ -149,12 +194,16 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
             ],
           ),
         ),
-        // floatingActionButton: _buildEnhancedFloatingActionButton(),
       ),
     );
   }
 
+  /// Arabic: يحدد حالة الحذف الحالية حتى لا تتكرر نافذة التقدم.
+  /// English: Tracks whether a delete flow is already active to avoid duplicate progress dialogs.
   bool _isDeleting = false;
+
+  /// Arabic: يعرض حوارًا غير قابل للإغلاق أثناء تنفيذ الحذف.
+  /// English: Shows a non-dismissible progress dialog while delete is in progress.
   void _showDeletingDialog() {
     if (_isDeleting) return;
     _isDeleting = true;
@@ -175,6 +224,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     );
   }
 
+  /// Arabic: يغلق حوار الحذف ويعيد الحالة الداخلية إلى الوضع الطبيعي.
+  /// English: Dismisses the delete dialog and resets the local guard flag.
   void _dismissDeletingDialog() {
     if (_isDeleting) {
       _isDeleting = false;
@@ -184,6 +235,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     }
   }
 
+  /// Arabic: يعرض رسالة عائمة قصيرة برسالة ولون مناسبين لنتيجة العملية.
+  /// English: Shows a floating snackbar with a message and color tailored to the operation result.
   void _showSnack(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -195,6 +248,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     );
   }
 
+  /// Arabic: يبني شريط التطبيق المتموج الذي يضم العنوان وأزرار تبديل العرض والفلاتر.
+  /// English: Builds the decorative sliver app bar that contains the title, view toggle, and filter actions.
   Widget _buildSliverAppBar() {
     return SliverAppBar(
       expandedHeight: 120,
@@ -256,6 +311,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     );
   }
 
+  /// Arabic: يبني زر التحليلات الذي يظهر فقط للمستخدم الإداري.
+  /// English: Builds the analytics action button shown only for admin users.
   Widget _buildAnalyticsButton() {
     return AnimatedBuilder(
       animation: _pulseAnimationController,
@@ -341,6 +398,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     );
   }
 
+  /// Arabic: ينتقل إلى شاشة التحليلات بعد إظهار نبضة مرئية قصيرة.
+  /// English: Navigates to analytics after playing a brief visual feedback animation.
   void _navigateToAnalytics() {
     _showNavigationAnimation();
     Future.delayed(const Duration(milliseconds: 300), () {
@@ -349,6 +408,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     });
   }
 
+  /// Arabic: يشغّل تأثيرًا بصريًا قصيرًا قبل الانتقال حتى يبدو التفاعل مقصودًا.
+  /// English: Plays a short visual feedback animation so the transition feels deliberate.
   void _showNavigationAnimation() {
     showDialog(
       fullscreenDialog: true,
@@ -403,6 +464,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     );
   }
 
+  /// Arabic: يبني زرًا دائريًا متدرجًا يستخدم في الشريط العلوي.
+  /// English: Builds a circular gradient action button used in the top bar.
   Widget _buildActionButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -435,266 +498,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     );
   }
 
-  Widget _buildEnhancedFloatingActionButton() {
-    return BlocBuilder<AmenitiesBloc, AmenitiesState>(
-      builder: (context, state) {
-        if (_selectedAmenities.isNotEmpty) {
-          return _buildBulkActionsFloatingButton();
-        }
-        return _buildQuickAccessFloatingButton();
-      },
-    );
-  }
-
-  Widget _buildQuickAccessFloatingButton() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppTheme.primaryPurple, AppTheme.primaryViolet],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryPurple.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: FloatingActionButton(
-        onPressed: _showQuickAccessMenu,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        child: const Icon(
-          CupertinoIcons.square_grid_2x2_fill,
-          color: Colors.white,
-          size: 24,
-        ),
-      ),
-    );
-  }
-
-  void _showQuickAccessMenu() {
-    HapticFeedback.mediumImpact();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: AppTheme.darkCard.withValues(alpha: 0.95),
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          border: Border(
-            top: BorderSide(
-              color: AppTheme.darkBorder.withValues(alpha: 0.2),
-            ),
-          ),
-        ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 12),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppTheme.darkBorder.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'إجراءات سريعة',
-                  style: AppTextStyles.heading3.copyWith(
-                    color: AppTheme.textWhite,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _buildQuickMenuItem(
-                  icon: CupertinoIcons.chart_bar_alt_fill,
-                  label: 'التحليلات',
-                  subtitle: 'عرض إحصائيات وتقارير المرافق',
-                  gradient: [AppTheme.primaryPurple, AppTheme.primaryViolet],
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.push('/admin/amenities/analytics');
-                  },
-                ),
-                _buildQuickMenuItem(
-                  icon: CupertinoIcons.star_fill,
-                  label: 'المرافق الشائعة',
-                  subtitle: 'عرض المرافق الأكثر استخداماً',
-                  gradient: [AppTheme.warning, AppTheme.neonPurple],
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.read<AmenitiesBloc>().add(
-                          const LoadPopularAmenitiesEvent(limit: 10),
-                        );
-                  },
-                ),
-                _buildQuickMenuItem(
-                  icon: CupertinoIcons.link,
-                  label: 'الإسنادات',
-                  subtitle: 'إدارة إسناد المرافق للعقارات',
-                  gradient: [AppTheme.primaryBlue, AppTheme.primaryCyan],
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.push('/admin/amenities/assignments');
-                  },
-                ),
-                _buildQuickMenuItem(
-                  icon: CupertinoIcons.plus_circle_fill,
-                  label: 'مرفق جديد',
-                  subtitle: 'إضافة مرفق جديد للنظام',
-                  gradient: [AppTheme.success, AppTheme.neonGreen],
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.push('/admin/amenities/create');
-                  },
-                ),
-                _buildQuickMenuItem(
-                  icon: CupertinoIcons.arrow_up_arrow_down,
-                  label: 'استيراد/تصدير',
-                  subtitle: 'استيراد أو تصدير بيانات المرافق',
-                  gradient: [AppTheme.primaryViolet, AppTheme.primaryPurple],
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.push('/admin/amenities/import-export');
-                  },
-                ),
-                const SizedBox(height: 20),
-                SizedBox(height: MediaQuery.of(context).padding.bottom),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuickMenuItem({
-    required IconData icon,
-    required String label,
-    required String subtitle,
-    required List<Color> gradient,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: gradient.map((c) => c.withValues(alpha: 0.05)).toList(),
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: gradient.first.withValues(alpha: 0.2),
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            HapticFeedback.lightImpact();
-            onTap();
-          },
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: gradient),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: gradient.first.withValues(alpha: 0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    icon,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        label,
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          color: AppTheme.textWhite,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppTheme.textMuted,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  CupertinoIcons.chevron_forward,
-                  color: AppTheme.textMuted,
-                  size: 16,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBulkActionsFloatingButton() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppTheme.primaryPurple, AppTheme.primaryViolet],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryPurple.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: FloatingActionButton.extended(
-        onPressed: _showBulkActions,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        label: Text(
-          '${_selectedAmenities.length} محدد',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        icon: const Icon(
-          CupertinoIcons.checkmark_circle_fill,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-
+  /// Arabic: يبني قسم الإحصاءات فوق قائمة المرافق لعرض مؤشرات الحالة السريعة.
+  /// English: Builds the statistics section above the amenities list for quick status indicators.
   Widget _buildStatsSection() {
     return SliverToBoxAdapter(
       child: BlocBuilder<AmenitiesBloc, AmenitiesState>(
@@ -715,6 +520,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     );
   }
 
+  /// Arabic: يبني البطاقات الإحصائية الفردية التي تُظهر الأرقام الرئيسية.
+  /// English: Builds the individual statistics cards that surface the main counts.
   Widget _buildStatsCards(AmenityStats stats) {
     return AnimationLimiter(
       child: Row(
@@ -803,6 +610,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     );
   }
 
+  /// Arabic: يبني قسم الفلاتر القابل للطي لتحسين البحث والتصفية.
+  /// English: Builds the collapsible filter section that helps refine the list.
   Widget _buildFilterSection() {
     return SliverToBoxAdapter(
       child: AnimatedContainer(
@@ -830,6 +639,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     );
   }
 
+  /// Arabic: يقرر أي نمط عرض يجب استخدامه بحسب حالة تحميل البيانات وخيارات المستخدم.
+  /// English: Chooses which list presentation mode to use based on data state and user preference.
   Widget _buildAmenitiesList() {
     return BlocBuilder<AmenitiesBloc, AmenitiesState>(
       builder: (context, state) {
@@ -857,8 +668,9 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
               child: EmptyWidget(
                 message: 'لا توجد مرافق حالياً',
                 actionWidget: ElevatedButton.icon(
-                  onPressed:
-                      _isAdmin ? () => context.push('/admin/amenities/create') : null,
+                  onPressed: _isAdmin
+                      ? () => context.push('/admin/amenities/create')
+                      : null,
                   icon: const Icon(Icons.add),
                   label: const Text('إضافة مرفق جديد'),
                   style: ElevatedButton.styleFrom(
@@ -885,6 +697,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     );
   }
 
+  /// Arabic: يبني عرض الشبكة عندما يفضّل المستخدم البطاقات بدل الجدول.
+  /// English: Builds the grid layout when the user prefers cards instead of a table.
   Widget _buildGridView(AmenitiesLoaded state) {
     return SliverPadding(
       padding: const EdgeInsets.all(16),
@@ -908,10 +722,12 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
                     amenity: amenity,
                     onTap: () => _navigateToDetails(amenity.id),
                     onLongPress: () => _toggleSelection(amenity),
-                    onEdit:
-                        _isAdmin ? () => _navigateToEditAmenity(amenity.id) : null,
-                    onDelete:
-                        _isAdmin ? () => _showDeleteConfirmation(amenity) : null,
+                    onEdit: _isAdmin
+                        ? () => _navigateToEditAmenity(amenity.id)
+                        : null,
+                    onDelete: _isAdmin
+                        ? () => _showDeleteConfirmation(amenity)
+                        : null,
                   ),
                 ),
               ),
@@ -923,6 +739,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     );
   }
 
+  /// Arabic: يبني عرض الجدول عندما تكون قراءة الكثافة الأعلى أفضل.
+  /// English: Builds the table layout when a denser presentation is more useful.
   Widget _buildTableView(AmenitiesLoaded state) {
     return SliverToBoxAdapter(
       child: Padding(
@@ -940,10 +758,14 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     );
   }
 
+  /// Arabic: ينتقل إلى شاشة تفاصيل المرفق المحدد.
+  /// English: Navigates to the selected amenity details screen.
   void _navigateToDetails(String amenityId) {
     context.push('/admin/amenities/$amenityId');
   }
 
+  /// Arabic: ينتقل إلى شاشة تعديل المرفق مع السماح بإعادة التحميل عند الرجوع.
+  /// English: Navigates to the edit screen and allows the list to refresh when returning.
   Future<void> _navigateToEditAmenity(String amenityId) async {
     final result = await context.push('/admin/amenities/$amenityId/edit');
     if (result is Map && result['refresh'] == true) {
@@ -951,6 +773,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     }
   }
 
+  /// Arabic: يبدّل حالة تحديد المرفق داخل القائمة الداخلية للاختيارات الجماعية.
+  /// English: Toggles an amenity in the local selection list used for bulk actions.
   void _toggleSelection(Amenity amenity) {
     setState(() {
       if (_selectedAmenities.contains(amenity)) {
@@ -961,119 +785,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     });
   }
 
-  void _showBulkActions() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: AppTheme.darkCard,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(24),
-          ),
-        ),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppTheme.darkBorder,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 24),
-            _buildBulkActionButton(
-              icon: CupertinoIcons.checkmark_circle,
-              label: 'تفعيل الكل',
-              onTap: () {
-                for (final amenity in _selectedAmenities) {
-                  context.read<AmenitiesBloc>().add(
-                        ToggleAmenityStatusEvent(amenityId: amenity.id),
-                      );
-                }
-                Navigator.pop(context);
-                setState(() => _selectedAmenities.clear());
-              },
-            ),
-            _buildBulkActionButton(
-              icon: CupertinoIcons.xmark_circle,
-              label: 'تعطيل الكل',
-              onTap: () {
-                for (final amenity in _selectedAmenities) {
-                  context.read<AmenitiesBloc>().add(
-                        ToggleAmenityStatusEvent(amenityId: amenity.id),
-                      );
-                }
-                Navigator.pop(context);
-                setState(() => _selectedAmenities.clear());
-              },
-            ),
-            _buildBulkActionButton(
-              icon: CupertinoIcons.link,
-              label: 'إسناد للعقارات',
-              onTap: () {
-                Navigator.pop(context);
-                _showBulkAssignDialog();
-              },
-            ),
-            _buildBulkActionButton(
-              icon: CupertinoIcons.trash,
-              label: 'حذف الكل',
-              color: AppTheme.error,
-              onTap: () {
-                Navigator.pop(context);
-                _showBulkDeleteConfirmation();
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBulkActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    Color? color,
-  }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color: AppTheme.darkBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: (color ?? AppTheme.primaryPurple).withValues(alpha: 0.3),
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(icon, color: color ?? AppTheme.primaryPurple),
-                const SizedBox(width: 12),
-                Text(
-                  label,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppTheme.textWhite,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
+  /// Arabic: يعرض تأكيدًا قبل تنفيذ حذف المرفق حتى لا يتم الحذف بالخطأ.
+  /// English: Shows a confirmation dialog before deleting an amenity to prevent accidental removal.
   void _showDeleteConfirmation(Amenity amenity) {
     showDialog(
       fullscreenDialog: true,
@@ -1089,12 +802,12 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.error.withOpacity(0.3),
+                color: AppTheme.error.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.error.withOpacity(0.2),
+                  color: AppTheme.error.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -1107,7 +820,7 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.error.withOpacity(0.1),
+                    color: AppTheme.error.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.delete_outline,
@@ -1185,104 +898,8 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
     );
   }
 
-  void _showBulkDeleteConfirmation() {
-    showDialog(
-      fullscreenDialog: true,
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppTheme.darkCard,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color: AppTheme.error.withValues(alpha: 0.3),
-          ),
-        ),
-        title: Row(
-          children: [
-            Icon(
-              Icons.warning_rounded,
-              color: AppTheme.error,
-              size: 28,
-            ),
-            const SizedBox(width: 12),
-            Text(
-              'تأكيد الحذف',
-              style: AppTextStyles.heading3.copyWith(
-                color: AppTheme.textWhite,
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          'هل أنت متأكد من حذف جميع المرافق المحددة؟\nلا يمكن التراجع عن هذا الإجراء.',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textMuted,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'إلغاء',
-              style: AppTextStyles.buttonMedium.copyWith(
-                color: AppTheme.textMuted,
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.error,
-                  AppTheme.error.withValues(alpha: 0.8),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  for (final amenity in _selectedAmenities) {
-                    context.read<AmenitiesBloc>().add(
-                          DeleteAmenityEvent(amenityId: amenity.id),
-                        );
-                  }
-                  setState(() => _selectedAmenities.clear());
-                  Navigator.pop(context);
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
-                  child: Text(
-                    'حذف',
-                    style: AppTextStyles.buttonMedium.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showBulkAssignDialog() {
-    // Implement bulk assign dialog
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('سيتم إضافة نافذة الإسناد الجماعي قريباً'),
-        backgroundColor: AppTheme.primaryPurple,
-      ),
-    );
-  }
-
+  /// Arabic: يعرض حوار إسناد المرفق إلى نوع وحدة أو عقار محدد.
+  /// English: Shows the dialog used to assign the amenity to a specific unit or property type.
   void _showAssignAmenityDialog(Amenity amenity) {
     AssignAmenityDialog.show(
       context: context,
@@ -1317,150 +934,3 @@ class _AmenitiesManagementPageState extends State<AmenitiesManagementPage>
 }
 
 // Delete Confirmation Dialog
-class _DeleteConfirmationDialog extends StatelessWidget {
-  final String amenityName;
-  final VoidCallback onConfirm;
-
-  const _DeleteConfirmationDialog({
-    required this.amenityName,
-    required this.onConfirm,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      insetPadding: const EdgeInsets.all(10),
-      backgroundColor: Colors.transparent,
-      child: Container(
-        width: 400,
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppTheme.darkCard.withValues(alpha: 0.95),
-              AppTheme.darkCard.withValues(alpha: 0.85),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: AppTheme.error.withValues(alpha: 0.3),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.error.withValues(alpha: 0.2),
-              blurRadius: 20,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.error.withValues(alpha: 0.2),
-                    AppTheme.error.withValues(alpha: 0.1),
-                  ],
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.warning_rounded,
-                color: AppTheme.error,
-                size: 32,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'تأكيد الحذف',
-              style: AppTextStyles.heading3.copyWith(
-                color: AppTheme.textWhite,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'هل أنت متأكد من حذف "$amenityName"؟\nلا يمكن التراجع عن هذا الإجراء.',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: AppTheme.darkSurface.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppTheme.darkBorder.withValues(alpha: 0.3),
-                          width: 1,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'إلغاء',
-                          style: AppTextStyles.buttonMedium.copyWith(
-                            color: AppTheme.textMuted,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      HapticFeedback.mediumImpact();
-                      onConfirm();
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppTheme.error,
-                            AppTheme.error.withValues(alpha: 0.8),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.error.withValues(alpha: 0.3),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          'حذف',
-                          style: AppTextStyles.buttonMedium.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

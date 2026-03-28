@@ -2,7 +2,6 @@
 
 import 'package:equatable/equatable.dart';
 
-/// 🏦 كيان دليل الحسابات
 class ChartOfAccount extends Equatable {
   final String id;
   final String accountNumber;
@@ -25,7 +24,6 @@ class ChartOfAccount extends Equatable {
   final String? propertyId;
   final DateTime createdAt;
   final DateTime? updatedAt;
-
   const ChartOfAccount({
     required this.id,
     required this.accountNumber,
@@ -54,7 +52,7 @@ class ChartOfAccount extends Equatable {
   bool get isMainAccount => category == AccountCategory.main;
   bool get hasSubAccounts => subAccounts?.isNotEmpty ?? false;
   String get displayName => nameAr;
-  
+
   // 🎨 Get account color based on type
   String get accountColor {
     switch (accountType) {
@@ -109,7 +107,6 @@ class ChartOfAccount extends Equatable {
         createdAt,
         updatedAt,
       ];
-
   ChartOfAccount copyWith({
     String? id,
     String? accountNumber,
@@ -159,7 +156,6 @@ class ChartOfAccount extends Equatable {
   }
 }
 
-/// 📊 نوع الحساب
 enum AccountType {
   assets('أصول', 'Assets'),
   liabilities('التزامات', 'Liabilities'),
@@ -172,7 +168,6 @@ enum AccountType {
   const AccountType(this.nameAr, this.nameEn);
 }
 
-/// 📁 تصنيف الحساب - متوافق مع Backend
 enum AccountCategory {
   main('حساب رئيسي', 'Main'),
   sub('حساب فرعي', 'Sub');
@@ -182,7 +177,6 @@ enum AccountCategory {
   const AccountCategory(this.nameAr, this.nameEn);
 }
 
-/// ⚖️ طبيعة الحساب
 enum AccountNature {
   debit('مدين', 'Debit'),
   credit('دائن', 'Credit');

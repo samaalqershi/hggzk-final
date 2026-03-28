@@ -11,13 +11,12 @@ import '../../../domain/usecases/delete_review_response_usecase.dart';
 
 part 'review_details_event.dart';
 part 'review_details_state.dart';
-
 class ReviewDetailsBloc extends Bloc<ReviewDetailsEvent, ReviewDetailsState> {
+  /// العربية: يخزن القيمة `getReviewDetails`.
   final GetReviewDetailsUseCase getReviewDetails;
   final GetReviewResponsesUseCase getReviewResponses;
   final RespondToReviewUseCase respondToReview;
   final DeleteReviewResponseUseCase deleteReviewResponse;
-  
   ReviewDetailsBloc({
     required this.getReviewDetails,
     required this.getReviewResponses,
@@ -29,16 +28,15 @@ class ReviewDetailsBloc extends Bloc<ReviewDetailsEvent, ReviewDetailsState> {
     on<DeleteResponseEvent>(_onDeleteResponse);
     on<RefreshReviewDetailsEvent>(_onRefreshReviewDetails);
   }
-  
   Future<void> _onLoadReviewDetails(
     LoadReviewDetailsEvent event,
     Emitter<ReviewDetailsState> emit,
   ) async {
     emit(ReviewDetailsLoading());
-    
+
     final reviewResult = await getReviewDetails(event.reviewId);
     final responsesResult = await getReviewResponses(event.reviewId);
-    
+
     reviewResult.fold(
       (failure) => emit(ReviewDetailsError(failure.message)),
       (review) {
@@ -52,7 +50,6 @@ class ReviewDetailsBloc extends Bloc<ReviewDetailsEvent, ReviewDetailsState> {
       },
     );
   }
-  
   Future<void> _onAddResponse(
     AddResponseEvent event,
     Emitter<ReviewDetailsState> emit,
@@ -60,13 +57,13 @@ class ReviewDetailsBloc extends Bloc<ReviewDetailsEvent, ReviewDetailsState> {
     if (state is ReviewDetailsLoaded) {
       final currentState = state as ReviewDetailsLoaded;
       emit(ReviewDetailsLoading());
-      
+
       final result = await respondToReview(RespondToReviewParams(
         reviewId: event.reviewId,
         responseText: event.responseText,
         respondedBy: event.respondedBy,
       ));
-      
+
       result.fold(
         (failure) => emit(ReviewDetailsError(failure.message)),
         (response) {
@@ -76,16 +73,15 @@ class ReviewDetailsBloc extends Bloc<ReviewDetailsEvent, ReviewDetailsState> {
       );
     }
   }
-  
   Future<void> _onDeleteResponse(
     DeleteResponseEvent event,
     Emitter<ReviewDetailsState> emit,
   ) async {
     if (state is ReviewDetailsLoaded) {
       final currentState = state as ReviewDetailsLoaded;
-      
+
       final result = await deleteReviewResponse(event.responseId);
-      
+
       result.fold(
         (failure) => emit(ReviewDetailsError(failure.message)),
         (_) {
@@ -97,7 +93,6 @@ class ReviewDetailsBloc extends Bloc<ReviewDetailsEvent, ReviewDetailsState> {
       );
     }
   }
-  
   Future<void> _onRefreshReviewDetails(
     RefreshReviewDetailsEvent event,
     Emitter<ReviewDetailsState> emit,

@@ -7,25 +7,45 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/audit_log.dart';
 
+/// بطاقة إحصاءات أفقية تعرض مؤشرات سريعة مستخرجة من سجلات التدقيق.
+/// Horizontal stats card that surfaces quick metrics derived from audit logs.
 class AuditLogStatsCard extends StatefulWidget {
+  /// السجلات المستخدمة في حساب المؤشرات.
+  /// Audit logs used to compute the metrics.
   final List<AuditLog> auditLogs;
+
+  /// العدد الكلي المتوقع أو الفعلي للسجلات.
+  /// Total expected or actual number of logs.
   final int totalCount;
 
+  /// ينشئ البطاقة مع السجلات والعدد الإجمالي.
+  /// Creates the card with the audit logs and total count.
   const AuditLogStatsCard({
     super.key,
     required this.auditLogs,
     required this.totalCount,
   });
 
+  /// ينشئ حالة البطاقة المسؤولة عن الحركة والحسابات.
+  /// Creates the card state that handles animation and stat calculations.
   @override
   State<AuditLogStatsCard> createState() => _AuditLogStatsCardState();
 }
 
+/// تدير هذه الحالة التحريك العددي وحساب مؤشرات السجلات.
+/// Manages the count animation and the audit-log metric calculations.
 class _AuditLogStatsCardState extends State<AuditLogStatsCard>
     with SingleTickerProviderStateMixin {
+  /// يتحكم في حركة العد التصاعدي داخل البطاقات.
+  /// Controls the animated counting effect inside the stat cards.
   late AnimationController _animationController;
+
+  /// قيمة الحركة المستخدمة لرفع الأرقام من الصفر إلى قيمتها الفعلية.
+  /// Animation value used to ramp numbers from zero to their final values.
   late Animation<double> _countAnimation;
 
+  /// يهيئ الحركة العددية عند إنشاء البطاقة.
+  /// Initializes the count animation when the card is created.
   @override
   void initState() {
     super.initState();
@@ -45,12 +65,15 @@ class _AuditLogStatsCardState extends State<AuditLogStatsCard>
     _animationController.forward();
   }
 
+  /// يحرر متحكم الحركة عند إزالة البطاقة من الشجرة.
+  /// Disposes the animation controller when the card leaves the tree.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// يبني صف البطاقات الأفقية بعد حساب مؤشرات النشاط.
   @override
   Widget build(BuildContext context) {
     final stats = _calculateStats();
@@ -147,6 +170,7 @@ class _AuditLogStatsCardState extends State<AuditLogStatsCard>
     );
   }
 
+  /// يبني بطاقة إحصائية منفردة مع القيمة والاتجاه واللون.
   Widget _buildStatCard({
     required String title,
     required int value,
@@ -349,6 +373,7 @@ class _AuditLogStatsCardState extends State<AuditLogStatsCard>
     );
   }
 
+  /// يصغّر الأعداد الكبيرة إلى صيغ قصيرة مثل K وM لعرضها بسهولة.
   String _formatNumber(int number) {
     if (number >= 1000000) {
       return '${(number / 1000000).toStringAsFixed(1)}M';
@@ -358,6 +383,7 @@ class _AuditLogStatsCardState extends State<AuditLogStatsCard>
     return number.toString();
   }
 
+  /// يحسب مؤشرات السجلات من اليوم الحالي حتى الاتجاهات المصغرة.
   Map<String, dynamic> _calculateStats() {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -415,6 +441,7 @@ class _AuditLogStatsCardState extends State<AuditLogStatsCard>
     };
   }
 
+  /// يحسب نسبة التغير بين قيمتين مع حماية من القسمة على صفر.
   double _calculateTrend(int current, int previous) {
     if (previous == 0) return current > 0 ? 100.0 : 0.0;
     return ((current - previous) / previous * 100);

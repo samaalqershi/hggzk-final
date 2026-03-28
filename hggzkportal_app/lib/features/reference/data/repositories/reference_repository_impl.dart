@@ -7,10 +7,19 @@ import '../../domain/repositories/reference_repository.dart';
 import '../datasources/reference_local_datasource.dart';
 import '../datasources/reference_remote_datasource.dart';
 
+/// يعرّف الكلاس `ReferenceRepositoryImpl`.
+/// Describes the `ReferenceRepositoryImpl` class.
 class ReferenceRepositoryImpl implements ReferenceRepository {
+  /// Holds the `remote` value.
+  /// العربية: يخزن القيمة `remote`.
   final ReferenceRemoteDataSource remote;
+
+  /// يخزن العضو `local`.
+  /// Holds the `local` member.
   final ReferenceLocalDataSource local;
 
+  /// ينشئ مثيلاً من `ReferenceRepositoryImpl`.
+  /// Builds an instance of `ReferenceRepositoryImpl`.
   ReferenceRepositoryImpl({required this.remote, required this.local});
 
   @override

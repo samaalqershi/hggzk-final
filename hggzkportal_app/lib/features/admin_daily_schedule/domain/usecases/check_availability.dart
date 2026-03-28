@@ -21,7 +21,8 @@ class CheckAvailabilityUseCase
       );
     }
 
-    if (params.checkInDate.isBefore(DateTime.now().subtract(const Duration(days: 1)))) {
+    if (params.checkInDate
+        .isBefore(DateTime.now().subtract(const Duration(days: 1)))) {
       return Left(
         ValidationFailure('لا يمكن التحقق من تاريخ في الماضي'),
       );

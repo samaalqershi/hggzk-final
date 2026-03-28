@@ -6,29 +6,41 @@ import '../constants/api_constants.dart';
 import 'api_interceptors.dart';
 import 'api_exceptions.dart';
 
+/// Shared Dio wrapper that prepares the app's HTTP stack in one place.
+/// يغلّف Dio بشكل مشترك ليجهّز طبقة الشبكة كاملة من مكان واحد.
 class ApiClient {
+  /// The injected Dio instance that all requests flow through.
+  /// نسخة Dio المحقونة التي تمر عبرها جميع الطلبات.
   late final Dio _dio;
+
+  /// Tracks whether timezone initialization has already run for this process.
+  /// يتتبع ما إذا كانت تهيئة المنطقة الزمنية قد نُفذت مسبقًا في هذه العملية.
   static bool _timezoneInitialized = false;
 
+  /// Creates an API client around the provided Dio instance and applies shared setup immediately.
+  /// ينشئ عميل الشبكة حول نسخة Dio المعطاة ويطبّق الإعدادات المشتركة مباشرة.
   ApiClient(Dio dio) {
     _dio = dio;
     _setupDioClient();
-    _initializeTimezone(); // إضافة
+    _initializeTimezone();
   }
 
-  // تهيئة timezone مرة واحدة عند بدء التطبيق
+  /// Initializes timezone support once so date-sensitive requests and headers stay consistent.
+  /// يهيئ دعم المنطقة الزمنية مرة واحدة حتى تبقى الطلبات والرؤوس المرتبطة بالتوقيت متسقة.
   Future<void> _initializeTimezone() async {
     if (_timezoneInitialized) return;
 
     try {
       await TimezoneHelper.initialize();
       _timezoneInitialized = true;
-      print('✅ Timezone initialized successfully');
+      debugPrint('✅ Timezone initialized successfully');
     } catch (e) {
-      print('❌ Failed to initialize timezone: $e');
+      debugPrint('❌ Failed to initialize timezone: $e');
     }
   }
 
+  /// Applies the shared Dio options and registers the interceptors used by every request.
+  /// يطبّق إعدادات Dio المشتركة ويسجل الـ interceptors المستخدمة في كل طلب.
   void _setupDioClient() {
     final normalizedBaseUrl = _normalizeBaseUrl(ApiConstants.baseUrl);
     _dio.options = BaseOptions(
@@ -36,8 +48,8 @@ class ApiClient {
       connectTimeout: ApiConstants.connectTimeout,
       receiveTimeout: ApiConstants.receiveTimeout,
       sendTimeout: ApiConstants.sendTimeout,
-      // تنسيق المصفوفات في query parameters لـ ASP.NET Core
-      listFormat: ListFormat.multi, // amenityIds=id1&amenityIds=id2
+      // ASP.NET Core expects repeated query keys for arrays.
+      listFormat: ListFormat.multi,
       contentType: ApiConstants.applicationJson,
       headers: {
         ApiConstants.acceptLanguage: 'ar',
@@ -62,15 +74,18 @@ class ApiClient {
     ]);
   }
 
+  /// Normalizes a base URL by trimming spaces and removing a trailing slash.
+  /// يوحّد عنوان الخادم عبر إزالة المسافات والشرطة المائلة النهائية.
   String _normalizeBaseUrl(String baseUrl) {
     var v = baseUrl.trim();
-    // Remove trailing slash to avoid double slashes when passing relative paths
     if (v.endsWith('/')) {
       v = v.substring(0, v.length - 1);
     }
     return v;
   }
 
+  /// Sends a GET request and retries short-lived transport failures with exponential backoff.
+  /// يرسل طلب GET ويعيد المحاولة عند أخطاء النقل العابرة مع زيادة تدريجية في التأخير.
   Future<Response> get(
     String path, {
     Map<String, dynamic>? queryParameters,
@@ -93,7 +108,6 @@ class ApiClient {
         return response;
       } on DioException catch (e) {
         lastError = e;
-        // فقط أعد المحاولة على مهلات الاتصال أو أخطاء الشبكة المؤقتة
         final isTimeout = e.type == DioExceptionType.connectionTimeout ||
             e.type == DioExceptionType.receiveTimeout ||
             e.type == DioExceptionType.sendTimeout;
@@ -130,6 +144,8 @@ class ApiClient {
   //       onReceiveProgress: onReceiveProgress,
   //     );
   //     return response;
+  /// Sends a POST request, preserving multipart boundaries when the payload is FormData.
+  /// يرسل طلب POST مع الحفاظ على حدود multipart عندما تكون الحمولة من نوع FormData.
   Future<Response> post(
     String path, {
     dynamic data,
@@ -151,7 +167,7 @@ class ApiClient {
         options.headers!.remove('content-type');
 
         if (const bool.fromEnvironment('DEBUG') || true) {
-          print(
+          debugPrint(
               '🎯 FormData detected - removing Content-Type to let Dio handle boundary');
         }
       }
@@ -164,11 +180,11 @@ class ApiClient {
         final String fullUrl = isAbsolute
             ? path
             : '${_dio.options.baseUrl}${path.startsWith('/') ? path : '/$path'}';
-        print('🔵 POST Request to: $path');
-        print('🌐 Resolved URL: $fullUrl');
-        print('📦 Data: $data');
+        debugPrint('🔵 POST Request to: $path');
+        debugPrint('🌐 Resolved URL: $fullUrl');
+        debugPrint('📦 Data: $data');
         if (options?.extra != null && options!.extra!.isNotEmpty) {
-          print('⚙️ Options.extra: ${options.extra}');
+          debugPrint('⚙️ Options.extra: ${options.extra}');
         }
       }
 
@@ -183,7 +199,7 @@ class ApiClient {
       );
 
       if (kDebugMode) {
-        print('✅ Response: ${response.data}');
+        debugPrint('✅ Response: ${response.data}');
       }
 
       return response;
@@ -227,14 +243,16 @@ class ApiClient {
 
       // طباعة تفاصيل الخطأ
       if (!suppressLog && kDebugMode && e.response != null) {
-        print('❌ Error Status: ${e.response?.statusCode}');
-        print('❌ Error Data: ${e.response?.data}');
+        debugPrint('❌ Error Status: ${e.response?.statusCode}');
+        debugPrint('❌ Error Data: ${e.response?.data}');
       }
 
       throw ApiException.fromDioError(e);
     }
   }
 
+  /// Sends a PUT request and translates Dio failures into the app's exception model.
+  /// يرسل طلب PUT ويحوّل أخطاء Dio إلى نموذج الاستثناء المعتمد في التطبيق.
   Future<Response> put(
     String path, {
     dynamic data,
@@ -260,6 +278,8 @@ class ApiClient {
     }
   }
 
+  /// Sends a PATCH request and returns the raw server response on success.
+  /// يرسل طلب PATCH ويعيد استجابة الخادم الخام عند النجاح.
   Future<Response> patch(
     String path, {
     dynamic data,
@@ -285,6 +305,8 @@ class ApiClient {
     }
   }
 
+  /// Sends a DELETE request for the given resource path.
+  /// يرسل طلب DELETE للمسار المحدد.
   Future<Response> delete(
     String path, {
     dynamic data,
@@ -306,6 +328,8 @@ class ApiClient {
     }
   }
 
+  /// Uploads multipart content through POST with a safe FormData default content type.
+  /// يرفع محتوى multipart عبر POST مع محتوى افتراضي آمن لـ FormData.
   Future<Response> upload(
     String path, {
     required FormData formData,
@@ -332,14 +356,20 @@ class ApiClient {
     }
   }
 
+  /// Replaces the active base URL while keeping normalization rules intact.
+  /// يستبدل عنوان الخادم النشط مع الحفاظ على قواعد التطبيع نفسها.
   void updateBaseUrl(String baseUrl) {
     _dio.options.baseUrl = _normalizeBaseUrl(baseUrl);
   }
 
+  /// Merges new default headers into the shared Dio configuration.
+  /// يدمج رؤوسًا افتراضية جديدة في إعدادات Dio المشتركة.
   void updateHeaders(Map<String, dynamic> headers) {
     _dio.options.headers.addAll(headers);
   }
 
+  /// Removes all default headers from the shared Dio instance.
+  /// يحذف جميع الرؤوس الافتراضية من نسخة Dio المشتركة.
   void clearHeaders() {
     _dio.options.headers.clear();
   }

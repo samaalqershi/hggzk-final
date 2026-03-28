@@ -3,13 +3,16 @@ import 'package:flutter/cupertino.dart';
 import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/enums/section_content_type.dart';
 
 class SectionContentTypeToggle extends StatefulWidget {
+  /// العربية: يخزن القيمة `selectedType`.
   final SectionContentType? selectedType;
+
   final Function(SectionContentType) onTypeSelected;
+
   final bool isCompact;
+
   final bool showDescriptions;
 
   const SectionContentTypeToggle({
@@ -28,8 +31,9 @@ class SectionContentTypeToggle extends StatefulWidget {
 class _SectionContentTypeToggleState extends State<SectionContentTypeToggle>
     with TickerProviderStateMixin {
   late AnimationController _selectionController;
+
   late AnimationController _pulseController;
-  late Animation<double> _scaleAnimation;
+
   int _hoveredIndex = -1;
 
   final List<_ContentTypeInfo> _types = [
@@ -61,14 +65,6 @@ class _SectionContentTypeToggleState extends State<SectionContentTypeToggle>
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
-
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _selectionController,
-      curve: Curves.easeInOut,
-    ));
   }
 
   @override
@@ -437,10 +433,15 @@ class _SectionContentTypeToggleState extends State<SectionContentTypeToggle>
 
 // Helper class for content type info
 class _ContentTypeInfo {
+  /// العربية: يخزن القيمة `type`.
   final SectionContentType type;
+
   final String label;
+
   final String description;
+
   final IconData icon;
+
   final List<Color> gradient;
 
   _ContentTypeInfo({
@@ -454,7 +455,9 @@ class _ContentTypeInfo {
 
 // Custom painter for pulse effect
 class _PulseEffectPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `color`.
   final Color color;
+
   final double animationValue;
 
   _PulseEffectPainter({

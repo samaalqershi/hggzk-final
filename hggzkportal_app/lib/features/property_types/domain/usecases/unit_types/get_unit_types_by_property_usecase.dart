@@ -6,8 +6,9 @@ import '../../../../../core/usecases/usecase.dart';
 import '../../entities/unit_type.dart';
 import '../../repositories/unit_types_repository.dart';
 
-class GetUnitTypesByPropertyUseCase 
-    implements UseCase<PaginatedResult<UnitType>, GetUnitTypesByPropertyParams> {
+class GetUnitTypesByPropertyUseCase
+    implements
+        UseCase<PaginatedResult<UnitType>, GetUnitTypesByPropertyParams> {
   final UnitTypesRepository repository;
 
   GetUnitTypesByPropertyUseCase(this.repository);
@@ -25,8 +26,11 @@ class GetUnitTypesByPropertyUseCase
 }
 
 class GetUnitTypesByPropertyParams extends Equatable {
+  /// العربية: يخزن القيمة `propertyTypeId`.
   final String propertyTypeId;
+
   final int pageNumber;
+
   final int pageSize;
 
   const GetUnitTypesByPropertyParams({

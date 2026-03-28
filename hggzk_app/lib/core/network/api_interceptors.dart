@@ -3,19 +3,22 @@ import 'dart:io'; // إضافة للحصول على Platform
 import '../utils/timezone_helper.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:convert';
-import '../../services/local_storage_service.dart';
-import '../../services/message_service.dart';
+import 'package:hggzk/core/services/local_storage_service.dart';
+import 'package:hggzk/core/services/message_service.dart';
 import '../constants/storage_constants.dart';
 import '../constants/api_constants.dart';
 import '../localization/locale_manager.dart';
-import '../bloc/app_bloc.dart';
+import 'package:hggzk/app/bloc/app_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_event.dart';
-import '../../services/navigation_service.dart';
-import '../../injection_container.dart';
+import 'package:hggzk/app/router/navigation_service.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 
+/// يحقن بيانات الجلسة والسياق المحلي في كل طلب صادر إلى الخادم.
+/// Injects auth and locale context into outbound requests.
 class AuthInterceptor extends Interceptor {
+  /// يضيف التوكن واللغة والسياق الإضافي قبل إرسال الطلب.
+  /// Adds token, locale, and contextual headers before the request is sent.
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
@@ -60,7 +63,7 @@ class AuthInterceptor extends Interceptor {
     handler.next(options);
   }
 
-  /// إضافة headers المنطقة الزمنية
+  /// يضيف معلومات المنطقة الزمنية حتى يستطيع الخادم تفسير التواريخ بدقة.
   Future<void> _addTimezoneHeaders(RequestOptions options) async {
     try {
       // التأكد من التهيئة
@@ -118,10 +121,15 @@ class AuthInterceptor extends Interceptor {
   }
 }
 
-// يمكن أيضاً إنشاء interceptor منفصل للـ timezone إذا أردت
+/// يحقن رؤوس المنطقة الزمنية عند الحاجة في المسارات التي تعتمد على الوقت.
+/// Adds timezone headers for flows that depend on date conversion.
 class TimezoneInterceptor extends Interceptor {
+  /// يضمن تنفيذ تهيئة المنطقة الزمنية مرة واحدة فقط.
+  /// Ensures timezone initialization runs only once.
   static bool _initialized = false;
 
+  /// يضيف معلومات النظام واللغة قبل تمرير الطلب إلى Dio.
+  /// Attaches system and locale metadata before forwarding the request.
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
@@ -149,6 +157,8 @@ class TimezoneInterceptor extends Interceptor {
     handler.next(options);
   }
 
+  /// يحاول تحسين التواريخ المستلمة بإضافة نسخ محلية وقابلة للعرض.
+  /// Enriches returned payloads with local and display-friendly date fields.
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     // يمكن هنا معالجة التواريخ المرجعة من الخادم إذا أردت
@@ -167,7 +177,7 @@ class TimezoneInterceptor extends Interceptor {
     handler.next(response);
   }
 
-  /// تحويل التواريخ في الاستجابة من UTC إلى المحلي (اختياري)
+  /// يمر على الحقول المتفق عليها ويولّد نسخًا محلية منها عند توفرها.
   void _convertDatesInResponse(Map<String, dynamic> data) {
     // قائمة بأسماء الحقول التي تحتوي على تواريخ
     final dateFields = [
@@ -193,6 +203,8 @@ class TimezoneInterceptor extends Interceptor {
     }
   }
 
+  /// يحول قيمة الوقت إلى صيغة قراءة بشرية خفيفة تستخدم في رسائل التصحيح.
+  /// Formats a timestamp into a lightweight human-readable string for logs and payload hints.
   String _formatDateTime(DateTime dt) {
     return '${dt.day.toString().padLeft(2, '0')}/'
         '${dt.month.toString().padLeft(2, '0')}/'
@@ -202,9 +214,11 @@ class TimezoneInterceptor extends Interceptor {
   }
 }
 
-/// Interceptor to surface server messages on successful HTTP responses
-/// when backend embeds ResultDto with success/isSuccess flags.
+/// يعرض رسائل الخادم عندما يرجع الـ backend نتيجة غير ناجحة داخل استجابة 200.
+/// Surfaces backend messages when success flags are embedded in a successful HTTP response.
 class UserFeedbackInterceptor extends Interceptor {
+  /// يقرر ما إذا كانت الرسالة الخلفية تستحق الظهور للمستخدم أم لا.
+  /// Decides whether the backend message should be shown to the user.
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     try {
@@ -236,6 +250,8 @@ class UserFeedbackInterceptor extends Interceptor {
   }
 }
 
+/// يستخرج الرسالة الأكثر فائدة من الأشكال المختلفة لردود الـ backend.
+/// Pulls the most useful message from different backend response shapes.
 String _extractResponseMessage(Map<String, dynamic> data) {
   final msg = (data['message'] ?? data['error'] ?? '').toString();
   if (msg.trim().isNotEmpty) return msg;
@@ -258,13 +274,27 @@ String _extractResponseMessage(Map<String, dynamic> data) {
   return '';
 }
 
+/// Represents `ErrorInterceptor`.
+/// العربية: يمثل `ErrorInterceptor`.
 class ErrorInterceptor extends Interceptor {
+  /// Builds the `ErrorInterceptor` instance used by this layer.
+  /// العربية: ينشئ مثيلًا جديدًا من `ErrorInterceptor`.
   ErrorInterceptor(this._dio);
 
+  /// Keeps the `dio` value so this type can use it later.
+  /// العربية: يخزن القيمة `dio`.
   final Dio _dio;
+
+  /// Indicates whether `isRefreshing` is enabled.
+  /// العربية: يحدد ما إذا كانت القيمة `isRefreshing` مفعلة.
   static bool _isRefreshing = false;
+
+  /// Keeps the `refreshCompleter` value so this type can use it later.
+  /// العربية: يخزن القيمة `refreshCompleter`.
   static Completer<void>? _refreshCompleter;
 
+  /// Processes the `onError` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `onError`.
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final int? status = err.response?.statusCode;
@@ -409,6 +439,8 @@ class ErrorInterceptor extends Interceptor {
     handler.next(err);
   }
 
+  /// Processes the `refreshAccessToken` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `refreshAccessToken`.
   Future<void> _refreshAccessToken(String refreshToken) async {
     final authRepository = sl<AuthRepository>();
     final result =
@@ -420,6 +452,8 @@ class ErrorInterceptor extends Interceptor {
     );
   }
 
+  /// Processes the `forceLogout` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `forceLogout`.
   Future<void> _forceLogout({bool navigateToLogin = false}) async {
     bool hadSession = false;
     try {
@@ -427,8 +461,8 @@ class ErrorInterceptor extends Interceptor {
       final localStorage = sl<LocalStorageService>();
       hadSession =
           ((localStorage.getData(StorageConstants.accessToken) as String?)
-                  ?.isNotEmpty ??
-              false) ||
+                      ?.isNotEmpty ??
+                  false) ||
               ((localStorage.getData(StorageConstants.refreshToken) as String?)
                       ?.isNotEmpty ??
                   false);
@@ -450,31 +484,8 @@ class ErrorInterceptor extends Interceptor {
   }
 }
 
-bool _isJwtExpired(String jwt, {int skewSeconds = 0}) {
-  try {
-    final parts = jwt.split('.');
-    if (parts.length != 3) return false;
-    final payload = parts[1].replaceAll('-', '+').replaceAll('_', '/');
-    var normalized = payload;
-    while (normalized.length % 4 != 0) {
-      normalized += '=';
-    }
-    final decoded = String.fromCharCodes(base64Url.decode(normalized));
-    final map = jsonDecode(decoded) as Map<String, dynamic>;
-    final exp = map['exp'];
-    if (exp is int) {
-      final expiresAt = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
-      return DateTime.now()
-          .isAfter(expiresAt.subtract(Duration(seconds: skewSeconds)));
-    }
-    return false;
-  } catch (_) {
-    return false;
-  }
-}
-
-Dio _dioForLogout() => Dio();
-
+/// Processes the `extractErrorMessage` flow and maps it into the app-level behavior.
+/// العربية: يعالج `extractErrorMessage`.
 String _extractErrorMessage(DioException err) {
   final data = err.response?.data;
   // Backend ResultDto pattern: { success, message, errors, errorCode, ... }
@@ -522,13 +533,19 @@ String _extractErrorMessage(DioException err) {
   }
 }
 
+/// Represents `LoggingInterceptor`.
+/// العربية: يمثل `LoggingInterceptor`.
 class LoggingInterceptor extends Interceptor {
+  /// Processes the `onRequest` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `onRequest`.
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     debugPrint('REQUEST[${options.method}] => PATH: ${options.path}');
     handler.next(options);
   }
 
+  /// Processes the `onResponse` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `onResponse`.
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     debugPrint(
@@ -536,6 +553,8 @@ class LoggingInterceptor extends Interceptor {
     handler.next(response);
   }
 
+  /// Processes the `onError` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `onError`.
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     debugPrint(

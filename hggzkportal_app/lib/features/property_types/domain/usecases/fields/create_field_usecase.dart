@@ -5,6 +5,7 @@ import '../../../../../core/usecases/usecase.dart';
 import '../../repositories/unit_type_fields_repository.dart';
 
 class CreateFieldUseCase implements UseCase<String, CreateFieldParams> {
+  /// العربية: يخزن القيمة `repository`.
   final UnitTypeFieldsRepository repository;
 
   CreateFieldUseCase(this.repository);
@@ -34,22 +35,39 @@ class CreateFieldUseCase implements UseCase<String, CreateFieldParams> {
 }
 
 class CreateFieldParams extends Equatable {
+  /// العربية: يخزن القيمة `unitTypeId`.
   final String unitTypeId;
+
   final String fieldTypeId;
+
   final String fieldName;
+
   final String displayName;
+
   final String? description;
+
   final Map<String, dynamic>? fieldOptions;
+
   final Map<String, dynamic>? validationRules;
+
   final bool isRequired;
+
   final bool isSearchable;
+
   final bool isPublic;
+
   final int sortOrder;
+
   final String? category;
+
   final bool isForUnits;
+
   final String? groupId;
+
   final bool showInCards;
+
   final bool isPrimaryFilter;
+
   final int priority;
 
   const CreateFieldParams({

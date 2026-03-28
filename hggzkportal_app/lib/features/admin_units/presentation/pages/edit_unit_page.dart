@@ -1,7 +1,6 @@
 // lib/features/admin_units/presentation/pages/edit_unit_page.dart
 
 import 'package:hggzkportal/core/theme/app_theme.dart';
-import 'package:hggzkportal/features/admin_units/domain/entities/money.dart';
 import 'package:hggzkportal/features/admin_units/domain/entities/pricing_method.dart';
 import 'package:hggzkportal/features/admin_units/domain/entities/unit.dart';
 import 'package:hggzkportal/features/admin_units/presentation/widgets/dynamic_fields_widget.dart';
@@ -9,44 +8,63 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:ui';
 import 'dart:math' as math;
-import 'package:hggzkportal/core/theme/app_colors.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import '../bloc/unit_form/unit_form_bloc.dart';
 import '../bloc/unit_details/unit_details_bloc.dart';
-import 'package:hggzkportal/features/admin_properties/domain/entities/property.dart';
 import 'package:hggzkportal/features/admin_units/presentation/widgets/unit_image_gallery.dart';
-import 'package:hggzkportal/features/admin_units/presentation/bloc/unit_images/unit_images_bloc.dart';
-import 'package:hggzkportal/features/admin_units/presentation/bloc/unit_images/unit_images_event.dart'
-    hide UpdateUnitImageEvent;
-import 'package:get_it/get_it.dart';
-import 'package:hggzkportal/core/network/api_client.dart';
 import 'package:intl/intl.dart';
 import 'package:hggzkportal/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:hggzkportal/features/auth/presentation/bloc/auth_state.dart';
 import 'package:hggzkportal/features/auth/domain/entities/user.dart' as domain;
 
+/// يمثل هذا الكلاس EditUnitPage البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for EditUnitPage in the admin unit workflow.
 class EditUnitPage extends StatefulWidget {
+  /// This field keeps the unitId value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة unitId التي يعتمد عليها مسار إدارة الوحدات.
   final String unitId;
 
+  /// ينشئ هذا المُنشئ مثيلاً من EditUnitPage.
+  /// This constructor creates an instance of EditUnitPage.
   const EditUnitPage({
     super.key,
     required this.unitId,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<EditUnitPage> createState() => _EditUnitPageState();
 }
 
+/// يمثل هذا الكلاس _EditUnitPageState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _EditUnitPageState in the admin unit workflow.
 class _EditUnitPageState extends State<EditUnitPage>
     with TickerProviderStateMixin {
   // Controllers
+  /// يحتفظ هذا الحقل بقيمة _animationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _animationController value used by the admin unit workflow.
   late AnimationController _animationController;
+
+  /// يحتفظ هذا الحقل بقيمة _glowController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _glowController value used by the admin unit workflow.
   late AnimationController _glowController;
+
+  /// يحتفظ هذا الحقل بقيمة _loadingAnimationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _loadingAnimationController value used by the admin unit workflow.
   late AnimationController _loadingAnimationController;
+
+  /// يحتفظ هذا الحقل بقيمة _fadeAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _fadeAnimation value used by the admin unit workflow.
   late Animation<double> _fadeAnimation;
+
+  /// يحتفظ هذا الحقل بقيمة _slideAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _slideAnimation value used by the admin unit workflow.
   late Animation<Offset> _slideAnimation;
+
+  /// يحتفظ هذا الحقل بقيمة _loadingRotation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _loadingRotation value used by the admin unit workflow.
   late Animation<double> _loadingRotation;
 
   // Form Controllers
@@ -58,31 +76,80 @@ class _EditUnitPageState extends State<EditUnitPage>
   final _cancellationDaysController = TextEditingController();
 
   // State
-  String? _selectedPropertyId;
-  String? _selectedUnitTypeId;
+  /// يحتفظ هذا الحقل بقيمة _isHasAdults التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isHasAdults value used by the admin unit workflow.
   bool _isHasAdults = false;
+
+  /// يحتفظ هذا الحقل بقيمة _isHasChildren التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isHasChildren value used by the admin unit workflow.
   bool _isHasChildren = false;
+
+  /// يحتفظ هذا الحقل بقيمة _currentStep التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _currentStep value used by the admin unit workflow.
   int _currentStep = 0;
+
+  /// يحتفظ هذا الحقل بقيمة _adultCapacity التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _adultCapacity value used by the admin unit workflow.
   int _adultCapacity = 0;
+
+  /// يحتفظ هذا الحقل بقيمة _childrenCapacity التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _childrenCapacity value used by the admin unit workflow.
   int _childrenCapacity = 0;
+
+  /// يحتفظ هذا الحقل بقيمة _pricingMethod التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _pricingMethod value used by the admin unit workflow.
   String _pricingMethod = 'per_night';
+
+  /// يحتفظ هذا الحقل بقيمة _dynamicFieldValues التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _dynamicFieldValues value used by the admin unit workflow.
   Map<String, dynamic> _dynamicFieldValues = {};
+
+  /// يحتفظ هذا الحقل بقيمة _originalDynamicFieldValues التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _originalDynamicFieldValues value used by the admin unit workflow.
   final Map<String, dynamic> _originalDynamicFieldValues =
       {}; // حفظ القيم الأصلية
+  /// يحتفظ هذا الحقل بقيمة _selectedPropertyName التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectedPropertyName value used by the admin unit workflow.
   String? _selectedPropertyName;
   final GlobalKey<UnitImageGalleryState> _galleryKey = GlobalKey();
+
+  /// يحتفظ هذا الحقل بقيمة _isOwner التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isOwner value used by the admin unit workflow.
   bool _isOwner = false;
 
   // Edit specific state
+  /// يحتفظ هذا الحقل بقيمة _originalUnit التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _originalUnit value used by the admin unit workflow.
   Unit? _originalUnit;
+
+  /// يحتفظ هذا الحقل بقيمة _isDataLoaded التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isDataLoaded value used by the admin unit workflow.
   bool _isDataLoaded = false;
+
+  /// يحتفظ هذا الحقل بقيمة _hasChanges التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _hasChanges value used by the admin unit workflow.
   bool _hasChanges = false;
+
+  /// يحتفظ هذا الحقل بقيمة _existingImages التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _existingImages value used by the admin unit workflow.
   List<String> _existingImages = [];
+
+  /// يحتفظ هذا الحقل بقيمة _originalImages التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _originalImages value used by the admin unit workflow.
   List<String> _originalImages = []; // حفظ الصور الأصلية
+  /// يحتفظ هذا الحقل بقيمة _imagesChanged التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _imagesChanged value used by the admin unit workflow.
   bool _imagesChanged = false; // تتبع تغييرات الصور
+  /// يحتفظ هذا الحقل بقيمة _allowsCancellation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _allowsCancellation value used by the admin unit workflow.
   bool _allowsCancellation = true;
+
+  /// يحتفظ هذا الحقل بقيمة _cancellationWindowDays التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _cancellationWindowDays value used by the admin unit workflow.
   int? _cancellationWindowDays;
 
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
@@ -108,6 +175,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     });
   }
 
+  /// ينفذ هذا الأسلوب عملية _initializeAnimations ضمن مسار إدارة الوحدات.
+  /// This method performs the _initializeAnimations operation in the admin unit workflow.
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -149,6 +218,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     ));
   }
 
+  /// ينفذ هذا الأسلوب عملية _loadUnitData ضمن مسار إدارة الوحدات.
+  /// This method performs the _loadUnitData operation in the admin unit workflow.
   void _loadUnitData() {
     // Load unit details first
     context
@@ -156,6 +227,8 @@ class _EditUnitPageState extends State<EditUnitPage>
         .add(LoadUnitDetailsEvent(unitId: widget.unitId));
   }
 
+  /// ينفذ هذا الأسلوب عملية _populateFormWithUnitData ضمن مسار إدارة الوحدات.
+  /// This method performs the _populateFormWithUnitData operation in the admin unit workflow.
   void _populateFormWithUnitData(Unit unit) {
     if (_isDataLoaded) return;
 
@@ -172,9 +245,7 @@ class _EditUnitPageState extends State<EditUnitPage>
       _featuresController.text = unit.customFeatures;
 
       // Set property and unit type
-      _selectedPropertyId = unit.propertyId;
       _selectedPropertyName = unit.propertyName;
-      _selectedUnitTypeId = unit.unitTypeId;
 
       // Set capacities
       _adultCapacity = unit.adultsCapacity ?? unit.maxCapacity;
@@ -218,6 +289,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     });
   }
 
+  /// ينفذ هذا الأسلوب عملية _loadDynamicFieldValues ضمن مسار إدارة الوحدات.
+  /// This method performs the _loadDynamicFieldValues operation in the admin unit workflow.
   void _loadDynamicFieldValues(Unit unit) {
     // تحميل من fieldValues
     for (var fieldValue in unit.fieldValues) {
@@ -234,6 +307,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _updateFormBloc ضمن مسار إدارة الوحدات.
+  /// This method performs the _updateFormBloc operation in the admin unit workflow.
   void _updateFormBloc() {
     // تحديث جميع الحقول في البلوك
     _updateUnitName();
@@ -246,6 +321,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     _updateCancellationPolicy();
   }
 
+  /// ينفذ هذا الأسلوب عملية _getPricingMethodString ضمن مسار إدارة الوحدات.
+  /// This method performs the _getPricingMethodString operation in the admin unit workflow.
   String _getPricingMethodString(PricingMethod method) {
     switch (method) {
       case PricingMethod.daily:
@@ -256,11 +333,11 @@ class _EditUnitPageState extends State<EditUnitPage>
         return 'monthly';
       case PricingMethod.hourly:
         return 'hourly';
-      default:
-        return 'daily';
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _animationController.dispose();
@@ -274,10 +351,16 @@ class _EditUnitPageState extends State<EditUnitPage>
     super.dispose();
   }
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _handleSystemBack();
+      },
       child: BlocListener<UnitDetailsBloc, UnitDetailsState>(
         listener: (context, state) {
           if (state is UnitDetailsLoaded && !_isDataLoaded) {
@@ -290,9 +373,10 @@ class _EditUnitPageState extends State<EditUnitPage>
           listener: (context, state) {
             if (state is UnitFormSubmitted) {
               _showSuccessMessage('تم تحديث الوحدة بنجاح');
+              final router = GoRouter.of(context);
               Future.delayed(const Duration(milliseconds: 500), () {
                 if (mounted) {
-                  context.pop(true); // Return true to indicate success
+                  router.pop(true); // Return true to indicate success
                 }
               });
             } else if (state is UnitFormError) {
@@ -342,6 +426,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildAnimatedBackground ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildAnimatedBackground operation in the admin unit workflow.
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: _glowController,
@@ -353,8 +439,8 @@ class _EditUnitPageState extends State<EditUnitPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -369,6 +455,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildLoadingState ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildLoadingState operation in the admin unit workflow.
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -388,14 +476,14 @@ class _EditUnitPageState extends State<EditUnitPage>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppTheme.primaryBlue.withOpacity(0.3),
-                        AppTheme.primaryPurple.withOpacity(0.2),
-                        AppTheme.primaryViolet.withOpacity(0.1),
+                        AppTheme.primaryBlue.withValues(alpha: 0.3),
+                        AppTheme.primaryPurple.withValues(alpha: 0.2),
+                        AppTheme.primaryViolet.withValues(alpha: 0.1),
                       ],
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                         blurRadius: 30,
                         spreadRadius: 10,
                       ),
@@ -446,19 +534,21 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildHeader ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildHeader operation in the admin unit workflow.
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -474,13 +564,13 @@ class _EditUnitPageState extends State<EditUnitPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -518,10 +608,10 @@ class _EditUnitPageState extends State<EditUnitPage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.warning.withOpacity(0.2),
+                          color: AppTheme.warning.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppTheme.warning.withOpacity(0.5),
+                            color: AppTheme.warning.withValues(alpha: 0.5),
                             width: 1,
                           ),
                         ),
@@ -554,10 +644,10 @@ class _EditUnitPageState extends State<EditUnitPage>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.error.withOpacity(0.1),
+                  color: AppTheme.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.error.withOpacity(0.3),
+                    color: AppTheme.error.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -573,6 +663,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildProgressIndicator ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildProgressIndicator operation in the admin unit workflow.
   Widget _buildProgressIndicator() {
     final steps = [
       'المعلومات الأساسية',
@@ -601,23 +693,23 @@ class _EditUnitPageState extends State<EditUnitPage>
                   decoration: BoxDecoration(
                     gradient: isActive ? AppTheme.primaryGradient : null,
                     color: !isActive
-                        ? AppTheme.darkSurface.withOpacity(0.5)
+                        ? AppTheme.darkSurface.withValues(alpha: 0.5)
                         : null,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isModified
-                          ? AppTheme.warning.withOpacity(0.5)
+                          ? AppTheme.warning.withValues(alpha: 0.5)
                           : isActive
-                              ? AppTheme.primaryBlue.withOpacity(0.5)
-                              : AppTheme.darkBorder.withOpacity(0.3),
+                              ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                              : AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: isModified ? 2 : 1,
                     ),
                     boxShadow: isActive
                         ? [
                             BoxShadow(
                               color: isModified
-                                  ? AppTheme.warning.withOpacity(0.3)
-                                  : AppTheme.primaryBlue.withOpacity(0.3),
+                                  ? AppTheme.warning.withValues(alpha: 0.3)
+                                  : AppTheme.primaryBlue.withValues(alpha: 0.3),
                               blurRadius: 10,
                             ),
                           ]
@@ -654,12 +746,12 @@ class _EditUnitPageState extends State<EditUnitPage>
                             ? isModified
                                 ? LinearGradient(colors: [
                                     AppTheme.warning,
-                                    AppTheme.warning.withOpacity(0.5)
+                                    AppTheme.warning.withValues(alpha: 0.5)
                                   ])
                                 : AppTheme.primaryGradient
                             : null,
                         color: !isCompleted
-                            ? AppTheme.darkBorder.withOpacity(0.2)
+                            ? AppTheme.darkBorder.withValues(alpha: 0.2)
                             : null,
                         borderRadius: BorderRadius.circular(1),
                       ),
@@ -673,6 +765,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFormContent ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFormContent operation in the admin unit workflow.
   Widget _buildFormContent() {
     return BlocBuilder<UnitFormBloc, UnitFormState>(
       builder: (context, state) {
@@ -697,6 +791,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildBasicInfoStep ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildBasicInfoStep operation in the admin unit workflow.
   Widget _buildBasicInfoStep(UnitFormState state) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -776,6 +872,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildCapacityPricingStep ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildCapacityPricingStep operation in the admin unit workflow.
   Widget _buildCapacityPricingStep(UnitFormState state) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -964,6 +1062,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFeaturesStep ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFeaturesStep operation in the admin unit workflow.
   Widget _buildFeaturesStep(UnitFormState state) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -1021,6 +1121,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildReviewStep ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildReviewStep operation in the admin unit workflow.
   Widget _buildReviewStep(UnitFormState state) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -1045,7 +1147,7 @@ class _EditUnitPageState extends State<EditUnitPage>
                     gradient: LinearGradient(
                       colors: [
                         AppTheme.warning,
-                        AppTheme.warning.withOpacity(0.8),
+                        AppTheme.warning.withValues(alpha: 0.8),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
@@ -1193,6 +1295,8 @@ class _EditUnitPageState extends State<EditUnitPage>
   }
 
   // إضافة قسم مراجعة الحقول الديناميكية
+  /// ينفذ هذا الأسلوب عملية _buildDynamicFieldsReviewCard ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildDynamicFieldsReviewCard operation in the admin unit workflow.
   Widget _buildDynamicFieldsReviewCard(List<dynamic> fields) {
     final changedFields = fields.where((field) {
       final currentValue = _dynamicFieldValues[field.fieldId];
@@ -1208,19 +1312,19 @@ class _EditUnitPageState extends State<EditUnitPage>
         gradient: LinearGradient(
           colors: hasChanges
               ? [
-                  AppTheme.warning.withOpacity(0.05),
-                  AppTheme.darkCard.withOpacity(0.4),
+                  AppTheme.warning.withValues(alpha: 0.05),
+                  AppTheme.darkCard.withValues(alpha: 0.4),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasChanges
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1235,7 +1339,7 @@ class _EditUnitPageState extends State<EditUnitPage>
                   gradient: hasChanges
                       ? LinearGradient(colors: [
                           AppTheme.warning,
-                          AppTheme.warning.withOpacity(0.7)
+                          AppTheme.warning.withValues(alpha: 0.7)
                         ])
                       : AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(6),
@@ -1260,7 +1364,7 @@ class _EditUnitPageState extends State<EditUnitPage>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.warning.withOpacity(0.2),
+                    color: AppTheme.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -1303,8 +1407,8 @@ class _EditUnitPageState extends State<EditUnitPage>
                         _getFieldIcon(field.fieldTypeId),
                         size: 14,
                         color: isChanged
-                            ? AppTheme.warning.withOpacity(0.7)
-                            : AppTheme.textMuted.withOpacity(0.7),
+                            ? AppTheme.warning.withValues(alpha: 0.7)
+                            : AppTheme.textMuted.withValues(alpha: 0.7),
                       ),
                       const SizedBox(width: 6),
                       Text(
@@ -1336,7 +1440,7 @@ class _EditUnitPageState extends State<EditUnitPage>
                           Text(
                             'كان: ${_formatFieldValue(field, originalValue)}',
                             style: AppTextStyles.caption.copyWith(
-                              color: AppTheme.textMuted.withOpacity(0.7),
+                              color: AppTheme.textMuted.withValues(alpha: 0.7),
                               fontSize: 10,
                               decoration: TextDecoration.lineThrough,
                             ),
@@ -1355,6 +1459,8 @@ class _EditUnitPageState extends State<EditUnitPage>
   }
 
   // دالة مساعدة للحصول على أيقونة الحقل
+  /// ينفذ هذا الأسلوب عملية _getFieldIcon ضمن مسار إدارة الوحدات.
+  /// This method performs the _getFieldIcon operation in the admin unit workflow.
   IconData _getFieldIcon(String fieldType) {
     switch (fieldType) {
       case 'text':
@@ -1387,6 +1493,8 @@ class _EditUnitPageState extends State<EditUnitPage>
   }
 
   // دالة مساعدة لتنسيق قيمة الحقل للعرض
+  /// ينفذ هذا الأسلوب عملية _formatFieldValue ضمن مسار إدارة الوحدات.
+  /// This method performs the _formatFieldValue operation in the admin unit workflow.
   String _formatFieldValue(dynamic field, dynamic value) {
     if (value == null || value.toString().isEmpty) return 'غير محدد';
 
@@ -1427,6 +1535,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildOriginalValueIndicator ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildOriginalValueIndicator operation in the admin unit workflow.
   Widget _buildOriginalValueIndicator(
       String label, String value, bool isChanged) {
     if (!isChanged) return const SizedBox.shrink();
@@ -1435,10 +1545,10 @@ class _EditUnitPageState extends State<EditUnitPage>
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.warning.withOpacity(0.1),
+        color: AppTheme.warning.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1464,7 +1574,7 @@ class _EditUnitPageState extends State<EditUnitPage>
                   TextSpan(
                     text: value,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.warning.withOpacity(0.8),
+                      color: AppTheme.warning.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -1478,6 +1588,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildReadOnlyField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildReadOnlyField operation in the admin unit workflow.
   Widget _buildReadOnlyField({
     required String label,
     required String value,
@@ -1499,13 +1611,13 @@ class _EditUnitPageState extends State<EditUnitPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.3),
-                AppTheme.darkCard.withOpacity(0.2),
+                AppTheme.darkCard.withValues(alpha: 0.3),
+                AppTheme.darkCard.withValues(alpha: 0.2),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.2),
+              color: AppTheme.darkBorder.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -1513,7 +1625,7 @@ class _EditUnitPageState extends State<EditUnitPage>
             children: [
               Icon(
                 icon,
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -1527,7 +1639,7 @@ class _EditUnitPageState extends State<EditUnitPage>
               ),
               Icon(
                 Icons.lock_outline_rounded,
-                color: AppTheme.textMuted.withOpacity(0.3),
+                color: AppTheme.textMuted.withValues(alpha: 0.3),
                 size: 16,
               ),
             ],
@@ -1537,6 +1649,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildChangesSummary ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildChangesSummary operation in the admin unit workflow.
   Widget _buildChangesSummary() {
     final changes = _getChangedFields();
 
@@ -1545,13 +1659,13 @@ class _EditUnitPageState extends State<EditUnitPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.warning.withOpacity(0.1),
-            AppTheme.warning.withOpacity(0.05),
+            AppTheme.warning.withValues(alpha: 0.1),
+            AppTheme.warning.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1646,6 +1760,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildCapacityCounter ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildCapacityCounter operation in the admin unit workflow.
   Widget _buildCapacityCounter({
     required String label,
     required int value,
@@ -1662,19 +1778,19 @@ class _EditUnitPageState extends State<EditUnitPage>
         gradient: LinearGradient(
           colors: hasChanged
               ? [
-                  AppTheme.warning.withOpacity(0.1),
-                  AppTheme.warning.withOpacity(0.05),
+                  AppTheme.warning.withValues(alpha: 0.1),
+                  AppTheme.warning.withValues(alpha: 0.05),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasChanged
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1716,10 +1832,10 @@ class _EditUnitPageState extends State<EditUnitPage>
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: AppTheme.darkSurface.withOpacity(0.5),
+                    color: AppTheme.darkSurface.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -1763,6 +1879,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildReviewCard ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildReviewCard operation in the admin unit workflow.
   Widget _buildReviewCard({
     required String title,
     required List<Map<String, dynamic>> items,
@@ -1775,19 +1893,19 @@ class _EditUnitPageState extends State<EditUnitPage>
         gradient: LinearGradient(
           colors: hasChanges
               ? [
-                  AppTheme.warning.withOpacity(0.05),
-                  AppTheme.darkCard.withOpacity(0.4),
+                  AppTheme.warning.withValues(alpha: 0.05),
+                  AppTheme.darkCard.withValues(alpha: 0.4),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasChanges
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1809,7 +1927,7 @@ class _EditUnitPageState extends State<EditUnitPage>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.warning.withOpacity(0.2),
+                    color: AppTheme.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -1877,6 +1995,8 @@ class _EditUnitPageState extends State<EditUnitPage>
   }
 
   // تحسين دالة التحقق من التغييرات
+  /// ينفذ هذا الأسلوب عملية _checkForChanges ضمن مسار إدارة الوحدات.
+  /// This method performs the _checkForChanges operation in the admin unit workflow.
   bool _checkForChanges() {
     if (_originalUnit == null) return false;
 
@@ -1902,10 +2022,15 @@ class _EditUnitPageState extends State<EditUnitPage>
             ((_cancellationWindowDays ?? -1) !=
                 (_originalUnit!.cancellationWindowDays ?? -1));
 
-    return basicFieldsChanged || imagesChanged || dynamicFieldsChanged || cancellationChanged;
+    return basicFieldsChanged ||
+        imagesChanged ||
+        dynamicFieldsChanged ||
+        cancellationChanged;
   }
 
   // دالة للتحقق من تغييرات الحقول الديناميكية
+  /// ينفذ هذا الأسلوب عملية _checkDynamicFieldsChanges ضمن مسار إدارة الوحدات.
+  /// This method performs the _checkDynamicFieldsChanges operation in the admin unit workflow.
   bool _checkDynamicFieldsChanges() {
     // التحقق من كل حقل ديناميكي
     for (final entry in _dynamicFieldValues.entries) {
@@ -1926,6 +2051,8 @@ class _EditUnitPageState extends State<EditUnitPage>
   }
 
   // دالة للمقارنة بين قوائم الصور
+  /// ينفذ هذا الأسلوب عملية _areImagesEqual ضمن مسار إدارة الوحدات.
+  /// This method performs the _areImagesEqual operation in the admin unit workflow.
   bool _areImagesEqual(List<String> current, List<String> original) {
     if (current.length != original.length) return false;
     for (var i = 0; i < current.length; i++) {
@@ -1934,6 +2061,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     return true;
   }
 
+  /// ينفذ هذا الأسلوب عملية _hasChangesInStep ضمن مسار إدارة الوحدات.
+  /// This method performs the _hasChangesInStep operation in the admin unit workflow.
   bool _hasChangesInStep(int step) {
     if (_originalUnit == null) return false;
 
@@ -1959,6 +2088,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _getChangedFields ضمن مسار إدارة الوحدات.
+  /// This method performs the _getChangedFields operation in the admin unit workflow.
   List<Map<String, String>> _getChangedFields() {
     final changes = <Map<String, String>>[];
     if (_originalUnit == null) return changes;
@@ -1980,7 +2111,6 @@ class _EditUnitPageState extends State<EditUnitPage>
         'newValue': _descriptionController.text,
       });
     }
-
 
     if (_adultCapacity !=
         (_originalUnit!.adultsCapacity ?? _originalUnit!.maxCapacity)) {
@@ -2024,6 +2154,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     return changes;
   }
 
+  /// ينفذ هذا الأسلوب عملية _resetChanges ضمن مسار إدارة الوحدات.
+  /// This method performs the _resetChanges operation in the admin unit workflow.
   void _resetChanges() {
     if (_originalUnit == null) return;
 
@@ -2070,95 +2202,35 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
-  Future<bool> _onWillPop() async {
-    if (!_hasChanges) return true;
+  /// ينفذ هذا الأسلوب عملية _handleSystemBack ضمن مسار إدارة الوحدات.
+  /// This method performs the _handleSystemBack operation in the admin unit workflow.
+  Future<void> _handleSystemBack() async {
+    if (_currentStep > 0) {
+      setState(() {
+        _currentStep--;
+      });
+      return;
+    }
+
+    if (!_hasChanges) {
+      if (mounted) {
+        context.pop();
+      }
+      return;
+    }
 
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => _UnsavedChangesDialog(),
     );
 
-    return result ?? false;
+    if (result == true && mounted) {
+      context.pop();
+    }
   }
 
-  // Keep all the other methods from original file (unchanged)
-  Widget _buildPricingMethodSelector() {
-    final methods = [
-      {'value': 'daily', 'label': 'لليلة الواحدة'},
-      {'value': 'weekly', 'label': 'للأسبوع'},
-      {'value': 'monthly', 'label': 'للشهر'},
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'طريقة التسعير',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textWhite,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 12,
-          children: methods.map((method) {
-            final isSelected = _pricingMethod == method['value'];
-            final originalMethod = _originalUnit != null
-                ? _getPricingMethodString(_originalUnit!.pricingMethod)
-                : '';
-            final hasChanged = _originalUnit != null &&
-                method['value'] == _pricingMethod &&
-                _pricingMethod != originalMethod;
-
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  _pricingMethod = method['value']!;
-                });
-                // _updatePricing(); // Commented out: basePrice no longer used
-                HapticFeedback.lightImpact();
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: BoxDecoration(
-                  gradient: isSelected
-                      ? hasChanged
-                          ? LinearGradient(colors: [
-                              AppTheme.warning,
-                              AppTheme.warning.withOpacity(0.7)
-                            ])
-                          : AppTheme.primaryGradient
-                      : null,
-                  color: isSelected ? null : AppTheme.darkCard.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isSelected
-                        ? hasChanged
-                            ? AppTheme.warning.withOpacity(0.5)
-                            : AppTheme.primaryBlue.withOpacity(0.5)
-                        : AppTheme.darkBorder.withOpacity(0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  method['label']!,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: isSelected ? Colors.white : AppTheme.textMuted,
-                    fontWeight:
-                        isSelected ? FontWeight.w600 : FontWeight.normal,
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
+  /// ينفذ هذا الأسلوب عملية _buildInputField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildInputField operation in the admin unit workflow.
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
@@ -2184,13 +2256,13 @@ class _EditUnitPageState extends State<EditUnitPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -2204,12 +2276,12 @@ class _EditUnitPageState extends State<EditUnitPage>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: maxLines == 1
                   ? Icon(
                       icon,
-                      color: AppTheme.primaryBlue.withOpacity(0.7),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                       size: 20,
                     )
                   : null,
@@ -2224,19 +2296,21 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildActionButtons ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildActionButtons operation in the admin unit workflow.
   Widget _buildActionButtons() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2253,13 +2327,13 @@ class _EditUnitPageState extends State<EditUnitPage>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -2288,15 +2362,15 @@ class _EditUnitPageState extends State<EditUnitPage>
                   gradient: _hasChanges
                       ? LinearGradient(colors: [
                           AppTheme.warning,
-                          AppTheme.warning.withOpacity(0.8)
+                          AppTheme.warning.withValues(alpha: 0.8)
                         ])
                       : AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
                       color: _hasChanges
-                          ? AppTheme.warning.withOpacity(0.3)
-                          : AppTheme.primaryBlue.withOpacity(0.3),
+                          ? AppTheme.warning.withValues(alpha: 0.3)
+                          : AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -2351,6 +2425,8 @@ class _EditUnitPageState extends State<EditUnitPage>
   }
 
   // Helper Methods (same as create but with modifications for edit)
+  /// ينفذ هذا الأسلوب عملية _updateCapacity ضمن مسار إدارة الوحدات.
+  /// This method performs the _updateCapacity operation in the admin unit workflow.
   void _updateCapacity() {
     context.read<UnitFormBloc>().add(
           UpdateCapacityEvent(
@@ -2360,6 +2436,8 @@ class _EditUnitPageState extends State<EditUnitPage>
         );
   }
 
+  /// ينفذ هذا الأسلوب عملية _updateUnitImage ضمن مسار إدارة الوحدات.
+  /// This method performs the _updateUnitImage operation in the admin unit workflow.
   void _updateUnitImage() {
     context.read<UnitFormBloc>().add(
           UpdateUnitImageEvent(
@@ -2370,6 +2448,8 @@ class _EditUnitPageState extends State<EditUnitPage>
 
   // Commented out: basePrice no longer used
   /*
+  /// Updates the pricing.
+  /// يحدّث pricing.
   void _updatePricing() {
     if (_priceController.text.isNotEmpty) {
       final price = double.tryParse(_priceController.text);
@@ -2393,30 +2473,40 @@ class _EditUnitPageState extends State<EditUnitPage>
   }
   */
 
+  /// ينفذ هذا الأسلوب عملية _updateFeatures ضمن مسار إدارة الوحدات.
+  /// This method performs the _updateFeatures operation in the admin unit workflow.
   void _updateFeatures() {
     context.read<UnitFormBloc>().add(
           UpdateFeaturesEvent(features: _featuresController.text),
         );
   }
 
+  /// ينفذ هذا الأسلوب عملية _updateUnitName ضمن مسار إدارة الوحدات.
+  /// This method performs the _updateUnitName operation in the admin unit workflow.
   void _updateUnitName() {
     context.read<UnitFormBloc>().add(
           UpdateUnitNameEvent(name: _nameController.text),
         );
   }
 
+  /// ينفذ هذا الأسلوب عملية _updateDescription ضمن مسار إدارة الوحدات.
+  /// This method performs the _updateDescription operation in the admin unit workflow.
   void _updateDescription() {
     context.read<UnitFormBloc>().add(
           UpdateDescriptionEvent(description: _descriptionController.text),
         );
   }
 
+  /// ينفذ هذا الأسلوب عملية _updateDynamicFields ضمن مسار إدارة الوحدات.
+  /// This method performs the _updateDynamicFields operation in the admin unit workflow.
   void _updateDynamicFields() {
     context.read<UnitFormBloc>().add(
           UpdateDynamicFieldsEvent(values: _dynamicFieldValues),
         );
   }
 
+  /// ينفذ هذا الأسلوب عملية _getPricingMethodText ضمن مسار إدارة الوحدات.
+  /// This method performs the _getPricingMethodText operation in the admin unit workflow.
   String _getPricingMethodText() {
     switch (_pricingMethod) {
       case 'daily':
@@ -2430,37 +2520,14 @@ class _EditUnitPageState extends State<EditUnitPage>
     }
   }
 
-  PricingMethod _getPricingMethodEnum() {
-    switch (_pricingMethod) {
-      case 'daily':
-        return PricingMethod.daily;
-      case 'weekly':
-        return PricingMethod.weekly;
-      case 'monthly':
-        return PricingMethod.monthly;
-      default:
-        return PricingMethod.hourly;
-    }
-  }
-
+  /// ينفذ هذا الأسلوب عملية _handleBack ضمن مسار إدارة الوحدات.
+  /// This method performs the _handleBack operation in the admin unit workflow.
   void _handleBack() {
-    if (_currentStep > 0) {
-      setState(() {
-        _currentStep--;
-      });
-    } else {
-      if (_hasChanges) {
-        _onWillPop().then((canPop) {
-          if (canPop) {
-            context.pop();
-          }
-        });
-      } else {
-        context.pop();
-      }
-    }
+    _handleSystemBack();
   }
 
+  /// ينفذ هذا الأسلوب عملية _previousStep ضمن مسار إدارة الوحدات.
+  /// This method performs the _previousStep operation in the admin unit workflow.
   void _previousStep() {
     if (_currentStep > 0) {
       setState(() {
@@ -2469,6 +2536,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _nextStep ضمن مسار إدارة الوحدات.
+  /// This method performs the _nextStep operation in the admin unit workflow.
   void _nextStep() {
     if (_currentStep < 3) {
       bool isValid = true;
@@ -2489,6 +2558,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _validateBasicInfo ضمن مسار إدارة الوحدات.
+  /// This method performs the _validateBasicInfo operation in the admin unit workflow.
   bool _validateBasicInfo() {
     if (_nameController.text.isEmpty || _descriptionController.text.isEmpty) {
       _showErrorMessage('الرجاء ملء جميع الحقول المطلوبة');
@@ -2497,10 +2568,14 @@ class _EditUnitPageState extends State<EditUnitPage>
     return true;
   }
 
+  /// ينفذ هذا الأسلوب عملية _validateCapacityPricing ضمن مسار إدارة الوحدات.
+  /// This method performs the _validateCapacityPricing operation in the admin unit workflow.
   bool _validateCapacityPricing() {
     return true;
   }
 
+  /// ينفذ هذا الأسلوب عملية _submitForm ضمن مسار إدارة الوحدات.
+  /// This method performs the _submitForm operation in the admin unit workflow.
   void _submitForm() {
     if (!_hasChanges) {
       _showInfoMessage('لا توجد تغييرات للحفظ');
@@ -2511,12 +2586,15 @@ class _EditUnitPageState extends State<EditUnitPage>
       // تحديث جميع البيانات في البلوك
       _updateFormBloc();
 
+      final formBloc = context.read<UnitFormBloc>();
       Future.delayed(const Duration(milliseconds: 100), () {
-        context.read<UnitFormBloc>().add(SubmitFormEvent());
+        formBloc.add(SubmitFormEvent());
       });
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _validateDynamicFields ضمن مسار إدارة الوحدات.
+  /// This method performs the _validateDynamicFields operation in the admin unit workflow.
   bool _validateDynamicFields() {
     final state = context.read<UnitFormBloc>().state;
 
@@ -2524,9 +2602,8 @@ class _EditUnitPageState extends State<EditUnitPage>
       return true; // لا يمكن التحقق بدون بيانات النوع، لا نمنع الحفظ هنا
     }
 
-    final requiredFields = state.unitTypeFields
-        .where((f) => f.isRequired)
-        .toList();
+    final requiredFields =
+        state.unitTypeFields.where((f) => f.isRequired).toList();
 
     if (requiredFields.isEmpty) {
       return true;
@@ -2542,13 +2619,16 @@ class _EditUnitPageState extends State<EditUnitPage>
     }
 
     if (missing.isNotEmpty) {
-      _showErrorMessage('الرجاء تعبئة جميع الحقول الإضافية الإلزامية قبل المتابعة');
+      _showErrorMessage(
+          'الرجاء تعبئة جميع الحقول الإضافية الإلزامية قبل المتابعة');
       return false;
     }
 
     return true;
   }
 
+  /// ينفذ هذا الأسلوب عملية _showSuccessMessage ضمن مسار إدارة الوحدات.
+  /// This method performs the _showSuccessMessage operation in the admin unit workflow.
   void _showSuccessMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -2573,6 +2653,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _showErrorMessage ضمن مسار إدارة الوحدات.
+  /// This method performs the _showErrorMessage operation in the admin unit workflow.
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -2597,6 +2679,8 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _showInfoMessage ضمن مسار إدارة الوحدات.
+  /// This method performs the _showInfoMessage operation in the admin unit workflow.
   void _showInfoMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -2621,25 +2705,34 @@ class _EditUnitPageState extends State<EditUnitPage>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _updateCancellationPolicy ضمن مسار إدارة الوحدات.
+  /// This method performs the _updateCancellationPolicy operation in the admin unit workflow.
   void _updateCancellationPolicy() {
     context.read<UnitFormBloc>().add(
           UpdateCancellationPolicyEvent(
             allowsCancellation: _allowsCancellation,
             // Normalize: when not allowed -> null; when allowed and empty -> null
-            cancellationWindowDays: _allowsCancellation
-                ? _cancellationWindowDays
-                : null,
+            cancellationWindowDays:
+                _allowsCancellation ? _cancellationWindowDays : null,
           ),
         );
   }
 }
 
 // Additional Dialogs for Edit Page (unchanged from original)
+/// يمثل هذا الكلاس _ResetConfirmationDialog البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _ResetConfirmationDialog in the admin unit workflow.
 class _ResetConfirmationDialog extends StatelessWidget {
+  /// This field keeps the onConfirm value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة onConfirm التي يعتمد عليها مسار إدارة الوحدات.
   final VoidCallback onConfirm;
 
+  /// ينشئ هذا المُنشئ مثيلاً من _ResetConfirmationDialog.
+  /// This constructor creates an instance of _ResetConfirmationDialog.
   const _ResetConfirmationDialog({required this.onConfirm});
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -2650,13 +2743,13 @@ class _ResetConfirmationDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.warning.withOpacity(0.3),
+            color: AppTheme.warning.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2669,8 +2762,8 @@ class _ResetConfirmationDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.warning.withOpacity(0.2),
-                    AppTheme.warning.withOpacity(0.1),
+                    AppTheme.warning.withValues(alpha: 0.2),
+                    AppTheme.warning.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -2706,10 +2799,10 @@ class _ResetConfirmationDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkSurface.withOpacity(0.5),
+                        color: AppTheme.darkSurface.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.3),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -2737,7 +2830,7 @@ class _ResetConfirmationDialog extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             AppTheme.warning,
-                            AppTheme.warning.withOpacity(0.8),
+                            AppTheme.warning.withValues(alpha: 0.8),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -2763,7 +2856,11 @@ class _ResetConfirmationDialog extends StatelessWidget {
   }
 }
 
+/// يمثل هذا الكلاس _UnsavedChangesDialog البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _UnsavedChangesDialog in the admin unit workflow.
 class _UnsavedChangesDialog extends StatelessWidget {
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -2774,13 +2871,13 @@ class _UnsavedChangesDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.error.withOpacity(0.3),
+            color: AppTheme.error.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2793,8 +2890,8 @@ class _UnsavedChangesDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
+                    AppTheme.error.withValues(alpha: 0.2),
+                    AppTheme.error.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -2855,10 +2952,10 @@ class _UnsavedChangesDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.error.withOpacity(0.1),
+                        color: AppTheme.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.error.withOpacity(0.3),
+                          color: AppTheme.error.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -2883,11 +2980,19 @@ class _UnsavedChangesDialog extends StatelessWidget {
   }
 }
 
+/// يمثل هذا الكلاس _EditUnitBackgroundPainter البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _EditUnitBackgroundPainter in the admin unit workflow.
 class _EditUnitBackgroundPainter extends CustomPainter {
+  /// This field keeps the glowIntensity value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة glowIntensity التي يعتمد عليها مسار إدارة الوحدات.
   final double glowIntensity;
 
+  /// ينشئ هذا المُنشئ مثيلاً من _EditUnitBackgroundPainter.
+  /// This constructor creates an instance of _EditUnitBackgroundPainter.
   _EditUnitBackgroundPainter({required this.glowIntensity});
 
+  /// ينفذ هذا الأسلوب عملية paint ضمن مسار إدارة الوحدات.
+  /// This method performs the paint operation in the admin unit workflow.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -2895,8 +3000,8 @@ class _EditUnitBackgroundPainter extends CustomPainter {
     // Draw glowing orbs with edit theme
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.warning.withOpacity(0.1 * glowIntensity),
-        AppTheme.warning.withOpacity(0.05 * glowIntensity),
+        AppTheme.warning.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.warning.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -2912,8 +3017,8 @@ class _EditUnitBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryPurple.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryPurple.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -2928,6 +3033,8 @@ class _EditUnitBackgroundPainter extends CustomPainter {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية shouldRepaint ضمن مسار إدارة الوحدات.
+  /// This method performs the shouldRepaint operation in the admin unit workflow.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

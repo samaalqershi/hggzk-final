@@ -6,21 +6,21 @@ import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../../repositories/property_images_repository.dart';
 
 class SetPrimaryImageUseCase implements UseCase<bool, SetPrimaryImageParams> {
+  /// العربية: يخزن القيمة `repository`.
   final PropertyImagesRepository repository;
-
   SetPrimaryImageUseCase(this.repository);
-
   @override
   Future<Either<Failure, bool>> call(SetPrimaryImageParams params) async {
-    return await repository.setAsPrimaryImage(params.propertyId, params.tempKey, params.imageId);
+    return await repository.setAsPrimaryImage(
+        params.propertyId, params.tempKey, params.imageId);
   }
 }
 
 class SetPrimaryImageParams {
+  /// العربية: يخزن القيمة `propertyId`.
   final String? propertyId;
   final String? tempKey;
   final String imageId;
-
   SetPrimaryImageParams({
     this.propertyId,
     this.tempKey,

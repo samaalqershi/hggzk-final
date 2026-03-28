@@ -14,14 +14,12 @@ class TransactionCard extends StatefulWidget {
   final FinancialTransaction transaction;
   final VoidCallback onTap;
   final bool isCompact;
-
   const TransactionCard({
     super.key,
     required this.transaction,
     required this.onTap,
     this.isCompact = false,
   });
-
   @override
   State<TransactionCard> createState() => _TransactionCardState();
 }
@@ -30,7 +28,6 @@ class _TransactionCardState extends State<TransactionCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   bool _isHovered = false;
-
   @override
   void initState() {
     super.initState();
@@ -74,18 +71,18 @@ class _TransactionCardState extends State<TransactionCard>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppTheme.darkCard.withOpacity(0.8),
-                AppTheme.darkCard.withOpacity(0.6),
+                AppTheme.darkCard.withValues(alpha: 0.8),
+                AppTheme.darkCard.withValues(alpha: 0.6),
               ],
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: _getStatusColor().withOpacity(0.3),
+              color: _getStatusColor().withValues(alpha: 0.3),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: _getStatusColor().withOpacity(0.1),
+                color: _getStatusColor().withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -124,13 +121,13 @@ class _TransactionCardState extends State<TransactionCard>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.5),
-              AppTheme.darkCard.withOpacity(0.3),
+              AppTheme.darkCard.withValues(alpha: 0.5),
+              AppTheme.darkCard.withValues(alpha: 0.3),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: _getStatusColor().withOpacity(0.2),
+            color: _getStatusColor().withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -144,7 +141,7 @@ class _TransactionCardState extends State<TransactionCard>
                 gradient: LinearGradient(
                   colors: [
                     _getTransactionColor(),
-                    _getTransactionColor().withOpacity(0.7),
+                    _getTransactionColor().withValues(alpha: 0.7),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(10),
@@ -228,8 +225,8 @@ class _TransactionCardState extends State<TransactionCard>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            _getStatusColor().withOpacity(0.15),
-            _getStatusColor().withOpacity(0.05),
+            _getStatusColor().withValues(alpha: 0.15),
+            _getStatusColor().withValues(alpha: 0.05),
           ],
         ),
         borderRadius: const BorderRadius.only(
@@ -247,13 +244,13 @@ class _TransactionCardState extends State<TransactionCard>
               gradient: LinearGradient(
                 colors: [
                   _getTransactionColor(),
-                  _getTransactionColor().withOpacity(0.7),
+                  _getTransactionColor().withValues(alpha: 0.7),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: _getTransactionColor().withOpacity(0.3),
+                  color: _getTransactionColor().withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -376,10 +373,10 @@ class _TransactionCardState extends State<TransactionCard>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.3),
+        color: AppTheme.darkBackground.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.1),
+          color: AppTheme.darkBorder.withValues(alpha: 0.1),
         ),
       ),
       child: Row(
@@ -424,7 +421,7 @@ class _TransactionCardState extends State<TransactionCard>
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
           ),
         ),
       ),
@@ -469,10 +466,10 @@ class _TransactionCardState extends State<TransactionCard>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -503,13 +500,13 @@ class _TransactionCardState extends State<TransactionCard>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            _getStatusColor().withOpacity(0.2),
-            _getStatusColor().withOpacity(0.1),
+            _getStatusColor().withValues(alpha: 0.2),
+            _getStatusColor().withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(isSmall ? 4 : 6),
         border: Border.all(
-          color: _getStatusColor().withOpacity(0.5),
+          color: _getStatusColor().withValues(alpha: 0.5),
         ),
       ),
       child: Text(

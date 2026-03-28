@@ -6,18 +6,46 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/models/searchable_screen.dart';
 import '../../../../core/theme/app_theme.dart';
 
+/// يدير فهرس الشاشات القابلة للبحث داخل لوحة الإدارة، ويجمع بين البحث النصي
+/// وسجل الاستخدام والتثبيت السريع حتى يحصل المستخدم على اقتراحات عملية.
+/// Manages the searchable screen index inside the admin hub, combining text
+/// matching with visit history and pinning so users get practical
+/// suggestions.
 class ScreenSearchService {
+  /// المفتاح الذي نحفظ تحته آخر عبارات البحث التي أدخلها المستخدم.
+  /// Storage key that keeps the latest search phrases entered by the user.
   static const String _searchHistoryKey = 'screen_search_history';
+
+  /// المفتاح الذي يخزن عدد مرات زيارة كل شاشة وآخر وقت زيارة.
+  /// Storage key that tracks how often each screen was opened and when it was
+  /// last visited.
   static const String _visitHistoryKey = 'screen_visit_history';
+
+  /// المفتاح الذي يحتفظ بمعرّفات الشاشات المثبتة للوصول السريع.
+  /// Storage key that keeps the ids of screens pinned for quick access.
   static const String _pinnedScreensKey = 'pinned_screens';
+
+  /// الحد الأقصى لعبارات البحث التي نحتفظ بها في السجل المحلي.
+  /// Maximum number of search queries retained in local history.
   static const int _maxSearchHistory = 20;
+
+  /// أقصى عدد اقتراحات يرجعه البحث التفاعلي في كل مرة.
+  /// Maximum number of suggestions returned by the interactive search.
   static const int _maxSuggestions = 10;
 
+  /// التخزين المحلي الذي يحتفظ بالسجل والزيارات والتثبيتات بين الجلسات.
+  /// Local storage that persists history, visits, and pinned screens across
+  /// sessions.
   final SharedPreferences _prefs;
 
+  /// يربط الخدمة بمثيل `SharedPreferences` المستخدم على مستوى التطبيق.
+  /// Binds the service to the application-wide `SharedPreferences` instance.
   ScreenSearchService(this._prefs);
 
-  // قائمة الشاشات المتاحة (بدون بارامترات)
+  /// الفهرس الثابت لكل الشاشات التي يمكن البحث عنها من دون الحاجة لبارامترات
+  /// تنقل ديناميكية.
+  /// Static catalog of screens that can be searched without requiring dynamic
+  /// navigation parameters.
   final List<SearchableScreen> _allScreens = [
     // المالية
     SearchableScreen(
@@ -29,7 +57,16 @@ class ScreenSearchService {
       path: '/admin/financial/dashboard',
       icon: Icons.dashboard_rounded,
       gradientColors: [AppTheme.primaryBlue, AppTheme.primaryCyan],
-      searchKeywords: ['مالية', 'احصائيات', 'تقارير', 'ايرادات', 'مصروفات', 'financial', 'dashboard', 'revenue'],
+      searchKeywords: [
+        'مالية',
+        'احصائيات',
+        'تقارير',
+        'ايرادات',
+        'مصروفات',
+        'financial',
+        'dashboard',
+        'revenue'
+      ],
       category: ScreenCategory.financial,
       adminOnly: true,
     ),
@@ -42,7 +79,15 @@ class ScreenSearchService {
       path: '/admin/financial/transactions',
       icon: Icons.receipt_long_rounded,
       gradientColors: [AppTheme.primaryPurple, AppTheme.primaryViolet],
-      searchKeywords: ['معاملات', 'مالية', 'فواتير', 'دفعات', 'transactions', 'invoices', 'payments'],
+      searchKeywords: [
+        'معاملات',
+        'مالية',
+        'فواتير',
+        'دفعات',
+        'transactions',
+        'invoices',
+        'payments'
+      ],
       category: ScreenCategory.financial,
       adminOnly: true,
     ),
@@ -82,7 +127,14 @@ class ScreenSearchService {
       path: '/admin/bookings/upcoming',
       icon: Icons.upcoming_rounded,
       gradientColors: [AppTheme.warning, AppTheme.neonPurple],
-      searchKeywords: ['حجوزات', 'قادمة', 'مستقبل', 'upcoming', 'future', 'bookings'],
+      searchKeywords: [
+        'حجوزات',
+        'قادمة',
+        'مستقبل',
+        'upcoming',
+        'future',
+        'bookings'
+      ],
       category: ScreenCategory.bookings,
     ),
     SearchableScreen(
@@ -176,7 +228,13 @@ class ScreenSearchService {
       path: '/admin/properties',
       icon: Icons.apartment_rounded,
       gradientColors: [AppTheme.primaryBlue, AppTheme.primaryViolet],
-      searchKeywords: ['عقارات', 'عقار', 'properties', 'property', 'real estate'],
+      searchKeywords: [
+        'عقارات',
+        'عقار',
+        'properties',
+        'property',
+        'real estate'
+      ],
       category: ScreenCategory.properties,
       adminOnly: true,
     ),
@@ -189,7 +247,16 @@ class ScreenSearchService {
       path: '/admin/properties/create',
       icon: Icons.add_business_rounded,
       gradientColors: [AppTheme.primaryBlue, AppTheme.success],
-      searchKeywords: ['اضافة', 'عقار', 'جديد', 'انشاء', 'add', 'property', 'new', 'create'],
+      searchKeywords: [
+        'اضافة',
+        'عقار',
+        'جديد',
+        'انشاء',
+        'add',
+        'property',
+        'new',
+        'create'
+      ],
       category: ScreenCategory.properties,
       adminOnly: true,
     ),
@@ -216,7 +283,16 @@ class ScreenSearchService {
       path: '/admin/units/create',
       icon: Icons.add_home_work_rounded,
       gradientColors: [AppTheme.warning, AppTheme.success],
-      searchKeywords: ['اضافة', 'وحدة', 'جديد', 'انشاء', 'add', 'unit', 'new', 'create'],
+      searchKeywords: [
+        'اضافة',
+        'وحدة',
+        'جديد',
+        'انشاء',
+        'add',
+        'unit',
+        'new',
+        'create'
+      ],
       category: ScreenCategory.properties,
       adminOnly: true,
       visibleForOwner: true,
@@ -243,7 +319,14 @@ class ScreenSearchService {
       path: '/admin/availability-pricing',
       icon: Icons.price_change_rounded,
       gradientColors: [AppTheme.primaryPurple, AppTheme.warning],
-      searchKeywords: ['توافر', 'اسعار', 'تسعير', 'availability', 'pricing', 'prices'],
+      searchKeywords: [
+        'توافر',
+        'اسعار',
+        'تسعير',
+        'availability',
+        'pricing',
+        'prices'
+      ],
       category: ScreenCategory.properties,
       adminOnly: true,
     ),
@@ -271,7 +354,16 @@ class ScreenSearchService {
       path: '/admin/users/create',
       icon: Icons.person_add_alt_1_rounded,
       gradientColors: [AppTheme.primaryViolet, AppTheme.success],
-      searchKeywords: ['اضافة', 'مستخدم', 'جديد', 'انشاء', 'add', 'user', 'new', 'create'],
+      searchKeywords: [
+        'اضافة',
+        'مستخدم',
+        'جديد',
+        'انشاء',
+        'add',
+        'user',
+        'new',
+        'create'
+      ],
       category: ScreenCategory.users,
       adminOnly: true,
     ),
@@ -311,7 +403,18 @@ class ScreenSearchService {
       path: '/admin/notifications/create',
       icon: Icons.notification_add_rounded,
       gradientColors: [AppTheme.primaryCyan, AppTheme.success],
-      searchKeywords: ['اضافة', 'اشعار', 'جديد', 'ارسال', 'انشاء', 'add', 'notification', 'new', 'send', 'create'],
+      searchKeywords: [
+        'اضافة',
+        'اشعار',
+        'جديد',
+        'ارسال',
+        'انشاء',
+        'add',
+        'notification',
+        'new',
+        'send',
+        'create'
+      ],
       category: ScreenCategory.notifications,
       adminOnly: true,
     ),
@@ -338,7 +441,16 @@ class ScreenSearchService {
       path: '/admin/services/create',
       icon: Icons.add_circle_outline_rounded,
       gradientColors: [AppTheme.neonGreen, AppTheme.success],
-      searchKeywords: ['اضافة', 'خدمة', 'جديد', 'انشاء', 'add', 'service', 'new', 'create'],
+      searchKeywords: [
+        'اضافة',
+        'خدمة',
+        'جديد',
+        'انشاء',
+        'add',
+        'service',
+        'new',
+        'create'
+      ],
       category: ScreenCategory.services,
     ),
     SearchableScreen(
@@ -363,7 +475,16 @@ class ScreenSearchService {
       path: '/admin/amenities/create',
       icon: Icons.add_circle_rounded,
       gradientColors: [AppTheme.info, AppTheme.success],
-      searchKeywords: ['اضافة', 'مرفق', 'جديد', 'انشاء', 'add', 'amenity', 'new', 'create'],
+      searchKeywords: [
+        'اضافة',
+        'مرفق',
+        'جديد',
+        'انشاء',
+        'add',
+        'amenity',
+        'new',
+        'create'
+      ],
       category: ScreenCategory.services,
       adminOnly: true,
     ),
@@ -388,7 +509,16 @@ class ScreenSearchService {
       path: '/admin/policies/create',
       icon: Icons.add_task_rounded,
       gradientColors: [AppTheme.warning, AppTheme.success],
-      searchKeywords: ['اضافة', 'سياسة', 'جديد', 'انشاء', 'add', 'policy', 'new', 'create'],
+      searchKeywords: [
+        'اضافة',
+        'سياسة',
+        'جديد',
+        'انشاء',
+        'add',
+        'policy',
+        'new',
+        'create'
+      ],
       category: ScreenCategory.policies,
     ),
     SearchableScreen(
@@ -453,7 +583,16 @@ class ScreenSearchService {
       path: '/admin/sections/create',
       icon: Icons.add_box_rounded,
       gradientColors: [AppTheme.primaryViolet, AppTheme.success],
-      searchKeywords: ['اضافة', 'قسم', 'جديد', 'انشاء', 'add', 'section', 'new', 'create'],
+      searchKeywords: [
+        'اضافة',
+        'قسم',
+        'جديد',
+        'انشاء',
+        'add',
+        'section',
+        'new',
+        'create'
+      ],
       category: ScreenCategory.settings,
       adminOnly: true,
     ),
@@ -516,7 +655,14 @@ class ScreenSearchService {
       path: '/settings/language',
       icon: Icons.language_rounded,
       gradientColors: [AppTheme.info, AppTheme.primaryBlue],
-      searchKeywords: ['لغة', 'عربي', 'انجليزي', 'language', 'arabic', 'english'],
+      searchKeywords: [
+        'لغة',
+        'عربي',
+        'انجليزي',
+        'language',
+        'arabic',
+        'english'
+      ],
       category: ScreenCategory.settings,
     ),
     SearchableScreen(
@@ -528,12 +674,22 @@ class ScreenSearchService {
       path: '/conversations',
       icon: Icons.chat_rounded,
       gradientColors: [AppTheme.primaryPurple, AppTheme.neonPurple],
-      searchKeywords: ['محادثات', 'دردشة', 'رسائل', 'conversations', 'chat', 'messages'],
+      searchKeywords: [
+        'محادثات',
+        'دردشة',
+        'رسائل',
+        'conversations',
+        'chat',
+        'messages'
+      ],
       category: ScreenCategory.other,
     ),
   ];
 
-  // البحث في الشاشات
+  /// يبحث داخل فهرس الشاشات باستخدام العنوان والوصف والكلمات المفتاحية، ثم
+  /// يرتب النتائج بحسب الصلة وسلوك الاستخدام السابق.
+  /// Searches the screen catalog using titles, descriptions, and keywords, then
+  /// orders results by relevance and prior usage behavior.
   List<SearchableScreen> searchScreens(String query) {
     if (query.trim().isEmpty) {
       return _getMostVisitedScreens();
@@ -578,8 +734,8 @@ class ScreenSearchService {
         final visitData = _getVisitData(screen.id);
         results.add(screen.copyWith(
           visitCount: visitData['visitCount'] ?? 0,
-          lastVisitedAt: visitData['lastVisitedAt'] != null 
-              ? DateTime.parse(visitData['lastVisitedAt']) 
+          lastVisitedAt: visitData['lastVisitedAt'] != null
+              ? DateTime.parse(visitData['lastVisitedAt'])
               : null,
           isPinned: _isPinned(screen.id),
         ));
@@ -591,7 +747,7 @@ class ScreenSearchService {
       // الشاشات المثبتة أولاً
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
-      
+
       // ثم حسب عدد الزيارات
       return b.visitCount.compareTo(a.visitCount);
     });
@@ -599,7 +755,9 @@ class ScreenSearchService {
     return results.take(_maxSuggestions).toList();
   }
 
-  // حفظ سجل البحث
+  /// يحفظ عبارة بحث جديدة مع إزالة التكرارات والإبقاء على أحدث الاستعلامات فقط.
+  /// Saves a new search phrase while removing duplicates and keeping only the
+  /// most recent queries.
   Future<void> saveSearchHistory(String query) async {
     if (query.trim().isEmpty) return;
 
@@ -614,15 +772,19 @@ class ScreenSearchService {
     await _prefs.setStringList(_searchHistoryKey, history);
   }
 
-  // الحصول على سجل البحث
+  /// يعيد سجل البحث المخزن محليًا ليستفاد منه في الاقتراحات أو الإكمال السريع.
+  /// Returns the locally stored search history for suggestions and quick
+  /// completion.
   Future<List<String>> getSearchHistory() async {
     return _prefs.getStringList(_searchHistoryKey) ?? [];
   }
 
-  // حفظ زيارة شاشة
+  /// يسجل فتح شاشة معيّنة مع تحديث عدد الزيارات وآخر وقت استخدام لها.
+  /// Records that a screen was opened and updates its visit count and latest
+  /// access time.
   Future<void> saveScreenVisit(String screenId) async {
     final visitHistory = _getVisitHistory();
-    
+
     visitHistory[screenId] = {
       'visitCount': (visitHistory[screenId]?['visitCount'] ?? 0) + 1,
       'lastVisitedAt': DateTime.now().toIso8601String(),
@@ -631,7 +793,10 @@ class ScreenSearchService {
     await _prefs.setString(_visitHistoryKey, jsonEncode(visitHistory));
   }
 
-  // الحصول على سجل الزيارات
+  /// يقرأ سجل الزيارات الخام من التخزين المحلي ويفك ترميزه إلى خريطة قابلة
+  /// للاستخدام.
+  /// Reads the raw visit-history payload from local storage and decodes it into
+  /// a usable map.
   Map<String, dynamic> _getVisitHistory() {
     final historyJson = _prefs.getString(_visitHistoryKey);
     if (historyJson != null) {
@@ -640,13 +805,18 @@ class ScreenSearchService {
     return {};
   }
 
-  // الحصول على بيانات زيارة شاشة محددة
+  /// يعيد بيانات الزيارة الخاصة بشاشة واحدة أو خريطة فارغة إذا لم تُفتح من قبل.
+  /// Returns visit metadata for a single screen, or an empty map when it has
+  /// never been opened before.
   Map<String, dynamic> _getVisitData(String screenId) {
     final history = _getVisitHistory();
     return history[screenId] ?? {};
   }
 
-  // الحصول على الشاشات الأكثر زيارة
+  /// يستخرج الشاشات الأكثر استخدامًا مع دمج بيانات الزيارة والتثبيت حتى تصلح
+  /// كاقتراحات سريعة عندما لا يكتب المستخدم استعلامًا.
+  /// Builds the most-visited screen list, merging visit and pin data so it can
+  /// serve as a default suggestion source when no query is entered.
   List<SearchableScreen> _getMostVisitedScreens() {
     final visitHistory = _getVisitHistory();
     final screens = <SearchableScreen>[];
@@ -666,7 +836,7 @@ class ScreenSearchService {
       // الشاشات المثبتة أولاً
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
-      
+
       // ثم حسب عدد الزيارات
       return b.visitCount.compareTo(a.visitCount);
     });
@@ -674,10 +844,11 @@ class ScreenSearchService {
     return screens.take(8).toList();
   }
 
-  // تثبيت/إلغاء تثبيت شاشة
+  /// يبدل حالة تثبيت الشاشة داخل اختصارات المستخدم السريعة.
+  /// Toggles whether a screen appears in the user's pinned quick-access list.
   Future<void> togglePinScreen(String screenId) async {
     final pinnedScreens = _getPinnedScreens();
-    
+
     if (pinnedScreens.contains(screenId)) {
       pinnedScreens.remove(screenId);
     } else {
@@ -687,27 +858,35 @@ class ScreenSearchService {
     await _prefs.setStringList(_pinnedScreensKey, pinnedScreens);
   }
 
-  // الحصول على الشاشات المثبتة
+  /// يعيد معرّفات الشاشات المثبتة كما حُفظت في التفضيلات المحلية.
+  /// Returns the ids of screens currently pinned in local preferences.
   List<String> _getPinnedScreens() {
     return _prefs.getStringList(_pinnedScreensKey) ?? [];
   }
 
-  // التحقق من تثبيت شاشة
+  /// يتحقق مما إذا كانت شاشة معينة مثبتة ضمن اختصارات المستخدم.
+  /// Checks whether a given screen is currently pinned for quick access.
   bool _isPinned(String screenId) {
     return _getPinnedScreens().contains(screenId);
   }
 
-  // مسح سجل البحث
+  /// يمسح سجل البحث بالكامل عندما يريد المستخدم البدء من ذاكرة نظيفة.
+  /// Clears the entire search history when the user wants a clean slate.
   Future<void> clearSearchHistory() async {
     await _prefs.remove(_searchHistoryKey);
   }
 
-  // مسح سجل الزيارات
+  /// يمسح سجل الزيارات المخزن حتى تعاد توصيات الاستخدام من البداية.
+  /// Clears the stored visit history so usage-based suggestions can restart
+  /// from scratch.
   Future<void> clearVisitHistory() async {
     await _prefs.remove(_visitHistoryKey);
   }
 
-  // الحصول على اقتراحات سريعة
+  /// يبني اقتراحات سريعة من الشاشات المثبتة والأكثر زيارة لإظهارها مباشرة في
+  /// واجهة البحث قبل كتابة أي نص.
+  /// Builds quick suggestions from pinned and most-visited screens so the
+  /// search UI can offer useful shortcuts before any typing starts.
   List<SearchableScreen> getQuickSuggestions() {
     // دمج الشاشات المثبتة والأكثر زيارة
     final pinnedIds = _getPinnedScreens();
@@ -722,8 +901,8 @@ class ScreenSearchService {
       final visitData = _getVisitData(screen.id);
       suggestions.add(screen.copyWith(
         visitCount: visitData['visitCount'] ?? 0,
-        lastVisitedAt: visitData['lastVisitedAt'] != null 
-            ? DateTime.parse(visitData['lastVisitedAt']) 
+        lastVisitedAt: visitData['lastVisitedAt'] != null
+            ? DateTime.parse(visitData['lastVisitedAt'])
             : null,
         isPinned: true,
       ));

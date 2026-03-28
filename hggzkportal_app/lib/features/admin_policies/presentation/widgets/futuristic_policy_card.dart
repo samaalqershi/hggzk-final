@@ -8,10 +8,15 @@ import '../../../admin_properties/domain/entities/policy.dart'
 import '../../domain/entities/policy.dart';
 
 class FuturisticPolicyCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `policy`.
   final Policy policy;
+
   final VoidCallback? onTap;
+
   final VoidCallback? onEdit;
+
   final VoidCallback? onDelete;
+
   final VoidCallback? onLongPress;
 
   const FuturisticPolicyCard({

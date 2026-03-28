@@ -7,11 +7,23 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/unit.dart';
 
+/// Describes the UnitsListWidget widget used in the property feature.
+/// العربية: يمثل العنصر `UnitsListWidget`.
 class UnitsListWidget extends StatefulWidget {
+  /// Keeps the units value available to this object.
+  /// العربية: يخزن القيمة `units`.
   final List<Unit> units;
+
+  /// Processes the Function flow and maps it into the property feature behavior.
+  /// العربية: يعالج `Function`.
   final Function(Unit) onUnitSelect;
+
+  /// Keeps the selectedUnitId value available to this object.
+  /// العربية: يخزن القيمة `selectedUnitId`.
   final String? selectedUnitId;
 
+  /// Constructs the UnitsListWidget value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitsListWidget`.
   const UnitsListWidget({
     super.key,
     required this.units,
@@ -19,24 +31,50 @@ class UnitsListWidget extends StatefulWidget {
     this.selectedUnitId,
   });
 
+  /// Builds the state object for this widget used by this feature.
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<UnitsListWidget> createState() => _UnitsListWidgetState();
 }
 
+/// Describes the state for `UnitsListWidgetState`.
+/// العربية: يمثل الحالة الخاصة بـ `UnitsListWidgetState`.
 class _UnitsListWidgetState extends State<UnitsListWidget>
     with TickerProviderStateMixin {
+  /// Keeps the gridController value available to this object.
+  /// العربية: يخزن القيمة `gridController`.
   late AnimationController _gridController;
+
+  /// Keeps the pulseController value available to this object.
+  /// العربية: يخزن القيمة `pulseController`.
   late AnimationController _pulseController;
+
+  /// Keeps the shimmerController value available to this object.
+  /// العربية: يخزن القيمة `shimmerController`.
   late AnimationController _shimmerController;
 
+  /// Keeps the gridAnimation value available to this object.
+  /// العربية: يخزن القيمة `gridAnimation`.
   late Animation<double> _gridAnimation;
+
+  /// Keeps the pulseAnimation value available to this object.
+  /// العربية: يخزن القيمة `pulseAnimation`.
   late Animation<double> _pulseAnimation;
 
+  /// Keeps the cardControllers value available to this object.
+  /// العربية: يخزن القيمة `cardControllers`.
   final Map<String, AnimationController> _cardControllers = {};
+
+  /// Keeps the orbs value available to this object.
+  /// العربية: يخزن القيمة `orbs`.
   final List<_FloatingOrb> _orbs = [];
 
+  /// Indicates whether `isGridView` is enabled.
+  /// العربية: يحدد ما إذا كانت القيمة `isGridView` مفعلة.
   bool _isGridView = true;
 
+  /// Initializes the state for this widget.
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -45,6 +83,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     _startAnimations();
   }
 
+  /// Initializes the animations.
+  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     _gridController = AnimationController(
       duration: const Duration(milliseconds: 600),
@@ -78,12 +118,16 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     ));
   }
 
+  /// Generates the orbs.
+  /// العربية: ينشئ orbs.
   void _generateOrbs() {
     for (int i = 0; i < 5; i++) {
       _orbs.add(_FloatingOrb());
     }
   }
 
+  /// Starts the animations.
+  /// العربية: يبدأ animations.
   void _startAnimations() {
     Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted) {
@@ -92,6 +136,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     });
   }
 
+  /// Releases the resources used by this instance.
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _gridController.dispose();
@@ -103,6 +149,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     super.dispose();
   }
 
+  /// Builds the widget tree for this component.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     if (widget.units.isEmpty) {
@@ -132,6 +180,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
+  /// Builds the view toggle.
+  /// العربية: يبني view toggle.
   Widget _buildViewToggle() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -178,6 +228,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
+  /// Builds the toggle button.
+  /// العربية: يبني toggle button.
   Widget _buildToggleButton({
     required IconData icon,
     required bool isSelected,
@@ -201,6 +253,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
+  /// Builds the grid view.
+  /// العربية: يبني grid view.
   Widget _buildGridView() {
     return GridView.builder(
       physics: const BouncingScrollPhysics(),
@@ -230,6 +284,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
+  /// Builds the list view.
+  /// العربية: يبني list view.
   Widget _buildListView() {
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
@@ -255,6 +311,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
+  /// Builds the compact unit card.
+  /// العربية: يبني compact unit card.
   Widget _buildCompactUnitCard(Unit unit, bool isSelected, int index) {
     // Debug: unit card build info
     // print('[UnitsListWidget] build card: unit.id=${unit.id}, selectedUnitId=${widget.selectedUnitId}, isSelected=$isSelected');
@@ -326,6 +384,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
+  /// Builds the horizontal unit card.
+  /// العربية: يبني horizontal unit card.
   Widget _buildHorizontalUnitCard(Unit unit, bool isSelected, int index) {
     return GestureDetector(
       onTap: () {
@@ -387,6 +447,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
+  /// Builds the compact image section.
+  /// العربية: يبني compact image section.
   Widget _buildCompactImageSection(Unit unit, bool isSelected) {
     return Stack(
       children: [
@@ -515,6 +577,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
+  /// Builds the horizontal image section.
+  /// العربية: يبني horizontal image section.
   Widget _buildHorizontalImageSection(Unit unit, bool isSelected) {
     return Container(
       width: 120,
@@ -574,6 +638,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
+  /// Builds the compact content.
+  /// العربية: يبني compact content.
   Widget _buildCompactContent(Unit unit, bool isSelected) {
     return Expanded(
       child: Padding(
@@ -625,6 +691,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
+  /// Builds the horizontal content.
+  /// العربية: يبني horizontal content.
   Widget _buildHorizontalContent(Unit unit, bool isSelected) {
     return Padding(
       padding: const EdgeInsets.all(10),
@@ -693,6 +761,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
+  /// Builds the mini features.
+  /// العربية: يبني mini features.
   Widget _buildMiniFeatures(Unit unit) {
     final features = unit.dynamicFields
         .expand((group) => group.fieldValues)
@@ -734,6 +804,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
+  /// Builds the empty state.
+  /// العربية: يبني empty state.
   Widget _buildEmptyState() {
     return Center(
       child: Container(
@@ -785,6 +857,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
+  /// Builds the animated background.
+  /// العربية: يبني animated background.
   Widget _buildAnimatedBackground() {
     return Positioned.fill(
       child: AnimatedBuilder(
@@ -801,6 +875,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
+  /// Exposes the field icon.
+  /// العربية: يعيد field icon.
   IconData _getFieldIcon(String fieldName) {
     final name = fieldName.toLowerCase();
     if (name.contains('bed') || name.contains('سرير')) return Icons.bed;
@@ -811,6 +887,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     return Icons.info_outline;
   }
 
+  /// Exposes the pricing period.
+  /// العربية: يعيد pricing period.
   String _getPricingPeriod(PricingMethod method) {
     switch (method) {
       case PricingMethod.hourly:
@@ -825,18 +903,41 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
   }
 }
 
+/// Describes the FloatingOrb type used in the property feature.
+/// العربية: يمثل `FloatingOrb`.
 class _FloatingOrb {
+  /// Keeps the x value available to this object.
+  /// العربية: يخزن القيمة `x`.
   late double x;
+
+  /// Keeps the y value available to this object.
+  /// العربية: يخزن القيمة `y`.
   late double y;
+
+  /// Keeps the size value available to this object.
+  /// العربية: يخزن القيمة `size`.
   late double size;
+
+  /// Keeps the speed value available to this object.
+  /// العربية: يخزن القيمة `speed`.
   late double speed;
+
+  /// Keeps the color value available to this object.
+  /// العربية: يخزن القيمة `color`.
   late Color color;
+
+  /// Keeps the opacity value available to this object.
+  /// العربية: يخزن القيمة `opacity`.
   late double opacity;
 
+  /// Constructs the FloatingOrb value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `FloatingOrb`.
   _FloatingOrb() {
     reset();
   }
 
+  /// Processes the reset flow and maps it into the property feature behavior.
+  /// العربية: يعالج `reset`.
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -852,6 +953,8 @@ class _FloatingOrb {
     color = colors[math.Random().nextInt(colors.length)];
   }
 
+  /// Updates the required operation for `update`.
+  /// العربية: يحدّث العملية المطلوبة لـ `update`.
   void update() {
     y -= speed;
     if (y < -0.1) {
@@ -861,15 +964,26 @@ class _FloatingOrb {
   }
 }
 
+/// Describes the OrbsPainter type used in the property feature.
+/// العربية: يمثل `OrbsPainter`.
 class _OrbsPainter extends CustomPainter {
+  /// Keeps the orbs value available to this object.
+  /// العربية: يخزن القيمة `orbs`.
   final List<_FloatingOrb> orbs;
+
+  /// Keeps the animationValue value available to this object.
+  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
 
+  /// Constructs the OrbsPainter value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `OrbsPainter`.
   _OrbsPainter({
     required this.orbs,
     required this.animationValue,
   });
 
+  /// Processes the paint flow and maps it into the property feature behavior.
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     for (var orb in orbs) {
@@ -895,6 +1009,8 @@ class _OrbsPainter extends CustomPainter {
     }
   }
 
+  /// Processes the shouldRepaint flow and maps it into the property feature behavior.
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

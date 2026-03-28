@@ -12,12 +12,27 @@ import '../widgets/search_header.dart';
 import '../widgets/search_item_card.dart';
 import '../widgets/simple_filter_bar.dart';
 
+/// يعرّف الكلاس `PropertySearchPage`.
+/// Describes the `PropertySearchPage` class.
 class PropertySearchPage extends StatefulWidget {
+  /// Holds the `initialSearchTerm` value.
+  /// العربية: يخزن القيمة `initialSearchTerm`.
   final String? initialSearchTerm;
+
+  /// يخزن العضو `allowMultiSelect`.
+  /// Holds the `allowMultiSelect` member.
   final bool allowMultiSelect;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(List<Property>)? onPropertiesSelected;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(Property)? onPropertySelected;
 
+  /// ينشئ مثيلاً من `PropertySearchPage`.
+  /// Builds an instance of `PropertySearchPage`.
   const PropertySearchPage({
     super.key,
     this.initialSearchTerm,
@@ -26,10 +41,14 @@ class PropertySearchPage extends StatefulWidget {
     this.onPropertySelected,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<PropertySearchPage> createState() => _PropertySearchPageState();
 }
 
+/// يعرّف الكلاس `_PropertySearchPageState`.
+/// Describes the `_PropertySearchPageState` class.
 class _PropertySearchPageState extends State<PropertySearchPage> {
   final SearchPropertiesUseCase _searchPropertiesUseCase =
       di.sl<SearchPropertiesUseCase>();
@@ -37,20 +56,52 @@ class _PropertySearchPageState extends State<PropertySearchPage> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
+  /// يخزن العضو `_properties`.
+  /// Holds the `_properties` member.
   List<SearchResult> _properties = [];
+
+  /// يخزن العضو `_selectedIds`.
+  /// Holds the `_selectedIds` member.
   List<String> _selectedIds = [];
+
+  /// يخزن العضو `_isLoading`.
+  /// Holds the `_isLoading` member.
   bool _isLoading = false;
+
+  /// يخزن العضو `_hasError`.
+  /// Holds the `_hasError` member.
   bool _hasError = false;
+
+  /// يخزن العضو `_errorMessage`.
+  /// Holds the `_errorMessage` member.
   String? _errorMessage;
 
+  /// يخزن العضو `_selectedCity`.
+  /// Holds the `_selectedCity` member.
   String? _selectedCity;
+
+  /// يخزن العضو `_isApprovedFilter`.
+  /// Holds the `_isApprovedFilter` member.
   bool? _isApprovedFilter;
 
+  /// يخزن العضو `_currentPage`.
+  /// Holds the `_currentPage` member.
   int _currentPage = 1;
+
+  /// يخزن العضو `_pageSize`.
+  /// Holds the `_pageSize` member.
   int _pageSize = 20;
+
+  /// يخزن العضو `_hasMore`.
+  /// Holds the `_hasMore` member.
   bool _hasMore = false;
+
+  /// يخزن العضو `_isLoadingMore`.
+  /// Holds the `_isLoadingMore` member.
   bool _isLoadingMore = false;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -67,6 +118,8 @@ class _PropertySearchPageState extends State<PropertySearchPage> {
     });
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _searchController.dispose();
@@ -74,6 +127,8 @@ class _PropertySearchPageState extends State<PropertySearchPage> {
     super.dispose();
   }
 
+  /// ينفذ العملية `_onScroll`.
+  /// Runs the `_onScroll` operation.
   void _onScroll() {
     if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
@@ -87,6 +142,8 @@ class _PropertySearchPageState extends State<PropertySearchPage> {
   }
 
   // Check if we need to load more to fill the screen
+  /// ينفذ العملية `_checkIfShouldLoadMore`.
+  /// Runs the `_checkIfShouldLoadMore` operation.
   void _checkIfShouldLoadMore() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_scrollController.hasClients) return;
@@ -104,6 +161,8 @@ class _PropertySearchPageState extends State<PropertySearchPage> {
     });
   }
 
+  /// ينفذ العملية `_loadProperties`.
+  /// Runs the `_loadProperties` operation.
   Future<void> _loadProperties({bool isRefresh = false}) async {
     if (isRefresh) {
       _currentPage = 1;
@@ -151,6 +210,8 @@ class _PropertySearchPageState extends State<PropertySearchPage> {
     );
   }
 
+  /// ينفذ العملية `_loadMoreProperties`.
+  /// Runs the `_loadMoreProperties` operation.
   Future<void> _loadMoreProperties() async {
     if (_isLoadingMore || !_hasMore || !mounted) return;
 
@@ -198,6 +259,8 @@ class _PropertySearchPageState extends State<PropertySearchPage> {
     );
   }
 
+  /// ينفذ العملية `_toggleSelection`.
+  /// Runs the `_toggleSelection` operation.
   void _toggleSelection(String id) {
     setState(() {
       if (widget.allowMultiSelect) {
@@ -212,6 +275,8 @@ class _PropertySearchPageState extends State<PropertySearchPage> {
     });
   }
 
+  /// ينفذ العملية `_confirmSelection`.
+  /// Runs the `_confirmSelection` operation.
   void _confirmSelection() {
     final selectedProperties = _properties
         .where((result) => _selectedIds.contains(result.id))
@@ -229,6 +294,8 @@ class _PropertySearchPageState extends State<PropertySearchPage> {
     Navigator.of(context).pop();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -342,6 +409,8 @@ class _PropertySearchPageState extends State<PropertySearchPage> {
     );
   }
 
+  /// ينفذ العملية `_buildContent`.
+  /// Runs the `_buildContent` operation.
   Widget _buildContent() {
     if (_isLoading && _properties.isEmpty) {
       return const LoadingWidget(
@@ -385,6 +454,8 @@ class _PropertySearchPageState extends State<PropertySearchPage> {
     );
   }
 
+  /// ينفذ العملية `_shouldLoadMore`.
+  /// Runs the `_shouldLoadMore` operation.
   bool _shouldLoadMore(PaginatedResult<SearchResult> result) {
     if (result.hasNextPage) {
       return true;
@@ -394,6 +465,8 @@ class _PropertySearchPageState extends State<PropertySearchPage> {
     return result.items.length >= effectivePageSize;
   }
 
+  /// ينفذ العملية `_buildLoadMoreIndicator`.
+  /// Runs the `_buildLoadMoreIndicator` operation.
   Widget _buildLoadMoreIndicator() {
     return const Padding(
       padding: EdgeInsets.symmetric(vertical: 24),

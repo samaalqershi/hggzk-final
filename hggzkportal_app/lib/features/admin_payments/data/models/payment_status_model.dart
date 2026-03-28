@@ -2,12 +2,12 @@ import '../../../../../core/enums/payment_method_enum.dart';
 
 /// Model لحالة الدفع مع الإحصائيات
 class PaymentStatusModel {
+  /// العربية: يخزن القيمة `status`.
   final PaymentStatus status;
   final int count;
   final double percentage;
   final double totalAmount;
   final String color;
-
   PaymentStatusModel({
     required this.status,
     required this.count,
@@ -15,7 +15,6 @@ class PaymentStatusModel {
     required this.totalAmount,
     required this.color,
   });
-
   factory PaymentStatusModel.fromJson(Map<String, dynamic> json) {
     return PaymentStatusModel(
       status: _parseStatus(json['status']),
@@ -25,7 +24,6 @@ class PaymentStatusModel {
       color: json['color'] ?? '#000000',
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'status': status.backendKey,

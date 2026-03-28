@@ -5,19 +5,17 @@ import '../../domain/entities/payment.dart';
 import '../../domain/entities/refund.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../../../../core/theme/app_text_styles.dart';
-import '../../../../../../core/theme/app_dimensions.dart';
 import '../../../../../../core/widgets/price_widget.dart';
 
 class RefundDialog extends StatefulWidget {
+  /// العربية: يخزن القيمة `payment`.
   final Payment payment;
   final Function(Money amount, String reason) onRefund;
-
   const RefundDialog({
     super.key,
     required this.payment,
     required this.onRefund,
   });
-
   @override
   State<RefundDialog> createState() => _RefundDialogState();
 }
@@ -29,12 +27,10 @@ class _RefundDialogState extends State<RefundDialog>
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
   RefundType _refundType = RefundType.full;
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _reasonController = TextEditingController();
   String? _selectedReason;
-
   final List<String> _commonReasons = [
     'طلب العميل',
     'خطأ في الدفع',
@@ -43,7 +39,6 @@ class _RefundDialogState extends State<RefundDialog>
     'خطأ فني',
     'أخرى',
   ];
-
   @override
   void initState() {
     super.initState();
@@ -95,8 +90,6 @@ class _RefundDialogState extends State<RefundDialog>
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    
     return FadeTransition(
       opacity: _fadeAnimation,
       child: ScaleTransition(
@@ -119,7 +112,7 @@ class _RefundDialogState extends State<RefundDialog>
                       colors: [
                         AppTheme.darkBackground,
                         AppTheme.darkBackground2,
-                        AppTheme.darkBackground3.withOpacity(0.5),
+                        AppTheme.darkBackground3.withValues(alpha: 0.5),
                       ],
                     ),
                   ),
@@ -142,9 +135,11 @@ class _RefundDialogState extends State<RefundDialog>
                                     shape: BoxShape.circle,
                                     gradient: RadialGradient(
                                       colors: [
-                                        AppTheme.warning.withOpacity(0.2),
-                                        AppTheme.warning.withOpacity(0.05),
-                                        AppTheme.warning.withOpacity(0.01),
+                                        AppTheme.warning.withValues(alpha: 0.2),
+                                        AppTheme.warning
+                                            .withValues(alpha: 0.05),
+                                        AppTheme.warning
+                                            .withValues(alpha: 0.01),
                                       ],
                                     ),
                                   ),
@@ -161,9 +156,9 @@ class _RefundDialogState extends State<RefundDialog>
                                     shape: BoxShape.circle,
                                     gradient: RadialGradient(
                                       colors: [
-                                        AppTheme.error.withOpacity(0.15),
-                                        AppTheme.error.withOpacity(0.04),
-                                        AppTheme.error.withOpacity(0.01),
+                                        AppTheme.error.withValues(alpha: 0.15),
+                                        AppTheme.error.withValues(alpha: 0.04),
+                                        AppTheme.error.withValues(alpha: 0.01),
                                       ],
                                     ),
                                   ),
@@ -186,22 +181,22 @@ class _RefundDialogState extends State<RefundDialog>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppTheme.darkCard.withOpacity(0.7),
-                        AppTheme.darkCard.withOpacity(0.5),
+                        AppTheme.darkCard.withValues(alpha: 0.7),
+                        AppTheme.darkCard.withValues(alpha: 0.5),
                       ],
                     ),
                     border: Border.all(
-                      color: AppTheme.glowBlue.withOpacity(0.1),
+                      color: AppTheme.glowBlue.withValues(alpha: 0.1),
                       width: 0.5,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.warning.withOpacity(0.1),
+                        color: AppTheme.warning.withValues(alpha: 0.1),
                         blurRadius: 30,
                         spreadRadius: 5,
                       ),
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -252,13 +247,13 @@ class _RefundDialogState extends State<RefundDialog>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.warning.withOpacity(0.1),
-            AppTheme.error.withOpacity(0.05),
+            AppTheme.warning.withValues(alpha: 0.1),
+            AppTheme.error.withValues(alpha: 0.05),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
             width: 0.5,
           ),
         ),
@@ -282,8 +277,8 @@ class _RefundDialogState extends State<RefundDialog>
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.warning.withOpacity(
-                        0.3 + (0.2 * _pulseController.value),
+                      color: AppTheme.warning.withValues(
+                        alpha: 0.3 + (0.2 * _pulseController.value),
                       ),
                       blurRadius: 20,
                       spreadRadius: 2,
@@ -589,13 +584,13 @@ class _RefundDialogState extends State<RefundDialog>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkBackground.withOpacity(0.3),
-            AppTheme.darkCard.withOpacity(0.2),
+            AppTheme.darkBackground.withValues(alpha: 0.3),
+            AppTheme.darkCard.withValues(alpha: 0.2),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
             width: 0.5,
           ),
         ),
@@ -611,10 +606,10 @@ class _RefundDialogState extends State<RefundDialog>
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   decoration: BoxDecoration(
-                    color: AppTheme.darkCard.withOpacity(0.5),
+                    color: AppTheme.darkCard.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.2),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.2),
                       width: 0.5,
                     ),
                   ),
@@ -650,7 +645,7 @@ class _RefundDialogState extends State<RefundDialog>
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.warning.withOpacity(0.3),
+                        color: AppTheme.warning.withValues(alpha: 0.3),
                         blurRadius: 12,
                         spreadRadius: 2,
                       ),

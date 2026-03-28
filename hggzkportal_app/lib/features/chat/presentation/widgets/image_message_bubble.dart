@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,14 +14,35 @@ import 'expandable_image_viewer.dart';
 import '../bloc/chat_bloc.dart';
 import 'reaction_picker_widget.dart';
 
+/// يعرّف الكلاس `ImageMessageBubble`.
+/// Describes the `ImageMessageBubble` class.
 class ImageMessageBubble extends StatefulWidget {
+  /// Holds the `message` value.
+  /// العربية: يخزن القيمة `message`.
   final Message message;
+
+  /// يخزن العضو `isMe`.
+  /// Holds the `isMe` member.
   final bool isMe;
+
+  /// يخزن العضو `uploadingImages`.
+  /// Holds the `uploadingImages` member.
   final List<ImageUploadInfo>? uploadingImages;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final void Function(Attachment)? onReply;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(String)? onReaction;
+
+  /// يخزن العضو `onReplyTap`.
+  /// Holds the `onReplyTap` member.
   final VoidCallback? onReplyTap; // FIX: إضافة دعم النقر على الرد
 
+  /// ينشئ مثيلاً من `ImageMessageBubble`.
+  /// Builds an instance of `ImageMessageBubble`.
   const ImageMessageBubble({
     super.key,
     required this.message,
@@ -33,18 +53,38 @@ class ImageMessageBubble extends StatefulWidget {
     this.onReplyTap, // FIX: إضافة parameter
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<ImageMessageBubble> createState() => _ImageMessageBubbleState();
 }
 
+/// يعرّف الكلاس `_ImageMessageBubbleState`.
+/// Describes the `_ImageMessageBubbleState` class.
 class _ImageMessageBubbleState extends State<ImageMessageBubble>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
+
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
+
+  /// يخزن العضو `_showReactions`.
+  /// Holds the `_showReactions` member.
   bool _showReactions = false;
+
+  /// يخزن العضو `_attachmentReactions`.
+  /// Holds the `_attachmentReactions` member.
   final Map<String, String> _attachmentReactions = {};
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -73,6 +113,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     _loadExistingReactions();
   }
 
+  /// ينفذ العملية `_loadExistingReactions`.
+  /// Runs the `_loadExistingReactions` operation.
   void _loadExistingReactions() {
     if (widget.message.reactions.isNotEmpty &&
         widget.message.attachments.isNotEmpty) {
@@ -86,6 +128,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     }
   }
 
+  /// ينفذ العملية `didUpdateWidget`.
+  /// Runs the `didUpdateWidget` operation.
   @override
   void didUpdateWidget(covariant ImageMessageBubble oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -95,12 +139,16 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     }
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -127,6 +175,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_buildBubbleContent`.
+  /// Runs the `_buildBubbleContent` operation.
   Widget _buildBubbleContent() {
     if (widget.uploadingImages != null && widget.uploadingImages!.isNotEmpty) {
       final allCompleted =
@@ -150,6 +200,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     return const SizedBox.shrink();
   }
 
+  /// ينفذ العملية `_buildUploadingBubble`.
+  /// Runs the `_buildUploadingBubble` operation.
   Widget _buildUploadingBubble() {
     final images = widget.uploadingImages!;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -179,6 +231,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_buildCompletedBubble`.
+  /// Runs the `_buildCompletedBubble` operation.
   Widget _buildCompletedBubble() {
     final screenWidth = MediaQuery.of(context).size.width;
     final maxWidth = screenWidth * 0.65;
@@ -306,6 +360,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_findReplyMessage`.
+  /// Runs the `_findReplyMessage` operation.
   Message? _findReplyMessage() {
     final replyId = widget.message.replyToMessageId;
     if (replyId == null) return null;
@@ -324,6 +380,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     return null;
   }
 
+  /// ينفذ العملية `_buildReplyPreviewForImage`.
+  /// Runs the `_buildReplyPreviewForImage` operation.
   Widget _buildReplyPreviewForImage() {
     final replyMessage = _findReplyMessage();
 
@@ -405,6 +463,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_buildSingleContentImage`.
+  /// Runs the `_buildSingleContentImage` operation.
   Widget _buildSingleContentImage(String url) {
     final screenWidth = MediaQuery.of(context).size.width;
     final maxWidth = screenWidth * 0.65;
@@ -448,6 +508,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_openViewerForSingleContentImage`.
+  /// Runs the `_openViewerForSingleContentImage` operation.
   void _openViewerForSingleContentImage(String url) {
     final attachment = Attachment(
       id: 'inline_${widget.message.id}',
@@ -496,6 +558,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     });
   }
 
+  /// ينفذ العملية `_buildImageGrid`.
+  /// Runs the `_buildImageGrid` operation.
   Widget _buildImageGrid(List<ImageUploadInfo> images) {
     final count = images.length;
 
@@ -512,6 +576,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     }
   }
 
+  /// ينفذ العملية `_buildSingleImageUploading`.
+  /// Runs the `_buildSingleImageUploading` operation.
   Widget _buildSingleImageUploading(ImageUploadInfo image) {
     return AspectRatio(
       aspectRatio: 4 / 3,
@@ -534,6 +600,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_buildTwoImagesUploading`.
+  /// Runs the `_buildTwoImagesUploading` operation.
   Widget _buildTwoImagesUploading(List<ImageUploadInfo> images) {
     return AspectRatio(
       aspectRatio: 4 / 3,
@@ -547,6 +615,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_buildThreeImagesUploading`.
+  /// Runs the `_buildThreeImagesUploading` operation.
   Widget _buildThreeImagesUploading(List<ImageUploadInfo> images) {
     return AspectRatio(
       aspectRatio: 4 / 3,
@@ -571,6 +641,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_buildFourImagesUploading`.
+  /// Runs the `_buildFourImagesUploading` operation.
   Widget _buildFourImagesUploading(List<ImageUploadInfo> images) {
     return AspectRatio(
       aspectRatio: 4 / 3,
@@ -600,6 +672,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_buildMoreImagesUploading`.
+  /// Runs the `_buildMoreImagesUploading` operation.
   Widget _buildMoreImagesUploading(List<ImageUploadInfo> images) {
     final displayImages = images.take(4).toList();
     final remainingCount = images.length - 4;
@@ -653,6 +727,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_buildImageUploadTile`.
+  /// Runs the `_buildImageUploadTile` operation.
   Widget _buildImageUploadTile(ImageUploadInfo image) {
     return Stack(
       fit: StackFit.expand,
@@ -719,6 +795,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_buildCircularProgress`.
+  /// Runs the `_buildCircularProgress` operation.
   Widget _buildCircularProgress(double progress) {
     return Container(
       width: 48,
@@ -739,6 +817,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_buildProgressOverlay`.
+  /// Runs the `_buildProgressOverlay` operation.
   Widget _buildProgressOverlay(List<ImageUploadInfo> images) {
     final totalProgress = images.isEmpty
         ? 0.0
@@ -841,6 +921,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_buildMessageFooter`.
+  /// Runs the `_buildMessageFooter` operation.
   Widget _buildMessageFooter() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
@@ -871,6 +953,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_showOptions`.
+  /// Runs the `_showOptions` operation.
   void _showOptions() {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
@@ -887,6 +971,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_handleDoubleTap`.
+  /// Runs the `_handleDoubleTap` operation.
   void _handleDoubleTap() {
     HapticFeedback.lightImpact();
     setState(() {
@@ -894,6 +980,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     });
   }
 
+  /// ينفذ العملية `_retryFailedUploads`.
+  /// Runs the `_retryFailedUploads` operation.
   void _retryFailedUploads() {
     HapticFeedback.mediumImpact();
     final uploads = widget.uploadingImages ?? const <ImageUploadInfo>[];
@@ -942,10 +1030,14 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     }
   }
 
+  /// ينفذ العملية `_formatTime`.
+  /// Runs the `_formatTime` operation.
   String _formatTime(DateTime dateTime) {
     return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
+  /// ينفذ العملية `_buildMinimalReactions`.
+  /// Runs the `_buildMinimalReactions` operation.
   Widget _buildMinimalReactions() {
     final groupedReactions = <String, int>{};
     for (final reaction in widget.message.reactions) {
@@ -995,6 +1087,8 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     );
   }
 
+  /// ينفذ العملية `_getEmojiForReaction`.
+  /// Runs the `_getEmojiForReaction` operation.
   String _getEmojiForReaction(String reactionType) {
     switch (reactionType) {
       case 'like':
@@ -1015,12 +1109,23 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
   }
 }
 
+/// يعرّف الكلاس `_ImageMessageOptionsSheet`.
+/// Describes the `_ImageMessageOptionsSheet` class.
 class _ImageMessageOptionsSheet extends StatelessWidget {
+  /// Indicates whether `isMe` is enabled.
+  /// العربية: يحدد ما إذا كانت القيمة `isMe` مفعلة.
   final bool isMe;
+
+  /// يخزن العضو `onReply`.
+  /// Holds the `onReply` member.
   final VoidCallback? onReply;
 
+  /// ينشئ مثيلاً من `_ImageMessageOptionsSheet`.
+  /// Builds an instance of `_ImageMessageOptionsSheet`.
   const _ImageMessageOptionsSheet({required this.isMe, this.onReply});
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -1098,6 +1203,8 @@ class _ImageMessageOptionsSheet extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildOption`.
+  /// Runs the `_buildOption` operation.
   Widget _buildOption(
     BuildContext context, {
     required IconData icon,

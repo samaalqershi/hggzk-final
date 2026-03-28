@@ -1,12 +1,15 @@
 import 'package:hggzk/features/chat/domain/entities/message.dart';
 
+/// العربية: يمثل نموذج البيانات `DeliveryReceiptModel`.
 class DeliveryReceiptModel extends DeliveryReceipt {
+  /// العربية: ينشئ مثيلًا جديدًا من `DeliveryReceiptModel`.
   const DeliveryReceiptModel({
     super.deliveredAt,
     super.readAt,
     super.readBy,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `DeliveryReceiptModel.fromJson`.
   factory DeliveryReceiptModel.fromJson(Map<String, dynamic> json) {
     return DeliveryReceiptModel(
       deliveredAt: json['deliveredAt'] != null || json['delivered_at'] != null
@@ -23,6 +26,7 @@ class DeliveryReceiptModel extends DeliveryReceipt {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       if (deliveredAt != null) 'delivered_at': deliveredAt!.toIso8601String(),

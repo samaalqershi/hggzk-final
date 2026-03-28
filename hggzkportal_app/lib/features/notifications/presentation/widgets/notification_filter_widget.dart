@@ -8,7 +8,9 @@ import '../../../../core/theme/app_text_styles.dart';
 
 class NotificationFilterWidget extends StatefulWidget {
   final String? selectedType;
+
   final bool? showUnreadOnly;
+
   final Function(String?, bool?) onFilterChanged;
 
   const NotificationFilterWidget({
@@ -25,14 +27,20 @@ class NotificationFilterWidget extends StatefulWidget {
 
 class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
   late String? _selectedType;
+
   late bool _showUnreadOnly;
+
   bool _isExpanded = false;
 
   final List<FilterOption> _filterOptions = [
     FilterOption('all', 'الكل', CupertinoIcons.square_grid_2x2),
+
     FilterOption('booking', 'الحجوزات', CupertinoIcons.calendar),
+
     FilterOption('payment', 'المدفوعات', CupertinoIcons.creditcard_fill),
+
     FilterOption('promotion', 'العروض', CupertinoIcons.gift_fill),
+
     FilterOption('system', 'النظام', CupertinoIcons.gear_solid),
   ];
 
@@ -310,7 +318,9 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
 
 class FilterOption {
   final String value;
+
   final String label;
+
   final IconData icon;
 
   FilterOption(this.value, this.label, this.icon);

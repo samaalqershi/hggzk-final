@@ -1,6 +1,12 @@
 import '../../domain/entities/booking_trends.dart';
 
+/// يجمع بيانات اتجاهات الحجوزات والإيرادات والإشغال في شكل قابل للعرض
+/// والتحليل داخل لوحة الإدارة.
+/// Collects booking, revenue, and occupancy trends in a form suitable for
+/// display and analysis inside the admin dashboard.
 class BookingTrendsModel extends BookingTrends {
+  /// ينشئ حزمة الاتجاهات الكاملة بما فيها السلاسل الزمنية والتحليل.
+  /// Creates the full trends bundle including time series and analysis.
   const BookingTrendsModel({
     required super.bookingTrends,
     required super.revenueTrends,
@@ -8,6 +14,8 @@ class BookingTrendsModel extends BookingTrends {
     required super.analysis,
   });
 
+  /// يبني اتجاهات الحجز من JSON القادم من نقطة التقارير.
+  /// Builds booking trends from the JSON returned by the reports endpoint.
   factory BookingTrendsModel.fromJson(Map<String, dynamic> json) {
     return BookingTrendsModel(
       bookingTrends: (json['bookingTrends'] as List? ?? [])
@@ -23,6 +31,9 @@ class BookingTrendsModel extends BookingTrends {
     );
   }
 
+  /// يعيد الاتجاهات إلى JSON بنفس البنية التي يتوقعها الخادم.
+  /// Serializes the trends back into the JSON structure expected by the
+  /// backend.
   Map<String, dynamic> toJson() {
     return {
       'bookingTrends': bookingTrends
@@ -39,8 +50,13 @@ class BookingTrendsModel extends BookingTrends {
   }
 }
 
-/// 📊 Model لبيانات السلسلة الزمنية
+/// يمثل نقطة زمنية واحدة ضمن سلسلة الاتجاهات مع قيمة اختيارية ووصف
+/// مساعد.
+/// Represents a single point in a trend series with an optional label and
+/// metadata.
 class TimeSeriesDataModel extends TimeSeriesData {
+  /// ينشئ نقطة السلسلة الزمنية مع تاريخها وقيمتها والبيانات المساعدة.
+  /// Creates the time-series point with its date, value, and helper data.
   const TimeSeriesDataModel({
     required super.date,
     required super.value,
@@ -48,6 +64,8 @@ class TimeSeriesDataModel extends TimeSeriesData {
     super.metadata,
   });
 
+  /// يبني نقطة السلسلة الزمنية من JSON كما ترد من الخادم.
+  /// Builds the time-series point from JSON as returned by the backend.
   factory TimeSeriesDataModel.fromJson(Map<String, dynamic> json) {
     return TimeSeriesDataModel(
       date: DateTime.parse(json['date']),
@@ -57,6 +75,8 @@ class TimeSeriesDataModel extends TimeSeriesData {
     );
   }
 
+  /// يحول نقطة السلسلة الزمنية إلى JSON جاهز للحفظ أو النقل.
+  /// Converts the time-series point to JSON ready for storage or transport.
   Map<String, dynamic> toJson() {
     return {
       'date': date.toIso8601String(),
@@ -67,8 +87,13 @@ class TimeSeriesDataModel extends TimeSeriesData {
   }
 }
 
-/// 📈 Model لتحليل الاتجاهات
+/// يمثل التحليل النصي والإحصائي للاتجاهات بعد تجميع السلاسل الزمنية.
+/// Represents the textual and statistical analysis of trends after the time
+/// series are aggregated.
 class TrendAnalysisModel extends TrendAnalysis {
+  /// ينشئ كائن تحليل الاتجاهات مع النمو ومؤشره والتوقعات والملحوظات.
+  /// Creates the trend-analysis object with growth, trend, forecast, and
+  /// insights.
   const TrendAnalysisModel({
     required super.growthRate,
     required super.trend,
@@ -77,6 +102,8 @@ class TrendAnalysisModel extends TrendAnalysis {
     required super.insights,
   });
 
+  /// يبني التحليل من JSON القادم من خدمة التقارير.
+  /// Builds the analysis from JSON returned by the reporting service.
   factory TrendAnalysisModel.fromJson(Map<String, dynamic> json) {
     return TrendAnalysisModel(
       growthRate: (json['growthRate'] ?? 0).toDouble(),
@@ -87,6 +114,8 @@ class TrendAnalysisModel extends TrendAnalysis {
     );
   }
 
+  /// يحول التحليل إلى JSON متوافق مع نفس بنية التقرير.
+  /// Serializes the analysis into JSON that matches the same report schema.
   Map<String, dynamic> toJson() {
     return {
       'growthRate': growthRate,

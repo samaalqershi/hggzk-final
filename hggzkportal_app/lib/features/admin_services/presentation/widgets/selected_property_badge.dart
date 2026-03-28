@@ -1,26 +1,24 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-
 class SelectedPropertyBadge extends StatelessWidget {
+  /// العربية: يخزن القيمة `propertyName`.
   final String propertyName;
   final VoidCallback onClear;
-
   const SelectedPropertyBadge({
     super.key,
     required this.propertyName,
     required this.onClear,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.25),
+        color: AppTheme.darkSurface.withValues(alpha: 0.25),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -52,7 +50,7 @@ class SelectedPropertyBadge extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppTheme.darkSurface.withOpacity(0.2),
+                color: AppTheme.darkSurface.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -67,4 +65,3 @@ class SelectedPropertyBadge extends StatelessWidget {
     );
   }
 }
-

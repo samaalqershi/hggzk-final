@@ -20,6 +20,7 @@ class AssignRoleUseCase implements UseCase<bool, AssignRoleParams> {
 
 class AssignRoleParams extends Equatable {
   final String userId;
+
   final String roleId;
 
   const AssignRoleParams({

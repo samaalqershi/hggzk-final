@@ -9,12 +9,11 @@ import 'payment_refund_event.dart';
 import 'payment_refund_state.dart';
 
 class PaymentRefundBloc extends Bloc<PaymentRefundEvent, PaymentRefundState> {
+  /// العربية: يخزن القيمة `refundPaymentUseCase`.
   final RefundPaymentUseCase refundPaymentUseCase;
   final GetPaymentByIdUseCase getPaymentByIdUseCase;
   final PaymentsRepository repository;
-
   Payment? _currentPayment;
-
   PaymentRefundBloc({
     required this.refundPaymentUseCase,
     required this.getPaymentByIdUseCase,
@@ -30,7 +29,6 @@ class PaymentRefundBloc extends Bloc<PaymentRefundEvent, PaymentRefundState> {
     on<CancelRefundEvent>(_onCancelRefund);
     on<RetryRefundEvent>(_onRetryRefund);
   }
-
   Future<void> _onInitializeRefund(
     InitializeRefundEvent event,
     Emitter<PaymentRefundState> emit,

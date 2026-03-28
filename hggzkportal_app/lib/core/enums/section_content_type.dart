@@ -1,7 +1,7 @@
 // lib/core/enums/section_content_type.dart
 
-/// ContentType aligned with backend YemenBooking.Core.Enums.ContentType
-/// Values: Properties, Units, Mixed, None
+/// يحدد نوع المحتوى الذي يمكن أن يحتويه القسم: عقارات أو وحدات أو مزيج.
+/// Defines which content a section can hold: properties, units, mixed, or none.
 enum SectionContentType {
   properties,
   units,
@@ -9,7 +9,11 @@ enum SectionContentType {
   none,
 }
 
+/// يترجم القيمة المحلية إلى رمز الخادم ويعيد تفسير النص الوارد منه.
+/// Translates the local enum to backend tokens and parses server responses back.
 extension SectionContentTypeApi on SectionContentType {
+  /// يعيد الاسم النصي المرسل إلى الخادم.
+  /// Returns the backend token for the current content type.
   String get apiValue {
     switch (this) {
       case SectionContentType.properties:
@@ -23,6 +27,8 @@ extension SectionContentTypeApi on SectionContentType {
     }
   }
 
+  /// يحاول تحويل النص الوارد من الخادم إلى النوع المحلي المناسب.
+  /// Attempts to parse a backend string into the matching local enum value.
   static SectionContentType? tryParse(String? value) {
     if (value == null) return null;
     final v = value.trim();

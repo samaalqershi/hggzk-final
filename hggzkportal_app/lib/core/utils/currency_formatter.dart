@@ -1,8 +1,7 @@
-// lib/core/utils/currency_formatter.dart
-
 import 'package:intl/intl.dart';
 
-/// 💰 أداة تنسيق العملة
+/// أداة تنسيق مبنية على `intl` لعرض المبالغ بالطريقة المناسبة للواجهة العربية.
+/// `intl`-based formatter for displaying money amounts in the portal's Arabic-first UI.
 class CurrencyFormatter {
   static final _formatter = NumberFormat.currency(
     symbol: '',
@@ -16,7 +15,8 @@ class CurrencyFormatter {
     locale: 'ar_SA',
   );
 
-  /// Format currency with full decimals
+  /// ينسّق المبلغ كاملًا مع الخانات العشرية القياسية للعرض المالي.
+  /// Formats the amount with standard decimal places for financial display.
   static String format(double amount, {String? currency}) {
     final formatted = _formatter.format(amount);
     if (currency != null && currency.isNotEmpty) {
@@ -25,7 +25,8 @@ class CurrencyFormatter {
     return '${formatted} ريال';
   }
 
-  /// Format currency in compact form (e.g., 1.5M, 2.3K)
+  /// ينسّق المبلغ بصيغة مختصرة عندما تكون المساحة محدودة.
+  /// Formats the amount in a compact form when screen space is limited.
   static String formatCompact(double amount, {String? currency}) {
     final formatted = _compactFormatter.format(amount);
     if (currency != null && currency.isNotEmpty) {
@@ -34,8 +35,10 @@ class CurrencyFormatter {
     return '${formatted} ريال';
   }
 
-  /// Format with custom decimal places
-  static String formatWithDecimals(double amount, int decimals, {String? currency}) {
+  /// ينسّق المبلغ بعدد خانات عشرية يحدده المستدعي.
+  /// Formats the amount using a caller-defined number of decimal places.
+  static String formatWithDecimals(double amount, int decimals,
+      {String? currency}) {
     final formatter = NumberFormat.currency(
       symbol: '',
       decimalDigits: decimals,
@@ -48,12 +51,14 @@ class CurrencyFormatter {
     return '${formatted} ريال';
   }
 
-  /// Format percentage
+  /// ينسّق النسبة المئوية بصيغة ثابتة ومختصرة.
+  /// Formats a percentage in a consistent compact form.
   static String formatPercentage(double percentage) {
     return '${percentage.toStringAsFixed(1)}%';
   }
 
-  /// Parse string to double
+  /// يحوّل النص إلى رقم مع تجاهل رموز العملة والمسافات.
+  /// Parses a string into a double while ignoring currency symbols and spaces.
   static double? parseAmount(String value) {
     try {
       // Remove currency symbols and spaces

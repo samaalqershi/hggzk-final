@@ -6,9 +6,9 @@ import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../../repositories/properties_repository.dart';
 
 class OwnerUpdatePropertyParams {
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
   final Map<String, dynamic> data;
-
   OwnerUpdatePropertyParams({
     required this.propertyId,
     required this.data,
@@ -18,9 +18,7 @@ class OwnerUpdatePropertyParams {
 class OwnerUpdatePropertyUseCase
     implements UseCase<bool, OwnerUpdatePropertyParams> {
   final PropertiesRepository repository;
-
   OwnerUpdatePropertyUseCase(this.repository);
-
   @override
   Future<Either<Failure, bool>> call(OwnerUpdatePropertyParams params) async {
     return await repository.updatePropertyAsOwner(

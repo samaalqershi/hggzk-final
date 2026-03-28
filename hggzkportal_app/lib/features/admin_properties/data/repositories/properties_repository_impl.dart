@@ -3,25 +3,23 @@
 import 'package:dartz/dartz.dart';
 import 'package:hggzkportal/core/error/exceptions.dart';
 import 'package:hggzkportal/core/error/failures.dart';
-import 'package:hggzkportal/core/network/network_info.dart';
 import 'package:hggzkportal/core/models/paginated_result.dart';
-import '../../domain/entities/property.dart';
-import '../../domain/repositories/properties_repository.dart';
-import '../datasources/properties_remote_datasource.dart';
-import '../datasources/properties_local_datasource.dart';
-import '../models/property_model.dart';
+import 'package:hggzkportal/core/network/network_info.dart';
+import 'package:hggzkportal/features/admin_properties/data/datasources/properties_local_datasource.dart';
+import 'package:hggzkportal/features/admin_properties/data/datasources/properties_remote_datasource.dart';
+import 'package:hggzkportal/features/admin_properties/domain/entities/property.dart';
+import 'package:hggzkportal/features/admin_properties/domain/repositories/properties_repository.dart';
 
 class PropertiesRepositoryImpl implements PropertiesRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final PropertiesRemoteDataSource remoteDataSource;
   final PropertiesLocalDataSource localDataSource;
   final NetworkInfo networkInfo;
-  
   PropertiesRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
     required this.networkInfo,
   });
-  
   @override
   Future<Either<Failure, PaginatedResult<Property>>> getAllProperties({
     int? pageNumber,
@@ -55,12 +53,12 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
           isApproved: isApproved,
           hasActiveBookings: hasActiveBookings,
         );
-        
+
         // Cache the first page for offline access
         if (pageNumber == 1 || pageNumber == null) {
-          await localDataSource.cacheProperties(result.items as List<PropertyModel>);
+          await localDataSource.cacheProperties(result.items);
         }
-        
+
         return Right(result as PaginatedResult<Property>);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
@@ -72,7 +70,7 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
         final paginatedResult = PaginatedResult<Property>(
           items: cachedProperties,
           pageNumber: 1,
-          pageSize: cachedProperties.length == 0 ? 1 : cachedProperties.length,
+          pageSize: cachedProperties.isEmpty ? 1 : cachedProperties.length,
           totalCount: cachedProperties.length,
         );
         return Right(paginatedResult);
@@ -81,7 +79,7 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
       }
     }
   }
-  
+
   @override
   Future<Either<Failure, Property>> getPropertyById(String propertyId) async {
     if (await networkInfo.isConnected) {
@@ -94,18 +92,19 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
       }
     } else {
       try {
-        final cachedProperty = await localDataSource.getCachedPropertyById(propertyId);
+        final cachedProperty =
+            await localDataSource.getCachedPropertyById(propertyId);
         if (cachedProperty != null) {
           return Right(cachedProperty);
         } else {
-          return Left(CacheFailure('Property not found in cache'));
+          return const Left(CacheFailure('Property not found in cache'));
         }
       } on CacheException catch (e) {
         return Left(CacheFailure(e.message));
       }
     }
   }
-  
+
   @override
   Future<Either<Failure, Property>> getPropertyDetails(
     String propertyId, {
@@ -122,12 +121,13 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
 
   @override
-  Future<Either<Failure, Property>> getPropertyDetailsPublic(String propertyId, {bool includeUnits = false}) async {
+  Future<Either<Failure, Property>> getPropertyDetailsPublic(String propertyId,
+      {bool includeUnits = false}) async {
     if (await networkInfo.isConnected) {
       try {
         final property = await remoteDataSource.getPropertyDetailsPublic(
@@ -139,12 +139,13 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
-  Future<Either<Failure, String>> createProperty(Map<String, dynamic> propertyData) async {
+  Future<Either<Failure, String>> createProperty(
+      Map<String, dynamic> propertyData) async {
     if (await networkInfo.isConnected) {
       try {
         final propertyId = await remoteDataSource.createProperty(propertyData);
@@ -153,10 +154,10 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
   Future<Either<Failure, bool>> updateProperty(
     String propertyId,
@@ -164,30 +165,33 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
   ) async {
     if (await networkInfo.isConnected) {
       try {
-        final success = await remoteDataSource.updateProperty(propertyId, propertyData);
+        final success =
+            await remoteDataSource.updateProperty(propertyId, propertyData);
         return Right(success);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
 
   @override
-  Future<Either<Failure, bool>> updatePropertyAsOwner(String propertyId, Map<String, dynamic> propertyData) async {
+  Future<Either<Failure, bool>> updatePropertyAsOwner(
+      String propertyId, Map<String, dynamic> propertyData) async {
     if (await networkInfo.isConnected) {
       try {
-        final success = await remoteDataSource.updatePropertyAsOwner(propertyId, propertyData);
+        final success = await remoteDataSource.updatePropertyAsOwner(
+            propertyId, propertyData);
         return Right(success);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
   Future<Either<Failure, bool>> deleteProperty(String propertyId) async {
     if (await networkInfo.isConnected) {
@@ -198,10 +202,10 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
   Future<Either<Failure, bool>> approveProperty(String propertyId) async {
     if (await networkInfo.isConnected) {
@@ -212,10 +216,10 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
   Future<Either<Failure, bool>> rejectProperty(String propertyId) async {
     if (await networkInfo.isConnected) {
@@ -226,10 +230,10 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
   Future<Either<Failure, PaginatedResult<Property>>> getPendingProperties({
     int? pageNumber,
@@ -246,10 +250,10 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
-  
+
   @override
   Future<Either<Failure, bool>> addPropertyToSections(
     String propertyId,
@@ -257,13 +261,14 @@ class PropertiesRepositoryImpl implements PropertiesRepository {
   ) async {
     if (await networkInfo.isConnected) {
       try {
-        final success = await remoteDataSource.addPropertyToSections(propertyId, sectionIds);
+        final success = await remoteDataSource.addPropertyToSections(
+            propertyId, sectionIds);
         return Right(success);
       } on ServerException catch (e) {
         return Left(ServerFailure(e.message));
       }
     } else {
-      return Left(NetworkFailure('No internet connection'));
+      return const Left(NetworkFailure('No internet connection'));
     }
   }
 }

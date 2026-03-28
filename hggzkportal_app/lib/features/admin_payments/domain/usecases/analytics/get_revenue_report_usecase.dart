@@ -7,9 +7,7 @@ import '../../repositories/payments_repository.dart';
 class GetRevenueReportUseCase
     implements UseCase<Map<String, dynamic>, GetRevenueReportParams> {
   final PaymentsRepository repository;
-
   GetRevenueReportUseCase(this.repository);
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> call(
     GetRevenueReportParams params,
@@ -23,16 +21,15 @@ class GetRevenueReportUseCase
 }
 
 class GetRevenueReportParams extends Equatable {
+  /// العربية: يخزن القيمة `startDate`.
   final DateTime startDate;
   final DateTime endDate;
   final String? propertyId;
-
   const GetRevenueReportParams({
     required this.startDate,
     required this.endDate,
     this.propertyId,
   });
-
   @override
   List<Object?> get props => [startDate, endDate, propertyId];
 }

@@ -11,7 +11,9 @@ import '../datasources/section_images_remote_datasource.dart';
 import '../models/section_image_model.dart';
 
 class SectionImagesRepositoryImpl implements SectionImagesRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final SectionImagesRemoteDataSource remoteDataSource;
+
   final NetworkInfo networkInfo;
 
   SectionImagesRepositoryImpl({

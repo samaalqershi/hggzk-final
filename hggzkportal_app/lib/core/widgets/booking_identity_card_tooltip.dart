@@ -10,7 +10,6 @@ import '../enums/booking_status.dart';
 class BookingIdentityCardTooltip {
   static OverlayEntry? _overlayEntry;
   static final GlobalKey<_BookingCardContentState> _contentKey = GlobalKey();
-
   static void show({
     required BuildContext context,
     required GlobalKey targetKey,
@@ -74,7 +73,6 @@ class BookingIdentityCardTooltip {
 
     Overlay.of(context).insert(_overlayEntry!);
   }
-
   static void hide() {
     _contentKey.currentState?.animateOut(() {
       _overlayEntry?.remove();
@@ -82,7 +80,6 @@ class BookingIdentityCardTooltip {
     });
   }
 }
-
 class _BookingCardOverlay extends StatelessWidget {
   final GlobalKey targetKey;
   final String bookingId;
@@ -110,7 +107,6 @@ class _BookingCardOverlay extends StatelessWidget {
   final DateTime? cancelledAt;
   final String? cancellationReason;
   final GlobalKey<_BookingCardContentState> contentKey;
-
   const _BookingCardOverlay({
     required this.targetKey,
     required this.bookingId,
@@ -139,7 +135,6 @@ class _BookingCardOverlay extends StatelessWidget {
     this.cancellationReason,
     required this.contentKey,
   });
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -147,7 +142,7 @@ class _BookingCardOverlay extends StatelessWidget {
         GestureDetector(
           onTap: BookingIdentityCardTooltip.hide,
           child: Container(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
           ),
         ),
         _BookingCardContent(
@@ -182,7 +177,6 @@ class _BookingCardOverlay extends StatelessWidget {
     );
   }
 }
-
 class _BookingCardContent extends StatefulWidget {
   final GlobalKey targetKey;
   final String bookingId;
@@ -209,7 +203,6 @@ class _BookingCardContent extends StatefulWidget {
   final DateTime? checkedOutAt;
   final DateTime? cancelledAt;
   final String? cancellationReason;
-
   const _BookingCardContent({
     super.key,
     required this.targetKey,
@@ -238,17 +231,14 @@ class _BookingCardContent extends StatefulWidget {
     this.cancelledAt,
     this.cancellationReason,
   });
-
   @override
   State<_BookingCardContent> createState() => _BookingCardContentState();
 }
-
 class _BookingCardContentState extends State<_BookingCardContent>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
-
   @override
   void initState() {
     super.initState();
@@ -267,17 +257,14 @@ class _BookingCardContentState extends State<_BookingCardContent>
 
     _controller.forward();
   }
-
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-
   void animateOut(VoidCallback onComplete) {
     _controller.reverse().then((_) => onComplete());
   }
-
   Color _getStatusColor() {
     switch (widget.status) {
       case BookingStatus.confirmed:
@@ -292,7 +279,6 @@ class _BookingCardContentState extends State<_BookingCardContent>
         return AppTheme.primaryCyan;
     }
   }
-
   IconData _getStatusIcon() {
     switch (widget.status) {
       case BookingStatus.confirmed:
@@ -307,11 +293,9 @@ class _BookingCardContentState extends State<_BookingCardContent>
         return CupertinoIcons.arrow_right_circle_fill;
     }
   }
-
   int get nights {
     return widget.checkOut.difference(widget.checkIn).inDays;
   }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -334,7 +318,7 @@ class _BookingCardContentState extends State<_BookingCardContent>
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: statusColor.withOpacity(0.3),
+                      color: statusColor.withValues(alpha: 0.3),
                       blurRadius: 30,
                       offset: const Offset(0, 10),
                     ),
@@ -346,10 +330,10 @@ class _BookingCardContentState extends State<_BookingCardContent>
                     filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: AppTheme.darkCard.withOpacity(0.95),
+                        color: AppTheme.darkCard.withValues(alpha: 0.95),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: statusColor.withOpacity(0.4),
+                          color: statusColor.withValues(alpha: 0.4),
                           width: 1.5,
                         ),
                       ),
@@ -419,15 +403,14 @@ class _BookingCardContentState extends State<_BookingCardContent>
       },
     );
   }
-
   Widget _buildHeader(Color statusColor) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.1),
+        color: statusColor.withValues(alpha: 0.1),
         border: Border(
           bottom: BorderSide(
-            color: statusColor.withOpacity(0.2),
+            color: statusColor.withValues(alpha: 0.2),
           ),
         ),
       ),
@@ -436,7 +419,7 @@ class _BookingCardContentState extends State<_BookingCardContent>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.2),
+              color: statusColor.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -468,14 +451,13 @@ class _BookingCardContentState extends State<_BookingCardContent>
       ),
     );
   }
-
   Widget _buildBookingImage(Color statusColor) {
     return Container(
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.05),
+        color: statusColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: statusColor.withOpacity(0.2),
+          color: statusColor.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -491,8 +473,8 @@ class _BookingCardContentState extends State<_BookingCardContent>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      statusColor.withOpacity(0.3),
-                      statusColor.withOpacity(0.1),
+                      statusColor.withValues(alpha: 0.3),
+                      statusColor.withValues(alpha: 0.1),
                     ],
                   ),
                 ),
@@ -518,10 +500,10 @@ class _BookingCardContentState extends State<_BookingCardContent>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.15),
+                        color: statusColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: statusColor.withOpacity(0.4),
+                          color: statusColor.withValues(alpha: 0.4),
                         ),
                       ),
                       child: Row(
@@ -549,10 +531,10 @@ class _BookingCardContentState extends State<_BookingCardContent>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          color: AppTheme.warning.withOpacity(0.15),
+                          color: AppTheme.warning.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: AppTheme.warning.withOpacity(0.3),
+                            color: AppTheme.warning.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -585,33 +567,31 @@ class _BookingCardContentState extends State<_BookingCardContent>
       ),
     );
   }
-
   Widget _buildDefaultImage(Color color) {
     return Container(
       width: double.infinity,
       height: 160,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: Center(
         child: Icon(
           CupertinoIcons.bed_double_fill,
           size: 60,
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
         ),
       ),
     );
   }
-
   Widget _buildInfoRow(IconData icon, String label, String value, Color color) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.15),
+          color: color.withValues(alpha: 0.15),
         ),
       ),
       child: Row(
@@ -648,12 +628,11 @@ class _BookingCardContentState extends State<_BookingCardContent>
       ),
     );
   }
-
   Widget _buildDateGrid() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.3),
+        color: AppTheme.darkSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -700,7 +679,7 @@ class _BookingCardContentState extends State<_BookingCardContent>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
@@ -726,16 +705,15 @@ class _BookingCardContentState extends State<_BookingCardContent>
       ),
     );
   }
-
   Widget _buildDateItem(
       String label, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -767,12 +745,11 @@ class _BookingCardContentState extends State<_BookingCardContent>
       ),
     );
   }
-
   Widget _buildDetailsGrid() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.3),
+        color: AppTheme.darkSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -808,7 +785,8 @@ class _BookingCardContentState extends State<_BookingCardContent>
               Expanded(
                 child: _buildDetailItem(
                   CupertinoIcons.money_dollar_circle_fill,
-                  Formatters.formatCurrency(widget.totalAmount, widget.currency),
+                  Formatters.formatCurrency(
+                      widget.totalAmount, widget.currency),
                   'الإجمالي',
                   AppTheme.success,
                 ),
@@ -819,16 +797,15 @@ class _BookingCardContentState extends State<_BookingCardContent>
       ),
     );
   }
-
   Widget _buildDetailItem(
       IconData icon, String value, String label, Color color) {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -861,15 +838,14 @@ class _BookingCardContentState extends State<_BookingCardContent>
       ),
     );
   }
-
   Widget _buildNotesSection() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.warning.withOpacity(0.05),
+        color: AppTheme.warning.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.2),
+          color: AppTheme.warning.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -929,13 +905,12 @@ class _BookingCardContentState extends State<_BookingCardContent>
       ),
     );
   }
-
   Widget _buildBookingId() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.5),
+        color: AppTheme.darkSurface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(

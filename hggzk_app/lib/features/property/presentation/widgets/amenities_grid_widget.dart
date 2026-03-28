@@ -7,58 +7,86 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/amenity.dart';
 
+/// Describes the AmenitiesGridWidget widget used in the property feature.
+/// العربية: يمثل العنصر `AmenitiesGridWidget`.
 class AmenitiesGridWidget extends StatefulWidget {
+  /// Keeps the amenities value available to this object.
+  /// العربية: يخزن القيمة `amenities`.
   final List<Amenity> amenities;
 
+  /// Constructs the AmenitiesGridWidget value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `AmenitiesGridWidget`.
   const AmenitiesGridWidget({
     super.key,
     required this.amenities,
   });
 
+  /// Builds the state object for this widget used by this feature.
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<AmenitiesGridWidget> createState() => _AmenitiesGridWidgetState();
 }
 
+/// Describes the state for `AmenitiesGridWidgetState`.
+/// العربية: يمثل الحالة الخاصة بـ `AmenitiesGridWidgetState`.
 class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
     with SingleTickerProviderStateMixin {
+  /// Keeps the fadeController value available to this object.
+  /// العربية: يخزن القيمة `fadeController`.
   late AnimationController _fadeController;
+
+  /// Keeps the fadeAnimation value available to this object.
+  /// العربية: يخزن القيمة `fadeAnimation`.
   late Animation<double> _fadeAnimation;
-  
+
+  /// Keeps the expandedCategories value available to this object.
+  /// العربية: يخزن القيمة `expandedCategories`.
   final Map<String, bool> _expandedCategories = {};
+
+  /// Keeps the selectedAmenityId value available to this object.
+  /// العربية: يخزن القيمة `selectedAmenityId`.
   String? _selectedAmenityId;
 
+  /// Initializes the state for this widget.
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
-    
+
     // Initialize categories as expanded
     final categories = _groupAmenitiesByCategory();
     for (final category in categories.keys) {
       _expandedCategories[category] = true;
     }
   }
-  
+
+  /// Initializes the animations.
+  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _fadeAnimation = CurvedAnimation(
       parent: _fadeController,
       curve: Curves.easeOut,
     );
-    
+
     _fadeController.forward();
   }
 
+  /// Releases the resources used by this instance.
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _fadeController.dispose();
     super.dispose();
   }
-  
+
+  /// Processes the groupAmenitiesByCategory flow and maps it into the property feature behavior.
+  /// العربية: يعالج `groupAmenitiesByCategory`.
   Map<String, List<Amenity>> _groupAmenitiesByCategory() {
     final groupedAmenities = <String, List<Amenity>>{};
     for (final amenity in widget.amenities) {
@@ -71,6 +99,8 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
     return groupedAmenities;
   }
 
+  /// Builds the widget tree for this component.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     if (widget.amenities.isEmpty) {
@@ -89,7 +119,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
         itemBuilder: (context, index) {
           final category = groupedAmenities.keys.elementAt(index);
           final categoryAmenities = groupedAmenities[category]!;
-          
+
           return _buildUltraMinimalCategory(
             category,
             categoryAmenities,
@@ -99,7 +129,9 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       ),
     );
   }
-  
+
+  /// Builds the ultra minimal empty state.
+  /// العربية: يبني ultra minimal empty state.
   Widget _buildUltraMinimalEmptyState() {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -137,7 +169,9 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       ),
     );
   }
-  
+
+  /// Builds the ultra minimal category.
+  /// العربية: يبني ultra minimal category.
   Widget _buildUltraMinimalCategory(
     String category,
     List<Amenity> amenities,
@@ -145,7 +179,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
   ) {
     final isExpanded = _expandedCategories[category] ?? false;
     final categoryColor = _getCategoryColor(category);
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -162,7 +196,8 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Column(
             children: [
-              _buildMinimalCategoryHeader(category, categoryColor, amenities.length),
+              _buildMinimalCategoryHeader(
+                  category, categoryColor, amenities.length),
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 height: isExpanded ? null : 0,
@@ -176,10 +211,12 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       ),
     );
   }
-  
+
+  /// Builds the minimal category header.
+  /// العربية: يبني minimal category header.
   Widget _buildMinimalCategoryHeader(String category, Color color, int count) {
     final isExpanded = _expandedCategories[category] ?? false;
-    
+
     return InkWell(
       onTap: () {
         setState(() {
@@ -253,8 +290,11 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       ),
     );
   }
-  
-  Widget _buildMinimalAmenitiesGrid(List<Amenity> amenities, int categoryIndex) {
+
+  /// Builds the minimal amenities grid.
+  /// العربية: يبني minimal amenities grid.
+  Widget _buildMinimalAmenitiesGrid(
+      List<Amenity> amenities, int categoryIndex) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
       child: Wrap(
@@ -283,7 +323,9 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       ),
     );
   }
-  
+
+  /// Builds the ultra minimal amenity chip.
+  /// العربية: يبني ultra minimal amenity chip.
   Widget _buildUltraMinimalAmenityChip(Amenity amenity) {
     final isSelected = _selectedAmenityId == amenity.id;
     final isInactive = !amenity.isActive;
@@ -369,19 +411,16 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.caption.copyWith(
                   color: textColor,
-                  fontWeight:
-                      isSelected ? FontWeight.w600 : FontWeight.w500,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),
             ),
             if (amenity.extraCost != null && amenity.extraCost! > 0) ...[
               const SizedBox(width: 6),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppTheme.warning
-                      .withOpacity(isInactive ? 0.15 : 0.25),
+                  color: AppTheme.warning.withOpacity(isInactive ? 0.15 : 0.25),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -398,8 +437,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
             if (isInactive) ...[
               const SizedBox(width: 6),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                 decoration: BoxDecoration(
                   color: AppTheme.error.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(999),
@@ -419,6 +457,8 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
     );
   }
 
+  /// Exposes the category icon.
+  /// العربية: يعيد category icon.
   IconData _getCategoryIcon(String category) {
     switch (category.toLowerCase()) {
       case 'أساسيات':
@@ -464,7 +504,9 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
         return Icons.category_outlined;
     }
   }
-  
+
+  /// Exposes the category color.
+  /// العربية: يعيد category color.
   Color _getCategoryColor(String category) {
     switch (category.toLowerCase()) {
       case 'أساسيات':
@@ -492,26 +534,33 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
   }
 
   // دالة محدثة للحصول على أيقونة المرفق من الخادم أو استخدام افتراضية
+  /// Exposes the amenity icon.
+  /// العربية: يعيد amenity icon.
   IconData _getAmenityIcon(Amenity amenity) {
     // إذا كان للمرفق أيقونة محددة من الخادم
     if (amenity.icon != null && amenity.icon!.isNotEmpty) {
       return _getIconFromName(amenity.icon!);
     }
-    
+
     // وإلا استخدم الأيقونة الافتراضية بناءً على الاسم
     final name = amenity.name.toLowerCase();
     if (name.contains('wifi') || name.contains('واي فاي')) return Icons.wifi;
-    if (name.contains('parking') || name.contains('موقف')) return Icons.local_parking;
+    if (name.contains('parking') || name.contains('موقف'))
+      return Icons.local_parking;
     if (name.contains('pool') || name.contains('مسبح')) return Icons.pool;
-    if (name.contains('gym') || name.contains('جيم')) return Icons.fitness_center;
+    if (name.contains('gym') || name.contains('جيم'))
+      return Icons.fitness_center;
     if (name.contains('kitchen') || name.contains('مطبخ')) return Icons.kitchen;
     if (name.contains('ac') || name.contains('تكييف')) return Icons.ac_unit;
     if (name.contains('tv') || name.contains('تلفاز')) return Icons.tv;
-    if (name.contains('elevator') || name.contains('مصعد')) return Icons.elevator;
+    if (name.contains('elevator') || name.contains('مصعد'))
+      return Icons.elevator;
     return Icons.check_circle_outline;
   }
 
   // دالة لتحويل اسم الأيقونة من السلسلة النصية إلى IconData
+  /// Exposes the icon from name.
+  /// العربية: يعيد icon from name.
   IconData _getIconFromName(String iconName) {
     // خريطة شاملة لتحويل أسماء الأيقونات إلى Material Icons
     final iconMap = <String, IconData>{
@@ -528,7 +577,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       'gas_meter': Icons.gas_meter,
       'heating': Icons.heat_pump,
       'light': Icons.light,
-      
+
       // مطبخ
       'kitchen': Icons.kitchen,
       'microwave': Icons.microwave,
@@ -543,7 +592,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       'dinner_dining': Icons.dinner_dining,
       'outdoor_grill': Icons.outdoor_grill,
       'countertops': Icons.countertops,
-      
+
       // أجهزة
       'tv': Icons.tv,
       'desktop_windows': Icons.desktop_windows,
@@ -557,7 +606,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       'dry_cleaning': Icons.dry_cleaning,
       'iron': Icons.iron,
       'dishwasher': Icons.kitchen,
-      
+
       // حمام
       'bathroom': Icons.bathroom,
       'bathtub': Icons.bathtub,
@@ -565,7 +614,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       'soap': Icons.soap,
       'dry': Icons.dry,
       'wash': Icons.wash,
-      
+
       // نوم
       'bed': Icons.bed,
       'king_bed': Icons.king_bed,
@@ -577,7 +626,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       'chair_alt': Icons.chair_alt,
       'weekend': Icons.weekend,
       'living': Icons.living,
-      
+
       // رياضة
       'pool': Icons.pool,
       'hot_tub': Icons.hot_tub,
@@ -594,7 +643,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       'spa': Icons.spa,
       'sauna': Icons.hot_tub,
       'self_improvement': Icons.self_improvement,
-      
+
       // مواصلات
       'local_parking': Icons.local_parking,
       'garage': Icons.garage,
@@ -608,7 +657,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       'electric_bike': Icons.electric_bike,
       'electric_scooter': Icons.electric_scooter,
       'moped': Icons.moped,
-      
+
       // وصول
       'elevator': Icons.elevator,
       'stairs': Icons.stairs,
@@ -617,7 +666,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       'accessible': Icons.accessible,
       'wheelchair_pickup': Icons.wheelchair_pickup,
       'elderly': Icons.elderly,
-      
+
       // أمان
       'security': Icons.security,
       'lock': Icons.lock,
@@ -637,7 +686,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       'sensor_door': Icons.sensor_door,
       'sensor_window': Icons.sensor_window,
       'doorbell': Icons.doorbell,
-      
+
       // خدمات
       'cleaning_services': Icons.cleaning_services,
       'room_service': Icons.room_service,
@@ -652,7 +701,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       'local_post_office': Icons.local_post_office,
       'print': Icons.print,
       'mail': Icons.mail,
-      
+
       // خارجي
       'balcony': Icons.balcony,
       'deck': Icons.deck,
@@ -664,17 +713,17 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       'water': Icons.water,
       'fence': Icons.fence,
       'roofing': Icons.roofing,
-      
+
       // أطفال
       'child_care': Icons.child_care,
       'child_friendly': Icons.child_friendly,
       'baby_changing_station': Icons.baby_changing_station,
       'toys': Icons.toys,
       'stroller': Icons.stroller,
-      
+
       // حيوانات
       'pets': Icons.pets,
-      
+
       // عمل
       'desk': Icons.desk,
       'meeting_room': Icons.meeting_room,
@@ -682,11 +731,11 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
       'computer': Icons.computer,
       'scanner': Icons.scanner,
       'fax': Icons.fax,
-      
+
       // ديني
       'mosque': Icons.mosque,
     };
-    
+
     return iconMap[iconName] ?? Icons.check_circle_outline;
   }
 }

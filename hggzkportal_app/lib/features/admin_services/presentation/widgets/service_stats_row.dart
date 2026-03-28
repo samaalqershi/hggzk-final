@@ -6,20 +6,19 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../utils/service_icons.dart';
-
 class ServiceStatsRow extends StatelessWidget {
+  /// العربية: يخزن القيمة `totalServices`.
   final int totalServices;
   final int paidServices;
-
   const ServiceStatsRow({
     super.key,
     required this.totalServices,
     required this.paidServices,
   });
-
   @override
   Widget build(BuildContext context) {
-    final int freeServices = (totalServices - paidServices).clamp(0, totalServices);
+    final int freeServices =
+        (totalServices - paidServices).clamp(0, totalServices);
     final stats = [
       _StatItem(
         icon: Icons.room_service_rounded,
@@ -64,7 +63,6 @@ class ServiceStatsRow extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildStatCard(_StatItem stat) {
     return Container(
       width: 150,
@@ -126,13 +124,15 @@ class ServiceStatsRow extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                               boxShadow: [
                                 BoxShadow(
-                                  color: stat.gradient.first.withValues(alpha: 0.3),
+                                  color: stat.gradient.first
+                                      .withValues(alpha: 0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
-                            child: Icon(stat.icon, size: 18, color: Colors.white),
+                            child:
+                                Icon(stat.icon, size: 18, color: Colors.white),
                           ),
                         ],
                       ),
@@ -169,14 +169,13 @@ class ServiceStatsRow extends StatelessWidget {
     );
   }
 }
-
 class _StatItem {
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
   final String label;
   final String value;
   final List<Color> gradient;
   final double trend;
-
   _StatItem({
     required this.icon,
     required this.label,
@@ -185,4 +184,3 @@ class _StatItem {
     required this.trend,
   });
 }
-

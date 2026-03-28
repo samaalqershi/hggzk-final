@@ -9,12 +9,27 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/money.dart';
 import '../../domain/entities/pricing_method.dart';
 
+/// يمثل هذا الكلاس UnitPricingCards البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitPricingCards in the admin unit workflow.
 class UnitPricingCards extends StatefulWidget {
+  /// This field keeps the basePrice value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة basePrice التي يعتمد عليها مسار إدارة الوحدات.
   final Money basePrice;
+
+  /// يحتفظ هذا الحقل بقيمة pricingMethod التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the pricingMethod value used by the admin unit workflow.
   final PricingMethod pricingMethod;
+
+  /// يحتفظ هذا الحقل بقيمة discountPercentage التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the discountPercentage value used by the admin unit workflow.
   final double discountPercentage;
+
+  /// يحتفظ هذا الحقل بقيمة seasonalPrices التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the seasonalPrices value used by the admin unit workflow.
   final List<SeasonalPrice> seasonalPrices;
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitPricingCards.
+  /// This constructor creates an instance of UnitPricingCards.
   const UnitPricingCards({
     super.key,
     required this.basePrice,
@@ -23,16 +38,30 @@ class UnitPricingCards extends StatefulWidget {
     this.seasonalPrices = const [],
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<UnitPricingCards> createState() => _UnitPricingCardsState();
 }
 
+/// يمثل هذا الكلاس _UnitPricingCardsState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _UnitPricingCardsState in the admin unit workflow.
 class _UnitPricingCardsState extends State<UnitPricingCards>
     with TickerProviderStateMixin {
+  /// يحتفظ هذا الحقل بقيمة _cardAnimationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _cardAnimationController value used by the admin unit workflow.
   late AnimationController _cardAnimationController;
+
+  /// يحتفظ هذا الحقل بقيمة _pulseAnimationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _pulseAnimationController value used by the admin unit workflow.
   late AnimationController _pulseAnimationController;
+
+  /// يحتفظ هذا الحقل بقيمة _selectedPriceIndex التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectedPriceIndex value used by the admin unit workflow.
   int _selectedPriceIndex = 0;
 
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
@@ -47,6 +76,8 @@ class _UnitPricingCardsState extends State<UnitPricingCards>
     )..repeat(reverse: true);
   }
 
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _cardAnimationController.dispose();
@@ -54,6 +85,8 @@ class _UnitPricingCardsState extends State<UnitPricingCards>
     super.dispose();
   }
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return AnimationLimiter(
@@ -94,6 +127,8 @@ class _UnitPricingCardsState extends State<UnitPricingCards>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildMainPriceCard ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildMainPriceCard operation in the admin unit workflow.
   Widget _buildMainPriceCard() {
     final finalPrice = widget.discountPercentage > 0
         ? widget.basePrice.amount * (1 - widget.discountPercentage / 100)
@@ -256,6 +291,8 @@ class _UnitPricingCardsState extends State<UnitPricingCards>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildPricingOptions ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildPricingOptions operation in the admin unit workflow.
   Widget _buildPricingOptions() {
     final options = [
       _PricingOption(
@@ -386,6 +423,8 @@ class _UnitPricingCardsState extends State<UnitPricingCards>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildSeasonalPrices ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildSeasonalPrices operation in the admin unit workflow.
   Widget _buildSeasonalPrices() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -409,6 +448,8 @@ class _UnitPricingCardsState extends State<UnitPricingCards>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildSeasonalPriceItem ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildSeasonalPriceItem operation in the admin unit workflow.
   Widget _buildSeasonalPriceItem(SeasonalPrice seasonal) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -481,6 +522,8 @@ class _UnitPricingCardsState extends State<UnitPricingCards>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildDiscountCard ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildDiscountCard operation in the admin unit workflow.
   Widget _buildDiscountCard() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -554,6 +597,8 @@ class _UnitPricingCardsState extends State<UnitPricingCards>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildSectionTitle ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildSectionTitle operation in the admin unit workflow.
   Widget _buildSectionTitle(String title, IconData icon) {
     return Row(
       children: [
@@ -580,13 +625,31 @@ class _UnitPricingCardsState extends State<UnitPricingCards>
 }
 
 // Helper Classes
+/// يمثل هذا الكلاس _PricingOption البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _PricingOption in the admin unit workflow.
 class _PricingOption {
+  /// This field keeps the title value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة title التي يعتمد عليها مسار إدارة الوحدات.
   final String title;
+
+  /// يحتفظ هذا الحقل بقيمة price التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the price value used by the admin unit workflow.
   final double price;
+
+  /// يحتفظ هذا الحقل بقيمة icon التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the icon value used by the admin unit workflow.
   final IconData icon;
+
+  /// يحتفظ هذا الحقل بقيمة gradient التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the gradient value used by the admin unit workflow.
   final List<Color> gradient;
+
+  /// يحتفظ هذا الحقل بقيمة discount التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the discount value used by the admin unit workflow.
   final int? discount;
 
+  /// ينشئ هذا المُنشئ مثيلاً من _PricingOption.
+  /// This constructor creates an instance of _PricingOption.
   _PricingOption({
     required this.title,
     required this.price,
@@ -596,14 +659,35 @@ class _PricingOption {
   });
 }
 
+/// يمثل هذا الكلاس SeasonalPrice البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for SeasonalPrice in the admin unit workflow.
 class SeasonalPrice {
+  /// This field keeps the name value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة name التي يعتمد عليها مسار إدارة الوحدات.
   final String name;
+
+  /// يحتفظ هذا الحقل بقيمة dateRange التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the dateRange value used by the admin unit workflow.
   final String dateRange;
+
+  /// يحتفظ هذا الحقل بقيمة price التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the price value used by the admin unit workflow.
   final double price;
+
+  /// يحتفظ هذا الحقل بقيمة changePercentage التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the changePercentage value used by the admin unit workflow.
   final int changePercentage;
+
+  /// يحتفظ هذا الحقل بقيمة icon التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the icon value used by the admin unit workflow.
   final IconData icon;
+
+  /// يحتفظ هذا الحقل بقيمة gradient التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the gradient value used by the admin unit workflow.
   final List<Color> gradient;
 
+  /// ينشئ هذا المُنشئ مثيلاً من SeasonalPrice.
+  /// This constructor creates an instance of SeasonalPrice.
   SeasonalPrice({
     required this.name,
     required this.dateRange,

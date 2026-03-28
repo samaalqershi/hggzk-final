@@ -1,4 +1,4 @@
-// lib/features/notifications/presentation/pages/create_channel_page.dart
+// lib/features/notification_channels/presentation/pages/create_channel_page.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,17 +6,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/widgets/loading_widget.dart';
 import '../bloc/channels_bloc.dart';
 import '../bloc/channels_event.dart';
 import '../bloc/channels_state.dart';
 
 class CreateChannelPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `CreateChannelPage`.
   const CreateChannelPage({super.key});
-
   @override
   State<CreateChannelPage> createState() => _CreateChannelPageState();
 }
@@ -26,11 +24,8 @@ class _CreateChannelPageState extends State<CreateChannelPage>
   // Animation Controllers
   late AnimationController _animationController;
   late AnimationController _glowController;
-  late AnimationController _loadingAnimationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _loadingRotation;
 
   // Form Controllers
   final _formKey = GlobalKey<FormState>();
@@ -67,7 +62,6 @@ class _CreateChannelPageState extends State<CreateChannelPage>
     'BROADCAST',
     'PRIVATE',
   ];
-
   final List<String> _availableIcons = [
     '📢',
     '🔔',
@@ -94,7 +88,6 @@ class _CreateChannelPageState extends State<CreateChannelPage>
     '📃',
     '📋',
   ];
-
   final List<String> _availableColors = [
     '#1E88E5',
     '#43A047',
@@ -113,7 +106,6 @@ class _CreateChannelPageState extends State<CreateChannelPage>
     '#26A69A',
     '#AB47BC',
   ];
-
   final List<String> _availableRoles = [
     'Admin',
     'SuperAdmin',
@@ -123,7 +115,6 @@ class _CreateChannelPageState extends State<CreateChannelPage>
     'Moderator',
     'Support',
   ];
-
   @override
   void initState() {
     super.initState();
@@ -142,11 +133,6 @@ class _CreateChannelPageState extends State<CreateChannelPage>
       vsync: this,
     )..repeat(reverse: true);
 
-    _loadingAnimationController = AnimationController(
-      duration: const Duration(seconds: 1),
-      vsync: this,
-    )..repeat();
-
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -161,22 +147,6 @@ class _CreateChannelPageState extends State<CreateChannelPage>
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOutQuart,
-    ));
-
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    ));
-
-    _loadingRotation = Tween<double>(
-      begin: 0,
-      end: 2 * math.pi,
-    ).animate(CurvedAnimation(
-      parent: _loadingAnimationController,
-      curve: Curves.linear,
     ));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -204,7 +174,6 @@ class _CreateChannelPageState extends State<CreateChannelPage>
   void dispose() {
     _animationController.dispose();
     _glowController.dispose();
-    _loadingAnimationController.dispose();
     _nameController.dispose();
     _identifierController.dispose();
     _descriptionController.dispose();
@@ -215,11 +184,17 @@ class _CreateChannelPageState extends State<CreateChannelPage>
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (!didPop && await _onWillPop() && mounted) {
+          context.pop();
+        }
+      },
       child: BlocListener<ChannelsBloc, ChannelsState>(
         listener: (context, state) {
-          if (state.successMessage != null && state.successMessage!.contains('إنشاء')) {
+          if (state.successMessage != null &&
+              state.successMessage!.contains('إنشاء')) {
             _showSuccessMessage(state.successMessage!);
             Future.delayed(const Duration(milliseconds: 1500), () {
               if (mounted) {
@@ -271,8 +246,8 @@ class _CreateChannelPageState extends State<CreateChannelPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -293,13 +268,13 @@ class _CreateChannelPageState extends State<CreateChannelPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -314,13 +289,13 @@ class _CreateChannelPageState extends State<CreateChannelPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -388,19 +363,20 @@ class _CreateChannelPageState extends State<CreateChannelPage>
                   decoration: BoxDecoration(
                     gradient: isActive ? AppTheme.primaryGradient : null,
                     color: !isActive
-                        ? AppTheme.darkSurface.withOpacity(0.5)
+                        ? AppTheme.darkSurface.withValues(alpha: 0.5)
                         : null,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isActive
-                          ? AppTheme.primaryBlue.withOpacity(0.5)
-                          : AppTheme.darkBorder.withOpacity(0.3),
+                          ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                          : AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                     boxShadow: isActive
                         ? [
                             BoxShadow(
-                              color: AppTheme.primaryBlue.withOpacity(0.3),
+                              color:
+                                  AppTheme.primaryBlue.withValues(alpha: 0.3),
                               blurRadius: 10,
                             ),
                           ]
@@ -431,7 +407,7 @@ class _CreateChannelPageState extends State<CreateChannelPage>
                       decoration: BoxDecoration(
                         gradient: isCompleted ? AppTheme.primaryGradient : null,
                         color: !isCompleted
-                            ? AppTheme.darkBorder.withOpacity(0.2)
+                            ? AppTheme.darkBorder.withValues(alpha: 0.2)
                             : null,
                         borderRadius: BorderRadius.circular(1),
                       ),
@@ -682,12 +658,14 @@ class _CreateChannelPageState extends State<CreateChannelPage>
                 ),
                 decoration: BoxDecoration(
                   gradient: isSelected ? AppTheme.primaryGradient : null,
-                  color: isSelected ? null : AppTheme.darkCard.withOpacity(0.5),
+                  color: isSelected
+                      ? null
+                      : AppTheme.darkCard.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
-                        ? AppTheme.primaryBlue.withOpacity(0.5)
-                        : AppTheme.darkBorder.withOpacity(0.3),
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                        : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -745,17 +723,17 @@ class _CreateChannelPageState extends State<CreateChannelPage>
                 gradient: isSelected ? AppTheme.primaryGradient : null,
                 color: isSelected
                     ? null
-                    : AppTheme.darkBackground.withOpacity(0.5),
+                    : AppTheme.darkBackground.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isSelected
                       ? Colors.transparent
-                      : AppTheme.darkBorder.withOpacity(0.3),
+                      : AppTheme.darkBorder.withValues(alpha: 0.3),
                 ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: AppTheme.primaryBlue.withOpacity(0.3),
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                           blurRadius: 8,
                         ),
                       ]
@@ -805,7 +783,7 @@ class _CreateChannelPageState extends State<CreateChannelPage>
                 border: Border.all(
                   color: isSelected
                       ? AppTheme.textWhite
-                      : AppTheme.darkBorder.withOpacity(0.3),
+                      : AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: isSelected ? 3 : 1,
                 ),
                 boxShadow: isSelected
@@ -814,7 +792,7 @@ class _CreateChannelPageState extends State<CreateChannelPage>
                           color: Color(
                                   int.parse(color.substring(1), radix: 16) +
                                       0xFF000000)
-                              .withOpacity(0.5),
+                              .withValues(alpha: 0.5),
                           blurRadius: 12,
                         ),
                       ]
@@ -842,13 +820,13 @@ class _CreateChannelPageState extends State<CreateChannelPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -872,13 +850,13 @@ class _CreateChannelPageState extends State<CreateChannelPage>
                   color: Color(
                           int.parse(_selectedColor.substring(1), radix: 16) +
                               0xFF000000)
-                      .withOpacity(0.2),
+                      .withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: Color(
                             int.parse(_selectedColor.substring(1), radix: 16) +
                                 0xFF000000)
-                        .withOpacity(0.5),
+                        .withValues(alpha: 0.5),
                     width: 1,
                   ),
                 ),
@@ -930,13 +908,13 @@ class _CreateChannelPageState extends State<CreateChannelPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1005,13 +983,13 @@ class _CreateChannelPageState extends State<CreateChannelPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1024,7 +1002,10 @@ class _CreateChannelPageState extends State<CreateChannelPage>
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppTheme.info, AppTheme.info.withOpacity(0.7)],
+                    colors: [
+                      AppTheme.info,
+                      AppTheme.info.withValues(alpha: 0.7)
+                    ],
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -1096,13 +1077,13 @@ class _CreateChannelPageState extends State<CreateChannelPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1117,7 +1098,7 @@ class _CreateChannelPageState extends State<CreateChannelPage>
                   gradient: LinearGradient(
                     colors: [
                       AppTheme.primaryPurple,
-                      AppTheme.primaryPurple.withOpacity(0.7)
+                      AppTheme.primaryPurple.withValues(alpha: 0.7)
                     ],
                   ),
                   borderRadius: BorderRadius.circular(8),
@@ -1164,12 +1145,12 @@ class _CreateChannelPageState extends State<CreateChannelPage>
                     gradient: isSelected ? AppTheme.primaryGradient : null,
                     color: isSelected
                         ? null
-                        : AppTheme.darkBackground.withOpacity(0.5),
+                        : AppTheme.darkBackground.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isSelected
                           ? Colors.transparent
-                          : AppTheme.darkBorder.withOpacity(0.3),
+                          : AppTheme.darkBorder.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Text(
@@ -1195,13 +1176,13 @@ class _CreateChannelPageState extends State<CreateChannelPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1216,7 +1197,7 @@ class _CreateChannelPageState extends State<CreateChannelPage>
                   gradient: LinearGradient(
                     colors: [
                       AppTheme.warning,
-                      AppTheme.warning.withOpacity(0.7)
+                      AppTheme.warning.withValues(alpha: 0.7)
                     ],
                   ),
                   borderRadius: BorderRadius.circular(8),
@@ -1337,12 +1318,13 @@ class _CreateChannelPageState extends State<CreateChannelPage>
             height: 24,
             decoration: BoxDecoration(
               gradient: value ? AppTheme.primaryGradient : null,
-              color: value ? null : AppTheme.darkBackground.withOpacity(0.5),
+              color:
+                  value ? null : AppTheme.darkBackground.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
                 color: value
                     ? Colors.transparent
-                    : AppTheme.darkBorder.withOpacity(0.3),
+                    : AppTheme.darkBorder.withValues(alpha: 0.3),
               ),
             ),
             child: value
@@ -1374,13 +1356,13 @@ class _CreateChannelPageState extends State<CreateChannelPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1432,13 +1414,13 @@ class _CreateChannelPageState extends State<CreateChannelPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1454,13 +1436,13 @@ class _CreateChannelPageState extends State<CreateChannelPage>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -1487,7 +1469,7 @@ class _CreateChannelPageState extends State<CreateChannelPage>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -1549,13 +1531,13 @@ class _CreateChannelPageState extends State<CreateChannelPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1569,12 +1551,12 @@ class _CreateChannelPageState extends State<CreateChannelPage>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: maxLines == 1
                   ? Icon(
                       icon,
-                      color: AppTheme.primaryBlue.withOpacity(0.7),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                       size: 20,
                     )
                   : null,
@@ -1825,10 +1807,9 @@ class _CreateChannelPageState extends State<CreateChannelPage>
 
 // Background Painter
 class _CreateChannelBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
-
   _CreateChannelBackgroundPainter({required this.glowIntensity});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -1836,8 +1817,8 @@ class _CreateChannelBackgroundPainter extends CustomPainter {
     // Draw glowing orbs
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryBlue.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryBlue.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryBlue.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryBlue.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -1853,8 +1834,8 @@ class _CreateChannelBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryPurple.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryPurple.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -1884,13 +1865,13 @@ class _UnsavedChangesDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.error.withOpacity(0.3),
+            color: AppTheme.error.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1903,8 +1884,8 @@ class _UnsavedChangesDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
+                    AppTheme.error.withValues(alpha: 0.2),
+                    AppTheme.error.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -1965,10 +1946,10 @@ class _UnsavedChangesDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.error.withOpacity(0.1),
+                        color: AppTheme.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.error.withOpacity(0.3),
+                          color: AppTheme.error.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),

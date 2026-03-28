@@ -17,6 +17,7 @@ sealed class DailyScheduleEvent extends Equatable {
 /// يُستخدم لتحميل جدول شهر كامل لوحدة معينة
 class LoadMonthlyScheduleEvent extends DailyScheduleEvent {
   /// معرّف الوحدة
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
 
   /// السنة
@@ -41,6 +42,7 @@ class LoadMonthlyScheduleEvent extends DailyScheduleEvent {
 /// يُستخدم للتنقل بين الأشهر (التالي/السابق)
 class ChangeMonthEvent extends DailyScheduleEvent {
   /// السنة الجديدة
+  /// العربية: يخزن القيمة `year`.
   final int year;
 
   /// الشهر الجديد (1-12)
@@ -59,6 +61,7 @@ class ChangeMonthEvent extends DailyScheduleEvent {
 /// يُستخدم لتغيير الوحدة المعروضة
 class SelectUnitEvent extends DailyScheduleEvent {
   /// معرّف الوحدة الجديدة
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
 
   const SelectUnitEvent({required this.unitId});
@@ -73,6 +76,7 @@ class SelectUnitEvent extends DailyScheduleEvent {
 /// يُستخدم لتحديث إتاحة و/أو تسعير يوم واحد فقط
 class UpdateSingleDayEvent extends DailyScheduleEvent {
   /// معرّف الوحدة
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
 
   /// التاريخ المستهدف
@@ -134,6 +138,7 @@ class UpdateSingleDayEvent extends DailyScheduleEvent {
 /// يُستخدم لتحديث إتاحة و/أو تسعير فترة زمنية محددة
 class UpdateDateRangeEvent extends DailyScheduleEvent {
   /// معاملات التحديث
+  /// العربية: يخزن القيمة `params`.
   final UpdateScheduleParams params;
 
   const UpdateDateRangeEvent({required this.params});
@@ -146,6 +151,7 @@ class UpdateDateRangeEvent extends DailyScheduleEvent {
 /// يُستخدم للتحديث بناءً على أيام الأسبوع المحددة
 class BulkUpdateScheduleEvent extends DailyScheduleEvent {
   /// معاملات التحديث الجماعي
+  /// العربية: يخزن القيمة `params`.
   final BulkUpdateScheduleParams params;
 
   const BulkUpdateScheduleEvent({required this.params});
@@ -160,6 +166,7 @@ class BulkUpdateScheduleEvent extends DailyScheduleEvent {
 /// يُستخدم للتحقق من توفر الوحدة لفترة محددة
 class CheckAvailabilityEvent extends DailyScheduleEvent {
   /// معاملات التحقق من التوفر
+  /// العربية: يخزن القيمة `params`.
   final CheckAvailabilityParams params;
 
   const CheckAvailabilityEvent({required this.params});
@@ -172,6 +179,7 @@ class CheckAvailabilityEvent extends DailyScheduleEvent {
 /// يُستخدم لحساب السعر الإجمالي لفترة محددة
 class CalculateTotalPriceEvent extends DailyScheduleEvent {
   /// معرّف الوحدة
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
 
   /// تاريخ البداية
@@ -196,6 +204,7 @@ class CalculateTotalPriceEvent extends DailyScheduleEvent {
 /// يُستخدم لنسخ جدول من فترة إلى فترة أخرى
 class CloneScheduleEvent extends DailyScheduleEvent {
   /// معاملات النسخ
+  /// العربية: يخزن القيمة `params`.
   final CloneScheduleParams params;
 
   const CloneScheduleEvent({required this.params});
@@ -208,6 +217,7 @@ class CloneScheduleEvent extends DailyScheduleEvent {
 /// يُستخدم لحذف جدول لفترة محددة
 class DeleteScheduleEvent extends DailyScheduleEvent {
   /// معاملات الحذف
+  /// العربية: يخزن القيمة `params`.
   final DeleteScheduleParams params;
 
   const DeleteScheduleEvent({required this.params});
@@ -221,6 +231,7 @@ class DeleteScheduleEvent extends DailyScheduleEvent {
 /// حدث إعادة تعيين حالة الأخطاء
 /// يُستخدم لإعادة BLoC إلى الحالة الأولية
 class ResetErrorEvent extends DailyScheduleEvent {
+  /// العربية: ينشئ مثيلًا جديدًا من `ResetErrorEvent`.
   const ResetErrorEvent();
 }
 

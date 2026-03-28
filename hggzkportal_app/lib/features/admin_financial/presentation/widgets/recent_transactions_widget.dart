@@ -15,14 +15,12 @@ class RecentTransactionsWidget extends StatefulWidget {
   final List<FinancialTransaction> transactions;
   final Function(String)? onTransactionTap;
   final VoidCallback? onViewAllTap;
-
   const RecentTransactionsWidget({
     super.key,
     required this.transactions,
     this.onTransactionTap,
     this.onViewAllTap,
   });
-
   @override
   State<RecentTransactionsWidget> createState() =>
       _RecentTransactionsWidgetState();
@@ -34,10 +32,8 @@ class _RecentTransactionsWidgetState extends State<RecentTransactionsWidget>
   late AnimationController _pulseAnimationController;
   late Animation<double> _headerSlideAnimation;
   late Animation<double> _headerFadeAnimation;
-
   bool _isExpanded = false;
   final int _displayCount = 5;
-
   @override
   void initState() {
     super.initState();
@@ -86,13 +82,13 @@ class _RecentTransactionsWidgetState extends State<RecentTransactionsWidget>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.darkCard.withOpacity(0.8),
-            AppTheme.darkCard.withOpacity(0.6),
+            AppTheme.darkCard.withValues(alpha: 0.8),
+            AppTheme.darkCard.withValues(alpha: 0.6),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
       ),
       child: ClipRRect(
@@ -129,13 +125,13 @@ class _RecentTransactionsWidgetState extends State<RecentTransactionsWidget>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryCyan.withOpacity(0.1),
-                    AppTheme.primaryPurple.withOpacity(0.05),
+                    AppTheme.primaryCyan.withValues(alpha: 0.1),
+                    AppTheme.primaryPurple.withValues(alpha: 0.05),
                   ],
                 ),
                 border: Border(
                   bottom: BorderSide(
-                    color: AppTheme.darkBorder.withOpacity(0.1),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.1),
                   ),
                 ),
               ),
@@ -151,19 +147,21 @@ class _RecentTransactionsWidgetState extends State<RecentTransactionsWidget>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              AppTheme.primaryCyan.withOpacity(
-                                0.2 + (_pulseAnimationController.value * 0.1),
+                              AppTheme.primaryCyan.withValues(
+                                alpha: 0.2 +
+                                    (_pulseAnimationController.value * 0.1),
                               ),
-                              AppTheme.primaryPurple.withOpacity(
-                                0.2 + (_pulseAnimationController.value * 0.1),
+                              AppTheme.primaryPurple.withValues(
+                                alpha: 0.2 +
+                                    (_pulseAnimationController.value * 0.1),
                               ),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.primaryCyan.withOpacity(
-                                0.2 * _pulseAnimationController.value,
+                              color: AppTheme.primaryCyan.withValues(
+                                alpha: 0.2 * _pulseAnimationController.value,
                               ),
                               blurRadius: 8,
                               spreadRadius: 1,
@@ -253,13 +251,13 @@ class _RecentTransactionsWidgetState extends State<RecentTransactionsWidget>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryCyan.withOpacity(0.2),
-            AppTheme.primaryPurple.withOpacity(0.2),
+            AppTheme.primaryCyan.withValues(alpha: 0.2),
+            AppTheme.primaryPurple.withValues(alpha: 0.2),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryCyan.withOpacity(0.3),
+          color: AppTheme.primaryCyan.withValues(alpha: 0.3),
         ),
       ),
       child: Text(
@@ -285,7 +283,7 @@ class _RecentTransactionsWidgetState extends State<RecentTransactionsWidget>
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryCyan.withOpacity(0.3),
+              color: AppTheme.primaryCyan.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -371,8 +369,8 @@ class _RecentTransactionsWidgetState extends State<RecentTransactionsWidget>
                     shape: BoxShape.circle,
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkBorder.withOpacity(0.1),
-                        AppTheme.darkBorder.withOpacity(0.05),
+                        AppTheme.darkBorder.withValues(alpha: 0.1),
+                        AppTheme.darkBorder.withValues(alpha: 0.05),
                       ],
                     ),
                   ),
@@ -396,7 +394,7 @@ class _RecentTransactionsWidgetState extends State<RecentTransactionsWidget>
           Text(
             'ستظهر المعاملات المالية هنا',
             style: AppTextStyles.caption.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.7),
+              color: AppTheme.textMuted.withValues(alpha: 0.7),
             ),
           ),
         ],
@@ -417,13 +415,13 @@ class _RecentTransactionsWidgetState extends State<RecentTransactionsWidget>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkBackground.withOpacity(0.5),
-                AppTheme.darkBackground.withOpacity(0.3),
+                AppTheme.darkBackground.withValues(alpha: 0.5),
+                AppTheme.darkBackground.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.2),
+              color: AppTheme.darkBorder.withValues(alpha: 0.2),
             ),
           ),
           child: Row(
@@ -474,13 +472,11 @@ class _FuturisticTransactionCard extends StatefulWidget {
   final FinancialTransaction transaction;
   final int index;
   final VoidCallback? onTap;
-
   const _FuturisticTransactionCard({
     required this.transaction,
     required this.index,
     this.onTap,
   });
-
   @override
   State<_FuturisticTransactionCard> createState() =>
       _FuturisticTransactionCardState();
@@ -492,7 +488,6 @@ class _FuturisticTransactionCardState extends State<_FuturisticTransactionCard>
   late Animation<double> _scaleAnimation;
   bool _isPressed = false;
   bool _isHovered = false;
-
   @override
   void initState() {
     super.initState();
@@ -540,27 +535,27 @@ class _FuturisticTransactionCardState extends State<_FuturisticTransactionCard>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppTheme.darkBackground.withOpacity(
-                        _isHovered ? 0.9 : 0.7,
+                      AppTheme.darkBackground.withValues(
+                        alpha: _isHovered ? 0.9 : 0.7,
                       ),
-                      AppTheme.darkBackground.withOpacity(
-                        _isHovered ? 0.8 : 0.5,
+                      AppTheme.darkBackground.withValues(
+                        alpha: _isHovered ? 0.8 : 0.5,
                       ),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: _isPressed
-                        ? transactionColor.withOpacity(0.3)
+                        ? transactionColor.withValues(alpha: 0.3)
                         : _isHovered
-                            ? AppTheme.darkBorder.withOpacity(0.3)
-                            : AppTheme.darkBorder.withOpacity(0.15),
+                            ? AppTheme.darkBorder.withValues(alpha: 0.3)
+                            : AppTheme.darkBorder.withValues(alpha: 0.15),
                     width: _isPressed ? 1.5 : 1,
                   ),
                   boxShadow: _isHovered
                       ? [
                           BoxShadow(
-                            color: transactionColor.withOpacity(0.1),
+                            color: transactionColor.withValues(alpha: 0.1),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -583,7 +578,7 @@ class _FuturisticTransactionCardState extends State<_FuturisticTransactionCard>
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
                                 colors: [
-                                  transactionColor.withOpacity(0.05),
+                                  transactionColor.withValues(alpha: 0.05),
                                   Colors.transparent,
                                 ],
                               ),
@@ -665,13 +660,13 @@ class _FuturisticTransactionCardState extends State<_FuturisticTransactionCard>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            color.withOpacity(0.15),
-            color.withOpacity(0.08),
+            color.withValues(alpha: 0.15),
+            color.withValues(alpha: 0.08),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
         ),
       ),
       child: Center(
@@ -712,10 +707,10 @@ class _FuturisticTransactionCardState extends State<_FuturisticTransactionCard>
                 vertical: 4,
               ),
               decoration: BoxDecoration(
-                color: AppTheme.darkBorder.withOpacity(0.1),
+                color: AppTheme.darkBorder.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.2),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.2),
                 ),
               ),
               child: Text(
@@ -759,14 +754,14 @@ class _FuturisticTransactionCardState extends State<_FuturisticTransactionCard>
               Icon(
                 CupertinoIcons.number,
                 size: 10,
-                color: AppTheme.textMuted.withOpacity(0.7),
+                color: AppTheme.textMuted.withValues(alpha: 0.7),
               ),
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
                   'المرجع: ${widget.transaction.referenceNumber}',
                   style: AppTextStyles.caption.copyWith(
-                    color: AppTheme.textMuted.withOpacity(0.7),
+                    color: AppTheme.textMuted.withValues(alpha: 0.7),
                     fontSize: 10,
                     fontFamily: 'monospace',
                   ),
@@ -828,13 +823,13 @@ class _FuturisticTransactionCardState extends State<_FuturisticTransactionCard>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            statusColor.withOpacity(0.2),
-            statusColor.withOpacity(0.1),
+            statusColor.withValues(alpha: 0.2),
+            statusColor.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: statusColor.withOpacity(0.3),
+          color: statusColor.withValues(alpha: 0.3),
         ),
       ),
       child: Text(

@@ -11,13 +11,21 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
+/// يعرّف الكلاس `ChangePasswordPage`.
+/// Describes the `ChangePasswordPage` class.
 class ChangePasswordPage extends StatefulWidget {
+  /// Initializes a new `ChangePasswordPage` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ChangePasswordPage`.
   const ChangePasswordPage({super.key});
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<ChangePasswordPage> createState() => _ChangePasswordPageState();
 }
 
+/// يعرّف الكلاس `_ChangePasswordPageState`.
+/// Describes the `_ChangePasswordPageState` class.
 class _ChangePasswordPageState extends State<ChangePasswordPage>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
@@ -29,49 +37,116 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
   final _newFocusNode = FocusNode();
   final _confirmFocusNode = FocusNode();
 
+  /// يخزن العضو `_obscureCurrent`.
+  /// Holds the `_obscureCurrent` member.
   bool _obscureCurrent = true;
+
+  /// يخزن العضو `_obscureNew`.
+  /// Holds the `_obscureNew` member.
   bool _obscureNew = true;
+
+  /// يخزن العضو `_obscureConfirm`.
+  /// Holds the `_obscureConfirm` member.
   bool _obscureConfirm = true;
 
   // Password strength
+  /// يخزن العضو `_passwordStrength`.
+  /// Holds the `_passwordStrength` member.
   double _passwordStrength = 0.0;
+
+  /// يخزن العضو `_passwordStrengthText`.
+  /// Holds the `_passwordStrengthText` member.
   String _passwordStrengthText = '';
+
+  /// يخزن العضو `_passwordStrengthColor`.
+  /// Holds the `_passwordStrengthColor` member.
   Color _passwordStrengthColor = AppTheme.textMuted;
 
   // Animation Controllers
+  /// يخزن العضو `_backgroundAnimationController`.
+  /// Holds the `_backgroundAnimationController` member.
   late AnimationController _backgroundAnimationController;
+
+  /// يخزن العضو `_formAnimationController`.
+  /// Holds the `_formAnimationController` member.
   late AnimationController _formAnimationController;
+
+  /// يخزن العضو `_particleAnimationController`.
+  /// Holds the `_particleAnimationController` member.
   late AnimationController _particleAnimationController;
+
+  /// يخزن العضو `_glowAnimationController`.
+  /// Holds the `_glowAnimationController` member.
   late AnimationController _glowAnimationController;
+
+  /// يخزن العضو `_fieldAnimationController`.
+  /// Holds the `_fieldAnimationController` member.
   late AnimationController _fieldAnimationController;
+
+  /// يخزن العضو `_strengthAnimationController`.
+  /// Holds the `_strengthAnimationController` member.
   late AnimationController _strengthAnimationController;
+
+  /// يخزن العضو `_shimmerController`.
+  /// Holds the `_shimmerController` member.
   late AnimationController _shimmerController;
 
   // Animations
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
+
+  /// يخزن العضو `_slideAnimation`.
+  /// Holds the `_slideAnimation` member.
   late Animation<Offset> _slideAnimation;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
+
+  /// يخزن العضو `_rotationAnimation`.
+  /// Holds the `_rotationAnimation` member.
   late Animation<double> _rotationAnimation;
 
   // Particles
+  /// يخزن العضو `_particles`.
+  /// Holds the `_particles` member.
   final List<_FloatingParticle> _particles = [];
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
+
+    /// ينفذ العملية `_initializeAnimations`.
+    /// Runs the `_initializeAnimations` operation.
     _initializeAnimations();
+
+    /// ينفذ العملية `_generateParticles`.
+    /// Runs the `_generateParticles` operation.
     _generateParticles();
+
+    /// ينفذ العملية `_startAnimations`.
+    /// Runs the `_startAnimations` operation.
     _startAnimations();
+
+    /// ينفذ العملية `_setupFocusListeners`.
+    /// Runs the `_setupFocusListeners` operation.
     _setupFocusListeners();
     _newController.addListener(_checkPasswordStrength);
   }
 
+  /// ينفذ العملية `_setupFocusListeners`.
+  /// Runs the `_setupFocusListeners` operation.
   void _setupFocusListeners() {
     _currentFocusNode.addListener(_onFocusChange);
     _newFocusNode.addListener(_onFocusChange);
     _confirmFocusNode.addListener(_onFocusChange);
   }
 
+  /// ينفذ العملية `_onFocusChange`.
+  /// Runs the `_onFocusChange` operation.
   void _onFocusChange() {
     if (_currentFocusNode.hasFocus ||
         _newFocusNode.hasFocus ||
@@ -82,6 +157,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     }
   }
 
+  /// ينفذ العملية `_checkPasswordStrength`.
+  /// Runs the `_checkPasswordStrength` operation.
   void _checkPasswordStrength() {
     final password = _newController.text;
     double strength = 0;
@@ -129,6 +206,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     _strengthAnimationController.forward();
   }
 
+  /// ينفذ العملية `_initializeAnimations`.
+  /// Runs the `_initializeAnimations` operation.
   void _initializeAnimations() {
     // Background Animation
     _backgroundAnimationController = AnimationController(
@@ -202,18 +281,24 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     )..repeat();
   }
 
+  /// ينفذ العملية `_generateParticles`.
+  /// Runs the `_generateParticles` operation.
   void _generateParticles() {
     for (int i = 0; i < 20; i++) {
       _particles.add(_FloatingParticle());
     }
   }
 
+  /// ينفذ العملية `_startAnimations`.
+  /// Runs the `_startAnimations` operation.
   void _startAnimations() {
     Future.delayed(const Duration(milliseconds: 100), () {
       _formAnimationController.forward();
     });
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _currentController.dispose();
@@ -232,6 +317,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -299,6 +386,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildMinimalAppBar`.
+  /// Runs the `_buildMinimalAppBar` operation.
   Widget _buildMinimalAppBar() {
     return Container(
       height: 56,
@@ -355,6 +444,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildAnimatedBackground`.
+  /// Runs the `_buildAnimatedBackground` operation.
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: _rotationAnimation,
@@ -383,6 +474,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildParticles`.
+  /// Runs the `_buildParticles` operation.
   Widget _buildParticles() {
     return AnimatedBuilder(
       animation: _particleAnimationController,
@@ -398,6 +491,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildSecurityHeader`.
+  /// Runs the `_buildSecurityHeader` operation.
   Widget _buildSecurityHeader() {
     return Column(
       children: [
@@ -479,6 +574,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildGlassPasswordForm`.
+  /// Runs the `_buildGlassPasswordForm` operation.
   Widget _buildGlassPasswordForm(bool isLoading) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -588,6 +685,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildPasswordField`.
+  /// Runs the `_buildPasswordField` operation.
   Widget _buildPasswordField({
     required TextEditingController controller,
     required FocusNode focusNode,
@@ -729,6 +828,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildPasswordStrengthIndicator`.
+  /// Runs the `_buildPasswordStrengthIndicator` operation.
   Widget _buildPasswordStrengthIndicator() {
     return AnimatedBuilder(
       animation: _strengthAnimationController,
@@ -767,6 +868,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildPasswordTips`.
+  /// Runs the `_buildPasswordTips` operation.
   Widget _buildPasswordTips() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -837,6 +940,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildChangeButton`.
+  /// Runs the `_buildChangeButton` operation.
   Widget _buildChangeButton(bool isLoading) {
     return GestureDetector(
       onTap: isLoading ? null : _submit,
@@ -919,6 +1024,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     );
   }
 
+  /// ينفذ العملية `_submit`.
+  /// Runs the `_submit` operation.
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -936,6 +1043,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
         ));
   }
 
+  /// ينفذ العملية `_showSuccessDialog`.
+  /// Runs the `_showSuccessDialog` operation.
   void _showSuccessDialog(String message) {
     HapticFeedback.mediumImpact();
 
@@ -1031,6 +1140,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     );
   }
 
+  /// ينفذ العملية `_showErrorSnackBar`.
+  /// Runs the `_showErrorSnackBar` operation.
   void _showErrorSnackBar(String message) {
     HapticFeedback.heavyImpact();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1089,15 +1200,26 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
 // (Same code as in EditProfilePage)
 
 // Reuse Background Pattern Painter from LoginPage
+/// يعرّف الكلاس `_BackgroundPatternPainter`.
+/// Describes the `_BackgroundPatternPainter` class.
 class _BackgroundPatternPainter extends CustomPainter {
+  /// Holds the `rotation` value.
+  /// العربية: يخزن القيمة `rotation`.
   final double rotation;
+
+  /// يخزن العضو `glowIntensity`.
+  /// Holds the `glowIntensity` member.
   final double glowIntensity;
 
+  /// ينشئ مثيلاً من `_BackgroundPatternPainter`.
+  /// Builds an instance of `_BackgroundPatternPainter`.
   _BackgroundPatternPainter({
     required this.rotation,
     required this.glowIntensity,
   });
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1130,24 +1252,52 @@ class _BackgroundPatternPainter extends CustomPainter {
     }
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 // Reuse Floating Particle Model from LoginPage
+/// يعرّف الكلاس `_FloatingParticle`.
+/// Describes the `_FloatingParticle` class.
 class _FloatingParticle {
+  /// Holds the `x` value.
+  /// العربية: يخزن القيمة `x`.
   late double x;
+
+  /// يخزن العضو `y`.
+  /// Holds the `y` member.
   late double y;
+
+  /// يخزن العضو `vx`.
+  /// Holds the `vx` member.
   late double vx;
+
+  /// يخزن العضو `vy`.
+  /// Holds the `vy` member.
   late double vy;
+
+  /// يخزن العضو `radius`.
+  /// Holds the `radius` member.
   late double radius;
+
+  /// يخزن العضو `opacity`.
+  /// Holds the `opacity` member.
   late double opacity;
+
+  /// يخزن العضو `color`.
+  /// Holds the `color` member.
   late Color color;
 
+  /// ينشئ مثيلاً من `_FloatingParticle`.
+  /// Builds an instance of `_FloatingParticle`.
   _FloatingParticle() {
     reset();
   }
 
+  /// ينفذ العملية `reset`.
+  /// Runs the `reset` operation.
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -1164,6 +1314,8 @@ class _FloatingParticle {
     color = colors[math.Random().nextInt(colors.length)];
   }
 
+  /// ينفذ العملية `update`.
+  /// Runs the `update` operation.
   void update() {
     x += vx;
     y += vy;
@@ -1174,15 +1326,26 @@ class _FloatingParticle {
 }
 
 // Reuse Particle Painter from LoginPage
+/// يعرّف الكلاس `_ParticlePainter`.
+/// Describes the `_ParticlePainter` class.
 class _ParticlePainter extends CustomPainter {
+  /// Holds the `particles` value.
+  /// العربية: يخزن القيمة `particles`.
   final List<_FloatingParticle> particles;
+
+  /// يخزن العضو `animationValue`.
+  /// Holds the `animationValue` member.
   final double animationValue;
 
+  /// ينشئ مثيلاً من `_ParticlePainter`.
+  /// Builds an instance of `_ParticlePainter`.
   _ParticlePainter({
     required this.particles,
     required this.animationValue,
   });
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
@@ -1201,6 +1364,8 @@ class _ParticlePainter extends CustomPainter {
     }
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

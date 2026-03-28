@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:hggzkportal/core/constants/app_constants.dart';
 import 'package:hggzkportal/core/utils/image_utils.dart';
 import 'package:hggzkportal/core/utils/video_utils.dart';
-import 'package:hggzkportal/core/utils/image_utils.dart';
 import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:hggzkportal/core/widgets/video_player_widget.dart';
 import 'package:flutter/material.dart';
@@ -14,9 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:hggzkportal/core/theme/app_colors.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:reorderables/reorderables.dart';
@@ -25,17 +22,46 @@ import '../bloc/unit_images/unit_images_bloc.dart';
 import '../bloc/unit_images/unit_images_event.dart';
 import '../bloc/unit_images/unit_images_state.dart';
 
+/// يمثل هذا الكلاس UnitImageGallery البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitImageGallery in the admin unit workflow.
 class UnitImageGallery extends StatefulWidget {
+  /// This field keeps the unitId value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة unitId التي يعتمد عليها مسار إدارة الوحدات.
   final String? unitId;
+
+  /// يحتفظ هذا الحقل بقيمة tempKey التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the tempKey value used by the admin unit workflow.
   final String? tempKey;
+
+  /// يحتفظ هذا الحقل بقيمة isReadOnly التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the isReadOnly value used by the admin unit workflow.
   final bool isReadOnly;
+
+  /// يحتفظ هذا الحقل بقيمة maxImages التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the maxImages value used by the admin unit workflow.
   final int maxImages;
+
+  /// يحتفظ هذا الحقل بقيمة maxVideos التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the maxVideos value used by the admin unit workflow.
   final int maxVideos; // إضافة حد الفيديوهات
+  /// يستقبل callback لتحديث الصور بعد التغيير.
+  /// Accepts a callback to notify image updates.
   final Function(List<UnitImage>)? onImagesChanged;
+
+  /// يستقبل callback لتحديث الصور المحلية بعد التغيير.
+  /// Accepts a callback to notify local image updates.
   final Function(List<String>)? onLocalImagesChanged;
+
+  /// يحتفظ هذا الحقل بقيمة initialImages التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the initialImages value used by the admin unit workflow.
   final List<UnitImage>? initialImages;
+
+  /// يحتفظ هذا الحقل بقيمة initialLocalImages التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the initialLocalImages value used by the admin unit workflow.
   final List<String>? initialLocalImages;
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitImageGallery.
+  /// This constructor creates an instance of UnitImageGallery.
   const UnitImageGallery({
     super.key,
     this.unitId,
@@ -49,59 +75,146 @@ class UnitImageGallery extends StatefulWidget {
     this.initialLocalImages,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<UnitImageGallery> createState() => UnitImageGalleryState();
 }
 
+/// يمثل هذا الكلاس UnitImageGalleryState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitImageGalleryState in the admin unit workflow.
 class UnitImageGalleryState extends State<UnitImageGallery>
     with TickerProviderStateMixin {
   final ImagePicker _picker = ImagePicker();
+
+  /// يحتفظ هذا الحقل بقيمة _animationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _animationController value used by the admin unit workflow.
   late AnimationController _animationController;
+
+  /// يحتفظ هذا الحقل بقيمة _pulseController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _pulseController value used by the admin unit workflow.
   late AnimationController _pulseController;
+
+  /// يحتفظ هذا الحقل بقيمة _selectionController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectionController value used by the admin unit workflow.
   late AnimationController _selectionController;
+
+  /// يحتفظ هذا الحقل بقيمة _uploadAnimationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _uploadAnimationController value used by the admin unit workflow.
   late AnimationController _uploadAnimationController;
+
+  /// يحتفظ هذا الحقل بقيمة _imagesBloc التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _imagesBloc value used by the admin unit workflow.
   UnitImagesBloc? _imagesBloc;
 
   // Local state management
+  /// يحتفظ هذا الحقل بقيمة _localImages التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _localImages value used by the admin unit workflow.
   List<String> _localImages = [];
+
+  /// يحتفظ هذا الحقل بقيمة _remoteImages التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _remoteImages value used by the admin unit workflow.
   List<UnitImage> _remoteImages = [];
+
+  /// يحتفظ هذا الحقل بقيمة _displayImages التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _displayImages value used by the admin unit workflow.
   List<UnitImage> _displayImages = [];
 
   // تتبع الفيديوهات المنفصل
+  /// يحتفظ هذا الحقل بقيمة _videoThumbnails التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _videoThumbnails value used by the admin unit workflow.
   final Map<String, String?> _videoThumbnails =
       {}; // مسار الفيديو -> مسار الصورة المصغرة
 
   // Upload tracking
+  /// يحتفظ هذا الحقل بقيمة _uploadProgress التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _uploadProgress value used by the admin unit workflow.
   final Map<String, double> _uploadProgress = {};
+
+  /// يحتفظ هذا الحقل بقيمة _uploadingFiles التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _uploadingFiles value used by the admin unit workflow.
   final Map<String, bool> _uploadingFiles = {};
+
+  /// يحتفظ هذا الحقل بقيمة _uploadingFileObjects التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _uploadingFileObjects value used by the admin unit workflow.
   final Map<String, File?> _uploadingFileObjects = {};
+
+  /// يحتفظ هذا الحقل بقيمة _uploadingFileTypes التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _uploadingFileTypes value used by the admin unit workflow.
   final Map<String, String> _uploadingFileTypes =
       {}; // تتبع نوع الملف (image/video)
 
+  /// يحتفظ هذا الحقل بقيمة _hoveredIndex التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _hoveredIndex value used by the admin unit workflow.
   int? _hoveredIndex;
+
+  /// يحتفظ هذا الحقل بقيمة _isDragging التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isDragging value used by the admin unit workflow.
   bool _isDragging = false;
+
+  /// يحتفظ هذا الحقل بقيمة _isSelectionMode التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isSelectionMode value used by the admin unit workflow.
   bool _isSelectionMode = false;
+
+  /// يحتفظ هذا الحقل بقيمة _isReorderMode التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isReorderMode value used by the admin unit workflow.
   bool _isReorderMode = false;
+
+  /// يحتفظ هذا الحقل بقيمة _isLocalSelectionMode التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isLocalSelectionMode value used by the admin unit workflow.
   bool _isLocalSelectionMode = false;
+
+  /// يحتفظ هذا الحقل بقيمة _isLocalReorderMode التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isLocalReorderMode value used by the admin unit workflow.
   bool _isLocalReorderMode = false;
+
+  /// يحتفظ هذا الحقل بقيمة _selectedImageIds التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectedImageIds value used by the admin unit workflow.
   final Set<String> _selectedImageIds = {};
+
+  /// يحتفظ هذا الحقل بقيمة _selectedLocalIndices التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectedLocalIndices value used by the admin unit workflow.
   final Set<int> _selectedLocalIndices = {};
+
+  /// يحتفظ هذا الحقل بقيمة _primaryImageIndex التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _primaryImageIndex value used by the admin unit workflow.
   int? _primaryImageIndex = 0;
+
+  /// يحتفظ هذا الحقل بقيمة _primaryLocalImageIndex التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _primaryLocalImageIndex value used by the admin unit workflow.
   int? _primaryLocalImageIndex = 0;
 
+  /// يعيد هذا getter قيمة _isLocalMode المشتقة من الحالة الحالية.
+  /// This getter derives the _isLocalMode value from the current state.
   bool get _isLocalMode =>
       (widget.unitId == null || widget.unitId!.isEmpty) &&
       (widget.tempKey == null || widget.tempKey!.isEmpty);
+
+  /// يحتفظ هذا الحقل بقيمة _isInitialLoadDone التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isInitialLoadDone value used by the admin unit workflow.
   bool _isInitialLoadDone = false;
 
   // عد الوسائط
+  /// يعيد هذا getter قيمة _imageCount المشتقة من الحالة الحالية.
+  /// This getter derives the _imageCount value from the current state.
   int get _imageCount => _displayImages.where((img) => img.isImage).length;
+
+  /// يعيد هذا getter قيمة _videoCount المشتقة من الحالة الحالية.
+  /// This getter derives the _videoCount value from the current state.
   int get _videoCount => _displayImages.where((img) => img.isVideo).length;
+
+  /// يعيد هذا getter قيمة _localImageCount المشتقة من الحالة الحالية.
+  /// This getter derives the _localImageCount value from the current state.
   int get _localImageCount =>
       _localImages.where((path) => !AppConstants.isVideoFile(path)).length;
+
+  /// يعيد هذا getter قيمة _localVideoCount المشتقة من الحالة الحالية.
+  /// This getter derives the _localVideoCount value from the current state.
   int get _localVideoCount =>
       _localImages.where((path) => AppConstants.isVideoFile(path)).length;
 
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
@@ -109,6 +222,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     _initializeData();
   }
 
+  /// ينفذ هذا الأسلوب عملية _initializeAnimations ضمن مسار إدارة الوحدات.
+  /// This method performs the _initializeAnimations operation in the admin unit workflow.
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
@@ -132,6 +247,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     _animationController.forward();
   }
 
+  /// ينفذ هذا الأسلوب عملية _initializeData ضمن مسار إدارة الوحدات.
+  /// This method performs the _initializeData operation in the admin unit workflow.
   void _initializeData() {
     if (widget.initialLocalImages != null) {
       _localImages = List.from(widget.initialLocalImages!);
@@ -147,6 +264,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _generateThumbnailsForLocalVideos ضمن مسار إدارة الوحدات.
+  /// This method performs the _generateThumbnailsForLocalVideos operation in the admin unit workflow.
   Future<void> _generateThumbnailsForLocalVideos() async {
     for (String path in _localImages) {
       if (AppConstants.isVideoFile(path)) {
@@ -160,6 +279,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية didChangeDependencies ضمن مسار إدارة الوحدات.
+  /// This method performs the didChangeDependencies operation in the admin unit workflow.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -180,6 +301,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _animationController.dispose();
@@ -189,6 +312,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     super.dispose();
   }
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     if (_isLocalMode) {
@@ -210,6 +335,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية uploadLocalImages ضمن مسار إدارة الوحدات.
+  /// This method performs the uploadLocalImages operation in the admin unit workflow.
   Future<void> uploadLocalImages(String newUnitId) async {
     if (_localImages.isEmpty || _imagesBloc == null) return;
 
@@ -225,6 +352,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     });
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildContent ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildContent operation in the admin unit workflow.
   Widget _buildContent(UnitImagesState state) {
     final images =
         _displayImages.isNotEmpty ? _displayImages : getImagesFromState(state);
@@ -247,6 +376,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildLocalModeContent ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildLocalModeContent operation in the admin unit workflow.
   Widget _buildLocalModeContent() {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -280,6 +411,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildLocalReorderableGrid ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildLocalReorderableGrid operation in the admin unit workflow.
   Widget _buildLocalReorderableGrid(List<String> images) {
     return ReorderableWrap(
       spacing: 8,
@@ -296,6 +429,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildReorderableLocalImageItem ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildReorderableLocalImageItem operation in the admin unit workflow.
   Widget _buildReorderableLocalImageItem(String imagePath, int index) {
     final isPrimary = index == _primaryLocalImageIndex;
 
@@ -306,7 +441,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.3),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -325,13 +460,13 @@ class UnitImageGalleryState extends State<UnitImageGallery>
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.8),
+                color: AppTheme.darkCard.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(
                 Icons.drag_indicator_rounded,
                 size: 16,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
               ),
             ),
           ),
@@ -344,7 +479,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.9),
+                color: AppTheme.darkCard.withValues(alpha: 0.9),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -368,7 +503,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.warning.withOpacity(0.9),
+                  color: AppTheme.warning.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -397,6 +532,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _reorderLocalImages ضمن مسار إدارة الوحدات.
+  /// This method performs the _reorderLocalImages operation in the admin unit workflow.
   void _reorderLocalImages(int oldIndex, int newIndex) {
     setState(() {
       final image = _localImages.removeAt(oldIndex);
@@ -419,6 +556,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildLocalHeaderSection ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildLocalHeaderSection operation in the admin unit workflow.
   Widget _buildLocalHeaderSection(int imageCount) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -447,7 +586,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                   Text(
                     'صور: $_localImageCount/${widget.maxImages} • فيديو: $_localVideoCount/${widget.maxVideos}',
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.textMuted.withOpacity(0.7),
+                      color: AppTheme.textMuted.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w300,
                     ),
                   ),
@@ -462,10 +601,10 @@ class UnitImageGalleryState extends State<UnitImageGallery>
               margin: const EdgeInsets.only(top: 12),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.1),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: AppTheme.primaryBlue.withOpacity(0.2),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 ),
               ),
               child: Row(
@@ -475,7 +614,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                         ? Icons.info_outline_rounded
                         : Icons.drag_indicator_rounded,
                     size: 14,
-                    color: AppTheme.primaryBlue.withOpacity(0.7),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -483,7 +622,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                         ? 'اضغط على الوسائط لتحديدها'
                         : 'اسحب الوسائط لإعادة ترتيبها',
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.primaryBlue.withOpacity(0.8),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.8),
                       fontSize: 11,
                     ),
                   ),
@@ -495,10 +634,10 @@ class UnitImageGalleryState extends State<UnitImageGallery>
               margin: const EdgeInsets.only(top: 12),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: AppTheme.warning.withOpacity(0.1),
+                color: AppTheme.warning.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: AppTheme.warning.withOpacity(0.3),
+                  color: AppTheme.warning.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -525,6 +664,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildLocalHeaderActions ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildLocalHeaderActions operation in the admin unit workflow.
   Widget _buildLocalHeaderActions() {
     return Row(
       children: [
@@ -567,6 +708,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildLocalImagesGrid ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildLocalImagesGrid operation in the admin unit workflow.
   Widget _buildLocalImagesGrid(List<String> items) {
     return AnimationLimiter(
       child: GridView.builder(
@@ -600,6 +743,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildLocalMediaItem ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildLocalMediaItem operation in the admin unit workflow.
   Widget _buildLocalMediaItem(String path, int index, bool isSelected) {
     final bool isHovered = _hoveredIndex == index;
     final bool isPrimary = index == _primaryLocalImageIndex;
@@ -640,14 +785,14 @@ class UnitImageGalleryState extends State<UnitImageGallery>
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected
-                  ? AppTheme.primaryBlue.withOpacity(0.6)
-                  : AppTheme.darkBorder.withOpacity(0.1),
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.6)
+                  : AppTheme.darkBorder.withValues(alpha: 0.1),
               width: isSelected ? 2.5 : 1,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.2),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                       blurRadius: 8,
                       spreadRadius: 1,
                     ),
@@ -671,8 +816,9 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(
-                            isHovered || _isLocalSelectionMode ? 0.6 : 0.3),
+                        Colors.black.withValues(
+                            alpha:
+                                isHovered || _isLocalSelectionMode ? 0.6 : 0.3),
                       ],
                     ),
                   ),
@@ -682,7 +828,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkCard.withOpacity(0.7),
+                        color: AppTheme.darkCard.withValues(alpha: 0.7),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -716,8 +862,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: isVideo
-                          ? AppTheme.info.withOpacity(0.8)
-                          : AppTheme.darkCard.withOpacity(0.8),
+                          ? AppTheme.info.withValues(alpha: 0.8)
+                          : AppTheme.darkCard.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(
@@ -732,7 +878,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                         Text(
                           isVideo ? 'فيديو' : '${index + 1}',
                           style: AppTextStyles.caption.copyWith(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
                           ),
@@ -749,11 +895,11 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.warning.withOpacity(0.9),
+                        color: AppTheme.warning.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(6),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.warning.withOpacity(0.3),
+                            color: AppTheme.warning.withValues(alpha: 0.3),
                             blurRadius: 6,
                             spreadRadius: 1,
                           ),
@@ -790,15 +936,15 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppTheme.primaryBlue
-                            : AppTheme.darkCard.withOpacity(0.8),
+                            : AppTheme.darkCard.withValues(alpha: 0.8),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           width: 2,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 4,
                           ),
                         ],
@@ -819,7 +965,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: AppTheme.warning.withOpacity(0.8),
+                        color: AppTheme.warning.withValues(alpha: 0.8),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -837,6 +983,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildVideoThumbnail ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildVideoThumbnail operation in the admin unit workflow.
   Widget _buildVideoThumbnail(String videoPath) {
     final thumbnail = _videoThumbnails[videoPath];
 
@@ -853,19 +1001,23 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     return buildVideoPlaceholder();
   }
 
+  /// ينفذ هذا الأسلوب عملية buildVideoPlaceholder ضمن مسار إدارة الوحدات.
+  /// This method performs the buildVideoPlaceholder operation in the admin unit workflow.
   Widget buildVideoPlaceholder() {
     return Container(
-      color: AppTheme.darkCard.withOpacity(0.3),
+      color: AppTheme.darkCard.withValues(alpha: 0.3),
       child: Center(
         child: Icon(
           Icons.videocam_outlined,
-          color: AppTheme.textMuted.withOpacity(0.5),
+          color: AppTheme.textMuted.withValues(alpha: 0.5),
           size: 32,
         ),
       ),
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية buildQuickActions ضمن مسار إدارة الوحدات.
+  /// This method performs the buildQuickActions operation in the admin unit workflow.
   Widget buildQuickActions({
     required VoidCallback onView,
     VoidCallback? onSetPrimary,
@@ -897,6 +1049,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية buildImageFromPath ضمن مسار إدارة الوحدات.
+  /// This method performs the buildImageFromPath operation in the admin unit workflow.
   Widget buildImageFromPath(String path) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -916,13 +1070,13 @@ class UnitImageGalleryState extends State<UnitImageGallery>
               filterQuality: FilterQuality.low,
             ),
             placeholder: (context, url) => Container(
-              color: AppTheme.darkCard.withOpacity(0.3),
+              color: AppTheme.darkCard.withValues(alpha: 0.3),
             ),
             errorWidget: (context, url, error) => Container(
-              color: AppTheme.darkCard.withOpacity(0.3),
+              color: AppTheme.darkCard.withValues(alpha: 0.3),
               child: Icon(
                 Icons.image_not_supported_outlined,
-                color: AppTheme.textMuted.withOpacity(0.3),
+                color: AppTheme.textMuted.withValues(alpha: 0.3),
                 size: 24,
               ),
             ),
@@ -935,10 +1089,10 @@ class UnitImageGalleryState extends State<UnitImageGallery>
             cacheWidth: targetWidth,
             errorBuilder: (context, error, stackTrace) {
               return Container(
-                color: AppTheme.darkCard.withOpacity(0.3),
+                color: AppTheme.darkCard.withValues(alpha: 0.3),
                 child: Icon(
                   Icons.image_not_supported_outlined,
-                  color: AppTheme.textMuted.withOpacity(0.3),
+                  color: AppTheme.textMuted.withValues(alpha: 0.3),
                   size: 24,
                 ),
               );
@@ -949,6 +1103,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية deleteLocalImage ضمن مسار إدارة الوحدات.
+  /// This method performs the deleteLocalImage operation in the admin unit workflow.
   void deleteLocalImage(int index) {
     setState(() {
       _localImages.removeAt(index);
@@ -981,6 +1137,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     showSuccessSnackBar('تم حذف الصورة');
   }
 
+  /// ينفذ هذا الأسلوب عملية confirmDeleteLocalImage ضمن مسار إدارة الوحدات.
+  /// This method performs the confirmDeleteLocalImage operation in the admin unit workflow.
   void confirmDeleteLocalImage(int index) {
     showDialog(
       fullscreenDialog: true,
@@ -995,6 +1153,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية showLocalMediaOptionsMenu ضمن مسار إدارة الوحدات.
+  /// This method performs the showLocalMediaOptionsMenu operation in the admin unit workflow.
   void showLocalMediaOptionsMenu(String path, int index, bool isVideo) {
     showModalBottomSheet(
       context: context,
@@ -1026,6 +1186,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية confirmDeleteLocalMedia ضمن مسار إدارة الوحدات.
+  /// This method performs the confirmDeleteLocalMedia operation in the admin unit workflow.
   void confirmDeleteLocalMedia(int index) {
     showDialog(
       fullscreenDialog: true,
@@ -1040,6 +1202,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية deleteLocalMedia ضمن مسار إدارة الوحدات.
+  /// This method performs the deleteLocalMedia operation in the admin unit workflow.
   void deleteLocalMedia(int index) {
     setState(() {
       final path = _localImages[index];
@@ -1076,6 +1240,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     showSuccessSnackBar('تم حذف الوسائط');
   }
 
+  /// ينفذ هذا الأسلوب عملية pickVideo ضمن مسار إدارة الوحدات.
+  /// This method performs the pickVideo operation in the admin unit workflow.
   Future<void> pickVideo() async {
     try {
       final XFile? video = await _picker.pickVideo(
@@ -1101,6 +1267,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية handleMediaFile ضمن مسار إدارة الوحدات.
+  /// This method performs the handleMediaFile operation in the admin unit workflow.
   Future<void> handleMediaFile(String filePath, {required bool isVideo}) async {
     if (_isLocalMode) {
       // Generate thumbnail for video
@@ -1151,6 +1319,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية pickImage ضمن مسار إدارة الوحدات.
+  /// This method performs the pickImage operation in the admin unit workflow.
   Future<void> pickImage(ImageSource source) async {
     try {
       final XFile? image = await _picker.pickImage(
@@ -1166,6 +1336,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية pickMultipleImages ضمن مسار إدارة الوحدات.
+  /// This method performs the pickMultipleImages operation in the admin unit workflow.
   Future<void> pickMultipleImages() async {
     try {
       final List<XFile> images = await _picker.pickMultiImage(
@@ -1217,6 +1389,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 1. _buildLocalHeaderActions
+  /// ينفذ هذا الأسلوب عملية buildLocalHeaderActions ضمن مسار إدارة الوحدات.
+  /// This method performs the buildLocalHeaderActions operation in the admin unit workflow.
   Widget buildLocalHeaderActions() {
     return Row(
       children: [
@@ -1260,6 +1434,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 2. _toggleLocalSelectionMode
+  /// ينفذ هذا الأسلوب عملية toggleLocalSelectionMode ضمن مسار إدارة الوحدات.
+  /// This method performs the toggleLocalSelectionMode operation in the admin unit workflow.
   void toggleLocalSelectionMode() {
     setState(() {
       _isLocalSelectionMode = !_isLocalSelectionMode;
@@ -1272,6 +1448,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 3. _toggleLocalReorderMode
+  /// ينفذ هذا الأسلوب عملية toggleLocalReorderMode ضمن مسار إدارة الوحدات.
+  /// This method performs the toggleLocalReorderMode operation in the admin unit workflow.
   void toggleLocalReorderMode() {
     setState(() {
       _isLocalReorderMode = !_isLocalReorderMode;
@@ -1283,6 +1461,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 4. _deleteSelectedLocalImages
+  /// ينفذ هذا الأسلوب عملية deleteSelectedLocalImages ضمن مسار إدارة الوحدات.
+  /// This method performs the deleteSelectedLocalImages operation in the admin unit workflow.
   void deleteSelectedLocalImages() {
     if (_selectedLocalIndices.isEmpty) return;
 
@@ -1324,6 +1504,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 5. _buildLocalReorderableGrid
+  /// ينفذ هذا الأسلوب عملية buildLocalReorderableGrid ضمن مسار إدارة الوحدات.
+  /// This method performs the buildLocalReorderableGrid operation in the admin unit workflow.
   Widget buildLocalReorderableGrid(List<String> items) {
     return ReorderableWrap(
       spacing: 8,
@@ -1341,6 +1523,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 6. _buildReorderableLocalMediaItem
+  /// ينفذ هذا الأسلوب عملية buildReorderableLocalMediaItem ضمن مسار إدارة الوحدات.
+  /// This method performs the buildReorderableLocalMediaItem operation in the admin unit workflow.
   Widget buildReorderableLocalMediaItem(String path, int index) {
     final isPrimary = index == _primaryLocalImageIndex;
     final isVideo = AppConstants.isVideoFile(path);
@@ -1352,7 +1536,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.3),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -1370,13 +1554,13 @@ class UnitImageGalleryState extends State<UnitImageGallery>
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.8),
+                color: AppTheme.darkCard.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(
                 Icons.drag_indicator_rounded,
                 size: 16,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
               ),
             ),
           ),
@@ -1387,7 +1571,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.9),
+                color: AppTheme.darkCard.withValues(alpha: 0.9),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -1409,7 +1593,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.warning.withOpacity(0.9),
+                  color: AppTheme.warning.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -1439,6 +1623,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 7. _reorderLocalImages
+  /// ينفذ هذا الأسلوب عملية reorderLocalImages ضمن مسار إدارة الوحدات.
+  /// This method performs the reorderLocalImages operation in the admin unit workflow.
   void reorderLocalImages(int oldIndex, int newIndex) {
     setState(() {
       final item = _localImages.removeAt(oldIndex);
@@ -1461,6 +1647,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 8. _setLocalPrimaryImage
+  /// ينفذ هذا الأسلوب عملية setLocalPrimaryImage ضمن مسار إدارة الوحدات.
+  /// This method performs the setLocalPrimaryImage operation in the admin unit workflow.
   void setLocalPrimaryImage(int index) {
     setState(() {
       _primaryLocalImageIndex = index;
@@ -1469,6 +1657,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 9. _buildHeaderActions
+  /// ينفذ هذا الأسلوب عملية buildHeaderActions ضمن مسار إدارة الوحدات.
+  /// This method performs the buildHeaderActions operation in the admin unit workflow.
   Widget buildHeaderActions(bool isSelectionMode) {
     return Row(
       children: [
@@ -1510,6 +1700,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 10. _buildActionChip
+  /// ينفذ هذا الأسلوب عملية buildActionChip ضمن مسار إدارة الوحدات.
+  /// This method performs the buildActionChip operation in the admin unit workflow.
   Widget buildActionChip({
     required IconData icon,
     required String label,
@@ -1524,17 +1716,17 @@ class UnitImageGalleryState extends State<UnitImageGallery>
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: isDestructive
-              ? AppTheme.error.withOpacity(0.1)
+              ? AppTheme.error.withValues(alpha: 0.1)
               : isActive
-                  ? AppTheme.primaryBlue.withOpacity(0.15)
-                  : Colors.white.withOpacity(0.05),
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.15)
+                  : Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isDestructive
-                ? AppTheme.error.withOpacity(0.3)
+                ? AppTheme.error.withValues(alpha: 0.3)
                 : isActive
-                    ? AppTheme.primaryBlue.withOpacity(0.3)
-                    : Colors.white.withOpacity(0.1),
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                    : Colors.white.withValues(alpha: 0.1),
           ),
         ),
         child: Row(
@@ -1547,7 +1739,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                   ? AppTheme.error
                   : isActive
                       ? AppTheme.primaryBlue
-                      : Colors.white.withOpacity(0.6),
+                      : Colors.white.withValues(alpha: 0.6),
             ),
             const SizedBox(width: 4),
             Text(
@@ -1557,7 +1749,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                     ? AppTheme.error
                     : isActive
                         ? AppTheme.primaryBlue
-                        : Colors.white.withOpacity(0.7),
+                        : Colors.white.withValues(alpha: 0.7),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
@@ -1569,6 +1761,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 11. _toggleSelectionMode
+  /// ينفذ هذا الأسلوب عملية toggleSelectionMode ضمن مسار إدارة الوحدات.
+  /// This method performs the toggleSelectionMode operation in the admin unit workflow.
   void toggleSelectionMode() {
     setState(() {
       _isSelectionMode = !_isSelectionMode;
@@ -1587,6 +1781,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 12. _toggleReorderMode
+  /// ينفذ هذا الأسلوب عملية toggleReorderMode ضمن مسار إدارة الوحدات.
+  /// This method performs the toggleReorderMode operation in the admin unit workflow.
   void toggleReorderMode() {
     setState(() {
       _isReorderMode = !_isReorderMode;
@@ -1598,11 +1794,13 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 13. _buildMinimalistLoadingState
+  /// ينفذ هذا الأسلوب عملية buildMinimalistLoadingState ضمن مسار إدارة الوحدات.
+  /// This method performs the buildMinimalistLoadingState operation in the admin unit workflow.
   Widget buildMinimalistLoadingState() {
     return Container(
       height: 180,
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.1),
+        color: AppTheme.darkCard.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Center(
@@ -1615,14 +1813,14 @@ class UnitImageGalleryState extends State<UnitImageGallery>
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                    AppTheme.primaryBlue.withOpacity(0.5)),
+                    AppTheme.primaryBlue.withValues(alpha: 0.5)),
               ),
             ),
             const SizedBox(height: 16),
             Text(
               'جاري التحميل...',
               style: AppTextStyles.caption.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
                 fontWeight: FontWeight.w300,
               ),
             ),
@@ -1633,14 +1831,16 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 14. _buildMinimalistEmptyState
+  /// ينفذ هذا الأسلوب عملية buildMinimalistEmptyState ضمن مسار إدارة الوحدات.
+  /// This method performs the buildMinimalistEmptyState operation in the admin unit workflow.
   Widget buildMinimalistEmptyState() {
     return Container(
       height: 180,
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.05),
+        color: AppTheme.darkCard.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.1),
+          color: AppTheme.darkBorder.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -1650,14 +1850,14 @@ class UnitImageGalleryState extends State<UnitImageGallery>
           children: [
             Icon(
               Icons.image_not_supported_outlined,
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
               size: 32,
             ),
             const SizedBox(height: 12),
             Text(
               'لا توجد وسائط',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
                 fontWeight: FontWeight.w300,
               ),
             ),
@@ -1668,6 +1868,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 15. _buildReorderableGrid
+  /// ينفذ هذا الأسلوب عملية buildReorderableGrid ضمن مسار إدارة الوحدات.
+  /// This method performs the buildReorderableGrid operation in the admin unit workflow.
   Widget buildReorderableGrid(List<UnitImage> images) {
     return ReorderableWrap(
       spacing: 8,
@@ -1685,6 +1887,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 16. _buildReorderableImageItem
+  /// ينفذ هذا الأسلوب عملية buildReorderableImageItem ضمن مسار إدارة الوحدات.
+  /// This method performs the buildReorderableImageItem operation in the admin unit workflow.
   Widget buildReorderableImageItem(UnitImage image, int index) {
     final isPrimary = index == _primaryImageIndex;
     final isVideo = image.isVideo;
@@ -1696,7 +1900,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.3),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
           width: 2,
         ),
       ),
@@ -1715,13 +1919,13 @@ class UnitImageGalleryState extends State<UnitImageGallery>
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.8),
+                color: AppTheme.darkCard.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Icon(
                 Icons.drag_indicator_rounded,
                 size: 16,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
               ),
             ),
           ),
@@ -1732,7 +1936,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.9),
+                color: AppTheme.darkCard.withValues(alpha: 0.9),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -1754,7 +1958,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.warning.withOpacity(0.9),
+                  color: AppTheme.warning.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -1784,6 +1988,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 17. _reorderImages
+  /// ينفذ هذا الأسلوب عملية reorderImages ضمن مسار إدارة الوحدات.
+  /// This method performs the reorderImages operation in the admin unit workflow.
   void reorderImages(int oldIndex, int newIndex) {
     setState(() {
       final image = _displayImages.removeAt(oldIndex);
@@ -1815,6 +2021,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 18. _showMediaOptionsMenu
+  /// ينفذ هذا الأسلوب عملية showMediaOptionsMenu ضمن مسار إدارة الوحدات.
+  /// This method performs the showMediaOptionsMenu operation in the admin unit workflow.
   void showMediaOptionsMenu(UnitImage media, int index) {
     showModalBottomSheet(
       context: context,
@@ -1847,6 +2055,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 19. _setPrimaryImage
+  /// ينفذ هذا الأسلوب عملية setPrimaryImage ضمن مسار إدارة الوحدات.
+  /// This method performs the setPrimaryImage operation in the admin unit workflow.
   void setPrimaryImage(int index) {
     setState(() {
       _primaryImageIndex = index;
@@ -1866,6 +2076,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 20. _confirmDeleteImage
+  /// ينفذ هذا الأسلوب عملية confirmDeleteImage ضمن مسار إدارة الوحدات.
+  /// This method performs the confirmDeleteImage operation in the admin unit workflow.
   void confirmDeleteImage(UnitImage media) {
     showDialog(
       fullscreenDialog: true,
@@ -1901,6 +2113,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 21. _deleteSelectedImages
+  /// ينفذ هذا الأسلوب عملية deleteSelectedImages ضمن مسار إدارة الوحدات.
+  /// This method performs the deleteSelectedImages operation in the admin unit workflow.
   void deleteSelectedImages() {
     if (_selectedImageIds.isEmpty) return;
 
@@ -1932,6 +2146,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 22. _buildOptimizedImage
+  /// ينفذ هذا الأسلوب عملية buildOptimizedImage ضمن مسار إدارة الوحدات.
+  /// This method performs the buildOptimizedImage operation in the admin unit workflow.
   Widget buildOptimizedImage(UnitImage image) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -1950,13 +2166,13 @@ class UnitImageGalleryState extends State<UnitImageGallery>
             filterQuality: FilterQuality.low,
           ),
           placeholder: (context, url) => Container(
-            color: AppTheme.darkCard.withOpacity(0.3),
+            color: AppTheme.darkCard.withValues(alpha: 0.3),
           ),
           errorWidget: (context, url, error) => Container(
-            color: AppTheme.darkCard.withOpacity(0.3),
+            color: AppTheme.darkCard.withValues(alpha: 0.3),
             child: Icon(
               Icons.image_not_supported_outlined,
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
               size: 24,
             ),
           ),
@@ -1966,6 +2182,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 23. _buildImageFromPath
+  /// ينفذ هذا الأسلوب عملية _buildImageFromPath ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildImageFromPath operation in the admin unit workflow.
   Widget _buildImageFromPath(String path) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -1985,13 +2203,13 @@ class UnitImageGalleryState extends State<UnitImageGallery>
               filterQuality: FilterQuality.low,
             ),
             placeholder: (context, url) => Container(
-              color: AppTheme.darkCard.withOpacity(0.3),
+              color: AppTheme.darkCard.withValues(alpha: 0.3),
             ),
             errorWidget: (context, url, error) => Container(
-              color: AppTheme.darkCard.withOpacity(0.3),
+              color: AppTheme.darkCard.withValues(alpha: 0.3),
               child: Icon(
                 Icons.image_not_supported_outlined,
-                color: AppTheme.textMuted.withOpacity(0.3),
+                color: AppTheme.textMuted.withValues(alpha: 0.3),
                 size: 24,
               ),
             ),
@@ -2004,10 +2222,10 @@ class UnitImageGalleryState extends State<UnitImageGallery>
             cacheWidth: targetWidth,
             errorBuilder: (context, error, stackTrace) {
               return Container(
-                color: AppTheme.darkCard.withOpacity(0.3),
+                color: AppTheme.darkCard.withValues(alpha: 0.3),
                 child: Icon(
                   Icons.image_not_supported_outlined,
-                  color: AppTheme.textMuted.withOpacity(0.3),
+                  color: AppTheme.textMuted.withValues(alpha: 0.3),
                   size: 24,
                 ),
               );
@@ -2019,6 +2237,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 24. _buildQuickActionButton
+  /// ينفذ هذا الأسلوب عملية buildQuickActionButton ضمن مسار إدارة الوحدات.
+  /// This method performs the buildQuickActionButton operation in the admin unit workflow.
   Widget buildQuickActionButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -2030,17 +2250,18 @@ class UnitImageGalleryState extends State<UnitImageGallery>
         width: 28,
         height: 28,
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withOpacity(0.95),
+          color: AppTheme.darkCard.withValues(alpha: 0.95),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color:
-                color?.withOpacity(0.3) ?? AppTheme.darkBorder.withOpacity(0.2),
+            color: color?.withValues(alpha: 0.3) ??
+                AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
         child: Icon(
           icon,
-          color: color?.withOpacity(0.9) ?? AppTheme.textWhite.withOpacity(0.8),
+          color: color?.withValues(alpha: 0.9) ??
+              AppTheme.textWhite.withValues(alpha: 0.8),
           size: 14,
         ),
       ),
@@ -2048,6 +2269,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 25. _handleStateChanges
+  /// ينفذ هذا الأسلوب عملية handleStateChanges ضمن مسار إدارة الوحدات.
+  /// This method performs the handleStateChanges operation in the admin unit workflow.
   void handleStateChanges(UnitImagesState state) {
     if (state is UnitImagesLoaded) {
       setState(() {
@@ -2115,6 +2338,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 26. _getImagesFromState
+  /// ينفذ هذا الأسلوب عملية getImagesFromState ضمن مسار إدارة الوحدات.
+  /// This method performs the getImagesFromState operation in the admin unit workflow.
   List<UnitImage> getImagesFromState(UnitImagesState state) {
     if (state is UnitImagesLoaded) return state.images;
     if (state is UnitImageUploaded) return state.allImages;
@@ -2133,6 +2358,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 27. _showSuccessSnackBar
+  /// ينفذ هذا الأسلوب عملية showSuccessSnackBar ضمن مسار إدارة الوحدات.
+  /// This method performs the showSuccessSnackBar operation in the admin unit workflow.
   void showSuccessSnackBar(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -2143,7 +2370,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
             color: Colors.white,
           ),
         ),
-        backgroundColor: AppTheme.success.withOpacity(0.9),
+        backgroundColor: AppTheme.success.withValues(alpha: 0.9),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -2155,6 +2382,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
   }
 
   // 28. _showErrorSnackBar
+  /// ينفذ هذا الأسلوب عملية showErrorSnackBar ضمن مسار إدارة الوحدات.
+  /// This method performs the showErrorSnackBar operation in the admin unit workflow.
   void showErrorSnackBar(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -2165,7 +2394,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
             color: Colors.white,
           ),
         ),
-        backgroundColor: AppTheme.error.withOpacity(0.9),
+        backgroundColor: AppTheme.error.withValues(alpha: 0.9),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -2176,6 +2405,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية buildEnhancedHeader ضمن مسار إدارة الوحدات.
+  /// This method performs the buildEnhancedHeader operation in the admin unit workflow.
   Widget buildEnhancedHeader(int totalCount, UnitImagesState state) {
     final isSelectionMode =
         state is UnitImagesLoaded ? state.isSelectionMode : _isSelectionMode;
@@ -2210,7 +2441,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                   Text(
                     'صور: $_imageCount/${widget.maxImages} • فيديو: $_videoCount/${widget.maxVideos}',
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.textMuted.withOpacity(0.7),
+                      color: AppTheme.textMuted.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w300,
                     ),
                   ),
@@ -2225,10 +2456,10 @@ class UnitImageGalleryState extends State<UnitImageGallery>
               margin: const EdgeInsets.only(top: 12),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.1),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: AppTheme.primaryBlue.withOpacity(0.2),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 ),
               ),
               child: Row(
@@ -2238,7 +2469,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                         ? Icons.info_outline_rounded
                         : Icons.drag_indicator_rounded,
                     size: 14,
-                    color: AppTheme.primaryBlue.withOpacity(0.7),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -2246,7 +2477,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                         ? 'اضغط على الوسائط لتحديدها'
                         : 'اسحب الوسائط لإعادة ترتيبها',
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.primaryBlue.withOpacity(0.8),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.8),
                       fontSize: 11,
                     ),
                   ),
@@ -2258,6 +2489,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية buildEnhancedUploadProgressCards ضمن مسار إدارة الوحدات.
+  /// This method performs the buildEnhancedUploadProgressCards operation in the admin unit workflow.
   Widget buildEnhancedUploadProgressCards() {
     return Column(
       children: _uploadingFiles.entries.map((entry) {
@@ -2270,6 +2503,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية buildEnhancedUploadProgressCard ضمن مسار إدارة الوحدات.
+  /// This method performs the buildEnhancedUploadProgressCard operation in the admin unit workflow.
   Widget buildEnhancedUploadProgressCard(
       String fileKey, double progress, File? file, String fileType) {
     final fileName = file?.path.split('/').last ?? 'ملف';
@@ -2286,22 +2521,22 @@ class UnitImageGalleryState extends State<UnitImageGallery>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppTheme.darkCard.withOpacity(0.4),
-                AppTheme.darkCard.withOpacity(0.2),
+                AppTheme.darkCard.withValues(alpha: 0.4),
+                AppTheme.darkCard.withValues(alpha: 0.2),
               ],
             ),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isComplete
-                  ? AppTheme.success.withOpacity(0.3)
-                  : AppTheme.primaryBlue.withOpacity(0.2),
+                  ? AppTheme.success.withValues(alpha: 0.3)
+                  : AppTheme.primaryBlue.withValues(alpha: 0.2),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
                 color: isComplete
-                    ? AppTheme.success.withOpacity(0.1)
-                    : AppTheme.primaryBlue.withOpacity(0.1),
+                    ? AppTheme.success.withValues(alpha: 0.1)
+                    : AppTheme.primaryBlue.withValues(alpha: 0.1),
                 blurRadius: 10,
                 spreadRadius: 2,
               ),
@@ -2322,7 +2557,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.2),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.2),
                         ),
                       ),
                       child: ClipRRect(
@@ -2342,14 +2577,16 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                               Icon(
                                 isVideo ? Icons.videocam : Icons.image,
                                 size: 14,
-                                color: AppTheme.primaryBlue.withOpacity(0.7),
+                                color:
+                                    AppTheme.primaryBlue.withValues(alpha: 0.7),
                               ),
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
                                   fileName,
                                   style: AppTextStyles.bodySmall.copyWith(
-                                    color: AppTheme.textWhite.withOpacity(0.9),
+                                    color: AppTheme.textWhite
+                                        .withValues(alpha: 0.9),
                                     fontWeight: FontWeight.w400,
                                   ),
                                   maxLines: 1,
@@ -2364,8 +2601,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                                         key: const ValueKey('complete'),
                                         padding: const EdgeInsets.all(4),
                                         decoration: BoxDecoration(
-                                          color:
-                                              AppTheme.success.withOpacity(0.2),
+                                          color: AppTheme.success
+                                              .withValues(alpha: 0.2),
                                           shape: BoxShape.circle,
                                         ),
                                         child: Icon(
@@ -2383,9 +2620,11 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
                                               color: AppTheme.primaryBlue
-                                                  .withOpacity(0.1 +
-                                                      (_pulseController.value *
-                                                          0.1)),
+                                                  .withValues(
+                                                      alpha: 0.1 +
+                                                          (_pulseController
+                                                                  .value *
+                                                              0.1)),
                                             ),
                                             child: Icon(
                                               Icons.cloud_upload_outlined,
@@ -2406,7 +2645,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                               Container(
                                 height: 4,
                                 decoration: BoxDecoration(
-                                  color: AppTheme.darkBorder.withOpacity(0.1),
+                                  color: AppTheme.darkBorder
+                                      .withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
@@ -2421,21 +2661,23 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                                     colors: isComplete
                                         ? [
                                             AppTheme.success,
-                                            AppTheme.success.withOpacity(0.7)
+                                            AppTheme.success
+                                                .withValues(alpha: 0.7)
                                           ]
                                         : [
                                             AppTheme.primaryBlue,
                                             AppTheme.primaryBlue
-                                                .withOpacity(0.7)
+                                                .withValues(alpha: 0.7)
                                           ],
                                   ),
                                   borderRadius: BorderRadius.circular(2),
                                   boxShadow: [
                                     BoxShadow(
                                       color: isComplete
-                                          ? AppTheme.success.withOpacity(0.3)
+                                          ? AppTheme.success
+                                              .withValues(alpha: 0.3)
                                           : AppTheme.primaryBlue
-                                              .withOpacity(0.3),
+                                              .withValues(alpha: 0.3),
                                       blurRadius: 4,
                                       spreadRadius: 0,
                                     ),
@@ -2452,8 +2694,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                                 : 'جاري الرفع... ${(progress * 100).toInt()}%',
                             style: AppTextStyles.caption.copyWith(
                               color: isComplete
-                                  ? AppTheme.success.withOpacity(0.8)
-                                  : AppTheme.textMuted.withOpacity(0.7),
+                                  ? AppTheme.success.withValues(alpha: 0.8)
+                                  : AppTheme.textMuted.withValues(alpha: 0.7),
                               fontSize: 11,
                             ),
                           ),
@@ -2470,13 +2712,15 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية buildUploadThumbnail ضمن مسار إدارة الوحدات.
+  /// This method performs the buildUploadThumbnail operation in the admin unit workflow.
   Widget buildUploadThumbnail(File? file, bool isVideo) {
     if (file == null) {
       return Container(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         child: Icon(
           isVideo ? Icons.videocam_outlined : Icons.image_outlined,
-          color: AppTheme.textMuted.withOpacity(0.5),
+          color: AppTheme.textMuted.withValues(alpha: 0.5),
           size: 24,
         ),
       );
@@ -2499,10 +2743,10 @@ class UnitImageGalleryState extends State<UnitImageGallery>
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
         return Container(
-          color: AppTheme.darkCard.withOpacity(0.5),
+          color: AppTheme.darkCard.withValues(alpha: 0.5),
           child: Icon(
             Icons.image_outlined,
-            color: AppTheme.textMuted.withOpacity(0.5),
+            color: AppTheme.textMuted.withValues(alpha: 0.5),
             size: 24,
           ),
         );
@@ -2510,6 +2754,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية buildMainContent ضمن مسار إدارة الوحدات.
+  /// This method performs the buildMainContent operation in the admin unit workflow.
   Widget buildMainContent(List<UnitImage> images, UnitImagesState state) {
     if (state is UnitImagesLoading && images.isEmpty) {
       return buildMinimalistLoadingState();
@@ -2547,6 +2793,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية buildEnhancedImagesGrid ضمن مسار إدارة الوحدات.
+  /// This method performs the buildEnhancedImagesGrid operation in the admin unit workflow.
   Widget buildEnhancedImagesGrid(
       List<UnitImage> images, UnitImagesState state) {
     final selectedImageIds =
@@ -2587,6 +2835,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية buildEnhancedMediaItem ضمن مسار إدارة الوحدات.
+  /// This method performs the buildEnhancedMediaItem operation in the admin unit workflow.
   Widget buildEnhancedMediaItem(
     UnitImage media,
     int index,
@@ -2638,14 +2888,14 @@ class UnitImageGalleryState extends State<UnitImageGallery>
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected
-                  ? AppTheme.primaryBlue.withOpacity(0.6)
-                  : AppTheme.darkBorder.withOpacity(0.1),
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.6)
+                  : AppTheme.darkBorder.withValues(alpha: 0.1),
               width: isSelected ? 2.5 : 1,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.2),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                       blurRadius: 8,
                       spreadRadius: 1,
                     ),
@@ -2672,8 +2922,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(
-                            isHovered || isSelectionMode ? 0.6 : 0.3),
+                        Colors.black.withValues(
+                            alpha: isHovered || isSelectionMode ? 0.6 : 0.3),
                       ],
                     ),
                   ),
@@ -2685,7 +2935,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkCard.withOpacity(0.7),
+                        color: AppTheme.darkCard.withValues(alpha: 0.7),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -2722,8 +2972,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: isVideo
-                          ? AppTheme.info.withOpacity(0.8)
-                          : AppTheme.darkCard.withOpacity(0.8),
+                          ? AppTheme.info.withValues(alpha: 0.8)
+                          : AppTheme.darkCard.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(
@@ -2738,7 +2988,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                         Text(
                           isVideo ? media.durationFormatted : '${index + 1}',
                           style: AppTextStyles.caption.copyWith(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
                           ),
@@ -2757,11 +3007,11 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.warning.withOpacity(0.9),
+                        color: AppTheme.warning.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(6),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.warning.withOpacity(0.3),
+                            color: AppTheme.warning.withValues(alpha: 0.3),
                             blurRadius: 6,
                             spreadRadius: 1,
                           ),
@@ -2801,15 +3051,15 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppTheme.primaryBlue
-                            : AppTheme.darkCard.withOpacity(0.8),
+                            : AppTheme.darkCard.withValues(alpha: 0.8),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           width: 2,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 4,
                           ),
                         ],
@@ -2831,6 +3081,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية buildRemoteVideoThumbnail ضمن مسار إدارة الوحدات.
+  /// This method performs the buildRemoteVideoThumbnail operation in the admin unit workflow.
   Widget buildRemoteVideoThumbnail(UnitImage video) {
     // Try backend-provided poster unless it's an explicit placeholder
     final vt = (video.videoThumbnail ?? '').trim();
@@ -2866,6 +3118,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية buildMinimalistUploadArea ضمن مسار إدارة الوحدات.
+  /// This method performs the buildMinimalistUploadArea operation in the admin unit workflow.
   Widget buildMinimalistUploadArea() {
     final canAddImages = _isLocalMode
         ? _localImageCount < widget.maxImages
@@ -2881,13 +3135,13 @@ class UnitImageGalleryState extends State<UnitImageGallery>
         height: 140,
         decoration: BoxDecoration(
           color: _isDragging
-              ? AppTheme.primaryBlue.withOpacity(0.05)
-              : AppTheme.darkCard.withOpacity(0.1),
+              ? AppTheme.primaryBlue.withValues(alpha: 0.05)
+              : AppTheme.darkCard.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: _isDragging
-                ? AppTheme.primaryBlue.withOpacity(0.3)
-                : AppTheme.darkBorder.withOpacity(0.1),
+                ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                : AppTheme.darkBorder.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
@@ -2913,8 +3167,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                         ? Icons.file_download_outlined
                         : Icons.add_photo_alternate_outlined,
                     color: _isDragging
-                        ? AppTheme.primaryBlue.withOpacity(0.8)
-                        : AppTheme.textMuted.withOpacity(0.5),
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.8)
+                        : AppTheme.textMuted.withValues(alpha: 0.5),
                     size: 32,
                   ),
                   const SizedBox(height: 12),
@@ -2923,7 +3177,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                         ? 'أفلت الملفات هنا'
                         : 'اضغط أو اسحب لإضافة صور أو فيديو',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppTheme.textMuted.withOpacity(0.7),
+                      color: AppTheme.textMuted.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w300,
                     ),
                   ),
@@ -2932,7 +3186,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                     Text(
                       'وصلت للحد الأقصى',
                       style: AppTextStyles.caption.copyWith(
-                        color: AppTheme.error.withOpacity(0.5),
+                        color: AppTheme.error.withValues(alpha: 0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w300,
                       ),
@@ -2941,7 +3195,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
                     Text(
                       'صور: PNG, JPG • فيديو: MP4, MOV • Max ${AppConstants.maxVideoUploadSize ~/ (1024 * 1024)}MB',
                       style: AppTextStyles.caption.copyWith(
-                        color: AppTheme.textMuted.withOpacity(0.5),
+                        color: AppTheme.textMuted.withValues(alpha: 0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w300,
                       ),
@@ -2955,6 +3209,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية showImagePickerOptions ضمن مسار إدارة الوحدات.
+  /// This method performs the showImagePickerOptions operation in the admin unit workflow.
   void showImagePickerOptions() {
     final canAddImages = _isLocalMode
         ? _localImageCount < widget.maxImages
@@ -2996,6 +3252,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية previewVideo ضمن مسار إدارة الوحدات.
+  /// This method performs the previewVideo operation in the admin unit workflow.
   void previewVideo(UnitImage video) {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -3013,6 +3271,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية previewLocalVideo ضمن مسار إدارة الوحدات.
+  /// This method performs the previewLocalVideo operation in the admin unit workflow.
   void previewLocalVideo(String videoPath) {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -3032,6 +3292,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
 
   // بقية الدوال كما هي مع الدوال المساعدة...
 
+  /// ينفذ هذا الأسلوب عملية previewImage ضمن مسار إدارة الوحدات.
+  /// This method performs the previewImage operation in the admin unit workflow.
   void previewImage(UnitImage image) {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -3046,6 +3308,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية previewLocalImage ضمن مسار إدارة الوحدات.
+  /// This method performs the previewLocalImage operation in the admin unit workflow.
   void previewLocalImage(String imagePath) {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -3060,6 +3324,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _showSuccessSnackBar ضمن مسار إدارة الوحدات.
+  /// This method performs the _showSuccessSnackBar operation in the admin unit workflow.
   void _showSuccessSnackBar(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -3070,7 +3336,7 @@ class UnitImageGalleryState extends State<UnitImageGallery>
             color: Colors.white,
           ),
         ),
-        backgroundColor: AppTheme.success.withOpacity(0.9),
+        backgroundColor: AppTheme.success.withValues(alpha: 0.9),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -3081,6 +3347,8 @@ class UnitImageGalleryState extends State<UnitImageGallery>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _handleDroppedFiles ضمن مسار إدارة الوحدات.
+  /// This method performs the _handleDroppedFiles operation in the admin unit workflow.
   void _handleDroppedFiles(List<XFile> files) {
     if (files.isNotEmpty) {
       final images = <XFile>[];
@@ -3158,15 +3426,26 @@ class UnitImageGalleryState extends State<UnitImageGallery>
 }
 
 // Video Preview Screen
+/// يمثل هذا الكلاس _VideoPreviewScreen البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _VideoPreviewScreen in the admin unit workflow.
 class _VideoPreviewScreen extends StatelessWidget {
+  /// This field keeps the videoUrl value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة videoUrl التي يعتمد عليها مسار إدارة الوحدات.
   final String videoUrl;
+
+  /// يحتفظ هذا الحقل بقيمة isLocal التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the isLocal value used by the admin unit workflow.
   final bool isLocal;
 
+  /// ينشئ هذا المُنشئ مثيلاً من _VideoPreviewScreen.
+  /// This constructor creates an instance of _VideoPreviewScreen.
   const _VideoPreviewScreen({
     required this.videoUrl,
     required this.isLocal,
   });
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -3189,12 +3468,12 @@ class _VideoPreviewScreen extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.7),
+                  color: AppTheme.darkCard.withValues(alpha: 0.7),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.close,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   size: 20,
                 ),
               ),
@@ -3207,15 +3486,39 @@ class _VideoPreviewScreen extends StatelessWidget {
 }
 
 // Local Media Options Sheet
+/// يمثل هذا الكلاس _LocalMediaOptionsSheet البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _LocalMediaOptionsSheet in the admin unit workflow.
 class _LocalMediaOptionsSheet extends StatelessWidget {
+  /// This field keeps the mediaPath value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة mediaPath التي يعتمد عليها مسار إدارة الوحدات.
   final String mediaPath;
+
+  /// يحتفظ هذا الحقل بقيمة index التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the index value used by the admin unit workflow.
   final int index;
+
+  /// يحتفظ هذا الحقل بقيمة isVideo التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the isVideo value used by the admin unit workflow.
   final bool isVideo;
+
+  /// يحتفظ هذا الحقل بقيمة isPrimary التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the isPrimary value used by the admin unit workflow.
   final bool isPrimary;
+
+  /// يحتفظ هذا الحقل بقيمة onSetPrimary التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the onSetPrimary value used by the admin unit workflow.
   final VoidCallback? onSetPrimary;
+
+  /// يحتفظ هذا الحقل بقيمة onDelete التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the onDelete value used by the admin unit workflow.
   final VoidCallback onDelete;
+
+  /// يحتفظ هذا الحقل بقيمة onView التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the onView value used by the admin unit workflow.
   final VoidCallback onView;
 
+  /// ينشئ هذا المُنشئ مثيلاً من _LocalMediaOptionsSheet.
+  /// This constructor creates an instance of _LocalMediaOptionsSheet.
   const _LocalMediaOptionsSheet({
     required this.mediaPath,
     required this.index,
@@ -3226,6 +3529,8 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
     required this.onView,
   });
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -3236,7 +3541,7 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
         right: 20,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.95),
+        color: AppTheme.darkCard.withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -3246,7 +3551,7 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
             width: 32,
             height: 3,
             decoration: BoxDecoration(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(1.5),
             ),
           ),
@@ -3286,6 +3591,8 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildOption ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildOption operation in the admin unit workflow.
   Widget _buildOption({
     required IconData icon,
     required String title,
@@ -3297,29 +3604,30 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: color?.withOpacity(0.1) ?? AppTheme.darkCard.withOpacity(0.3),
+          color: color?.withValues(alpha: 0.1) ??
+              AppTheme.darkCard.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           children: [
             Icon(
               icon,
-              color: color?.withOpacity(0.8) ??
-                  AppTheme.primaryBlue.withOpacity(0.8),
+              color: color?.withValues(alpha: 0.8) ??
+                  AppTheme.primaryBlue.withValues(alpha: 0.8),
               size: 20,
             ),
             const SizedBox(width: 12),
             Text(
               title,
               style: AppTextStyles.bodySmall.copyWith(
-                color: color ?? AppTheme.textWhite.withOpacity(0.9),
+                color: color ?? AppTheme.textWhite.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w300,
               ),
             ),
             const Spacer(),
             Icon(
               Icons.arrow_forward_ios,
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
               size: 14,
             ),
           ],
@@ -3329,15 +3637,26 @@ class _LocalMediaOptionsSheet extends StatelessWidget {
   }
 }
 
+/// يمثل هذا الكلاس _DeleteConfirmationDialog البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _DeleteConfirmationDialog in the admin unit workflow.
 class _DeleteConfirmationDialog extends StatelessWidget {
+  /// This field keeps the count value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة count التي يعتمد عليها مسار إدارة الوحدات.
   final int count;
+
+  /// يحتفظ هذا الحقل بقيمة onConfirm التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the onConfirm value used by the admin unit workflow.
   final VoidCallback onConfirm;
 
+  /// ينشئ هذا المُنشئ مثيلاً من _DeleteConfirmationDialog.
+  /// This constructor creates an instance of _DeleteConfirmationDialog.
   const _DeleteConfirmationDialog({
     required this.count,
     required this.onConfirm,
   });
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return BackdropFilter(
@@ -3347,10 +3666,10 @@ class _DeleteConfirmationDialog extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppTheme.darkCard.withOpacity(0.95),
+            color: AppTheme.darkCard.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: AppTheme.error.withOpacity(0.3),
+              color: AppTheme.error.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -3362,11 +3681,11 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                 height: 64,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppTheme.error.withOpacity(0.1),
+                  color: AppTheme.error.withValues(alpha: 0.1),
                 ),
                 child: Icon(
                   Icons.delete_outline_rounded,
-                  color: AppTheme.error.withOpacity(0.8),
+                  color: AppTheme.error.withValues(alpha: 0.8),
                   size: 32,
                 ),
               ),
@@ -3398,7 +3717,7 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: AppTheme.darkBorder.withOpacity(0.3),
+                            color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -3420,7 +3739,7 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: AppTheme.error.withOpacity(0.9),
+                          color: AppTheme.error.withValues(alpha: 0.9),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -3446,12 +3765,27 @@ class _DeleteConfirmationDialog extends StatelessWidget {
 }
 
 // 29. _MinimalistImagePickerSheet
+/// يمثل هذا الكلاس _MinimalistImagePickerSheet البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _MinimalistImagePickerSheet in the admin unit workflow.
 class _MinimalistImagePickerSheet extends StatelessWidget {
+  /// This field keeps the onCameraSelected value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة onCameraSelected التي يعتمد عليها مسار إدارة الوحدات.
   final VoidCallback? onCameraSelected;
+
+  /// يحتفظ هذا الحقل بقيمة onGallerySelected التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the onGallerySelected value used by the admin unit workflow.
   final VoidCallback? onGallerySelected;
+
+  /// يحتفظ هذا الحقل بقيمة onMultipleSelected التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the onMultipleSelected value used by the admin unit workflow.
   final VoidCallback? onMultipleSelected;
+
+  /// يحتفظ هذا الحقل بقيمة onVideoSelected التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the onVideoSelected value used by the admin unit workflow.
   final VoidCallback? onVideoSelected;
 
+  /// ينشئ هذا المُنشئ مثيلاً من _MinimalistImagePickerSheet.
+  /// This constructor creates an instance of _MinimalistImagePickerSheet.
   const _MinimalistImagePickerSheet({
     this.onCameraSelected,
     this.onGallerySelected,
@@ -3459,6 +3793,8 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
     this.onVideoSelected,
   });
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -3469,7 +3805,7 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
         right: 20,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.95),
+        color: AppTheme.darkCard.withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -3479,7 +3815,7 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
             width: 32,
             height: 3,
             decoration: BoxDecoration(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(1.5),
             ),
           ),
@@ -3521,6 +3857,8 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildOption ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildOption operation in the admin unit workflow.
   Widget _buildOption({
     required IconData icon,
     required String title,
@@ -3533,8 +3871,8 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: disabled
-              ? AppTheme.darkCard.withOpacity(0.1)
-              : AppTheme.darkCard.withOpacity(0.3),
+              ? AppTheme.darkCard.withValues(alpha: 0.1)
+              : AppTheme.darkCard.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
@@ -3542,8 +3880,8 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
             Icon(
               icon,
               color: disabled
-                  ? AppTheme.textMuted.withOpacity(0.3)
-                  : AppTheme.primaryBlue.withOpacity(0.8),
+                  ? AppTheme.textMuted.withValues(alpha: 0.3)
+                  : AppTheme.primaryBlue.withValues(alpha: 0.8),
               size: 20,
             ),
             const SizedBox(width: 12),
@@ -3551,8 +3889,8 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
               title,
               style: AppTextStyles.bodySmall.copyWith(
                 color: disabled
-                    ? AppTheme.textMuted.withOpacity(0.5)
-                    : AppTheme.textWhite.withOpacity(0.9),
+                    ? AppTheme.textMuted.withValues(alpha: 0.5)
+                    : AppTheme.textWhite.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w300,
               ),
             ),
@@ -3560,8 +3898,8 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios,
               color: disabled
-                  ? AppTheme.textMuted.withOpacity(0.2)
-                  : AppTheme.textMuted.withOpacity(0.3),
+                  ? AppTheme.textMuted.withValues(alpha: 0.2)
+                  : AppTheme.textMuted.withValues(alpha: 0.3),
               size: 14,
             ),
           ],
@@ -3572,11 +3910,19 @@ class _MinimalistImagePickerSheet extends StatelessWidget {
 }
 
 // 31. _MinimalistLocalImagePreview
+/// يمثل هذا الكلاس _MinimalistLocalImagePreview البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _MinimalistLocalImagePreview in the admin unit workflow.
 class _MinimalistLocalImagePreview extends StatelessWidget {
+  /// This field keeps the imagePath value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة imagePath التي يعتمد عليها مسار إدارة الوحدات.
   final String imagePath;
 
+  /// ينشئ هذا المُنشئ مثيلاً من _MinimalistLocalImagePreview.
+  /// This constructor creates an instance of _MinimalistLocalImagePreview.
   const _MinimalistLocalImagePreview({required this.imagePath});
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -3597,12 +3943,12 @@ class _MinimalistLocalImagePreview extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.7),
+                  color: AppTheme.darkCard.withValues(alpha: 0.7),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.close,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   size: 20,
                 ),
               ),
@@ -3615,15 +3961,39 @@ class _MinimalistLocalImagePreview extends StatelessWidget {
 }
 
 // 33. _MediaOptionsSheet
+/// يمثل هذا الكلاس _MediaOptionsSheet البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _MediaOptionsSheet in the admin unit workflow.
 class _MediaOptionsSheet extends StatelessWidget {
+  /// This field keeps the media value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة media التي يعتمد عليها مسار إدارة الوحدات.
   final UnitImage media;
+
+  /// يحتفظ هذا الحقل بقيمة index التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the index value used by the admin unit workflow.
   final int index;
+
+  /// يحتفظ هذا الحقل بقيمة isPrimary التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the isPrimary value used by the admin unit workflow.
   final bool isPrimary;
+
+  /// يحتفظ هذا الحقل بقيمة isVideo التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the isVideo value used by the admin unit workflow.
   final bool isVideo;
+
+  /// يحتفظ هذا الحقل بقيمة onSetPrimary التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the onSetPrimary value used by the admin unit workflow.
   final VoidCallback? onSetPrimary;
+
+  /// يحتفظ هذا الحقل بقيمة onDelete التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the onDelete value used by the admin unit workflow.
   final VoidCallback onDelete;
+
+  /// يحتفظ هذا الحقل بقيمة onView التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the onView value used by the admin unit workflow.
   final VoidCallback onView;
 
+  /// ينشئ هذا المُنشئ مثيلاً من _MediaOptionsSheet.
+  /// This constructor creates an instance of _MediaOptionsSheet.
   const _MediaOptionsSheet({
     required this.media,
     required this.index,
@@ -3634,6 +4004,8 @@ class _MediaOptionsSheet extends StatelessWidget {
     required this.onView,
   });
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -3644,7 +4016,7 @@ class _MediaOptionsSheet extends StatelessWidget {
         right: 20,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.95),
+        color: AppTheme.darkCard.withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -3654,7 +4026,7 @@ class _MediaOptionsSheet extends StatelessWidget {
             width: 32,
             height: 3,
             decoration: BoxDecoration(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(1.5),
             ),
           ),
@@ -3694,6 +4066,8 @@ class _MediaOptionsSheet extends StatelessWidget {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildOption ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildOption operation in the admin unit workflow.
   Widget _buildOption({
     required IconData icon,
     required String title,
@@ -3705,29 +4079,30 @@ class _MediaOptionsSheet extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: color?.withOpacity(0.1) ?? AppTheme.darkCard.withOpacity(0.3),
+          color: color?.withValues(alpha: 0.1) ??
+              AppTheme.darkCard.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           children: [
             Icon(
               icon,
-              color: color?.withOpacity(0.8) ??
-                  AppTheme.primaryBlue.withOpacity(0.8),
+              color: color?.withValues(alpha: 0.8) ??
+                  AppTheme.primaryBlue.withValues(alpha: 0.8),
               size: 20,
             ),
             const SizedBox(width: 12),
             Text(
               title,
               style: AppTextStyles.bodySmall.copyWith(
-                color: color ?? AppTheme.textWhite.withOpacity(0.9),
+                color: color ?? AppTheme.textWhite.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w300,
               ),
             ),
             const Spacer(),
             Icon(
               Icons.arrow_forward_ios,
-              color: AppTheme.textMuted.withOpacity(0.3),
+              color: AppTheme.textMuted.withValues(alpha: 0.3),
               size: 14,
             ),
           ],
@@ -3737,11 +4112,19 @@ class _MediaOptionsSheet extends StatelessWidget {
   }
 }
 
+/// يمثل هذا الكلاس _MinimalistImagePreview البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _MinimalistImagePreview in the admin unit workflow.
 class _MinimalistImagePreview extends StatelessWidget {
+  /// This field keeps the image value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة image التي يعتمد عليها مسار إدارة الوحدات.
   final UnitImage image;
 
+  /// ينشئ هذا المُنشئ مثيلاً من _MinimalistImagePreview.
+  /// This constructor creates an instance of _MinimalistImagePreview.
   const _MinimalistImagePreview({required this.image});
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -3763,12 +4146,12 @@ class _MinimalistImagePreview extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.7),
+                  color: AppTheme.darkCard.withValues(alpha: 0.7),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.close,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   size: 20,
                 ),
               ),

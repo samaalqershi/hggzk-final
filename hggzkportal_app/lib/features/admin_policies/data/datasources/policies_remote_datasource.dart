@@ -16,7 +16,6 @@ abstract class PoliciesRemoteDataSource {
     bool requireFullPaymentBeforeConfirmation = false,
     double minimumDepositPercentage = 0.0,
     int minHoursBeforeCheckIn = 0,
-
     bool? cancellationFreeCancel,
     bool? cancellationFullRefund,
     int? cancellationRefundPercentage,
@@ -24,7 +23,6 @@ abstract class PoliciesRemoteDataSource {
     int? cancellationHoursBeforeCheckIn,
     bool? cancellationNonRefundable,
     String? cancellationPenaltyAfterDeadline,
-
     bool? paymentDepositRequired,
     bool? paymentFullPaymentRequired,
     double? paymentDepositPercentage,
@@ -33,7 +31,6 @@ abstract class PoliciesRemoteDataSource {
     bool? paymentPayAtProperty,
     bool? paymentCashPreferred,
     List<String>? paymentAcceptedMethods,
-
     String? checkInTime,
     String? checkOutTime,
     String? checkInFrom,
@@ -45,7 +42,6 @@ abstract class PoliciesRemoteDataSource {
     String? checkInEarlyCheckInNote,
     String? checkInLateCheckOutNote,
     String? checkInLateCheckOutFee,
-
     bool? childrenAllowed,
     int? childrenFreeUnderAge,
     int? childrenHalfPriceUnderAge,
@@ -54,7 +50,6 @@ abstract class PoliciesRemoteDataSource {
     String? childrenCribsNote,
     bool? childrenPlaygroundAvailable,
     bool? childrenKidsMenuAvailable,
-
     bool? petsAllowed,
     String? petsReason,
     double? petsFeeAmount,
@@ -64,7 +59,6 @@ abstract class PoliciesRemoteDataSource {
     bool? petsPetFriendly,
     bool? petsOutdoorSpace,
     bool? petsStrict,
-
     bool? modificationAllowed,
     int? modificationFreeModificationHours,
     String? modificationFeesAfter,
@@ -81,7 +75,6 @@ abstract class PoliciesRemoteDataSource {
     bool? requireFullPaymentBeforeConfirmation,
     double? minimumDepositPercentage,
     int? minHoursBeforeCheckIn,
-
     bool? cancellationFreeCancel,
     bool? cancellationFullRefund,
     int? cancellationRefundPercentage,
@@ -89,7 +82,6 @@ abstract class PoliciesRemoteDataSource {
     int? cancellationHoursBeforeCheckIn,
     bool? cancellationNonRefundable,
     String? cancellationPenaltyAfterDeadline,
-
     bool? paymentDepositRequired,
     bool? paymentFullPaymentRequired,
     double? paymentDepositPercentage,
@@ -98,7 +90,6 @@ abstract class PoliciesRemoteDataSource {
     bool? paymentPayAtProperty,
     bool? paymentCashPreferred,
     List<String>? paymentAcceptedMethods,
-
     String? checkInTime,
     String? checkOutTime,
     String? checkInFrom,
@@ -110,7 +101,6 @@ abstract class PoliciesRemoteDataSource {
     String? checkInEarlyCheckInNote,
     String? checkInLateCheckOutNote,
     String? checkInLateCheckOutFee,
-
     bool? childrenAllowed,
     int? childrenFreeUnderAge,
     int? childrenHalfPriceUnderAge,
@@ -119,7 +109,6 @@ abstract class PoliciesRemoteDataSource {
     String? childrenCribsNote,
     bool? childrenPlaygroundAvailable,
     bool? childrenKidsMenuAvailable,
-
     bool? petsAllowed,
     String? petsReason,
     double? petsFeeAmount,
@@ -129,7 +118,6 @@ abstract class PoliciesRemoteDataSource {
     bool? petsPetFriendly,
     bool? petsOutdoorSpace,
     bool? petsStrict,
-
     bool? modificationAllowed,
     int? modificationFreeModificationHours,
     String? modificationFeesAfter,
@@ -163,6 +151,7 @@ abstract class PoliciesRemoteDataSource {
 }
 
 class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
+  /// العربية: يخزن القيمة `apiClient`.
   final ApiClient apiClient;
 
   PoliciesRemoteDataSourceImpl({required this.apiClient});
@@ -179,7 +168,6 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     bool requireFullPaymentBeforeConfirmation = false,
     double minimumDepositPercentage = 0.0,
     int minHoursBeforeCheckIn = 0,
-
     bool? cancellationFreeCancel,
     bool? cancellationFullRefund,
     int? cancellationRefundPercentage,
@@ -187,7 +175,6 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     int? cancellationHoursBeforeCheckIn,
     bool? cancellationNonRefundable,
     String? cancellationPenaltyAfterDeadline,
-
     bool? paymentDepositRequired,
     bool? paymentFullPaymentRequired,
     double? paymentDepositPercentage,
@@ -196,7 +183,6 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     bool? paymentPayAtProperty,
     bool? paymentCashPreferred,
     List<String>? paymentAcceptedMethods,
-
     String? checkInTime,
     String? checkOutTime,
     String? checkInFrom,
@@ -208,7 +194,6 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     String? checkInEarlyCheckInNote,
     String? checkInLateCheckOutNote,
     String? checkInLateCheckOutFee,
-
     bool? childrenAllowed,
     int? childrenFreeUnderAge,
     int? childrenHalfPriceUnderAge,
@@ -217,7 +202,6 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     String? childrenCribsNote,
     bool? childrenPlaygroundAvailable,
     bool? childrenKidsMenuAvailable,
-
     bool? petsAllowed,
     String? petsReason,
     double? petsFeeAmount,
@@ -227,7 +211,6 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     bool? petsPetFriendly,
     bool? petsOutdoorSpace,
     bool? petsStrict,
-
     bool? modificationAllowed,
     int? modificationFreeModificationHours,
     String? modificationFeesAfter,
@@ -240,7 +223,8 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
         'type': type.apiValue,
         'description': description,
         'cancellationWindowDays': cancellationWindowDays,
-        'requireFullPaymentBeforeConfirmation': requireFullPaymentBeforeConfirmation,
+        'requireFullPaymentBeforeConfirmation':
+            requireFullPaymentBeforeConfirmation,
         'minimumDepositPercentage': minimumDepositPercentage,
         'minHoursBeforeCheckIn': minHoursBeforeCheckIn,
       };
@@ -249,14 +233,20 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
 
       _addIfNotNull(data, 'cancellationFreeCancel', cancellationFreeCancel);
       _addIfNotNull(data, 'cancellationFullRefund', cancellationFullRefund);
-      _addIfNotNull(data, 'cancellationRefundPercentage', cancellationRefundPercentage);
-      _addIfNotNull(data, 'cancellationDaysBeforeCheckIn', cancellationDaysBeforeCheckIn);
-      _addIfNotNull(data, 'cancellationHoursBeforeCheckIn', cancellationHoursBeforeCheckIn);
-      _addIfNotNull(data, 'cancellationNonRefundable', cancellationNonRefundable);
-      _addIfNotNull(data, 'cancellationPenaltyAfterDeadline', cancellationPenaltyAfterDeadline);
+      _addIfNotNull(
+          data, 'cancellationRefundPercentage', cancellationRefundPercentage);
+      _addIfNotNull(
+          data, 'cancellationDaysBeforeCheckIn', cancellationDaysBeforeCheckIn);
+      _addIfNotNull(data, 'cancellationHoursBeforeCheckIn',
+          cancellationHoursBeforeCheckIn);
+      _addIfNotNull(
+          data, 'cancellationNonRefundable', cancellationNonRefundable);
+      _addIfNotNull(data, 'cancellationPenaltyAfterDeadline',
+          cancellationPenaltyAfterDeadline);
 
       _addIfNotNull(data, 'paymentDepositRequired', paymentDepositRequired);
-      _addIfNotNull(data, 'paymentFullPaymentRequired', paymentFullPaymentRequired);
+      _addIfNotNull(
+          data, 'paymentFullPaymentRequired', paymentFullPaymentRequired);
       _addIfNotNull(data, 'paymentDepositPercentage', paymentDepositPercentage);
       _addIfNotNull(data, 'paymentAcceptCash', paymentAcceptCash);
       _addIfNotNull(data, 'paymentAcceptCard', paymentAcceptCard);
@@ -270,7 +260,8 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
       _addIfNotNull(data, 'checkInUntil', checkInUntil);
       _addIfNotNull(data, 'checkInFlexible', checkInFlexible);
       _addIfNotNull(data, 'checkInFlexibleCheckIn', checkInFlexibleCheckIn);
-      _addIfNotNull(data, 'checkInRequiresCoordination', checkInRequiresCoordination);
+      _addIfNotNull(
+          data, 'checkInRequiresCoordination', checkInRequiresCoordination);
       _addIfNotNull(data, 'checkInContactOwner', checkInContactOwner);
       _addIfNotNull(data, 'checkInEarlyCheckInNote', checkInEarlyCheckInNote);
       _addIfNotNull(data, 'checkInLateCheckOutNote', checkInLateCheckOutNote);
@@ -278,12 +269,16 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
 
       _addIfNotNull(data, 'childrenAllowed', childrenAllowed);
       _addIfNotNull(data, 'childrenFreeUnderAge', childrenFreeUnderAge);
-      _addIfNotNull(data, 'childrenHalfPriceUnderAge', childrenHalfPriceUnderAge);
-      _addIfNotNull(data, 'childrenMaxChildrenPerRoom', childrenMaxChildrenPerRoom);
+      _addIfNotNull(
+          data, 'childrenHalfPriceUnderAge', childrenHalfPriceUnderAge);
+      _addIfNotNull(
+          data, 'childrenMaxChildrenPerRoom', childrenMaxChildrenPerRoom);
       _addIfNotNull(data, 'childrenMaxChildren', childrenMaxChildren);
       _addIfNotNull(data, 'childrenCribsNote', childrenCribsNote);
-      _addIfNotNull(data, 'childrenPlaygroundAvailable', childrenPlaygroundAvailable);
-      _addIfNotNull(data, 'childrenKidsMenuAvailable', childrenKidsMenuAvailable);
+      _addIfNotNull(
+          data, 'childrenPlaygroundAvailable', childrenPlaygroundAvailable);
+      _addIfNotNull(
+          data, 'childrenKidsMenuAvailable', childrenKidsMenuAvailable);
 
       _addIfNotNull(data, 'petsAllowed', petsAllowed);
       _addIfNotNull(data, 'petsReason', petsReason);
@@ -296,7 +291,8 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
       _addIfNotNull(data, 'petsStrict', petsStrict);
 
       _addIfNotNull(data, 'modificationAllowed', modificationAllowed);
-      _addIfNotNull(data, 'modificationFreeModificationHours', modificationFreeModificationHours);
+      _addIfNotNull(data, 'modificationFreeModificationHours',
+          modificationFreeModificationHours);
       _addIfNotNull(data, 'modificationFeesAfter', modificationFeesAfter);
       _addIfNotNull(data, 'modificationFlexible', modificationFlexible);
       _addIfNotNull(data, 'modificationReason', modificationReason);
@@ -307,7 +303,8 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
       );
 
       if (response.data['isSuccess'] == true) {
-        return (response.data['data'] ?? response.data['result'] ?? '').toString();
+        return (response.data['data'] ?? response.data['result'] ?? '')
+            .toString();
       }
       throw Exception(response.data['message'] ?? 'فشل إنشاء السياسة');
     } catch (e) {
@@ -325,7 +322,6 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     bool? requireFullPaymentBeforeConfirmation,
     double? minimumDepositPercentage,
     int? minHoursBeforeCheckIn,
-
     bool? cancellationFreeCancel,
     bool? cancellationFullRefund,
     int? cancellationRefundPercentage,
@@ -333,7 +329,6 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     int? cancellationHoursBeforeCheckIn,
     bool? cancellationNonRefundable,
     String? cancellationPenaltyAfterDeadline,
-
     bool? paymentDepositRequired,
     bool? paymentFullPaymentRequired,
     double? paymentDepositPercentage,
@@ -342,7 +337,6 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     bool? paymentPayAtProperty,
     bool? paymentCashPreferred,
     List<String>? paymentAcceptedMethods,
-
     String? checkInTime,
     String? checkOutTime,
     String? checkInFrom,
@@ -354,7 +348,6 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     String? checkInEarlyCheckInNote,
     String? checkInLateCheckOutNote,
     String? checkInLateCheckOutFee,
-
     bool? childrenAllowed,
     int? childrenFreeUnderAge,
     int? childrenHalfPriceUnderAge,
@@ -363,7 +356,6 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     String? childrenCribsNote,
     bool? childrenPlaygroundAvailable,
     bool? childrenKidsMenuAvailable,
-
     bool? petsAllowed,
     String? petsReason,
     double? petsFeeAmount,
@@ -373,7 +365,6 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     bool? petsPetFriendly,
     bool? petsOutdoorSpace,
     bool? petsStrict,
-
     bool? modificationAllowed,
     int? modificationFreeModificationHours,
     String? modificationFeesAfter,
@@ -389,21 +380,32 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
 
       if (rules != null && rules.isNotEmpty) data['rules'] = rules;
 
-      if (cancellationWindowDays != null) data['cancellationWindowDays'] = cancellationWindowDays;
-      if (requireFullPaymentBeforeConfirmation != null) data['requireFullPaymentBeforeConfirmation'] = requireFullPaymentBeforeConfirmation;
-      if (minimumDepositPercentage != null) data['minimumDepositPercentage'] = minimumDepositPercentage;
-      if (minHoursBeforeCheckIn != null) data['minHoursBeforeCheckIn'] = minHoursBeforeCheckIn;
+      if (cancellationWindowDays != null)
+        data['cancellationWindowDays'] = cancellationWindowDays;
+      if (requireFullPaymentBeforeConfirmation != null)
+        data['requireFullPaymentBeforeConfirmation'] =
+            requireFullPaymentBeforeConfirmation;
+      if (minimumDepositPercentage != null)
+        data['minimumDepositPercentage'] = minimumDepositPercentage;
+      if (minHoursBeforeCheckIn != null)
+        data['minHoursBeforeCheckIn'] = minHoursBeforeCheckIn;
 
       _addIfNotNull(data, 'cancellationFreeCancel', cancellationFreeCancel);
       _addIfNotNull(data, 'cancellationFullRefund', cancellationFullRefund);
-      _addIfNotNull(data, 'cancellationRefundPercentage', cancellationRefundPercentage);
-      _addIfNotNull(data, 'cancellationDaysBeforeCheckIn', cancellationDaysBeforeCheckIn);
-      _addIfNotNull(data, 'cancellationHoursBeforeCheckIn', cancellationHoursBeforeCheckIn);
-      _addIfNotNull(data, 'cancellationNonRefundable', cancellationNonRefundable);
-      _addIfNotNull(data, 'cancellationPenaltyAfterDeadline', cancellationPenaltyAfterDeadline);
+      _addIfNotNull(
+          data, 'cancellationRefundPercentage', cancellationRefundPercentage);
+      _addIfNotNull(
+          data, 'cancellationDaysBeforeCheckIn', cancellationDaysBeforeCheckIn);
+      _addIfNotNull(data, 'cancellationHoursBeforeCheckIn',
+          cancellationHoursBeforeCheckIn);
+      _addIfNotNull(
+          data, 'cancellationNonRefundable', cancellationNonRefundable);
+      _addIfNotNull(data, 'cancellationPenaltyAfterDeadline',
+          cancellationPenaltyAfterDeadline);
 
       _addIfNotNull(data, 'paymentDepositRequired', paymentDepositRequired);
-      _addIfNotNull(data, 'paymentFullPaymentRequired', paymentFullPaymentRequired);
+      _addIfNotNull(
+          data, 'paymentFullPaymentRequired', paymentFullPaymentRequired);
       _addIfNotNull(data, 'paymentDepositPercentage', paymentDepositPercentage);
       _addIfNotNull(data, 'paymentAcceptCash', paymentAcceptCash);
       _addIfNotNull(data, 'paymentAcceptCard', paymentAcceptCard);
@@ -417,7 +419,8 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
       _addIfNotNull(data, 'checkInUntil', checkInUntil);
       _addIfNotNull(data, 'checkInFlexible', checkInFlexible);
       _addIfNotNull(data, 'checkInFlexibleCheckIn', checkInFlexibleCheckIn);
-      _addIfNotNull(data, 'checkInRequiresCoordination', checkInRequiresCoordination);
+      _addIfNotNull(
+          data, 'checkInRequiresCoordination', checkInRequiresCoordination);
       _addIfNotNull(data, 'checkInContactOwner', checkInContactOwner);
       _addIfNotNull(data, 'checkInEarlyCheckInNote', checkInEarlyCheckInNote);
       _addIfNotNull(data, 'checkInLateCheckOutNote', checkInLateCheckOutNote);
@@ -425,12 +428,16 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
 
       _addIfNotNull(data, 'childrenAllowed', childrenAllowed);
       _addIfNotNull(data, 'childrenFreeUnderAge', childrenFreeUnderAge);
-      _addIfNotNull(data, 'childrenHalfPriceUnderAge', childrenHalfPriceUnderAge);
-      _addIfNotNull(data, 'childrenMaxChildrenPerRoom', childrenMaxChildrenPerRoom);
+      _addIfNotNull(
+          data, 'childrenHalfPriceUnderAge', childrenHalfPriceUnderAge);
+      _addIfNotNull(
+          data, 'childrenMaxChildrenPerRoom', childrenMaxChildrenPerRoom);
       _addIfNotNull(data, 'childrenMaxChildren', childrenMaxChildren);
       _addIfNotNull(data, 'childrenCribsNote', childrenCribsNote);
-      _addIfNotNull(data, 'childrenPlaygroundAvailable', childrenPlaygroundAvailable);
-      _addIfNotNull(data, 'childrenKidsMenuAvailable', childrenKidsMenuAvailable);
+      _addIfNotNull(
+          data, 'childrenPlaygroundAvailable', childrenPlaygroundAvailable);
+      _addIfNotNull(
+          data, 'childrenKidsMenuAvailable', childrenKidsMenuAvailable);
 
       _addIfNotNull(data, 'petsAllowed', petsAllowed);
       _addIfNotNull(data, 'petsReason', petsReason);
@@ -443,7 +450,8 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
       _addIfNotNull(data, 'petsStrict', petsStrict);
 
       _addIfNotNull(data, 'modificationAllowed', modificationAllowed);
-      _addIfNotNull(data, 'modificationFreeModificationHours', modificationFreeModificationHours);
+      _addIfNotNull(data, 'modificationFreeModificationHours',
+          modificationFreeModificationHours);
       _addIfNotNull(data, 'modificationFeesAfter', modificationFeesAfter);
       _addIfNotNull(data, 'modificationFlexible', modificationFlexible);
       _addIfNotNull(data, 'modificationReason', modificationReason);
@@ -474,7 +482,8 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
       if (!isSuccess) {
         if (data is Map<String, dynamic>) {
           final message = data['message'] ?? 'فشل حذف السياسة';
-          final code = data['errorCode']?.toString() ?? data['code']?.toString();
+          final code =
+              data['errorCode']?.toString() ?? data['code']?.toString();
           final showAsDialog = data['showAsDialog'] == true;
 
           throw ServerException(
@@ -535,7 +544,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
 
       // التعامل مع Response مباشر (بدون wrapper)
       final data = response.data;
-      
+
       if (data == null) {
         return PaginatedResult(
           items: [],
@@ -544,18 +553,20 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
           totalCount: 0,
         );
       }
-      
+
       // التعامل مع PaginatedResult مباشر من الباك إند
       if (data is Map<String, dynamic>) {
         // Check if it has 'isSuccess' wrapper (ResultDto)
         if (data.containsKey('isSuccess')) {
           if (data['isSuccess'] == true) {
             final innerData = data['data'] ?? data['result'];
-            if (innerData is Map<String, dynamic> && innerData.containsKey('items')) {
+            if (innerData is Map<String, dynamic> &&
+                innerData.containsKey('items')) {
               final items = (innerData['items'] as List?)
-                  ?.map((item) => PolicyModel.fromJson(item))
-                  .toList() ?? [];
-              
+                      ?.map((item) => PolicyModel.fromJson(item))
+                      .toList() ??
+                  [];
+
               return PaginatedResult(
                 items: items,
                 pageNumber: innerData['pageNumber'] ?? pageNumber,
@@ -568,20 +579,21 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
         // Direct PaginatedResult (no wrapper)
         else if (data.containsKey('items')) {
           final itemsList = data['items'] as List?;
-          
+
           final items = itemsList
-              ?.map((item) {
-                try {
-                  return PolicyModel.fromJson(item);
-                } catch (e) {
-                  print('❌ Failed to parse item: $e');
-                  return null;
-                }
-              })
-              .where((item) => item != null)
-              .cast<PolicyModel>()
-              .toList() ?? [];
-          
+                  ?.map((item) {
+                    try {
+                      return PolicyModel.fromJson(item);
+                    } catch (e) {
+                      print('❌ Failed to parse item: $e');
+                      return null;
+                    }
+                  })
+                  .where((item) => item != null)
+                  .cast<PolicyModel>()
+                  .toList() ??
+              [];
+
           return PaginatedResult(
             items: items,
             pageNumber: data['pageNumber'] ?? pageNumber,
@@ -590,7 +602,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
           );
         }
       }
-      
+
       return PaginatedResult(
         items: [],
         pageNumber: pageNumber,
@@ -627,7 +639,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
 
       if (response.data['isSuccess'] == true) {
         final data = response.data['data'] ?? response.data['result'];
-        
+
         if (data is Map<String, dynamic> && data.containsKey('items')) {
           return (data['items'] as List)
               .map((item) => PolicyModel.fromJson(item))
@@ -636,7 +648,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
           return data.map((item) => PolicyModel.fromJson(item)).toList();
         }
       }
-      
+
       return [];
     } catch (e) {
       rethrow;
@@ -661,12 +673,13 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
 
       if (response.data['isSuccess'] == true) {
         final data = response.data['data'] ?? response.data['result'];
-        
+
         if (data is Map<String, dynamic>) {
           final items = (data['items'] as List?)
-              ?.map((item) => PolicyModel.fromJson(item))
-              .toList() ?? [];
-          
+                  ?.map((item) => PolicyModel.fromJson(item))
+                  .toList() ??
+              [];
+
           return PaginatedResult(
             items: items,
             pageNumber: data['pageNumber'] ?? pageNumber,
@@ -675,7 +688,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
           );
         }
       }
-      
+
       return PaginatedResult(
         items: [],
         pageNumber: pageNumber,
@@ -690,7 +703,8 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
   @override
   Future<void> togglePolicyStatus(String policyId) async {
     try {
-      final response = await apiClient.patch('$_baseUrl/$policyId/toggle-status');
+      final response =
+          await apiClient.patch('$_baseUrl/$policyId/toggle-status');
 
       if (response.data['isSuccess'] != true) {
         throw Exception(response.data['message'] ?? 'فشل تغيير حالة السياسة');
@@ -714,7 +728,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
         final data = response.data['data'] ?? response.data['result'];
         return PolicyStatsModel.fromJson(data);
       }
-      
+
       return PolicyStatsModel(
         totalPolicies: 0,
         activePolicies: 0,

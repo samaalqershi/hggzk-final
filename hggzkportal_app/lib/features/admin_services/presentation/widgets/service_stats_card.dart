@@ -7,13 +7,13 @@ import '../../../../core/widgets/glassmorphic_tooltip.dart';
 
 /// 📊 Service Stats Card
 class ServiceStatsCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `title`.
   final String title;
   final String value;
   final IconData icon;
   final Color color;
   final String? detailedDescription;
   final Map<String, dynamic>? additionalStats;
-
   const ServiceStatsCard({
     super.key,
     required this.title,
@@ -23,21 +23,17 @@ class ServiceStatsCard extends StatefulWidget {
     this.detailedDescription,
     this.additionalStats,
   });
-
   @override
   State<ServiceStatsCard> createState() => _ServiceStatsCardState();
 }
-
 class _ServiceStatsCardState extends State<ServiceStatsCard>
     with SingleTickerProviderStateMixin {
   final GlobalKey _cardKey = GlobalKey();
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _rotationAnimation;
-
   bool _isHovered = false;
   bool _isPressed = false;
-
   @override
   void initState() {
     super.initState();
@@ -62,13 +58,11 @@ class _ServiceStatsCardState extends State<ServiceStatsCard>
       curve: Curves.linear,
     ));
   }
-
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-
   void _handleLongPress() {
     setState(() => _isPressed = true);
 
@@ -96,7 +90,6 @@ class _ServiceStatsCardState extends State<ServiceStatsCard>
       if (mounted) setState(() => _isPressed = false);
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -114,22 +107,22 @@ class _ServiceStatsCardState extends State<ServiceStatsCard>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppTheme.darkCard.withOpacity(0.7),
-                AppTheme.darkCard.withOpacity(0.5),
+                AppTheme.darkCard.withValues(alpha: 0.7),
+                AppTheme.darkCard.withValues(alpha: 0.5),
               ],
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: _isPressed
-                  ? widget.color.withOpacity(0.7)
+                  ? widget.color.withValues(alpha: 0.7)
                   : _isHovered
-                      ? widget.color.withOpacity(0.5)
-                      : AppTheme.darkBorder.withOpacity(0.3),
+                      ? widget.color.withValues(alpha: 0.5)
+                      : AppTheme.darkBorder.withValues(alpha: 0.3),
               width: _isPressed ? 2 : (_isHovered ? 1.5 : 0.5),
             ),
             boxShadow: [
               BoxShadow(
-                color: widget.color.withOpacity(_isHovered ? 0.3 : 0.1),
+                color: widget.color.withValues(alpha: _isHovered ? 0.3 : 0.1),
                 blurRadius: _isHovered ? 30 : 20,
                 offset: const Offset(0, 10),
               ),
@@ -149,7 +142,7 @@ class _ServiceStatsCardState extends State<ServiceStatsCard>
                         builder: (context, child) {
                           return CustomPaint(
                             painter: _CirclePatternPainter(
-                              color: widget.color.withOpacity(0.05),
+                              color: widget.color.withValues(alpha: 0.05),
                               rotation: _rotationAnimation.value,
                             ),
                           );
@@ -174,16 +167,16 @@ class _ServiceStatsCardState extends State<ServiceStatsCard>
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       colors: [
-                                        widget.color.withOpacity(0.2),
-                                        widget.color.withOpacity(0.1),
+                                        widget.color.withValues(alpha: 0.2),
+                                        widget.color.withValues(alpha: 0.1),
                                       ],
                                     ),
                                     borderRadius: BorderRadius.circular(12),
                                     boxShadow: _isHovered
                                         ? [
                                             BoxShadow(
-                                              color:
-                                                  widget.color.withOpacity(0.3),
+                                              color: widget.color
+                                                  .withValues(alpha: 0.3),
                                               blurRadius: 20,
                                               spreadRadius: 2,
                                             ),
@@ -203,7 +196,7 @@ class _ServiceStatsCardState extends State<ServiceStatsCard>
                               Container(
                                 padding: const EdgeInsets.all(4),
                                 decoration: BoxDecoration(
-                                  color: widget.color.withOpacity(0.1),
+                                  color: widget.color.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
@@ -263,14 +256,13 @@ class _ServiceStatsCardState extends State<ServiceStatsCard>
 
 // Circle Pattern Painter
 class _CirclePatternPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `color`.
   final Color color;
   final double rotation;
-
   _CirclePatternPainter({
     required this.color,
     required this.rotation,
   });
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -292,7 +284,6 @@ class _CirclePatternPainter extends CustomPainter {
 
     canvas.restore();
   }
-
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

@@ -13,9 +13,13 @@ class UsersListLoading extends UsersListState {}
 
 class UsersListLoaded extends UsersListState {
   final List<User> users;
+
   final bool hasMore;
+
   final int totalCount;
+
   final bool isLoadingMore;
+
   final Map<String, dynamic>? stats;
 
   const UsersListLoaded({
@@ -57,6 +61,7 @@ class UsersListError extends UsersListState {
 
 class UsersRefreshing extends UsersListState {
   final List<User> users;
+
   final int totalCount;
 
   const UsersRefreshing({required this.users, required this.totalCount});
@@ -67,8 +72,11 @@ class UsersRefreshing extends UsersListState {
 
 class UserOperationSuccess extends UsersListState {
   final String message;
+
   final List<User> users;
+
   final bool hasMore;
+
   final int totalCount;
 
   const UserOperationSuccess({

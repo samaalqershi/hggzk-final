@@ -3,16 +3,43 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// Displays one settings row or action tile with a futuristic visual style.
+/// يعرض عنصر إعدادات واحدًا بتصميم تفاعلي حديث يصلح كصف معلومات أو زر.
 class FuturisticSettingsItem extends StatefulWidget {
+  /// Leading icon rendered inside the action tile.
+  /// الأيقونة الرئيسية المعروضة داخل عنصر الإعداد.
   final IconData icon;
+
+  /// Main label displayed to the user.
+  /// العنوان الرئيسي الظاهر للمستخدم.
   final String title;
+
+  /// Optional secondary text that explains the item.
+  /// نص ثانوي اختياري يشرح العنصر.
   final String? subtitle;
+
+  /// Optional trailing widget such as a switch or chevron.
+  /// ويدجت اختيارية في النهاية مثل المفتاح أو السهم.
   final Widget? trailing;
+
+  /// Callback fired when the item is tapped.
+  /// الاستدعاء الذي يعمل عند النقر على العنصر.
   final VoidCallback? onTap;
+
+  /// Gradient used to color the icon and selected hover state.
+  /// التدرج اللوني المستخدم لتلوين الأيقونة وحالة التمرير.
   final Gradient gradient;
+
+  /// Marks actions that should read as destructive.
+  /// يحدد الأفعال التي يجب أن تبدو تحذيرية/تدميرية.
   final bool isDestructive;
+
+  /// Controls whether the row is interactive.
+  /// يتحكم في كون الصف قابلًا للتفاعل.
   final bool enabled;
 
+  /// Builds a single futuristic settings row.
+  /// ينشئ صف إعدادات واحدًا بتصميم حديث.
   const FuturisticSettingsItem({
     super.key,
     required this.icon,
@@ -25,16 +52,30 @@ class FuturisticSettingsItem extends StatefulWidget {
     this.enabled = true,
   });
 
+  /// Creates the state object that handles hover and press feedback.
+  /// ينشئ كائن الحالة الذي يتعامل مع تغذية التمرير والضغط.
   @override
   State<FuturisticSettingsItem> createState() => _FuturisticSettingsItemState();
 }
 
+/// Handles hover transitions and press feedback for the settings item.
+/// يتعامل مع انتقالات التمرير وتغذية الضغط لعنصر الإعداد.
 class _FuturisticSettingsItemState extends State<FuturisticSettingsItem>
     with SingleTickerProviderStateMixin {
+  /// Drives the hover animation used by the item background.
+  /// يقود حركة التمرير المستخدمة في خلفية العنصر.
   late AnimationController _hoverController;
+
+  /// Curved hover animation that softens the transition.
+  /// حركة تمرير بمنحنى لتلطيف الانتقال.
   late Animation<double> _hoverAnimation;
+
+  /// Tracks whether the pointer is currently over the item.
+  /// يتتبع ما إذا كان المؤشر فوق العنصر حاليًا.
   bool _isHovered = false;
 
+  /// Prepares the hover animation controller.
+  /// يجهز متحكم حركة التمرير.
   @override
   void initState() {
     super.initState();
@@ -51,12 +92,16 @@ class _FuturisticSettingsItemState extends State<FuturisticSettingsItem>
     ));
   }
 
+  /// Releases the hover animation controller.
+  /// يحرر متحكم حركة التمرير.
   @override
   void dispose() {
     _hoverController.dispose();
     super.dispose();
   }
 
+  /// Updates hover state and starts or reverses the animation.
+  /// يحدث حالة التمرير ويبدأ الحركة أو يعكسها.
   void _handleHover(bool isHovered) {
     setState(() {
       _isHovered = isHovered;
@@ -68,6 +113,8 @@ class _FuturisticSettingsItemState extends State<FuturisticSettingsItem>
     }
   }
 
+  /// Renders the interactive settings tile with hover and tap feedback.
+  /// يرسم بطاقة الإعداد التفاعلية مع تغذية راجعة للتمرير والنقر.
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
@@ -134,12 +181,12 @@ class _FuturisticSettingsItemState extends State<FuturisticSettingsItem>
                       onTap: widget.enabled ? widget.onTap : null,
                       borderRadius: BorderRadius.circular(16),
                       splashColor: widget.gradient.colors[0].withOpacity(0.2),
-                      highlightColor: widget.gradient.colors[1].withOpacity(0.1),
+                      highlightColor:
+                          widget.gradient.colors[1].withOpacity(0.1),
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Row(
                           children: [
-                            // Animated Icon Container
                             AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
                               width: 48,
@@ -149,15 +196,18 @@ class _FuturisticSettingsItemState extends State<FuturisticSettingsItem>
                                     ? widget.gradient
                                     : LinearGradient(
                                         colors: [
-                                          widget.gradient.colors[0].withOpacity(0.3),
-                                          widget.gradient.colors[1].withOpacity(0.2),
+                                          widget.gradient.colors[0]
+                                              .withOpacity(0.3),
+                                          widget.gradient.colors[1]
+                                              .withOpacity(0.2),
                                         ],
                                       ),
                                 borderRadius: BorderRadius.circular(14),
                                 boxShadow: _isHovered
                                     ? [
                                         BoxShadow(
-                                          color: widget.gradient.colors[0].withOpacity(0.4),
+                                          color: widget.gradient.colors[0]
+                                              .withOpacity(0.4),
                                           blurRadius: 12,
                                           spreadRadius: 1,
                                         ),
@@ -173,10 +223,10 @@ class _FuturisticSettingsItemState extends State<FuturisticSettingsItem>
                                 ),
                               ),
                             ),
-                            
+
                             const SizedBox(width: 16),
-                            
-                            // Title and Subtitle
+
+                            // Title and subtitle block.
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,8 +255,8 @@ class _FuturisticSettingsItemState extends State<FuturisticSettingsItem>
                                 ],
                               ),
                             ),
-                            
-                            // Trailing Widget
+
+                            // Trailing widget or fallback chevron.
                             if (widget.trailing != null)
                               widget.trailing!
                             else if (widget.onTap != null)
@@ -238,16 +288,40 @@ class _FuturisticSettingsItemState extends State<FuturisticSettingsItem>
   }
 }
 
-// Futuristic Toggle Item
+/// يعرض صف إعدادات يتضمن مفتاح تبديل مباشرًا لتفعيل خيار أو إيقافه.
+/// Displays a settings row that includes an inline toggle for enabling or
+/// disabling a preference.
 class FuturisticSettingsToggle extends StatefulWidget {
+  /// Leading icon rendered on the toggle row.
+  /// الأيقونة الرئيسية المعروضة في صف التبديل.
   final IconData icon;
+
+  /// Main label shown to the user.
+  /// العنوان الرئيسي الظاهر للمستخدم.
   final String title;
+
+  /// Optional explanatory subtitle.
+  /// وصف ثانوي اختياري.
   final String? subtitle;
+
+  /// Current toggle value.
+  /// قيمة التبديل الحالية.
   final bool value;
+
+  /// Callback invoked when the toggle is changed.
+  /// الاستدعاء الذي يعمل عند تغيير حالة التبديل.
   final ValueChanged<bool>? onChanged;
+
+  /// Gradient used to style the active state.
+  /// التدرج المستخدم لتنسيق الحالة النشطة.
   final Gradient gradient;
+
+  /// Controls whether the toggle can be interacted with.
+  /// يتحكم في قابلية التفاعل مع التبديل.
   final bool enabled;
 
+  /// Builds a settings row that includes a toggle control.
+  /// ينشئ صف إعدادات يحتوي على مفتاح تبديل.
   const FuturisticSettingsToggle({
     super.key,
     required this.icon,
@@ -259,15 +333,27 @@ class FuturisticSettingsToggle extends StatefulWidget {
     this.enabled = true,
   });
 
+  /// Creates the state object that animates the toggle thumb.
+  /// ينشئ كائن الحالة الذي يحرك مؤشر التبديل.
   @override
-  State<FuturisticSettingsToggle> createState() => _FuturisticSettingsToggleState();
+  State<FuturisticSettingsToggle> createState() =>
+      _FuturisticSettingsToggleState();
 }
 
+/// Animates the toggle thumb so changes feel smooth and visible.
+/// يحرك مؤشر التبديل حتى تبدو التغييرات ناعمة وواضحة.
 class _FuturisticSettingsToggleState extends State<FuturisticSettingsToggle>
     with SingleTickerProviderStateMixin {
+  /// Drives the toggle thumb animation.
+  /// يقود حركة مؤشر التبديل.
   late AnimationController _toggleController;
+
+  /// Curved animation used to animate the thumb position.
+  /// حركة بمنحنى لتنسيق موضع المؤشر.
   late Animation<double> _toggleAnimation;
 
+  /// Initializes the controller to match the current toggle value.
+  /// يهيئ المتحكم ليتوافق مع قيمة التبديل الحالية.
   @override
   void initState() {
     super.initState();
@@ -282,6 +368,8 @@ class _FuturisticSettingsToggleState extends State<FuturisticSettingsToggle>
     );
   }
 
+  /// Synchronizes the animation when the external toggle value changes.
+  /// يزامن الحركة عندما تتغير قيمة التبديل من الخارج.
   @override
   void didUpdateWidget(FuturisticSettingsToggle oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -294,12 +382,16 @@ class _FuturisticSettingsToggleState extends State<FuturisticSettingsToggle>
     }
   }
 
+  /// Releases the toggle animation controller.
+  /// يحرر متحكم حركة التبديل.
   @override
   void dispose() {
     _toggleController.dispose();
     super.dispose();
   }
 
+  /// Renders the settings row and the interactive toggle control.
+  /// يرسم صف الإعدادات مع عنصر التبديل التفاعلي.
   @override
   Widget build(BuildContext context) {
     return FuturisticSettingsItem(
@@ -309,9 +401,8 @@ class _FuturisticSettingsToggleState extends State<FuturisticSettingsToggle>
       gradient: widget.gradient,
       enabled: widget.enabled,
       trailing: GestureDetector(
-        onTap: widget.enabled
-            ? () => widget.onChanged?.call(!widget.value)
-            : null,
+        onTap:
+            widget.enabled ? () => widget.onChanged?.call(!widget.value) : null,
         child: AnimatedBuilder(
           animation: _toggleAnimation,
           builder: (context, child) {
@@ -373,9 +464,8 @@ class _FuturisticSettingsToggleState extends State<FuturisticSettingsToggle>
           },
         ),
       ),
-      onTap: widget.enabled
-          ? () => widget.onChanged?.call(!widget.value)
-          : null,
+      onTap:
+          widget.enabled ? () => widget.onChanged?.call(!widget.value) : null,
     );
   }
 }

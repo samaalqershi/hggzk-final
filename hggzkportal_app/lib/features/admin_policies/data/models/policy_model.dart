@@ -1,6 +1,7 @@
 import '../../domain/entities/policy.dart';
 
 class PolicyModel extends Policy {
+  /// العربية: ينشئ مثيلًا جديدًا من `PolicyModel`.
   const PolicyModel({
     required String id,
     required String propertyId,
@@ -71,7 +72,8 @@ class PolicyModel extends Policy {
           description: description,
           rules: rules,
           cancellationWindowDays: cancellationWindowDays,
-          requireFullPaymentBeforeConfirmation: requireFullPaymentBeforeConfirmation,
+          requireFullPaymentBeforeConfirmation:
+              requireFullPaymentBeforeConfirmation,
           minimumDepositPercentage: minimumDepositPercentage,
           minHoursBeforeCheckIn: minHoursBeforeCheckIn,
           cancellationFreeCancel: cancellationFreeCancel,
@@ -133,66 +135,136 @@ class PolicyModel extends Policy {
         id: (json['id'] ?? json['policyId'] ?? json['Id'] ?? '').toString(),
         propertyId: (json['propertyId'] ?? json['PropertyId'] ?? '').toString(),
         propertyName: json['propertyName'] ?? json['PropertyName'],
-        type: _parsePolicyType(json['type'] ?? json['policyType'] ?? json['Type'] ?? json['PolicyType']),
+        type: _parsePolicyType(json['type'] ??
+            json['policyType'] ??
+            json['Type'] ??
+            json['PolicyType']),
         description: json['description'] ?? json['Description'] ?? '',
         rules: (json['rules'] ?? json['Rules'])?.toString(),
-        cancellationWindowDays: json['cancellationWindowDays'] ?? json['CancellationWindowDays'] ?? 0,
-        requireFullPaymentBeforeConfirmation: json['requireFullPaymentBeforeConfirmation'] ?? json['RequireFullPaymentBeforeConfirmation'] ?? false,
-        minimumDepositPercentage: (json['minimumDepositPercentage'] ?? json['MinimumDepositPercentage'] ?? 0).toDouble(),
-        minHoursBeforeCheckIn: json['minHoursBeforeCheckIn'] ?? json['MinHoursBeforeCheckIn'] ?? 0,
-        cancellationFreeCancel: json['cancellationFreeCancel'] ?? json['CancellationFreeCancel'],
-        cancellationFullRefund: json['cancellationFullRefund'] ?? json['CancellationFullRefund'],
-        cancellationRefundPercentage: json['cancellationRefundPercentage'] ?? json['CancellationRefundPercentage'],
-        cancellationDaysBeforeCheckIn: json['cancellationDaysBeforeCheckIn'] ?? json['CancellationDaysBeforeCheckIn'],
-        cancellationHoursBeforeCheckIn: json['cancellationHoursBeforeCheckIn'] ?? json['CancellationHoursBeforeCheckIn'],
-        cancellationNonRefundable: json['cancellationNonRefundable'] ?? json['CancellationNonRefundable'],
-        cancellationPenaltyAfterDeadline: (json['cancellationPenaltyAfterDeadline'] ?? json['CancellationPenaltyAfterDeadline'])?.toString(),
-        paymentDepositRequired: json['paymentDepositRequired'] ?? json['PaymentDepositRequired'],
-        paymentFullPaymentRequired: json['paymentFullPaymentRequired'] ?? json['PaymentFullPaymentRequired'],
-        paymentDepositPercentage: (json['paymentDepositPercentage'] ?? json['PaymentDepositPercentage'])?.toDouble(),
-        paymentAcceptCash: json['paymentAcceptCash'] ?? json['PaymentAcceptCash'],
-        paymentAcceptCard: json['paymentAcceptCard'] ?? json['PaymentAcceptCard'],
-        paymentPayAtProperty: json['paymentPayAtProperty'] ?? json['PaymentPayAtProperty'],
-        paymentCashPreferred: json['paymentCashPreferred'] ?? json['PaymentCashPreferred'],
-        paymentAcceptedMethods: _parseStringList(json['paymentAcceptedMethods'] ?? json['PaymentAcceptedMethods']),
+        cancellationWindowDays: json['cancellationWindowDays'] ??
+            json['CancellationWindowDays'] ??
+            0,
+        requireFullPaymentBeforeConfirmation:
+            json['requireFullPaymentBeforeConfirmation'] ??
+                json['RequireFullPaymentBeforeConfirmation'] ??
+                false,
+        minimumDepositPercentage: (json['minimumDepositPercentage'] ??
+                json['MinimumDepositPercentage'] ??
+                0)
+            .toDouble(),
+        minHoursBeforeCheckIn:
+            json['minHoursBeforeCheckIn'] ?? json['MinHoursBeforeCheckIn'] ?? 0,
+        cancellationFreeCancel:
+            json['cancellationFreeCancel'] ?? json['CancellationFreeCancel'],
+        cancellationFullRefund:
+            json['cancellationFullRefund'] ?? json['CancellationFullRefund'],
+        cancellationRefundPercentage: json['cancellationRefundPercentage'] ??
+            json['CancellationRefundPercentage'],
+        cancellationDaysBeforeCheckIn: json['cancellationDaysBeforeCheckIn'] ??
+            json['CancellationDaysBeforeCheckIn'],
+        cancellationHoursBeforeCheckIn:
+            json['cancellationHoursBeforeCheckIn'] ??
+                json['CancellationHoursBeforeCheckIn'],
+        cancellationNonRefundable: json['cancellationNonRefundable'] ??
+            json['CancellationNonRefundable'],
+        cancellationPenaltyAfterDeadline:
+            (json['cancellationPenaltyAfterDeadline'] ??
+                    json['CancellationPenaltyAfterDeadline'])
+                ?.toString(),
+        paymentDepositRequired:
+            json['paymentDepositRequired'] ?? json['PaymentDepositRequired'],
+        paymentFullPaymentRequired: json['paymentFullPaymentRequired'] ??
+            json['PaymentFullPaymentRequired'],
+        paymentDepositPercentage: (json['paymentDepositPercentage'] ??
+                json['PaymentDepositPercentage'])
+            ?.toDouble(),
+        paymentAcceptCash:
+            json['paymentAcceptCash'] ?? json['PaymentAcceptCash'],
+        paymentAcceptCard:
+            json['paymentAcceptCard'] ?? json['PaymentAcceptCard'],
+        paymentPayAtProperty:
+            json['paymentPayAtProperty'] ?? json['PaymentPayAtProperty'],
+        paymentCashPreferred:
+            json['paymentCashPreferred'] ?? json['PaymentCashPreferred'],
+        paymentAcceptedMethods: _parseStringList(
+            json['paymentAcceptedMethods'] ?? json['PaymentAcceptedMethods']),
         checkInTime: (json['checkInTime'] ?? json['CheckInTime'])?.toString(),
-        checkOutTime: (json['checkOutTime'] ?? json['CheckOutTime'])?.toString(),
+        checkOutTime:
+            (json['checkOutTime'] ?? json['CheckOutTime'])?.toString(),
         checkInFrom: (json['checkInFrom'] ?? json['CheckInFrom'])?.toString(),
-        checkInUntil: (json['checkInUntil'] ?? json['CheckInUntil'])?.toString(),
+        checkInUntil:
+            (json['checkInUntil'] ?? json['CheckInUntil'])?.toString(),
         checkInFlexible: json['checkInFlexible'] ?? json['CheckInFlexible'],
-        checkInFlexibleCheckIn: json['checkInFlexibleCheckIn'] ?? json['CheckInFlexibleCheckIn'],
-        checkInRequiresCoordination: json['checkInRequiresCoordination'] ?? json['CheckInRequiresCoordination'],
-        checkInContactOwner: json['checkInContactOwner'] ?? json['CheckInContactOwner'],
-        checkInEarlyCheckInNote: (json['checkInEarlyCheckInNote'] ?? json['CheckInEarlyCheckInNote'])?.toString(),
-        checkInLateCheckOutNote: (json['checkInLateCheckOutNote'] ?? json['CheckInLateCheckOutNote'])?.toString(),
-        checkInLateCheckOutFee: (json['checkInLateCheckOutFee'] ?? json['CheckInLateCheckOutFee'])?.toString(),
+        checkInFlexibleCheckIn:
+            json['checkInFlexibleCheckIn'] ?? json['CheckInFlexibleCheckIn'],
+        checkInRequiresCoordination: json['checkInRequiresCoordination'] ??
+            json['CheckInRequiresCoordination'],
+        checkInContactOwner:
+            json['checkInContactOwner'] ?? json['CheckInContactOwner'],
+        checkInEarlyCheckInNote:
+            (json['checkInEarlyCheckInNote'] ?? json['CheckInEarlyCheckInNote'])
+                ?.toString(),
+        checkInLateCheckOutNote:
+            (json['checkInLateCheckOutNote'] ?? json['CheckInLateCheckOutNote'])
+                ?.toString(),
+        checkInLateCheckOutFee:
+            (json['checkInLateCheckOutFee'] ?? json['CheckInLateCheckOutFee'])
+                ?.toString(),
         childrenAllowed: json['childrenAllowed'] ?? json['ChildrenAllowed'],
-        childrenFreeUnderAge: json['childrenFreeUnderAge'] ?? json['ChildrenFreeUnderAge'],
-        childrenHalfPriceUnderAge: json['childrenHalfPriceUnderAge'] ?? json['ChildrenHalfPriceUnderAge'],
-        childrenMaxChildrenPerRoom: json['childrenMaxChildrenPerRoom'] ?? json['ChildrenMaxChildrenPerRoom'],
-        childrenMaxChildren: json['childrenMaxChildren'] ?? json['ChildrenMaxChildren'],
-        childrenCribsNote: (json['childrenCribsNote'] ?? json['ChildrenCribsNote'])?.toString(),
-        childrenPlaygroundAvailable: json['childrenPlaygroundAvailable'] ?? json['ChildrenPlaygroundAvailable'],
-        childrenKidsMenuAvailable: json['childrenKidsMenuAvailable'] ?? json['ChildrenKidsMenuAvailable'],
+        childrenFreeUnderAge:
+            json['childrenFreeUnderAge'] ?? json['ChildrenFreeUnderAge'],
+        childrenHalfPriceUnderAge: json['childrenHalfPriceUnderAge'] ??
+            json['ChildrenHalfPriceUnderAge'],
+        childrenMaxChildrenPerRoom: json['childrenMaxChildrenPerRoom'] ??
+            json['ChildrenMaxChildrenPerRoom'],
+        childrenMaxChildren:
+            json['childrenMaxChildren'] ?? json['ChildrenMaxChildren'],
+        childrenCribsNote:
+            (json['childrenCribsNote'] ?? json['ChildrenCribsNote'])
+                ?.toString(),
+        childrenPlaygroundAvailable: json['childrenPlaygroundAvailable'] ??
+            json['ChildrenPlaygroundAvailable'],
+        childrenKidsMenuAvailable: json['childrenKidsMenuAvailable'] ??
+            json['ChildrenKidsMenuAvailable'],
         petsAllowed: json['petsAllowed'] ?? json['PetsAllowed'],
         petsReason: (json['petsReason'] ?? json['PetsReason'])?.toString(),
-        petsFeeAmount: (json['petsFeeAmount'] ?? json['PetsFeeAmount'])?.toDouble(),
-        petsMaxWeight: (json['petsMaxWeight'] ?? json['PetsMaxWeight'])?.toString(),
-        petsRequiresApproval: json['petsRequiresApproval'] ?? json['PetsRequiresApproval'],
+        petsFeeAmount:
+            (json['petsFeeAmount'] ?? json['PetsFeeAmount'])?.toDouble(),
+        petsMaxWeight:
+            (json['petsMaxWeight'] ?? json['PetsMaxWeight'])?.toString(),
+        petsRequiresApproval:
+            json['petsRequiresApproval'] ?? json['PetsRequiresApproval'],
         petsNoFees: json['petsNoFees'] ?? json['PetsNoFees'],
         petsPetFriendly: json['petsPetFriendly'] ?? json['PetsPetFriendly'],
         petsOutdoorSpace: json['petsOutdoorSpace'] ?? json['PetsOutdoorSpace'],
         petsStrict: json['petsStrict'] ?? json['PetsStrict'],
-        modificationAllowed: json['modificationAllowed'] ?? json['ModificationAllowed'],
-        modificationFreeModificationHours: json['modificationFreeModificationHours'] ?? json['ModificationFreeModificationHours'],
-        modificationFeesAfter: (json['modificationFeesAfter'] ?? json['ModificationFeesAfter'])?.toString(),
-        modificationFlexible: json['modificationFlexible'] ?? json['ModificationFlexible'],
-        modificationReason: (json['modificationReason'] ?? json['ModificationReason'])?.toString(),
-        createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : (json['CreatedAt'] != null ? DateTime.parse(json['CreatedAt']) : null),
-        updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : (json['UpdatedAt'] != null ? DateTime.parse(json['UpdatedAt']) : null),
-        isActive: json['isActive'] ?? json['IsActive'] ?? json['active'] ?? true,
+        modificationAllowed:
+            json['modificationAllowed'] ?? json['ModificationAllowed'],
+        modificationFreeModificationHours:
+            json['modificationFreeModificationHours'] ??
+                json['ModificationFreeModificationHours'],
+        modificationFeesAfter:
+            (json['modificationFeesAfter'] ?? json['ModificationFeesAfter'])
+                ?.toString(),
+        modificationFlexible:
+            json['modificationFlexible'] ?? json['ModificationFlexible'],
+        modificationReason:
+            (json['modificationReason'] ?? json['ModificationReason'])
+                ?.toString(),
+        createdAt: json['createdAt'] != null
+            ? DateTime.parse(json['createdAt'])
+            : (json['CreatedAt'] != null
+                ? DateTime.parse(json['CreatedAt'])
+                : null),
+        updatedAt: json['updatedAt'] != null
+            ? DateTime.parse(json['updatedAt'])
+            : (json['UpdatedAt'] != null
+                ? DateTime.parse(json['UpdatedAt'])
+                : null),
+        isActive:
+            json['isActive'] ?? json['IsActive'] ?? json['active'] ?? true,
       );
-      
+
       return model;
     } catch (e) {
       rethrow;
@@ -208,56 +280,87 @@ class PolicyModel extends Policy {
       'description': description,
       if (rules != null) 'rules': rules,
       'cancellationWindowDays': cancellationWindowDays,
-      'requireFullPaymentBeforeConfirmation': requireFullPaymentBeforeConfirmation,
+      'requireFullPaymentBeforeConfirmation':
+          requireFullPaymentBeforeConfirmation,
       'minimumDepositPercentage': minimumDepositPercentage,
       'minHoursBeforeCheckIn': minHoursBeforeCheckIn,
-      if (cancellationFreeCancel != null) 'cancellationFreeCancel': cancellationFreeCancel,
-      if (cancellationFullRefund != null) 'cancellationFullRefund': cancellationFullRefund,
-      if (cancellationRefundPercentage != null) 'cancellationRefundPercentage': cancellationRefundPercentage,
-      if (cancellationDaysBeforeCheckIn != null) 'cancellationDaysBeforeCheckIn': cancellationDaysBeforeCheckIn,
-      if (cancellationHoursBeforeCheckIn != null) 'cancellationHoursBeforeCheckIn': cancellationHoursBeforeCheckIn,
-      if (cancellationNonRefundable != null) 'cancellationNonRefundable': cancellationNonRefundable,
-      if (cancellationPenaltyAfterDeadline != null) 'cancellationPenaltyAfterDeadline': cancellationPenaltyAfterDeadline,
-      if (paymentDepositRequired != null) 'paymentDepositRequired': paymentDepositRequired,
-      if (paymentFullPaymentRequired != null) 'paymentFullPaymentRequired': paymentFullPaymentRequired,
-      if (paymentDepositPercentage != null) 'paymentDepositPercentage': paymentDepositPercentage,
+      if (cancellationFreeCancel != null)
+        'cancellationFreeCancel': cancellationFreeCancel,
+      if (cancellationFullRefund != null)
+        'cancellationFullRefund': cancellationFullRefund,
+      if (cancellationRefundPercentage != null)
+        'cancellationRefundPercentage': cancellationRefundPercentage,
+      if (cancellationDaysBeforeCheckIn != null)
+        'cancellationDaysBeforeCheckIn': cancellationDaysBeforeCheckIn,
+      if (cancellationHoursBeforeCheckIn != null)
+        'cancellationHoursBeforeCheckIn': cancellationHoursBeforeCheckIn,
+      if (cancellationNonRefundable != null)
+        'cancellationNonRefundable': cancellationNonRefundable,
+      if (cancellationPenaltyAfterDeadline != null)
+        'cancellationPenaltyAfterDeadline': cancellationPenaltyAfterDeadline,
+      if (paymentDepositRequired != null)
+        'paymentDepositRequired': paymentDepositRequired,
+      if (paymentFullPaymentRequired != null)
+        'paymentFullPaymentRequired': paymentFullPaymentRequired,
+      if (paymentDepositPercentage != null)
+        'paymentDepositPercentage': paymentDepositPercentage,
       if (paymentAcceptCash != null) 'paymentAcceptCash': paymentAcceptCash,
       if (paymentAcceptCard != null) 'paymentAcceptCard': paymentAcceptCard,
-      if (paymentPayAtProperty != null) 'paymentPayAtProperty': paymentPayAtProperty,
-      if (paymentCashPreferred != null) 'paymentCashPreferred': paymentCashPreferred,
-      if (paymentAcceptedMethods != null) 'paymentAcceptedMethods': paymentAcceptedMethods,
+      if (paymentPayAtProperty != null)
+        'paymentPayAtProperty': paymentPayAtProperty,
+      if (paymentCashPreferred != null)
+        'paymentCashPreferred': paymentCashPreferred,
+      if (paymentAcceptedMethods != null)
+        'paymentAcceptedMethods': paymentAcceptedMethods,
       if (checkInTime != null) 'checkInTime': checkInTime,
       if (checkOutTime != null) 'checkOutTime': checkOutTime,
       if (checkInFrom != null) 'checkInFrom': checkInFrom,
       if (checkInUntil != null) 'checkInUntil': checkInUntil,
       if (checkInFlexible != null) 'checkInFlexible': checkInFlexible,
-      if (checkInFlexibleCheckIn != null) 'checkInFlexibleCheckIn': checkInFlexibleCheckIn,
-      if (checkInRequiresCoordination != null) 'checkInRequiresCoordination': checkInRequiresCoordination,
-      if (checkInContactOwner != null) 'checkInContactOwner': checkInContactOwner,
-      if (checkInEarlyCheckInNote != null) 'checkInEarlyCheckInNote': checkInEarlyCheckInNote,
-      if (checkInLateCheckOutNote != null) 'checkInLateCheckOutNote': checkInLateCheckOutNote,
-      if (checkInLateCheckOutFee != null) 'checkInLateCheckOutFee': checkInLateCheckOutFee,
+      if (checkInFlexibleCheckIn != null)
+        'checkInFlexibleCheckIn': checkInFlexibleCheckIn,
+      if (checkInRequiresCoordination != null)
+        'checkInRequiresCoordination': checkInRequiresCoordination,
+      if (checkInContactOwner != null)
+        'checkInContactOwner': checkInContactOwner,
+      if (checkInEarlyCheckInNote != null)
+        'checkInEarlyCheckInNote': checkInEarlyCheckInNote,
+      if (checkInLateCheckOutNote != null)
+        'checkInLateCheckOutNote': checkInLateCheckOutNote,
+      if (checkInLateCheckOutFee != null)
+        'checkInLateCheckOutFee': checkInLateCheckOutFee,
       if (childrenAllowed != null) 'childrenAllowed': childrenAllowed,
-      if (childrenFreeUnderAge != null) 'childrenFreeUnderAge': childrenFreeUnderAge,
-      if (childrenHalfPriceUnderAge != null) 'childrenHalfPriceUnderAge': childrenHalfPriceUnderAge,
-      if (childrenMaxChildrenPerRoom != null) 'childrenMaxChildrenPerRoom': childrenMaxChildrenPerRoom,
-      if (childrenMaxChildren != null) 'childrenMaxChildren': childrenMaxChildren,
+      if (childrenFreeUnderAge != null)
+        'childrenFreeUnderAge': childrenFreeUnderAge,
+      if (childrenHalfPriceUnderAge != null)
+        'childrenHalfPriceUnderAge': childrenHalfPriceUnderAge,
+      if (childrenMaxChildrenPerRoom != null)
+        'childrenMaxChildrenPerRoom': childrenMaxChildrenPerRoom,
+      if (childrenMaxChildren != null)
+        'childrenMaxChildren': childrenMaxChildren,
       if (childrenCribsNote != null) 'childrenCribsNote': childrenCribsNote,
-      if (childrenPlaygroundAvailable != null) 'childrenPlaygroundAvailable': childrenPlaygroundAvailable,
-      if (childrenKidsMenuAvailable != null) 'childrenKidsMenuAvailable': childrenKidsMenuAvailable,
+      if (childrenPlaygroundAvailable != null)
+        'childrenPlaygroundAvailable': childrenPlaygroundAvailable,
+      if (childrenKidsMenuAvailable != null)
+        'childrenKidsMenuAvailable': childrenKidsMenuAvailable,
       if (petsAllowed != null) 'petsAllowed': petsAllowed,
       if (petsReason != null) 'petsReason': petsReason,
       if (petsFeeAmount != null) 'petsFeeAmount': petsFeeAmount,
       if (petsMaxWeight != null) 'petsMaxWeight': petsMaxWeight,
-      if (petsRequiresApproval != null) 'petsRequiresApproval': petsRequiresApproval,
+      if (petsRequiresApproval != null)
+        'petsRequiresApproval': petsRequiresApproval,
       if (petsNoFees != null) 'petsNoFees': petsNoFees,
       if (petsPetFriendly != null) 'petsPetFriendly': petsPetFriendly,
       if (petsOutdoorSpace != null) 'petsOutdoorSpace': petsOutdoorSpace,
       if (petsStrict != null) 'petsStrict': petsStrict,
-      if (modificationAllowed != null) 'modificationAllowed': modificationAllowed,
-      if (modificationFreeModificationHours != null) 'modificationFreeModificationHours': modificationFreeModificationHours,
-      if (modificationFeesAfter != null) 'modificationFeesAfter': modificationFeesAfter,
-      if (modificationFlexible != null) 'modificationFlexible': modificationFlexible,
+      if (modificationAllowed != null)
+        'modificationAllowed': modificationAllowed,
+      if (modificationFreeModificationHours != null)
+        'modificationFreeModificationHours': modificationFreeModificationHours,
+      if (modificationFeesAfter != null)
+        'modificationFeesAfter': modificationFeesAfter,
+      if (modificationFlexible != null)
+        'modificationFlexible': modificationFlexible,
       if (modificationReason != null) 'modificationReason': modificationReason,
       if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
       if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
@@ -274,7 +377,8 @@ class PolicyModel extends Policy {
       description: entity.description,
       rules: entity.rules,
       cancellationWindowDays: entity.cancellationWindowDays,
-      requireFullPaymentBeforeConfirmation: entity.requireFullPaymentBeforeConfirmation,
+      requireFullPaymentBeforeConfirmation:
+          entity.requireFullPaymentBeforeConfirmation,
       minimumDepositPercentage: entity.minimumDepositPercentage,
       minHoursBeforeCheckIn: entity.minHoursBeforeCheckIn,
       cancellationFreeCancel: entity.cancellationFreeCancel,
@@ -321,7 +425,8 @@ class PolicyModel extends Policy {
       petsOutdoorSpace: entity.petsOutdoorSpace,
       petsStrict: entity.petsStrict,
       modificationAllowed: entity.modificationAllowed,
-      modificationFreeModificationHours: entity.modificationFreeModificationHours,
+      modificationFreeModificationHours:
+          entity.modificationFreeModificationHours,
       modificationFeesAfter: entity.modificationFeesAfter,
       modificationFlexible: entity.modificationFlexible,
       modificationReason: entity.modificationReason,
@@ -341,7 +446,7 @@ class PolicyModel extends Policy {
 
   static PolicyType _parsePolicyType(dynamic value) {
     if (value == null) return PolicyType.cancellation;
-    
+
     if (value is int) {
       switch (value) {
         case 0:
@@ -360,17 +465,22 @@ class PolicyModel extends Policy {
           return PolicyType.cancellation;
       }
     }
-    
+
     return PolicyType.fromString(value.toString());
   }
 }
 
 /// 📊 Model لإحصائيات السياسات
 class PolicyStatsModel {
+  /// العربية: يخزن القيمة `totalPolicies`.
   final int totalPolicies;
+
   final int activePolicies;
+
   final int policiesByType;
+
   final Map<String, int> policyTypeDistribution;
+
   final double averageCancellationWindow;
 
   PolicyStatsModel({
@@ -386,8 +496,10 @@ class PolicyStatsModel {
       totalPolicies: json['totalPolicies'] ?? 0,
       activePolicies: json['activePolicies'] ?? 0,
       policiesByType: json['policiesByType'] ?? 0,
-      policyTypeDistribution: Map<String, int>.from(json['policyTypeDistribution'] ?? {}),
-      averageCancellationWindow: (json['averageCancellationWindow'] ?? 0).toDouble(),
+      policyTypeDistribution:
+          Map<String, int>.from(json['policyTypeDistribution'] ?? {}),
+      averageCancellationWindow:
+          (json['averageCancellationWindow'] ?? 0).toDouble(),
     );
   }
 

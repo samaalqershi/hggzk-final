@@ -1,1344 +1,46 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:intl/intl.dart';
-// import 'dart:ui';
-// import 'dart:math' as math;
-// import '../../../../core/theme/app_theme.dart';
-// import '../../../../core/theme/app_dimensions.dart';
-// import '../../../../core/theme/app_text_styles.dart';
-// import '../../domain/entities/booking.dart';
-
-// class BookingConfirmationPage extends StatefulWidget {
-//   final Booking booking;
-
-//   const BookingConfirmationPage({
-//     super.key,
-//     required this.booking,
-//   });
-
-//   @override
-//   State<BookingConfirmationPage> createState() => _BookingConfirmationPageState();
-// }
-
-// class _BookingConfirmationPageState extends State<BookingConfirmationPage>
-//     with TickerProviderStateMixin {
-//   // Animation Controllers
-//   late AnimationController _successAnimationController;
-//   late AnimationController _cardAnimationController;
-//   late AnimationController _confettiAnimationController;
-//   late AnimationController _pulseAnimationController;
-//   late AnimationController _shimmerAnimationController;
-
-//   // Animations
-//   late Animation<double> _scaleAnimation;
-//   late Animation<double> _fadeAnimation;
-//   late Animation<Offset> _slideAnimation;
-//   late Animation<double> _rotationAnimation;
-//   late Animation<double> _checkAnimation;
-
-//   // Confetti Particles
-//   final List<_ConfettiParticle> _confettiParticles = [];
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _initializeAnimations();
-//     _generateConfetti();
-//     _startAnimations();
-//   }
-
-//   void _initializeAnimations() {
-//     // Success Animation
-//     _successAnimationController = AnimationController(
-//       duration: const Duration(milliseconds: 1500),
-//       vsync: this,
-//     );
-
-//     _scaleAnimation = Tween<double>(
-//       begin: 0.0,
-//       end: 1.0,
-//     ).animate(CurvedAnimation(
-//       parent: _successAnimationController,
-//       curve: Curves.elasticOut,
-//     ));
-
-//     _checkAnimation = Tween<double>(
-//       begin: 0.0,
-//       end: 1.0,
-//     ).animate(CurvedAnimation(
-//       parent: _successAnimationController,
-//       curve: const Interval(0.5, 1.0, curve: Curves.easeOutBack),
-//     ));
-
-//     // Card Animation
-//     _cardAnimationController = AnimationController(
-//       duration: const Duration(milliseconds: 1200),
-//       vsync: this,
-//     );
-
-//     _fadeAnimation = Tween<double>(
-//       begin: 0.0,
-//       end: 1.0,
-//     ).animate(CurvedAnimation(
-//       parent: _cardAnimationController,
-//       curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
-//     ));
-
-//     _slideAnimation = Tween<Offset>(
-//       begin: const Offset(0, 0.5),
-//       end: Offset.zero,
-//     ).animate(CurvedAnimation(
-//       parent: _cardAnimationController,
-//       curve: const Interval(0.2, 0.8, curve: Curves.easeOutBack),
-//     ));
-
-//     // Confetti Animation
-//     _confettiAnimationController = AnimationController(
-//       duration: const Duration(seconds: 5),
-//       vsync: this,
-//     );
-
-//     _rotationAnimation = Tween<double>(
-//       begin: 0,
-//       end: 2 * math.pi,
-//     ).animate(_confettiAnimationController);
-
-//     // Pulse Animation
-//     _pulseAnimationController = AnimationController(
-//       duration: const Duration(seconds: 2),
-//       vsync: this,
-//     )..repeat(reverse: true);
-
-//     // Shimmer Animation
-//     _shimmerAnimationController = AnimationController(
-//       duration: const Duration(seconds: 3),
-//       vsync: this,
-//     )..repeat();
-//   }
-
-//   void _generateConfetti() {
-//     for (int i = 0; i < 50; i++) {
-//       _confettiParticles.add(_ConfettiParticle());
-//     }
-//   }
-
-//   void _startAnimations() async {
-//     await Future.delayed(const Duration(milliseconds: 100));
-//     _successAnimationController.forward();
-//     await Future.delayed(const Duration(milliseconds: 300));
-//     _cardAnimationController.forward();
-//     _confettiAnimationController.forward();
-
-//     // Haptic feedback for success
-//     HapticFeedback.heavyImpact();
-//   }
-
-//   @override
-//   void dispose() {
-//     _successAnimationController.dispose();
-//     _cardAnimationController.dispose();
-//     _confettiAnimationController.dispose();
-//     _pulseAnimationController.dispose();
-//     _shimmerAnimationController.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return PopScope(
-//       canPop: true,
-//       onPopInvokedWithResult: (didPop, result) {
-//         if (!didPop) {
-//           context.go('/home');
-//         }
-//       },
-//       child: Scaffold(
-//         backgroundColor: AppTheme.darkBackground,
-//         body: Stack(
-//           children: [
-//             // Animated Background
-//             _buildAnimatedBackground(),
-
-//             // Confetti Animation
-//             AnimatedBuilder(
-//               animation: _confettiAnimationController,
-//               builder: (context, child) {
-//                 return CustomPaint(
-//                   painter: _ConfettiPainter(
-//                     particles: _confettiParticles,
-//                     animationValue: _confettiAnimationController.value,
-//                   ),
-//                   size: Size.infinite,
-//                 );
-//               },
-//             ),
-
-//             // Main Content
-//             SafeArea(
-//               child: SingleChildScrollView(
-//                 physics: const BouncingScrollPhysics(),
-//                 padding: const EdgeInsets.all(AppDimensions.paddingMedium),
-//                 child: Column(
-//                   children: [
-//                     const SizedBox(height: AppDimensions.spacingXl),
-//                     _buildSuccessAnimation(),
-//                     const SizedBox(height: AppDimensions.spacingLg),
-//                     _buildSuccessMessage(),
-//                     const SizedBox(height: AppDimensions.spacingXl),
-//                     AnimatedBuilder(
-//                       animation: _cardAnimationController,
-//                       builder: (context, child) {
-//                         return FadeTransition(
-//                           opacity: _fadeAnimation,
-//                           child: SlideTransition(
-//                             position: _slideAnimation,
-//                             child: Column(
-//                               children: [
-//                                 _buildFuturisticBookingDetails(),
-//                                 const SizedBox(height: AppDimensions.spacingLg),
-//                                 _buildActionButtons(),
-//                               ],
-//                             ),
-//                           ),
-//                         );
-//                       },
-//                     ),
-//                     const SizedBox(height: AppDimensions.spacingXl),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildAnimatedBackground() {
-//     return AnimatedBuilder(
-//       animation: _pulseAnimationController,
-//       builder: (context, child) {
-//         return Container(
-//           decoration: BoxDecoration(
-//             gradient: RadialGradient(
-//               center: const Alignment(0, -0.5),
-//               radius: 1.5,
-//               colors: [
-//                 AppTheme.success.withOpacity(0.1 + (_pulseAnimationController.value * 0.05)),
-//                 AppTheme.darkBackground,
-//               ],
-//             ),
-//           ),
-//           child: CustomPaint(
-//             painter: _CelebrationPatternPainter(
-//               animationValue: _shimmerAnimationController.value,
-//             ),
-//             size: Size.infinite,
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   Widget _buildSuccessAnimation() {
-//     return AnimatedBuilder(
-//       animation: _successAnimationController,
-//       builder: (context, child) {
-//         return Transform.scale(
-//           scale: _scaleAnimation.value,
-//           child: Container(
-//             width: 150,
-//             height: 150,
-//             decoration: BoxDecoration(
-//               shape: BoxShape.circle,
-//               gradient: LinearGradient(
-//                 colors: [
-//                   AppTheme.success,
-//                   AppTheme.success.withOpacity(0.7),
-//                 ],
-//               ),
-//               boxShadow: [
-//                 BoxShadow(
-//                   color: AppTheme.success.withOpacity(0.5),
-//                   blurRadius: 30,
-//                   spreadRadius: 10,
-//                 ),
-//                 BoxShadow(
-//                   color: AppTheme.neonGreen.withOpacity(0.3),
-//                   blurRadius: 50,
-//                   spreadRadius: 20,
-//                 ),
-//               ],
-//             ),
-//             child: ClipRRect(
-//               borderRadius: BorderRadius.circular(75),
-//               child: BackdropFilter(
-//                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-//                 child: Container(
-//                   color: Colors.transparent,
-//                   child: Center(
-//                     child: AnimatedBuilder(
-//                       animation: _checkAnimation,
-//                       builder: (context, child) {
-//                         return CustomPaint(
-//                           size: const Size(80, 80),
-//                           painter: _CheckmarkPainter(
-//                             progress: _checkAnimation.value,
-//                           ),
-//                         );
-//                       },
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   Widget _buildSuccessMessage() {
-//     return AnimatedBuilder(
-//       animation: _fadeAnimation,
-//       builder: (context, child) {
-//         return FadeTransition(
-//           opacity: _fadeAnimation,
-//           child: Column(
-//             children: [
-//               ShaderMask(
-//                 shaderCallback: (bounds) =>
-//                     AppTheme.primaryGradient.createShader(bounds),
-//                 child: Text(
-//                   'تم الحجز بنجاح!',
-//                   style: AppTextStyles.displaySmall.copyWith(
-//                     fontWeight: FontWeight.w900,
-//                     color: Colors.white,
-//                   ),
-//                 ),
-//               ),
-//               const SizedBox(height: AppDimensions.spacingSm),
-//               Text(
-//                 'تم تأكيد حجزك وسيتم إرسال التفاصيل إلى بريدك الإلكتروني',
-//                 style: AppTextStyles.bodyMedium.copyWith(
-//                   color: AppTheme.textMuted,
-//                 ),
-//                 textAlign: TextAlign.center,
-//               ),
-//             ],
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   Widget _buildFuturisticBookingDetails() {
-//     final dateFormat = DateFormat('dd MMM yyyy', 'ar');
-
-//     return Container(
-//       decoration: BoxDecoration(
-//         gradient: LinearGradient(
-//           colors: [
-//             AppTheme.darkCard.withOpacity(0.9),
-//             AppTheme.darkCard.withOpacity(0.6),
-//           ],
-//         ),
-//         borderRadius: BorderRadius.circular(24),
-//         border: Border.all(
-//           color: AppTheme.success.withOpacity(0.3),
-//           width: 1,
-//         ),
-//         boxShadow: [
-//           BoxShadow(
-//             color: AppTheme.success.withOpacity(0.2),
-//             blurRadius: 30,
-//             spreadRadius: 5,
-//           ),
-//         ],
-//       ),
-//       child: ClipRRect(
-//         borderRadius: BorderRadius.circular(24),
-//         child: BackdropFilter(
-//           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-//           child: Column(
-//             children: [
-//               _buildDetailHeader(),
-//               Container(
-//                 height: 1,
-//                 decoration: BoxDecoration(
-//                   gradient: LinearGradient(
-//                     colors: [
-//                       Colors.transparent,
-//                       AppTheme.success.withOpacity(0.3),
-//                       Colors.transparent,
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//               Padding(
-//                 padding: const EdgeInsets.all(AppDimensions.paddingMedium),
-//                 child: Column(
-//                   children: [
-//                     _buildAnimatedDetailItem(
-//                       'رقم الحجز',
-//                       widget.booking.bookingNumber,
-//                       canCopy: true,
-//                       delay: 0,
-//                     ),
-//                     _buildGradientDivider(),
-//                     _buildAnimatedDetailItem(
-//                       'اسم العقار',
-//                       widget.booking.propertyName,
-//                       delay: 100,
-//                     ),
-//                     if (widget.booking.unitName != null) ...[
-//                       _buildGradientDivider(),
-//                       _buildAnimatedDetailItem(
-//                         'الوحدة',
-//                         widget.booking.unitName!,
-//                         delay: 200,
-//                       ),
-//                     ],
-//                     _buildGradientDivider(),
-//                     _buildAnimatedDetailItem(
-//                       'تاريخ الوصول',
-//                       dateFormat.format(widget.booking.checkInDate),
-//                       delay: 300,
-//                     ),
-//                     _buildGradientDivider(),
-//                     _buildAnimatedDetailItem(
-//                       'تاريخ المغادرة',
-//                       dateFormat.format(widget.booking.checkOutDate),
-//                       delay: 400,
-//                     ),
-//                     _buildGradientDivider(),
-//                     _buildAnimatedDetailItem(
-//                       'عدد الضيوف',
-//                       '${widget.booking.totalGuests} ضيف',
-//                       delay: 500,
-//                     ),
-//                     _buildGradientDivider(),
-//                     _buildAnimatedDetailItem(
-//                       'المبلغ الإجمالي',
-//                       '${widget.booking.totalAmount.toStringAsFixed(0)} ${widget.booking.currency}',
-//                       highlight: true,
-//                       delay: 600,
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildDetailHeader() {
-//     return Container(
-//       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
-//       decoration: BoxDecoration(
-//         gradient: LinearGradient(
-//           colors: [
-//             AppTheme.success.withOpacity(0.2),
-//             AppTheme.success.withOpacity(0.1),
-//           ],
-//         ),
-//       ),
-//       child: Row(
-//         children: [
-//           Container(
-//             padding: const EdgeInsets.all(AppDimensions.paddingSmall),
-//             decoration: BoxDecoration(
-//               gradient: const LinearGradient(
-//                 colors: [
-//                   AppTheme.success,
-//                   AppTheme.neonGreen,
-//                 ],
-//               ),
-//               borderRadius: BorderRadius.circular(12),
-//               boxShadow: [
-//                 BoxShadow(
-//                   color: AppTheme.success.withOpacity(0.4),
-//                   blurRadius: 10,
-//                   spreadRadius: 2,
-//                 ),
-//               ],
-//             ),
-//             child: const Icon(
-//               Icons.confirmation_number,
-//               color: Colors.white,
-//               size: AppDimensions.iconMedium,
-//             ),
-//           ),
-//           const SizedBox(width: AppDimensions.spacingMd),
-//           Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               ShaderMask(
-//                 shaderCallback: (bounds) =>
-//                     AppTheme.primaryGradient.createShader(bounds),
-//                 child: Text(
-//                   'تفاصيل الحجز',
-//                   style: AppTextStyles.h2.copyWith(
-//                     fontWeight: FontWeight.bold,
-//                     color: Colors.white,
-//                   ),
-//                 ),
-//               ),
-//               Text(
-//                 'احتفظ بهذه المعلومات للرجوع إليها',
-//                 style: AppTextStyles.caption.copyWith(
-//                   color: AppTheme.textMuted,
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildAnimatedDetailItem(
-//     String label,
-//     String value, {
-//     bool canCopy = false,
-//     bool highlight = false,
-//     int delay = 0,
-//   }) {
-//     return TweenAnimationBuilder<double>(
-//       tween: Tween(begin: 0, end: 1),
-//       duration: Duration(milliseconds: 800 + delay),
-//       curve: Curves.easeOutBack,
-//       builder: (context, animValue, child) {
-//         return Transform.translate(
-//           offset: Offset((1 - animValue) * 50, 0),
-//           child: Opacity(
-//             opacity: animValue.clamp(0.0, 1.0).toDouble(),
-//             child: Padding(
-//               padding: const EdgeInsets.symmetric(vertical: AppDimensions.spacingSm),
-//               child: Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   Text(
-//                     label,
-//                     style: AppTextStyles.bodyMedium.copyWith(
-//                       color: AppTheme.textMuted,
-//                     ),
-//                   ),
-//                   Row(
-//                     children: [
-//                       highlight
-//                           ? ShaderMask(
-//                               shaderCallback: (bounds) =>
-//                                   AppTheme.primaryGradient.createShader(bounds),
-//                               child: Text(
-//                                 value,
-//                                 style: AppTextStyles.h2.copyWith(
-//                                   fontWeight: FontWeight.bold,
-//                                   color: Colors.white,
-//                                 ),
-//                               ),
-//                             )
-//                           : Text(
-//                               value,
-//                               style: AppTextStyles.bodyMedium.copyWith(
-//                                 fontWeight: FontWeight.bold,
-//                                 color: AppTheme.textWhite,
-//                               ),
-//                             ),
-//                       if (canCopy) ...[
-//                         const SizedBox(width: AppDimensions.spacingSm),
-//                         InkWell(
-//                           onTap: () => _copyToClipboard(value),
-//                           child: Container(
-//                             padding: const EdgeInsets.all(6),
-//                             decoration: BoxDecoration(
-//                               gradient: AppTheme.primaryGradient,
-//                               borderRadius: BorderRadius.circular(8),
-//                             ),
-//                             child: const Icon(
-//                               Icons.copy,
-//                               size: AppDimensions.iconSmall,
-//                               color: Colors.white,
-//                             ),
-//                           ),
-//                         ),
-//                       ],
-//                     ],
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   Widget _buildGradientDivider() {
-//     return Container(
-//       height: 1,
-//       margin: const EdgeInsets.symmetric(vertical: 4),
-//       decoration: BoxDecoration(
-//         gradient: LinearGradient(
-//           colors: [
-//             Colors.transparent,
-//             AppTheme.primaryBlue.withOpacity(0.2),
-//             AppTheme.primaryPurple.withOpacity(0.2),
-//             Colors.transparent,
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildActionButtons() {
-//     return Column(
-//       children: [
-//         // View Booking Details Button
-//         _buildFuturisticButton(
-//           icon: Icons.description_outlined,
-//           label: 'عرض تفاصيل الحجز',
-//           gradient: AppTheme.primaryGradient,
-//           onPressed: () => context.push('/booking/${widget.booking.id}'),
-//         ),
-
-//         const SizedBox(height: AppDimensions.spacingMd),
-
-//         // Add to Calendar Button
-//         _buildFuturisticButton(
-//           icon: Icons.calendar_today,
-//           label: 'إضافة إلى التقويم',
-//           gradient: const LinearGradient(
-//             colors: [
-//               AppTheme.primaryPurple,
-//               AppTheme.primaryViolet,
-//             ],
-//           ),
-//           isOutlined: true,
-//           onPressed: _addToCalendar,
-//         ),
-
-//         const SizedBox(height: AppDimensions.spacingMd),
-
-//         // Share Booking Button
-//         _buildFuturisticButton(
-//           icon: Icons.share,
-//           label: 'مشاركة الحجز',
-//           gradient: const LinearGradient(
-//             colors: [
-//               AppTheme.primaryCyan,
-//               AppTheme.neonBlue,
-//             ],
-//           ),
-//           isOutlined: true,
-//           onPressed: _shareBooking,
-//         ),
-
-//         const SizedBox(height: AppDimensions.spacingLg),
-
-//         // Home Button
-//         TextButton(
-//           onPressed: () {
-//             HapticFeedback.lightImpact();
-//             context.go('/home');
-//           },
-//           child: ShaderMask(
-//             shaderCallback: (bounds) =>
-//                 AppTheme.primaryGradient.createShader(bounds),
-//             child: Text(
-//               'العودة إلى الرئيسية',
-//               style: AppTextStyles.bodyMedium.copyWith(
-//                 color: Colors.white,
-//                 decoration: TextDecoration.underline,
-//               ),
-//             ),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildFuturisticButton({
-//     required IconData icon,
-//     required String label,
-//     required Gradient gradient,
-//     required VoidCallback onPressed,
-//     bool isOutlined = false,
-//   }) {
-//     return GestureDetector(
-//       onTapDown: (_) => HapticFeedback.lightImpact(),
-//       onTap: onPressed,
-//       child: Container(
-//         width: double.infinity,
-//         height: 56,
-//         decoration: BoxDecoration(
-//           gradient: isOutlined ? null : gradient,
-//           borderRadius: BorderRadius.circular(20),
-//           border: isOutlined
-//               ? Border.all(
-//                   width: 2,
-//                   color: gradient.colors.first,
-//                 )
-//               : null,
-//           boxShadow: !isOutlined
-//               ? [
-//                   BoxShadow(
-//                     color: gradient.colors.first.withOpacity(0.4),
-//                     blurRadius: 20,
-//                     spreadRadius: 2,
-//                     offset: const Offset(0, 4),
-//                   ),
-//                 ]
-//               : [],
-//         ),
-//         child: ClipRRect(
-//           borderRadius: BorderRadius.circular(20),
-//           child: BackdropFilter(
-//             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-//             child: Material(
-//               color: Colors.transparent,
-//               child: InkWell(
-//                 onTap: onPressed,
-//                 borderRadius: BorderRadius.circular(20),
-//                 child: Center(
-//                   child: Row(
-//                     mainAxisAlignment: MainAxisAlignment.center,
-//                     children: [
-//                       Icon(
-//                         icon,
-//                         color: isOutlined ? gradient.colors.first : Colors.white,
-//                         size: 20,
-//                       ),
-//                       const SizedBox(width: 8),
-//                       Text(
-//                         label,
-//                         style: AppTextStyles.buttonLarge.copyWith(
-//                           color: isOutlined ? gradient.colors.first : Colors.white,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   void _copyToClipboard(String text) {
-//     HapticFeedback.mediumImpact();
-//     Clipboard.setData(ClipboardData(text: text));
-//     _showFuturisticSnackBar('تم نسخ $text');
-//   }
-
-//   void _addToCalendar() {
-//     HapticFeedback.lightImpact();
-//     _showFuturisticDialog(
-//       title: 'إضافة إلى التقويم',
-//       content: 'سيتم إضافة موعد الحجز إلى تقويمك',
-//       icon: Icons.calendar_today,
-//       iconColor: AppTheme.primaryPurple,
-//       onConfirm: () {
-//         Navigator.pop(context);
-//         _showFuturisticSnackBar('تمت الإضافة إلى التقويم بنجاح');
-//       },
-//     );
-//   }
-
-//   void _shareBooking() {
-//     HapticFeedback.lightImpact();
-//     final dateFormat = DateFormat('dd MMM yyyy', 'ar');
-//     final shareText = '''
-// 🎉 تم تأكيد الحجز!
-
-// 📍 العقار: ${widget.booking.propertyName}
-// ${widget.booking.unitName != null ? '🏠 الوحدة: ${widget.booking.unitName}' : ''}
-// 📅 الوصول: ${dateFormat.format(widget.booking.checkInDate)}
-// 📅 المغادرة: ${dateFormat.format(widget.booking.checkOutDate)}
-// 👥 عدد الضيوف: ${widget.booking.totalGuests}
-// 💰 المبلغ الإجمالي: ${widget.booking.totalAmount.toStringAsFixed(0)} ${widget.booking.currency}
-// 🎫 رقم الحجز: ${widget.booking.bookingNumber}
-
-// تم الحجز عبر تطبيق hggzk
-//     ''';
-
-//     _showShareBottomSheet(shareText);
-//   }
-
-//   void _showShareBottomSheet(String shareText) {
-//     showModalBottomSheet(
-//       context: context,
-//       backgroundColor: Colors.transparent,
-//       isScrollControlled: true,
-//       builder: (context) => Container(
-//         decoration: BoxDecoration(
-//           gradient: const LinearGradient(
-//             begin: Alignment.topCenter,
-//             end: Alignment.bottomCenter,
-//             colors: [
-//               AppTheme.darkCard,
-//               AppTheme.darkSurface,
-//             ],
-//           ),
-//           borderRadius: const BorderRadius.vertical(
-//             top: Radius.circular(30),
-//           ),
-//           boxShadow: [
-//             BoxShadow(
-//               color: AppTheme.primaryBlue.withOpacity(0.3),
-//               blurRadius: 30,
-//               offset: const Offset(0, -10),
-//             ),
-//           ],
-//         ),
-//         child: ClipRRect(
-//           borderRadius: const BorderRadius.vertical(
-//             top: Radius.circular(30),
-//           ),
-//           child: BackdropFilter(
-//             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-//             child: Container(
-//               padding: const EdgeInsets.all(AppDimensions.paddingMedium),
-//               child: Column(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: [
-//                   Container(
-//                     width: 50,
-//                     height: 5,
-//                     margin: const EdgeInsets.only(bottom: AppDimensions.spacingLg),
-//                     decoration: BoxDecoration(
-//                       gradient: AppTheme.primaryGradient,
-//                       borderRadius: BorderRadius.circular(10),
-//                     ),
-//                   ),
-//                   ShaderMask(
-//                     shaderCallback: (bounds) =>
-//                         AppTheme.primaryGradient.createShader(bounds),
-//                     child: Text(
-//                       'مشاركة تفاصيل الحجز',
-//                       style: AppTextStyles.h2.copyWith(
-//                         fontWeight: FontWeight.bold,
-//                         color: Colors.white,
-//                       ),
-//                     ),
-//                   ),
-//                   const SizedBox(height: AppDimensions.spacingLg),
-//                   Container(
-//                     padding: const EdgeInsets.all(AppDimensions.paddingMedium),
-//                     decoration: BoxDecoration(
-//                       gradient: LinearGradient(
-//                         colors: [
-//                           AppTheme.darkCard.withOpacity(0.8),
-//                           AppTheme.darkCard.withOpacity(0.5),
-//                         ],
-//                       ),
-//                       borderRadius: BorderRadius.circular(20),
-//                       border: Border.all(
-//                         color: AppTheme.primaryBlue.withOpacity(0.3),
-//                       ),
-//                     ),
-//                     child: Text(
-//                       shareText,
-//                       style: AppTextStyles.bodyMedium,
-//                     ),
-//                   ),
-//                   const SizedBox(height: AppDimensions.spacingLg),
-//                   Row(
-//                     children: [
-//                       Expanded(
-//                         child: _buildShareOption(
-//                           icon: Icons.message,
-//                           label: 'رسالة',
-//                           color: AppTheme.success,
-//                           onTap: () {
-//                             Navigator.pop(context);
-//                             _showFuturisticSnackBar('تم إرسال الرسالة');
-//                           },
-//                         ),
-//                       ),
-//                       const SizedBox(width: AppDimensions.spacingMd),
-//                       Expanded(
-//                         child: _buildShareOption(
-//                           icon: Icons.email,
-//                           label: 'بريد',
-//                           color: AppTheme.info,
-//                           onTap: () {
-//                             Navigator.pop(context);
-//                             _showFuturisticSnackBar('تم إرسال البريد');
-//                           },
-//                         ),
-//                       ),
-//                       const SizedBox(width: AppDimensions.spacingMd),
-//                       Expanded(
-//                         child: _buildShareOption(
-//                           icon: Icons.copy,
-//                           label: 'نسخ',
-//                           color: AppTheme.primaryBlue,
-//                           onTap: () {
-//                             Navigator.pop(context);
-//                             _copyToClipboard(shareText);
-//                           },
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                   SafeArea(
-//                     child: TextButton(
-//                       onPressed: () => Navigator.pop(context),
-//                       child: Text(
-//                         'إلغاء',
-//                         style: AppTextStyles.bodyMedium.copyWith(
-//                           color: AppTheme.textMuted,
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildShareOption({
-//     required IconData icon,
-//     required String label,
-//     required Color color,
-//     required VoidCallback onTap,
-//   }) {
-//     return InkWell(
-//       onTap: onTap,
-//       borderRadius: BorderRadius.circular(16),
-//       child: Container(
-//         padding: const EdgeInsets.symmetric(
-//           vertical: AppDimensions.paddingMedium,
-//         ),
-//         decoration: BoxDecoration(
-//           gradient: LinearGradient(
-//             colors: [
-//               color.withOpacity(0.2),
-//               color.withOpacity(0.1),
-//             ],
-//           ),
-//           borderRadius: BorderRadius.circular(16),
-//           border: Border.all(
-//             color: color.withOpacity(0.5),
-//           ),
-//         ),
-//         child: Column(
-//           children: [
-//             Container(
-//               padding: const EdgeInsets.all(8),
-//               decoration: BoxDecoration(
-//                 color: color.withOpacity(0.2),
-//                 shape: BoxShape.circle,
-//               ),
-//               child: Icon(
-//                 icon,
-//                 color: color,
-//                 size: AppDimensions.iconMedium,
-//               ),
-//             ),
-//             const SizedBox(height: AppDimensions.spacingXs),
-//             Text(
-//               label,
-//               style: AppTextStyles.caption.copyWith(
-//                 color: color,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   void _showFuturisticDialog({
-//     required String title,
-//     required String content,
-//     required IconData icon,
-//     required Color iconColor,
-//     required VoidCallback onConfirm,
-//   }) {
-//     showDialog(
-//       context: context,
-//       barrierDismissible: false,
-//       builder: (context) => Dialog(
-//         backgroundColor: Colors.transparent,
-//         child: Container(
-//           padding: const EdgeInsets.all(24),
-//           decoration: BoxDecoration(
-//             gradient: LinearGradient(
-//               colors: [
-//                 AppTheme.darkCard.withOpacity(0.95),
-//                 AppTheme.darkCard.withOpacity(0.85),
-//               ],
-//             ),
-//             borderRadius: BorderRadius.circular(24),
-//             border: Border.all(
-//               color: iconColor.withOpacity(0.3),
-//               width: 1,
-//             ),
-//             boxShadow: [
-//               BoxShadow(
-//                 color: iconColor.withOpacity(0.2),
-//                 blurRadius: 30,
-//                 spreadRadius: 5,
-//               ),
-//             ],
-//           ),
-//           child: ClipRRect(
-//             borderRadius: BorderRadius.circular(24),
-//             child: BackdropFilter(
-//               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-//               child: Column(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: [
-//                   Container(
-//                     width: 80,
-//                     height: 80,
-//                     decoration: BoxDecoration(
-//                       gradient: RadialGradient(
-//                         colors: [
-//                           iconColor.withOpacity(0.2),
-//                           iconColor.withOpacity(0.05),
-//                         ],
-//                       ),
-//                       shape: BoxShape.circle,
-//                     ),
-//                     child: Icon(
-//                       icon,
-//                       size: 40,
-//                       color: iconColor,
-//                     ),
-//                   ),
-//                   const SizedBox(height: 20),
-//                   Text(
-//                     title,
-//                     style: AppTextStyles.h2.copyWith(
-//                       color: iconColor,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                   const SizedBox(height: 12),
-//                   Text(
-//                     content,
-//                     style: AppTextStyles.bodyMedium.copyWith(
-//                       color: AppTheme.textMuted,
-//                     ),
-//                     textAlign: TextAlign.center,
-//                   ),
-//                   const SizedBox(height: 24),
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.end,
-//                     children: [
-//                       TextButton(
-//                         onPressed: () => Navigator.pop(context),
-//                         child: Text(
-//                           'إلغاء',
-//                           style: AppTextStyles.buttonMedium.copyWith(
-//                             color: AppTheme.textMuted,
-//                           ),
-//                         ),
-//                       ),
-//                       const SizedBox(width: 12),
-//                       Container(
-//                         decoration: BoxDecoration(
-//                           gradient: LinearGradient(
-//                             colors: [iconColor, iconColor.withOpacity(0.7)],
-//                           ),
-//                           borderRadius: BorderRadius.circular(12),
-//                         ),
-//                         child: Material(
-//                           color: Colors.transparent,
-//                           child: InkWell(
-//                             onTap: onConfirm,
-//                             borderRadius: BorderRadius.circular(12),
-//                             child: Container(
-//                               padding: const EdgeInsets.symmetric(
-//                                 horizontal: 20,
-//                                 vertical: 10,
-//                               ),
-//                               child: Text(
-//                                 'تأكيد',
-//                                 style: AppTextStyles.buttonMedium.copyWith(
-//                                   color: Colors.white,
-//                                 ),
-//                               ),
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   void _showFuturisticSnackBar(String message) {
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(
-//         content: Container(
-//           padding: const EdgeInsets.symmetric(vertical: 8),
-//           child: Row(
-//             children: [
-//               Container(
-//                 width: 40,
-//                 height: 40,
-//                 decoration: BoxDecoration(
-//                   gradient: LinearGradient(
-//                     colors: [
-//                       AppTheme.success.withOpacity(0.8),
-//                       AppTheme.success,
-//                     ],
-//                   ),
-//                   borderRadius: BorderRadius.circular(12),
-//                 ),
-//                 child: const Icon(
-//                   Icons.check_circle,
-//                   color: Colors.white,
-//                   size: 20,
-//                 ),
-//               ),
-//               const SizedBox(width: 12),
-//               Expanded(
-//                 child: Text(
-//                   message,
-//                   style: AppTextStyles.bodyMedium.copyWith(
-//                     color: Colors.white,
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//         backgroundColor: Colors.transparent,
-//         elevation: 0,
-//         behavior: SnackBarBehavior.floating,
-//         margin: const EdgeInsets.all(20),
-//         padding: EdgeInsets.zero,
-//         duration: const Duration(seconds: 3),
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.circular(16),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// // Celebration Pattern Painter
-// class _CelebrationPatternPainter extends CustomPainter {
-//   final double animationValue;
-
-//   _CelebrationPatternPainter({required this.animationValue});
-
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final paint = Paint()
-//       ..style = PaintingStyle.stroke
-//       ..strokeWidth = 0.5;
-
-//     for (int i = 0; i < 5; i++) {
-//       final radius = 100 + (i * 50) + (animationValue * 100);
-//       paint.shader = RadialGradient(
-//         colors: [
-//           AppTheme.success.withOpacity(0.1 - (i * 0.02)),
-//           Colors.transparent,
-//         ],
-//       ).createShader(Rect.fromCircle(
-//         center: Offset(size.width / 2, size.height / 3),
-//         radius: radius,
-//       ));
-
-//       canvas.drawCircle(
-//         Offset(size.width / 2, size.height / 3),
-//         radius,
-//         paint,
-//       );
-//     }
-//   }
-
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
-// }
-
-// // Checkmark Painter
-// class _CheckmarkPainter extends CustomPainter {
-//   final double progress;
-
-//   _CheckmarkPainter({required this.progress});
-
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     final paint = Paint()
-//       ..color = Colors.white
-//       ..strokeWidth = 5
-//       ..strokeCap = StrokeCap.round
-//       ..style = PaintingStyle.stroke;
-
-//     final path = Path();
-
-//     if (progress > 0) {
-//       path.moveTo(size.width * 0.2, size.height * 0.5);
-
-//       if (progress <= 0.5) {
-//         final firstProgress = progress * 2;
-//         path.lineTo(
-//           size.width * 0.2 + (size.width * 0.2 * firstProgress),
-//           size.height * 0.5 + (size.height * 0.2 * firstProgress),
-//         );
-//       } else {
-//         path.lineTo(size.width * 0.4, size.height * 0.7);
-
-//         final secondProgress = (progress - 0.5) * 2;
-//         path.lineTo(
-//           size.width * 0.4 + (size.width * 0.4 * secondProgress),
-//           size.height * 0.7 - (size.height * 0.4 * secondProgress),
-//         );
-//       }
-//     }
-
-//     canvas.drawPath(path, paint);
-//   }
-
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
-// }
-
-// // Confetti Particle
-// class _ConfettiParticle {
-//   late double x;
-//   late double y;
-//   late double vx;
-//   late double vy;
-//   late double rotation;
-//   late double rotationSpeed;
-//   late Color color;
-//   late double size;
-
-//   _ConfettiParticle() {
-//     reset();
-//   }
-
-//   void reset() {
-//     x = math.Random().nextDouble();
-//     y = -0.1;
-//     vx = (math.Random().nextDouble() - 0.5) * 0.02;
-//     vy = math.Random().nextDouble() * 0.02 + 0.01;
-//     rotation = math.Random().nextDouble() * 2 * math.pi;
-//     rotationSpeed = (math.Random().nextDouble() - 0.5) * 0.2;
-//     size = math.Random().nextDouble() * 10 + 5;
-
-//     final colors = [
-//       AppTheme.success,
-//       AppTheme.primaryBlue,
-//       AppTheme.primaryPurple,
-//       AppTheme.neonGreen,
-//       AppTheme.primaryCyan,
-//       AppTheme.warning,
-//     ];
-//     color = colors[math.Random().nextInt(colors.length)];
-//   }
-
-//   void update(double animationValue) {
-//     x += vx;
-//     y += vy;
-//     rotation += rotationSpeed;
-//     vy += 0.0005; // Gravity
-
-//     if (y > 1.1) {
-//       reset();
-//     }
-//   }
-// }
-
-// // Confetti Painter
-// class _ConfettiPainter extends CustomPainter {
-//   final List<_ConfettiParticle> particles;
-//   final double animationValue;
-
-//   _ConfettiPainter({
-//     required this.particles,
-//     required this.animationValue,
-//   });
-
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     for (var particle in particles) {
-//       particle.update(animationValue);
-
-//       final paint = Paint()
-//         ..color = particle.color.withOpacity(0.8)
-//         ..style = PaintingStyle.fill;
-
-//       canvas.save();
-//       canvas.translate(
-//         particle.x * size.width,
-//         particle.y * size.height,
-//       );
-//       canvas.rotate(particle.rotation);
-
-//       canvas.drawRect(
-//         Rect.fromCenter(
-//           center: Offset.zero,
-//           width: particle.size,
-//           height: particle.size * 0.6,
-//         ),
-//         paint,
-//       );
-
-//       canvas.restore();
-//     }
-//   }
-
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
-// }
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'dart:ui';
-import 'dart:math' as math;
+
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/booking.dart';
 
+/// العربية: يمثل عنصر الصفحة `BookingConfirmationPage`.
 class BookingConfirmationPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `booking`.
   final Booking booking;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingConfirmationPage`.
   const BookingConfirmationPage({
     super.key,
     required this.booking,
   });
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<BookingConfirmationPage> createState() =>
       _BookingConfirmationPageState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `BookingConfirmationPageState`.
 class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     with SingleTickerProviderStateMixin {
   // Simplified Animation
+  /// العربية: يخزن القيمة `mainController`.
   late AnimationController _mainController;
+
+  /// العربية: يخزن القيمة `fadeAnimation`.
   late Animation<double> _fadeAnimation;
+
+  /// العربية: يخزن القيمة `scaleAnimation`.
   late Animation<double> _scaleAnimation;
+
+  /// العربية: يخزن القيمة `checkAnimation`.
   late Animation<double> _checkAnimation;
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -1346,6 +48,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     _startAnimations();
   }
 
+  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     _mainController = AnimationController(
       duration: const Duration(milliseconds: 1200),
@@ -1377,18 +80,21 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     ));
   }
 
+  /// العربية: يبدأ animations.
   void _startAnimations() async {
     await Future.delayed(const Duration(milliseconds: 100));
     _mainController.forward();
     HapticFeedback.lightImpact();
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _mainController.dispose();
     super.dispose();
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -1464,6 +170,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     );
   }
 
+  /// العربية: يبني content.
   Widget _buildContent() {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -1484,6 +191,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     );
   }
 
+  /// العربية: يبني compact success icon.
   Widget _buildCompactSuccessIcon() {
     return AnimatedBuilder(
       animation: _checkAnimation,
@@ -1513,6 +221,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     );
   }
 
+  /// العربية: يبني success message.
   Widget _buildSuccessMessage() {
     return Column(
       children: [
@@ -1534,6 +243,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     );
   }
 
+  /// العربية: يبني minimal booking card.
   Widget _buildMinimalBookingCard() {
     final dateFormat = DateFormat('dd MMM', 'ar');
 
@@ -1625,6 +335,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     );
   }
 
+  /// العربية: يبني compact row.
   Widget _buildCompactRow({
     required IconData icon,
     required String label,
@@ -1665,6 +376,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     );
   }
 
+  /// العربية: يبني date info.
   Widget _buildDateInfo({
     required String title,
     required String date,
@@ -1693,6 +405,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     );
   }
 
+  /// العربية: يبني info chip.
   Widget _buildInfoChip({
     required IconData icon,
     required String label,
@@ -1723,6 +436,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     );
   }
 
+  /// العربية: يبني price chip.
   Widget _buildPriceChip({
     required double amount,
     required String currency,
@@ -1752,6 +466,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     );
   }
 
+  /// العربية: يبني divider.
   Widget _buildDivider() {
     return Container(
       height: 0.5,
@@ -1767,6 +482,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     );
   }
 
+  /// العربية: يبني action buttons.
   Widget _buildActionButtons() {
     return Column(
       children: [
@@ -1821,6 +537,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     );
   }
 
+  /// العربية: يبني minimal button.
   Widget _buildMinimalButton({
     required String label,
     required IconData icon,
@@ -1880,6 +597,7 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     );
   }
 
+  /// العربية: يشارك booking.
   void _shareBooking() {
     final dateFormat = DateFormat('dd MMM yyyy', 'ar');
     final shareText = '''
@@ -1896,10 +614,12 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     _showMinimalSnackBar('تم نسخ التفاصيل');
   }
 
+  /// العربية: يعالج `downloadPDF`.
   void _downloadPDF() {
     _showMinimalSnackBar('جاري تحميل PDF...');
   }
 
+  /// العربية: يعرض minimal snack bar.
   void _showMinimalSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1920,15 +640,21 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
 }
 
 // Minimal Check Painter
+/// العربية: يمثل `MinimalCheckPainter`.
 class _MinimalCheckPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `progress`.
   final double progress;
+
+  /// العربية: يخزن القيمة `color`.
   final Color color;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `MinimalCheckPainter`.
   _MinimalCheckPainter({
     required this.progress,
     required this.color,
   });
 
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1962,6 +688,7 @@ class _MinimalCheckPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

@@ -9,12 +9,28 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/notification.dart';
 
+/// يعرض بطاقة إشعار واحدة مع إمكان فتحها أو تعليمها كمقروء أو إخفائها.
+/// Renders a single notification card with open, mark-as-read, and dismiss
+/// actions.
 class NotificationItemWidget extends StatefulWidget {
+  /// بيانات الإشعار المعروضة داخل البطاقة.
+  /// Notification data rendered inside the card.
   final NotificationEntity notification;
-  final VoidCallback? onTap;
-  final VoidCallback? onDismiss;
-  final VoidCallback? onMarkAsRead;
 
+  /// رد اختياري عند الضغط على البطاقة لفتح تفاصيل أو توجيه المستخدم.
+  /// Optional callback triggered when the card is tapped to open details or
+  /// navigate.
+  final VoidCallback? onTap;
+
+  /// رد اختياري عند إخفاء الإشعار من القائمة.
+  /// Optional callback triggered when the notification is dismissed.
+  final VoidCallback? onDismiss;
+
+  /// رد اختياري عند تعليم الإشعار كمقروء.
+  /// Optional callback triggered when the notification is marked as read.
+  final VoidCallback? onMarkAsRead;
+  /// ينشئ عنصر الإشعار مع بياناته وإجراءاته الاختيارية.
+  /// Creates the notification item with its data and optional actions.
   const NotificationItemWidget({
     super.key,
     required this.notification,
@@ -23,16 +39,31 @@ class NotificationItemWidget extends StatefulWidget {
     this.onMarkAsRead,
   });
 
+  /// ينشئ الحالة الخاصة بالتفاعل البصري للبطاقة.
+  /// Creates the state responsible for the card's visual interaction.
   @override
   State<NotificationItemWidget> createState() => _NotificationItemWidgetState();
 }
 
+/// تدير حالة التحويم والإخفاء والتفاعل اللمسي داخل بطاقة الإشعار.
+/// Manages hover, dismissal, and touch interaction inside the notification
+/// card.
 class _NotificationItemWidgetState extends State<NotificationItemWidget>
     with SingleTickerProviderStateMixin {
+  /// متحكم الحركة المستخدم للتفاعلات البصرية الخفيفة.
+  /// Animation controller used for subtle visual interactions.
   late AnimationController _animationController;
+
+  /// يحدد ما إذا كانت البطاقة في حالة تفاعل بصري.
+  /// Indicates whether the card is currently in a hovered or pressed state.
   bool _isHovered = false;
+
+  /// يحدد ما إذا كان الإشعار قد أُخفي من القائمة محليًا.
+  /// Indicates whether the notification has already been locally dismissed.
   bool _isDismissed = false;
 
+  /// يهيئ متحكم الحركة عند إنشاء البطاقة.
+  /// Initializes the animation controller when the card is created.
   @override
   void initState() {
     super.initState();
@@ -42,12 +73,17 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
     );
   }
 
+  /// يحرر متحكم الحركة عند إزالة البطاقة من الشجرة.
+  /// Disposes the animation controller when the card leaves the tree.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// يبني بطاقة الإشعار بالحجم والتخطيط المناسبين حسب عرض المساحة.
+  /// Builds the notification card using the layout that best matches the
+  /// available width.
   @override
   Widget build(BuildContext context) {
     if (_isDismissed) return const SizedBox.shrink();
@@ -124,6 +160,8 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
     );
   }
 
+  /// يبني النسخة الكاملة من البطاقة للشاشات الأوسع.
+  /// Builds the full-size card layout for wider screens.
   Widget _buildFullContent() {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -200,6 +238,8 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
     );
   }
 
+  /// يبني النسخة المضغوطة من البطاقة للمساحات الأصغر.
+  /// Builds the compact card layout for narrower spaces.
   Widget _buildCompactContent() {
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -287,6 +327,8 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
     );
   }
 
+  /// يبني أيقونة الإشعار المناسبة بحسب نوعه.
+  /// Builds the notification icon that matches the notification type.
   Widget _buildIcon({double size = 48}) {
     final IconData icon;
     final List<Color> gradient;
@@ -335,6 +377,8 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
     );
   }
 
+  /// يبني شارة نصية صغيرة توضّح تصنيف الإشعار.
+  /// Builds a small text chip that communicates the notification category.
   Widget _buildTypeChip({bool isSmall = false}) {
     String label;
     switch (widget.notification.type) {
@@ -377,6 +421,8 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
     );
   }
 
+  /// يبني زر إجراء قياسي للنسخة الكاملة من البطاقة.
+  /// Builds a standard action button for the full card layout.
   Widget _buildActionButton({
     required IconData icon,
     required VoidCallback? onTap,
@@ -412,6 +458,8 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
     );
   }
 
+  /// يبني زر إجراء مضغوط للنسخة الصغيرة من البطاقة.
+  /// Builds a compact action button for the small card layout.
   Widget _buildCompactActionButton({
     required IconData icon,
     required VoidCallback? onTap,
@@ -437,6 +485,8 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
     );
   }
 
+  /// يبني خلفية السحب المستخدمة عند إخفاء الإشعار.
+  /// Builds the swipe-to-dismiss background shown while dismissing.
   Widget _buildDismissBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -458,6 +508,8 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
     );
   }
 
+  /// يحول وقت إنشاء الإشعار إلى صياغة زمنية مناسبة للواجهة.
+  /// Converts the notification timestamp into a UI-friendly relative label.
   String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
@@ -475,6 +527,9 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
     }
   }
 
+  /// يعالج الضغط على البطاقة ويعلم الإشعار كمقروء قبل تمرير حدث الفتح.
+  /// Handles tapping the card and marks the notification as read before
+  /// forwarding the open action.
   void _handleTap() {
     HapticFeedback.lightImpact();
     if (!widget.notification.isRead) {
@@ -483,6 +538,9 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
     widget.onTap?.call();
   }
 
+  /// يحدّث حالة التحويم مع مزامنة الحركة البصرية المرتبطة بها.
+  /// Updates the hover state and synchronizes the associated visual
+  /// animation.
   void _setHovered(bool value) {
     setState(() => _isHovered = value);
     if (value) {

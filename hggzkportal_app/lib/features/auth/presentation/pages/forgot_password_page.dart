@@ -12,13 +12,21 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
+/// يعرّف الكلاس `ForgotPasswordPage`.
+/// Describes the `ForgotPasswordPage` class.
 class ForgotPasswordPage extends StatefulWidget {
+  /// Initializes a new `ForgotPasswordPage` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ForgotPasswordPage`.
   const ForgotPasswordPage({super.key});
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
 }
 
+/// يعرّف الكلاس `_ForgotPasswordPageState`.
+/// Describes the `_ForgotPasswordPageState` class.
 class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     with SingleTickerProviderStateMixin {
   // Form Controllers
@@ -27,23 +35,43 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
   final _emailOrPhoneFocusNode = FocusNode();
 
   // Animation Controller - Single controller for entrance animation only
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
+
+  /// يخزن العضو `_slideAnimation`.
+  /// Holds the `_slideAnimation` member.
   late Animation<Offset> _slideAnimation;
 
   // State
+  /// يخزن العضو `_isSubmitted`.
+  /// Holds the `_isSubmitted` member.
   bool _isSubmitted = false;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
+
+    /// ينفذ العملية `_initializeAnimations`.
+    /// Runs the `_initializeAnimations` operation.
     _initializeAnimations();
+
+    /// ينفذ العملية `_startEntranceAnimation`.
+    /// Runs the `_startEntranceAnimation` operation.
     _startEntranceAnimation();
 
     // Listen to focus changes for field styling
     _emailOrPhoneFocusNode.addListener(() => setState(() {}));
   }
 
+  /// ينفذ العملية `_initializeAnimations`.
+  /// Runs the `_initializeAnimations` operation.
   void _initializeAnimations() {
     // Single animation controller for entrance effects only
     _animationController = AnimationController(
@@ -70,6 +98,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     ));
   }
 
+  /// ينفذ العملية `_startEntranceAnimation`.
+  /// Runs the `_startEntranceAnimation` operation.
   void _startEntranceAnimation() {
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
@@ -78,6 +108,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     });
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _emailOrPhoneController.dispose();
@@ -86,6 +118,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -148,6 +182,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildStaticBackground`.
+  /// Runs the `_buildStaticBackground` operation.
   Widget _buildStaticBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -205,6 +241,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildTopBar`.
+  /// Runs the `_buildTopBar` operation.
   Widget _buildTopBar() {
     return Row(
       children: [
@@ -237,6 +275,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildResetFormContent`.
+  /// Runs the `_buildResetFormContent` operation.
   Widget _buildResetFormContent() {
     return Column(
       key: const ValueKey('reset_form'),
@@ -334,6 +374,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildSuccessContent`.
+  /// Runs the `_buildSuccessContent` operation.
   Widget _buildSuccessContent() {
     return Column(
       key: const ValueKey('success_view'),
@@ -454,6 +496,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildFormCard`.
+  /// Runs the `_buildFormCard` operation.
   Widget _buildFormCard() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -466,7 +510,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             blurRadius: 30,
             offset: const Offset(0, 18),
           ),
@@ -505,6 +549,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildInputField`.
+  /// Runs the `_buildInputField` operation.
   Widget _buildInputField() {
     final isFocused = _emailOrPhoneFocusNode.hasFocus;
     final hasText = _emailOrPhoneController.text.isNotEmpty;
@@ -588,6 +634,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     );
   }
 
+  /// ينفذ العملية `_buildButton`.
+  /// Runs the `_buildButton` operation.
   Widget _buildButton({
     required VoidCallback? onPressed,
     required String label,
@@ -673,6 +721,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     );
   }
 
+  /// ينفذ العملية `_onSubmit`.
+  /// Runs the `_onSubmit` operation.
   void _onSubmit() {
     if (_formKey.currentState?.validate() ?? false) {
       FocusScope.of(context).unfocus();
@@ -686,6 +736,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     }
   }
 
+  /// ينفذ العملية `_handleAuthState`.
+  /// Runs the `_handleAuthState` operation.
   void _handleAuthState(BuildContext context, AuthState state) {
     if (state is AuthPasswordResetSent) {
       HapticFeedback.heavyImpact();
@@ -698,6 +750,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
     }
   }
 
+  /// ينفذ العملية `_showErrorMessage`.
+  /// Runs the `_showErrorMessage` operation.
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(

@@ -5,16 +5,22 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/daily_schedule.dart';
 
+/// حوار يتيح للمدير اختيار حالة الإتاحة التي يريد تصفيـة أيام الجدول بها.
 class FilterDialog extends StatefulWidget {
+  /// حالة التصفية الحالية عند فتح الحوار.
   final ScheduleStatus? currentFilter;
+
+  /// تستقبل الحالة المختارة بعد الضغط على تطبيق.
   final Function(ScheduleStatus? filter) onApplyFilter;
 
+  /// ينشئ الحوار مع الحالة الحالية ودالة الإرجاع.
   const FilterDialog({
     super.key,
     this.currentFilter,
     required this.onApplyFilter,
   });
 
+  /// يعرض الحوار بشكل مستقل ويعيد التحكم إلى المستدعي عند التطبيق.
   static Future<void> show(
     BuildContext context, {
     ScheduleStatus? currentFilter,
@@ -29,25 +35,36 @@ class FilterDialog extends StatefulWidget {
     );
   }
 
+  /// ينشئ حالة الحوار المسؤولة عن الحركة والاختيار.
   @override
   State<FilterDialog> createState() => _FilterDialogState();
 }
 
+/// تدير هذه الحالة ظهور الحوار واختيار حالة الإتاحة قبل إرسالها للخارج.
 class _FilterDialogState extends State<FilterDialog>
     with SingleTickerProviderStateMixin {
+  /// متحكم الحركة الذي يضبط دخول الحوار وتكبيره.
   late AnimationController _animationController;
+
+  /// حركة التكبير التي تمنح الحوار ظهورًا ناعمًا.
   late Animation<double> _scaleAnimation;
+
+  /// حركة الشفافية المستخدمة أثناء الظهور.
   late Animation<double> _fadeAnimation;
 
+  /// الحالة المختارة حاليًا داخل الحوار.
   ScheduleStatus? _selectedFilter;
 
+  /// يهيئ الحالة ويثبت الفلتر المختار قبل بدء الأنيميشن.
   @override
   void initState() {
     super.initState();
     _selectedFilter = widget.currentFilter;
+
     _initializeAnimations();
   }
 
+  /// يجهز منحنيات الظهور والتكبير الخاصة بالحوار.
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -73,12 +90,14 @@ class _FilterDialogState extends State<FilterDialog>
     _animationController.forward();
   }
 
+  /// يحرر متحكم الحركة عند إغلاق الحوار.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// يبني واجهة الحوار ويعرض خيارات التصفية وأزرار التطبيق والإلغاء.
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -95,18 +114,18 @@ class _FilterDialogState extends State<FilterDialog>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.95),
-                  AppTheme.darkCard.withOpacity(0.85),
+                  AppTheme.darkCard.withValues(alpha: 0.95),
+                  AppTheme.darkCard.withValues(alpha: 0.85),
                 ],
               ),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.2),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -142,6 +161,7 @@ class _FilterDialogState extends State<FilterDialog>
     );
   }
 
+  /// يبني رأس الحوار الذي يوضح أن المستخدم يفلتر جدول الإتاحة.
   Widget _buildHeader() {
     return Row(
       children: [
@@ -265,19 +285,19 @@ class _FilterDialogState extends State<FilterDialog>
           gradient: LinearGradient(
             colors: isSelected
                 ? [
-                    color.withOpacity(0.2),
-                    color.withOpacity(0.1),
+                    color.withValues(alpha: 0.2),
+                    color.withValues(alpha: 0.1),
                   ]
                 : [
-                    AppTheme.darkSurface.withOpacity(0.6),
-                    AppTheme.darkSurface.withOpacity(0.4),
+                    AppTheme.darkSurface.withValues(alpha: 0.6),
+                    AppTheme.darkSurface.withValues(alpha: 0.4),
                   ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
-                ? color.withOpacity(0.5)
-                : AppTheme.darkSurface.withOpacity(0.3),
+                ? color.withValues(alpha: 0.5)
+                : AppTheme.darkSurface.withValues(alpha: 0.3),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -286,7 +306,7 @@ class _FilterDialogState extends State<FilterDialog>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
+                color: color.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: color, size: 24),

@@ -4,7 +4,11 @@ import '../../domain/entities/property_detail.dart';
 import 'amenity_model.dart';
 import 'unit_model.dart';
 
+/// Describes the PropertyDetailModel data model used to parse and emit property API payloads.
+/// العربية: يمثل نموذج البيانات `PropertyDetailModel`.
 class PropertyDetailModel extends PropertyDetail {
+  /// Constructs the PropertyDetailModel value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyDetailModel`.
   const PropertyDetailModel({
     required super.id,
     required super.name,
@@ -36,6 +40,8 @@ class PropertyDetailModel extends PropertyDetail {
     required super.units,
   });
 
+  /// Constructs the PropertyDetailModel.fromJson value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyDetailModel.fromJson`.
   factory PropertyDetailModel.fromJson(Map<String, dynamic> json) {
     return PropertyDetailModel(
       id: json['id'] ?? '',
@@ -56,12 +62,15 @@ class PropertyDetailModel extends PropertyDetail {
       viewCount: json['viewCount'] ?? 0,
       bookingCount: json['bookingCount'] ?? 0,
       unitsCount: json['unitsCount'] ?? ((json['units'] as List?)?.length ?? 0),
-      servicesCount: json['servicesCount'] ?? ((json['services'] as List?)?.length ?? 0),
-      amenitiesCount: json['amenitiesCount'] ?? ((json['amenities'] as List?)?.length ?? 0),
+      servicesCount:
+          json['servicesCount'] ?? ((json['services'] as List?)?.length ?? 0),
+      amenitiesCount:
+          json['amenitiesCount'] ?? ((json['amenities'] as List?)?.length ?? 0),
       paymentsCount: json['paymentsCount'] ?? 0,
       isFavorite: json['isFavorite'] ?? false,
       isApproved: json['isApproved'] ?? false,
-      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
+      createdAt:
+          DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
       images: (json['images'] as List?)
               ?.map((e) => PropertyImageModel.fromJson(e))
               .toList() ??
@@ -85,6 +94,8 @@ class PropertyDetailModel extends PropertyDetail {
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -112,14 +123,20 @@ class PropertyDetailModel extends PropertyDetail {
       'createdAt': createdAt.toIso8601String(),
       'images': images.map((e) => (e as PropertyImageModel).toJson()).toList(),
       'amenities': amenities.map((e) => (e as AmenityModel).toJson()).toList(),
-      'services': services.map((e) => (e as PropertyServiceModel).toJson()).toList(),
-      'policies': policies.map((e) => (e as PropertyPolicyModel).toJson()).toList(),
+      'services':
+          services.map((e) => (e as PropertyServiceModel).toJson()).toList(),
+      'policies':
+          policies.map((e) => (e as PropertyPolicyModel).toJson()).toList(),
       'units': units.map((e) => (e as UnitModel).toJson()).toList(),
     };
   }
 }
 
+/// Describes the PropertyImageModel data model used to parse and emit property API payloads.
+/// العربية: يمثل نموذج البيانات `PropertyImageModel`.
 class PropertyImageModel extends PropertyImage {
+  /// Constructs the PropertyImageModel value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyImageModel`.
   const PropertyImageModel({
     required super.id,
     super.propertyId,
@@ -141,6 +158,8 @@ class PropertyImageModel extends PropertyImage {
     super.is360,
   });
 
+  /// Constructs the PropertyImageModel.fromJson value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyImageModel.fromJson`.
   factory PropertyImageModel.fromJson(Map<String, dynamic> json) {
     return PropertyImageModel(
       id: json['id'] ?? '',
@@ -157,13 +176,16 @@ class PropertyImageModel extends PropertyImage {
       sizes: json['sizes'] ?? '',
       isMain: json['isMain'] ?? false,
       displayOrder: json['displayOrder'] ?? 0,
-      uploadedAt: DateTime.parse(json['uploadedAt'] ?? DateTime.now().toIso8601String()),
+      uploadedAt: DateTime.parse(
+          json['uploadedAt'] ?? DateTime.now().toIso8601String()),
       status: json['status'] ?? '',
       associationType: json['associationType'] ?? '',
       is360: json['is360'] ?? false,
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -188,7 +210,11 @@ class PropertyImageModel extends PropertyImage {
   }
 }
 
+/// Describes the PropertyServiceModel data model used to parse and emit property API payloads.
+/// العربية: يمثل نموذج البيانات `PropertyServiceModel`.
 class PropertyServiceModel extends PropertyService {
+  /// Constructs the PropertyServiceModel value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyServiceModel`.
   const PropertyServiceModel({
     required super.id,
     required super.name,
@@ -199,6 +225,8 @@ class PropertyServiceModel extends PropertyService {
     super.description,
   });
 
+  /// Constructs the PropertyServiceModel.fromJson value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyServiceModel.fromJson`.
   factory PropertyServiceModel.fromJson(Map<String, dynamic> json) {
     return PropertyServiceModel(
       id: json['id'] ?? '',
@@ -211,6 +239,8 @@ class PropertyServiceModel extends PropertyService {
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -224,7 +254,11 @@ class PropertyServiceModel extends PropertyService {
   }
 }
 
+/// Describes the PropertyPolicyModel data model used to parse and emit property API payloads.
+/// العربية: يمثل نموذج البيانات `PropertyPolicyModel`.
 class PropertyPolicyModel extends PropertyPolicy {
+  /// Constructs the PropertyPolicyModel value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyPolicyModel`.
   const PropertyPolicyModel({
     required super.id,
     required super.policyType,
@@ -235,6 +269,8 @@ class PropertyPolicyModel extends PropertyPolicy {
     required super.rules,
   });
 
+  /// Constructs the PropertyPolicyModel.fromJson value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyPolicyModel.fromJson`.
   factory PropertyPolicyModel.fromJson(Map<String, dynamic> json) {
     return PropertyPolicyModel(
       id: json['id'] ?? '',
@@ -247,6 +283,8 @@ class PropertyPolicyModel extends PropertyPolicy {
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,

@@ -1,12 +1,19 @@
 import 'package:equatable/equatable.dart';
 
 class SectionFilterCriteria extends Equatable {
+  /// العربية: يخزن القيمة `cityName`.
   final String? cityName;
+
   final String? propertyTypeId;
+
   final String? unitTypeId;
+
   final double? minPrice;
+
   final double? maxPrice;
+
   final double? minRating;
+
   final Map<String, dynamic>? extra;
 
   const SectionFilterCriteria({
@@ -42,4 +49,3 @@ class SectionFilterCriteria extends Equatable {
         extra,
       ];
 }
-

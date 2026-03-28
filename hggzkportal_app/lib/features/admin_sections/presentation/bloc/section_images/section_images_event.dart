@@ -3,6 +3,7 @@
 import 'package:equatable/equatable.dart';
 
 abstract class SectionImagesEvent extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `SectionImagesEvent`.
   const SectionImagesEvent();
 
   @override
@@ -10,7 +11,9 @@ abstract class SectionImagesEvent extends Equatable {
 }
 
 class LoadSectionImagesEvent extends SectionImagesEvent {
+  /// العربية: يخزن القيمة `sectionId`.
   final String? sectionId;
+
   final String? tempKey;
 
   const LoadSectionImagesEvent({this.sectionId, this.tempKey});
@@ -20,13 +23,21 @@ class LoadSectionImagesEvent extends SectionImagesEvent {
 }
 
 class UploadSectionImageEvent extends SectionImagesEvent {
+  /// العربية: يخزن القيمة `sectionId`.
   final String? sectionId;
+
   final String? tempKey;
+
   final String filePath;
+
   final String? category;
+
   final String? alt;
+
   final bool isPrimary;
+
   final int? order;
+
   final List<String>? tags;
 
   const UploadSectionImageEvent({
@@ -46,10 +57,15 @@ class UploadSectionImageEvent extends SectionImagesEvent {
 }
 
 class UploadMultipleSectionImagesEvent extends SectionImagesEvent {
+  /// العربية: يخزن القيمة `sectionId`.
   final String? sectionId;
+
   final String? tempKey;
+
   final List<String> filePaths;
+
   final String? category;
+
   final List<String>? tags;
 
   const UploadMultipleSectionImagesEvent({
@@ -65,7 +81,9 @@ class UploadMultipleSectionImagesEvent extends SectionImagesEvent {
 }
 
 class UpdateSectionImageEvent extends SectionImagesEvent {
+  /// العربية: يخزن القيمة `imageId`.
   final String imageId;
+
   final Map<String, dynamic> data;
 
   const UpdateSectionImageEvent({
@@ -78,6 +96,7 @@ class UpdateSectionImageEvent extends SectionImagesEvent {
 }
 
 class DeleteSectionImageEvent extends SectionImagesEvent {
+  /// العربية: يخزن القيمة `imageId`.
   final String imageId;
 
   const DeleteSectionImageEvent({required this.imageId});
@@ -87,6 +106,7 @@ class DeleteSectionImageEvent extends SectionImagesEvent {
 }
 
 class DeleteMultipleSectionImagesEvent extends SectionImagesEvent {
+  /// العربية: يخزن القيمة `imageIds`.
   final List<String> imageIds;
 
   const DeleteMultipleSectionImagesEvent({required this.imageIds});
@@ -96,8 +116,11 @@ class DeleteMultipleSectionImagesEvent extends SectionImagesEvent {
 }
 
 class ReorderSectionImagesEvent extends SectionImagesEvent {
+  /// العربية: يخزن القيمة `sectionId`.
   final String? sectionId;
+
   final String? tempKey;
+
   final List<String> imageIds;
 
   const ReorderSectionImagesEvent({
@@ -111,8 +134,11 @@ class ReorderSectionImagesEvent extends SectionImagesEvent {
 }
 
 class SetPrimarySectionImageEvent extends SectionImagesEvent {
+  /// العربية: يخزن القيمة `sectionId`.
   final String? sectionId;
+
   final String? tempKey;
+
   final String imageId;
 
   const SetPrimarySectionImageEvent({
@@ -126,11 +152,14 @@ class SetPrimarySectionImageEvent extends SectionImagesEvent {
 }
 
 class ClearSectionImagesEvent extends SectionImagesEvent {
+  /// العربية: ينشئ مثيلًا جديدًا من `ClearSectionImagesEvent`.
   const ClearSectionImagesEvent();
 }
 
 class RefreshSectionImagesEvent extends SectionImagesEvent {
+  /// العربية: يخزن القيمة `sectionId`.
   final String? sectionId;
+
   final String? tempKey;
 
   const RefreshSectionImagesEvent({this.sectionId, this.tempKey});
@@ -140,6 +169,7 @@ class RefreshSectionImagesEvent extends SectionImagesEvent {
 }
 
 class ToggleSelectSectionImageEvent extends SectionImagesEvent {
+  /// العربية: يخزن القيمة `imageId`.
   final String imageId;
 
   const ToggleSelectSectionImageEvent({required this.imageId});
@@ -149,9 +179,11 @@ class ToggleSelectSectionImageEvent extends SectionImagesEvent {
 }
 
 class SelectAllSectionImagesEvent extends SectionImagesEvent {
+  /// العربية: ينشئ مثيلًا جديدًا من `SelectAllSectionImagesEvent`.
   const SelectAllSectionImagesEvent();
 }
 
 class DeselectAllSectionImagesEvent extends SectionImagesEvent {
+  /// العربية: ينشئ مثيلًا جديدًا من `DeselectAllSectionImagesEvent`.
   const DeselectAllSectionImagesEvent();
 }

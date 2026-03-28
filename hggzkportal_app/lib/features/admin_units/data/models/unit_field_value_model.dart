@@ -1,6 +1,10 @@
 import '../../domain/entities/unit_field_value.dart';
 
+/// يمثل هذا الكلاس UnitFieldValueModel البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitFieldValueModel in the admin unit workflow.
 class UnitFieldValueModel extends UnitFieldValue {
+  /// This constructor creates a new UnitFieldValueModel instance.
+  /// ينشئ مثيلًا جديدًا من UnitFieldValueModel.
   const UnitFieldValueModel({
     required super.fieldId,
     required super.fieldValue,
@@ -10,6 +14,8 @@ class UnitFieldValueModel extends UnitFieldValue {
     super.isPrimaryFilter,
   });
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitFieldValueModel.
+  /// This constructor creates an instance of UnitFieldValueModel.
   factory UnitFieldValueModel.fromJson(Map<String, dynamic> json) {
     final fieldObj = json['field'] as Map<String, dynamic>?;
 
@@ -53,6 +59,8 @@ class UnitFieldValueModel extends UnitFieldValue {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية toJson ضمن مسار إدارة الوحدات.
+  /// This method performs the toJson operation in the admin unit workflow.
   Map<String, dynamic> toJson() {
     return {
       'fieldId': fieldId,
@@ -64,6 +72,8 @@ class UnitFieldValueModel extends UnitFieldValue {
     };
   }
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitFieldValueModel.
+  /// This constructor creates an instance of UnitFieldValueModel.
   factory UnitFieldValueModel.fromEntity(UnitFieldValue entity) {
     return UnitFieldValueModel(
       fieldId: entity.fieldId,
@@ -76,7 +86,11 @@ class UnitFieldValueModel extends UnitFieldValue {
   }
 }
 
+/// يمثل هذا الكلاس FieldGroupWithValuesModel البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for FieldGroupWithValuesModel in the admin unit workflow.
 class FieldGroupWithValuesModel extends FieldGroupWithValues {
+  /// This constructor creates a new FieldGroupWithValuesModel instance.
+  /// ينشئ مثيلًا جديدًا من FieldGroupWithValuesModel.
   const FieldGroupWithValuesModel({
     required super.groupId,
     required super.groupName,
@@ -85,6 +99,8 @@ class FieldGroupWithValuesModel extends FieldGroupWithValues {
     required super.fieldValues,
   });
 
+  /// ينشئ هذا المُنشئ مثيلاً من FieldGroupWithValuesModel.
+  /// This constructor creates an instance of FieldGroupWithValuesModel.
   factory FieldGroupWithValuesModel.fromJson(Map<String, dynamic> json) {
     return FieldGroupWithValuesModel(
       groupId: json['groupId'] as String,
@@ -97,6 +113,8 @@ class FieldGroupWithValuesModel extends FieldGroupWithValues {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية toJson ضمن مسار إدارة الوحدات.
+  /// This method performs the toJson operation in the admin unit workflow.
   Map<String, dynamic> toJson() {
     return {
       'groupId': groupId,
@@ -109,6 +127,8 @@ class FieldGroupWithValuesModel extends FieldGroupWithValues {
     };
   }
 
+  /// ينشئ هذا المُنشئ مثيلاً من FieldGroupWithValuesModel.
+  /// This constructor creates an instance of FieldGroupWithValuesModel.
   factory FieldGroupWithValuesModel.fromEntity(FieldGroupWithValues entity) {
     return FieldGroupWithValuesModel(
       groupId: entity.groupId,

@@ -9,10 +9,8 @@ import '../../../domain/repositories/financial_repository.dart';
 part 'transactions_event.dart';
 part 'transactions_state.dart';
 
-/// 💳 Bloc لإدارة المعاملات المالية
 class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
   final FinancialRepository repository;
-
   TransactionsBloc({
     required this.repository,
   }) : super(TransactionsInitial()) {
@@ -27,7 +25,6 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
     on<LoadTransactionsByBooking>(_onLoadTransactionsByBooking);
     on<LoadTransactionsByUser>(_onLoadTransactionsByUser);
   }
-
   Future<void> _onLoadTransactions(
     LoadTransactions event,
     Emitter<TransactionsState> emit,
@@ -36,7 +33,8 @@ class TransactionsBloc extends Bloc<TransactionsEvent, TransactionsState> {
 
     // Sensible defaults to reduce payload size on dashboard
     final resolvedEnd = event.endDate ?? DateTime.now();
-    final resolvedStart = event.startDate ?? resolvedEnd.subtract(const Duration(days: 30));
+    final resolvedStart =
+        event.startDate ?? resolvedEnd.subtract(const Duration(days: 30));
     final resolvedLimit = event.limit ?? 50;
 
     final result = await repository.getTransactions(

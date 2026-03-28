@@ -1,8 +1,6 @@
 // lib/features/admin_amenities/presentation/pages/edit_amenity_page.dart
 
-import 'dart:ui';
 import 'dart:math' as math;
-import 'package:hggzkportal/core/theme/app_colors.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:hggzkportal/features/admin_amenities/presentation/widgets/amenity_icon_picker.dart';
@@ -15,56 +13,119 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hggzkportal/features/admin_properties/presentation/bloc/property_types/property_types_bloc.dart'
-    as ap_pt_bloc;
+import 'package:hggzkportal/features/property_types/presentation/bloc/property_types/property_types_bloc.dart'
+    as pt_bloc;
+import 'package:hggzkportal/features/property_types/presentation/bloc/property_types/property_types_event.dart'
+    as pt_event;
+import 'package:hggzkportal/features/property_types/presentation/bloc/property_types/property_types_state.dart'
+    as pt_state;
 
+/// Arabic: صفحة تعديل مرفق موجود مع مقارنة التغييرات واسترجاع القيم الأصلية عند الحاجة.
+/// English: Page for editing an existing amenity with change tracking and optional rollback to the original values.
 class EditAmenityPage extends StatefulWidget {
+  /// Arabic: معرّف المرفق الذي سيتم تعديله داخل هذه الصفحة.
+  /// English: Identifier of the amenity being edited on this page.
   final String amenityId;
+
+  /// Arabic: نسخة أولية اختيارية من المرفق لتسريع تعبئة النموذج.
+  /// English: Optional initial amenity snapshot used to prefill the form quickly.
   final am_entity.Amenity? initialAmenity;
 
+  /// Arabic: ينشئ صفحة التعديل مع معرّف المرفق والنسخة الأولية الاختيارية.
+  /// English: Creates the edit page with the amenity identifier and an optional initial snapshot.
   const EditAmenityPage({
     super.key,
     required this.amenityId,
     this.initialAmenity,
   });
 
+  /// Arabic: ينشئ الحالة التي تدير مقارنة القيم وحفظ تعديلات المرفق.
+  /// English: Creates the state object that manages value comparison and amenity edit persistence.
   @override
   State<EditAmenityPage> createState() => _EditAmenityPageState();
 }
 
+/// Arabic: تدير هذه الحالة تحميل القيم الأصلية، تعديلها، وإبراز الفروقات قبل الحفظ.
+/// English: Manages loading original values, editing them, and highlighting differences before saving.
 class _EditAmenityPageState extends State<EditAmenityPage>
     with TickerProviderStateMixin {
-  // Controllers
+  /// Arabic: يتحكم في ظهور محتوى الصفحة وحركته الافتتاحية.
+  /// English: Controls the page entrance and main content animation.
   late AnimationController _animationController;
+
+  /// Arabic: يدير نبض الخلفية المتوهجة أثناء التحرير.
+  /// English: Drives the glowing background pulse while editing.
   late AnimationController _glowController;
+
+  /// Arabic: يدير مؤشر الدوران أثناء حالات الانتظار أو التحميل.
+  /// English: Drives the loading spinner rotation during wait states.
   late AnimationController _loadingAnimationController;
+
+  /// Arabic: يتحكم في شفافية ظهور المحتوى الرئيسي.
+  /// English: Controls the fade-in of the primary content.
   late Animation<double> _fadeAnimation;
+
+  /// Arabic: يتحكم في انزلاق المحتوى الرئيسي إلى موضعه النهائي.
+  /// English: Controls the slide-in motion for the main content.
   late Animation<Offset> _slideAnimation;
+
+  /// Arabic: يدير الدوران البصري المستخدم في مؤشرات التحميل.
+  /// English: Controls the rotation animation used by loading indicators.
   late Animation<double> _loadingRotation;
 
-  // Form Controllers
+  /// Arabic: مفتاح النموذج المستخدم للتحقق من الحقول قبل حفظ التعديلات.
+  /// English: Form key used to validate fields before saving edits.
   final _formKey = GlobalKey<FormState>();
+
+  /// Arabic: يتحكم في اسم المرفق المعروض داخل النموذج.
+  /// English: Controls the amenity name shown in the form.
   final TextEditingController _nameController = TextEditingController();
+
+  /// Arabic: يتحكم في وصف المرفق القابل للتعديل.
+  /// English: Controls the editable amenity description.
   final TextEditingController _descriptionController = TextEditingController();
 
-  // State
+  /// Arabic: الأيقونة المختارة حاليًا للمرفق بعد التعديل.
+  /// English: Currently selected icon for the amenity after editing.
   String _selectedIcon = 'star_rounded';
+
+  /// Arabic: معرّف نوع العقار المرتبط بالمرفق إن وُجد.
+  /// English: Property type identifier linked to the amenity, if any.
   String? _selectedPropertyTypeId;
+
+  /// Arabic: يحدد ما إذا كان هذا المرفق افتراضيًا لنوع العقار المختار.
+  /// English: Indicates whether the amenity is the default for the selected property type.
   bool _isDefaultForType = false;
+
+  /// Arabic: رقم الخطوة الحالية في رحلة التعديل متعددة المراحل.
+  /// English: Current step number in the multi-step edit flow.
   int _currentStep = 0;
 
-  // Edit specific state
+  /// Arabic: النسخة الأصلية من المرفق لمقارنة التغييرات وإبرازها.
+  /// English: Original amenity snapshot used to compare and highlight changes.
   am_entity.Amenity? _originalAmenity;
+
+  /// Arabic: يحدد ما إذا كانت البيانات الأساسية قد تم تجهيزها للعرض.
+  /// English: Indicates whether the initial data has been prepared for display.
   bool _isDataLoaded = false;
+
+  /// Arabic: يحدد وجود تغييرات فعلية مقارنة بالنسخة الأصلية.
+  /// English: Indicates whether there are real edits compared to the original snapshot.
   bool _hasChanges = false;
 
+  /// Arabic: يجهز أنيميشنات الصفحة ويبدأ تعبئة البيانات الأولية.
+  /// English: Prepares the page animations and starts loading or pre-filling data.
   @override
   void initState() {
     super.initState();
+
     _initializeAnimations();
+
     _prefillData();
   }
 
+  /// Arabic: يجهز أنيميشن الظهور والتوهج والدوران قبل عرض الصفحة.
+  /// English: Prepares the fade, glow, and rotation animations before the page is shown.
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -106,6 +167,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     ));
   }
 
+  /// Arabic: يملأ النموذج بالبيانات الأولية مباشرة أو يطلب تحميلها من الـ bloc.
+  /// English: Prefills the form with initial data or requests it from the bloc.
   void _prefillData() {
     final initial = widget.initialAmenity;
     if (initial != null) {
@@ -120,6 +183,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     }
   }
 
+  /// Arabic: ينسخ بيانات المرفق إلى الحقول ويثبتها كنسخة أصلية للمقارنة لاحقًا.
+  /// English: Copies amenity data into the fields and stores it as the original comparison snapshot.
   void _populateFormWithAmenityData(am_entity.Amenity amenity) {
     if (_isDataLoaded) return;
 
@@ -143,6 +208,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     });
   }
 
+  /// Arabic: يحرر كل المتحكمات حتى لا تتسرب الموارد عند مغادرة الصفحة.
+  /// English: Disposes all controllers so resources are released when leaving the page.
   @override
   void dispose() {
     _animationController.dispose();
@@ -153,10 +220,17 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     super.dispose();
   }
 
+  /// Arabic: يبني صفحة التعديل مع حظر الرجوع المباشر والاستماع لنتائج الـ bloc.
+  /// English: Builds the edit page while guarding back navigation and listening for bloc results.
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (!didPop && await _onWillPop() && mounted) {
+          context.pop();
+        }
+      },
       child: BlocListener<AmenitiesBloc, AmenitiesState>(
         listener: (context, state) {
           if (state is AmenityOperationSuccess) {
@@ -215,6 +289,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يحاول استكمال تعبئة النموذج من البيانات المحمّلة عندما لا تأتي نسخة أولية مباشرة.
+  /// English: Tries to finish form prefill from loaded data when no initial snapshot was supplied.
   void _tryPrefillFromState(AmenitiesLoaded state) {
     try {
       final found =
@@ -226,6 +302,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     }
   }
 
+  /// Arabic: يبني الخلفية المتحركة متعددة الطبقات خلف شاشة التعديل.
+  /// English: Builds the layered animated background behind the edit screen.
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: _glowController,
@@ -237,8 +315,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -253,6 +331,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يبني شاشة انتظار مختصرة مع مؤشر دوران أثناء تحميل بيانات المرفق.
+  /// English: Builds a compact waiting state with a spinning indicator while amenity data loads.
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -272,14 +352,14 @@ class _EditAmenityPageState extends State<EditAmenityPage>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppTheme.primaryBlue.withOpacity(0.3),
-                        AppTheme.primaryPurple.withOpacity(0.2),
-                        AppTheme.primaryViolet.withOpacity(0.1),
+                        AppTheme.primaryBlue.withValues(alpha: 0.3),
+                        AppTheme.primaryPurple.withValues(alpha: 0.2),
+                        AppTheme.primaryViolet.withValues(alpha: 0.1),
                       ],
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                         blurRadius: 30,
                         spreadRadius: 10,
                       ),
@@ -330,19 +410,21 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يبني شريط الرأس الذي يضم الرجوع والعنوان وحالة التعديل.
+  /// English: Builds the header with back navigation, title, and edit-state status.
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -358,13 +440,13 @@ class _EditAmenityPageState extends State<EditAmenityPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -402,10 +484,10 @@ class _EditAmenityPageState extends State<EditAmenityPage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.warning.withOpacity(0.2),
+                          color: AppTheme.warning.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppTheme.warning.withOpacity(0.5),
+                            color: AppTheme.warning.withValues(alpha: 0.5),
                             width: 1,
                           ),
                         ),
@@ -438,10 +520,10 @@ class _EditAmenityPageState extends State<EditAmenityPage>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.error.withOpacity(0.1),
+                  color: AppTheme.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.error.withOpacity(0.3),
+                    color: AppTheme.error.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -457,6 +539,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يبني مؤشر الخطوات مع إبراز الخطوات المعدلة بخلاف الحالة الأصلية.
+  /// English: Builds the step indicator and highlights steps that differ from the original data.
   Widget _buildProgressIndicator() {
     final steps = ['المعلومات الأساسية', 'الإعدادات', 'المراجعة'];
 
@@ -480,23 +564,23 @@ class _EditAmenityPageState extends State<EditAmenityPage>
                   decoration: BoxDecoration(
                     gradient: isActive ? AppTheme.primaryGradient : null,
                     color: !isActive
-                        ? AppTheme.darkSurface.withOpacity(0.5)
+                        ? AppTheme.darkSurface.withValues(alpha: 0.5)
                         : null,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isModified
-                          ? AppTheme.warning.withOpacity(0.5)
+                          ? AppTheme.warning.withValues(alpha: 0.5)
                           : isActive
-                              ? AppTheme.primaryBlue.withOpacity(0.5)
-                              : AppTheme.darkBorder.withOpacity(0.3),
+                              ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                              : AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: isModified ? 2 : 1,
                     ),
                     boxShadow: isActive
                         ? [
                             BoxShadow(
                               color: isModified
-                                  ? AppTheme.warning.withOpacity(0.3)
-                                  : AppTheme.primaryBlue.withOpacity(0.3),
+                                  ? AppTheme.warning.withValues(alpha: 0.3)
+                                  : AppTheme.primaryBlue.withValues(alpha: 0.3),
                               blurRadius: 10,
                             ),
                           ]
@@ -533,12 +617,12 @@ class _EditAmenityPageState extends State<EditAmenityPage>
                             ? isModified
                                 ? LinearGradient(colors: [
                                     AppTheme.warning,
-                                    AppTheme.warning.withOpacity(0.5)
+                                    AppTheme.warning.withValues(alpha: 0.5)
                                   ])
                                 : AppTheme.primaryGradient
                             : null,
                         color: !isCompleted
-                            ? AppTheme.darkBorder.withOpacity(0.2)
+                            ? AppTheme.darkBorder.withValues(alpha: 0.2)
                             : null,
                         borderRadius: BorderRadius.circular(1),
                       ),
@@ -552,6 +636,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يجمع خطوات التحرير داخل نموذج واحد كي تتشارك التحقق وتتبع التغييرات.
+  /// English: Wraps the edit steps in a single form so validation and change tracking are shared.
   Widget _buildFormContent() {
     return Form(
       key: _formKey,
@@ -571,6 +657,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يبني خطوة المعلومات الأساسية مع مؤشرات للقيم المعدلة مقارنة بالأصل.
+  /// English: Builds the basic info step and shows indicators for values changed from the original.
   Widget _buildBasicInfoStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -629,6 +717,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يبني خطوة الإعدادات التي تربط المرفق بنوع عقار وتبين ما إذا كانت هناك تغييرات.
+  /// English: Builds the settings step that links the amenity to a property type and flags changes.
   Widget _buildSettingsStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -679,6 +769,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يبني خطوة المراجعة النهائية مع ملخص تغييرات واضح قبل الحفظ.
+  /// English: Builds the final review step with a clear change summary before saving.
   Widget _buildReviewStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -703,7 +795,7 @@ class _EditAmenityPageState extends State<EditAmenityPage>
                     gradient: LinearGradient(
                       colors: [
                         AppTheme.warning,
-                        AppTheme.warning.withOpacity(0.8),
+                        AppTheme.warning.withValues(alpha: 0.8),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
@@ -771,6 +863,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يفتح منتقي الأيقونات ويحدث حالة التغيير عند اختيار رمز جديد.
+  /// English: Opens the icon picker and updates change state when a new icon is selected.
   Widget _buildIconSelector() {
     return GestureDetector(
       onTap: _showIconPicker,
@@ -779,15 +873,15 @@ class _EditAmenityPageState extends State<EditAmenityPage>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.5),
-              AppTheme.darkCard.withOpacity(0.3),
+              AppTheme.darkCard.withValues(alpha: 0.5),
+              AppTheme.darkCard.withValues(alpha: 0.3),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: _selectedIcon != _originalAmenity?.icon
-                ? AppTheme.warning.withOpacity(0.3)
-                : AppTheme.darkBorder.withOpacity(0.3),
+                ? AppTheme.warning.withValues(alpha: 0.3)
+                : AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -799,12 +893,12 @@ class _EditAmenityPageState extends State<EditAmenityPage>
                 gradient: LinearGradient(
                   colors: _selectedIcon != _originalAmenity?.icon
                       ? [
-                          AppTheme.warning.withOpacity(0.2),
-                          AppTheme.warning.withOpacity(0.1),
+                          AppTheme.warning.withValues(alpha: 0.2),
+                          AppTheme.warning.withValues(alpha: 0.1),
                         ]
                       : [
-                          AppTheme.primaryBlue.withOpacity(0.2),
-                          AppTheme.primaryPurple.withOpacity(0.1),
+                          AppTheme.primaryBlue.withValues(alpha: 0.2),
+                          AppTheme.primaryPurple.withValues(alpha: 0.1),
                         ],
                 ),
                 borderRadius: BorderRadius.circular(10),
@@ -843,7 +937,7 @@ class _EditAmenityPageState extends State<EditAmenityPage>
                           padding: const EdgeInsets.symmetric(
                               horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppTheme.warning.withOpacity(0.2),
+                            color: AppTheme.warning.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -872,6 +966,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يبني واجهة اختيار نوع العقار المرتبط بالمرفق مع حالات التحميل والخطأ.
+  /// English: Builds the property type selector with loading and error states.
   Widget _buildPropertyTypeSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -884,32 +980,32 @@ class _EditAmenityPageState extends State<EditAmenityPage>
           ),
         ),
         const SizedBox(height: 8),
-        BlocBuilder<ap_pt_bloc.PropertyTypesBloc,
-            ap_pt_bloc.PropertyTypesState>(
+        BlocBuilder<pt_bloc.PropertyTypesBloc, pt_state.PropertyTypesState>(
           builder: (context, state) {
-            if (state is ap_pt_bloc.PropertyTypesInitial) {
+            if (state is pt_state.PropertyTypesInitial) {
               context
-                  .read<ap_pt_bloc.PropertyTypesBloc>()
-                  .add(const ap_pt_bloc.LoadPropertyTypesEvent(pageSize: 1000));
+                  .read<pt_bloc.PropertyTypesBloc>()
+                  .add(const pt_event.LoadPropertyTypesEvent(pageSize: 1000));
             }
-            if (state is ap_pt_bloc.PropertyTypesLoading ||
-                state is ap_pt_bloc.PropertyTypesInitial) {
+            if (state is pt_state.PropertyTypesLoading ||
+                state is pt_state.PropertyTypesInitial) {
               return _buildLoadingDropdown();
             }
-            if (state is ap_pt_bloc.PropertyTypesError) {
+            if (state is pt_state.PropertyTypesError) {
               return _buildErrorDropdown(state.message);
             }
-            if (state is ap_pt_bloc.PropertyTypesLoaded) {
+            if (state is pt_state.PropertyTypesLoaded) {
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(colors: [
-                    AppTheme.darkCard.withOpacity(0.5),
-                    AppTheme.darkCard.withOpacity(0.3),
+                    AppTheme.darkCard.withValues(alpha: 0.5),
+                    AppTheme.darkCard.withValues(alpha: 0.3),
                   ]),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3), width: 1),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
+                      width: 1),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String?>(
@@ -917,12 +1013,12 @@ class _EditAmenityPageState extends State<EditAmenityPage>
                     isExpanded: true,
                     dropdownColor: AppTheme.darkCard,
                     icon: Icon(Icons.arrow_drop_down_rounded,
-                        color: AppTheme.primaryBlue.withOpacity(0.7)),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.7)),
                     style: AppTextStyles.bodyMedium
                         .copyWith(color: AppTheme.textWhite),
                     hint: Text('اختر نوع العقار لربطه بالمرفق',
                         style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppTheme.textMuted.withOpacity(0.5))),
+                            color: AppTheme.textMuted.withValues(alpha: 0.5))),
                     items: [
                       const DropdownMenuItem<String?>(
                           value: null, child: Text('بدون')),
@@ -949,6 +1045,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يبني صف إعداد واحد مع تمييز بصري إذا كان هذا الحقل قد تغيّر.
+  /// English: Builds a single settings row and visually highlights it when the value has changed.
   Widget _buildSettingItem({
     required String title,
     required String subtitle,
@@ -962,19 +1060,19 @@ class _EditAmenityPageState extends State<EditAmenityPage>
         gradient: LinearGradient(
           colors: hasChanged
               ? [
-                  AppTheme.warning.withOpacity(0.1),
-                  AppTheme.warning.withOpacity(0.05),
+                  AppTheme.warning.withValues(alpha: 0.1),
+                  AppTheme.warning.withValues(alpha: 0.05),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasChanged
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -986,12 +1084,12 @@ class _EditAmenityPageState extends State<EditAmenityPage>
             decoration: BoxDecoration(
               gradient: hasChanged
                   ? LinearGradient(colors: [
-                      AppTheme.warning.withOpacity(0.2),
-                      AppTheme.warning.withOpacity(0.1),
+                      AppTheme.warning.withValues(alpha: 0.2),
+                      AppTheme.warning.withValues(alpha: 0.1),
                     ])
                   : LinearGradient(colors: [
-                      AppTheme.primaryBlue.withOpacity(0.2),
-                      AppTheme.primaryPurple.withOpacity(0.1),
+                      AppTheme.primaryBlue.withValues(alpha: 0.2),
+                      AppTheme.primaryPurple.withValues(alpha: 0.1),
                     ]),
               borderRadius: BorderRadius.circular(10),
             ),
@@ -1021,7 +1119,7 @@ class _EditAmenityPageState extends State<EditAmenityPage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.warning.withOpacity(0.2),
+                          color: AppTheme.warning.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -1052,6 +1150,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يعرض القيمة الأصلية عندما يختلف الحقل الحالي عنها.
+  /// English: Shows the original value whenever the current field differs from it.
   Widget _buildOriginalValueIndicator(
       String label, String value, bool isChanged) {
     if (!isChanged) return const SizedBox.shrink();
@@ -1060,10 +1160,10 @@ class _EditAmenityPageState extends State<EditAmenityPage>
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.warning.withOpacity(0.1),
+        color: AppTheme.warning.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1089,7 +1189,7 @@ class _EditAmenityPageState extends State<EditAmenityPage>
                   TextSpan(
                     text: value,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.warning.withOpacity(0.8),
+                      color: AppTheme.warning.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -1103,6 +1203,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يلخص جميع الحقول المعدلة في بطاقة واحدة قبل الحفظ.
+  /// English: Summarizes every modified field in one card before saving.
   Widget _buildChangesSummary() {
     final changes = _getChangedFields();
 
@@ -1111,13 +1213,13 @@ class _EditAmenityPageState extends State<EditAmenityPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.warning.withOpacity(0.1),
-            AppTheme.warning.withOpacity(0.05),
+            AppTheme.warning.withValues(alpha: 0.1),
+            AppTheme.warning.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1212,6 +1314,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يبني بطاقة مراجعة تعرض القيم مع وسم يوضح إن كانت قد تغيرت.
+  /// English: Builds a review card that shows values and marks the ones that changed.
   Widget _buildReviewCard({
     required String title,
     required List<Map<String, dynamic>> items,
@@ -1224,19 +1328,19 @@ class _EditAmenityPageState extends State<EditAmenityPage>
         gradient: LinearGradient(
           colors: hasChanges
               ? [
-                  AppTheme.warning.withOpacity(0.05),
-                  AppTheme.darkCard.withOpacity(0.4),
+                  AppTheme.warning.withValues(alpha: 0.05),
+                  AppTheme.darkCard.withValues(alpha: 0.4),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasChanges
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1258,7 +1362,7 @@ class _EditAmenityPageState extends State<EditAmenityPage>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.warning.withOpacity(0.2),
+                    color: AppTheme.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -1321,6 +1425,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يبني حقل إدخال قابل للتحقق مع دعم إبراز الحالة المعدلة.
+  /// English: Builds a validated input field with support for highlighting the edited state.
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
@@ -1344,13 +1450,13 @@ class _EditAmenityPageState extends State<EditAmenityPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1363,12 +1469,12 @@ class _EditAmenityPageState extends State<EditAmenityPage>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: maxLines == 1
                   ? Icon(
                       icon,
-                      color: AppTheme.primaryBlue.withOpacity(0.7),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                       size: 20,
                     )
                   : null,
@@ -1382,19 +1488,21 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يبني حالة التحميل أثناء جلب أنواع العقار من الخلفية.
+  /// English: Builds the loading state while property types are fetched.
   Widget _buildLoadingDropdown() {
     return Container(
       height: 56,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1423,19 +1531,21 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يبني حالة الخطأ عندما يتعذر تحميل أنواع العقار.
+  /// English: Builds the error state when property types cannot be loaded.
   Widget _buildErrorDropdown(String message) {
     return Container(
       height: 56,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.error.withOpacity(0.3),
+          color: AppTheme.error.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1461,19 +1571,21 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يبني أزرار التنقل والحفظ مع مراعاة حالة التغيير الحالية.
+  /// English: Builds the navigation and save buttons while respecting the current change state.
   Widget _buildActionButtons() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1490,13 +1602,13 @@ class _EditAmenityPageState extends State<EditAmenityPage>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -1525,15 +1637,15 @@ class _EditAmenityPageState extends State<EditAmenityPage>
                   gradient: _hasChanges
                       ? LinearGradient(colors: [
                           AppTheme.warning,
-                          AppTheme.warning.withOpacity(0.8)
+                          AppTheme.warning.withValues(alpha: 0.8)
                         ])
                       : AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
                       color: _hasChanges
-                          ? AppTheme.warning.withOpacity(0.3)
-                          : AppTheme.primaryBlue.withOpacity(0.3),
+                          ? AppTheme.warning.withValues(alpha: 0.3)
+                          : AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -1587,7 +1699,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
-  // Helper Methods
+  /// Arabic: يحدد ما إذا كانت هناك فروق فعلية بين النموذج الحالي والنسخة الأصلية.
+  /// English: Determines whether the current form differs from the original snapshot.
   bool _checkForChanges() {
     if (_originalAmenity == null) return false;
 
@@ -1596,6 +1709,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
         _selectedIcon != _originalAmenity!.icon;
   }
 
+  /// Arabic: يحدد الخطوات التي تحتوي على تغييرات فعلية لعرضها في المؤشر.
+  /// English: Determines which steps contain actual changes so the stepper can highlight them.
   bool _hasChangesInStep(int step) {
     if (_originalAmenity == null) return false;
 
@@ -1611,6 +1726,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     }
   }
 
+  /// Arabic: يجمع قائمة الحقول التي تغيرت مع قيمها القديمة والجديدة.
+  /// English: Collects the fields that changed along with their old and new values.
   List<Map<String, String>> _getChangedFields() {
     final changes = <Map<String, String>>[];
     if (_originalAmenity == null) return changes;
@@ -1646,6 +1763,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     return changes;
   }
 
+  /// Arabic: يفتح حوارًا يعيد النموذج إلى القيم الأصلية بعد التأكيد.
+  /// English: Opens a confirmation dialog that restores the original values after approval.
   void _resetChanges() {
     if (_originalAmenity == null) return;
 
@@ -1668,6 +1787,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يقرر ما إذا كان الرجوع مسموحًا أو يحتاج لتأكيد بسبب التغييرات غير المحفوظة.
+  /// English: Decides whether back navigation can proceed or needs confirmation because of unsaved changes.
   Future<bool> _onWillPop() async {
     if (!_hasChanges) return true;
 
@@ -1679,11 +1800,13 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     return result ?? false;
   }
 
+  /// Arabic: يعيد اسم نوع العقار المختار ليظهر في المراجعة.
+  /// English: Returns the selected property type name for display in the review step.
   String _getPropertyTypeName() {
     if (_selectedPropertyTypeId == null) return 'بدون';
 
-    final state = context.read<ap_pt_bloc.PropertyTypesBloc>().state;
-    if (state is ap_pt_bloc.PropertyTypesLoaded) {
+    final state = context.read<pt_bloc.PropertyTypesBloc>().state;
+    if (state is pt_state.PropertyTypesLoaded) {
       try {
         final propertyType = state.propertyTypes
             .firstWhere((t) => t.id == _selectedPropertyTypeId);
@@ -1695,6 +1818,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     return 'غير محدد';
   }
 
+  /// Arabic: يحول اسم الأيقونة النصي إلى `IconData` المستخدم في الواجهة.
+  /// English: Converts the string icon name into the `IconData` used by the interface.
   IconData _getIconFromString(String icon) {
     switch (icon) {
       case 'star_rounded':
@@ -1712,6 +1837,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     }
   }
 
+  /// Arabic: يتعامل مع زر الرجوع بما يحافظ على التغييرات أو يرجع خطوة للخلف.
+  /// English: Handles back navigation by preserving edits or moving one step backward.
   void _handleBack() {
     if (_currentStep > 0) {
       setState(() {
@@ -1730,6 +1857,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     }
   }
 
+  /// Arabic: يعيد المستخدم إلى الخطوة السابقة في نموذج التعديل.
+  /// English: Moves the user back to the previous step in the edit flow.
   void _previousStep() {
     if (_currentStep > 0) {
       setState(() {
@@ -1738,6 +1867,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     }
   }
 
+  /// Arabic: ينتقل إلى الخطوة التالية بعد التحقق من صحة البيانات الأساسية.
+  /// English: Advances to the next step after validating the basic information.
   void _nextStep() {
     if (_currentStep < 2) {
       bool isValid = true;
@@ -1754,6 +1885,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     }
   }
 
+  /// Arabic: يتحقق من الحد الأدنى من البيانات الأساسية قبل السماح بالتقدم.
+  /// English: Validates the minimum basic data before allowing the user to continue.
   bool _validateBasicInfo() {
     if (_nameController.text.isEmpty) {
       _showErrorMessage('الرجاء إدخال اسم المرفق');
@@ -1762,6 +1895,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     return true;
   }
 
+  /// Arabic: يرسل التحديث أو الإسناد إلى طبقة الـ bloc بعد التحقق من وجود تغييرات.
+  /// English: Sends the update or assignment events to the bloc after confirming there are changes.
   void _submitForm() {
     if (!_hasChanges) {
       _showInfoMessage('لا توجد تغييرات للحفظ');
@@ -1791,6 +1926,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     }
   }
 
+  /// Arabic: يفتح منتقي الأيقونات ويعيد احتساب حالة التغيير عند الاختيار.
+  /// English: Opens the icon picker and recalculates change state when a new icon is chosen.
   void _showIconPicker() {
     showDialog(
       context: context,
@@ -1806,6 +1943,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يعرض رسالة نجاح قصيرة بعد حفظ التعديل أو الاسترجاع.
+  /// English: Shows a short success message after saving edits or restoring data.
   void _showSuccessMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1828,6 +1967,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يعرض رسالة خطأ واضحة عندما تفشل عملية الحفظ أو التحميل.
+  /// English: Shows a clear error message when saving or loading fails.
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1850,6 +1991,8 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     );
   }
 
+  /// Arabic: يعرض رسالة معلومات عندما لا توجد تغييرات جاهزة للحفظ.
+  /// English: Shows an informational message when there are no changes to save.
   void _showInfoMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1873,13 +2016,21 @@ class _EditAmenityPageState extends State<EditAmenityPage>
   }
 }
 
-// Dialogs
+/// Arabic: حوار تأكيد يعرض خيار استرجاع القيم الأصلية قبل تنفيذ ذلك.
+/// English: Confirmation dialog that offers to restore the original values before applying the reset.
 class _ResetConfirmationDialog extends StatelessWidget {
+  /// Arabic: الإجراء الذي يُنفذ عند تأكيد الاسترجاع من قبل المستخدم.
+  /// English: Callback executed when the user confirms the reset.
   final VoidCallback onConfirm;
 
+  /// Arabic: ينشئ حوار التأكيد مع الإجراء الذي يعيد القيم الأصلية.
+  /// English: Creates the confirmation dialog with the callback that restores the original values.
   const _ResetConfirmationDialog({required this.onConfirm});
 
   @override
+
+  /// Arabic: يبني واجهة تأكيد الاسترجاع وما تحتويه من أزرار وتنبيه.
+  /// English: Builds the reset confirmation UI, including its warning text and actions.
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -1888,13 +2039,13 @@ class _ResetConfirmationDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.warning.withOpacity(0.3),
+            color: AppTheme.warning.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1907,8 +2058,8 @@ class _ResetConfirmationDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.warning.withOpacity(0.2),
-                    AppTheme.warning.withOpacity(0.1),
+                    AppTheme.warning.withValues(alpha: 0.2),
+                    AppTheme.warning.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -1944,10 +2095,10 @@ class _ResetConfirmationDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkSurface.withOpacity(0.5),
+                        color: AppTheme.darkSurface.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.3),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -1975,7 +2126,7 @@ class _ResetConfirmationDialog extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             AppTheme.warning,
-                            AppTheme.warning.withOpacity(0.8),
+                            AppTheme.warning.withValues(alpha: 0.8),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -2001,8 +2152,13 @@ class _ResetConfirmationDialog extends StatelessWidget {
   }
 }
 
+/// Arabic: حوار يحذر المستخدم من مغادرة الصفحة مع بقاء تغييرات غير محفوظة.
+/// English: Dialog that warns the user before leaving with unsaved changes.
 class _UnsavedChangesDialog extends StatelessWidget {
   @override
+
+  /// Arabic: يبني واجهة التحذير الخاصة بالتغييرات غير المحفوظة.
+  /// English: Builds the warning UI for unsaved edits.
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -2011,13 +2167,13 @@ class _UnsavedChangesDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.error.withOpacity(0.3),
+            color: AppTheme.error.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2030,8 +2186,8 @@ class _UnsavedChangesDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
+                    AppTheme.error.withValues(alpha: 0.2),
+                    AppTheme.error.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -2092,10 +2248,10 @@ class _UnsavedChangesDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.error.withOpacity(0.1),
+                        color: AppTheme.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.error.withOpacity(0.3),
+                          color: AppTheme.error.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -2120,20 +2276,29 @@ class _UnsavedChangesDialog extends StatelessWidget {
   }
 }
 
+/// Arabic: يرسم الخلفية المتحركة الخاصة بوضع التعديل مع وهج تحذيري دافئ.
+/// English: Paints the edit-mode animated background with a warm warning glow.
 class _EditAmenityBackgroundPainter extends CustomPainter {
+  /// Arabic: شدة الوهج الحالية التي يستخدمها الرسام لتحديد قوة الإضاءة الخلفية.
+  /// English: Current glow intensity used by the painter to scale the background light.
   final double glowIntensity;
 
+  /// Arabic: ينشئ الرسام مع شدة الوهج القادمة من الأنيميشن.
+  /// English: Creates the painter with the glow intensity supplied by the animation.
   _EditAmenityBackgroundPainter({required this.glowIntensity});
 
   @override
+
+  /// Arabic: يرسم الدوائر الضوئية المتحركة التي تميز شاشة التعديل.
+  /// English: Draws the animated glowing circles that define the edit screen atmosphere.
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
 
     // Draw glowing orbs with edit theme
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.warning.withOpacity(0.1 * glowIntensity),
-        AppTheme.warning.withOpacity(0.05 * glowIntensity),
+        AppTheme.warning.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.warning.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -2149,8 +2314,8 @@ class _EditAmenityBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryPurple.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryPurple.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -2166,5 +2331,8 @@ class _EditAmenityBackgroundPainter extends CustomPainter {
   }
 
   @override
+
+  /// Arabic: يعيد الرسم عند تغير الوهج لأن الخلفية مرتبطة بحركة زمنية مستمرة.
+  /// English: Repaints when the glow changes because the background is tied to continuous motion.
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

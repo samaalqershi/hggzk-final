@@ -4,13 +4,13 @@ import 'dart:ui';
 import '../../domain/entities/payment.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../../../../core/theme/app_text_styles.dart';
-import '../../../../../../core/theme/app_dimensions.dart';
 import '../../../../../../core/widgets/price_widget.dart';
 import '../../../../../../core/widgets/payment_identity_card_tooltip.dart'; // 🎯 إضافة
 import 'payment_status_indicator.dart';
 import 'payment_method_icon.dart';
 
 class FuturisticPaymentCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `payment`.
   final Payment payment;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
@@ -18,7 +18,6 @@ class FuturisticPaymentCard extends StatefulWidget {
   final bool showActions;
   final VoidCallback? onRefundTap;
   final VoidCallback? onVoidTap;
-
   const FuturisticPaymentCard({
     super.key,
     required this.payment,
@@ -29,7 +28,6 @@ class FuturisticPaymentCard extends StatefulWidget {
     this.onRefundTap,
     this.onVoidTap,
   });
-
   @override
   State<FuturisticPaymentCard> createState() => _FuturisticPaymentCardState();
 }
@@ -39,9 +37,7 @@ class _FuturisticPaymentCardState extends State<FuturisticPaymentCard>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _glowAnimation;
-  bool _isPressed = false;
   final GlobalKey _cardKey = GlobalKey(); // 🎯 GlobalKey للـ tooltip
-
   @override
   void initState() {
     super.initState();
@@ -428,23 +424,14 @@ class _FuturisticPaymentCardState extends State<FuturisticPaymentCard>
   }
 
   void _handleTapDown() {
-    setState(() {
-      _isPressed = true;
-    });
     _animationController.forward();
   }
 
   void _handleTapUp() {
-    setState(() {
-      _isPressed = false;
-    });
     _animationController.reverse();
   }
 
   void _handleTapCancel() {
-    setState(() {
-      _isPressed = false;
-    });
     _animationController.reverse();
   }
 

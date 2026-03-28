@@ -3,20 +3,30 @@ import 'package:flutter/cupertino.dart';
 import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/booking.dart';
 import '../../../../core/enums/booking_status.dart';
 
+/// تعرض بطاقات إحصائية أفقية تلخص الحجوزات والإيرادات ومعدل الإشغال.
+/// Shows horizontal statistic cards summarizing bookings, revenue, and occupancy.
 class BookingStatsCards extends StatelessWidget {
+  /// قائمة الحجوزات المستخدمة في حساب المؤشرات المجمعة.
+  /// The booking list used to calculate aggregate metrics.
   final List<Booking> bookings;
+
+  /// بيانات إضافية للإحصاءات القادمة من الخادم أو طبقة الحالة.
+  /// Additional stats received from the server or state layer.
   final Map<String, dynamic> stats;
 
+  /// ينشئ بطاقات الإحصاءات مع بيانات الحجوزات والمؤشرات الجاهزة.
+  /// Creates the stats cards with bookings and precomputed metrics.
   const BookingStatsCards({
     super.key,
     required this.bookings,
     required this.stats,
   });
 
+  /// يبني صف البطاقات ويتحكم بالمحتوى المعروض لكل مؤشر.
+  /// Builds the horizontal card row and wires each metric to its card.
   @override
   Widget build(BuildContext context) {
     final calculatedStats = _calculateStats();
@@ -85,6 +95,8 @@ class BookingStatsCards extends StatelessWidget {
     );
   }
 
+  /// يبني بطاقة واحدة تعرض قيمة ومؤشر تغير وأيقونة ومظهرًا متدرجًا.
+  /// Builds a single card with value, trend, icon, and gradient styling.
   Widget _buildStatCard({
     required String title,
     required String value,
@@ -244,6 +256,8 @@ class BookingStatsCards extends StatelessWidget {
     );
   }
 
+  /// يختصر الأرقام الكبيرة لصيغة قابلة للقراءة مثل K و M.
+  /// Shortens large numbers into readable K and M forms.
   String _formatRevenue(double amount) {
     if (amount >= 1000000) {
       return '${(amount / 1000000).toStringAsFixed(1)}M';
@@ -253,6 +267,8 @@ class BookingStatsCards extends StatelessWidget {
     return amount.toStringAsFixed(0);
   }
 
+  /// يحسب المؤشرات الأساسية من قائمة الحجوزات الحالية.
+  /// Calculates the core metrics from the current booking list.
   Map<String, dynamic> _calculateStats() {
     int total = bookings.length;
     int confirmed = 0;

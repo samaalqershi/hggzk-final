@@ -6,11 +6,29 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/icon_mapper.dart';
 import '../../domain/entities/property_type.dart';
 
+/// يعرض شريط اختيار نوع العقار في الصفحة الرئيسية، ويعمل كنقطة البداية التي
+/// تحدد بقية الفلاتر والحقول والسياق المعروض للمستخدم.
+/// Renders the property-type selector on the home screen and acts as the
+/// starting control that drives downstream filters, fields, and browsing
+/// context.
 class ElegantPropertyTypesSection extends StatefulWidget {
+  /// أنواع العقارات المتاحة للاختيار في هذه الجلسة.
+  /// Property types available for selection in the current session.
   final List<PropertyType> propertyTypes;
+
+  /// معرّف النوع المحدد حاليًا إذا كانت هناك قيمة مستعادة أو اختيار سابق.
+  /// Identifier of the currently selected type when a previous or restored
+  /// value exists.
   final String? selectedTypeId;
+
+  /// الاستدعاء الذي يحدّث الحالة العليا عندما يختار المستخدم نوعًا مختلفًا.
+  /// Callback that updates higher-level state when the user chooses a
+  /// different type.
   final Function(String?) onTypeSelected;
 
+  /// ينشئ أداة الاختيار مع البيانات الحالية وربطها بمنطق التغيير الخارجي.
+  /// Creates the selector with the current data and wires it to external
+  /// selection logic.
   const ElegantPropertyTypesSection({
     super.key,
     required this.propertyTypes,
@@ -18,19 +36,38 @@ class ElegantPropertyTypesSection extends StatefulWidget {
     required this.onTypeSelected,
   });
 
+  /// ينشئ حالة الأداة التي تدير الحركات والانتقالات الخاصة بالقسم.
+  /// Creates the widget state that manages the section's animations and
+  /// transitions.
   @override
   State<ElegantPropertyTypesSection> createState() =>
       _ElegantPropertyTypesSectionState();
 }
 
+/// تدير الحركات الافتتاحية وسلوك فتح القائمة واختيار نوع العقار داخل القسم.
+/// Manages the entrance animation, picker opening, and property-type selection
+/// behavior inside the section.
 class _ElegantPropertyTypesSectionState
-    extends State<ElegantPropertyTypesSection>
-    with TickerProviderStateMixin {
+    extends State<ElegantPropertyTypesSection> with TickerProviderStateMixin {
+  /// متحكم الحركة الذي يطلق دخول القسم إلى الشاشة.
+  /// Animation controller that drives the section entrance.
   late AnimationController _entranceController;
+
+  /// متحكم اللمعان الخفيف المستخدم لإضافة حياة إلى الخلفية.
+  /// Controller for the subtle shimmer that adds motion to the background.
   late AnimationController _shimmerController;
+
+  /// حركة الشفافية التي تجعل القسم يظهر تدريجيًا.
+  /// Fade animation that reveals the section progressively.
   late Animation<double> _fadeAnimation;
+
+  /// حركة الانزلاق التي ترفع القسم إلى موضعه النهائي.
+  /// Slide animation that lifts the section into its final position.
   late Animation<Offset> _slideAnimation;
 
+  /// يجهز الحالة ويبدأ تسلسل الحركة فور إنشاء الأداة.
+  /// Prepares state and starts the animation sequence as soon as the widget is
+  /// created.
   @override
   void initState() {
     super.initState();
@@ -38,6 +75,8 @@ class _ElegantPropertyTypesSectionState
     _startAnimations();
   }
 
+  /// يهيئ جميع الحركات التي يعتمد عليها القسم عند الظهور.
+  /// Configures the animations used when the section first appears.
   void _initializeAnimations() {
     _entranceController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -66,6 +105,9 @@ class _ElegantPropertyTypesSectionState
     ));
   }
 
+  /// يطلق الحركة بعد تأخير بسيط حتى لا يظهر القسم بشكل حاد عند فتح الصفحة.
+  /// Starts the entrance animation after a short delay so the section does not
+  /// appear too abruptly on page load.
   void _startAnimations() {
     Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted) {
@@ -74,6 +116,8 @@ class _ElegantPropertyTypesSectionState
     });
   }
 
+  /// يحرر متحكمات الحركة عندما تغادر الأداة الشجرة.
+  /// Releases the animation controllers when the widget leaves the tree.
   @override
   void dispose() {
     _entranceController.dispose();
@@ -81,6 +125,10 @@ class _ElegantPropertyTypesSectionState
     super.dispose();
   }
 
+  /// يبني واجهة اختيار نوع العقار بالاعتماد على الأنواع الحالية والاختيار
+  /// المفعّل.
+  /// Builds the property-type selector using the available types and the
+  /// currently active selection.
   @override
   Widget build(BuildContext context) {
     if (widget.propertyTypes.isEmpty) return const SizedBox.shrink();
@@ -114,6 +162,9 @@ class _ElegantPropertyTypesSectionState
     );
   }
 
+  /// يعرض رسالة قصيرة تشرح للمستخدم أن هذا الجزء يحدد مدخل التصفح الأساسي.
+  /// Shows a brief hint telling the user that this control defines the primary
+  /// browsing entry point.
   Widget _buildHintMessage() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -146,6 +197,9 @@ class _ElegantPropertyTypesSectionState
     );
   }
 
+  /// يبني الزر الرئيسي الذي يعرض النوع الحالي ويفتح لوحة الاختيار التفصيلية.
+  /// Builds the main launcher button that shows the current type and opens the
+  /// detailed picker sheet.
   Widget _buildPickerButton(
     BuildContext context,
     PropertyType? selectedProperty,
@@ -234,6 +288,10 @@ class _ElegantPropertyTypesSectionState
     );
   }
 
+  /// يفتح اللوحة السفلية التي تسمح باستعراض جميع أنواع العقارات واختيار
+  /// أحدها من قائمة قابلة للتمرير.
+  /// Opens the bottom sheet that lets the user browse all property types and
+  /// choose one from a scrollable list.
   Future<void> _showPropertyTypePickerSheet(
     BuildContext context,
     PropertyType? selectedProperty,
@@ -249,7 +307,8 @@ class _ElegantPropertyTypesSectionState
           child: Container(
             decoration: BoxDecoration(
               color: AppTheme.darkBackground.withOpacity(0.92),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(22)),
               border: Border.all(
                 color: AppTheme.darkBorder.withOpacity(0.18),
                 width: 1,
@@ -303,7 +362,8 @@ class _ElegantPropertyTypesSectionState
                     const SizedBox(height: 10),
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(sheetContext).size.height * 0.62,
+                        maxHeight:
+                            MediaQuery.of(sheetContext).size.height * 0.62,
                       ),
                       child: Scrollbar(
                         controller: scrollController,
@@ -312,7 +372,8 @@ class _ElegantPropertyTypesSectionState
                         thickness: 4,
                         child: SingleChildScrollView(
                           controller: scrollController,
-                          child: _buildPropertyTypesList(sheetContext: sheetContext),
+                          child: _buildPropertyTypesList(
+                              sheetContext: sheetContext),
                         ),
                       ),
                     ),
@@ -326,6 +387,9 @@ class _ElegantPropertyTypesSectionState
     );
   }
 
+  /// يبني قائمة الأنواع داخل اللوحة المنبثقة مع إبراز الاختيار الحالي.
+  /// Builds the list of property types inside the picker sheet and highlights
+  /// the current selection.
   Widget _buildPropertyTypesList({BuildContext? sheetContext}) {
     return Column(
       children: widget.propertyTypes.map((p) {
@@ -339,7 +403,8 @@ class _ElegantPropertyTypesSectionState
               onTap: () => _handleSelection(p, popContext: sheetContext),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppTheme.primaryBlue.withOpacity(0.12)
@@ -425,178 +490,10 @@ class _ElegantPropertyTypesSectionState
     );
   }
 
-  Widget _buildSectionHeader() {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppTheme.primaryBlue.withOpacity(0.15),
-                AppTheme.primaryPurple.withOpacity(0.10),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: AppTheme.primaryBlue.withOpacity(0.2),
-              width: 1,
-            ),
-          ),
-          child: Icon(
-            Icons.category_rounded,
-            size: 20,
-            color: AppTheme.primaryBlue.withOpacity(0.9),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'اختر نوع العقار',
-                style: AppTextStyles.bodyLarge.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textWhite,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'تصفح حسب نوع الإقامة المفضل لديك',
-                style: AppTextStyles.caption.copyWith(
-                  color: AppTheme.textMuted.withOpacity(0.7),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPropertyTypesGrid({BuildContext? sheetContext}) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final crossAxisCount = width > 600 ? 5 : 4;
-        final childAspectRatio = width > 600 ? 0.85 : 0.72;
-
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: childAspectRatio,
-          ),
-          itemCount: widget.propertyTypes.length,
-          itemBuilder: (context, index) {
-            return _ElegantPropertyTypeCard(
-              propertyType: widget.propertyTypes[index],
-              isSelected: widget.selectedTypeId == widget.propertyTypes[index].id,
-              onTap: () => _handleSelection(
-                widget.propertyTypes[index],
-                popContext: sheetContext,
-              ),
-              animationDelay: Duration(milliseconds: index * 80),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildStatisticsBadge(PropertyType property) {
-    return AnimatedBuilder(
-      animation: _shimmerController,
-      builder: (context, child) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppTheme.primaryBlue.withOpacity(0.12 + 0.03 * _shimmerController.value),
-                AppTheme.primaryPurple.withOpacity(0.08 + 0.02 * _shimmerController.value),
-                AppTheme.primaryCyan.withOpacity(0.06 + 0.02 * _shimmerController.value),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: AppTheme.primaryBlue.withOpacity(0.3),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.primaryBlue.withOpacity(0.15),
-                blurRadius: 12,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppTheme.primaryBlue.withOpacity(0.2),
-                      AppTheme.primaryPurple.withOpacity(0.15),
-                    ],
-                  ),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: AppTheme.primaryBlue.withOpacity(0.3),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.2),
-                      blurRadius: 8,
-                      spreadRadius: 1,
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  IconMapper.getIconFromString(property.icon),
-                  size: 20,
-                  color: AppTheme.primaryBlue,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'تم تحديد: ${property.name}',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppTheme.primaryBlue,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${property.propertiesCount} ${property.propertiesCount == 1 ? 'عقار' : 'عقارات'} متاحة',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppTheme.textMuted.withOpacity(0.8),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
+  /// يطبق اختيار نوع العقار ويرسل النتيجة إلى الطبقة الأعلى ثم يغلق اللوحة
+  /// عند الحاجة.
+  /// Applies the property-type selection, forwards it to higher-level state,
+  /// and closes the sheet when appropriate.
   void _handleSelection(PropertyType type, {BuildContext? popContext}) {
     HapticFeedback.selectionClick();
     if (widget.selectedTypeId == type.id) return;
@@ -608,12 +505,28 @@ class _ElegantPropertyTypesSectionState
   }
 }
 
+/// تمثل بطاقة اختيار تفاعلية لنوع عقار واحد داخل لوحة الاختيار.
+/// Represents an interactive selection card for a single property type inside
+/// the picker sheet.
 class _ElegantPropertyTypeCard extends StatefulWidget {
+  /// نوع العقار الذي تعرضه البطاقة.
+  /// Property type rendered by this card.
   final PropertyType propertyType;
+
+  /// يحدد ما إذا كانت البطاقة تمثل الاختيار الحالي للمستخدم.
+  /// Indicates whether the card represents the user's current selection.
   final bool isSelected;
+
+  /// الاستدعاء الذي ينفذ عند الضغط على البطاقة.
+  /// Callback executed when the card is tapped.
   final VoidCallback onTap;
+
+  /// تأخير بسيط يوزع ظهور البطاقات بشكل متدرج داخل اللوحة.
+  /// Small delay used to stagger card entrance inside the sheet.
   final Duration animationDelay;
 
+  /// ينشئ البطاقة مع بيانات النوع وسلوك النقر الخاص بها.
+  /// Creates the card with its type data and tap behavior.
   const _ElegantPropertyTypeCard({
     required this.propertyType,
     required this.isSelected,
@@ -621,19 +534,42 @@ class _ElegantPropertyTypeCard extends StatefulWidget {
     this.animationDelay = Duration.zero,
   });
 
+  /// ينشئ حالة البطاقة التي تدير الحركة واللمعان والتفاعل.
+  /// Creates the card state that manages motion, shimmer, and interaction.
   @override
   State<_ElegantPropertyTypeCard> createState() =>
       _ElegantPropertyTypeCardState();
 }
 
+/// تدير التوهج واللمعان وحالة الضغط داخل بطاقة اختيار نوع العقار.
+/// Manages glow, shimmer, and pressed-state behavior inside the property-type
+/// selection card.
 class _ElegantPropertyTypeCardState extends State<_ElegantPropertyTypeCard>
     with TickerProviderStateMixin {
+  /// متحكم التوهج الذي يبرز البطاقة عندما تكون مختارة.
+  /// Glow controller that highlights the card when it becomes selected.
   late AnimationController _glowController;
+
+  /// متحكم اللمعان الذي يمر فوق البطاقة لإعطاء إحساس بالحركة.
+  /// Shimmer controller that sweeps across the card to keep it visually alive.
   late AnimationController _shimmerController;
+
+  /// قيمة الحركة المستخدمة لحساب شدة التوهج الحالية.
+  /// Animation value used to compute the current glow intensity.
   late Animation<double> _glowAnimation;
+
+  /// قيمة الحركة التي تحدد موضع اللمعان على سطح البطاقة.
+  /// Animation value that determines the shimmer position on the card surface.
   late Animation<double> _shimmerAnimation;
+
+  /// يحدد ما إذا كانت البطاقة في حالة ضغط لحظية أثناء التفاعل.
+  /// Indicates whether the card is in a transient pressed state during touch
+  /// interaction.
   bool _isPressed = false;
 
+  /// يهيئ المتحكمات الداخلية ويشغّل التوهج إذا كانت البطاقة مختارة مسبقًا.
+  /// Initializes internal controllers and starts the glow when the card is
+  /// already selected.
   @override
   void initState() {
     super.initState();
@@ -668,6 +604,9 @@ class _ElegantPropertyTypeCardState extends State<_ElegantPropertyTypeCard>
     }
   }
 
+  /// يزامن التوهج مع تغيّر حالة التحديد حتى يبقى الإبراز متوافقًا مع الحالة.
+  /// Synchronizes the glow with selection changes so visual emphasis always
+  /// matches state.
   @override
   void didUpdateWidget(_ElegantPropertyTypeCard oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -681,6 +620,8 @@ class _ElegantPropertyTypeCardState extends State<_ElegantPropertyTypeCard>
     }
   }
 
+  /// يحرر متحكمات الحركة عندما تُزال البطاقة من الشجرة.
+  /// Releases the animation controllers when the card leaves the tree.
   @override
   void dispose() {
     _glowController.dispose();
@@ -688,6 +629,9 @@ class _ElegantPropertyTypeCardState extends State<_ElegantPropertyTypeCard>
     super.dispose();
   }
 
+  /// يبني البطاقة بكل طبقاتها البصرية، من الإطار المتوهج حتى حالة الضغط.
+  /// Builds the card with its full visual stack, from glowing border to
+  /// pressed feedback.
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -800,6 +744,8 @@ class _ElegantPropertyTypeCardState extends State<_ElegantPropertyTypeCard>
     );
   }
 
+  /// يبني المحتوى الأساسي للبطاقة مثل الاسم والوصف والعداد.
+  /// Builds the card's core content, such as label, description, and count.
   Widget _buildContent(bool isDarkMode) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -818,7 +764,8 @@ class _ElegantPropertyTypeCardState extends State<_ElegantPropertyTypeCard>
                     : isDarkMode
                         ? AppTheme.textWhite.withOpacity(0.85)
                         : AppTheme.textDark.withOpacity(0.9),
-                fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w600,
+                fontWeight:
+                    widget.isSelected ? FontWeight.w700 : FontWeight.w600,
                 height: 1.2,
               ),
               textAlign: TextAlign.center,
@@ -835,6 +782,8 @@ class _ElegantPropertyTypeCardState extends State<_ElegantPropertyTypeCard>
     );
   }
 
+  /// يبني الحاوية الدائرية التي تعرض أيقونة نوع العقار.
+  /// Builds the circular container that displays the property-type icon.
   Widget _buildIcon(bool isDarkMode) {
     return Container(
       width: 42,
@@ -890,6 +839,9 @@ class _ElegantPropertyTypeCardState extends State<_ElegantPropertyTypeCard>
     );
   }
 
+  /// يبني الشارة التي تعرض عدد العناصر أو العقارات المرتبطة بهذا النوع.
+  /// Builds the badge that shows how many items or properties belong to this
+  /// type.
   Widget _buildCountBadge(bool isDarkMode) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
@@ -933,6 +885,9 @@ class _ElegantPropertyTypeCardState extends State<_ElegantPropertyTypeCard>
     );
   }
 
+  /// يبني طبقة اللمعان التي تمر فوق البطاقة عندما لا تكون مختارة.
+  /// Builds the shimmer overlay that sweeps across the card when it is not
+  /// selected.
   Widget _buildShimmerOverlay(bool isDarkMode) {
     return AnimatedBuilder(
       animation: _shimmerAnimation,
@@ -952,6 +907,8 @@ class _ElegantPropertyTypeCardState extends State<_ElegantPropertyTypeCard>
     );
   }
 
+  /// يبني شارة التحديد التي تؤكد للمستخدم أن هذا النوع هو الاختيار النشط.
+  /// Builds the selection badge that confirms this type is currently active.
   Widget _buildSelectionBadge() {
     return Container(
       width: 22,
@@ -981,15 +938,27 @@ class _ElegantPropertyTypeCardState extends State<_ElegantPropertyTypeCard>
   }
 }
 
+/// يرسم شريط اللمعان المتحرك الذي يمر فوق البطاقة.
+/// Paints the moving shimmer band that sweeps across the card.
 class _ShimmerPainter extends CustomPainter {
+  /// الموضع الحالي لشريط اللمعان داخل مساحة البطاقة.
+  /// Current position of the shimmer band within the card area.
   final double shimmerValue;
+
+  /// يحدد ما إذا كان الرسام يعمل في سياق تصميم داكن.
+  /// Indicates whether the painter is rendering in a dark-theme context.
   final bool isDarkMode;
 
+  /// ينشئ الرسام مع الموضع الحالي للمعان والسياق البصري المستخدم.
+  /// Creates the painter with the current shimmer position and visual theme
+  /// context.
   _ShimmerPainter({
     required this.shimmerValue,
     required this.isDarkMode,
   });
 
+  /// يرسم طبقة اللمعان الحالية فوق مساحة البطاقة.
+  /// Paints the current shimmer layer across the card surface.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1016,6 +985,9 @@ class _ShimmerPainter extends CustomPainter {
     );
   }
 
+  /// يقرر إعادة الرسم عندما يتغير موضع اللمعان أو السياق البصري.
+  /// Decides whether to repaint when shimmer position or visual context
+  /// changes.
   @override
   bool shouldRepaint(covariant _ShimmerPainter oldDelegate) {
     return shimmerValue != oldDelegate.shimmerValue;

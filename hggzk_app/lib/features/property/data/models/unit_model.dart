@@ -1,7 +1,11 @@
 import 'dart:convert';
 import '../../domain/entities/unit.dart';
 
+/// Describes the UnitModel data model used to parse and emit property API payloads.
+/// العربية: يمثل نموذج البيانات `UnitModel`.
 class UnitModel extends Unit {
+  /// Constructs the UnitModel value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitModel`.
   const UnitModel({
     required super.id,
     required super.propertyId,
@@ -22,6 +26,8 @@ class UnitModel extends Unit {
     super.currency,
   });
 
+  /// Constructs the UnitModel.fromJson value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitModel.fromJson`.
   factory UnitModel.fromJson(Map<String, dynamic> json) {
     final unitType = json['unitType'] as Map<String, dynamic>?;
     final unitTypeName =
@@ -69,6 +75,8 @@ class UnitModel extends Unit {
     );
   }
 
+  /// Parses the pricing method.
+  /// العربية: يحلل pricing method.
   static PricingMethod _parsePricingMethod(dynamic method) {
     if (method == null) return PricingMethod.daily;
     switch (method.toString().toLowerCase()) {
@@ -83,6 +91,8 @@ class UnitModel extends Unit {
     }
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -109,13 +119,19 @@ class UnitModel extends Unit {
   }
 }
 
+/// Describes the MoneyModel data model used to parse and emit property API payloads.
+/// العربية: يمثل نموذج البيانات `MoneyModel`.
 class MoneyModel extends Money {
+  /// Constructs the MoneyModel value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `MoneyModel`.
   const MoneyModel({
     required super.amount,
     super.currency,
     super.exchangeRate,
   });
 
+  /// Constructs the MoneyModel.fromJson value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `MoneyModel.fromJson`.
   factory MoneyModel.fromJson(Map<String, dynamic> json) {
     return MoneyModel(
       amount: (json['amount'] ?? 0).toDouble(),
@@ -124,6 +140,8 @@ class MoneyModel extends Money {
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'amount': amount,
@@ -134,7 +152,11 @@ class MoneyModel extends Money {
   }
 }
 
+/// Describes the UnitFieldValueModel data model used to parse and emit property API payloads.
+/// العربية: يمثل نموذج البيانات `UnitFieldValueModel`.
 class UnitFieldValueModel extends UnitFieldValue {
+  /// Constructs the UnitFieldValueModel value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitFieldValueModel`.
   const UnitFieldValueModel({
     required super.valueId,
     required super.fieldId,
@@ -145,6 +167,8 @@ class UnitFieldValueModel extends UnitFieldValue {
     super.isPrimaryFilter,
   });
 
+  /// Constructs the UnitFieldValueModel.fromJson value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitFieldValueModel.fromJson`.
   factory UnitFieldValueModel.fromJson(Map<String, dynamic> json) {
     // Support both detailed and simple shapes
     final hasIds = json.containsKey('valueId') || json.containsKey('fieldId');
@@ -170,6 +194,8 @@ class UnitFieldValueModel extends UnitFieldValue {
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'valueId': valueId,
@@ -183,7 +209,11 @@ class UnitFieldValueModel extends UnitFieldValue {
   }
 }
 
+/// Describes the FieldGroupWithValuesModel data model used to parse and emit property API payloads.
+/// العربية: يمثل نموذج البيانات `FieldGroupWithValuesModel`.
 class FieldGroupWithValuesModel extends FieldGroupWithValues {
+  /// Constructs the FieldGroupWithValuesModel value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `FieldGroupWithValuesModel`.
   const FieldGroupWithValuesModel({
     required super.groupId,
     required super.groupName,
@@ -192,6 +222,8 @@ class FieldGroupWithValuesModel extends FieldGroupWithValues {
     required super.fieldValues,
   });
 
+  /// Constructs the FieldGroupWithValuesModel.fromJson value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `FieldGroupWithValuesModel.fromJson`.
   factory FieldGroupWithValuesModel.fromJson(Map<String, dynamic> json) {
     return FieldGroupWithValuesModel(
       groupId: (json['groupId'] ?? '').toString(),
@@ -206,6 +238,8 @@ class FieldGroupWithValuesModel extends FieldGroupWithValues {
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'groupId': groupId,
@@ -218,7 +252,11 @@ class FieldGroupWithValuesModel extends FieldGroupWithValues {
   }
 }
 
+/// Describes the UnitImageModel data model used to parse and emit property API payloads.
+/// العربية: يمثل نموذج البيانات `UnitImageModel`.
 class UnitImageModel extends UnitImage {
+  /// Constructs the UnitImageModel value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitImageModel`.
   const UnitImageModel({
     required super.id,
     required super.url,
@@ -228,6 +266,8 @@ class UnitImageModel extends UnitImage {
     super.is360,
   });
 
+  /// Constructs the UnitImageModel.fromJson value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitImageModel.fromJson`.
   factory UnitImageModel.fromJson(Map<String, dynamic> json) {
     return UnitImageModel(
       id: (json['id'] ?? '').toString(),
@@ -239,6 +279,8 @@ class UnitImageModel extends UnitImage {
     );
   }
 
+  /// Converts this instance to a JSON representation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,

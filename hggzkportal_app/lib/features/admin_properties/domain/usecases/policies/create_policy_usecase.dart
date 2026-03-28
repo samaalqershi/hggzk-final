@@ -7,31 +7,29 @@ import '../../entities/policy.dart';
 import '../../repositories/policies_repository.dart';
 
 class CreatePolicyParams {
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
   final PolicyType policyType;
   final String description;
   final String rules;
-  
   CreatePolicyParams({
     required this.propertyId,
     required this.policyType,
     required this.description,
     required this.rules,
   });
-  
   Map<String, dynamic> toJson() => {
-    'propertyId': propertyId,
-    'policyType': policyType.index.toString(),
-    'description': description,
-    'rules': rules,
-  };
+        'propertyId': propertyId,
+        'policyType': policyType.index.toString(),
+        'description': description,
+        'rules': rules,
+      };
 }
 
 class CreatePolicyUseCase implements UseCase<String, CreatePolicyParams> {
+  /// العربية: يخزن القيمة `repository`.
   final PoliciesRepository repository;
-  
   CreatePolicyUseCase(this.repository);
-  
   @override
   Future<Either<Failure, String>> call(CreatePolicyParams params) async {
     return await repository.createPolicy(params.toJson());

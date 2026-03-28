@@ -3,10 +3,13 @@ import '../../../../../core/error/failures.dart';
 import '../../../../../core/models/paginated_result.dart';
 import '../entities/unit.dart';
 import '../entities/unit_type.dart';
-import '../entities/unit_field_value.dart';
 import '../entities/unit_analytics.dart';
 
+/// يمثل هذا الكلاس المجرد UnitsRepository العقد المشترك لمسار إدارة الوحدات.
+/// This abstract class defines the shared contract for UnitsRepository in the admin unit workflow.
 abstract class UnitsRepository {
+  /// This member returns units.
+  /// يعيد units.
   Future<Either<Failure, PaginatedResult<Unit>>> getUnits({
     int? pageNumber,
     int? pageSize,
@@ -27,14 +30,20 @@ abstract class UnitsRepository {
     double? radiusKm,
   });
 
+  /// ينفذ هذا الأسلوب عملية getUnitDetails ضمن مسار إدارة الوحدات.
+  /// This method performs the getUnitDetails operation in the admin unit workflow.
   Future<Either<Failure, Unit>> getUnitDetails(String unitId);
 
+  /// ينفذ هذا الأسلوب عملية getUnitAnalytics ضمن مسار إدارة الوحدات.
+  /// This method performs the getUnitAnalytics operation in the admin unit workflow.
   Future<Either<Failure, UnitAnalytics>> getUnitAnalytics({
     required String unitId,
     DateTime? fromDate,
     DateTime? toDate,
   });
 
+  /// ينفذ هذا الأسلوب عملية createUnit ضمن مسار إدارة الوحدات.
+  /// This method performs the createUnit operation in the admin unit workflow.
   Future<Either<Failure, String>> createUnit({
     required String propertyId,
     required String unitTypeId,
@@ -51,6 +60,8 @@ abstract class UnitsRepository {
     String? tempKey,
   });
 
+  /// ينفذ هذا الأسلوب عملية updateUnit ضمن مسار إدارة الوحدات.
+  /// This method performs the updateUnit operation in the admin unit workflow.
   Future<Either<Failure, bool>> updateUnit({
     required String unitId,
     String? name,
@@ -65,12 +76,21 @@ abstract class UnitsRepository {
     int? cancellationWindowDays,
   });
 
+  /// ينفذ هذا الأسلوب عملية deleteUnit ضمن مسار إدارة الوحدات.
+  /// This method performs the deleteUnit operation in the admin unit workflow.
   Future<Either<Failure, bool>> deleteUnit(String unitId);
 
-  Future<Either<Failure, List<UnitType>>> getUnitTypesByProperty(String propertyTypeId);
+  /// ينفذ هذا الأسلوب عملية getUnitTypesByProperty ضمن مسار إدارة الوحدات.
+  /// This method performs the getUnitTypesByProperty operation in the admin unit workflow.
+  Future<Either<Failure, List<UnitType>>> getUnitTypesByProperty(
+      String propertyTypeId);
 
+  /// ينفذ هذا الأسلوب عملية getUnitFields ضمن مسار إدارة الوحدات.
+  /// This method performs the getUnitFields operation in the admin unit workflow.
   Future<Either<Failure, List<UnitTypeField>>> getUnitFields(String unitTypeId);
 
+  /// ينفذ هذا الأسلوب عملية assignUnitToSections ضمن مسار إدارة الوحدات.
+  /// This method performs the assignUnitToSections operation in the admin unit workflow.
   Future<Either<Failure, bool>> assignUnitToSections(
     String unitId,
     List<String> sectionIds,

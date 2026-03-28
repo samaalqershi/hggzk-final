@@ -10,14 +10,35 @@ import 'package:hggzkportal/core/theme/app_dimensions.dart';
 import '../../domain/entities/unit.dart';
 import 'package:intl/intl.dart';
 
+/// يمثل هذا الكلاس FuturisticUnitCard البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for FuturisticUnitCard in the admin unit workflow.
 class FuturisticUnitCard extends StatefulWidget {
+  /// This field keeps the unit value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة unit التي يعتمد عليها مسار إدارة الوحدات.
   final Unit unit;
+
+  /// يحتفظ هذا الحقل بقيمة onTap التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the onTap value used by the admin unit workflow.
   final VoidCallback onTap;
+
+  /// يحتفظ هذا الحقل بقيمة onEdit التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the onEdit value used by the admin unit workflow.
   final VoidCallback? onEdit;
+
+  /// يحتفظ هذا الحقل بقيمة onDelete التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the onDelete value used by the admin unit workflow.
   final VoidCallback? onDelete;
+
+  /// يحتفظ هذا الحقل بقيمة isSelected التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the isSelected value used by the admin unit workflow.
   final bool isSelected;
+
+  /// يحتفظ هذا الحقل بقيمة index التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the index value used by the admin unit workflow.
   final int index;
 
+  /// ينشئ هذا المُنشئ مثيلاً من FuturisticUnitCard.
+  /// This constructor creates an instance of FuturisticUnitCard.
   const FuturisticUnitCard({
     super.key,
     required this.unit,
@@ -28,38 +49,88 @@ class FuturisticUnitCard extends StatefulWidget {
     this.index = 0,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<FuturisticUnitCard> createState() => _FuturisticUnitCardState();
 }
 
+/// يمثل هذا الكلاس _FuturisticUnitCardState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _FuturisticUnitCardState in the admin unit workflow.
 class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     with TickerProviderStateMixin {
   // Animation Controllers
+  /// يحتفظ هذا الحقل بقيمة _hoverController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _hoverController value used by the admin unit workflow.
   late AnimationController _hoverController;
+
+  /// يحتفظ هذا الحقل بقيمة _pressController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _pressController value used by the admin unit workflow.
   late AnimationController _pressController;
+
+  /// يحتفظ هذا الحقل بقيمة _glowController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _glowController value used by the admin unit workflow.
   late AnimationController _glowController;
+
+  /// يحتفظ هذا الحقل بقيمة _entranceController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _entranceController value used by the admin unit workflow.
   late AnimationController _entranceController;
+
+  /// يحتفظ هذا الحقل بقيمة _sparkleController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _sparkleController value used by the admin unit workflow.
   late AnimationController _sparkleController;
 
   // Animations
+  /// يحتفظ هذا الحقل بقيمة _hoverScale التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _hoverScale value used by the admin unit workflow.
   late Animation<double> _hoverScale;
+
+  /// يحتفظ هذا الحقل بقيمة _pressScale التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _pressScale value used by the admin unit workflow.
   late Animation<double> _pressScale;
+
+  /// يحتفظ هذا الحقل بقيمة _glowAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _glowAnimation value used by the admin unit workflow.
   late Animation<double> _glowAnimation;
+
+  /// يحتفظ هذا الحقل بقيمة _entranceAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _entranceAnimation value used by the admin unit workflow.
   late Animation<double> _entranceAnimation;
+
+  /// يحتفظ هذا الحقل بقيمة _slideAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _slideAnimation value used by the admin unit workflow.
   late Animation<Offset> _slideAnimation;
+
+  /// يحتفظ هذا الحقل بقيمة _sparkleAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _sparkleAnimation value used by the admin unit workflow.
   late Animation<double> _sparkleAnimation;
 
   // State
+  /// يحتفظ هذا الحقل بقيمة _isHovered التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isHovered value used by the admin unit workflow.
   bool _isHovered = false;
+
+  /// يحتفظ هذا الحقل بقيمة _showActions التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _showActions value used by the admin unit workflow.
   bool _showActions = false;
 
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
+
+    /// ينفذ هذا الأسلوب عملية _initializeAnimations ضمن مسار إدارة الوحدات.
+    /// This method performs the _initializeAnimations operation in the admin unit workflow.
     _initializeAnimations();
+
+    /// ينفذ هذا الأسلوب عملية _startEntranceAnimation ضمن مسار إدارة الوحدات.
+    /// This method performs the _startEntranceAnimation operation in the admin unit workflow.
     _startEntranceAnimation();
   }
 
+  /// ينفذ هذا الأسلوب عملية _initializeAnimations ضمن مسار إدارة الوحدات.
+  /// This method performs the _initializeAnimations operation in the admin unit workflow.
   void _initializeAnimations() {
     // Hover Animation
     _hoverController = AnimationController(
@@ -134,6 +205,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     ).animate(_sparkleController);
   }
 
+  /// ينفذ هذا الأسلوب عملية _startEntranceAnimation ضمن مسار إدارة الوحدات.
+  /// This method performs the _startEntranceAnimation operation in the admin unit workflow.
   void _startEntranceAnimation() {
     Future.delayed(Duration(milliseconds: widget.index * 50), () {
       if (mounted) {
@@ -142,6 +215,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     });
   }
 
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _hoverController.dispose();
@@ -152,6 +227,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     super.dispose();
   }
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return SlideTransition(
@@ -223,6 +300,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildMainCard ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildMainCard operation in the admin unit workflow.
   Widget _buildMainCard() {
     return Container(
       decoration: BoxDecoration(
@@ -231,8 +310,9 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
           // Main shadow
           BoxShadow(
             color: widget.isSelected || _isHovered
-                ? AppTheme.primaryBlue.withOpacity(0.3 * _glowAnimation.value)
-                : Colors.black.withOpacity(0.2),
+                ? AppTheme.primaryBlue
+                    .withValues(alpha: 0.3 * _glowAnimation.value)
+                : Colors.black.withValues(alpha: 0.2),
             blurRadius: widget.isSelected || _isHovered ? 30 : 20,
             offset: const Offset(0, 10),
             spreadRadius: widget.isSelected ? 2 : 0,
@@ -241,7 +321,7 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
           if (widget.isSelected || _isHovered)
             BoxShadow(
               color: AppTheme.primaryPurple
-                  .withOpacity(0.2 * _glowAnimation.value),
+                  .withValues(alpha: 0.2 * _glowAnimation.value),
               blurRadius: 20,
               offset: const Offset(0, 0),
             ),
@@ -261,29 +341,29 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
                 end: Alignment.bottomRight,
                 colors: widget.isSelected
                     ? [
-                        AppTheme.primaryBlue.withOpacity(0.2),
-                        AppTheme.primaryPurple.withOpacity(0.15),
-                        AppTheme.primaryViolet.withOpacity(0.1),
+                        AppTheme.primaryBlue.withValues(alpha: 0.2),
+                        AppTheme.primaryPurple.withValues(alpha: 0.15),
+                        AppTheme.primaryViolet.withValues(alpha: 0.1),
                       ]
                     : _isHovered
                         ? [
-                            AppTheme.primaryBlue.withOpacity(0.12),
-                            AppTheme.primaryPurple.withOpacity(0.08),
-                            AppTheme.darkCard.withOpacity(0.9),
+                            AppTheme.primaryBlue.withValues(alpha: 0.12),
+                            AppTheme.primaryPurple.withValues(alpha: 0.08),
+                            AppTheme.darkCard.withValues(alpha: 0.9),
                           ]
                         : [
-                            AppTheme.darkCard.withOpacity(0.95),
-                            AppTheme.darkCard.withOpacity(0.9),
-                            AppTheme.darkCard.withOpacity(0.85),
+                            AppTheme.darkCard.withValues(alpha: 0.95),
+                            AppTheme.darkCard.withValues(alpha: 0.9),
+                            AppTheme.darkCard.withValues(alpha: 0.85),
                           ],
               ),
               borderRadius: BorderRadius.circular(AppDimensions.radiusXLarge),
               border: Border.all(
                 color: widget.isSelected
-                    ? AppTheme.primaryBlue.withOpacity(0.6)
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.6)
                     : _isHovered
-                        ? AppTheme.primaryBlue.withOpacity(0.3)
-                        : AppTheme.darkBorder.withOpacity(0.2),
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                        : AppTheme.darkBorder.withValues(alpha: 0.2),
                 width: widget.isSelected ? 2 : 1,
               ),
             ),
@@ -307,7 +387,7 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
                       Positioned.fill(
                         child: CustomPaint(
                           painter: _AdvancedPatternPainter(
-                            color: AppTheme.primaryBlue.withOpacity(0.03),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.03),
                             animation: _sparkleAnimation.value,
                           ),
                         ),
@@ -377,6 +457,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
   }
 
   // دالة جديدة لبناء قسم الحقول الديناميكية
+  /// ينفذ هذا الأسلوب عملية _buildDynamicFields ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildDynamicFields operation in the admin unit workflow.
   Widget _buildDynamicFields({int maxFields = 3}) {
     final filterFields = _getFilterFields();
 
@@ -391,13 +473,13 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.3),
-            AppTheme.darkSurface.withOpacity(0.1),
+            AppTheme.darkSurface.withValues(alpha: 0.3),
+            AppTheme.darkSurface.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -413,8 +495,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.neonPurple.withOpacity(0.8),
-                      AppTheme.neonGreen.withOpacity(0.6),
+                      AppTheme.neonPurple.withValues(alpha: 0.8),
+                      AppTheme.neonGreen.withValues(alpha: 0.6),
                     ],
                   ),
                   shape: BoxShape.circle,
@@ -457,6 +539,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
   }
 
   // دالة محدثة للحصول على الحقول المناسبة للعرض
+  /// ينفذ هذا الأسلوب عملية _getFilterFields ضمن مسار إدارة الوحدات.
+  /// This method performs the _getFilterFields operation in the admin unit workflow.
   List<Map<String, dynamic>> _getFilterFields() {
     final List<Map<String, dynamic>> filterFields = [];
 
@@ -515,6 +599,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
   }
 
   // دالة جديدة لعرض الحقل في صف منظم
+  /// ينفذ هذا الأسلوب عملية _buildDynamicFieldRow ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildDynamicFieldRow operation in the admin unit workflow.
   Widget _buildDynamicFieldRow({
     required String displayName,
     required dynamic value,
@@ -529,7 +615,7 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
         Icon(
           icon,
           size: 12,
-          color: color.withOpacity(0.7),
+          color: color.withValues(alpha: 0.7),
         ),
         const SizedBox(width: 6),
         Text(
@@ -558,6 +644,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
   }
 
   // دالة لتنسيق قيمة الحقل حسب نوعه
+  /// ينفذ هذا الأسلوب عملية _formatDynamicFieldValue ضمن مسار إدارة الوحدات.
+  /// This method performs the _formatDynamicFieldValue operation in the admin unit workflow.
   String _formatDynamicFieldValue(dynamic value, String fieldType) {
     if (value == null || value.toString().isEmpty) {
       return 'غير محدد';
@@ -650,6 +738,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
   }
 
   // دالة للحصول على أيقونة حسب نوع الحقل
+  /// ينفذ هذا الأسلوب عملية _getFieldTypeIcon ضمن مسار إدارة الوحدات.
+  /// This method performs the _getFieldTypeIcon operation in the admin unit workflow.
   IconData _getFieldTypeIcon(String fieldType) {
     switch (fieldType) {
       case 'text':
@@ -682,6 +772,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
   }
 
   // دالة للحصول على لون حسب نوع الحقل
+  /// ينفذ هذا الأسلوب عملية _getFieldTypeColor ضمن مسار إدارة الوحدات.
+  /// This method performs the _getFieldTypeColor operation in the admin unit workflow.
   Color _getFieldTypeColor(String fieldType) {
     switch (fieldType) {
       case 'boolean':
@@ -706,6 +798,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildImageSection ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildImageSection operation in the admin unit workflow.
   Widget _buildImageSection({required double imageHeight}) {
     return Container(
       height: imageHeight,
@@ -745,7 +839,7 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.transparent,
-                  AppTheme.darkBackground.withOpacity(0.7),
+                  AppTheme.darkBackground.withValues(alpha: 0.7),
                 ],
                 stops: const [0.5, 1.0],
               ),
@@ -763,6 +857,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildImagePlaceholder ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildImagePlaceholder operation in the admin unit workflow.
   Widget _buildImagePlaceholder() {
     return Container(
       decoration: BoxDecoration(
@@ -773,9 +869,9 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.primaryBlue.withOpacity(0.2),
-            AppTheme.primaryPurple.withOpacity(0.15),
-            AppTheme.primaryViolet.withOpacity(0.1),
+            AppTheme.primaryBlue.withValues(alpha: 0.2),
+            AppTheme.primaryPurple.withValues(alpha: 0.15),
+            AppTheme.primaryViolet.withValues(alpha: 0.1),
           ],
         ),
       ),
@@ -786,8 +882,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.glassLight.withOpacity(0.3),
-                AppTheme.glassDark.withOpacity(0.2),
+                AppTheme.glassLight.withValues(alpha: 0.3),
+                AppTheme.glassDark.withValues(alpha: 0.2),
               ],
             ),
             shape: BoxShape.circle,
@@ -795,13 +891,15 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
           child: Icon(
             Icons.apartment_rounded,
             size: 40,
-            color: AppTheme.primaryBlue.withOpacity(0.7),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.7),
           ),
         ),
       ),
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildStatsChips ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildStatsChips operation in the admin unit workflow.
   Widget _buildStatsChips() {
     return Row(
       children: [
@@ -820,6 +918,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildStatChip ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildStatChip operation in the admin unit workflow.
   Widget _buildStatChip(IconData icon, String value, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -827,10 +927,10 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
         vertical: 4,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -851,6 +951,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildHeader ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildHeader operation in the admin unit workflow.
   Widget _buildHeader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -886,8 +988,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withOpacity(0.2),
-                    AppTheme.primaryBlue.withOpacity(0.1),
+                    AppTheme.primaryBlue.withValues(alpha: 0.2),
+                    AppTheme.primaryBlue.withValues(alpha: 0.1),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(8),
@@ -918,6 +1020,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildDetails ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildDetails operation in the admin unit workflow.
   Widget _buildDetails() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -928,7 +1032,7 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
             Icon(
               Icons.location_city_rounded,
               size: 14,
-              color: AppTheme.textMuted.withOpacity(0.7),
+              color: AppTheme.textMuted.withValues(alpha: 0.7),
             ),
             const SizedBox(width: 6),
             Expanded(
@@ -974,6 +1078,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFeatureChip ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFeatureChip operation in the admin unit workflow.
   Widget _buildFeatureChip(IconData icon, String label, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -981,10 +1087,10 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
         vertical: 4,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -1006,6 +1112,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFooter ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFooter operation in the admin unit workflow.
   Widget _buildFooter(
       {EdgeInsets padding = const EdgeInsets.all(12),
       bool useGradientPrice = true}) {
@@ -1022,13 +1130,13 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.1),
-                AppTheme.primaryPurple.withOpacity(0.05),
+                AppTheme.primaryBlue.withValues(alpha: 0.1),
+                AppTheme.primaryPurple.withValues(alpha: 0.05),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.primaryBlue.withOpacity(0.2),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.2),
               width: 0.5,
             ),
           ),
@@ -1073,7 +1181,7 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.success.withOpacity(0.2),
+                        color: AppTheme.success.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -1097,8 +1205,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.primaryPurple.withOpacity(0.2),
-                      AppTheme.primaryViolet.withOpacity(0.1),
+                      AppTheme.primaryPurple.withValues(alpha: 0.2),
+                      AppTheme.primaryViolet.withValues(alpha: 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(8),
@@ -1131,6 +1239,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
   }
 
   // باقي الدوال كما هي...
+  /// ينفذ هذا الأسلوب عملية _buildStatusBadge ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildStatusBadge operation in the admin unit workflow.
   Widget _buildStatusBadge() {
     return Positioned(
       top: 12,
@@ -1145,13 +1255,13 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
           gradient: LinearGradient(
             colors: [
               AppTheme.success,
-              AppTheme.success.withOpacity(0.8),
+              AppTheme.success.withValues(alpha: 0.8),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.success.withOpacity(0.4),
+              color: AppTheme.success.withValues(alpha: 0.4),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -1168,7 +1278,7 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     blurRadius: 4,
                   ),
                 ],
@@ -1189,6 +1299,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildQuickActions ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildQuickActions operation in the admin unit workflow.
   Widget _buildQuickActions() {
     if (widget.onEdit == null && widget.onDelete == null) {
       return const SizedBox.shrink();
@@ -1226,6 +1338,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildActionIconButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildActionIconButton operation in the admin unit workflow.
   Widget _buildActionIconButton(
       IconData icon, Color color, VoidCallback onTap) {
     return GestureDetector(
@@ -1239,14 +1353,14 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              color.withOpacity(0.9),
-              color.withOpacity(0.7),
+              color.withValues(alpha: 0.9),
+              color.withValues(alpha: 0.7),
             ],
           ),
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.4),
+              color: color.withValues(alpha: 0.4),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -1261,6 +1375,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildActionOverlay ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildActionOverlay operation in the admin unit workflow.
   Widget _buildActionOverlay() {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -1306,10 +1422,10 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: AppTheme.darkCard.withOpacity(0.8),
+                      color: AppTheme.darkCard.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: AppTheme.darkBorder.withOpacity(0.3),
+                        color: AppTheme.darkBorder.withValues(alpha: 0.3),
                         width: 1,
                       ),
                     ),
@@ -1329,6 +1445,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildOverlayActionButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildOverlayActionButton operation in the admin unit workflow.
   Widget _buildOverlayActionButton(
     IconData icon,
     String label,
@@ -1347,13 +1465,13 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              color.withOpacity(0.2),
-              color.withOpacity(0.1),
+              color.withValues(alpha: 0.2),
+              color.withValues(alpha: 0.1),
             ],
           ),
           shape: BoxShape.circle,
           border: Border.all(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             width: 2,
           ),
         ),
@@ -1375,6 +1493,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildSparkleEffect ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildSparkleEffect operation in the admin unit workflow.
   Widget _buildSparkleEffect() {
     return Positioned.fill(
       child: IgnorePointer(
@@ -1384,7 +1504,7 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
             return CustomPaint(
               painter: _SparklePainter(
                 progress: _sparkleAnimation.value,
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               ),
             );
           },
@@ -1393,6 +1513,8 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _getFeatureIcon ضمن مسار إدارة الوحدات.
+  /// This method performs the _getFeatureIcon operation in the admin unit workflow.
   IconData _getFeatureIcon(String feature) {
     final featureLower = feature.toLowerCase();
     if (featureLower.contains('واي فاي') || featureLower.contains('wifi')) {
@@ -1413,15 +1535,24 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
 }
 
 // Advanced Pattern Painter
+/// يمثل هذا الكلاس _AdvancedPatternPainter البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _AdvancedPatternPainter in the admin unit workflow.
 class _AdvancedPatternPainter extends CustomPainter {
   final Color color;
+
+  /// يحتفظ هذا الحقل بقيمة animation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the animation value used by the admin unit workflow.
   final double animation;
 
+  /// ينشئ هذا المُنشئ مثيلاً من _AdvancedPatternPainter.
+  /// This constructor creates an instance of _AdvancedPatternPainter.
   _AdvancedPatternPainter({
     required this.color,
     required this.animation,
   });
 
+  /// ينفذ هذا الأسلوب عملية paint ضمن مسار إدارة الوحدات.
+  /// This method performs the paint operation in the admin unit workflow.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1448,7 +1579,7 @@ class _AdvancedPatternPainter extends CustomPainter {
         final opacity =
             (math.sin(animation + normalizedDistance * math.pi) + 1) / 2;
 
-        paint.color = color.withOpacity(color.opacity * opacity * 0.5);
+        paint.color = color.withValues(alpha: color.opacity * opacity * 0.5);
 
         _drawHexagon(
           canvas,
@@ -1460,6 +1591,8 @@ class _AdvancedPatternPainter extends CustomPainter {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _drawHexagon ضمن مسار إدارة الوحدات.
+  /// This method performs the _drawHexagon operation in the admin unit workflow.
   void _drawHexagon(Canvas canvas, Offset center, double size, Paint paint) {
     final path = Path();
     for (int i = 0; i < 6; i++) {
@@ -1477,20 +1610,31 @@ class _AdvancedPatternPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
+  /// ينفذ هذا الأسلوب عملية shouldRepaint ضمن مسار إدارة الوحدات.
+  /// This method performs the shouldRepaint operation in the admin unit workflow.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 // Sparkle Painter
+/// يمثل هذا الكلاس _SparklePainter البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _SparklePainter in the admin unit workflow.
 class _SparklePainter extends CustomPainter {
   final double progress;
+
+  /// يحتفظ هذا الحقل بقيمة color التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the color value used by the admin unit workflow.
   final Color color;
 
+  /// ينشئ هذا المُنشئ مثيلاً من _SparklePainter.
+  /// This constructor creates an instance of _SparklePainter.
   _SparklePainter({
     required this.progress,
     required this.color,
   });
 
+  /// ينفذ هذا الأسلوب عملية paint ضمن مسار إدارة الوحدات.
+  /// This method performs the paint operation in the admin unit workflow.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1507,7 +1651,7 @@ class _SparklePainter extends CustomPainter {
       final opacity = math.sin(sparkleProgress * math.pi);
       final sparkleSize = 2 + opacity * 2;
 
-      paint.color = color.withOpacity(color.opacity * opacity);
+      paint.color = color.withValues(alpha: color.opacity * opacity);
 
       // Draw sparkle
       canvas.save();
@@ -1536,6 +1680,8 @@ class _SparklePainter extends CustomPainter {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية shouldRepaint ضمن مسار إدارة الوحدات.
+  /// This method performs the shouldRepaint operation in the admin unit workflow.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

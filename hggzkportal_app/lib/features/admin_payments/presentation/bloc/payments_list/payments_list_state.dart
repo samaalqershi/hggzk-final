@@ -5,50 +5,45 @@ import '../../../domain/entities/payment.dart';
 import 'payments_list_event.dart';
 
 abstract class PaymentsListState extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `PaymentsListState`.
   const PaymentsListState();
-
   @override
   List<Object?> get props => [];
 }
 
-/// 🎬 الحالة الابتدائية
 class PaymentsListInitial extends PaymentsListState {}
 
-/// ⏳ حالة التحميل
 class PaymentsListLoading extends PaymentsListState {}
 
-/// 🔄 حالة تحميل المزيد (Pagination)
 class PaymentsListLoadingMore extends PaymentsListState {
+  /// العربية: يخزن القيمة `payments`.
   final PaginatedResult<Payment> payments;
   final List<Payment> selectedPayments;
   final PaymentFilters? filters;
   final Map<String, dynamic>? stats;
-
   const PaymentsListLoadingMore({
     required this.payments,
     this.selectedPayments = const [],
     this.filters,
     this.stats,
   });
-
   @override
   List<Object?> get props => [payments, selectedPayments, filters, stats];
 }
 
 /// ✅ حالة نجاح التحميل
 class PaymentsListLoaded extends PaymentsListState {
+  /// العربية: يخزن القيمة `payments`.
   final PaginatedResult<Payment> payments;
   final List<Payment> selectedPayments;
   final PaymentFilters? filters;
   final Map<String, dynamic>? stats;
-
   const PaymentsListLoaded({
     required this.payments,
     this.selectedPayments = const [],
     this.filters,
     this.stats,
   });
-
   PaymentsListLoaded copyWith({
     PaginatedResult<Payment>? payments,
     List<Payment>? selectedPayments,
@@ -63,7 +58,6 @@ class PaymentsListLoaded extends PaymentsListState {
     );
   }
 
-  /// حساب الإحصائيات
   Map<String, dynamic> get statistics {
     return {
       'totalPayments': payments.totalCount,
@@ -90,104 +84,92 @@ class PaymentsListLoaded extends PaymentsListState {
   List<Object?> get props => [payments, selectedPayments, filters, stats];
 }
 
-/// ❌ حالة الخطأ
 class PaymentsListError extends PaymentsListState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
-
   const PaymentsListError({required this.message});
-
   @override
   List<Object> get props => [message];
 }
 
-/// 🔄 حالة العملية الجارية
 class PaymentOperationInProgress extends PaymentsListState {
+  /// العربية: يخزن القيمة `payments`.
   final PaginatedResult<Payment> payments;
   final List<Payment> selectedPayments;
   final String operation;
   final String? paymentId;
-
   const PaymentOperationInProgress({
     required this.payments,
     required this.selectedPayments,
     required this.operation,
     this.paymentId,
   });
-
   @override
   List<Object?> get props => [payments, selectedPayments, operation, paymentId];
 }
 
-/// ✅ حالة نجاح العملية
 class PaymentOperationSuccess extends PaymentsListState {
+  /// العربية: يخزن القيمة `payments`.
   final PaginatedResult<Payment> payments;
   final List<Payment> selectedPayments;
   final String message;
   final String? paymentId;
-
   const PaymentOperationSuccess({
     required this.payments,
     required this.selectedPayments,
     required this.message,
     this.paymentId,
   });
-
   @override
   List<Object?> get props => [payments, selectedPayments, message, paymentId];
 }
 
-/// ❌ حالة فشل العملية
 class PaymentOperationFailure extends PaymentsListState {
+  /// العربية: يخزن القيمة `payments`.
   final PaginatedResult<Payment> payments;
   final List<Payment> selectedPayments;
   final String message;
   final String? paymentId;
-
   const PaymentOperationFailure({
     required this.payments,
     required this.selectedPayments,
     required this.message,
     this.paymentId,
   });
-
   @override
   List<Object?> get props => [payments, selectedPayments, message, paymentId];
 }
 
-/// 📤 حالة التصدير
 class PaymentsExporting extends PaymentsListState {
+  /// العربية: يخزن القيمة `payments`.
   final PaginatedResult<Payment> payments;
   final List<Payment> selectedPayments;
   final ExportFormat format;
-
   const PaymentsExporting({
     required this.payments,
     required this.selectedPayments,
     required this.format,
   });
-
   @override
   List<Object> get props => [payments, selectedPayments, format];
 }
 
-/// ✅ حالة نجاح التصدير
 class PaymentsExportSuccess extends PaymentsListState {
+  /// العربية: يخزن القيمة `payments`.
   final PaginatedResult<Payment> payments;
   final List<Payment> selectedPayments;
   final String message;
-
   const PaymentsExportSuccess({
     required this.payments,
     required this.selectedPayments,
     required this.message,
   });
-
   @override
   List<Object> get props => [payments, selectedPayments, message];
 }
 
-/// 📊 فلاتر المدفوعات
 class PaymentFilters extends Equatable {
+  /// العربية: يخزن القيمة `status`.
   final PaymentStatus? status;
   final PaymentMethod? method;
   final String? bookingId;
@@ -198,7 +180,6 @@ class PaymentFilters extends Equatable {
   final double? maxAmount;
   final DateTime? startDate;
   final DateTime? endDate;
-
   const PaymentFilters({
     this.status,
     this.method,
@@ -211,7 +192,6 @@ class PaymentFilters extends Equatable {
     this.startDate,
     this.endDate,
   });
-
   PaymentFilters copyWith({
     PaymentStatus? status,
     PaymentMethod? method,

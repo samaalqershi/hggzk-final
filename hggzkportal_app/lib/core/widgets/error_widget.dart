@@ -3,13 +3,31 @@ import '../theme/app_theme.dart';
 import '../theme/app_dimensions.dart';
 import '../theme/app_text_styles.dart';
 
+/// واجهة خطأ قابلة لإعادة الاستخدام تعرض أيقونة ورسالة وزر إعادة المحاولة حسب الحاجة.
+/// Reusable error surface that renders an icon, title, message, and optional retry action.
 class CustomErrorWidget extends StatelessWidget {
+  /// الرسالة التوضيحية الاختيارية التي تشرح سبب الفشل للمستخدم.
+  /// Optional explanatory message shown to the user.
   final String? message;
+
+  /// عنوان مخصص يعلو الرسالة عندما يحتاج السياق إلى تسمية أدق.
+  /// Custom title shown above the message when the context needs a clearer label.
   final String? title;
+
+  /// callback استدعاء عند الضغط على زر إعادة المحاولة.
+  /// Callback triggered when the retry button is pressed.
   final VoidCallback? onRetry;
+
+  /// أيقونة اختيارية تسمح للمستدعي بتخصيص الشكل البصري الكامل.
+  /// Optional override icon supplied by the caller.
   final Widget? icon;
+
+  /// يحدد نوع الخطأ الافتراضي عندما لا يمرر المستدعي عنوانًا أو أيقونة خاصة.
+  /// Default error category used when the caller does not provide custom branding.
   final ErrorType type;
 
+  /// Creates a reusable error state that can be dropped into list, page, or dialog layouts.
+  /// ينشئ حالة خطأ قابلة لإعادة الاستخدام داخل الصفحات أو القوائم أو الحوارات.
   const CustomErrorWidget({
     super.key,
     this.message,
@@ -19,6 +37,8 @@ class CustomErrorWidget extends StatelessWidget {
     this.type = ErrorType.general,
   });
 
+  /// Builds the error panel and conditionally adds the retry action when provided.
+  /// يبني لوحة الخطأ ويضيف زر الإعادة فقط عندما يكون متاحًا.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -44,6 +64,8 @@ class CustomErrorWidget extends StatelessWidget {
     );
   }
 
+  /// Picks a default icon/color pair for the selected error type when the caller does not override it.
+  /// يختار الأيقونة واللون الافتراضيين لنوع الخطأ عندما لا يوفّر المستدعي بديلًا.
   Widget _buildIcon(BuildContext context) {
     if (icon != null) return icon!;
 
@@ -87,9 +109,11 @@ class CustomErrorWidget extends StatelessWidget {
     );
   }
 
+  /// Resolves a visible title either from the caller or from the error type.
+  /// يحدد العنوان الظاهر من المستدعي أو من نوع الخطأ نفسه.
   Widget _buildTitle(BuildContext context) {
     String displayTitle = title ?? _getDefaultTitle();
-    
+
     return Text(
       displayTitle,
       style: AppTextStyles.heading3.copyWith(
@@ -99,6 +123,8 @@ class CustomErrorWidget extends StatelessWidget {
     );
   }
 
+  /// Renders the supporting message with truncation so layout stays compact.
+  /// يعرض الرسالة الداعمة مع قص مناسب حتى تبقى المساحة مضبوطة.
   Widget _buildMessage(BuildContext context) {
     return Text(
       message!,
@@ -111,46 +137,51 @@ class CustomErrorWidget extends StatelessWidget {
     );
   }
 
+  /// Renders the retry action using the portal's error accent styling.
+  /// يعرض إجراء إعادة المحاولة بأسلوب لوني يلفت الانتباه.
   Widget _buildRetryButton(BuildContext context) {
-    return           Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.error.withValues(alpha: 0.7),
-                  AppTheme.error.withValues(alpha: 0.5),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(10),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.error.withValues(alpha: 0.7),
+            AppTheme.error.withValues(alpha: 0.5),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onRetry,
+          borderRadius: BorderRadius.circular(10),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
             ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: onRetry,
-                borderRadius: BorderRadius.circular(10),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.refresh_rounded, color: Colors.white, size: 16),
-                      const SizedBox(width: 6),
-                      Text(
-                        'إعادة المحاولة',
-                        style: AppTextStyles.caption.copyWith(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.refresh_rounded,
+                    color: Colors.white, size: 16),
+                const SizedBox(width: 6),
+                Text(
+                  'إعادة المحاولة',
+                  style: AppTextStyles.caption.copyWith(
+                    color: Colors.white,
                   ),
                 ),
-              ),
+              ],
             ),
-          );
+          ),
+        ),
+      ),
+    );
   }
 
+  /// Returns default title for the active error category.
+  /// يعيد العنوان الافتراضي لفئة الخطأ الحالية.
   String _getDefaultTitle() {
     switch (type) {
       case ErrorType.network:
@@ -166,7 +197,6 @@ class CustomErrorWidget extends StatelessWidget {
     }
   }
 }
-
 enum ErrorType {
   general,
   network,

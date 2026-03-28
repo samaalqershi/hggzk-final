@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class ItemOrderDragHandle extends StatelessWidget {
+  /// العربية: يخزن القيمة `index`.
   final int index;
 
   const ItemOrderDragHandle({

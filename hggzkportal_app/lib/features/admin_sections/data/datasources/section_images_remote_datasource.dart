@@ -9,6 +9,7 @@ import 'package:hggzkportal/core/utils/video_utils.dart';
 import '../models/section_image_model.dart';
 
 abstract class SectionImagesRemoteDataSource {
+  /// العربية: يعالج `uploadImage`.
   Future<SectionImageModel> uploadImage({
     String? sectionId,
     String? tempKey,
@@ -27,12 +28,15 @@ abstract class SectionImagesRemoteDataSource {
   });
 
   Future<bool> updateImage(String imageId, Map<String, dynamic> data);
+
   Future<bool> deleteImage(String imageId);
+
   Future<bool> reorderImages(
     String? sectionId,
     String? tempKey,
     List<String> imageIds,
   );
+
   Future<bool> setAsPrimaryImage(
     String? sectionId,
     String? tempKey,
@@ -43,6 +47,7 @@ abstract class SectionImagesRemoteDataSource {
 class SectionImagesRemoteDataSourceImpl
     implements SectionImagesRemoteDataSource {
   final ApiClient apiClient;
+
   static const String _baseEndpoint = '/api/admin/section-images';
 
   SectionImagesRemoteDataSourceImpl({required this.apiClient});
@@ -60,10 +65,6 @@ class SectionImagesRemoteDataSourceImpl
     ProgressCallback? onSendProgress,
   }) async {
     try {
-      print('📤 Uploading image: $filePath');
-      print('  - SectionId: $sectionId');
-      print('  - TempKey: $tempKey');
-
       final uploadFile = await MediaFileSafety.ensureStableReadableCopy(
         filePath,
         namespace: 'section_images',
@@ -110,8 +111,6 @@ class SectionImagesRemoteDataSourceImpl
         onSendProgress: onSendProgress,
       );
 
-      print('📥 Upload response: ${response.data}');
-
       if (response.data is Map<String, dynamic>) {
         final map = response.data as Map<String, dynamic>;
         if (map['success'] == true && map['data'] != null) {
@@ -121,8 +120,6 @@ class SectionImagesRemoteDataSourceImpl
       throw ServerException(
           response.data['message'] ?? 'Failed to upload image');
     } on DioException catch (e) {
-      print('❌ Upload error: ${e.message}');
-      print('❌ Response: ${e.response?.data}');
       throw ServerException(e.response?.data['message'] ??
           'Failed to upload image: ${e.message}');
     }
@@ -134,10 +131,6 @@ class SectionImagesRemoteDataSourceImpl
     String? tempKey,
   }) async {
     try {
-      print('🔍 Getting section images');
-      print('  - SectionId: $sectionId');
-      print('  - TempKey: $tempKey');
-
       final qp = <String, dynamic>{
         if (sectionId != null) 'sectionId': sectionId,
         if (tempKey != null) 'tempKey': tempKey,
@@ -146,9 +139,6 @@ class SectionImagesRemoteDataSourceImpl
       };
 
       final response = await apiClient.get(_baseEndpoint, queryParameters: qp);
-
-      print('📥 Response type: ${response.data.runtimeType}');
-      print('📥 Response data: ${response.data}');
 
       // Handle different response formats
       if (response.data is Map<String, dynamic>) {
@@ -186,12 +176,8 @@ class SectionImagesRemoteDataSourceImpl
       }
 
       // Return empty list if no images found
-      print('⚠️ No images found or unexpected response format');
       return [];
     } on DioException catch (e) {
-      print('❌ Get images error: ${e.message}');
-      print('❌ Response: ${e.response?.data}');
-
       // Check if it's a connection error
       if (e.type == DioExceptionType.unknown &&
           e.error.toString().contains('SocketException')) {
@@ -202,7 +188,6 @@ class SectionImagesRemoteDataSourceImpl
       throw ServerException(e.response?.data['message'] ??
           'Failed to fetch section images: ${e.message}');
     } catch (e) {
-      print('❌ Unexpected error: $e');
       throw ServerException('Unexpected error: $e');
     }
   }

@@ -9,6 +9,7 @@ import 'package:hggzkportal/core/utils/video_utils.dart';
 import '../models/property_image_model.dart';
 
 abstract class PropertyImagesRemoteDataSource {
+  /// العربية: يعالج `uploadImage`.
   Future<PropertyImageModel> uploadImage({
     String? propertyId,
     String? tempKey,
@@ -20,7 +21,6 @@ abstract class PropertyImagesRemoteDataSource {
     List<String>? tags,
     ProgressCallback? onSendProgress,
   });
-
   Future<List<PropertyImageModel>> getPropertyImages(String? propertyId,
       {String? tempKey});
   Future<bool> updateImage(String imageId, Map<String, dynamic> data);
@@ -35,9 +35,7 @@ class PropertyImagesRemoteDataSourceImpl
     implements PropertyImagesRemoteDataSource {
   final ApiClient apiClient;
   static const String _imagesEndpoint = '/api/images';
-
   PropertyImagesRemoteDataSourceImpl({required this.apiClient});
-
   @override
   Future<PropertyImageModel> uploadImage({
     String? propertyId,

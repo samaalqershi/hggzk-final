@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import '../../../domain/entities/section_image.dart';
 
 abstract class UnitInSectionImagesState extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitInSectionImagesState`.
   const UnitInSectionImagesState();
 
   @override
@@ -11,15 +12,19 @@ abstract class UnitInSectionImagesState extends Equatable {
 }
 
 class UnitInSectionImagesInitial extends UnitInSectionImagesState {
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitInSectionImagesInitial`.
   const UnitInSectionImagesInitial();
 }
 
 class UnitInSectionImagesLoading extends UnitInSectionImagesState {
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitInSectionImagesLoading`.
   const UnitInSectionImagesLoading();
 }
 
 class UnitInSectionImagesError extends UnitInSectionImagesState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
+
   final List<SectionImage>? previousImages;
 
   const UnitInSectionImagesError(this.message, {this.previousImages});
@@ -29,9 +34,13 @@ class UnitInSectionImagesError extends UnitInSectionImagesState {
 }
 
 class UnitInSectionImagesLoaded extends UnitInSectionImagesState {
+  /// العربية: يخزن القيمة `images`.
   final List<SectionImage> images;
+
   final String? unitInSectionId;
+
   final Set<String> selected;
+
   final bool isSelectionMode;
 
   const UnitInSectionImagesLoaded({
@@ -47,10 +56,15 @@ class UnitInSectionImagesLoaded extends UnitInSectionImagesState {
 }
 
 class UnitInSectionImageUploading extends UnitInSectionImagesState {
+  /// العربية: يخزن القيمة `current`.
   final List<SectionImage> current;
+
   final String? fileName;
+
   final double? progress;
+
   final int? total;
+
   final int? index;
 
   const UnitInSectionImageUploading({
@@ -66,7 +80,9 @@ class UnitInSectionImageUploading extends UnitInSectionImagesState {
 }
 
 class UnitInSectionImageUploaded extends UnitInSectionImagesState {
+  /// العربية: يخزن القيمة `uploaded`.
   final SectionImage uploaded;
+
   final List<SectionImage> all;
 
   const UnitInSectionImageUploaded({
@@ -79,10 +95,15 @@ class UnitInSectionImageUploaded extends UnitInSectionImagesState {
 }
 
 class MultipleUnitInSectionImagesUploaded extends UnitInSectionImagesState {
+  /// العربية: يخزن القيمة `uploadedImages`.
   final List<SectionImage> uploadedImages;
+
   final List<SectionImage> allImages;
+
   final int successCount;
+
   final int failedCount;
+
   final String successMessage;
 
   const MultipleUnitInSectionImagesUploaded({
@@ -104,7 +125,9 @@ class MultipleUnitInSectionImagesUploaded extends UnitInSectionImagesState {
 }
 
 class UnitInSectionImageUpdating extends UnitInSectionImagesState {
+  /// العربية: يخزن القيمة `current`.
   final List<SectionImage> current;
+
   final String imageId;
 
   const UnitInSectionImageUpdating({
@@ -117,7 +140,9 @@ class UnitInSectionImageUpdating extends UnitInSectionImagesState {
 }
 
 class UnitInSectionImageDeleting extends UnitInSectionImagesState {
+  /// العربية: يخزن القيمة `current`.
   final List<SectionImage> current;
+
   final String imageId;
 
   const UnitInSectionImageDeleting({
@@ -130,7 +155,9 @@ class UnitInSectionImageDeleting extends UnitInSectionImagesState {
 }
 
 class UnitInSectionImageUpdated extends UnitInSectionImagesState {
+  /// العربية: يخزن القيمة `updatedImages`.
   final List<SectionImage> updatedImages;
+
   final String successMessage;
 
   const UnitInSectionImageUpdated({
@@ -143,8 +170,11 @@ class UnitInSectionImageUpdated extends UnitInSectionImagesState {
 }
 
 class PrimaryUnitInSectionImageSet extends UnitInSectionImagesState {
+  /// العربية: يخزن القيمة `updatedImages`.
   final List<SectionImage> updatedImages;
+
   final String primaryImageId;
+
   final String successMessage;
 
   const PrimaryUnitInSectionImageSet({
@@ -158,24 +188,28 @@ class PrimaryUnitInSectionImageSet extends UnitInSectionImagesState {
 }
 
 class UnitInSectionImageDeleted extends UnitInSectionImagesState {
+  /// العربية: يخزن القيمة `remaining`.
   final List<SectionImage> remaining;
 
   const UnitInSectionImageDeleted({required this.remaining});
 }
 
 class MultipleUnitInSectionImagesDeleted extends UnitInSectionImagesState {
+  /// العربية: يخزن القيمة `remaining`.
   final List<SectionImage> remaining;
 
   const MultipleUnitInSectionImagesDeleted({required this.remaining});
 }
 
 class UnitInSectionImagesReordering extends UnitInSectionImagesState {
+  /// العربية: يخزن القيمة `current`.
   final List<SectionImage> current;
 
   const UnitInSectionImagesReordering({required this.current});
 }
 
 class UnitInSectionImagesReordered extends UnitInSectionImagesState {
+  /// العربية: يخزن القيمة `reordered`.
   final List<SectionImage> reordered;
 
   const UnitInSectionImagesReordered({required this.reordered});

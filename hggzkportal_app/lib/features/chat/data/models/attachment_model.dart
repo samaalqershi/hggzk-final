@@ -3,7 +3,11 @@ import 'dart:convert';
 import '../../domain/entities/attachment.dart';
 
 /// نموذج المرفقات مع دعم كامل لجميع أنواع الوسائط
+/// يعرّف الكلاس `AttachmentModel`.
+/// Describes the `AttachmentModel` class.
 class AttachmentModel extends Attachment {
+  /// Initializes a new `AttachmentModel` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `AttachmentModel`.
   const AttachmentModel({
     required super.id,
     required super.conversationId,
@@ -29,6 +33,8 @@ class AttachmentModel extends Attachment {
   });
 
   /// إنشاء نموذج من JSON مع معالجة شاملة للبيانات
+  /// ينشئ مثيلاً من `AttachmentModel`.
+  /// Builds an instance of `AttachmentModel`.
   factory AttachmentModel.fromJson(Map<String, dynamic> json) {
     return AttachmentModel(
       id: json['attachment_id'] ?? json['id'] ?? '',
@@ -56,6 +62,8 @@ class AttachmentModel extends Attachment {
   }
 
   /// تحويل النموذج إلى JSON
+  /// ينفذ العملية `toJson`.
+  /// Runs the `toJson` operation.
   Map<String, dynamic> toJson() {
     return {
       'attachment_id': id,
@@ -83,6 +91,8 @@ class AttachmentModel extends Attachment {
   }
 
   /// إنشاء نموذج من Entity
+  /// ينشئ مثيلاً من `AttachmentModel`.
+  /// Builds an instance of `AttachmentModel`.
   factory AttachmentModel.fromEntity(Attachment attachment) {
     if (attachment is AttachmentModel) return attachment;
 
@@ -112,6 +122,8 @@ class AttachmentModel extends Attachment {
   }
 
   /// نسخ النموذج مع التحديثات
+  /// ينفذ العملية `copyWith`.
+  /// Runs the `copyWith` operation.
   AttachmentModel copyWith({
     String? id,
     String? conversationId,
@@ -163,6 +175,8 @@ class AttachmentModel extends Attachment {
   // ========== دوال مساعدة خاصة ==========
 
   /// استخراج اسم الملف بذكاء
+  /// ينفذ العملية `_extractFileName`.
+  /// Runs the `_extractFileName` operation.
   static String _extractFileName(Map<String, dynamic> json) {
     final fileName = json['file_name'] ?? json['fileName'] ?? '';
     if (fileName.isNotEmpty) return fileName;
@@ -183,6 +197,8 @@ class AttachmentModel extends Attachment {
   }
 
   /// تحديد نوع المحتوى بذكاء
+  /// ينفذ العملية `_resolveContentType`.
+  /// Runs the `_resolveContentType` operation.
   static String _resolveContentType(Map<String, dynamic> json) {
     // أولاً: التحقق من القيمة المباشرة
     final directType =
@@ -254,6 +270,8 @@ class AttachmentModel extends Attachment {
   }
 
   /// تحليل حجم الملف
+  /// ينفذ العملية `_parseFileSize`.
+  /// Runs the `_parseFileSize` operation.
   static int _parseFileSize(Map<String, dynamic> json) {
     final size = json['file_size'] ?? json['fileSize'] ?? json['size'];
     if (size == null) return 0;
@@ -264,6 +282,8 @@ class AttachmentModel extends Attachment {
   }
 
   /// بناء URL الملف
+  /// ينفذ العملية `_buildFileUrl`.
+  /// Runs the `_buildFileUrl` operation.
   static String _buildFileUrl(Map<String, dynamic> json) {
     // 1) URL المباشر إذا توفر
     final directUrl = json['file_url'] ?? json['fileUrl'] ?? json['url'];
@@ -287,6 +307,8 @@ class AttachmentModel extends Attachment {
   }
 
   /// بناء URL العام
+  /// ينفذ العملية `_buildUrl`.
+  /// Runs the `_buildUrl` operation.
   static String _buildUrl(Map<String, dynamic> json) {
     final url = json['url'];
     if (url != null && url.toString().isNotEmpty) return url.toString();
@@ -294,6 +316,8 @@ class AttachmentModel extends Attachment {
   }
 
   /// تحليل التاريخ والوقت
+  /// ينفذ العملية `_parseDateTime`.
+  /// Runs the `_parseDateTime` operation.
   static DateTime _parseDateTime(Map<String, dynamic> json) {
     final dateStr = json['uploaded_at'] ??
         json['created_at'] ??
@@ -309,6 +333,8 @@ class AttachmentModel extends Attachment {
   }
 
   /// استخراج URL الصورة المصغرة
+  /// ينفذ العملية `_extractThumbnailUrl`.
+  /// Runs the `_extractThumbnailUrl` operation.
   static String? _extractThumbnailUrl(Map<String, dynamic> json) {
     final thumb = json['thumbnail_url'] ??
         json['thumbnailUrl'] ??
@@ -332,6 +358,8 @@ class AttachmentModel extends Attachment {
   }
 
   /// تحليل البيانات الوصفية
+  /// ينفذ العملية `_parseMetadata`.
+  /// Runs the `_parseMetadata` operation.
   static Map<String, dynamic>? _parseMetadata(Map<String, dynamic> json) {
     final meta = json['metadata'] ?? json['meta'];
     if (meta == null) return null;
@@ -348,6 +376,8 @@ class AttachmentModel extends Attachment {
   }
 
   /// تحليل المدة (للفيديو والصوت)
+  /// ينفذ العملية `_parseDuration`.
+  /// Runs the `_parseDuration` operation.
   static int? _parseDuration(Map<String, dynamic> json) {
     final duration = json['duration'] ??
         json['video_duration'] ??
@@ -381,6 +411,8 @@ class AttachmentModel extends Attachment {
   }
 
   /// تحليل نسبة التقدم
+  /// ينفذ العملية `_parseProgress`.
+  /// Runs the `_parseProgress` operation.
   static double? _parseProgress(dynamic value) {
     if (value == null) return null;
     if (value is double) return value.clamp(0.0, 1.0);
@@ -396,6 +428,8 @@ class AttachmentModel extends Attachment {
   }
 
   /// تحليل الأعداد الصحيحة بأمان
+  /// ينفذ العملية `_parseIntSafe`.
+  /// Runs the `_parseIntSafe` operation.
   static int? _parseIntSafe(dynamic value) {
     if (value == null) return null;
     if (value is int) return value;

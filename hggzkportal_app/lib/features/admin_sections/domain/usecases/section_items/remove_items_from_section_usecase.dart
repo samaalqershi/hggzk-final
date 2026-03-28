@@ -5,8 +5,10 @@ import '../../../../../core/models/section_item_dto.dart';
 import '../../../../../core/usecases/usecase.dart';
 import '../../../domain/repositories/sections_repository.dart';
 
-class RemoveItemsFromSectionUseCase implements UseCase<void, RemoveItemsFromSectionParams> {
+class RemoveItemsFromSectionUseCase
+    implements UseCase<void, RemoveItemsFromSectionParams> {
   final SectionsRepository repository;
+
   RemoveItemsFromSectionUseCase(this.repository);
 
   @override
@@ -16,12 +18,14 @@ class RemoveItemsFromSectionUseCase implements UseCase<void, RemoveItemsFromSect
 }
 
 class RemoveItemsFromSectionParams extends Equatable {
+  /// العربية: يخزن القيمة `sectionId`.
   final String sectionId;
+
   final RemoveItemsFromSectionDto payload;
 
-  const RemoveItemsFromSectionParams({required this.sectionId, required this.payload});
+  const RemoveItemsFromSectionParams(
+      {required this.sectionId, required this.payload});
 
   @override
   List<Object?> get props => [sectionId, payload];
 }
-

@@ -1,11 +1,10 @@
 import 'package:hggzkportal/features/admin_notifications/domain/repositories/admin_notifications_repository.dart';
 import 'package:dartz/dartz.dart';
 import '../../../../../core/error/failures.dart';
-
 class BroadcastAdminNotificationUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final AdminNotificationsRepository repository;
   BroadcastAdminNotificationUseCase(this.repository);
-
   Future<Either<Failure, int>> call({
     required String type,
     required String title,

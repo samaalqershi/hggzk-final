@@ -7,13 +7,20 @@ import '../../../../core/utils/request_logger.dart';
 import '../models/auth_response_model.dart';
 import '../models/user_model.dart';
 
+/// يحدد العمليات الشبكية الخاصة بالمصادقة وإدارة الحساب في تطبيق العميل.
+/// Declares the remote authentication and account-management calls used by the
+/// client app.
 abstract class AuthRemoteDataSource {
+  /// يرسل طلب تسجيل الدخول التقليدي ويعيد حمولة الجلسة الجديدة.
+  /// Sends the classic sign-in request and returns the new session payload.
   Future<AuthResponseModel> login({
     required String emailOrPhone,
     required String password,
     required bool rememberMe,
   });
 
+  /// ينشئ حسابًا جديدًا ويعيد البيانات اللازمة لبدء الجلسة.
+  /// Registers a new account and returns the data needed to start a session.
   Future<AuthResponseModel> register({
     required String name,
     required String email,
@@ -22,21 +29,29 @@ abstract class AuthRemoteDataSource {
     required String passwordConfirmation,
   });
 
+  /// ينهي الجلسة الحالية من جهة الخادم.
+  /// Terminates the current session on the backend.
   Future<void> logout({
     required String userId,
     required String refreshToken,
     bool logoutFromAllDevices = false,
   });
 
+  /// يبدأ مسار استرجاع كلمة المرور للمستخدم المحدد.
+  /// Starts the password-recovery flow for the targeted user.
   Future<void> resetPassword({
     required String emailOrPhone,
   });
 
+  /// يطلب تجديد رمز الوصول باستخدام رمز التحديث الحالي.
+  /// Requests a fresh access token using the current refresh token.
   Future<AuthResponseModel> refreshToken({
     required String accessToken,
     required String refreshToken,
   });
 
+  /// ينفذ تسجيل الدخول عبر مزود اجتماعي خارجي.
+  /// Performs sign-in through an external social provider.
   Future<AuthResponseModel> socialLogin({
     required String provider,
     required String token,
@@ -44,8 +59,12 @@ abstract class AuthRemoteDataSource {
     String? name,
   });
 
+  /// يجلب الملف الشخصي الحالي للمستخدم المصادق.
+  /// Fetches the current profile for the authenticated user.
   Future<UserModel> getCurrentUser();
 
+  /// يحدث البيانات الأساسية للملف الشخصي.
+  /// Updates the core profile fields.
   Future<void> updateProfile({
     required String userId,
     required String name,
@@ -53,6 +72,8 @@ abstract class AuthRemoteDataSource {
     String? phone,
   });
 
+  /// يغير كلمة المرور الحالية للمستخدم.
+  /// Changes the user's current password.
   Future<void> changePassword({
     required String userId,
     required String currentPassword,
@@ -60,6 +81,8 @@ abstract class AuthRemoteDataSource {
     String? newPasswordConfirmation,
   });
 
+  /// يحذف الحساب نهائيًا من جهة الخادم.
+  /// Permanently deletes the account on the backend.
   Future<void> deleteAccount({
     required String userId,
     String? password,
@@ -69,27 +92,40 @@ abstract class AuthRemoteDataSource {
     String? reason,
   });
 
+  /// يرفع صورة الملف الشخصي ويعيد النسخة المحدثة من المستخدم.
+  /// Uploads a profile image and returns the updated user.
   Future<UserModel> uploadProfileImage({
     required String imagePath,
   });
 
-  // Email verification
+  /// يتحقق من رمز تأكيد البريد الإلكتروني.
+  /// Verifies an email confirmation code.
   Future<bool> verifyEmail({
     required String userId,
     required String code,
   });
 
+  /// يطلب إعادة إرسال رمز تحقق البريد ويعيد زمن الانتظار إن توفر.
+  /// Requests a new email-verification code and returns a retry delay when
+  /// available.
   Future<int?> resendEmailVerification({
     required String userId,
     required String email,
   });
 }
 
+/// ينفذ عمليات المصادقة عبر `ApiClient` مع توحيد التسجيل التشخيصي وتحويل
+/// الأخطاء إلى استثناءات مناسبة للطبقات الأعلى.
+/// Implements authentication calls through `ApiClient` while standardizing
+/// request logging and converting failures into higher-level exceptions.
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
+  /// عميل الشبكة المركزي المستخدم لكل طلبات المصادقة.
+  /// Shared API client used for all authentication requests.
   final ApiClient apiClient;
 
+  /// ينشئ المصدر البعيد مع عميل الشبكة المعتمد.
+  /// Creates the remote data source with the configured API client.
   AuthRemoteDataSourceImpl({required this.apiClient});
-
   @override
   Future<AuthResponseModel> login({
     required String emailOrPhone,

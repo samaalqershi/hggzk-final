@@ -9,17 +9,29 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_widget.dart';
-import '../../../../injection_container.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import '../bloc/review_bloc.dart';
 import '../bloc/review_event.dart';
 import '../bloc/review_state.dart';
 import '../widgets/review_form_widget.dart';
 
+/// Hosts the review form used after a completed booking.
+/// يستضيف نموذج المراجعة المستخدم بعد انتهاء الحجز.
 class WriteReviewPage extends StatefulWidget {
+  /// Booking that the new review belongs to.
+  /// الحجز الذي ستنتمي إليه المراجعة الجديدة.
   final String bookingId;
+
+  /// Property being reviewed.
+  /// العقار محل المراجعة.
   final String propertyId;
+
+  /// Property name shown in the page header.
+  /// اسم العقار الظاهر في ترويسة الصفحة.
   final String propertyName;
 
+  /// Builds the page used to submit a new review.
+  /// ينشئ الصفحة المستخدمة لإرسال مراجعة جديدة.
   const WriteReviewPage({
     super.key,
     required this.bookingId,
@@ -27,16 +39,33 @@ class WriteReviewPage extends StatefulWidget {
     required this.propertyName,
   });
 
+  /// Creates the state object that loads booking context when needed.
+  /// ينشئ كائن الحالة الذي يجلب سياق الحجز عند الحاجة.
   @override
   State<WriteReviewPage> createState() => _WriteReviewPageState();
 }
 
+/// Resolves the booking context and orchestrates review submission.
+/// يحل سياق الحجز وينسق عملية إرسال المراجعة.
 class _WriteReviewPageState extends State<WriteReviewPage> {
+  /// Property id resolved from the booking when needed.
+  /// معرّف العقار الذي يتم حله من الحجز عند الحاجة.
   late String _propertyId;
+
+  /// Property name resolved from the booking when needed.
+  /// اسم العقار الذي يتم حله من الحجز عند الحاجة.
   late String _propertyName;
+
+  /// True while booking details are still being fetched.
+  /// تكون صحيحة أثناء استمرار جلب تفاصيل الحجز.
   bool _isLoadingBookingDetails = false;
+
+  /// User-facing error message when booking lookup fails.
+  /// رسالة خطأ موجهة للمستخدم عندما يفشل جلب الحجز.
   String? _bookingDetailsError;
 
+  /// Prepares the page state and resolves booking data if needed.
+  /// يجهز حالة الصفحة ويحل بيانات الحجز عند الحاجة.
   @override
   void initState() {
     super.initState();
@@ -48,6 +77,8 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
     }
   }
 
+  /// Loads the booking details needed to infer the property context.
+  /// يحمل تفاصيل الحجز اللازمة لاستنتاج سياق العقار.
   Future<void> _loadBookingDetails() async {
     setState(() {
       _isLoadingBookingDetails = true;
@@ -98,6 +129,8 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
     }
   }
 
+  /// Builds the widget tree for this component.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     if (_isLoadingBookingDetails) {
@@ -162,17 +195,31 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
   }
 }
 
+/// Describes `WriteReviewView`.
+/// العربية: يمثل `WriteReviewView`.
 class _WriteReviewView extends StatelessWidget {
+  /// Keeps the `bookingId` value.
+  /// العربية: يخزن القيمة `bookingId`.
   final String bookingId;
+
+  /// Keeps the `propertyId` value.
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
+
+  /// Keeps the `propertyName` value.
+  /// العربية: يخزن القيمة `propertyName`.
   final String propertyName;
 
+  /// Builds a new `WriteReviewView` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `WriteReviewView`.
   const _WriteReviewView({
     required this.bookingId,
     required this.propertyId,
     required this.propertyName,
   });
 
+  /// Builds the widget tree for this component.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -220,6 +267,8 @@ class _WriteReviewView extends StatelessWidget {
     );
   }
 
+  /// Builds the app bar.
+  /// العربية: يبني app bar.
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.transparent,
@@ -270,6 +319,8 @@ class _WriteReviewView extends StatelessWidget {
     );
   }
 
+  /// Builds the property info.
+  /// العربية: يبني property info.
   Widget _buildPropertyInfo() {
     return Container(
       width: double.infinity,
@@ -350,6 +401,8 @@ class _WriteReviewView extends StatelessWidget {
     );
   }
 
+  /// Builds the form card.
+  /// العربية: يبني form card.
   Widget _buildFormCard(BuildContext context) {
     return Container(
       width: double.infinity,
@@ -438,6 +491,8 @@ class _WriteReviewView extends StatelessWidget {
     );
   }
 
+  /// Builds the futuristic background.
+  /// العربية: يبني futuristic background.
   Widget _buildFuturisticBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -454,6 +509,8 @@ class _WriteReviewView extends StatelessWidget {
     );
   }
 
+  /// Shows the success dialog.
+  /// العربية: يعرض success dialog.
   void _showSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -531,6 +588,8 @@ class _WriteReviewView extends StatelessWidget {
     );
   }
 
+  /// Shows the error snack bar.
+  /// العربية: يعرض error snack bar.
   void _showErrorSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

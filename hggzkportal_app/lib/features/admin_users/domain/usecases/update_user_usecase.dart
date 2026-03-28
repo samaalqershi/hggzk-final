@@ -26,12 +26,19 @@ class UpdateUserUseCase implements UseCase<bool, UpdateUserParams> {
 
 class UpdateUserParams extends Equatable {
   final String userId;
+
   final String? name;
+
   final String? email;
+
   final String? phone;
+
   final String? profileImage;
+
   final bool? emailConfirmed;
+
   final bool? phoneNumberConfirmed;
+
   final List<Map<String, dynamic>>? walletAccounts;
 
   const UpdateUserParams({

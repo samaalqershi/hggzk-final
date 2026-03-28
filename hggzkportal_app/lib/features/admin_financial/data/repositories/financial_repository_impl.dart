@@ -11,20 +11,17 @@ import '../../domain/repositories/financial_repository.dart';
 import '../datasources/financial_remote_datasource.dart';
 import '../models/financial_transaction_model.dart';
 
-/// 📊 تنفيذ مستودع العمليات المالية
 class FinancialRepositoryImpl implements FinancialRepository {
   final FinancialRemoteDataSource remoteDataSource;
   final NetworkInfo networkInfo;
-
   FinancialRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
-
   @override
   Future<Either<Failure, List<ChartOfAccount>>> getChartOfAccounts() async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -46,7 +43,7 @@ class FinancialRepositoryImpl implements FinancialRepository {
     String? notes,
   }) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -66,9 +63,10 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, ChartOfAccount>> getAccountById(String accountId) async {
+  Future<Either<Failure, ChartOfAccount>> getAccountById(
+      String accountId) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -82,9 +80,10 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, List<ChartOfAccount>>> getAccountsByType(AccountType type) async {
+  Future<Either<Failure, List<ChartOfAccount>>> getAccountsByType(
+      AccountType type) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -100,12 +99,13 @@ class FinancialRepositoryImpl implements FinancialRepository {
   @override
   Future<Either<Failure, List<ChartOfAccount>>> getMainAccounts() async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
       final accounts = await remoteDataSource.getChartOfAccounts();
-      final mainAccounts = accounts.where((a) => a.category == AccountCategory.main).toList();
+      final mainAccounts =
+          accounts.where((a) => a.category == AccountCategory.main).toList();
       return Right(mainAccounts);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -115,14 +115,16 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, List<ChartOfAccount>>> getSubAccounts(String parentAccountId) async {
+  Future<Either<Failure, List<ChartOfAccount>>> getSubAccounts(
+      String parentAccountId) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
       final accounts = await remoteDataSource.getChartOfAccounts();
-      final subAccounts = accounts.where((a) => a.parentAccountId == parentAccountId).toList();
+      final subAccounts =
+          accounts.where((a) => a.parentAccountId == parentAccountId).toList();
       return Right(subAccounts);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -132,9 +134,10 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, List<ChartOfAccount>>> searchAccounts(String query) async {
+  Future<Either<Failure, List<ChartOfAccount>>> searchAccounts(
+      String query) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -148,27 +151,30 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, ChartOfAccount>> createAccount(ChartOfAccount account) async {
+  Future<Either<Failure, ChartOfAccount>> createAccount(
+      ChartOfAccount account) async {
     // Not implemented - API endpoint needed
-    return Left(ServerFailure('غير مدعوم حالياً'));
+    return const Left(ServerFailure('غير مدعوم حالياً'));
   }
 
   @override
-  Future<Either<Failure, ChartOfAccount>> updateAccount(ChartOfAccount account) async {
+  Future<Either<Failure, ChartOfAccount>> updateAccount(
+      ChartOfAccount account) async {
     // Not implemented - API endpoint needed
-    return Left(ServerFailure('غير مدعوم حالياً'));
+    return const Left(ServerFailure('غير مدعوم حالياً'));
   }
 
   @override
   Future<Either<Failure, bool>> deleteAccount(String accountId) async {
     // Not implemented - API endpoint needed
-    return Left(ServerFailure('غير مدعوم حالياً'));
+    return const Left(ServerFailure('غير مدعوم حالياً'));
   }
 
   @override
-  Future<Either<Failure, bool>> updateAccountBalance(String accountId, double amount, bool isDebit) async {
+  Future<Either<Failure, bool>> updateAccountBalance(
+      String accountId, double amount, bool isDebit) async {
     // Not implemented - API endpoint needed
-    return Left(ServerFailure('غير مدعوم حالياً'));
+    return const Left(ServerFailure('غير مدعوم حالياً'));
   }
 
   @override
@@ -180,7 +186,7 @@ class FinancialRepositoryImpl implements FinancialRepository {
     int? limit,
   }) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -200,13 +206,15 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, FinancialTransaction>> getTransactionById(String transactionId) async {
+  Future<Either<Failure, FinancialTransaction>> getTransactionById(
+      String transactionId) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
-      final transaction = await remoteDataSource.getTransactionById(transactionId);
+      final transaction =
+          await remoteDataSource.getTransactionById(transactionId);
       return Right(transaction);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -216,13 +224,15 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, List<FinancialTransaction>>> getTransactionsByBooking(String bookingId) async {
+  Future<Either<Failure, List<FinancialTransaction>>> getTransactionsByBooking(
+      String bookingId) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
-      final transactions = await remoteDataSource.getTransactionsByBooking(bookingId);
+      final transactions =
+          await remoteDataSource.getTransactionsByBooking(bookingId);
       return Right(transactions);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -232,13 +242,15 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, List<FinancialTransaction>>> getTransactionsByProperty(String propertyId) async {
+  Future<Either<Failure, List<FinancialTransaction>>> getTransactionsByProperty(
+      String propertyId) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
-      final transactions = await remoteDataSource.getTransactionsByProperty(propertyId);
+      final transactions =
+          await remoteDataSource.getTransactionsByProperty(propertyId);
       return Right(transactions);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -248,9 +260,10 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, List<FinancialTransaction>>> getTransactionsByUser(String userId) async {
+  Future<Either<Failure, List<FinancialTransaction>>> getTransactionsByUser(
+      String userId) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -264,16 +277,18 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, List<FinancialTransaction>>> getTransactionsByAccount(String accountId) async {
+  Future<Either<Failure, List<FinancialTransaction>>> getTransactionsByAccount(
+      String accountId) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
       final transactions = await remoteDataSource.getTransactions();
-      final filtered = transactions.where((t) => 
-        t.debitAccountId == accountId || t.creditAccountId == accountId
-      ).toList();
+      final filtered = transactions
+          .where((t) =>
+              t.debitAccountId == accountId || t.creditAccountId == accountId)
+          .toList();
       return Right(filtered);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -283,9 +298,10 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, List<FinancialTransaction>>> searchTransactions(String query) async {
+  Future<Either<Failure, List<FinancialTransaction>>> searchTransactions(
+      String query) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -299,27 +315,29 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, FinancialTransaction>> createTransaction(FinancialTransaction transaction) async {
+  Future<Either<Failure, FinancialTransaction>> createTransaction(
+      FinancialTransaction transaction) async {
     // Not implemented - API endpoint needed
-    return Left(ServerFailure('غير مدعوم حالياً'));
+    return const Left(ServerFailure('غير مدعوم حالياً'));
   }
 
   @override
-  Future<Either<Failure, FinancialTransaction>> updateTransaction(FinancialTransaction transaction) async {
+  Future<Either<Failure, FinancialTransaction>> updateTransaction(
+      FinancialTransaction transaction) async {
     // Not implemented - API endpoint needed
-    return Left(ServerFailure('غير مدعوم حالياً'));
+    return const Left(ServerFailure('غير مدعوم حالياً'));
   }
 
   @override
   Future<Either<Failure, bool>> deleteTransaction(String transactionId) async {
     // Not implemented - API endpoint needed
-    return Left(ServerFailure('غير مدعوم حالياً'));
+    return const Left(ServerFailure('غير مدعوم حالياً'));
   }
 
   @override
   Future<Either<Failure, bool>> postTransaction(String transactionId) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -333,13 +351,15 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, FinancialTransaction>> reverseTransaction(String transactionId, String reason) async {
+  Future<Either<Failure, FinancialTransaction>> reverseTransaction(
+      String transactionId, String reason) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
-      final transaction = await remoteDataSource.reverseTransaction(transactionId, reason);
+      final transaction =
+          await remoteDataSource.reverseTransaction(transactionId, reason);
       return Right(transaction);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -349,9 +369,10 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, List<FinancialTransaction>>> getPendingTransactions() async {
+  Future<Either<Failure, List<FinancialTransaction>>>
+      getPendingTransactions() async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -367,9 +388,10 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> postPendingTransactions() async {
+  Future<Either<Failure, Map<String, dynamic>>>
+      postPendingTransactions() async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -383,13 +405,15 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, FinancialReport>> getFinancialReport(DateTime startDate, DateTime endDate) async {
+  Future<Either<Failure, FinancialReport>> getFinancialReport(
+      DateTime startDate, DateTime endDate) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
-      final data = await remoteDataSource.getFinancialReport(startDate, endDate);
+      final data =
+          await remoteDataSource.getFinancialReport(startDate, endDate);
       final report = FinancialReport(
         startDate: startDate,
         endDate: endDate,
@@ -400,7 +424,9 @@ class FinancialRepositoryImpl implements FinancialRepository {
         netProfit: (data['netProfit'] ?? 0).toDouble(),
         transactionCount: data['transactionCount'] ?? 0,
         transactionsByType: Map<TransactionType, double>.fromEntries(
-          (data['transactionsByType'] as Map<String, dynamic>? ?? {}).entries.map((e) {
+          (data['transactionsByType'] as Map<String, dynamic>? ?? {})
+              .entries
+              .map((e) {
             final type = _parseTransactionType(e.key);
             return MapEntry(type, (e.value ?? 0).toDouble());
           }),
@@ -421,15 +447,16 @@ class FinancialRepositoryImpl implements FinancialRepository {
     DateTime endDate,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
-      final data = await remoteDataSource.getAccountStatement(accountId, startDate, endDate);
+      final data = await remoteDataSource.getAccountStatement(
+          accountId, startDate, endDate);
       final transactions = (data['transactions'] as List? ?? [])
           .map((json) => FinancialTransactionModel.fromJson(json))
           .toList();
-      
+
       final statement = AccountStatement(
         accountId: data['accountId'] ?? accountId,
         accountNumber: data['accountNumber'] ?? '',
@@ -450,9 +477,10 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, AccountBalance>> getAccountBalance(String accountId, DateTime? atDate) async {
+  Future<Either<Failure, AccountBalance>> getAccountBalance(
+      String accountId, DateTime? atDate) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -474,16 +502,18 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, Map<TransactionType, double>>> getTransactionSummaryByType(
+  Future<Either<Failure, Map<TransactionType, double>>>
+      getTransactionSummaryByType(
     DateTime startDate,
     DateTime endDate,
   ) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
-      final data = await remoteDataSource.getTransactionSummaryByType(startDate, endDate);
+      final data = await remoteDataSource.getTransactionSummaryByType(
+          startDate, endDate);
       final summary = Map<TransactionType, double>.fromEntries(
         data.entries.map((e) {
           final type = _parseTransactionType(e.key);
@@ -499,18 +529,21 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, List<ChartData>>> getRevenueChart(DateTime startDate, DateTime endDate) async {
+  Future<Either<Failure, List<ChartData>>> getRevenueChart(
+      DateTime startDate, DateTime endDate) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
       final data = await remoteDataSource.getRevenueChart(startDate, endDate);
-      final chartData = data.map((item) => ChartData(
-        label: item['label'] ?? '',
-        value: (item['value'] ?? 0).toDouble(),
-        color: item['color'] ?? '#00FF88',
-      )).toList();
+      final chartData = data
+          .map((item) => ChartData(
+                label: item['label'] ?? '',
+                value: (item['value'] ?? 0).toDouble(),
+                color: item['color'] ?? '#00FF88',
+              ))
+          .toList();
       return Right(chartData);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -520,18 +553,21 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, List<ChartData>>> getExpenseChart(DateTime startDate, DateTime endDate) async {
+  Future<Either<Failure, List<ChartData>>> getExpenseChart(
+      DateTime startDate, DateTime endDate) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
       final data = await remoteDataSource.getExpenseChart(startDate, endDate);
-      final chartData = data.map((item) => ChartData(
-        label: item['label'] ?? '',
-        value: (item['value'] ?? 0).toDouble(),
-        color: item['color'] ?? '#FF3366',
-      )).toList();
+      final chartData = data
+          .map((item) => ChartData(
+                label: item['label'] ?? '',
+                value: (item['value'] ?? 0).toDouble(),
+                color: item['color'] ?? '#FF3366',
+              ))
+          .toList();
       return Right(chartData);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -541,18 +577,21 @@ class FinancialRepositoryImpl implements FinancialRepository {
   }
 
   @override
-  Future<Either<Failure, List<ChartData>>> getCashFlowChart(DateTime startDate, DateTime endDate) async {
+  Future<Either<Failure, List<ChartData>>> getCashFlowChart(
+      DateTime startDate, DateTime endDate) async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
       final data = await remoteDataSource.getCashFlowChart(startDate, endDate);
-      final chartData = data.map((item) => ChartData(
-        label: item['label'] ?? '',
-        value: (item['value'] ?? 0).toDouble(),
-        color: item['color'],
-      )).toList();
+      final chartData = data
+          .map((item) => ChartData(
+                label: item['label'] ?? '',
+                value: (item['value'] ?? 0).toDouble(),
+                color: item['color'],
+              ))
+          .toList();
       return Right(chartData);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -564,7 +603,7 @@ class FinancialRepositoryImpl implements FinancialRepository {
   @override
   Future<Either<Failure, FinancialSummary>> getFinancialSummary() async {
     if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
 
     try {
@@ -606,7 +645,7 @@ class FinancialRepositoryImpl implements FinancialRepository {
     DateTime endDate,
   ) async {
     // Not implemented - API endpoint needed
-    return Left(ServerFailure('التصدير إلى Excel غير متاح حالياً'));
+    return const Left(ServerFailure('التصدير إلى Excel غير متاح حالياً'));
   }
 
   @override
@@ -616,7 +655,7 @@ class FinancialRepositoryImpl implements FinancialRepository {
     DateTime endDate,
   ) async {
     // Not implemented - API endpoint needed
-    return Left(ServerFailure('التصدير إلى PDF غير متاح حالياً'));
+    return const Left(ServerFailure('التصدير إلى PDF غير متاح حالياً'));
   }
 
   @override
@@ -625,10 +664,9 @@ class FinancialRepositoryImpl implements FinancialRepository {
     DateTime endDate,
   ) async {
     // Not implemented - API endpoint needed
-    return Left(ServerFailure('التصدير إلى PDF غير متاح حالياً'));
+    return const Left(ServerFailure('التصدير إلى PDF غير متاح حالياً'));
   }
 
-  /// 🔄 Helper function to parse TransactionType from string or int
   TransactionType _parseTransactionType(dynamic value) {
     // If it's already a number, use it as index
     if (value is int) {
@@ -638,7 +676,7 @@ class FinancialRepositoryImpl implements FinancialRepository {
         return TransactionType.values[index];
       }
     }
-    
+
     // If it's a string, try to parse it
     if (value is String) {
       // Try to parse as number first
@@ -646,10 +684,10 @@ class FinancialRepositoryImpl implements FinancialRepository {
       if (intValue != null) {
         return _parseTransactionType(intValue);
       }
-      
+
       // Map backend string names to Flutter enum values
       // Backend uses PascalCase (e.g., "NewBooking"), Flutter uses camelCase
-      final enumMap = <String, TransactionType>{
+      const enumMap = <String, TransactionType>{
         'NewBooking': TransactionType.newBooking,
         'AdvancePayment': TransactionType.advancePayment,
         'FinalPayment': TransactionType.finalPayment,
@@ -671,12 +709,12 @@ class FinancialRepositoryImpl implements FinancialRepository {
         'OpeningBalance': TransactionType.openingBalance,
         'AgentCommission': TransactionType.agentCommission,
       };
-      
+
       // Try exact match
       if (enumMap.containsKey(value)) {
         return enumMap[value]!;
       }
-      
+
       // Try case-insensitive match
       final lowerValue = value.toLowerCase();
       for (final entry in enumMap.entries) {
@@ -684,16 +722,16 @@ class FinancialRepositoryImpl implements FinancialRepository {
           return entry.value;
         }
       }
-      
+
       // Try to match by converting camelCase to PascalCase
-      final pascalCase = value.isNotEmpty 
+      final pascalCase = value.isNotEmpty
           ? value[0].toUpperCase() + value.substring(1)
           : value;
       if (enumMap.containsKey(pascalCase)) {
         return enumMap[pascalCase]!;
       }
     }
-    
+
     // Default to 'other' if can't parse
     return TransactionType.adjustment;
   }

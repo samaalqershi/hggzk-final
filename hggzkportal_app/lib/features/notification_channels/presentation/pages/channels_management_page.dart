@@ -1,13 +1,11 @@
 // lib/features/notifications/presentation/pages/channels_management_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_widget.dart';
@@ -18,12 +16,11 @@ import '../bloc/channels_bloc.dart';
 import '../bloc/channels_event.dart';
 import '../bloc/channels_state.dart';
 import '../widgets/channel_card.dart';
-import '../widgets/channel_statistics_card.dart';
 import '../widgets/channel_filters.dart';
 
 class ChannelsManagementPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `ChannelsManagementPage`.
   const ChannelsManagementPage({super.key});
-
   @override
   State<ChannelsManagementPage> createState() => _ChannelsManagementPageState();
 }
@@ -55,7 +52,6 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
   // Sort options
   String _sortBy = 'name';
   bool _isAscending = true;
-
   @override
   void initState() {
     super.initState();
@@ -196,8 +192,8 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -215,9 +211,9 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
                     gradient: RadialGradient(
                       colors: [
                         AppTheme.primaryBlue
-                            .withOpacity(0.15 * _glowAnimation.value),
+                            .withValues(alpha: 0.15 * _glowAnimation.value),
                         AppTheme.primaryBlue
-                            .withOpacity(0.05 * _glowAnimation.value),
+                            .withValues(alpha: 0.05 * _glowAnimation.value),
                         Colors.transparent,
                       ],
                     ),
@@ -237,9 +233,9 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
                       gradient: RadialGradient(
                         colors: [
                           AppTheme.primaryPurple
-                              .withOpacity(0.1 * _glowAnimation.value),
+                              .withValues(alpha: 0.1 * _glowAnimation.value),
                           AppTheme.primaryPurple
-                              .withOpacity(0.03 * _glowAnimation.value),
+                              .withValues(alpha: 0.03 * _glowAnimation.value),
                           Colors.transparent,
                         ],
                       ),
@@ -284,10 +280,10 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppTheme.darkCard.withOpacity(0.5),
+                          color: AppTheme.darkCard.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: AppTheme.darkBorder.withOpacity(0.3),
+                            color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Icon(
@@ -310,8 +306,8 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
                                 fontWeight: FontWeight.bold,
                                 shadows: [
                                   Shadow(
-                                    color:
-                                        AppTheme.primaryBlue.withOpacity(0.3),
+                                    color: AppTheme.primaryBlue
+                                        .withValues(alpha: 0.3),
                                     blurRadius: 10,
                                   ),
                                 ],
@@ -339,8 +335,8 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.1),
-                AppTheme.darkBackground.withOpacity(0.9),
+                AppTheme.primaryBlue.withValues(alpha: 0.1),
+                AppTheme.darkBackground.withValues(alpha: 0.9),
                 AppTheme.darkBackground,
               ],
             ),
@@ -352,10 +348,10 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.darkCard.withOpacity(0.5),
+            color: AppTheme.darkCard.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
             ),
           ),
           child: Icon(
@@ -380,7 +376,7 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -412,12 +408,12 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           gradient: _showStats ? AppTheme.primaryGradient : null,
-          color: _showStats ? null : AppTheme.darkCard.withOpacity(0.5),
+          color: _showStats ? null : AppTheme.darkCard.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           boxShadow: _showStats
               ? [
                   BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.3),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -439,10 +435,10 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withOpacity(0.5),
+          color: AppTheme.darkCard.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -469,7 +465,7 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
   }
 
   double _statsSectionHeight(BuildContext context) {
-    final textScaleFactor = MediaQuery.of(context).textScaleFactor;
+    final textScaleFactor = MediaQuery.textScalerOf(context).scale(1);
     final clampedScale = textScaleFactor.clamp(1.0, 1.35);
     return _baseStatsSectionHeight * clampedScale;
   }
@@ -583,8 +579,8 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.3),
-                  AppTheme.darkCard.withOpacity(0.1),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.1),
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
@@ -622,20 +618,20 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              color.withOpacity(0.15),
-              color.withOpacity(0.05),
+              color.withValues(alpha: 0.15),
+              color.withValues(alpha: 0.05),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -662,7 +658,7 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: color.withOpacity(0.2),
+                              color: color.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Icon(
@@ -678,8 +674,8 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
                             ),
                             decoration: BoxDecoration(
                               color: isPositive
-                                  ? AppTheme.success.withOpacity(0.1)
-                                  : AppTheme.error.withOpacity(0.1),
+                                  ? AppTheme.success.withValues(alpha: 0.1)
+                                  : AppTheme.error.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
@@ -838,8 +834,8 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
             onExit: (_) => setState(() => _hoveredChannelId = null),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              transform: Matrix4.identity()
-                ..translate(0.0, isHovered ? -5.0 : 0.0),
+              transform:
+                  Matrix4.translationValues(0.0, isHovered ? -5.0 : 0.0, 0.0),
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
@@ -847,8 +843,8 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
                   BoxShadow(
                     color: channel.isActive
                         ? AppTheme.primaryBlue
-                            .withOpacity(isHovered ? 0.2 : 0.1)
-                        : AppTheme.shadowDark.withOpacity(0.1),
+                            .withValues(alpha: isHovered ? 0.2 : 0.1)
+                        : AppTheme.shadowDark.withValues(alpha: 0.1),
                     blurRadius: isHovered ? 20 : 15,
                     offset: Offset(0, isHovered ? 8 : 5),
                   ),
@@ -865,20 +861,20 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
                         end: Alignment.bottomRight,
                         colors: isHovered
                             ? [
-                                AppTheme.primaryBlue.withOpacity(0.08),
-                                AppTheme.primaryPurple.withOpacity(0.04),
+                                AppTheme.primaryBlue.withValues(alpha: 0.08),
+                                AppTheme.primaryPurple.withValues(alpha: 0.04),
                               ]
                             : [
-                                AppTheme.darkCard.withOpacity(0.7),
-                                AppTheme.darkCard.withOpacity(0.5),
+                                AppTheme.darkCard.withValues(alpha: 0.7),
+                                AppTheme.darkCard.withValues(alpha: 0.5),
                               ],
                       ),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
                         color: channel.isActive
                             ? AppTheme.primaryBlue
-                                .withOpacity(isHovered ? 0.4 : 0.2)
-                            : AppTheme.darkBorder.withOpacity(0.3),
+                                .withValues(alpha: isHovered ? 0.4 : 0.2)
+                            : AppTheme.darkBorder.withValues(alpha: 0.3),
                         width: isHovered ? 2 : 1,
                       ),
                     ),
@@ -915,12 +911,12 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
                   BorderRadius.circular(_isFloatingButtonExpanded ? 24 : 20),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.4),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.4),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
                 BoxShadow(
-                  color: AppTheme.primaryPurple.withOpacity(0.2),
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.2),
                   blurRadius: 30,
                   offset: const Offset(0, 12),
                 ),
@@ -980,7 +976,7 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -1180,16 +1176,15 @@ class _ChannelsManagementPageState extends State<ChannelsManagementPage>
 
 // Delete Confirmation Dialog
 class _DeleteConfirmationDialog extends StatelessWidget {
+  /// العربية: يخزن القيمة `channel`.
   final NotificationChannel channel;
   final VoidCallback onConfirm;
   final VoidCallback onCancel;
-
   const _DeleteConfirmationDialog({
     required this.channel,
     required this.onConfirm,
     required this.onCancel,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1197,13 +1192,13 @@ class _DeleteConfirmationDialog extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.95),
-            AppTheme.darkCard.withOpacity(0.85),
+            AppTheme.darkCard.withValues(alpha: 0.95),
+            AppTheme.darkCard.withValues(alpha: 0.85),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: AppTheme.error.withOpacity(0.3),
+          color: AppTheme.error.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -1216,8 +1211,8 @@ class _DeleteConfirmationDialog extends StatelessWidget {
               shape: BoxShape.circle,
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.error.withOpacity(0.2),
-                  AppTheme.error.withOpacity(0.1),
+                  AppTheme.error.withValues(alpha: 0.2),
+                  AppTheme.error.withValues(alpha: 0.1),
                 ],
               ),
             ),
@@ -1248,10 +1243,10 @@ class _DeleteConfirmationDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.warning.withOpacity(0.1),
+                color: AppTheme.warning.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.warning.withOpacity(0.3),
+                  color: AppTheme.warning.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -1283,10 +1278,10 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
-                      color: AppTheme.darkSurface.withOpacity(0.5),
+                      color: AppTheme.darkSurface.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppTheme.darkBorder.withOpacity(0.3),
+                        color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Center(
@@ -1313,13 +1308,13 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                       gradient: LinearGradient(
                         colors: [
                           AppTheme.error,
-                          AppTheme.error.withOpacity(0.8),
+                          AppTheme.error.withValues(alpha: 0.8),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.error.withOpacity(0.3),
+                          color: AppTheme.error.withValues(alpha: 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -1347,24 +1342,23 @@ class _DeleteConfirmationDialog extends StatelessWidget {
 
 // Sort Options Sheet
 class _SortOptionsSheet extends StatelessWidget {
+  /// العربية: يخزن القيمة `currentSort`.
   final String currentSort;
   final bool isAscending;
   final Function(String, bool) onSortChanged;
-
   const _SortOptionsSheet({
     required this.currentSort,
     required this.isAscending,
     required this.onSortChanged,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.95),
-            AppTheme.darkCard.withOpacity(0.85),
+            AppTheme.darkCard.withValues(alpha: 0.95),
+            AppTheme.darkCard.withValues(alpha: 0.85),
           ],
         ),
         borderRadius: const BorderRadius.only(
@@ -1387,7 +1381,7 @@ class _SortOptionsSheet extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -1429,7 +1423,7 @@ class _SortOptionsSheet extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkSurface.withOpacity(0.3),
+                  color: AppTheme.darkSurface.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
@@ -1475,17 +1469,19 @@ class _SortOptionsSheet extends StatelessWidget {
             gradient: isSelected
                 ? LinearGradient(
                     colors: [
-                      color.withOpacity(0.2),
-                      color.withOpacity(0.1),
+                      color.withValues(alpha: 0.2),
+                      color.withValues(alpha: 0.1),
                     ],
                   )
                 : null,
-            color: !isSelected ? AppTheme.darkSurface.withOpacity(0.3) : null,
+            color: !isSelected
+                ? AppTheme.darkSurface.withValues(alpha: 0.3)
+                : null,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isSelected
-                  ? color.withOpacity(0.4)
-                  : AppTheme.darkBorder.withOpacity(0.2),
+                  ? color.withValues(alpha: 0.4)
+                  : AppTheme.darkBorder.withValues(alpha: 0.2),
             ),
           ),
           child: Row(
@@ -1528,12 +1524,12 @@ class _SortOptionsSheet extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
           gradient: isSelected ? AppTheme.primaryGradient : null,
-          color: !isSelected ? AppTheme.darkCard.withOpacity(0.5) : null,
+          color: !isSelected ? AppTheme.darkCard.withValues(alpha: 0.5) : null,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
                 ? Colors.transparent
-                : AppTheme.darkBorder.withOpacity(0.3),
+                : AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -1560,16 +1556,15 @@ class _SortOptionsSheet extends StatelessWidget {
 
 // Background Painter
 class _ChannelsBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
-
   _ChannelsBackgroundPainter({required this.glowIntensity});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.5
-      ..color = AppTheme.primaryBlue.withOpacity(0.03 * glowIntensity);
+      ..color = AppTheme.primaryBlue.withValues(alpha: 0.03 * glowIntensity);
 
     // Draw grid pattern
     const spacing = 30.0;
@@ -1591,7 +1586,8 @@ class _ChannelsBackgroundPainter extends CustomPainter {
     }
 
     // Draw diagonal lines
-    paint.color = AppTheme.primaryPurple.withOpacity(0.02 * glowIntensity);
+    paint.color =
+        AppTheme.primaryPurple.withValues(alpha: 0.02 * glowIntensity);
     for (double i = -size.height; i < size.width; i += spacing * 2) {
       canvas.drawLine(
         Offset(i, 0),

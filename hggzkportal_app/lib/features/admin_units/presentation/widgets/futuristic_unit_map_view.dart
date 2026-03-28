@@ -6,37 +6,76 @@ import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../domain/entities/unit.dart';
 
+/// يمثل هذا الكلاس FuturisticUnitMapView البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for FuturisticUnitMapView in the admin unit workflow.
 class FuturisticUnitMapView extends StatefulWidget {
+  /// This field keeps the units value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة units التي يعتمد عليها مسار إدارة الوحدات.
   final List<Unit> units;
+
+  /// ينفذ هذا الأسلوب عملية Function ضمن مسار إدارة الوحدات.
+  /// This method performs the Function operation in the admin unit workflow.
   final Function(Unit) onUnitSelected;
 
+  /// ينشئ هذا المُنشئ مثيلاً من FuturisticUnitMapView.
+  /// This constructor creates an instance of FuturisticUnitMapView.
   const FuturisticUnitMapView({
     super.key,
     required this.units,
     required this.onUnitSelected,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<FuturisticUnitMapView> createState() => _FuturisticUnitMapViewState();
 }
 
+/// يمثل هذا الكلاس _FuturisticUnitMapViewState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _FuturisticUnitMapViewState in the admin unit workflow.
 class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
     with TickerProviderStateMixin {
+  /// يحتفظ هذا الحقل بقيمة _pulseController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _pulseController value used by the admin unit workflow.
   late AnimationController _pulseController;
+
+  /// يحتفظ هذا الحقل بقيمة _rotationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _rotationController value used by the admin unit workflow.
   late AnimationController _rotationController;
+
+  /// يحتفظ هذا الحقل بقيمة _pulseAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _pulseAnimation value used by the admin unit workflow.
   late Animation<double> _pulseAnimation;
+
+  /// يحتفظ هذا الحقل بقيمة _rotationAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _rotationAnimation value used by the admin unit workflow.
   late Animation<double> _rotationAnimation;
 
+  /// يحتفظ هذا الحقل بقيمة _selectedUnit التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectedUnit value used by the admin unit workflow.
   Unit? _selectedUnit;
+
+  /// يحتفظ هذا الحقل بقيمة _mapOffset التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _mapOffset value used by the admin unit workflow.
   Offset _mapOffset = Offset.zero;
+
+  /// يحتفظ هذا الحقل بقيمة _mapScale التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _mapScale value used by the admin unit workflow.
   double _mapScale = 1.0;
 
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
+
+    /// ينفذ هذا الأسلوب عملية _initializeAnimations ضمن مسار إدارة الوحدات.
+    /// This method performs the _initializeAnimations operation in the admin unit workflow.
     _initializeAnimations();
   }
 
+  /// ينفذ هذا الأسلوب عملية _initializeAnimations ضمن مسار إدارة الوحدات.
+  /// This method performs the _initializeAnimations operation in the admin unit workflow.
   void _initializeAnimations() {
     _pulseController = AnimationController(
       duration: const Duration(seconds: 2),
@@ -62,6 +101,8 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
     ).animate(_rotationController);
   }
 
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _pulseController.dispose();
@@ -69,6 +110,8 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
     super.dispose();
   }
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -76,13 +119,13 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.3),
-            AppTheme.darkCard.withOpacity(0.1),
+            AppTheme.darkCard.withValues(alpha: 0.3),
+            AppTheme.darkCard.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(AppDimensions.radiusXLarge),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.2),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -93,14 +136,15 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
             _buildMapBackground(),
             _buildMapContent(),
             _buildMapControls(),
-            if (_selectedUnit != null)
-              _buildUnitDetails(_selectedUnit!),
+            if (_selectedUnit != null) _buildUnitDetails(_selectedUnit!),
           ],
         ),
       ),
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildMapBackground ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildMapBackground operation in the admin unit workflow.
   Widget _buildMapBackground() {
     return AnimatedBuilder(
       animation: _rotationAnimation,
@@ -122,6 +166,8 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildMapContent ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildMapContent operation in the admin unit workflow.
   Widget _buildMapContent() {
     return GestureDetector(
       onPanUpdate: (details) {
@@ -155,9 +201,11 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildUnitMarker ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildUnitMarker operation in the admin unit workflow.
   Widget _buildUnitMarker(Unit unit) {
     final isSelected = _selectedUnit?.id == unit.id;
-    
+
     return GestureDetector(
       onTap: () {
         setState(() => _selectedUnit = unit);
@@ -167,7 +215,7 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
         animation: _pulseAnimation,
         builder: (context, child) {
           final scale = isSelected ? _pulseAnimation.value : 1.0;
-          
+
           return Transform.scale(
             scale: scale,
             child: Container(
@@ -178,16 +226,18 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
                     ? AppTheme.primaryGradient
                     : LinearGradient(
                         colors: [
-                          AppTheme.primaryBlue, // Changed: isAvailable removed, use default color
-                          AppTheme.primaryBlue.withOpacity(0.8)
+                          AppTheme
+                              .primaryBlue, // Changed: isAvailable removed, use default color
+                          AppTheme.primaryBlue.withValues(alpha: 0.8)
                         ],
                       ),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
                     color: isSelected
-                        ? AppTheme.primaryBlue.withOpacity(0.5)
-                        : AppTheme.primaryBlue.withOpacity(0.3), // Changed: isAvailable removed
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                        : AppTheme.primaryBlue.withValues(
+                            alpha: 0.3), // Changed: isAvailable removed
                     blurRadius: isSelected ? 20 : 10,
                     spreadRadius: isSelected ? 3 : 1,
                   ),
@@ -207,6 +257,8 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildMapControls ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildMapControls operation in the admin unit workflow.
   Widget _buildMapControls() {
     return Positioned(
       top: AppDimensions.paddingLarge,
@@ -235,6 +287,8 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildControlButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildControlButton operation in the admin unit workflow.
   Widget _buildControlButton(IconData icon, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -244,13 +298,13 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.8),
-              AppTheme.darkCard.withOpacity(0.6),
+              AppTheme.darkCard.withValues(alpha: 0.8),
+              AppTheme.darkCard.withValues(alpha: 0.6),
             ],
           ),
           borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
           border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -263,6 +317,8 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildUnitDetails ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildUnitDetails operation in the admin unit workflow.
   Widget _buildUnitDetails(Unit unit) {
     return Positioned(
       bottom: AppDimensions.paddingLarge,
@@ -277,13 +333,13 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.glassLight.withOpacity(0.1),
-                  AppTheme.glassDark.withOpacity(0.05),
+                  AppTheme.glassLight.withValues(alpha: 0.1),
+                  AppTheme.glassDark.withValues(alpha: 0.05),
                 ],
               ),
               borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
               border: Border.all(
-                color: AppTheme.primaryBlue.withOpacity(0.2),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -298,7 +354,8 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
                       height: 48,
                       decoration: BoxDecoration(
                         gradient: AppTheme.primaryGradient,
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+                        borderRadius:
+                            BorderRadius.circular(AppDimensions.radiusMedium),
                       ),
                       child: const Icon(
                         Icons.home,
@@ -335,8 +392,8 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: unit.isAvailable
-                              ? [AppTheme.success, AppTheme.success.withOpacity(0.8)]
-                              : [AppTheme.error, AppTheme.error.withOpacity(0.8)],
+                              ? [AppTheme.success, AppTheme.success.withValues(alpha: 0.8)]
+                              : [AppTheme.error, AppTheme.error.withValues(alpha: 0.8)],
                         ),
                         borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
                       ),
@@ -386,6 +443,8 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildDetailItem ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildDetailItem operation in the admin unit workflow.
   Widget _buildDetailItem(IconData icon, String value, Color color) {
     return Row(
       children: [
@@ -401,6 +460,8 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _getUnitPosition ضمن مسار إدارة الوحدات.
+  /// This method performs the _getUnitPosition operation in the admin unit workflow.
   Offset _getUnitPosition(Unit unit) {
     // Generate pseudo-random positions based on unit ID
     final random = math.Random(unit.id.hashCode);
@@ -410,23 +471,37 @@ class _FuturisticUnitMapViewState extends State<FuturisticUnitMapView>
   }
 }
 
+/// يمثل هذا الكلاس _MapBackgroundPainter البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _MapBackgroundPainter in the admin unit workflow.
 class _MapBackgroundPainter extends CustomPainter {
+  /// This field keeps the rotation value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة rotation التي يعتمد عليها مسار إدارة الوحدات.
   final double rotation;
+
+  /// يحتفظ هذا الحقل بقيمة scale التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the scale value used by the admin unit workflow.
   final double scale;
+
+  /// يحتفظ هذا الحقل بقيمة offset التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the offset value used by the admin unit workflow.
   final Offset offset;
 
+  /// ينشئ هذا المُنشئ مثيلاً من _MapBackgroundPainter.
+  /// This constructor creates an instance of _MapBackgroundPainter.
   _MapBackgroundPainter({
     required this.rotation,
     required this.scale,
     required this.offset,
   });
 
+  /// ينفذ هذا الأسلوب عملية paint ضمن مسار إدارة الوحدات.
+  /// This method performs the paint operation in the admin unit workflow.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.5
-      ..color = AppTheme.primaryBlue.withOpacity(0.05);
+      ..color = AppTheme.primaryBlue.withValues(alpha: 0.05);
 
     // Draw grid
     const gridSize = 50.0;
@@ -446,6 +521,8 @@ class _MapBackgroundPainter extends CustomPainter {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية shouldRepaint ضمن مسار إدارة الوحدات.
+  /// This method performs the shouldRepaint operation in the admin unit workflow.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

@@ -19,19 +19,16 @@ import '../widgets/rating_breakdown_widget.dart';
 import '../../domain/usecases/approve_review_usecase.dart';
 import '../../../../services/local_storage_service.dart';
 import '../../../../core/constants/storage_constants.dart';
-
 class ReviewDetailsPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `reviewId`.
   final String reviewId;
-
   const ReviewDetailsPage({
     super.key,
     required this.reviewId,
   });
-
   @override
   State<ReviewDetailsPage> createState() => _ReviewDetailsPageState();
 }
-
 class _ReviewDetailsPageState extends State<ReviewDetailsPage>
     with TickerProviderStateMixin {
   late AnimationController _mainAnimationController;
@@ -43,13 +40,11 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
   final ScrollController _scrollController = ScrollController();
   bool _showFloatingHeader = false;
   bool _isApproving = false;
-
   TextDirection _getTextDirection(String? text) {
     if (text == null || text.trim().isEmpty) return TextDirection.ltr;
     final arabicRegex = RegExp(r'[\u0600-\u06FF]');
     return arabicRegex.hasMatch(text) ? TextDirection.rtl : TextDirection.ltr;
   }
-
   @override
   void initState() {
     super.initState();
@@ -103,7 +98,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
         .read<ReviewDetailsBloc>()
         .add(LoadReviewDetailsEvent(widget.reviewId));
   }
-
   @override
   void dispose() {
     _mainAnimationController.dispose();
@@ -111,7 +105,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
     _scrollController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -186,7 +179,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ),
     );
   }
-
   Widget _buildAnimatedBackground() {
     return Stack(
       children: [
@@ -223,8 +215,8 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        AppTheme.primaryBlue.withOpacity(0.15),
-                        AppTheme.primaryBlue.withOpacity(0.01),
+                        AppTheme.primaryBlue.withValues(alpha: 0.15),
+                        AppTheme.primaryBlue.withValues(alpha: 0.01),
                       ],
                     ),
                   ),
@@ -252,8 +244,8 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        AppTheme.primaryPurple.withOpacity(0.1),
-                        AppTheme.primaryPurple.withOpacity(0.01),
+                        AppTheme.primaryPurple.withValues(alpha: 0.1),
+                        AppTheme.primaryPurple.withValues(alpha: 0.01),
                       ],
                     ),
                   ),
@@ -265,7 +257,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ],
     );
   }
-
   Widget _buildHeroAppBar(
     BuildContext context,
     Review review,
@@ -305,7 +296,7 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    AppTheme.darkBackground.withOpacity(0.7),
+                    AppTheme.darkBackground.withValues(alpha: 0.7),
                     AppTheme.darkBackground,
                   ],
                   stops: const [0.3, 0.7, 1.0],
@@ -334,7 +325,7 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
                             gradient: AppTheme.primaryGradient,
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.glowBlue.withOpacity(0.5),
+                                color: AppTheme.glowBlue.withValues(alpha: 0.5),
                                 blurRadius: 20,
                                 spreadRadius: 2,
                               ),
@@ -367,15 +358,16 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
                                   Icon(
                                     Icons.home_work_outlined,
                                     size: 16,
-                                    color: AppTheme.textLight.withOpacity(0.7),
+                                    color: AppTheme.textLight
+                                        .withValues(alpha: 0.7),
                                   ),
                                   const SizedBox(width: 6),
                                   Expanded(
                                     child: Text(
                                       review.propertyName,
                                       style: AppTextStyles.bodySmall.copyWith(
-                                        color:
-                                            AppTheme.textLight.withOpacity(0.7),
+                                        color: AppTheme.textLight
+                                            .withValues(alpha: 0.7),
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -404,7 +396,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ),
     );
   }
-
   Widget _buildGradientBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -412,23 +403,22 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.primaryBlue.withOpacity(0.3),
-            AppTheme.primaryPurple.withOpacity(0.3),
-            AppTheme.primaryViolet.withOpacity(0.3),
+            AppTheme.primaryBlue.withValues(alpha: 0.3),
+            AppTheme.primaryPurple.withValues(alpha: 0.3),
+            AppTheme.primaryViolet.withValues(alpha: 0.3),
           ],
         ),
       ),
     );
   }
-
   Widget _buildBackButton(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: AppTheme.inputBackground.withOpacity(0.5),
+        color: AppTheme.inputBackground.withValues(alpha: 0.5),
         border: Border.all(
-          color: AppTheme.glowBlue.withOpacity(0.3),
+          color: AppTheme.glowBlue.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -445,7 +435,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ),
     );
   }
-
   Widget _buildStatusBadge(Review review) {
     final color = review.isPending
         ? AppTheme.warning
@@ -463,9 +452,9 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         border: Border.all(
-          color: color.withOpacity(0.5),
+          color: color.withValues(alpha: 0.5),
           width: 1,
         ),
       ),
@@ -492,7 +481,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ),
     );
   }
-
   Widget _buildRatingStars(double rating) {
     return Row(
       children: List.generate(5, (index) {
@@ -514,7 +502,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       }),
     );
   }
-
   Widget _buildReviewContent(
     BuildContext context,
     Review review,
@@ -572,7 +559,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ),
     );
   }
-
   Widget _buildCommentSection(Review review) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -580,12 +566,12 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border.all(
-          color: AppTheme.glowBlue.withOpacity(0.1),
+          color: AppTheme.glowBlue.withValues(alpha: 0.1),
           width: 0.5,
         ),
       ),
@@ -616,22 +602,25 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
             style: AppTextStyles.bodyMedium.copyWith(
               height: 1.6,
               color: AppTheme.textLight,
-              fontFamilyFallback: const ['Amiri','Noto Naskh Arabic','Roboto'],
+              fontFamilyFallback: const [
+                'Amiri',
+                'Noto Naskh Arabic',
+                'Roboto'
+              ],
             ),
           ),
         ],
       ),
     );
   }
-
   Widget _buildInfoSection(Review review) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: AppTheme.inputBackground.withOpacity(0.3),
+        color: AppTheme.inputBackground.withValues(alpha: 0.3),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.5),
+          color: AppTheme.darkBorder.withValues(alpha: 0.5),
           width: 0.5,
         ),
       ),
@@ -744,7 +733,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ),
     );
   }
-
   Widget _buildInfoRow({
     required IconData icon,
     required String label,
@@ -756,7 +744,7 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: AppTheme.primaryBlue.withOpacity(0.1),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
           ),
           child: Icon(
             icon,
@@ -789,7 +777,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ],
     );
   }
-
   Widget _buildResponsesSection(
     BuildContext context,
     Review review,
@@ -825,9 +812,9 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: AppTheme.inputBackground.withOpacity(0.3),
+              color: AppTheme.inputBackground.withValues(alpha: 0.3),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.5),
+                color: AppTheme.darkBorder.withValues(alpha: 0.5),
                 width: 0.5,
               ),
             ),
@@ -837,7 +824,7 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
                   Icon(
                     Icons.chat_bubble_outline,
                     size: 48,
-                    color: AppTheme.textMuted.withOpacity(0.5),
+                    color: AppTheme.textMuted.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -850,7 +837,7 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
                   Text(
                     'أضف رداً على هذا التقييم',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppTheme.textMuted.withOpacity(0.7),
+                      color: AppTheme.textMuted.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
@@ -885,7 +872,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ],
     );
   }
-
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
@@ -894,7 +880,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ),
     );
   }
-
   Widget _buildFloatingHeader(BuildContext context, Review review) {
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 300),
@@ -913,10 +898,10 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
               right: 20,
             ),
             decoration: BoxDecoration(
-              color: AppTheme.darkCard.withOpacity(0.8),
+              color: AppTheme.darkCard.withValues(alpha: 0.8),
               border: Border(
                 bottom: BorderSide(
-                  color: AppTheme.glowBlue.withOpacity(0.2),
+                  color: AppTheme.glowBlue.withValues(alpha: 0.2),
                   width: 0.5,
                 ),
               ),
@@ -970,13 +955,13 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ),
     );
   }
-
   Widget _buildFloatingActions(BuildContext context, Review review) {
     final bool isApproving = _isApproving;
     bool isAdmin = false;
     try {
       final storage = di.sl<LocalStorageService>();
-      final role = storage.getData(StorageConstants.accountRole)?.toString() ?? '';
+      final role =
+          storage.getData(StorageConstants.accountRole)?.toString() ?? '';
       isAdmin = role.toLowerCase() == 'admin';
     } catch (_) {
       isAdmin = false;
@@ -1020,7 +1005,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ),
     );
   }
-
   Widget _buildFloatingActionButton({
     required IconData icon,
     required Color color,
@@ -1034,7 +1018,7 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
           color: color,
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.5),
+              color: color.withValues(alpha: 0.5),
               blurRadius: 20,
               spreadRadius: 2,
             ),
@@ -1058,7 +1042,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ),
     );
   }
-
   Widget _buildLoadingFloatingButton({required Color color}) {
     return ScaleTransition(
       scale: _scaleAnimation,
@@ -1068,7 +1051,7 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
           color: color,
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.5),
+              color: color.withValues(alpha: 0.5),
               blurRadius: 20,
               spreadRadius: 2,
             ),
@@ -1088,7 +1071,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ),
     );
   }
-
   void _showApproveConfirmation(BuildContext context, String reviewId) {
     HapticFeedback.mediumImpact();
     showDialog(
@@ -1105,12 +1087,12 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
               color: AppTheme.darkCard,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.success.withOpacity(0.3),
+                color: AppTheme.success.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.success.withOpacity(0.2),
+                  color: AppTheme.success.withValues(alpha: 0.2),
                   blurRadius: 30,
                   spreadRadius: 5,
                 ),
@@ -1123,7 +1105,7 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.success.withOpacity(0.1),
+                    color: AppTheme.success.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.check_circle_outline,
@@ -1197,7 +1179,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ),
     );
   }
-
   Future<void> _approveReview(String reviewId) async {
     if (_isApproving) return;
     setState(() {
@@ -1227,45 +1208,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       }
     }
   }
-
-  Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              gradient: AppTheme.primaryGradient,
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.glowBlue.withOpacity(0.5),
-                  blurRadius: 40,
-                  spreadRadius: 10,
-                ),
-              ],
-            ),
-            child: const Center(
-              child: CircularProgressIndicator(
-                color: Colors.white,
-                strokeWidth: 3,
-              ),
-            ),
-          ),
-          const SizedBox(height: 32),
-          Text(
-            'جاري تحميل تفاصيل التقييم...',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textLight,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildErrorState(String message) {
     return Center(
       child: Column(
@@ -1275,9 +1217,9 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppTheme.error.withOpacity(0.1),
+              color: AppTheme.error.withValues(alpha: 0.1),
               border: Border.all(
-                color: AppTheme.error.withOpacity(0.3),
+                color: AppTheme.error.withValues(alpha: 0.3),
                 width: 2,
               ),
             ),
@@ -1333,7 +1275,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ),
     );
   }
-
   void _showAddResponseDialog(BuildContext context, String reviewId) {
     HapticFeedback.lightImpact();
 
@@ -1371,7 +1312,6 @@ class _ReviewDetailsPageState extends State<ReviewDetailsPage>
       ),
     );
   }
-
   String _formatDate(DateTime date) {
     final months = [
       'يناير',

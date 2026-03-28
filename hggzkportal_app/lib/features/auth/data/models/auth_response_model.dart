@@ -1,7 +1,11 @@
 import '../../domain/entities/auth_response.dart';
 import 'user_model.dart';
 
+/// يعرّف الكلاس `AuthResponseModel`.
+/// Describes the `AuthResponseModel` class.
 class AuthResponseModel extends AuthResponse {
+  /// Initializes a new `AuthResponseModel` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `AuthResponseModel`.
   const AuthResponseModel({
     required super.user,
     required super.accessToken,
@@ -9,6 +13,8 @@ class AuthResponseModel extends AuthResponse {
     super.expiresAt,
   });
 
+  /// ينشئ مثيلاً من `AuthResponseModel`.
+  /// Builds an instance of `AuthResponseModel`.
   factory AuthResponseModel.fromJson(Map<String, dynamic> json) {
     // Tokens from Common AuthResultDto or Client DTOs
     final accessToken = json['accessToken'] ?? json['newAccessToken'] ?? '';
@@ -65,6 +71,8 @@ class AuthResponseModel extends AuthResponse {
     );
   }
 
+  /// ينفذ العملية `toJson`.
+  /// Runs the `toJson` operation.
   Map<String, dynamic> toJson() {
     final userModel =
         user is UserModel ? user as UserModel : UserModel.fromEntity(user);
@@ -76,6 +84,8 @@ class AuthResponseModel extends AuthResponse {
     };
   }
 
+  /// ينشئ مثيلاً من `AuthResponseModel`.
+  /// Builds an instance of `AuthResponseModel`.
   factory AuthResponseModel.fromEntity(AuthResponse authResponse) {
     final userModel = authResponse.user is UserModel
         ? authResponse.user as UserModel

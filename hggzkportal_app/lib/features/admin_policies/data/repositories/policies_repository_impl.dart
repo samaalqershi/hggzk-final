@@ -7,11 +7,13 @@ import '../../domain/entities/policy.dart';
 import '../../domain/repositories/policies_repository.dart';
 import '../datasources/policies_local_datasource.dart';
 import '../datasources/policies_remote_datasource.dart';
-import '../models/policy_model.dart';
 
 class PoliciesRepositoryImpl implements PoliciesRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final PoliciesRemoteDataSource remoteDataSource;
+
   final PoliciesLocalDataSource localDataSource;
+
   final NetworkInfo networkInfo;
 
   PoliciesRepositoryImpl({
@@ -30,7 +32,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
     bool requireFullPaymentBeforeConfirmation = false,
     double minimumDepositPercentage = 0.0,
     int minHoursBeforeCheckIn = 0,
-
     bool? cancellationFreeCancel,
     bool? cancellationFullRefund,
     int? cancellationRefundPercentage,
@@ -38,7 +39,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
     int? cancellationHoursBeforeCheckIn,
     bool? cancellationNonRefundable,
     String? cancellationPenaltyAfterDeadline,
-
     bool? paymentDepositRequired,
     bool? paymentFullPaymentRequired,
     double? paymentDepositPercentage,
@@ -47,7 +47,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
     bool? paymentPayAtProperty,
     bool? paymentCashPreferred,
     List<String>? paymentAcceptedMethods,
-
     String? checkInTime,
     String? checkOutTime,
     String? checkInFrom,
@@ -59,7 +58,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
     String? checkInEarlyCheckInNote,
     String? checkInLateCheckOutNote,
     String? checkInLateCheckOutFee,
-
     bool? childrenAllowed,
     int? childrenFreeUnderAge,
     int? childrenHalfPriceUnderAge,
@@ -68,7 +66,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
     String? childrenCribsNote,
     bool? childrenPlaygroundAvailable,
     bool? childrenKidsMenuAvailable,
-
     bool? petsAllowed,
     String? petsReason,
     double? petsFeeAmount,
@@ -78,7 +75,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
     bool? petsPetFriendly,
     bool? petsOutdoorSpace,
     bool? petsStrict,
-
     bool? modificationAllowed,
     int? modificationFreeModificationHours,
     String? modificationFeesAfter,
@@ -97,7 +93,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
               requireFullPaymentBeforeConfirmation,
           minimumDepositPercentage: minimumDepositPercentage,
           minHoursBeforeCheckIn: minHoursBeforeCheckIn,
-
           cancellationFreeCancel: cancellationFreeCancel,
           cancellationFullRefund: cancellationFullRefund,
           cancellationRefundPercentage: cancellationRefundPercentage,
@@ -105,7 +100,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
           cancellationHoursBeforeCheckIn: cancellationHoursBeforeCheckIn,
           cancellationNonRefundable: cancellationNonRefundable,
           cancellationPenaltyAfterDeadline: cancellationPenaltyAfterDeadline,
-
           paymentDepositRequired: paymentDepositRequired,
           paymentFullPaymentRequired: paymentFullPaymentRequired,
           paymentDepositPercentage: paymentDepositPercentage,
@@ -114,7 +108,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
           paymentPayAtProperty: paymentPayAtProperty,
           paymentCashPreferred: paymentCashPreferred,
           paymentAcceptedMethods: paymentAcceptedMethods,
-
           checkInTime: checkInTime,
           checkOutTime: checkOutTime,
           checkInFrom: checkInFrom,
@@ -126,7 +119,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
           checkInEarlyCheckInNote: checkInEarlyCheckInNote,
           checkInLateCheckOutNote: checkInLateCheckOutNote,
           checkInLateCheckOutFee: checkInLateCheckOutFee,
-
           childrenAllowed: childrenAllowed,
           childrenFreeUnderAge: childrenFreeUnderAge,
           childrenHalfPriceUnderAge: childrenHalfPriceUnderAge,
@@ -135,7 +127,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
           childrenCribsNote: childrenCribsNote,
           childrenPlaygroundAvailable: childrenPlaygroundAvailable,
           childrenKidsMenuAvailable: childrenKidsMenuAvailable,
-
           petsAllowed: petsAllowed,
           petsReason: petsReason,
           petsFeeAmount: petsFeeAmount,
@@ -145,7 +136,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
           petsPetFriendly: petsPetFriendly,
           petsOutdoorSpace: petsOutdoorSpace,
           petsStrict: petsStrict,
-
           modificationAllowed: modificationAllowed,
           modificationFreeModificationHours: modificationFreeModificationHours,
           modificationFeesAfter: modificationFeesAfter,
@@ -173,7 +163,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
     bool? requireFullPaymentBeforeConfirmation,
     double? minimumDepositPercentage,
     int? minHoursBeforeCheckIn,
-
     bool? cancellationFreeCancel,
     bool? cancellationFullRefund,
     int? cancellationRefundPercentage,
@@ -181,7 +170,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
     int? cancellationHoursBeforeCheckIn,
     bool? cancellationNonRefundable,
     String? cancellationPenaltyAfterDeadline,
-
     bool? paymentDepositRequired,
     bool? paymentFullPaymentRequired,
     double? paymentDepositPercentage,
@@ -190,7 +178,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
     bool? paymentPayAtProperty,
     bool? paymentCashPreferred,
     List<String>? paymentAcceptedMethods,
-
     String? checkInTime,
     String? checkOutTime,
     String? checkInFrom,
@@ -202,7 +189,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
     String? checkInEarlyCheckInNote,
     String? checkInLateCheckOutNote,
     String? checkInLateCheckOutFee,
-
     bool? childrenAllowed,
     int? childrenFreeUnderAge,
     int? childrenHalfPriceUnderAge,
@@ -211,7 +197,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
     String? childrenCribsNote,
     bool? childrenPlaygroundAvailable,
     bool? childrenKidsMenuAvailable,
-
     bool? petsAllowed,
     String? petsReason,
     double? petsFeeAmount,
@@ -221,7 +206,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
     bool? petsPetFriendly,
     bool? petsOutdoorSpace,
     bool? petsStrict,
-
     bool? modificationAllowed,
     int? modificationFreeModificationHours,
     String? modificationFeesAfter,
@@ -240,7 +224,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
               requireFullPaymentBeforeConfirmation,
           minimumDepositPercentage: minimumDepositPercentage,
           minHoursBeforeCheckIn: minHoursBeforeCheckIn,
-
           cancellationFreeCancel: cancellationFreeCancel,
           cancellationFullRefund: cancellationFullRefund,
           cancellationRefundPercentage: cancellationRefundPercentage,
@@ -248,7 +231,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
           cancellationHoursBeforeCheckIn: cancellationHoursBeforeCheckIn,
           cancellationNonRefundable: cancellationNonRefundable,
           cancellationPenaltyAfterDeadline: cancellationPenaltyAfterDeadline,
-
           paymentDepositRequired: paymentDepositRequired,
           paymentFullPaymentRequired: paymentFullPaymentRequired,
           paymentDepositPercentage: paymentDepositPercentage,
@@ -257,7 +239,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
           paymentPayAtProperty: paymentPayAtProperty,
           paymentCashPreferred: paymentCashPreferred,
           paymentAcceptedMethods: paymentAcceptedMethods,
-
           checkInTime: checkInTime,
           checkOutTime: checkOutTime,
           checkInFrom: checkInFrom,
@@ -269,7 +250,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
           checkInEarlyCheckInNote: checkInEarlyCheckInNote,
           checkInLateCheckOutNote: checkInLateCheckOutNote,
           checkInLateCheckOutFee: checkInLateCheckOutFee,
-
           childrenAllowed: childrenAllowed,
           childrenFreeUnderAge: childrenFreeUnderAge,
           childrenHalfPriceUnderAge: childrenHalfPriceUnderAge,
@@ -278,7 +258,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
           childrenCribsNote: childrenCribsNote,
           childrenPlaygroundAvailable: childrenPlaygroundAvailable,
           childrenKidsMenuAvailable: childrenKidsMenuAvailable,
-
           petsAllowed: petsAllowed,
           petsReason: petsReason,
           petsFeeAmount: petsFeeAmount,
@@ -288,7 +267,6 @@ class PoliciesRepositoryImpl implements PoliciesRepository {
           petsPetFriendly: petsPetFriendly,
           petsOutdoorSpace: petsOutdoorSpace,
           petsStrict: petsStrict,
-
           modificationAllowed: modificationAllowed,
           modificationFreeModificationHours: modificationFreeModificationHours,
           modificationFeesAfter: modificationFeesAfter,

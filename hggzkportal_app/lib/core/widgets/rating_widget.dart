@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_dimensions.dart';
-
 class RatingWidget extends StatelessWidget {
   final double rating;
   final int? reviewCount;
@@ -14,7 +13,6 @@ class RatingWidget extends StatelessWidget {
   final Color? inactiveColor;
   final MainAxisAlignment alignment;
   final bool showReviewCount;
-
   const RatingWidget({
     super.key,
     required this.rating,
@@ -28,17 +26,13 @@ class RatingWidget extends StatelessWidget {
     this.alignment = MainAxisAlignment.start,
     this.showReviewCount = true,
   });
-
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: alignment,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (interactive)
-          _buildInteractiveStars()
-        else
-          _buildStaticStars(),
+        if (interactive) _buildInteractiveStars() else _buildStaticStars(),
         if (showLabel) ...[
           const SizedBox(width: AppDimensions.spaceXSmall),
           _buildRatingLabel(),
@@ -50,7 +44,6 @@ class RatingWidget extends StatelessWidget {
       ],
     );
   }
-
   Widget _buildStaticStars() {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -59,7 +52,6 @@ class RatingWidget extends StatelessWidget {
       }),
     );
   }
-
   Widget _buildInteractiveStars() {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -75,7 +67,6 @@ class RatingWidget extends StatelessWidget {
       }),
     );
   }
-
   Widget _buildStar(int index) {
     final double starValue = index + 1.0;
     final bool isFilled = rating >= starValue;
@@ -101,7 +92,6 @@ class RatingWidget extends StatelessWidget {
       color: color,
     );
   }
-
   Widget _buildRatingLabel() {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -121,7 +111,6 @@ class RatingWidget extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildReviewCount() {
     return Text(
       '($reviewCount)',
@@ -130,7 +119,6 @@ class RatingWidget extends StatelessWidget {
       ),
     );
   }
-
   Color _getRatingColor() {
     if (rating >= 4.5) {
       return AppTheme.success;
@@ -143,7 +131,6 @@ class RatingWidget extends StatelessWidget {
     }
   }
 }
-
 class RatingStarsInput extends StatefulWidget {
   final double initialRating;
   final Function(double) onRatingChanged;
@@ -151,7 +138,6 @@ class RatingStarsInput extends StatefulWidget {
   final Color? activeColor;
   final Color? inactiveColor;
   final bool allowHalfRating;
-
   const RatingStarsInput({
     super.key,
     this.initialRating = 0,
@@ -161,20 +147,16 @@ class RatingStarsInput extends StatefulWidget {
     this.inactiveColor,
     this.allowHalfRating = false,
   });
-
   @override
   State<RatingStarsInput> createState() => _RatingStarsInputState();
 }
-
 class _RatingStarsInputState extends State<RatingStarsInput> {
   late double _currentRating;
-
   @override
   void initState() {
     super.initState();
     _currentRating = widget.initialRating;
   }
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -186,7 +168,7 @@ class _RatingStarsInputState extends State<RatingStarsInput> {
             final localPosition = box.globalToLocal(details.globalPosition);
             final starWidth = widget.starSize;
             final starIndex = localPosition.dx / starWidth;
-            
+
             setState(() {
               if (widget.allowHalfRating) {
                 _currentRating = (starIndex * 2).round() / 2;
@@ -195,7 +177,7 @@ class _RatingStarsInputState extends State<RatingStarsInput> {
               }
               _currentRating = _currentRating.clamp(0.5, 5.0);
             });
-            
+
             widget.onRatingChanged(_currentRating);
           },
           child: Icon(
@@ -207,10 +189,9 @@ class _RatingStarsInputState extends State<RatingStarsInput> {
       }),
     );
   }
-
   IconData _getIconForIndex(int index) {
     final double starValue = index + 1.0;
-    
+
     if (_currentRating >= starValue) {
       return Icons.star_rounded;
     } else if (_currentRating > index && _currentRating < starValue) {
@@ -219,10 +200,9 @@ class _RatingStarsInputState extends State<RatingStarsInput> {
       return Icons.star_outline_rounded;
     }
   }
-
   Color _getColorForIndex(int index) {
     final double starValue = index + 1.0;
-    
+
     if (_currentRating >= starValue) {
       return widget.activeColor ?? AppTheme.warning;
     } else {

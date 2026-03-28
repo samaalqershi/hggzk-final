@@ -26,7 +26,6 @@ class ArabicTextUtils {
     0x065F,
     0x0670,
   };
-
   static const Map<int, _ArabicCharData> _chars = {
     0x0621: _ArabicCharData(isolated: 0xFE80),
     0x0622:
@@ -238,16 +237,13 @@ class ArabicTextUtils {
       connectNext: true,
     ),
   };
-
   static const Map<int, _LamAlefForm> _lamAlefForms = {
     0x0622: _LamAlefForm(isolated: 0xFEF5, finalForm: 0xFEF6),
     0x0623: _LamAlefForm(isolated: 0xFEF7, finalForm: 0xFEF8),
     0x0625: _LamAlefForm(isolated: 0xFEF9, finalForm: 0xFEFA),
     0x0627: _LamAlefForm(isolated: 0xFEFB, finalForm: 0xFEFC),
   };
-
   static bool containsArabic(String text) => _arabicRegex.hasMatch(text);
-
   static String shape(String text) {
     if (text.isEmpty || !containsArabic(text)) {
       return text;
@@ -309,7 +305,6 @@ class ArabicTextUtils {
 
     return buffer.toString();
   }
-
   static int? _findPrevLetter(List<int> runes, int start) {
     for (var i = start; i >= 0; i--) {
       final code = runes[i];
@@ -323,7 +318,6 @@ class ArabicTextUtils {
     }
     return null;
   }
-
   static int? _findNextLetter(List<int> runes, int start) {
     for (var i = start; i < runes.length; i++) {
       final code = runes[i];
@@ -337,7 +331,6 @@ class ArabicTextUtils {
     }
     return null;
   }
-
   static int _resolveForm(
     _ArabicCharData data, {
     required bool connectsPrev,
@@ -355,7 +348,6 @@ class ArabicTextUtils {
     return data.isolated;
   }
 }
-
 class _ArabicCharData {
   final int isolated;
   final int? finalForm;
@@ -363,7 +355,6 @@ class _ArabicCharData {
   final int? medial;
   final bool connectPrev;
   final bool connectNext;
-
   const _ArabicCharData({
     required this.isolated,
     this.finalForm,
@@ -373,11 +364,9 @@ class _ArabicCharData {
     this.connectNext = false,
   });
 }
-
 class _LamAlefForm {
   final int isolated;
   final int finalForm;
-
   const _LamAlefForm({
     required this.isolated,
     required this.finalForm,

@@ -5,46 +5,82 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../utils/amenity_icons.dart';
 
-/// 🎨 Premium Service Icon Picker Dialog
+/// حوار اختيار أيقونة مرفق مع بحث وفئات وشبكة اختيار سريعة.
+/// Amenity icon picker dialog with search, categories, and a quick selection grid.
 class AmenityIconPicker extends StatefulWidget {
+  /// الأيقونة المحددة قبل فتح الحوار.
+  /// Currently selected icon before opening the dialog.
   final String selectedIcon;
+
+  /// يستدعى عند اختيار أيقونة جديدة.
+  /// Callback invoked when a new icon is selected.
   final Function(String) onIconSelected;
 
+  /// ينشئ حوار اختيار الأيقونة بالقيمة المحددة والاستدعاء المرتبط.
+  /// Creates the icon picker dialog with the selected value and callback.
   const AmenityIconPicker({
     super.key,
     required this.selectedIcon,
     required this.onIconSelected,
   });
 
+  /// ينشئ الحالة المسؤولة عن التحريك والبحث والتصفية.
+  /// Creates the state responsible for animation, search, and filtering.
   @override
   State<AmenityIconPicker> createState() => _AmenityIconPickerState();
 }
 
+/// تدير هذه الحالة الحركة والبحث والفئات والنتائج المعروضة في الشبكة.
+/// Manages motion, search, categories, and the icons displayed in the grid.
 class _AmenityIconPickerState extends State<AmenityIconPicker>
     with SingleTickerProviderStateMixin {
+  /// يتحكم في حركة دخول الحوار.
+  /// Controls the dialog entrance animation.
   late AnimationController _animationController;
+
+  /// قيمة التكبير المصاحبة لظهور الحوار.
+  /// Scale value used during dialog appearance.
   late Animation<double> _scaleAnimation;
+
+  /// قيمة التلاشي للحوار.
+  /// Fade value for the dialog.
   late Animation<double> _fadeAnimation;
-  
+
+  /// متحكم البحث النصي.
+  /// Search text controller.
   final _searchController = TextEditingController();
+
+  /// الفئة المختارة حاليًا.
+  /// Currently selected category.
   String _selectedCategory = 'الكل';
+
+  /// نص البحث النشط.
+  /// Active search query.
   String _searchQuery = '';
-  
+
+  /// الأيقونات بعد تطبيق البحث والفئات.
+  /// Icons after applying search and category filters.
   List<AmenityIcon> _filteredIcons = [];
 
+  /// يهيئ الحركة ويحسب أول مجموعة من الأيقونات.
+  /// Initializes animation and computes the initial icon set.
   @override
   void initState() {
     super.initState();
+
     _initializeAnimations();
+
     _filterIcons();
   }
 
+  /// يضبط قيم التكبير والتلاشي ثم يبدأ الحركة.
+  /// Prepares the scale and fade values, then starts the animation.
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.95,
       end: 1.0,
@@ -52,7 +88,7 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
       parent: _animationController,
       curve: Curves.easeOutCubic,
     ));
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -60,29 +96,34 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
       parent: _animationController,
       curve: Curves.easeIn,
     ));
-    
+
     _animationController.forward();
   }
 
+  /// يصفّي الأيقونات بحسب نص البحث والفئة المختارة.
+  /// Filters icons according to the search query and selected category.
   void _filterIcons() {
     setState(() {
       List<AmenityIcon> icons = AmenityIcons.allIcons;
-      
+
       if (_selectedCategory != 'الكل') {
-        icons = AmenityIcons.searchIcons(_searchQuery,category: _selectedCategory);
+        icons =
+            AmenityIcons.searchIcons(_searchQuery, category: _selectedCategory);
       }
-      
+
       if (_searchQuery.isNotEmpty) {
         icons = icons.where((icon) {
           return icon.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                 icon.label.toLowerCase().contains(_searchQuery.toLowerCase());
+              icon.label.toLowerCase().contains(_searchQuery.toLowerCase());
         }).toList();
       }
-      
+
       _filteredIcons = icons;
     });
   }
 
+  /// يحرر متحكمات البحث والحركة عند إزالة الحوار.
+  /// Disposes the search and animation controllers when the dialog is removed.
   @override
   void dispose() {
     _animationController.dispose();
@@ -90,12 +131,14 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
     super.dispose();
   }
 
+  /// يبني الحوار مع الرأس والبحث والتبويبات وشبكة الأيقونات.
+  /// Builds the dialog with the header, search, tabs, and icon grid.
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isTablet = size.width > 600;
     final isMobile = size.width < 400;
-    
+
     return AnimatedBuilder(
       animation: _animationController,
       builder: (context, child) {
@@ -115,13 +158,14 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
                   maxHeight: size.height * 0.85,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.isDark 
-                    ? AppTheme.darkCard.withOpacity(0.98)
-                    : Colors.white,
+                  color: AppTheme.isDark
+                      ? AppTheme.darkCard.withValues(alpha: 0.98)
+                      : Colors.white,
                   borderRadius: BorderRadius.circular(isMobile ? 20 : 28),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(AppTheme.isDark ? 0.3 : 0.08),
+                      color: Colors.black
+                          .withValues(alpha: AppTheme.isDark ? 0.3 : 0.08),
                       blurRadius: 30,
                       offset: const Offset(0, 10),
                     ),
@@ -148,16 +192,18 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
     );
   }
 
+  /// يبني رأس الحوار مع عنوان واضح وزر إغلاق.
+  /// Builds the dialog header with a clear title and close button.
   Widget _buildHeader(bool isMobile) {
     return Container(
       padding: EdgeInsets.all(isMobile ? 16 : 24),
       decoration: BoxDecoration(
-        color: AppTheme.isDark 
-          ? AppTheme.darkSurface.withOpacity(0.5)
-          : AppTheme.lightBackground.withOpacity(0.8),
+        color: AppTheme.isDark
+            ? AppTheme.darkSurface.withValues(alpha: 0.5)
+            : AppTheme.lightBackground.withValues(alpha: 0.8),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
@@ -167,7 +213,7 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
           Container(
             padding: EdgeInsets.all(isMobile ? 8 : 10),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -183,7 +229,10 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
               children: [
                 Text(
                   'اختر أيقونة',
-                  style: (isMobile ? AppTextStyles.heading3 : AppTextStyles.heading2).copyWith(
+                  style: (isMobile
+                          ? AppTextStyles.heading3
+                          : AppTextStyles.heading2)
+                      .copyWith(
                     color: AppTheme.textWhite,
                     fontWeight: FontWeight.w600,
                   ),
@@ -217,6 +266,8 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
     );
   }
 
+  /// يبني شريط البحث الذي يحدث النتائج مباشرة أثناء الكتابة.
+  /// Builds the search bar that updates results as the user types.
   Widget _buildSearchBar(bool isMobile) {
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -235,8 +286,8 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
           ),
           filled: true,
           fillColor: AppTheme.isDark
-            ? AppTheme.darkSurface.withOpacity(0.5)
-            : AppTheme.inputBackground,
+              ? AppTheme.darkSurface.withValues(alpha: 0.5)
+              : AppTheme.inputBackground,
           contentPadding: EdgeInsets.symmetric(
             horizontal: 16,
             vertical: isMobile ? 12 : 14,
@@ -248,14 +299,14 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(
-              color: AppTheme.darkBorder.withOpacity(0.1),
+              color: AppTheme.darkBorder.withValues(alpha: 0.1),
               width: 1,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(
-              color: AppTheme.primaryBlue.withOpacity(0.3),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -265,19 +316,19 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
             size: isMobile ? 20 : 22,
           ),
           suffixIcon: _searchQuery.isNotEmpty
-            ? IconButton(
-                icon: Icon(
-                  Icons.clear_rounded,
-                  color: AppTheme.textMuted,
-                  size: isMobile ? 18 : 20,
-                ),
-                onPressed: () {
-                  _searchController.clear();
-                  _searchQuery = '';
-                  _filterIcons();
-                },
-              )
-            : null,
+              ? IconButton(
+                  icon: Icon(
+                    Icons.clear_rounded,
+                    color: AppTheme.textMuted,
+                    size: isMobile ? 18 : 20,
+                  ),
+                  onPressed: () {
+                    _searchController.clear();
+                    _searchQuery = '';
+                    _filterIcons();
+                  },
+                )
+              : null,
         ),
         onChanged: (value) {
           _searchQuery = value;
@@ -287,9 +338,12 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
     );
   }
 
+  /// يبني تبويبات الفئات لتضييق الأيقونات بسرعة.
+  /// Builds category tabs for quick narrowing of the icon list.
   Widget _buildCategoryTabs(bool isMobile) {
-    final categories = AmenityIcons.searchIcons(_searchQuery,category: _selectedCategory);
-    
+    final categories =
+        AmenityIcons.searchIcons(_searchQuery, category: _selectedCategory);
+
     return Container(
       height: isMobile ? 36 : 42,
       margin: EdgeInsets.only(
@@ -304,7 +358,7 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
         itemBuilder: (context, index) {
           final category = categories[index];
           final isSelected = _selectedCategory == category;
-          
+
           return Padding(
             padding: EdgeInsets.only(right: isMobile ? 6 : 8),
             child: Material(
@@ -326,25 +380,27 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
-                      ? AppTheme.primaryBlue.withOpacity(0.1)
-                      : Colors.transparent,
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isSelected
-                        ? AppTheme.primaryBlue.withOpacity(0.3)
-                        : AppTheme.darkBorder.withOpacity(0.15),
+                          ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                          : AppTheme.darkBorder.withValues(alpha: 0.15),
                       width: 1,
                     ),
                   ),
                   child: Text(
                     category.category,
-                    style: (isMobile ? AppTextStyles.caption : AppTextStyles.bodySmall).copyWith(
-                      color: isSelected 
-                        ? AppTheme.primaryBlue 
-                        : AppTheme.textMuted,
-                      fontWeight: isSelected 
-                        ? FontWeight.w600 
-                        : FontWeight.normal,
+                    style: (isMobile
+                            ? AppTextStyles.caption
+                            : AppTextStyles.bodySmall)
+                        .copyWith(
+                      color: isSelected
+                          ? AppTheme.primaryBlue
+                          : AppTheme.textMuted,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),
                 ),
@@ -356,6 +412,8 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
     );
   }
 
+  /// يبني شبكة الأيقونات القابلة للاختيار مع الحالات المختلفة.
+  /// Builds the selectable icon grid with its different visual states.
   Widget _buildIconGrid(bool isMobile, bool isTablet) {
     if (_filteredIcons.isEmpty) {
       return Center(
@@ -365,13 +423,13 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppTheme.darkSurface.withOpacity(0.3),
+                color: AppTheme.darkSurface.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.search_off_rounded,
                 size: isMobile ? 40 : 48,
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 16),
@@ -393,10 +451,10 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
         ),
       );
     }
-    
+
     final crossAxisCount = isMobile ? 4 : (isTablet ? 6 : 8);
     final aspectRatio = isMobile ? 0.85 : 0.9; // تعديل نسبة العرض للطول
-    
+
     return GridView.builder(
       padding: EdgeInsets.symmetric(
         horizontal: isMobile ? 16 : 24,
@@ -412,7 +470,7 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
       itemBuilder: (context, index) {
         final iconData = _filteredIcons[index];
         final isSelected = widget.selectedIcon == iconData.name;
-        
+
         return Material(
           color: Colors.transparent,
           child: InkWell(
@@ -427,15 +485,15 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
               padding: EdgeInsets.all(isMobile ? 4 : 6),
               decoration: BoxDecoration(
                 color: isSelected
-                  ? AppTheme.primaryBlue.withOpacity(0.1)
-                  : AppTheme.isDark
-                    ? AppTheme.darkSurface.withOpacity(0.3)
-                    : AppTheme.lightSurface,
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+                    : AppTheme.isDark
+                        ? AppTheme.darkSurface.withValues(alpha: 0.3)
+                        : AppTheme.lightSurface,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: isSelected
-                    ? AppTheme.primaryBlue.withOpacity(0.4)
-                    : AppTheme.darkBorder.withOpacity(0.1),
+                      ? AppTheme.primaryBlue.withValues(alpha: 0.4)
+                      : AppTheme.darkBorder.withValues(alpha: 0.1),
                   width: isSelected ? 1.5 : 1,
                 ),
               ),
@@ -451,9 +509,9 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
                           alignment: Alignment.center,
                           child: Icon(
                             iconData.icon,
-                            color: isSelected 
-                              ? AppTheme.primaryBlue 
-                              : AppTheme.textLight,
+                            color: isSelected
+                                ? AppTheme.primaryBlue
+                                : AppTheme.textLight,
                             size: isMobile ? 20 : 24,
                           ),
                         ),
@@ -468,12 +526,12 @@ class _AmenityIconPickerState extends State<AmenityIconPicker>
                             style: TextStyle(
                               fontSize: isMobile ? 7 : 8,
                               height: 1.1, // تقليل ارتفاع السطر
-                              color: isSelected 
-                                ? AppTheme.primaryBlue 
-                                : AppTheme.textMuted,
-                              fontWeight: isSelected 
-                                ? FontWeight.w600 
-                                : FontWeight.normal,
+                              color: isSelected
+                                  ? AppTheme.primaryBlue
+                                  : AppTheme.textMuted,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
                             ),
                             textAlign: TextAlign.center,
                             maxLines: 2,

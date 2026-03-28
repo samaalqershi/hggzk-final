@@ -5,17 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
-import 'package:hggzkportal/core/theme/app_dimensions.dart';
 import '../../domain/entities/user.dart';
-import 'last_seen_widget.dart';
 import '../../../../core/widgets/user_identity_card_tooltip.dart';
 
 class FuturisticUsersTable extends StatefulWidget {
   final List<User> users;
+
   final Function(String) onUserTap;
+
   final Function(String, bool) onStatusToggle;
+
   final Function(String) onDelete;
-  
+
   const FuturisticUsersTable({
     super.key,
     required this.users,
@@ -23,7 +24,7 @@ class FuturisticUsersTable extends StatefulWidget {
     required this.onStatusToggle,
     required this.onDelete,
   });
-  
+
   @override
   State<FuturisticUsersTable> createState() => _FuturisticUsersTableState();
 }
@@ -31,18 +32,24 @@ class FuturisticUsersTable extends StatefulWidget {
 class _FuturisticUsersTableState extends State<FuturisticUsersTable>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   late Animation<double> _fadeAnimation;
-  
+
   String? _hoveredUserId;
+
   String? _pressedUserId;
+
   String _sortColumn = 'name';
+
   bool _isAscending = true;
+
   final Map<String, GlobalKey> _cardKeys = {};
-  
+
   // Breakpoints
   static const double _mobileBreakpoint = 600;
+
   static const double _tabletBreakpoint = 1024;
-  
+
   @override
   void initState() {
     super.initState();
@@ -50,7 +57,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -58,22 +65,22 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       parent: _animationController,
       curve: Curves.easeOut,
     ));
-    
+
     _animationController.forward();
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-  
+
   List<User> get _sortedUsers {
     final sorted = List<User>.from(widget.users);
-    
+
     sorted.sort((a, b) {
       int comparison = 0;
-      
+
       switch (_sortColumn) {
         case 'name':
           comparison = a.name.compareTo(b.name);
@@ -88,22 +95,26 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
           comparison = a.createdAt.compareTo(b.createdAt);
           break;
         case 'lastSeen':
-          if (a.lastSeen == null && b.lastSeen == null) comparison = 0;
-          else if (a.lastSeen == null) comparison = 1;
-          else if (b.lastSeen == null) comparison = -1;
-          else comparison = a.lastSeen!.compareTo(b.lastSeen!);
+          if (a.lastSeen == null && b.lastSeen == null)
+            comparison = 0;
+          else if (a.lastSeen == null)
+            comparison = 1;
+          else if (b.lastSeen == null)
+            comparison = -1;
+          else
+            comparison = a.lastSeen!.compareTo(b.lastSeen!);
           break;
         case 'status':
           comparison = a.isActive.toString().compareTo(b.isActive.toString());
           break;
       }
-      
+
       return _isAscending ? comparison : -comparison;
     });
-    
+
     return sorted;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -119,7 +130,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       },
     );
   }
-  
+
   // ========== عرض الموبايل - بطاقات عمودية ==========
   Widget _buildMobileView() {
     return FadeTransition(
@@ -136,7 +147,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       ),
     );
   }
-  
+
   Widget _buildMobileCard(User user, int index) {
     return TweenAnimationBuilder<double>(
       duration: Duration(milliseconds: 300 + (index * 50)),
@@ -201,7 +212,8 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
                                 // User Name and Role
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         user.name,
@@ -221,14 +233,15 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
                                 _buildStatusBadge(user.isActive),
                               ],
                             ),
-                            
+
                             const SizedBox(height: 16),
-                            
+
                             // User Details
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppTheme.darkSurface.withValues(alpha: 0.3),
+                                color:
+                                    AppTheme.darkSurface.withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Column(
@@ -243,7 +256,9 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
                                   _buildMobileDetailRow(
                                     icon: Icons.phone_rounded,
                                     label: 'الهاتف',
-                                    value: user.phone.isNotEmpty ? user.phone : 'غير محدد',
+                                    value: user.phone.isNotEmpty
+                                        ? user.phone
+                                        : 'غير محدد',
                                     iconColor: AppTheme.primaryPurple,
                                   ),
                                   const SizedBox(height: 8),
@@ -257,25 +272,23 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
                                 ],
                               ),
                             ),
-                            
+
                             const SizedBox(height: 12),
-                            
+
                             // Action Buttons
                             Row(
                               children: [
                                 Expanded(
                                   child: _buildMobileActionButton(
                                     label: user.isActive ? 'إيقاف' : 'تفعيل',
-                                    icon: user.isActive 
-                                        ? Icons.toggle_on_rounded 
+                                    icon: user.isActive
+                                        ? Icons.toggle_on_rounded
                                         : Icons.toggle_off_rounded,
-                                    color: user.isActive 
-                                        ? AppTheme.success 
+                                    color: user.isActive
+                                        ? AppTheme.success
                                         : AppTheme.textMuted,
                                     onTap: () => widget.onStatusToggle(
-                                      user.id, 
-                                      !user.isActive
-                                    ),
+                                        user.id, !user.isActive),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -311,7 +324,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       },
     );
   }
-  
+
   Widget _buildMobileDetailRow({
     required IconData icon,
     required String label,
@@ -346,7 +359,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       ],
     );
   }
-  
+
   Widget _buildMobileActionButton({
     required String label,
     required IconData icon,
@@ -393,7 +406,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       ),
     );
   }
-  
+
   // ========== عرض التابلت - جدول مبسط ==========
   Widget _buildTabletView() {
     return FadeTransition(
@@ -443,7 +456,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       ),
     );
   }
-  
+
   Widget _buildTabletHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -464,7 +477,8 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       child: Row(
         children: [
           _buildTabletHeaderCell('المستخدم', flex: 3, sortKey: 'name'),
-          _buildTabletHeaderCell('البريد الإلكتروني', flex: 3, sortKey: 'email'),
+          _buildTabletHeaderCell('البريد الإلكتروني',
+              flex: 3, sortKey: 'email'),
           _buildTabletHeaderCell('الدور', flex: 2, sortKey: 'role'),
           _buildTabletHeaderCell('الحالة', flex: 1, sortKey: 'status'),
           _buildTabletHeaderCell('الإجراءات', flex: 2),
@@ -472,13 +486,14 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       ),
     );
   }
-  
-  Widget _buildTabletHeaderCell(String title, {
+
+  Widget _buildTabletHeaderCell(
+    String title, {
     required int flex,
     String? sortKey,
   }) {
     final isActive = _sortColumn == sortKey;
-    
+
     return Expanded(
       flex: flex,
       child: InkWell(
@@ -496,8 +511,8 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
               }
             : null,
         child: Row(
-          mainAxisAlignment: sortKey == null 
-              ? MainAxisAlignment.center 
+          mainAxisAlignment: sortKey == null
+              ? MainAxisAlignment.center
               : MainAxisAlignment.start,
           children: [
             Text(
@@ -526,10 +541,10 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       ),
     );
   }
-  
+
   Widget _buildTabletRow(User user) {
     final isHovered = _hoveredUserId == user.id;
-    
+
     return MouseRegion(
       onEnter: (_) => setState(() => _hoveredUserId = user.id),
       onExit: (_) => setState(() => _hoveredUserId = null),
@@ -548,9 +563,8 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
                     ],
                   )
                 : null,
-            color: !isHovered
-                ? AppTheme.darkSurface.withValues(alpha: 0.3)
-                : null,
+            color:
+                !isHovered ? AppTheme.darkSurface.withValues(alpha: 0.3) : null,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isHovered
@@ -587,7 +601,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
                   ],
                 ),
               ),
-              
+
               // Email
               Expanded(
                 flex: 3,
@@ -600,13 +614,13 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              
+
               // Role
               Expanded(
                 flex: 2,
                 child: _buildRoleBadge(user.role),
               ),
-              
+
               // Status
               Expanded(
                 flex: 1,
@@ -614,7 +628,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
                   child: _buildStatusBadge(user.isActive),
                 ),
               ),
-              
+
               // Actions
               Expanded(
                 flex: 2,
@@ -625,8 +639,10 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
                       icon: user.isActive
                           ? Icons.toggle_on_rounded
                           : Icons.toggle_off_rounded,
-                      color: user.isActive ? AppTheme.success : AppTheme.textMuted,
-                      onTap: () => widget.onStatusToggle(user.id, !user.isActive),
+                      color:
+                          user.isActive ? AppTheme.success : AppTheme.textMuted,
+                      onTap: () =>
+                          widget.onStatusToggle(user.id, !user.isActive),
                     ),
                     const SizedBox(width: 4),
                     _buildActionButton(
@@ -649,7 +665,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       ),
     );
   }
-  
+
   // ========== عرض سطح المكتب - الجدول الكامل ==========
   Widget _buildDesktopView() {
     return FadeTransition(
@@ -691,7 +707,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       ),
     );
   }
-  
+
   Widget _buildDesktopHeader() {
     final headers = [
       {'label': 'المستخدم', 'key': 'name', 'flex': 3},
@@ -700,7 +716,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       {'label': 'الحالة', 'key': 'status', 'flex': 1},
       {'label': 'الإجراءات', 'key': 'actions', 'flex': 2},
     ];
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
@@ -721,7 +737,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
         children: headers.map((header) {
           final isActionColumn = header['key'] == 'actions';
           final isActive = _sortColumn == header['key'];
-          
+
           return Expanded(
             flex: header['flex'] as int,
             child: isActionColumn
@@ -751,7 +767,9 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
                         Text(
                           header['label'] as String,
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: isActive ? AppTheme.primaryBlue : AppTheme.textMuted,
+                            color: isActive
+                                ? AppTheme.primaryBlue
+                                : AppTheme.textMuted,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -778,7 +796,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       ),
     );
   }
-  
+
   Widget _buildDesktopBody() {
     return ListView.builder(
       physics: const NeverScrollableScrollPhysics(),
@@ -791,10 +809,10 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       },
     );
   }
-  
+
   Widget _buildDesktopRow(User user, int index) {
     final isHovered = _hoveredUserId == user.id;
-    
+
     return MouseRegion(
       onEnter: (_) => setState(() => _hoveredUserId = user.id),
       onExit: (_) => setState(() => _hoveredUserId = null),
@@ -812,8 +830,10 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
                 opacity: clamped,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   decoration: BoxDecoration(
                     gradient: isHovered
                         ? LinearGradient(
@@ -862,7 +882,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
                           ],
                         ),
                       ),
-                      
+
                       // Email
                       Expanded(
                         flex: 3,
@@ -887,13 +907,13 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
                           ],
                         ),
                       ),
-                      
+
                       // Role
                       Expanded(
                         flex: 2,
                         child: _buildRoleBadge(user.role),
                       ),
-                      
+
                       // Status
                       Expanded(
                         flex: 1,
@@ -901,7 +921,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
                           child: _buildStatusBadge(user.isActive),
                         ),
                       ),
-                      
+
                       // Actions
                       Expanded(
                         flex: 2,
@@ -912,9 +932,13 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
                               icon: user.isActive
                                   ? Icons.toggle_on_rounded
                                   : Icons.toggle_off_rounded,
-                              color: user.isActive ? AppTheme.success : AppTheme.textMuted,
-                              tooltip: user.isActive ? 'إلغاء التفعيل' : 'تفعيل',
-                              onTap: () => widget.onStatusToggle(user.id, !user.isActive),
+                              color: user.isActive
+                                  ? AppTheme.success
+                                  : AppTheme.textMuted,
+                              tooltip:
+                                  user.isActive ? 'إلغاء التفعيل' : 'تفعيل',
+                              onTap: () => widget.onStatusToggle(
+                                  user.id, !user.isActive),
                             ),
                             const SizedBox(width: 8),
                             _buildActionButton(
@@ -943,7 +967,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       ),
     );
   }
-  
+
   // ========== مكونات مشتركة ==========
   Widget _buildAvatar(User user, {required double size}) {
     return Container(
@@ -951,9 +975,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: user.profileImage != null
-            ? null
-            : AppTheme.primaryGradient,
+        gradient: user.profileImage != null ? null : AppTheme.primaryGradient,
         border: Border.all(
           color: user.isActive
               ? AppTheme.success.withValues(alpha: 0.5)
@@ -982,10 +1004,10 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
           : _buildDefaultAvatar(user.name),
     );
   }
-  
+
   Widget _buildDefaultAvatar(String name) {
     final initial = name.isNotEmpty ? name[0].toUpperCase() : 'U';
-    
+
     return Center(
       child: Text(
         initial,
@@ -996,7 +1018,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       ),
     );
   }
-  
+
   Widget _buildRoleBadge(String role) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -1022,7 +1044,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       ),
     );
   }
-  
+
   Widget _buildStatusBadge(bool isActive) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -1069,7 +1091,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       ),
     );
   }
-  
+
   Widget _buildActionButton({
     required IconData icon,
     required Color color,
@@ -1099,12 +1121,10 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
         ),
       ),
     );
-    
-    return tooltip != null
-        ? Tooltip(message: tooltip, child: button)
-        : button;
+
+    return tooltip != null ? Tooltip(message: tooltip, child: button) : button;
   }
-  
+
   List<Color> _getRoleGradient(String role) {
     switch (role.toLowerCase()) {
       case 'admin':
@@ -1117,7 +1137,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
         return [AppTheme.primaryCyan, AppTheme.neonGreen];
     }
   }
-  
+
   String _getRoleText(String role) {
     switch (role.toLowerCase()) {
       case 'admin':
@@ -1132,40 +1152,41 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
         return role;
     }
   }
-  
+
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
-  
+
   // ========== User Identity Card Methods ==========
-  
+
   GlobalKey _getCardKey(String userId) {
     if (!_cardKeys.containsKey(userId)) {
       _cardKeys[userId] = GlobalKey();
     }
     return _cardKeys[userId]!;
   }
-  
+
   void _showUserIdentityCard(User user) {
     setState(() => _pressedUserId = user.id);
-    
+
     HapticFeedback.mediumImpact();
-    
+
     // Additional info
     final additionalInfo = <String, dynamic>{};
-    
+
     if (user.favorites != null && user.favorites!.isNotEmpty) {
       additionalInfo['المفضلات'] = '${user.favorites!.length} عنصر';
     }
-    
+
     if (user.settings != null && user.settings!.isNotEmpty) {
-      final notificationsEnabled = user.settings!['notifications_enabled'] ?? true;
+      final notificationsEnabled =
+          user.settings!['notifications_enabled'] ?? true;
       additionalInfo['الإشعارات'] = notificationsEnabled ? 'مفعلة' : 'معطلة';
-      
+
       final language = user.settings!['language'] ?? 'ar';
       additionalInfo['اللغة'] = language == 'ar' ? 'العربية' : 'English';
     }
-    
+
     // Show tooltip
     UserIdentityCardTooltip.show(
       context: context,
@@ -1182,7 +1203,7 @@ class _FuturisticUsersTableState extends State<FuturisticUsersTable>
       lastLoginDate: user.lastLoginDate,
       additionalInfo: additionalInfo.isNotEmpty ? additionalInfo : null,
     );
-    
+
     Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted) setState(() => _pressedUserId = null);
     });

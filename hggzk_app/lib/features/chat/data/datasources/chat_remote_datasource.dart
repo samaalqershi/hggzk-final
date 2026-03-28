@@ -13,7 +13,11 @@ import '../models/attachment_model.dart';
 import '../models/conversation_model.dart';
 import '../models/message_model.dart';
 
+/// Remote contract for chat conversations, messages, users, and settings.
+/// العقدة البعيدة للمحادثات والرسائل والمستخدمين والإعدادات.
 abstract class ChatRemoteDataSource {
+  /// Creates a conversation on the server.
+  /// ينشئ محادثة على الخادم.
   Future<ConversationModel> createConversation({
     required List<String> participantIds,
     required String conversationType,
@@ -22,19 +26,31 @@ abstract class ChatRemoteDataSource {
     String? propertyId,
   });
 
+  /// Loads a page of conversations from the backend.
+  /// يحمل صفحة من المحادثات من الخادم.
   Future<List<ConversationModel>> getConversations({
     required int pageNumber,
     required int pageSize,
   });
 
+  /// Fetches one conversation snapshot by id.
+  /// يجلب لقطة محادثة واحدة بواسطة المعرّف.
   Future<ConversationModel> getConversationById(String conversationId);
 
+  /// Archives one conversation on the server.
+  /// يؤرشف محادثة واحدة على الخادم.
   Future<void> archiveConversation(String conversationId);
 
+  /// Restores an archived conversation on the server.
+  /// يعيد محادثة مؤرشفة على الخادم.
   Future<void> unarchiveConversation(String conversationId);
 
+  /// Deletes one conversation on the server.
+  /// يحذف محادثة واحدة على الخادم.
   Future<void> deleteConversation(String conversationId);
 
+  /// Loads a page of messages for one conversation.
+  /// يحمل صفحة من الرسائل لمحادثة واحدة.
   Future<List<MessageModel>> getMessages({
     required String conversationId,
     required int pageNumber,
@@ -42,6 +58,8 @@ abstract class ChatRemoteDataSource {
     String? beforeMessageId,
   });
 
+  /// Sends one outbound message.
+  /// يرسل رسالة واحدة صادرة.
   Future<MessageModel> sendMessage({
     required String conversationId,
     required String messageType,
@@ -51,28 +69,40 @@ abstract class ChatRemoteDataSource {
     List<String>? attachmentIds,
   });
 
+  /// Updates an existing message on the server.
+  /// يحدّث رسالة موجودة على الخادم.
   Future<MessageModel> editMessage({
     required String messageId,
     required String content,
   });
 
+  /// Deletes one message from the server.
+  /// يحذف رسالة واحدة من الخادم.
   Future<void> deleteMessage(String messageId);
 
+  /// Marks the provided messages as read.
+  /// يعلّم الرسائل المقدمة كمقروءة.
   Future<void> markAsRead({
     required String conversationId,
     required List<String> messageIds,
   });
 
+  /// Adds a reaction to a message on the server.
+  /// يضيف تفاعلًا إلى رسالة على الخادم.
   Future<void> addReaction({
     required String messageId,
     required String reactionType,
   });
 
+  /// Removes a reaction from a message on the server.
+  /// يزيل تفاعلًا من رسالة على الخادم.
   Future<void> removeReaction({
     required String messageId,
     required String reactionType,
   });
 
+  /// Uploads one attachment for the given conversation.
+  /// يرفع مرفقًا واحدًا للمحادثة المحددة.
   Future<AttachmentModel> uploadAttachment({
     required String conversationId,
     required String filePath,
@@ -80,6 +110,8 @@ abstract class ChatRemoteDataSource {
     ProgressCallback? onSendProgress,
   });
 
+  /// Searches chats and messages on the backend.
+  /// يبحث في المحادثات والرسائل على الخادم.
   Future<SearchResult> searchChats({
     required String query,
     String? conversationId,
@@ -91,17 +123,27 @@ abstract class ChatRemoteDataSource {
     required int limit,
   });
 
+  /// Loads users that can join a conversation.
+  /// يحمل المستخدمين الذين يمكنهم الانضمام إلى محادثة.
   Future<List<ChatUserModel>> getAvailableUsers({
     String? userType,
     String? propertyId,
   });
 
+  /// Loads users with administrative permissions.
+  /// يحمل المستخدمين ذوي الصلاحيات الإدارية.
   Future<List<ChatUserModel>> getAdminUsers();
 
+  /// Updates the current user's presence status.
+  /// يحدّث حالة حضور المستخدم الحالي.
   Future<void> updateUserStatus(String status);
 
+  /// Loads the current chat preference snapshot.
+  /// يحمل لقطة تفضيلات الدردشة الحالية.
   Future<ChatSettingsModel> getChatSettings();
 
+  /// Persists one or more chat preferences.
+  /// يحفظ تفضيلًا واحدًا أو أكثر من تفضيلات الدردشة.
   Future<ChatSettingsModel> updateChatSettings({
     bool? notificationsEnabled,
     bool? soundEnabled,
@@ -114,11 +156,19 @@ abstract class ChatRemoteDataSource {
   });
 }
 
+/// HTTP implementation of the chat remote data source.
+/// تنفيذ HTTP لمصدر بيانات الدردشة البعيد.
 class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
+  /// Network client used for all chat API requests.
+  /// عميل الشبكة المستخدم لجميع طلبات واجهة الدردشة.
   final ApiClient apiClient;
 
+  /// Builds the remote data source around the shared API client.
+  /// يبني مصدر البيانات البعيد حول عميل الـ API المشترك.
   ChatRemoteDataSourceImpl({required this.apiClient});
 
+  /// Creates a conversation on the server and returns the new snapshot.
+  /// ينشئ محادثة على الخادم ويعيد اللقطة الجديدة.
   @override
   Future<ConversationModel> createConversation({
     required List<String> participantIds,
@@ -128,23 +178,23 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     String? propertyId,
   }) async {
     const requestName = 'chat.createConversation';
-    
+
     // تنظيف المعرفات
     final cleanParticipantIds = participantIds
         .where((id) => id.isNotEmpty)
         .map((id) => id.trim())
         .toList();
-    
+
     if (cleanParticipantIds.isEmpty) {
       throw ServerException('قائمة المشاركين فارغة');
     }
-    
+
     logRequestStart(requestName, details: {
       'participantIdsCount': cleanParticipantIds.length,
       'conversationType': conversationType,
       if (propertyId != null) 'propertyId': propertyId,
     });
-    
+
     try {
       final response = await apiClient.post(
         '/api/common/chat/conversations',
@@ -152,38 +202,42 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           'participantIds': cleanParticipantIds,
           'conversationType': conversationType,
           if (title != null && title.isNotEmpty) 'title': title,
-          if (description != null && description.isNotEmpty) 'description': description,
-          if (propertyId != null && propertyId.isNotEmpty) 'propertyId': propertyId,
+          if (description != null && description.isNotEmpty)
+            'description': description,
+          if (propertyId != null && propertyId.isNotEmpty)
+            'propertyId': propertyId,
         },
       );
 
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.data['success'] == true && response.data['data'] != null) {
-        return ConversationModel.fromJson(response.data['data'] as Map<String, dynamic>);
+        return ConversationModel.fromJson(
+            response.data['data'] as Map<String, dynamic>);
       }
-      
+
       final errorMessage = response.data['message'] ?? 'فشل إنشاء المحادثة';
       throw ServerException(errorMessage);
-      
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      
+
       // معالجة أفضل للأخطاء
       if (e.response != null) {
         final statusCode = e.response!.statusCode;
         final data = e.response!.data;
-        final message = data is Map ? (data['message'] ?? data['title'] ?? '') : '';
-        
+        final message =
+            data is Map ? (data['message'] ?? data['title'] ?? '') : '';
+
         if (statusCode == 400) {
-          throw ServerException(message.isNotEmpty ? message : 'بيانات غير صحيحة');
+          throw ServerException(
+              message.isNotEmpty ? message : 'بيانات غير صحيحة');
         } else if (statusCode == 404) {
           throw ServerException('المستخدم المطلوب غير موجود');
         } else if (statusCode == 500) {
           throw ServerException('خطأ في الخادم، يرجى المحاولة لاحقاً');
         }
       }
-      
+
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -192,6 +246,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// العربية: يعيد conversations.
   @override
   Future<List<ConversationModel>> getConversations({
     required int pageNumber,
@@ -229,6 +284,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// العربية: يعيد conversation by id.
   @override
   Future<ConversationModel> getConversationById(String conversationId) async {
     const requestName = 'chat.getConversationById';
@@ -256,6 +312,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// العربية: يعالج `archiveConversation`.
   @override
   Future<void> archiveConversation(String conversationId) async {
     const requestName = 'chat.archiveConversation';
@@ -280,6 +337,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// العربية: يعالج `unarchiveConversation`.
   @override
   Future<void> unarchiveConversation(String conversationId) async {
     const requestName = 'chat.unarchiveConversation';
@@ -292,7 +350,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.data['success'] != true) {
-        throw ServerException(response.data['message'] ?? 'فشل إلغاء أرشفة المحادثة');
+        throw ServerException(
+            response.data['message'] ?? 'فشل إلغاء أرشفة المحادثة');
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -304,6 +363,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// العربية: يحذف conversation.
   @override
   Future<void> deleteConversation(String conversationId) async {
     const requestName = 'chat.deleteConversation';
@@ -328,6 +388,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  /// العربية: يعيد messages.
   @override
   Future<List<MessageModel>> getMessages({
     required String conversationId,
@@ -370,96 +431,99 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
-@override
-Future<MessageModel> sendMessage({
-  required String conversationId,
-  required String messageType,
-  String? content,
-  Location? location,
-  String? replyToMessageId,
-  List<String>? attachmentIds,
-}) async {
-  const requestName = 'chat.sendMessage';
-  logRequestStart(requestName, details: {
-    'conversationId': conversationId,
-    'messageType': messageType,
-  });
-  
-  try {
-    // تحقق من صحة البيانات
-    if (messageType == 'text' && (content == null || content.isEmpty)) {
-      throw ServerException('محتوى الرسالة مطلوب للرسائل النصية');
-    }
-    
-    // استخدم FormData لأن الـ backend يتوقع [FromForm]
-    final formData = FormData.fromMap({
+  /// العربية: يرسل message.
+  @override
+  Future<MessageModel> sendMessage({
+    required String conversationId,
+    required String messageType,
+    String? content,
+    Location? location,
+    String? replyToMessageId,
+    List<String>? attachmentIds,
+  }) async {
+    const requestName = 'chat.sendMessage';
+    logRequestStart(requestName, details: {
       'conversationId': conversationId,
       'messageType': messageType,
-      if (content != null && content.isNotEmpty) 'content': content,
-      if (location != null) 'locationJson': jsonEncode({
-        'latitude': location.latitude,
-        'longitude': location.longitude,
-        if (location.address != null) 'address': location.address,
-      }),
-      if (replyToMessageId != null) 'replyToMessageId': replyToMessageId,
-      if (attachmentIds != null && attachmentIds.isNotEmpty) 
-        for (int i = 0; i < attachmentIds.length; i++)
-          'attachmentIds[$i]': attachmentIds[i],
     });
 
-    final response = await apiClient.post(
-      '/api/common/chat/conversations/$conversationId/messages',
-      data: formData,
-      options: Options(
-        contentType: 'multipart/form-data',
-      ),
-    );
+    try {
+      // تحقق من صحة البيانات
+      if (messageType == 'text' && (content == null || content.isEmpty)) {
+        throw ServerException('محتوى الرسالة مطلوب للرسائل النصية');
+      }
 
-    logRequestSuccess(requestName, statusCode: response.statusCode);
+      // استخدم FormData لأن الـ backend يتوقع [FromForm]
+      final formData = FormData.fromMap({
+        'conversationId': conversationId,
+        'messageType': messageType,
+        if (content != null && content.isNotEmpty) 'content': content,
+        if (location != null)
+          'locationJson': jsonEncode({
+            'latitude': location.latitude,
+            'longitude': location.longitude,
+            if (location.address != null) 'address': location.address,
+          }),
+        if (replyToMessageId != null) 'replyToMessageId': replyToMessageId,
+        if (attachmentIds != null && attachmentIds.isNotEmpty)
+          for (int i = 0; i < attachmentIds.length; i++)
+            'attachmentIds[$i]': attachmentIds[i],
+      });
 
-    if (response.data != null && response.data is Map<String, dynamic>) {
-      final data = response.data as Map<String, dynamic>;
-      
-      // تحويل message_id إلى id للتوافق مع MessageModel
-      if (data.containsKey('message_id')) {
-        data['id'] = data['message_id'];
+      final response = await apiClient.post(
+        '/api/common/chat/conversations/$conversationId/messages',
+        data: formData,
+        options: Options(
+          contentType: 'multipart/form-data',
+        ),
+      );
+
+      logRequestSuccess(requestName, statusCode: response.statusCode);
+
+      if (response.data != null && response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+
+        // تحويل message_id إلى id للتوافق مع MessageModel
+        if (data.containsKey('message_id')) {
+          data['id'] = data['message_id'];
+        }
+
+        // التحقق من البيانات المطلوبة
+        if (data['messageType'] == null ||
+            data['messageType'].toString().isEmpty) {
+          data['messageType'] = messageType; // استخدم القيمة المرسلة
+        }
+
+        if (messageType == 'text' && data['content'] == null) {
+          data['content'] = content; // استخدم القيمة المرسلة
+        }
+
+        // تعيين status إذا كان فارغاً
+        if (data['status'] == null || data['status'].toString().isEmpty) {
+          data['status'] = 'sent';
+        }
+
+        return MessageModel.fromJson(data);
       }
-      
-      // التحقق من البيانات المطلوبة
-      if (data['messageType'] == null || data['messageType'].toString().isEmpty) {
-        data['messageType'] = messageType; // استخدم القيمة المرسلة
+
+      throw ServerException('صيغة الاستجابة غير صحيحة');
+    } on DioException catch (e, s) {
+      logRequestError(requestName, e, stackTrace: s);
+
+      if (e.response?.statusCode == 400) {
+        final message = e.response?.data?['message'] ?? 'بيانات غير صحيحة';
+        throw ServerException(message);
       }
-      
-      if (messageType == 'text' && data['content'] == null) {
-        data['content'] = content; // استخدم القيمة المرسلة
-      }
-      
-      // تعيين status إذا كان فارغاً
-      if (data['status'] == null || data['status'].toString().isEmpty) {
-        data['status'] = 'sent';
-      }
-      
-      return MessageModel.fromJson(data);
+
+      throw ApiException.fromDioError(e);
+    } catch (e, s) {
+      logRequestError(requestName, e, stackTrace: s);
+      if (e is ServerException) rethrow;
+      throw ServerException(e.toString());
     }
-    
-    throw ServerException('صيغة الاستجابة غير صحيحة');
-    
-  } on DioException catch (e, s) {
-    logRequestError(requestName, e, stackTrace: s);
-    
-    if (e.response?.statusCode == 400) {
-      final message = e.response?.data?['message'] ?? 'بيانات غير صحيحة';
-      throw ServerException(message);
-    }
-    
-    throw ApiException.fromDioError(e);
-  } catch (e, s) {
-    logRequestError(requestName, e, stackTrace: s);
-    if (e is ServerException) rethrow;
-    throw ServerException(e.toString());
   }
-}
 
+  /// العربية: يعالج `editMessage`.
   @override
   Future<MessageModel> editMessage({
     required String messageId,
@@ -491,6 +555,7 @@ Future<MessageModel> sendMessage({
     }
   }
 
+  /// العربية: يحذف message.
   @override
   Future<void> deleteMessage(String messageId) async {
     const requestName = 'chat.deleteMessage';
@@ -515,6 +580,7 @@ Future<MessageModel> sendMessage({
     }
   }
 
+  /// العربية: يعالج `markAsRead`.
   @override
   Future<void> markAsRead({
     required String conversationId,
@@ -545,6 +611,7 @@ Future<MessageModel> sendMessage({
     }
   }
 
+  /// العربية: يعالج `addReaction`.
   @override
   Future<void> addReaction({
     required String messageId,
@@ -578,6 +645,7 @@ Future<MessageModel> sendMessage({
     }
   }
 
+  /// العربية: يزيل reaction.
   @override
   Future<void> removeReaction({
     required String messageId,
@@ -608,6 +676,7 @@ Future<MessageModel> sendMessage({
     }
   }
 
+  /// العربية: يعالج `uploadAttachment`.
   @override
   Future<AttachmentModel> uploadAttachment({
     required String conversationId,
@@ -658,6 +727,7 @@ Future<MessageModel> sendMessage({
     }
   }
 
+  /// العربية: يعالج `searchChats`.
   @override
   Future<SearchResult> searchChats({
     required String query,
@@ -725,6 +795,7 @@ Future<MessageModel> sendMessage({
     }
   }
 
+  /// العربية: يعيد available users.
   @override
   Future<List<ChatUserModel>> getAvailableUsers({
     String? userType,
@@ -746,7 +817,8 @@ Future<MessageModel> sendMessage({
 
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
-      if (response.data is Map<String, dynamic> && response.data['users'] != null) {
+      if (response.data is Map<String, dynamic> &&
+          response.data['users'] != null) {
         return (response.data['users'] as List)
             .map((json) => ChatUserModel.fromJson(json))
             .toList();
@@ -762,6 +834,7 @@ Future<MessageModel> sendMessage({
     }
   }
 
+  /// العربية: يعيد admin users.
   @override
   Future<List<ChatUserModel>> getAdminUsers() async {
     const requestName = 'chat.getAdminUsers';
@@ -773,7 +846,8 @@ Future<MessageModel> sendMessage({
 
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
-      if (response.data is Map<String, dynamic> && response.data['users'] != null) {
+      if (response.data is Map<String, dynamic> &&
+          response.data['users'] != null) {
         return (response.data['users'] as List)
             .map((json) => ChatUserModel.fromJson(json))
             .toList();
@@ -789,6 +863,7 @@ Future<MessageModel> sendMessage({
     }
   }
 
+  /// العربية: يحدّث user status.
   @override
   Future<void> updateUserStatus(String status) async {
     const requestName = 'chat.updateUserStatus';
@@ -816,6 +891,7 @@ Future<MessageModel> sendMessage({
     }
   }
 
+  /// العربية: يعيد chat settings.
   @override
   Future<ChatSettingsModel> getChatSettings() async {
     const requestName = 'chat.getChatSettings';
@@ -838,7 +914,10 @@ Future<MessageModel> sendMessage({
           }
         }
         // شكل مباشرة: { id:..., userId:..., notificationsEnabled:... }
-        if (dataMap == null && (raw.containsKey('id') || raw.containsKey('userId') || raw.containsKey('user_id'))) {
+        if (dataMap == null &&
+            (raw.containsKey('id') ||
+                raw.containsKey('userId') ||
+                raw.containsKey('user_id'))) {
           dataMap = raw;
         }
       }
@@ -851,10 +930,13 @@ Future<MessageModel> sendMessage({
       return const ChatSettingsModel(id: '', userId: '');
     } on DioException catch (e, s) {
       // معالجة متوقعة في حالة عدم وجود إعدادات (أول مرة) => إعادة افتراضي بدون تسجيل كخطأ حرج
-      final msg = e.response?.data is Map ? (e.response?.data['message']?.toString() ?? '') : '';
+      final msg = e.response?.data is Map
+          ? (e.response?.data['message']?.toString() ?? '')
+          : '';
       final notFound = e.response?.statusCode == 404 || msg.contains('إعدادات');
       if (notFound) {
-        logRequestSuccess('$requestName.not_found_fallback', statusCode: e.response?.statusCode);
+        logRequestSuccess('$requestName.not_found_fallback',
+            statusCode: e.response?.statusCode);
         return const ChatSettingsModel(id: '', userId: '');
       }
       logRequestError(requestName, e, stackTrace: s);
@@ -862,7 +944,8 @@ Future<MessageModel> sendMessage({
     } on ApiException catch (e, s) {
       final notFound = e.statusCode == 404 || e.message.contains('إعدادات');
       if (notFound) {
-        logRequestSuccess('$requestName.not_found_fallback', statusCode: e.statusCode);
+        logRequestSuccess('$requestName.not_found_fallback',
+            statusCode: e.statusCode);
         return const ChatSettingsModel(id: '', userId: '');
       }
       logRequestError(requestName, e, stackTrace: s);
@@ -874,6 +957,7 @@ Future<MessageModel> sendMessage({
     }
   }
 
+  /// العربية: يحدّث chat settings.
   @override
   Future<ChatSettingsModel> updateChatSettings({
     bool? notificationsEnabled,
@@ -891,10 +975,12 @@ Future<MessageModel> sendMessage({
       final response = await apiClient.put(
         '/api/common/chat/settings',
         data: {
-          if (notificationsEnabled != null) 'notificationsEnabled': notificationsEnabled,
+          if (notificationsEnabled != null)
+            'notificationsEnabled': notificationsEnabled,
           if (soundEnabled != null) 'soundEnabled': soundEnabled,
           if (showReadReceipts != null) 'showReadReceipts': showReadReceipts,
-          if (showTypingIndicator != null) 'showTypingIndicator': showTypingIndicator,
+          if (showTypingIndicator != null)
+            'showTypingIndicator': showTypingIndicator,
           if (theme != null) 'theme': theme,
           if (fontSize != null) 'fontSize': fontSize,
           if (autoDownloadMedia != null) 'autoDownloadMedia': autoDownloadMedia,
@@ -909,12 +995,16 @@ Future<MessageModel> sendMessage({
       if (raw is Map<String, dynamic>) {
         if (raw.containsKey('data')) {
           final successVal = raw['success'];
-            final inner = raw['data'];
-            if ((successVal == null || successVal == true) && inner is Map<String, dynamic>) {
-              dataMap = inner;
-            }
+          final inner = raw['data'];
+          if ((successVal == null || successVal == true) &&
+              inner is Map<String, dynamic>) {
+            dataMap = inner;
+          }
         }
-        if (dataMap == null && (raw.containsKey('id') || raw.containsKey('userId') || raw.containsKey('user_id'))) {
+        if (dataMap == null &&
+            (raw.containsKey('id') ||
+                raw.containsKey('userId') ||
+                raw.containsKey('user_id'))) {
           dataMap = raw;
         }
       }

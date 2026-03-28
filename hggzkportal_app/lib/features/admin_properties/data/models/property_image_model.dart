@@ -5,6 +5,7 @@ import 'package:hggzkportal/core/constants/app_constants.dart';
 import '../../domain/entities/property_image.dart';
 
 class PropertyImageModel extends PropertyImage {
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyImageModel`.
   const PropertyImageModel({
     required super.id,
     required super.url,
@@ -28,7 +29,6 @@ class PropertyImageModel extends PropertyImage {
     super.duration,
     super.videoThumbnail,
   });
-
   static String _validateUrl(String? url) {
     if (url == null || url.isEmpty) {
       return 'https://via.placeholder.com/400x300?text=No+Image';
@@ -119,7 +119,6 @@ class PropertyImageModel extends PropertyImage {
       videoThumbnail: videoThumbnail,
     );
   }
-
   static ImageThumbnails _parseThumbnails(
       dynamic thumbnailsData, String fallbackUrl) {
     if (thumbnailsData == null) {
@@ -279,13 +278,13 @@ class PropertyImageModel extends PropertyImage {
 }
 
 class ImageThumbnailsModel extends ImageThumbnails {
+  /// العربية: ينشئ مثيلًا جديدًا من `ImageThumbnailsModel`.
   const ImageThumbnailsModel({
     required super.small,
     required super.medium,
     required super.large,
     required super.hd,
   });
-
   factory ImageThumbnailsModel.fromJson(Map<String, dynamic> json,
       [String? fallbackUrl]) {
     final fallback =
@@ -300,7 +299,6 @@ class ImageThumbnailsModel extends ImageThumbnails {
       hd: PropertyImageModel._validateUrl(json['hd'] ?? json['xl'] ?? fallback),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'small': small,

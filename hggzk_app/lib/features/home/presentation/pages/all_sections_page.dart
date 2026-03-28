@@ -14,7 +14,6 @@ import '../widgets/sections/base_section_widget.dart';
 
 class AllSectionsPage extends StatefulWidget {
   const AllSectionsPage({super.key});
-
   @override
   State<AllSectionsPage> createState() => _AllSectionsPageState();
 }
@@ -23,7 +22,6 @@ class _AllSectionsPageState extends State<AllSectionsPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _filterAnimationController;
   String? _selectedFilter;
-
   @override
   void initState() {
     super.initState();

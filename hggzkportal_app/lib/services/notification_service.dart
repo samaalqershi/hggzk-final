@@ -4,7 +4,6 @@ import 'package:hggzkportal/features/chat/domain/entities/message.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter/foundation.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
 import '../core/network/api_client.dart';
@@ -20,14 +19,16 @@ import 'package:hggzkportal/features/admin_bookings/presentation/widgets/booking
 
 class NotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
   final ApiClient? _apiClient;
+
   final LocalStorageService? _localStorage;
+
   final AuthLocalDataSource? _authLocalDataSource;
 
-  // Optional sink to dispatch chat events directly without WebSocket
   void Function(WebSocketMessageReceivedEvent event)? _chatEventSink;
 
   void bindChatEventSink(
@@ -47,12 +48,10 @@ class NotificationService {
         _localStorage = localStorage,
         _authLocalDataSource = authLocalDataSource;
 
-  /// Re-register FCM token and subscribe to user/role topics for the current user
   Future<void> refreshUserSubscriptions() async {
     await _registerFcmToken();
   }
 
-  // Initialize notification service
   Future<void> initialize() async {
     // Request permission
     await _requestPermission();
@@ -70,7 +69,6 @@ class NotificationService {
     _firebaseMessaging.onTokenRefresh.listen(_onTokenRefresh);
   }
 
-  // Request notification permission
   Future<void> _requestPermission() async {
     // Android 13+ requires runtime POST_NOTIFICATIONS permission
     if (Platform.isAndroid) {
@@ -95,7 +93,6 @@ class NotificationService {
         'Notification permission status: ${settings.authorizationStatus}');
   }
 
-  // Initialize local notifications
   Future<void> _initializeLocalNotifications() async {
     // Ensure the Android channel exists so push notifications render reliably
     const androidSettings =
@@ -136,7 +133,6 @@ class NotificationService {
     await androidPlugin?.createNotificationChannel(androidScheduledChannel);
   }
 
-  // Configure Firebase messaging
   Future<void> _configureFirebaseMessaging() async {
     // iOS: suppress OS banners/sounds/badges while app is in foreground.
     // We'll show an in-app dialog instead.
@@ -160,7 +156,6 @@ class NotificationService {
     }
   }
 
-  // Register FCM token with backend
   Future<void> _registerFcmToken() async {
     try {
       final token = await _firebaseMessaging.getToken();
@@ -175,20 +170,19 @@ class NotificationService {
     }
   }
 
-  // Subscribe to default topics: user_{id}, role_*; avoid 'all' for admin apps
   Future<void> _subscribeToDefaultTopics() async {
     try {
       // In admin/control panel app, do NOT subscribe to global 'all' to avoid
       // receiving end-user broadcasts on admin/staff devices
       final user = await _authLocalDataSource?.getCachedUser();
       if (user != null) {
-        final String userId = user.userId.toString() ?? '';
+        final String userId = user.userId.toString();
         if (userId.isNotEmpty) {
           await _firebaseMessaging.subscribeToTopic('user_$userId');
         }
         // roles may come from user.roles and accountRole
         final List<String> roles = [
-          ...((user.roles ?? []) as List).map((e) => e.toString()),
+          ...user.roles.map((e) => e.toString()),
           if ((user.accountRole != null &&
               (user.accountRole as String).isNotEmpty)) ...[
             user.accountRole as String
@@ -208,17 +202,16 @@ class NotificationService {
     }
   }
 
-  // Unsubscribe from default topics: user_{id}, role_*
   Future<void> _unsubscribeFromDefaultTopics() async {
     try {
       final user = await _authLocalDataSource?.getCachedUser();
       if (user != null) {
-        final String userId = user.userId.toString() ?? '';
+        final String userId = user.userId.toString();
         if (userId.isNotEmpty) {
           await _firebaseMessaging.unsubscribeFromTopic('user_$userId');
         }
         final List<String> roles = [
-          ...((user.roles ?? []) as List).map((e) => e.toString()),
+          ...user.roles.map((e) => e.toString()),
           if ((user.accountRole != null &&
               (user.accountRole as String).isNotEmpty)) ...[
             user.accountRole as String
@@ -267,7 +260,6 @@ class NotificationService {
     }
   }
 
-  // Send token to server
   Future<void> _sendTokenToServer(String token) async {
     if (_apiClient == null || _authLocalDataSource == null) return;
 
@@ -290,7 +282,6 @@ class NotificationService {
     }
   }
 
-  // Handle token refresh
   Future<void> _onTokenRefresh(String token) async {
     debugPrint('FCM token refreshed: $token');
     await _sendTokenToServer(token);
@@ -298,7 +289,6 @@ class NotificationService {
     await _subscribeToDefaultTopics();
   }
 
-  // Unregister FCM token
   Future<void> unregisterFcmToken() async {
     if (_apiClient == null || _authLocalDataSource == null) return;
 
@@ -322,7 +312,6 @@ class NotificationService {
     }
   }
 
-  // Handle foreground messages
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
     debugPrint('Foreground message received: ${message.messageId}');
     final data = message.data;
@@ -431,8 +420,6 @@ class NotificationService {
       final messageId =
           (data['message_id'] ?? data['messageId'] ?? '').toString();
       final status = (data['status'] ?? '').toString();
-      final readAt = (data['read_at'] ?? '').toString();
-      final deliveredAt = (data['delivered_at'] ?? '').toString();
       if (conversationId.isNotEmpty) {
         try {
           if (_chatEventSink != null &&
@@ -553,12 +540,19 @@ class NotificationService {
         'fatal',
         'error',
         'fail'
-      ].contains(s)) return 'high';
-      if (['warn', 'warning', 'medium'].contains(s)) return 'medium';
+      ].contains(s)) {
+        return 'high';
+      }
+      if (['warn', 'warning', 'medium'].contains(s)) {
+        return 'medium';
+      }
       if (['success', 'ok', 'done', 'approved', 'complete', 'completed', 'paid']
-          .contains(s)) return 'success';
-      if (['low', 'minor', 'info', 'default', 'normal'].contains(s))
+          .contains(s)) {
+        return 'success';
+      }
+      if (['low', 'minor', 'info', 'default', 'normal'].contains(s)) {
         return 'info';
+      }
       // Arabic synonyms
       if ([
         'عاجل',
@@ -575,7 +569,9 @@ class NotificationService {
         'ملغي',
         'رفض',
         'مرفوض'
-      ].contains(s)) return 'high';
+      ].contains(s)) {
+        return 'high';
+      }
       if ([
         'تحذير',
         'متوسط',
@@ -585,7 +581,9 @@ class NotificationService {
         'قيد الانتظار',
         'قيد المعالجة',
         'تحذيري'
-      ].contains(s)) return 'medium';
+      ].contains(s)) {
+        return 'medium';
+      }
       if ([
         'نجاح',
         'ناجح',
@@ -597,9 +595,13 @@ class NotificationService {
         'اكتمل',
         'موافق',
         'تمت الموافقة'
-      ].contains(s)) return 'success';
+      ].contains(s)) {
+        return 'success';
+      }
       if (['منخفض', 'منخفضة', 'عادي', 'عادية', 'افتراضي', 'معلومات']
-          .contains(s)) return 'info';
+          .contains(s)) {
+        return 'info';
+      }
       return s;
     }
 
@@ -789,19 +791,16 @@ class NotificationService {
             _navigateToScreen({'type': 'booking', 'id': bookingId},
                 preferPush: true);
             // Give time for screen to build, then show cancellation reason dialog
-            await Future.delayed(const Duration(milliseconds: 400));
-            final navCtx = NavigationService.rootNavigatorKey.currentContext;
-            if (navCtx != null) {
+            Future<void>.delayed(const Duration(milliseconds: 400)).then((_) {
               // Reason dialog; result will be handled by the bookings UI flow when confirmed
-              showDialog<String?>(
-                context: navCtx,
+              NavigationService.showRootDialog<String?>(
                 barrierDismissible: true,
                 builder: (ctx) => BookingActionsDialog(
                   bookingId: bookingId,
                   action: BookingAction.cancel,
                 ),
               );
-            }
+            });
           } catch (e) {
             debugPrint('Navigation/show cancel dialog failed: $e');
           }
@@ -825,7 +824,6 @@ class NotificationService {
     return;
   }
 
-  // Handle background messages (static function required)
   static Future<void> _handleBackgroundMessage(RemoteMessage message) async {
     debugPrint('Background message received: ${message.messageId}');
   }
@@ -836,7 +834,6 @@ class NotificationService {
     await _handleBackgroundMessage(message);
   }
 
-  // Handle notification tap when app is opened
   void _handleMessageOpenedApp(RemoteMessage message) {
     debugPrint('Message opened app: ${message.messageId}');
     final data = message.data;
@@ -844,8 +841,6 @@ class NotificationService {
     if (type == 'new_message' || type == 'chat.new_message') {
       final conversationId =
           (data['conversation_id'] ?? data['conversationId'] ?? '').toString();
-      final messageId =
-          (data['message_id'] ?? data['messageId'] ?? '').toString();
       if (conversationId.isNotEmpty) {
         // UI will load when navigated
       }
@@ -884,18 +879,15 @@ class NotificationService {
         onCancelRequest: () async {
           _navigateToScreen({'type': 'booking', 'id': bookingId},
               preferPush: true);
-          await Future.delayed(const Duration(milliseconds: 400));
-          final navCtx = NavigationService.rootNavigatorKey.currentContext;
-          if (navCtx != null) {
-            showDialog<String?>(
-              context: navCtx,
+          Future<void>.delayed(const Duration(milliseconds: 400)).then((_) {
+            NavigationService.showRootDialog<String?>(
               barrierDismissible: true,
               builder: (ctx) => BookingActionsDialog(
                 bookingId: bookingId,
                 action: BookingAction.cancel,
               ),
             );
-          }
+          });
         },
       );
       return;
@@ -904,7 +896,6 @@ class NotificationService {
     _navigateToScreen(data);
   }
 
-  // Handle local notification tap
   void _handleNotificationTap(NotificationResponse response) {
     if (response.payload != null) {
       final data = json.decode(response.payload!);
@@ -912,44 +903,6 @@ class NotificationService {
     }
   }
 
-  // Show local notification
-  Future<void> _showLocalNotification(RemoteMessage message) async {
-    // Suppress in-app local notifications always (foreground)
-    return;
-
-    final notification = message.notification;
-    if (notification == null) return;
-
-    const androidDetails = AndroidNotificationDetails(
-      'hggzk_portal_channel',
-      'hggzk Portal Notifications',
-      channelDescription: 'إشعارات تطبيق حجزك بورتال',
-      importance: Importance.high,
-      priority: Priority.high,
-      showWhen: true,
-    );
-
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
-
-    const details = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
-
-    await _localNotifications.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
-      details,
-      payload: json.encode(message.data),
-    );
-  }
-
-  // Navigate to appropriate screen based on notification data
   void _navigateToScreen(Map<String, dynamic> data, {bool preferPush = false}) {
     final type = data['type'];
     final id = data['id'] ?? data['conversation_id'];
@@ -996,33 +949,27 @@ class NotificationService {
     }
   }
 
-  // Check if notifications are enabled
   Future<bool> areNotificationsEnabled() async {
     final settings = await _firebaseMessaging.getNotificationSettings();
     return settings.authorizationStatus == AuthorizationStatus.authorized;
   }
 
-  // Open notification settings
   Future<void> openNotificationSettings() async {
     await _firebaseMessaging.requestPermission();
   }
 
-  // Get pending notifications
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     return await _localNotifications.pendingNotificationRequests();
   }
 
-  // Cancel notification
   Future<void> cancelNotification(int id) async {
     await _localNotifications.cancel(id);
   }
 
-  // Cancel all notifications
   Future<void> cancelAllNotifications() async {
     await _localNotifications.cancelAll();
   }
 
-  // Schedule notification
   Future<void> scheduleNotification({
     required int id,
     required String title,
@@ -1066,40 +1013,15 @@ class NotificationService {
     );
   }
 
-  // Get FCM token
   Future<String?> getFcmToken() async {
     return await _firebaseMessaging.getToken();
   }
 
-  // Subscribe to topic
   Future<void> subscribeToTopic(String topic) async {
     await _firebaseMessaging.subscribeToTopic(topic);
   }
 
-  // Unsubscribe from topic
   Future<void> unsubscribeFromTopic(String topic) async {
     await _firebaseMessaging.unsubscribeFromTopic(topic);
-  }
-}
-
-// Helper to dispatch a status update into ChatBloc pipeline via WebSocketService streams
-void _dispatchStatusUpdate(
-    String conversationId, String messageId, String status) {
-  try {
-    final ws = di.sl<ChatWebSocketService>();
-    ws.messageEvents.listen((_) {}); // ensure stream is active
-    // Internally push a synthetic status update event
-    // We don't have direct access to add event in bloc here, but WebSocketService exposes a stream consumed by ChatBloc
-    // So we emulate by sending a crafted map through the private handler would be intrusive; as an alternative,
-    // we reuse emitNewMessageById path to force a refresh if messageId missing.
-    // Since ChatBloc now handles MessageEventType.statusUpdated, prefer emitting empty newMessage fetch when ids missing.
-    if (messageId.isEmpty || status.isEmpty) {
-      ws.emitNewMessageById(conversationId: conversationId, messageId: '');
-    } else {
-      // Fallback: trigger a messages fetch which updates statuses from server
-      ws.emitNewMessageById(conversationId: conversationId, messageId: '');
-    }
-  } catch (e) {
-    debugPrint('Failed to dispatch status update: $e');
   }
 }

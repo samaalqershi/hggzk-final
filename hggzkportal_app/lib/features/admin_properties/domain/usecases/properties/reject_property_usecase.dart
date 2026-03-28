@@ -6,10 +6,9 @@ import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../../repositories/properties_repository.dart';
 
 class RejectPropertyUseCase implements UseCase<bool, String> {
+  /// العربية: يخزن القيمة `repository`.
   final PropertiesRepository repository;
-  
   RejectPropertyUseCase(this.repository);
-  
   @override
   Future<Either<Failure, bool>> call(String propertyId) async {
     return await repository.rejectProperty(propertyId);

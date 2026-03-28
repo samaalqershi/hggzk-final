@@ -3,40 +3,74 @@ import 'section_image_model.dart';
 import '../../domain/entities/section_image.dart' as section_img;
 
 class UnitInSectionModel {
+  /// العربية: يخزن القيمة `id`.
   final String id;
+
   final String sectionId;
+
   final String? unitInSectionId;
+
   final String unitId;
+
   final String propertyId;
+
   final String unitName;
+
   final String propertyName;
+
   final String unitTypeId;
+
   final String unitTypeName;
+
   final String? unitTypeIcon;
+
   final int maxCapacity;
+
   final String currency;
+
   final String pricingMethod;
+
   final int? adultsCapacity;
+
   final int? childrenCapacity;
+
   final String? mainImageUrl;
+
   final String? mainImageId;
   final List<section_img.SectionImage> additionalImages;
+
   final Map<String, dynamic>? primaryFieldValues;
+
   final String propertyAddress;
+
   final String propertyCity;
+
   final double latitude;
+
   final double longitude;
+
   final int propertyStarRating;
+
   final double propertyAverageRating;
+
   final List<String>? mainAmenities;
+
   final Map<String, dynamic>? customFeatures;
+
   final int displayOrder;
+
   final bool isFeatured;
+
   final double? discountPercentage;
+
   final double? discountedPrice;
+
   final String? promotionalText;
+
   final String? badge;
+
   final String? badgeColor;
+
   final List<String>? nextAvailableDates;
 
   const UnitInSectionModel({
@@ -83,6 +117,7 @@ class UnitInSectionModel {
     return double.tryParse(v.toString()) ?? fallback;
   }
 
+  /// العربية: يعالج `toImageList`.
   static List<section_img.SectionImage>? _toImageList(dynamic v) {
     if (v == null) return null;
     if (v is List) {

@@ -12,17 +12,14 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../domain/entities/chart_of_account.dart';
 
-/// 🏦 ويدجت نظرة عامة على الحسابات
 class AccountsOverviewWidget extends StatefulWidget {
   final List<ChartOfAccount> accounts;
   final Function(String)? onAccountTap;
-
   const AccountsOverviewWidget({
     super.key,
     required this.accounts,
     this.onAccountTap,
   });
-
   @override
   State<AccountsOverviewWidget> createState() => _AccountsOverviewWidgetState();
 }
@@ -31,10 +28,8 @@ class _AccountsOverviewWidgetState extends State<AccountsOverviewWidget>
     with TickerProviderStateMixin {
   late AnimationController _expansionController;
   late AnimationController _rotationController;
-
   final Map<String, bool> _expandedAccounts = {};
   String _selectedAccountType = 'all';
-
   @override
   void initState() {
     super.initState();
@@ -85,13 +80,13 @@ class _AccountsOverviewWidgetState extends State<AccountsOverviewWidget>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.darkCard.withOpacity(0.8),
-            AppTheme.darkCard.withOpacity(0.6),
+            AppTheme.darkCard.withValues(alpha: 0.8),
+            AppTheme.darkCard.withValues(alpha: 0.6),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -120,7 +115,6 @@ class _AccountsOverviewWidgetState extends State<AccountsOverviewWidget>
     );
   }
 
-  /// 🎯 Header
   Widget _buildHeader() {
     final totalBalance = widget.accounts.fold<double>(
       0,
@@ -189,13 +183,13 @@ class _AccountsOverviewWidgetState extends State<AccountsOverviewWidget>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppTheme.primaryCyan.withOpacity(0.2),
-                  AppTheme.primaryPurple.withOpacity(0.1),
+                  AppTheme.primaryCyan.withValues(alpha: 0.2),
+                  AppTheme.primaryPurple.withValues(alpha: 0.1),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppTheme.primaryCyan.withOpacity(0.3),
+                color: AppTheme.primaryCyan.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -229,7 +223,7 @@ class _AccountsOverviewWidgetState extends State<AccountsOverviewWidget>
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryCyan.withOpacity(0.1),
+                    color: AppTheme.primaryCyan.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -246,7 +240,6 @@ class _AccountsOverviewWidgetState extends State<AccountsOverviewWidget>
     );
   }
 
-  /// 🎯 Filter Chips
   Widget _buildFilterChips() {
     return Container(
       height: 40,
@@ -287,17 +280,19 @@ class _AccountsOverviewWidgetState extends State<AccountsOverviewWidget>
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    AppTheme.primaryCyan.withOpacity(0.3),
-                    AppTheme.primaryPurple.withOpacity(0.3),
+                    AppTheme.primaryCyan.withValues(alpha: 0.3),
+                    AppTheme.primaryPurple.withValues(alpha: 0.3),
                   ],
                 )
               : null,
-          color: isSelected ? null : AppTheme.darkBackground.withOpacity(0.5),
+          color: isSelected
+              ? null
+              : AppTheme.darkBackground.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
-                ? AppTheme.primaryCyan.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.2),
+                ? AppTheme.primaryCyan.withValues(alpha: 0.5)
+                : AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -319,7 +314,6 @@ class _AccountsOverviewWidgetState extends State<AccountsOverviewWidget>
     );
   }
 
-  /// 🌳 Accounts Tree
   Widget _buildAccountsTree() {
     return AnimationLimiter(
       child: ListView.builder(
@@ -359,7 +353,6 @@ class _AccountsOverviewWidgetState extends State<AccountsOverviewWidget>
     );
   }
 
-  /// 🔍 Empty State
   Widget _buildEmptyState() {
     return Container(
       height: 200,
@@ -371,7 +364,7 @@ class _AccountsOverviewWidgetState extends State<AccountsOverviewWidget>
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: AppTheme.darkBorder.withOpacity(0.1),
+              color: AppTheme.darkBorder.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -393,13 +386,11 @@ class _AccountsOverviewWidgetState extends State<AccountsOverviewWidget>
   }
 }
 
-/// 🌳 Account Tree Item
 class AccountTreeItem extends StatefulWidget {
   final ChartOfAccount account;
   final bool isExpanded;
   final VoidCallback onTap;
   final Function(String)? onAccountTap;
-
   const AccountTreeItem({
     super.key,
     required this.account,
@@ -407,7 +398,6 @@ class AccountTreeItem extends StatefulWidget {
     required this.onTap,
     this.onAccountTap,
   });
-
   @override
   State<AccountTreeItem> createState() => _AccountTreeItemState();
 }
@@ -416,7 +406,6 @@ class _AccountTreeItemState extends State<AccountTreeItem>
     with SingleTickerProviderStateMixin {
   late AnimationController _rotationController;
   late Animation<double> _rotationAnimation;
-
   @override
   void initState() {
     super.initState();
@@ -476,13 +465,13 @@ class _AccountTreeItemState extends State<AccountTreeItem>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppTheme.darkBackground.withOpacity(0.7),
-                  AppTheme.darkBackground.withOpacity(0.5),
+                  AppTheme.darkBackground.withValues(alpha: 0.7),
+                  AppTheme.darkBackground.withValues(alpha: 0.5),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: accountColor.withOpacity(0.3),
+                color: accountColor.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -493,7 +482,7 @@ class _AccountTreeItemState extends State<AccountTreeItem>
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: accountColor.withOpacity(0.2),
+                    color: accountColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(
@@ -529,7 +518,8 @@ class _AccountTreeItemState extends State<AccountTreeItem>
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: AppTheme.primaryCyan.withOpacity(0.2),
+                                color:
+                                    AppTheme.primaryCyan.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(

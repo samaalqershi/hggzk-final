@@ -8,16 +8,24 @@ import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/cached_image_widget.dart';
 import 'models/section_display_item.dart';
 
+/// يعرض عناصر القسم داخل شريط أفقي من البطاقات الكبيرة عندما تكون الأولوية
+/// للتأثير البصري والمساحة الواسعة لكل عنصر.
+/// Renders section items in a horizontal strip of large cards when visual
+/// impact and generous space per item matter most.
 class BigCardsSectionWidget extends StatefulWidget {
+  /// العناصر الموحدة التي ستُبنى منها البطاقات الكبيرة.
+  /// Unified items that will be rendered as large cards.
   final List<SectionDisplayItem> items;
-  final Function(String)? onItemTap;
 
+  /// رد اختياري يعيد معرّف العنصر المختار عند الضغط على البطاقة.
+  /// Optional callback that returns the selected item identifier when a card
+  /// is tapped.
+  final Function(String)? onItemTap;
   const BigCardsSectionWidget({
     super.key,
     required this.items,
     this.onItemTap,
   });
-
   @override
   State<BigCardsSectionWidget> createState() => _BigCardsSectionWidgetState();
 }
@@ -25,7 +33,6 @@ class BigCardsSectionWidget extends StatefulWidget {
 class _BigCardsSectionWidgetState extends State<BigCardsSectionWidget> {
   late PageController _pageController;
   int _currentPage = 0;
-
   @override
   void initState() {
     super.initState();
@@ -45,7 +52,8 @@ class _BigCardsSectionWidgetState extends State<BigCardsSectionWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Cards
+        // Arabic: البطاقات نفسها.
+        // English: The cards themselves.
         SizedBox(
           height: 360,
           child: PageView.builder(
@@ -89,7 +97,8 @@ class _BigCardsSectionWidgetState extends State<BigCardsSectionWidget> {
           ),
         ),
 
-        // Page Indicator
+        // Arabic: مؤشر الصفحات عند وجود أكثر من بطاقة.
+        // English: Page indicator when more than one card exists.
         if (widget.items.length > 1) ...[
           const SizedBox(height: 18),
           _PageIndicator(
@@ -102,15 +111,17 @@ class _BigCardsSectionWidgetState extends State<BigCardsSectionWidget> {
   }
 }
 
+/// بطاقة كبيرة مخصصة للعناصر البارزة، وتمنح الصورة والمحتوى مساحة أوسع من
+/// بقية أنماط العرض داخل الصفحة الرئيسية.
+/// Large featured card that gives image and content more breathing room than
+/// other home-section layouts.
 class _BigCard extends StatefulWidget {
   final SectionDisplayItem item;
   final VoidCallback? onTap;
-
   const _BigCard({
     required this.item,
     this.onTap,
   });
-
   @override
   State<_BigCard> createState() => _BigCardState();
 }
@@ -120,7 +131,6 @@ class _BigCardState extends State<_BigCard>
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   bool _isPressed = false;
-
   @override
   void initState() {
     super.initState();
@@ -201,13 +211,15 @@ class _BigCardState extends State<_BigCard>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Image Section
+                // Arabic: قسم الصورة.
+                // English: Image section.
                 Expanded(
                   flex: 52,
                   child: _buildImageSection(item),
                 ),
 
-                // Content Section
+                // Arabic: قسم المحتوى.
+                // English: Content section.
                 Expanded(
                   flex: 48,
                   child: Padding(
@@ -474,12 +486,9 @@ class _BigCardState extends State<_BigCard>
 // ═══════════════════════════════════════════════════════════════════════════
 // 🏷️ LUXURY BADGES & COMPONENTS
 // ═══════════════════════════════════════════════════════════════════════════
-
 class _LuxuryDiscountBadge extends StatelessWidget {
   final int discount;
-
   const _LuxuryDiscountBadge({required this.discount});
-
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -527,9 +536,7 @@ class _LuxuryDiscountBadge extends StatelessWidget {
 
 class _LuxuryRatingBadge extends StatelessWidget {
   final double rating;
-
   const _LuxuryRatingBadge({required this.rating});
-
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -574,13 +581,11 @@ class _FeatureTag extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-
   const _FeatureTag({
     required this.icon,
     required this.label,
     required this.color,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -618,12 +623,10 @@ class _FeatureTag extends StatelessWidget {
 class _PageIndicator extends StatelessWidget {
   final int itemCount;
   final int currentPage;
-
   const _PageIndicator({
     required this.itemCount,
     required this.currentPage,
   });
-
   @override
   Widget build(BuildContext context) {
     return Row(

@@ -4,19 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// 📅 محدد نطاق التاريخ المتطور
 class DateRangeSelector extends StatefulWidget {
   final DateTime startDate;
   final DateTime endDate;
   final Function(DateTime, DateTime) onDateRangeSelected;
-
   const DateRangeSelector({
     super.key,
     required this.startDate,
     required this.endDate,
     required this.onDateRangeSelected,
   });
-
   @override
   State<DateRangeSelector> createState() => _DateRangeSelectorState();
 }
@@ -25,7 +22,6 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  
   @override
   void initState() {
     super.initState();
@@ -39,7 +35,7 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
     );
     _animationController.forward();
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -128,17 +124,17 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
             end: Alignment.bottomRight,
             colors: [
               AppColors.surface,
-              AppColors.surface.withOpacity(0.95),
+              AppColors.surface.withValues(alpha: 0.95),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppColors.primary.withOpacity(0.2),
+            color: AppColors.primary.withValues(alpha: 0.2),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.05),
+              color: AppColors.primary.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -149,17 +145,19 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
             // Main Date Range Display
             InkWell(
               onTap: _selectDateRange,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(20)),
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppColors.primary.withOpacity(0.1),
-                      AppColors.primary.withOpacity(0.05),
+                      AppColors.primary.withValues(alpha: 0.1),
+                      AppColors.primary.withValues(alpha: 0.05),
                     ],
                   ),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(20)),
                 ),
                 child: Row(
                   children: [
@@ -170,13 +168,13 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
                         gradient: LinearGradient(
                           colors: [
                             AppColors.primary,
-                            AppColors.primary.withOpacity(0.8),
+                            AppColors.primary.withValues(alpha: 0.8),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
+                            color: AppColors.primary.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -189,7 +187,7 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
                       ),
                     ),
                     const SizedBox(width: 16),
-                    
+
                     // Date Range Text
                     Expanded(
                       child: Column(
@@ -208,7 +206,8 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
                             children: [
                               _buildDateText(widget.startDate),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
                                 child: Icon(
                                   Icons.arrow_forward_rounded,
                                   size: 18,
@@ -230,12 +229,12 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
                         ],
                       ),
                     ),
-                    
+
                     // Change Button
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -248,7 +247,7 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
                 ),
               ),
             ),
-            
+
             // Preset Ranges
             Container(
               padding: const EdgeInsets.all(12),
@@ -280,12 +279,12 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
         gradient: LinearGradient(
           colors: [
             AppColors.background,
-            AppColors.background.withOpacity(0.8),
+            AppColors.background.withValues(alpha: 0.8),
           ],
         ),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppColors.primary.withOpacity(0.3),
+          color: AppColors.primary.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -312,12 +311,12 @@ class _DateRangeSelectorState extends State<DateRangeSelector>
             gradient: LinearGradient(
               colors: [
                 AppColors.background,
-                AppColors.background.withOpacity(0.9),
+                AppColors.background.withValues(alpha: 0.9),
               ],
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: AppColors.primary.withOpacity(0.3),
+              color: AppColors.primary.withValues(alpha: 0.3),
               width: 1,
             ),
           ),

@@ -13,14 +13,12 @@ class AccountFormDialog extends StatefulWidget {
   final ChartOfAccount? account;
   final ChartOfAccount? parentAccount;
   final Function(ChartOfAccount) onSave;
-
   const AccountFormDialog({
     super.key,
     this.account,
     this.parentAccount,
     required this.onSave,
   });
-
   @override
   State<AccountFormDialog> createState() => _AccountFormDialogState();
 }
@@ -36,15 +34,12 @@ class _AccountFormDialogState extends State<AccountFormDialog>
   late TextEditingController _nameArController;
   late TextEditingController _nameEnController;
   late TextEditingController _descriptionController;
-
   AccountType _selectedAccountType = AccountType.assets;
   AccountCategory _selectedCategory = AccountCategory.main;
   AccountNature _selectedNature = AccountNature.debit;
   bool _isActive = true;
   bool _canPost = true;
-
   bool get isEditing => widget.account != null;
-
   @override
   void initState() {
     super.initState();
@@ -171,13 +166,13 @@ class _AccountFormDialogState extends State<AccountFormDialog>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppTheme.darkCard.withOpacity(0.95),
-                          AppTheme.darkCard.withOpacity(0.85),
+                          AppTheme.darkCard.withValues(alpha: 0.95),
+                          AppTheme.darkCard.withValues(alpha: 0.85),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: AppTheme.primaryCyan.withOpacity(0.3),
+                        color: AppTheme.primaryCyan.withValues(alpha: 0.3),
                         width: 1,
                       ),
                     ),
@@ -212,13 +207,13 @@ class _AccountFormDialogState extends State<AccountFormDialog>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryCyan.withOpacity(0.15),
-            AppTheme.primaryCyan.withOpacity(0.08),
+            AppTheme.primaryCyan.withValues(alpha: 0.15),
+            AppTheme.primaryCyan.withValues(alpha: 0.08),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
           ),
         ),
       ),
@@ -232,7 +227,7 @@ class _AccountFormDialogState extends State<AccountFormDialog>
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryCyan.withOpacity(0.3),
+                  color: AppTheme.primaryCyan.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -475,10 +470,10 @@ class _AccountFormDialogState extends State<AccountFormDialog>
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: AppTheme.darkBackground.withOpacity(0.5),
+            color: AppTheme.darkBackground.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.2),
+              color: AppTheme.darkBorder.withValues(alpha: 0.2),
             ),
           ),
           child: TextFormField(
@@ -494,7 +489,7 @@ class _AccountFormDialogState extends State<AccountFormDialog>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.bodySmall.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: Icon(
                 icon,
@@ -534,10 +529,10 @@ class _AccountFormDialogState extends State<AccountFormDialog>
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: AppTheme.darkBackground.withOpacity(0.5),
+            color: AppTheme.darkBackground.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.2),
+              color: AppTheme.darkBorder.withValues(alpha: 0.2),
             ),
           ),
           child: DropdownButtonHideUnderline(
@@ -577,12 +572,12 @@ class _AccountFormDialogState extends State<AccountFormDialog>
     return Container(
       padding: EdgeInsets.all(isCompact ? 10 : 12),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.3),
+        color: AppTheme.darkBackground.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: value
-              ? AppTheme.primaryCyan.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.2),
+              ? AppTheme.primaryCyan.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -622,10 +617,10 @@ class _AccountFormDialogState extends State<AccountFormDialog>
     return Container(
       padding: EdgeInsets.all(isCompact ? 16 : 20),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.5),
+        color: AppTheme.darkBackground.withValues(alpha: 0.5),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
           ),
         ),
       ),
@@ -648,7 +643,7 @@ class _AccountFormDialogState extends State<AccountFormDialog>
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryCyan.withOpacity(0.3),
+                  color: AppTheme.primaryCyan.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),

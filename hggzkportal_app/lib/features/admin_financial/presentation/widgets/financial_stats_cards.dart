@@ -15,12 +15,10 @@ import '../../domain/entities/financial_report.dart';
 
 class FinancialStatsCards extends StatefulWidget {
   final FinancialReport report;
-
   const FinancialStatsCards({
     super.key,
     required this.report,
   });
-
   @override
   State<FinancialStatsCards> createState() => _FinancialStatsCardsState();
 }
@@ -29,7 +27,6 @@ class _FinancialStatsCardsState extends State<FinancialStatsCards>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late AnimationController _pulseController;
-
   @override
   void initState() {
     super.initState();
@@ -93,7 +90,7 @@ class _FinancialStatsCardsState extends State<FinancialStatsCards>
             title: 'إجمالي المصروفات',
             value: widget.report.totalExpenses,
             icon: CupertinoIcons.arrow_down_circle_fill,
-            gradient: [AppTheme.error, AppTheme.error.withOpacity(0.7)],
+            gradient: [AppTheme.error, AppTheme.error.withValues(alpha: 0.7)],
             percentage: _calculateGrowthPercentage(widget.report.totalExpenses),
             isNegative: true,
             index: 1,
@@ -105,7 +102,7 @@ class _FinancialStatsCardsState extends State<FinancialStatsCards>
             icon: CupertinoIcons.money_dollar_circle_fill,
             gradient: widget.report.isProfitable
                 ? [AppTheme.primaryCyan, AppTheme.primaryBlue]
-                : [AppTheme.warning, AppTheme.warning.withOpacity(0.7)],
+                : [AppTheme.warning, AppTheme.warning.withValues(alpha: 0.7)],
             percentage: widget.report.profitMargin,
             index: 2,
             width: 150,
@@ -145,7 +142,7 @@ class _FinancialStatsCardsState extends State<FinancialStatsCards>
           title: 'إجمالي المصروفات',
           value: widget.report.totalExpenses,
           icon: CupertinoIcons.arrow_down_circle_fill,
-          gradient: [AppTheme.error, AppTheme.error.withOpacity(0.7)],
+          gradient: [AppTheme.error, AppTheme.error.withValues(alpha: 0.7)],
           percentage: _calculateGrowthPercentage(widget.report.totalExpenses),
           isNegative: true,
           index: 1,
@@ -156,7 +153,7 @@ class _FinancialStatsCardsState extends State<FinancialStatsCards>
           icon: CupertinoIcons.money_dollar_circle_fill,
           gradient: widget.report.isProfitable
               ? [AppTheme.primaryCyan, AppTheme.primaryBlue]
-              : [AppTheme.warning, AppTheme.warning.withOpacity(0.7)],
+              : [AppTheme.warning, AppTheme.warning.withValues(alpha: 0.7)],
           percentage: widget.report.profitMargin,
           index: 2,
         ),
@@ -191,7 +188,7 @@ class _FinancialStatsCardsState extends State<FinancialStatsCards>
             title: 'إجمالي المصروفات',
             value: widget.report.totalExpenses,
             icon: CupertinoIcons.arrow_down_circle_fill,
-            gradient: [AppTheme.error, AppTheme.error.withOpacity(0.7)],
+            gradient: [AppTheme.error, AppTheme.error.withValues(alpha: 0.7)],
             percentage: _calculateGrowthPercentage(widget.report.totalExpenses),
             isNegative: true,
             index: 1,
@@ -205,7 +202,7 @@ class _FinancialStatsCardsState extends State<FinancialStatsCards>
             icon: CupertinoIcons.money_dollar_circle_fill,
             gradient: widget.report.isProfitable
                 ? [AppTheme.primaryCyan, AppTheme.primaryBlue]
-                : [AppTheme.warning, AppTheme.warning.withOpacity(0.7)],
+                : [AppTheme.warning, AppTheme.warning.withValues(alpha: 0.7)],
             percentage: widget.report.profitMargin,
             index: 2,
           ),
@@ -260,18 +257,18 @@ class _FinancialStatsCardsState extends State<FinancialStatsCards>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppTheme.darkCard.withOpacity(0.8),
-                        AppTheme.darkCard.withOpacity(0.6),
+                        AppTheme.darkCard.withValues(alpha: 0.8),
+                        AppTheme.darkCard.withValues(alpha: 0.6),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: gradient.first.withOpacity(0.3),
+                      color: gradient.first.withValues(alpha: 0.3),
                       width: 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: gradient.first.withOpacity(0.1),
+                        color: gradient.first.withValues(alpha: 0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -294,7 +291,7 @@ class _FinancialStatsCardsState extends State<FinancialStatsCards>
                                 shape: BoxShape.circle,
                                 gradient: LinearGradient(
                                   colors: gradient
-                                      .map((c) => c.withOpacity(0.1))
+                                      .map((c) => c.withValues(alpha: 0.1))
                                       .toList(),
                                 ),
                               ),
@@ -387,10 +384,10 @@ class _FinancialStatsCardsState extends State<FinancialStatsCards>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
         ),
       ),
       child: Row(

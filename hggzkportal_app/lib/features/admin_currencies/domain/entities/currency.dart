@@ -2,11 +2,17 @@ import 'package:equatable/equatable.dart';
 
 class Currency extends Equatable {
   final String code;
+
   final String arabicCode;
+
   final String name;
+
   final String arabicName;
+
   final bool isDefault;
+
   final double? exchangeRate;
+
   final DateTime? lastUpdated;
 
   const Currency({

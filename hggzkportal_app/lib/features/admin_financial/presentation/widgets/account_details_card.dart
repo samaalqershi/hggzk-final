@@ -14,14 +14,12 @@ class AccountDetailsCard extends StatefulWidget {
   final ChartOfAccount account;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
-
   const AccountDetailsCard({
     super.key,
     required this.account,
     required this.onEdit,
     required this.onDelete,
   });
-
   @override
   State<AccountDetailsCard> createState() => _AccountDetailsCardState();
 }
@@ -31,7 +29,6 @@ class _AccountDetailsCardState extends State<AccountDetailsCard>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
-
   @override
   void initState() {
     super.initState();
@@ -93,13 +90,13 @@ class _AccountDetailsCardState extends State<AccountDetailsCard>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppTheme.darkCard.withOpacity(0.95),
-                          AppTheme.darkCard.withOpacity(0.85),
+                          AppTheme.darkCard.withValues(alpha: 0.95),
+                          AppTheme.darkCard.withValues(alpha: 0.85),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: _getAccountColor().withOpacity(0.3),
+                        color: _getAccountColor().withValues(alpha: 0.3),
                         width: 1,
                       ),
                     ),
@@ -138,13 +135,13 @@ class _AccountDetailsCardState extends State<AccountDetailsCard>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            color.withOpacity(0.2),
-            color.withOpacity(0.1),
+            color.withValues(alpha: 0.2),
+            color.withValues(alpha: 0.1),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
           ),
         ),
       ),
@@ -156,12 +153,12 @@ class _AccountDetailsCardState extends State<AccountDetailsCard>
             height: isCompact ? 40 : 48,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [color, color.withOpacity(0.7)],
+                colors: [color, color.withValues(alpha: 0.7)],
               ),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: color.withOpacity(0.3),
+                  color: color.withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -352,13 +349,13 @@ class _AccountDetailsCardState extends State<AccountDetailsCard>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            color.withOpacity(0.2),
-            color.withOpacity(0.1),
+            color.withValues(alpha: 0.2),
+            color.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -368,7 +365,7 @@ class _AccountDetailsCardState extends State<AccountDetailsCard>
             height: isCompact ? 48 : 56,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [color, color.withOpacity(0.7)],
+                colors: [color, color.withValues(alpha: 0.7)],
               ),
               borderRadius: BorderRadius.circular(12),
             ),
@@ -423,13 +420,13 @@ class _AccountDetailsCardState extends State<AccountDetailsCard>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            color.withOpacity(0.08),
-            color.withOpacity(0.03),
+            color.withValues(alpha: 0.08),
+            color.withValues(alpha: 0.03),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -475,10 +472,10 @@ class _AccountDetailsCardState extends State<AccountDetailsCard>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -506,10 +503,10 @@ class _AccountDetailsCardState extends State<AccountDetailsCard>
     return Container(
       padding: EdgeInsets.all(isCompact ? 10 : 12),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.5),
+        color: AppTheme.darkBackground.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -549,7 +546,7 @@ class _AccountDetailsCardState extends State<AccountDetailsCard>
     return Container(
       padding: EdgeInsets.all(isCompact ? 10 : 12),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.3),
+        color: AppTheme.darkBackground.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -612,10 +609,10 @@ class _AccountDetailsCardState extends State<AccountDetailsCard>
     return Container(
       padding: EdgeInsets.all(isCompact ? 16 : 20),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.5),
+        color: AppTheme.darkBackground.withValues(alpha: 0.5),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
           ),
         ),
       ),
@@ -676,10 +673,10 @@ class _AccountDetailsCardState extends State<AccountDetailsCard>
           vertical: isCompact ? 8 : 10,
         ),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: color.withOpacity(0.5),
+            color: color.withValues(alpha: 0.5),
           ),
         ),
         child: Row(

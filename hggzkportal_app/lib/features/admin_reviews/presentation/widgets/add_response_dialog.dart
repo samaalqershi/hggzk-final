@@ -5,34 +5,30 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-
 class AddResponseDialog extends StatefulWidget {
+  /// العربية: يخزن القيمة `reviewId`.
   final String reviewId;
   final Function(String) onSubmit;
-  
   const AddResponseDialog({
     super.key,
     required this.reviewId,
     required this.onSubmit,
   });
-  
   @override
   State<AddResponseDialog> createState() => _AddResponseDialogState();
 }
-
 class _AddResponseDialogState extends State<AddResponseDialog>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
-  
+
   final TextEditingController _responseController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  
   bool _isSubmitting = false;
   int _characterCount = 0;
   final int _maxCharacters = 1000;
-  
+
   // قوالب الردود السريعة
   final List<String> _templates = [
     'شكراً لك على تقييمك! نقدر ملاحظاتك القيمة.',
@@ -40,7 +36,6 @@ class _AddResponseDialogState extends State<AddResponseDialog>
     'نشكرك على الوقت الذي قضيته في مشاركة أفكارك معنا.',
     'يسعدنا أنك استمتعت بإقامتك! نتطلع لاستقبالك مرة أخرى.',
   ];
-  
   @override
   void initState() {
     super.initState();
@@ -48,7 +43,7 @@ class _AddResponseDialogState extends State<AddResponseDialog>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.8,
       end: 1.0,
@@ -56,7 +51,7 @@ class _AddResponseDialogState extends State<AddResponseDialog>
       parent: _animationController,
       curve: Curves.easeOutBack,
     ));
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -64,15 +59,15 @@ class _AddResponseDialogState extends State<AddResponseDialog>
       parent: _animationController,
       curve: Curves.easeIn,
     ));
-    
+
     _animationController.forward();
-    
+
     _responseController.addListener(() {
       setState(() {
         _characterCount = _responseController.text.length;
       });
     });
-    
+
     // التركيز التلقائي بعد الحركة
     Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) {
@@ -80,7 +75,6 @@ class _AddResponseDialogState extends State<AddResponseDialog>
       }
     });
   }
-  
   @override
   void dispose() {
     _animationController.dispose();
@@ -88,31 +82,29 @@ class _AddResponseDialogState extends State<AddResponseDialog>
     _focusNode.dispose();
     super.dispose();
   }
-  
   void _submitResponse() async {
     if (_responseController.text.trim().isEmpty) {
       HapticFeedback.mediumImpact();
       return;
     }
-    
+
     setState(() => _isSubmitting = true);
     HapticFeedback.lightImpact();
-    
+
     // محاكاة استدعاء API
     await Future.delayed(const Duration(seconds: 1));
-    
+
     if (mounted) {
       widget.onSubmit(_responseController.text.trim());
       Navigator.pop(context);
     }
   }
-  
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardOpen = keyboardHeight > 0;
-    
+
     return AnimatedBuilder(
       animation: _animationController,
       builder: (context, child) {
@@ -138,12 +130,12 @@ class _AddResponseDialogState extends State<AddResponseDialog>
                       borderRadius: BorderRadius.circular(24),
                       color: AppTheme.darkCard,
                       border: Border.all(
-                        color: AppTheme.darkBorder.withOpacity(0.3),
+                        color: AppTheme.darkBorder.withValues(alpha: 0.3),
                         width: 0.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black.withValues(alpha: 0.5),
                           blurRadius: 40,
                           spreadRadius: 10,
                         ),
@@ -162,7 +154,8 @@ class _AddResponseDialogState extends State<AddResponseDialog>
                               decoration: BoxDecoration(
                                 border: Border(
                                   bottom: BorderSide(
-                                    color: AppTheme.darkBorder.withOpacity(0.1),
+                                    color: AppTheme.darkBorder
+                                        .withValues(alpha: 0.1),
                                     width: 0.5,
                                   ),
                                 ),
@@ -176,7 +169,8 @@ class _AddResponseDialogState extends State<AddResponseDialog>
                                       gradient: AppTheme.primaryGradient,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: AppTheme.primaryBlue.withOpacity(0.3),
+                                          color: AppTheme.primaryBlue
+                                              .withValues(alpha: 0.3),
                                           blurRadius: 12,
                                           spreadRadius: 2,
                                         ),
@@ -191,11 +185,13 @@ class _AddResponseDialogState extends State<AddResponseDialog>
                                   const SizedBox(width: 16),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'إضافة رد',
-                                          style: AppTextStyles.heading3.copyWith(
+                                          style:
+                                              AppTextStyles.heading3.copyWith(
                                             color: AppTheme.textWhite,
                                           ),
                                         ),
@@ -222,7 +218,7 @@ class _AddResponseDialogState extends State<AddResponseDialog>
                                 ],
                               ),
                             ),
-                            
+
                             // المحتوى
                             Flexible(
                               child: SingleChildScrollView(
@@ -239,25 +235,30 @@ class _AddResponseDialogState extends State<AddResponseDialog>
                                           itemCount: _templates.length,
                                           itemBuilder: (context, index) {
                                             return Padding(
-                                              padding: const EdgeInsets.only(left: 8),
-                                              child: _buildTemplateChip(_templates[index]),
+                                              padding: const EdgeInsets.only(
+                                                  left: 8),
+                                              child: _buildTemplateChip(
+                                                  _templates[index]),
                                             );
                                           },
                                         ),
                                       ),
                                       const SizedBox(height: 16),
                                     ],
-                                    
+
                                     // حقل الإدخال
                                     Container(
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(16),
-                                        color: AppTheme.inputBackground.withOpacity(0.3),
+                                        color: AppTheme.inputBackground
+                                            .withValues(alpha: 0.3),
                                         border: Border.all(
                                           color: _focusNode.hasFocus
-                                              ? AppTheme.primaryBlue.withOpacity(0.5)
-                                              : AppTheme.darkBorder.withOpacity(0.2),
+                                              ? AppTheme.primaryBlue
+                                                  .withValues(alpha: 0.5)
+                                              : AppTheme.darkBorder
+                                                  .withValues(alpha: 0.2),
                                           width: 1,
                                         ),
                                       ),
@@ -268,15 +269,20 @@ class _AddResponseDialogState extends State<AddResponseDialog>
                                             focusNode: _focusNode,
                                             maxLines: isKeyboardOpen ? 4 : 6,
                                             maxLength: _maxCharacters,
-                                            textInputAction: TextInputAction.newline,
-                                            style: AppTextStyles.bodyMedium.copyWith(
+                                            textInputAction:
+                                                TextInputAction.newline,
+                                            style: AppTextStyles.bodyMedium
+                                                .copyWith(
                                               height: 1.5,
                                               color: AppTheme.textWhite,
                                             ),
                                             decoration: InputDecoration(
                                               hintText: 'اكتب ردك هنا...',
-                                              hintStyle: AppTextStyles.bodyMedium.copyWith(
-                                                color: AppTheme.textMuted.withOpacity(0.5),
+                                              hintStyle: AppTextStyles
+                                                  .bodyMedium
+                                                  .copyWith(
+                                                color: AppTheme.textMuted
+                                                    .withValues(alpha: 0.5),
                                               ),
                                               border: InputBorder.none,
                                               counterText: '',
@@ -284,40 +290,53 @@ class _AddResponseDialogState extends State<AddResponseDialog>
                                           ),
                                           const SizedBox(height: 8),
                                           Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               // عداد الأحرف
                                               Container(
-                                                padding: const EdgeInsets.symmetric(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
                                                   horizontal: 8,
                                                   vertical: 4,
                                                 ),
                                                 decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                  color: _characterCount > _maxCharacters * 0.8
-                                                      ? AppTheme.warning.withOpacity(0.1)
-                                                      : AppTheme.primaryBlue.withOpacity(0.1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  color: _characterCount >
+                                                          _maxCharacters * 0.8
+                                                      ? AppTheme.warning
+                                                          .withValues(
+                                                              alpha: 0.1)
+                                                      : AppTheme.primaryBlue
+                                                          .withValues(
+                                                              alpha: 0.1),
                                                 ),
                                                 child: Text(
                                                   '$_characterCount / $_maxCharacters',
-                                                  style: AppTextStyles.caption.copyWith(
+                                                  style: AppTextStyles.caption
+                                                      .copyWith(
                                                     fontWeight: FontWeight.w600,
-                                                    color: _characterCount > _maxCharacters * 0.8
+                                                    color: _characterCount >
+                                                            _maxCharacters * 0.8
                                                         ? AppTheme.warning
                                                         : AppTheme.primaryBlue,
                                                   ),
                                                 ),
                                               ),
-                                              
+
                                               // خيارات التنسيق
                                               if (!isKeyboardOpen)
                                                 Row(
                                                   children: [
-                                                    _buildFormatButton(Icons.format_bold),
+                                                    _buildFormatButton(
+                                                        Icons.format_bold),
                                                     const SizedBox(width: 8),
-                                                    _buildFormatButton(Icons.format_italic),
+                                                    _buildFormatButton(
+                                                        Icons.format_italic),
                                                     const SizedBox(width: 8),
-                                                    _buildFormatButton(Icons.link),
+                                                    _buildFormatButton(
+                                                        Icons.link),
                                                   ],
                                                 ),
                                             ],
@@ -329,14 +348,15 @@ class _AddResponseDialogState extends State<AddResponseDialog>
                                 ),
                               ),
                             ),
-                            
+
                             // أزرار الإجراءات
                             Container(
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
                                 border: Border(
                                   top: BorderSide(
-                                    color: AppTheme.darkBorder.withOpacity(0.1),
+                                    color: AppTheme.darkBorder
+                                        .withValues(alpha: 0.1),
                                     width: 0.5,
                                   ),
                                 ),
@@ -352,14 +372,17 @@ class _AddResponseDialogState extends State<AddResponseDialog>
                                               Navigator.pop(context);
                                             },
                                       style: TextButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(vertical: 14),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 14),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                         ),
                                       ),
                                       child: Text(
                                         'إلغاء',
-                                        style: AppTextStyles.buttonMedium.copyWith(
+                                        style:
+                                            AppTextStyles.buttonMedium.copyWith(
                                           color: AppTheme.textLight,
                                         ),
                                       ),
@@ -370,16 +393,21 @@ class _AddResponseDialogState extends State<AddResponseDialog>
                                     flex: 2,
                                     child: ElevatedButton(
                                       onPressed: _isSubmitting ||
-                                              _responseController.text.trim().isEmpty
+                                              _responseController.text
+                                                  .trim()
+                                                  .isEmpty
                                           ? null
                                           : _submitResponse,
                                       style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(vertical: 14),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 14),
                                         backgroundColor: AppTheme.primaryBlue,
-                                        disabledBackgroundColor:
-                                            AppTheme.primaryBlue.withOpacity(0.3),
+                                        disabledBackgroundColor: AppTheme
+                                            .primaryBlue
+                                            .withValues(alpha: 0.3),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                         ),
                                         elevation: 0,
                                       ),
@@ -394,7 +422,8 @@ class _AddResponseDialogState extends State<AddResponseDialog>
                                             )
                                           : Text(
                                               'إرسال الرد',
-                                              style: AppTextStyles.buttonMedium.copyWith(
+                                              style: AppTextStyles.buttonMedium
+                                                  .copyWith(
                                                 color: Colors.white,
                                               ),
                                             ),
@@ -416,7 +445,6 @@ class _AddResponseDialogState extends State<AddResponseDialog>
       },
     );
   }
-  
   Widget _buildTemplateChip(String template) {
     return GestureDetector(
       onTap: () {
@@ -430,19 +458,17 @@ class _AddResponseDialogState extends State<AddResponseDialog>
           borderRadius: BorderRadius.circular(20),
           gradient: LinearGradient(
             colors: [
-              AppTheme.primaryBlue.withOpacity(0.1),
-              AppTheme.primaryPurple.withOpacity(0.1),
+              AppTheme.primaryBlue.withValues(alpha: 0.1),
+              AppTheme.primaryPurple.withValues(alpha: 0.1),
             ],
           ),
           border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 0.5,
           ),
         ),
         child: Text(
-          template.length > 30 
-              ? '${template.substring(0, 30)}...'
-              : template,
+          template.length > 30 ? '${template.substring(0, 30)}...' : template,
           style: AppTextStyles.caption.copyWith(
             fontWeight: FontWeight.w500,
             color: AppTheme.primaryBlue,
@@ -451,7 +477,6 @@ class _AddResponseDialogState extends State<AddResponseDialog>
       ),
     );
   }
-  
   Widget _buildFormatButton(IconData icon) {
     return GestureDetector(
       onTap: () {
@@ -462,7 +487,7 @@ class _AddResponseDialogState extends State<AddResponseDialog>
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6),
-          color: AppTheme.inputBackground.withOpacity(0.3),
+          color: AppTheme.inputBackground.withValues(alpha: 0.3),
         ),
         child: Icon(
           icon,

@@ -3,14 +3,13 @@ import 'package:equatable/equatable.dart';
 import '../../../../../core/error/failures.dart';
 import '../../../../../core/models/paginated_result.dart';
 import '../../../../../core/usecases/usecase.dart';
-import '../../../domain/entities/property_in_section.dart';
-import '../../../domain/entities/unit_in_section.dart';
 import '../../../domain/repositories/sections_repository.dart';
 import '../../../../../core/enums/section_target.dart';
 
 class GetSectionItemsUseCase
     implements UseCase<PaginatedResult<dynamic>, GetSectionItemsParams> {
   final SectionsRepository repository;
+
   GetSectionItemsUseCase(this.repository);
 
   @override
@@ -31,9 +30,13 @@ class GetSectionItemsUseCase
 }
 
 class GetSectionItemsParams extends Equatable {
+  /// العربية: يخزن القيمة `sectionId`.
   final String sectionId;
+
   final SectionTarget target;
+
   final int pageNumber;
+
   final int pageSize;
 
   const GetSectionItemsParams({
@@ -46,4 +49,3 @@ class GetSectionItemsParams extends Equatable {
   @override
   List<Object?> get props => [sectionId, target, pageNumber, pageSize];
 }
-

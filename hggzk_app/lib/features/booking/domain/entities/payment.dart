@@ -1,17 +1,38 @@
 import 'package:equatable/equatable.dart';
 
+/// العربية: يمثل `Payment`.
 class Payment extends Equatable {
+  /// العربية: يخزن القيمة `id`.
   final String id;
+
+  /// العربية: يخزن القيمة `bookingId`.
   final String bookingId;
+
+  /// العربية: يخزن القيمة `amount`.
   final double amount;
+
+  /// العربية: يخزن القيمة `currency`.
   final String currency;
+
+  /// العربية: يخزن القيمة `paymentMethod`.
   final String paymentMethod;
+
+  /// العربية: يخزن القيمة `status`.
   final PaymentStatus status;
+
+  /// العربية: يخزن القيمة `paymentDate`.
   final DateTime paymentDate;
+
+  /// العربية: يخزن القيمة `transactionId`.
   final String? transactionId;
+
+  /// العربية: يخزن القيمة `receiptUrl`.
   final String? receiptUrl;
+
+  /// العربية: يخزن القيمة `notes`.
   final String? notes;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `Payment`.
   const Payment({
     required this.id,
     required this.bookingId,
@@ -25,6 +46,7 @@ class Payment extends Equatable {
     this.notes,
   });
 
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object?> get props => [
         id,
@@ -40,6 +62,7 @@ class Payment extends Equatable {
       ];
 }
 
+/// العربية: يعرّف القيم المتاحة للنوع `PaymentStatus`.
 enum PaymentStatus {
   pending,
   processing,

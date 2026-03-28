@@ -1,5 +1,3 @@
-/// features/payment/data/repositories/payment_repository_impl.dart
-
 import 'package:dartz/dartz.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import '../../../../core/error/error_handler.dart';
@@ -9,15 +7,17 @@ import '../../domain/entities/transaction.dart';
 import '../../domain/repositories/payment_repository.dart';
 import '../datasources/payment_remote_datasource.dart';
 
+/// ينسق بين طبقة المجال والمصدر البعيد في عمليات الدفع مع تحويل الأخطاء إلى
+/// نتائج آمنة للواجهة.
+/// Coordinates between the domain layer and the remote payment source while
+/// converting failures into UI-safe results.
 class PaymentRepositoryImpl implements PaymentRepository {
   final PaymentRemoteDataSource remoteDataSource;
   final InternetConnectionChecker internetConnectionChecker;
-
   PaymentRepositoryImpl({
     required this.remoteDataSource,
     required this.internetConnectionChecker,
   });
-
   @override
   Future<Either<Failure, Transaction>> processPayment({
     required String bookingId,

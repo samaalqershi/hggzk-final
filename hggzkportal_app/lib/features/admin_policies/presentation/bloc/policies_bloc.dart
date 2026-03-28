@@ -14,22 +14,44 @@ import '../../domain/usecases/update_policy_usecase.dart';
 import 'policies_event.dart';
 import 'policies_state.dart';
 
+/// يدير سياسات الحجز من تحميل وإنشاء وتحديث وحذف وتصفية.
 class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
+  /// ينشئ سياسة جديدة.
   final CreatePolicyUseCase createPolicyUseCase;
+
+  /// يحدث سياسة قائمة.
   final UpdatePolicyUseCase updatePolicyUseCase;
+
+  /// يحذف السياسة المحددة.
   final DeletePolicyUseCase deletePolicyUseCase;
+
+  /// يجلب السياسات مع الفلاتر والصفحات.
   final GetAllPoliciesUseCase getAllPoliciesUseCase;
+
+  /// يجلب سياسة محددة بالمعرف.
   final GetPolicyByIdUseCase getPolicyByIdUseCase;
+
+  /// يجلب السياسات الخاصة بعقار.
   final GetPoliciesByPropertyUseCase getPoliciesByPropertyUseCase;
+
+  /// يجلب السياسات حسب النوع.
   final GetPoliciesByTypeUseCase getPoliciesByTypeUseCase;
+
+  /// يبدل حالة تفعيل السياسة.
   final TogglePolicyStatusUseCase togglePolicyStatusUseCase;
+
+  /// مصدر البيانات المساند للإحصاءات.
   final PoliciesRepository repository;
 
   // متغيرات لحفظ حالة البحث والفلاتر
   String? _currentSearchTerm;
+
   String? _currentPropertyId;
+
   PolicyType? _currentPolicyType;
+
   int _currentPageNumber = 1;
+
   int _currentPageSize = 10;
 
   PoliciesBloc({
@@ -148,18 +170,18 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
         description: event.description,
         rules: event.rules,
         cancellationWindowDays: event.cancellationWindowDays,
-        requireFullPaymentBeforeConfirmation: event.requireFullPaymentBeforeConfirmation,
+        requireFullPaymentBeforeConfirmation:
+            event.requireFullPaymentBeforeConfirmation,
         minimumDepositPercentage: event.minimumDepositPercentage,
         minHoursBeforeCheckIn: event.minHoursBeforeCheckIn,
-
         cancellationFreeCancel: event.cancellationFreeCancel,
         cancellationFullRefund: event.cancellationFullRefund,
         cancellationRefundPercentage: event.cancellationRefundPercentage,
         cancellationDaysBeforeCheckIn: event.cancellationDaysBeforeCheckIn,
         cancellationHoursBeforeCheckIn: event.cancellationHoursBeforeCheckIn,
         cancellationNonRefundable: event.cancellationNonRefundable,
-        cancellationPenaltyAfterDeadline: event.cancellationPenaltyAfterDeadline,
-
+        cancellationPenaltyAfterDeadline:
+            event.cancellationPenaltyAfterDeadline,
         paymentDepositRequired: event.paymentDepositRequired,
         paymentFullPaymentRequired: event.paymentFullPaymentRequired,
         paymentDepositPercentage: event.paymentDepositPercentage,
@@ -168,7 +190,6 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
         paymentPayAtProperty: event.paymentPayAtProperty,
         paymentCashPreferred: event.paymentCashPreferred,
         paymentAcceptedMethods: event.paymentAcceptedMethods,
-
         checkInTime: event.checkInTime,
         checkOutTime: event.checkOutTime,
         checkInFrom: event.checkInFrom,
@@ -180,7 +201,6 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
         checkInEarlyCheckInNote: event.checkInEarlyCheckInNote,
         checkInLateCheckOutNote: event.checkInLateCheckOutNote,
         checkInLateCheckOutFee: event.checkInLateCheckOutFee,
-
         childrenAllowed: event.childrenAllowed,
         childrenFreeUnderAge: event.childrenFreeUnderAge,
         childrenHalfPriceUnderAge: event.childrenHalfPriceUnderAge,
@@ -189,7 +209,6 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
         childrenCribsNote: event.childrenCribsNote,
         childrenPlaygroundAvailable: event.childrenPlaygroundAvailable,
         childrenKidsMenuAvailable: event.childrenKidsMenuAvailable,
-
         petsAllowed: event.petsAllowed,
         petsReason: event.petsReason,
         petsFeeAmount: event.petsFeeAmount,
@@ -199,9 +218,9 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
         petsPetFriendly: event.petsPetFriendly,
         petsOutdoorSpace: event.petsOutdoorSpace,
         petsStrict: event.petsStrict,
-
         modificationAllowed: event.modificationAllowed,
-        modificationFreeModificationHours: event.modificationFreeModificationHours,
+        modificationFreeModificationHours:
+            event.modificationFreeModificationHours,
         modificationFeesAfter: event.modificationFeesAfter,
         modificationFlexible: event.modificationFlexible,
         modificationReason: event.modificationReason,
@@ -244,18 +263,18 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
         description: event.description,
         rules: event.rules,
         cancellationWindowDays: event.cancellationWindowDays,
-        requireFullPaymentBeforeConfirmation: event.requireFullPaymentBeforeConfirmation,
+        requireFullPaymentBeforeConfirmation:
+            event.requireFullPaymentBeforeConfirmation,
         minimumDepositPercentage: event.minimumDepositPercentage,
         minHoursBeforeCheckIn: event.minHoursBeforeCheckIn,
-
         cancellationFreeCancel: event.cancellationFreeCancel,
         cancellationFullRefund: event.cancellationFullRefund,
         cancellationRefundPercentage: event.cancellationRefundPercentage,
         cancellationDaysBeforeCheckIn: event.cancellationDaysBeforeCheckIn,
         cancellationHoursBeforeCheckIn: event.cancellationHoursBeforeCheckIn,
         cancellationNonRefundable: event.cancellationNonRefundable,
-        cancellationPenaltyAfterDeadline: event.cancellationPenaltyAfterDeadline,
-
+        cancellationPenaltyAfterDeadline:
+            event.cancellationPenaltyAfterDeadline,
         paymentDepositRequired: event.paymentDepositRequired,
         paymentFullPaymentRequired: event.paymentFullPaymentRequired,
         paymentDepositPercentage: event.paymentDepositPercentage,
@@ -264,7 +283,6 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
         paymentPayAtProperty: event.paymentPayAtProperty,
         paymentCashPreferred: event.paymentCashPreferred,
         paymentAcceptedMethods: event.paymentAcceptedMethods,
-
         checkInTime: event.checkInTime,
         checkOutTime: event.checkOutTime,
         checkInFrom: event.checkInFrom,
@@ -276,7 +294,6 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
         checkInEarlyCheckInNote: event.checkInEarlyCheckInNote,
         checkInLateCheckOutNote: event.checkInLateCheckOutNote,
         checkInLateCheckOutFee: event.checkInLateCheckOutFee,
-
         childrenAllowed: event.childrenAllowed,
         childrenFreeUnderAge: event.childrenFreeUnderAge,
         childrenHalfPriceUnderAge: event.childrenHalfPriceUnderAge,
@@ -285,7 +302,6 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
         childrenCribsNote: event.childrenCribsNote,
         childrenPlaygroundAvailable: event.childrenPlaygroundAvailable,
         childrenKidsMenuAvailable: event.childrenKidsMenuAvailable,
-
         petsAllowed: event.petsAllowed,
         petsReason: event.petsReason,
         petsFeeAmount: event.petsFeeAmount,
@@ -295,9 +311,9 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
         petsPetFriendly: event.petsPetFriendly,
         petsOutdoorSpace: event.petsOutdoorSpace,
         petsStrict: event.petsStrict,
-
         modificationAllowed: event.modificationAllowed,
-        modificationFreeModificationHours: event.modificationFreeModificationHours,
+        modificationFreeModificationHours:
+            event.modificationFreeModificationHours,
         modificationFeesAfter: event.modificationFeesAfter,
         modificationFlexible: event.modificationFlexible,
         modificationReason: event.modificationReason,
@@ -408,7 +424,8 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
   ) async {
     if (state is PoliciesLoaded) {
       final currentState = state as PoliciesLoaded;
-      final result = await repository.getPolicyStats(propertyId: _currentPropertyId);
+      final result =
+          await repository.getPolicyStats(propertyId: _currentPropertyId);
 
       result.fold(
         (_) {},

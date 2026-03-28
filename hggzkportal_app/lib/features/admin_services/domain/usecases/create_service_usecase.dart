@@ -8,10 +8,9 @@ import '../repositories/services_repository.dart';
 
 /// ➕ Use Case لإنشاء خدمة جديدة
 class CreateServiceUseCase implements UseCase<String, CreateServiceParams> {
+  /// العربية: يخزن القيمة `repository`.
   final ServicesRepository repository;
-
   CreateServiceUseCase(this.repository);
-
   @override
   Future<Either<Failure, String>> call(CreateServiceParams params) async {
     return await repository.createService(
@@ -24,15 +23,14 @@ class CreateServiceUseCase implements UseCase<String, CreateServiceParams> {
     );
   }
 }
-
 class CreateServiceParams extends Equatable {
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
   final String name;
   final Money price;
   final PricingModel pricingModel;
   final String icon;
   final String? description;
-
   const CreateServiceParams({
     required this.propertyId,
     required this.name,
@@ -41,7 +39,7 @@ class CreateServiceParams extends Equatable {
     required this.icon,
     this.description,
   });
-
   @override
-  List<Object?> get props => [propertyId, name, price, pricingModel, icon, description];
+  List<Object?> get props =>
+      [propertyId, name, price, pricingModel, icon, description];
 }

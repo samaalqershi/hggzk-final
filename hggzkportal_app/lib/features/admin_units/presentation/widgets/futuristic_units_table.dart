@@ -8,12 +8,27 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../domain/entities/unit.dart';
 
+/// يمثل هذا الكلاس FuturisticUnitsTable البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for FuturisticUnitsTable in the admin unit workflow.
 class FuturisticUnitsTable extends StatefulWidget {
+  /// This field keeps the units value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة units التي يعتمد عليها مسار إدارة الوحدات.
   final List<Unit> units;
+
+  /// ينفذ هذا الأسلوب عملية Function ضمن مسار إدارة الوحدات.
+  /// This method performs the Function operation in the admin unit workflow.
   final Function(Unit) onUnitSelected;
+
+  /// ينفذ هذا الأسلوب عملية Function ضمن مسار إدارة الوحدات.
+  /// This method performs the Function operation in the admin unit workflow.
   final Function(Unit)? onEditUnit;
+
+  /// ينفذ هذا الأسلوب عملية Function ضمن مسار إدارة الوحدات.
+  /// This method performs the Function operation in the admin unit workflow.
   final Function(Unit)? onDeleteUnit;
 
+  /// ينشئ هذا المُنشئ مثيلاً من FuturisticUnitsTable.
+  /// This constructor creates an instance of FuturisticUnitsTable.
   const FuturisticUnitsTable({
     super.key,
     required this.units,
@@ -22,25 +37,55 @@ class FuturisticUnitsTable extends StatefulWidget {
     this.onDeleteUnit,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<FuturisticUnitsTable> createState() => _FuturisticUnitsTableState();
 }
 
+/// يمثل هذا الكلاس _FuturisticUnitsTableState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _FuturisticUnitsTableState in the admin unit workflow.
 class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     with SingleTickerProviderStateMixin {
+  /// يحتفظ هذا الحقل بقيمة _animationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _animationController value used by the admin unit workflow.
   late AnimationController _animationController;
+
+  /// يحتفظ هذا الحقل بقيمة _fadeAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _fadeAnimation value used by the admin unit workflow.
   late Animation<double> _fadeAnimation;
 
+  /// يحتفظ هذا الحقل بقيمة _hoveredUnitId التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _hoveredUnitId value used by the admin unit workflow.
   String? _hoveredUnitId;
+
+  /// يحتفظ هذا الحقل بقيمة _selectedUnitType التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _selectedUnitType value used by the admin unit workflow.
   String? _selectedUnitType;
+
+  /// يحتفظ هذا الحقل بقيمة _unitTypes التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _unitTypes value used by the admin unit workflow.
   List<String> _unitTypes = [];
+
+  /// يحتفظ هذا الحقل بقيمة _filteredUnits التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _filteredUnits value used by the admin unit workflow.
   List<Unit> _filteredUnits = [];
+
+  /// يحتفظ هذا الحقل بقيمة _isLoadingTypes التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isLoadingTypes value used by the admin unit workflow.
   bool _isLoadingTypes = false;
 
   // Breakpoints
+  /// يحتفظ هذا الحقل بقيمة _mobileBreakpoint التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _mobileBreakpoint value used by the admin unit workflow.
   static const double _mobileBreakpoint = 600;
+
+  /// يحتفظ هذا الحقل بقيمة _tabletBreakpoint التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _tabletBreakpoint value used by the admin unit workflow.
   static const double _tabletBreakpoint = 1024;
 
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
@@ -58,10 +103,18 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     ));
 
     _animationController.forward();
+
+    /// ينفذ هذا الأسلوب عملية _extractUnitTypes ضمن مسار إدارة الوحدات.
+    /// This method performs the _extractUnitTypes operation in the admin unit workflow.
     _extractUnitTypes();
+
+    /// ينفذ هذا الأسلوب عملية _filterUnits ضمن مسار إدارة الوحدات.
+    /// This method performs the _filterUnits operation in the admin unit workflow.
     _filterUnits();
   }
 
+  /// ينفذ هذا الأسلوب عملية _extractUnitTypes ضمن مسار إدارة الوحدات.
+  /// This method performs the _extractUnitTypes operation in the admin unit workflow.
   void _extractUnitTypes() {
     setState(() => _isLoadingTypes = true);
     final typesSet = <String>{};
@@ -72,6 +125,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     setState(() => _isLoadingTypes = false);
   }
 
+  /// ينفذ هذا الأسلوب عملية _filterUnits ضمن مسار إدارة الوحدات.
+  /// This method performs the _filterUnits operation in the admin unit workflow.
   void _filterUnits() {
     if (_selectedUnitType == null) {
       _filteredUnits = List.from(widget.units);
@@ -82,6 +137,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية didUpdateWidget ضمن مسار إدارة الوحدات.
+  /// This method performs the didUpdateWidget operation in the admin unit workflow.
   @override
   void didUpdateWidget(FuturisticUnitsTable oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -91,12 +148,16 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -113,6 +174,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
   }
 
   // ================ MOBILE VIEW ================
+  /// ينفذ هذا الأسلوب عملية _buildMobileView ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildMobileView operation in the admin unit workflow.
   Widget _buildMobileView() {
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -135,6 +198,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildMobileFilterBar ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildMobileFilterBar operation in the admin unit workflow.
   Widget _buildMobileFilterBar() {
     return Container(
       margin: const EdgeInsets.all(12),
@@ -142,13 +207,13 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.9),
-            AppTheme.darkCard.withOpacity(0.7),
+            AppTheme.darkCard.withValues(alpha: 0.9),
+            AppTheme.darkCard.withValues(alpha: 0.7),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.2),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -175,7 +240,7 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
               child: LinearProgressIndicator(
                 backgroundColor: Colors.transparent,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  AppTheme.primaryBlue.withOpacity(0.3),
+                  AppTheme.primaryBlue.withValues(alpha: 0.3),
                 ),
                 minHeight: 2,
               ),
@@ -185,6 +250,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFilterChip ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFilterChip operation in the admin unit workflow.
   Widget _buildFilterChip(String label, String? value) {
     final isSelected = _selectedUnitType == value;
 
@@ -203,17 +270,18 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withOpacity(0.3),
-                    AppTheme.primaryPurple.withOpacity(0.2),
+                    AppTheme.primaryBlue.withValues(alpha: 0.3),
+                    AppTheme.primaryPurple.withValues(alpha: 0.2),
                   ],
                 )
               : null,
-          color: !isSelected ? AppTheme.darkSurface.withOpacity(0.5) : null,
+          color:
+              !isSelected ? AppTheme.darkSurface.withValues(alpha: 0.5) : null,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? AppTheme.primaryBlue.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.3),
+                ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                : AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -228,6 +296,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildMobileUnitCard ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildMobileUnitCard operation in the admin unit workflow.
   Widget _buildMobileUnitCard(Unit unit, int index) {
     final isHovered = _hoveredUnitId == unit.id;
 
@@ -246,22 +316,22 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.9),
-              AppTheme.darkCard.withOpacity(0.7),
+              AppTheme.darkCard.withValues(alpha: 0.9),
+              AppTheme.darkCard.withValues(alpha: 0.7),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isHovered
-                ? AppTheme.primaryBlue.withOpacity(0.4)
-                : AppTheme.darkBorder.withOpacity(0.2),
+                ? AppTheme.primaryBlue.withValues(alpha: 0.4)
+                : AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
               color: isHovered
-                  ? AppTheme.primaryBlue.withOpacity(0.2)
-                  : Colors.black.withOpacity(0.1),
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.2)
+                  : Colors.black.withValues(alpha: 0.1),
               blurRadius: isHovered ? 16 : 8,
               offset: const Offset(0, 4),
             ),
@@ -315,8 +385,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
                                 Icon(
                                   Icons.business_rounded,
                                   size: 12,
-                                  color:
-                                      AppTheme.primaryPurple.withOpacity(0.7),
+                                  color: AppTheme.primaryPurple
+                                      .withValues(alpha: 0.7),
                                 ),
                                 const SizedBox(width: 4),
                                 Expanded(
@@ -346,7 +416,7 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.darkSurface.withOpacity(0.3),
+                      color: AppTheme.darkSurface.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -381,10 +451,10 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
                     return Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkSurface.withOpacity(0.25),
+                        color: AppTheme.darkSurface.withValues(alpha: 0.25),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.2),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.2),
                           width: 0.5,
                         ),
                       ),
@@ -466,6 +536,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildMobileDetailRow ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildMobileDetailRow operation in the admin unit workflow.
   Widget _buildMobileDetailRow({
     required IconData icon,
     required String label,
@@ -478,7 +550,7 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
         Icon(
           icon,
           size: 16,
-          color: iconColor.withOpacity(0.7),
+          color: iconColor.withValues(alpha: 0.7),
         ),
         const SizedBox(width: 8),
         Text(
@@ -504,6 +576,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildMobileStatusBadge ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildMobileStatusBadge operation in the admin unit workflow.
   Widget _buildMobileStatusBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -513,13 +587,13 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryBlue.withOpacity(0.2),
-            AppTheme.primaryBlue.withOpacity(0.1),
+            AppTheme.primaryBlue.withValues(alpha: 0.2),
+            AppTheme.primaryBlue.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.5),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.5),
           width: 0.5,
         ),
       ),
@@ -547,6 +621,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildMobileActionButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildMobileActionButton operation in the admin unit workflow.
   Widget _buildMobileActionButton({
     required String label,
     required IconData icon,
@@ -564,10 +640,10 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -594,6 +670,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildMobileIconButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildMobileIconButton operation in the admin unit workflow.
   Widget _buildMobileIconButton({
     required IconData icon,
     required Color color,
@@ -611,10 +689,10 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -629,6 +707,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
   }
 
   // ================ TABLET VIEW ================
+  /// ينفذ هذا الأسلوب عملية _buildTabletView ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildTabletView operation in the admin unit workflow.
   Widget _buildTabletView() {
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -637,13 +717,13 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.glassLight.withOpacity(0.05),
-              AppTheme.glassDark.withOpacity(0.02),
+              AppTheme.glassLight.withValues(alpha: 0.05),
+              AppTheme.glassDark.withValues(alpha: 0.02),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 0.5,
           ),
         ),
@@ -678,6 +758,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildTabletHeader ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildTabletHeader operation in the admin unit workflow.
   Widget _buildTabletHeader() {
     return Column(
       children: [
@@ -707,7 +789,7 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
                   child: LinearProgressIndicator(
                     backgroundColor: Colors.transparent,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      AppTheme.primaryBlue.withOpacity(0.3),
+                      AppTheme.primaryBlue.withValues(alpha: 0.3),
                     ),
                     minHeight: 2,
                   ),
@@ -722,13 +804,13 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.1),
-                AppTheme.primaryPurple.withOpacity(0.05),
+                AppTheme.primaryBlue.withValues(alpha: 0.1),
+                AppTheme.primaryPurple.withValues(alpha: 0.05),
               ],
             ),
             border: Border(
               bottom: BorderSide(
-                color: AppTheme.primaryBlue.withOpacity(0.2),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -747,6 +829,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildTabletRow ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildTabletRow operation in the admin unit workflow.
   Widget _buildTabletRow(Unit unit, int index) {
     final isHovered = _hoveredUnitId == unit.id;
     final isEven = index % 2 == 0;
@@ -766,19 +850,19 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
             gradient: isHovered
                 ? LinearGradient(
                     colors: [
-                      AppTheme.primaryBlue.withOpacity(0.08),
-                      AppTheme.primaryPurple.withOpacity(0.04),
+                      AppTheme.primaryBlue.withValues(alpha: 0.08),
+                      AppTheme.primaryPurple.withValues(alpha: 0.04),
                     ],
                   )
                 : null,
             color: !isHovered
                 ? isEven
-                    ? AppTheme.darkCard.withOpacity(0.03)
+                    ? AppTheme.darkCard.withValues(alpha: 0.03)
                     : Colors.transparent
                 : null,
             border: Border(
               bottom: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.1),
+                color: AppTheme.darkBorder.withValues(alpha: 0.1),
                 width: 0.5,
               ),
             ),
@@ -899,6 +983,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
   }
 
   // ================ DESKTOP VIEW ================
+  /// ينفذ هذا الأسلوب عملية _buildDesktopView ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildDesktopView operation in the admin unit workflow.
   Widget _buildDesktopView() {
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -907,18 +993,18 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.glassLight.withOpacity(0.05),
-              AppTheme.glassDark.withOpacity(0.02),
+              AppTheme.glassLight.withValues(alpha: 0.05),
+              AppTheme.glassDark.withValues(alpha: 0.02),
             ],
           ),
           borderRadius: BorderRadius.circular(AppDimensions.radiusXLarge),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 0.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryBlue.withOpacity(0.05),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.05),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -947,6 +1033,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildDesktopHeader ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildDesktopHeader operation in the admin unit workflow.
   Widget _buildDesktopHeader() {
     return Column(
       children: [
@@ -976,7 +1064,7 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
                   child: LinearProgressIndicator(
                     backgroundColor: Colors.transparent,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      AppTheme.primaryBlue.withOpacity(0.3),
+                      AppTheme.primaryBlue.withValues(alpha: 0.3),
                     ),
                     minHeight: 2,
                   ),
@@ -991,13 +1079,13 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.1),
-                AppTheme.primaryPurple.withOpacity(0.05),
+                AppTheme.primaryBlue.withValues(alpha: 0.1),
+                AppTheme.primaryPurple.withValues(alpha: 0.05),
               ],
             ),
             border: Border(
               bottom: BorderSide(
-                color: AppTheme.primaryBlue.withOpacity(0.2),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -1016,6 +1104,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildHeaderCell ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildHeaderCell operation in the admin unit workflow.
   Widget _buildHeaderCell(String title, {int flex = 1}) {
     return Expanded(
       flex: flex,
@@ -1029,6 +1119,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildDesktopRow ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildDesktopRow operation in the admin unit workflow.
   Widget _buildDesktopRow(Unit unit, int index) {
     final isEven = index % 2 == 0;
     final isHovered = _hoveredUnitId == unit.id;
@@ -1048,19 +1140,19 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
             gradient: isHovered
                 ? LinearGradient(
                     colors: [
-                      AppTheme.primaryBlue.withOpacity(0.08),
-                      AppTheme.primaryPurple.withOpacity(0.04),
+                      AppTheme.primaryBlue.withValues(alpha: 0.08),
+                      AppTheme.primaryPurple.withValues(alpha: 0.04),
                     ],
                   )
                 : null,
             color: !isHovered
                 ? isEven
-                    ? AppTheme.darkCard.withOpacity(0.03)
+                    ? AppTheme.darkCard.withValues(alpha: 0.03)
                     : Colors.transparent
                 : null,
             border: Border(
               bottom: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.1),
+                color: AppTheme.darkBorder.withValues(alpha: 0.1),
                 width: 0.5,
               ),
             ),
@@ -1114,6 +1206,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildCell ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildCell operation in the admin unit workflow.
   Widget _buildCell(String text,
       {int flex = 1, bool isName = false, bool isPrice = false}) {
     return Expanded(
@@ -1134,6 +1228,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildTypeCell ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildTypeCell operation in the admin unit workflow.
   Widget _buildTypeCell(String unitType) {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -1143,8 +1239,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryBlue.withOpacity(0.2),
-            AppTheme.primaryBlue.withOpacity(0.1)
+            AppTheme.primaryBlue.withValues(alpha: 0.2),
+            AppTheme.primaryBlue.withValues(alpha: 0.1)
           ],
         ),
         borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
@@ -1160,6 +1256,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildActionsCell ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildActionsCell operation in the admin unit workflow.
   Widget _buildActionsCell(Unit unit, {int flex = 1}) {
     return Expanded(
       flex: flex,
@@ -1185,6 +1283,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildActionButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildActionButton operation in the admin unit workflow.
   Widget _buildActionButton(IconData icon, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: () {
@@ -1196,10 +1296,10 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
         width: 28,
         height: 28,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
           border: Border.all(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             width: 0.5,
           ),
         ),
@@ -1212,6 +1312,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _getUnitIcon ضمن مسار إدارة الوحدات.
+  /// This method performs the _getUnitIcon operation in the admin unit workflow.
   IconData _getUnitIcon(String unitType) {
     switch (unitType.toLowerCase()) {
       case 'room':
@@ -1240,6 +1342,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
   }
 
   // =============== Dynamic Fields helpers ===============
+  /// ينفذ هذا الأسلوب عملية _getPrimaryFilterFields ضمن مسار إدارة الوحدات.
+  /// This method performs the _getPrimaryFilterFields operation in the admin unit workflow.
   List<Map<String, dynamic>> _getPrimaryFilterFields(Unit unit) {
     final fields = <Map<String, dynamic>>[];
     final seen = <String>{};
@@ -1298,6 +1402,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     return fields;
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildDynamicFieldRow ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildDynamicFieldRow operation in the admin unit workflow.
   Widget _buildDynamicFieldRow({
     required String displayName,
     required dynamic value,
@@ -1309,7 +1415,7 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
 
     return Row(
       children: [
-        Icon(icon, size: 12, color: color.withOpacity(0.7)),
+        Icon(icon, size: 12, color: color.withValues(alpha: 0.7)),
         const SizedBox(width: 6),
         Text(
           '$displayName:',
@@ -1336,6 +1442,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _formatDynamicFieldValue ضمن مسار إدارة الوحدات.
+  /// This method performs the _formatDynamicFieldValue operation in the admin unit workflow.
   String _formatDynamicFieldValue(dynamic value, String fieldType) {
     if (value == null || value.toString().isEmpty) return 'غير محدد';
     switch (fieldType) {
@@ -1374,6 +1482,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _getFieldTypeIcon ضمن مسار إدارة الوحدات.
+  /// This method performs the _getFieldTypeIcon operation in the admin unit workflow.
   IconData _getFieldTypeIcon(String fieldType) {
     switch (fieldType) {
       case 'text':
@@ -1405,6 +1515,8 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _getFieldTypeColor ضمن مسار إدارة الوحدات.
+  /// This method performs the _getFieldTypeColor operation in the admin unit workflow.
   Color _getFieldTypeColor(String fieldType) {
     switch (fieldType) {
       case 'boolean':

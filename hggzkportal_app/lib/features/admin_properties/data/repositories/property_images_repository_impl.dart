@@ -1,24 +1,23 @@
 // lib/features/admin_properties/data/repositories/property_images_repository_impl.dart
 
-import 'package:dartz/dartz.dart';
-import 'package:hggzkportal/core/error/failures.dart';
-import 'package:hggzkportal/core/error/exceptions.dart';
-import 'package:hggzkportal/core/network/network_info.dart';
 import 'package:dio/dio.dart';
-import '../../domain/entities/property_image.dart';
-import '../../domain/repositories/property_images_repository.dart';
-import '../datasources/property_images_remote_datasource.dart';
-import '../models/property_image_model.dart';
+import 'package:dartz/dartz.dart';
+import 'package:hggzkportal/core/error/exceptions.dart';
+import 'package:hggzkportal/core/error/failures.dart';
+import 'package:hggzkportal/core/network/network_info.dart';
+import 'package:hggzkportal/features/admin_properties/data/datasources/property_images_remote_datasource.dart';
+import 'package:hggzkportal/features/admin_properties/data/models/property_image_model.dart';
+import 'package:hggzkportal/features/admin_properties/domain/entities/property_image.dart';
+import 'package:hggzkportal/features/admin_properties/domain/repositories/property_images_repository.dart';
 
 class PropertyImagesRepositoryImpl implements PropertyImagesRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final PropertyImagesRemoteDataSource remoteDataSource;
   final NetworkInfo networkInfo;
-
   PropertyImagesRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
-
   @override
   Future<Either<Failure, PropertyImage>> uploadImage({
     String? propertyId,

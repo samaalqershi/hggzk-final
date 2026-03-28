@@ -3,6 +3,7 @@
 import 'package:equatable/equatable.dart';
 
 abstract class UnitInSectionImagesEvent extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitInSectionImagesEvent`.
   const UnitInSectionImagesEvent();
 
   @override
@@ -10,9 +11,13 @@ abstract class UnitInSectionImagesEvent extends Equatable {
 }
 
 class LoadUnitInSectionImagesEvent extends UnitInSectionImagesEvent {
+  /// العربية: يخزن القيمة `unitInSectionId`.
   final String? unitInSectionId;
+
   final String? tempKey;
+
   final int? page;
+
   final int? limit;
 
   const LoadUnitInSectionImagesEvent({
@@ -27,13 +32,21 @@ class LoadUnitInSectionImagesEvent extends UnitInSectionImagesEvent {
 }
 
 class UploadUnitInSectionImageEvent extends UnitInSectionImagesEvent {
+  /// العربية: يخزن القيمة `unitInSectionId`.
   final String? unitInSectionId;
+
   final String? tempKey;
+
   final String filePath;
+
   final String? category;
+
   final String? alt;
+
   final bool isPrimary;
+
   final int? order;
+
   final List<String>? tags;
 
   const UploadUnitInSectionImageEvent({
@@ -61,10 +74,15 @@ class UploadUnitInSectionImageEvent extends UnitInSectionImagesEvent {
 }
 
 class UploadMultipleUnitInSectionImagesEvent extends UnitInSectionImagesEvent {
+  /// العربية: يخزن القيمة `unitInSectionId`.
   final String? unitInSectionId;
+
   final String? tempKey;
+
   final List<String> filePaths;
+
   final String? category;
+
   final List<String>? tags;
 
   const UploadMultipleUnitInSectionImagesEvent({
@@ -81,7 +99,9 @@ class UploadMultipleUnitInSectionImagesEvent extends UnitInSectionImagesEvent {
 }
 
 class UpdateUnitInSectionImageEvent extends UnitInSectionImagesEvent {
+  /// العربية: يخزن القيمة `imageId`.
   final String imageId;
+
   final Map<String, dynamic> data;
 
   const UpdateUnitInSectionImageEvent({
@@ -94,7 +114,9 @@ class UpdateUnitInSectionImageEvent extends UnitInSectionImagesEvent {
 }
 
 class DeleteUnitInSectionImageEvent extends UnitInSectionImagesEvent {
+  /// العربية: يخزن القيمة `imageId`.
   final String imageId;
+
   final bool permanent;
 
   const DeleteUnitInSectionImageEvent({
@@ -107,6 +129,7 @@ class DeleteUnitInSectionImageEvent extends UnitInSectionImagesEvent {
 }
 
 class DeleteMultipleUnitInSectionImagesEvent extends UnitInSectionImagesEvent {
+  /// العربية: يخزن القيمة `imageIds`.
   final List<String> imageIds;
 
   const DeleteMultipleUnitInSectionImagesEvent({required this.imageIds});
@@ -116,8 +139,11 @@ class DeleteMultipleUnitInSectionImagesEvent extends UnitInSectionImagesEvent {
 }
 
 class ReorderUnitInSectionImagesEvent extends UnitInSectionImagesEvent {
+  /// العربية: يخزن القيمة `unitInSectionId`.
   final String? unitInSectionId;
+
   final String? tempKey;
+
   final List<String> imageIds;
 
   const ReorderUnitInSectionImagesEvent({
@@ -131,8 +157,11 @@ class ReorderUnitInSectionImagesEvent extends UnitInSectionImagesEvent {
 }
 
 class SetPrimaryUnitInSectionImageEvent extends UnitInSectionImagesEvent {
+  /// العربية: يخزن القيمة `unitInSectionId`.
   final String? unitInSectionId;
+
   final String? tempKey;
+
   final String imageId;
 
   const SetPrimaryUnitInSectionImageEvent({
@@ -146,11 +175,14 @@ class SetPrimaryUnitInSectionImageEvent extends UnitInSectionImagesEvent {
 }
 
 class ClearUnitInSectionImagesEvent extends UnitInSectionImagesEvent {
+  /// العربية: ينشئ مثيلًا جديدًا من `ClearUnitInSectionImagesEvent`.
   const ClearUnitInSectionImagesEvent();
 }
 
 class RefreshUnitInSectionImagesEvent extends UnitInSectionImagesEvent {
+  /// العربية: يخزن القيمة `unitInSectionId`.
   final String? unitInSectionId;
+
   final String? tempKey;
 
   const RefreshUnitInSectionImagesEvent({
@@ -163,6 +195,7 @@ class RefreshUnitInSectionImagesEvent extends UnitInSectionImagesEvent {
 }
 
 class ToggleSelectUnitInSectionImageEvent extends UnitInSectionImagesEvent {
+  /// العربية: يخزن القيمة `imageId`.
   final String imageId;
 
   const ToggleSelectUnitInSectionImageEvent({required this.imageId});
@@ -172,13 +205,16 @@ class ToggleSelectUnitInSectionImageEvent extends UnitInSectionImagesEvent {
 }
 
 class SelectAllUnitInSectionImagesEvent extends UnitInSectionImagesEvent {
+  /// العربية: ينشئ مثيلًا جديدًا من `SelectAllUnitInSectionImagesEvent`.
   const SelectAllUnitInSectionImagesEvent();
 }
 
 class ClearUnitInSectionSelectionEvent extends UnitInSectionImagesEvent {
+  /// العربية: ينشئ مثيلًا جديدًا من `ClearUnitInSectionSelectionEvent`.
   const ClearUnitInSectionSelectionEvent();
 }
 
 class DeselectAllUnitInSectionImagesEvent extends UnitInSectionImagesEvent {
+  /// العربية: ينشئ مثيلًا جديدًا من `DeselectAllUnitInSectionImagesEvent`.
   const DeselectAllUnitInSectionImagesEvent();
 }

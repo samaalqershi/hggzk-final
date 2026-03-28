@@ -2,20 +2,18 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/daily_schedule.dart';
 import '../../domain/entities/monthly_schedule.dart';
-import '../bloc/daily_schedule_barrel.dart';
 
 /// ويدجت التقويم الموحد للإتاحة والتسعير
 /// يعرض شهراً كاملاً في شبكة تفاعلية مع معلومات الإتاحة والتسعير
 class UnifiedScheduleCalendar extends StatefulWidget {
   /// الجدول الشهري المراد عرضه
+  /// العربية: يخزن القيمة `monthlySchedule`.
   final MonthlySchedule monthlySchedule;
 
   /// التاريخ الحالي (الشهر المعروض)
@@ -63,15 +61,17 @@ class UnifiedScheduleCalendar extends StatefulWidget {
 class _UnifiedScheduleCalendarState extends State<UnifiedScheduleCalendar>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   late Animation<double> _fadeAnimation;
 
   DateTime? _tempSelectionStart;
+
   DateTime? _tempSelectionEnd;
-  bool _isSelecting = false;
 
   @override
   void initState() {
     super.initState();
+
     _initializeAnimations();
   }
 
@@ -111,13 +111,13 @@ class _UnifiedScheduleCalendarState extends State<UnifiedScheduleCalendar>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.7),
-              AppTheme.darkCard.withOpacity(0.5),
+              AppTheme.darkCard.withValues(alpha: 0.7),
+              AppTheme.darkCard.withValues(alpha: 0.5),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.2),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -148,7 +148,15 @@ class _UnifiedScheduleCalendarState extends State<UnifiedScheduleCalendar>
 
   /// بناء رأس أيام الأسبوع
   Widget _buildWeekdaysHeader() {
-    final weekdays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    final weekdays = [
+      'الأحد',
+      'الاثنين',
+      'الثلاثاء',
+      'الأربعاء',
+      'الخميس',
+      'الجمعة',
+      'السبت'
+    ];
 
     return Row(
       children: weekdays.map((day) {
@@ -169,11 +177,14 @@ class _UnifiedScheduleCalendarState extends State<UnifiedScheduleCalendar>
 
   /// بناء شبكة التقويم
   Widget _buildCalendarGrid() {
-    final firstDayOfMonth = DateTime(widget.currentDate.year, widget.currentDate.month, 1);
-    final lastDayOfMonth = DateTime(widget.currentDate.year, widget.currentDate.month + 1, 0);
+    final firstDayOfMonth =
+        DateTime(widget.currentDate.year, widget.currentDate.month, 1);
+    final lastDayOfMonth =
+        DateTime(widget.currentDate.year, widget.currentDate.month + 1, 0);
 
     // حساب اليوم الأول من الأسبوع (الأحد = 7)
-    int firstWeekday = firstDayOfMonth.weekday == 7 ? 0 : firstDayOfMonth.weekday;
+    int firstWeekday =
+        firstDayOfMonth.weekday == 7 ? 0 : firstDayOfMonth.weekday;
 
     // عدد الأيام في الشهر
     final daysInMonth = lastDayOfMonth.day;
@@ -202,7 +213,8 @@ class _UnifiedScheduleCalendarState extends State<UnifiedScheduleCalendar>
           return const SizedBox.shrink();
         }
 
-        final date = DateTime(widget.currentDate.year, widget.currentDate.month, dayNumber);
+        final date = DateTime(
+            widget.currentDate.year, widget.currentDate.month, dayNumber);
         final schedule = widget.monthlySchedule.getScheduleForDate(date);
 
         return _buildDayCell(date, schedule);
@@ -215,7 +227,8 @@ class _UnifiedScheduleCalendarState extends State<UnifiedScheduleCalendar>
     final isToday = _isToday(date);
     final isSelected = _isSelected(date);
     final isInRange = _isInSelectionRange(date);
-    final isPast = date.isBefore(DateTime.now().subtract(const Duration(days: 1)));
+    final isPast =
+        date.isBefore(DateTime.now().subtract(const Duration(days: 1)));
 
     return GestureDetector(
       onTap: () {
@@ -236,13 +249,13 @@ class _UnifiedScheduleCalendarState extends State<UnifiedScheduleCalendar>
                 ? AppTheme.primaryBlue
                 : isSelected
                     ? AppTheme.success
-                    : _getBorderColor(schedule).withOpacity(0.3),
+                    : _getBorderColor(schedule).withValues(alpha: 0.3),
             width: isToday ? 2 : 1,
           ),
           boxShadow: isSelected || isInRange
               ? [
                   BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.3),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                     blurRadius: 8,
                     spreadRadius: 1,
                   ),
@@ -404,8 +417,8 @@ class _UnifiedScheduleCalendarState extends State<UnifiedScheduleCalendar>
     if (isSelected) {
       return LinearGradient(
         colors: [
-          AppTheme.primaryBlue.withOpacity(0.3),
-          AppTheme.primaryBlue.withOpacity(0.2),
+          AppTheme.primaryBlue.withValues(alpha: 0.3),
+          AppTheme.primaryBlue.withValues(alpha: 0.2),
         ],
       );
     }
@@ -413,8 +426,8 @@ class _UnifiedScheduleCalendarState extends State<UnifiedScheduleCalendar>
     if (isInRange) {
       return LinearGradient(
         colors: [
-          AppTheme.primaryBlue.withOpacity(0.15),
-          AppTheme.primaryBlue.withOpacity(0.1),
+          AppTheme.primaryBlue.withValues(alpha: 0.15),
+          AppTheme.primaryBlue.withValues(alpha: 0.1),
         ],
       );
     }
@@ -422,8 +435,8 @@ class _UnifiedScheduleCalendarState extends State<UnifiedScheduleCalendar>
     if (schedule == null || isPast) {
       return LinearGradient(
         colors: [
-          AppTheme.darkSurface.withOpacity(0.3),
-          AppTheme.darkSurface.withOpacity(0.2),
+          AppTheme.darkSurface.withValues(alpha: 0.3),
+          AppTheme.darkSurface.withValues(alpha: 0.2),
         ],
       );
     }
@@ -432,8 +445,8 @@ class _UnifiedScheduleCalendarState extends State<UnifiedScheduleCalendar>
     final baseColor = _getStatusColor(schedule);
     return LinearGradient(
       colors: [
-        baseColor.withOpacity(0.2),
-        baseColor.withOpacity(0.1),
+        baseColor.withValues(alpha: 0.2),
+        baseColor.withValues(alpha: 0.1),
       ],
     );
   }
@@ -446,7 +459,7 @@ class _UnifiedScheduleCalendarState extends State<UnifiedScheduleCalendar>
 
   /// الحصول على لون النص
   Color _getTextColor(DailySchedule? schedule, bool isPast) {
-    if (isPast) return AppTheme.textMuted.withOpacity(0.5);
+    if (isPast) return AppTheme.textMuted.withValues(alpha: 0.5);
     if (schedule == null) return AppTheme.textMuted;
     return Colors.white;
   }
@@ -503,7 +516,6 @@ class _UnifiedScheduleCalendarState extends State<UnifiedScheduleCalendar>
         setState(() {
           _tempSelectionStart = date;
           _tempSelectionEnd = null;
-          _isSelecting = true;
         });
         widget.onSelectionChanged!(date, null);
       } else if (_tempSelectionEnd == null) {
@@ -511,12 +523,10 @@ class _UnifiedScheduleCalendarState extends State<UnifiedScheduleCalendar>
           setState(() {
             _tempSelectionEnd = _tempSelectionStart;
             _tempSelectionStart = date;
-            _isSelecting = false;
           });
         } else {
           setState(() {
             _tempSelectionEnd = date;
-            _isSelecting = false;
           });
         }
         widget.onSelectionChanged!(_tempSelectionStart, _tempSelectionEnd);
@@ -525,7 +535,6 @@ class _UnifiedScheduleCalendarState extends State<UnifiedScheduleCalendar>
         setState(() {
           _tempSelectionStart = date;
           _tempSelectionEnd = null;
-          _isSelecting = true;
         });
         widget.onSelectionChanged!(date, null);
       }

@@ -5,6 +5,7 @@ import '../entities/policy.dart';
 import '../repositories/policies_repository.dart';
 
 class GetPolicyByIdUseCase implements UseCase<Policy, String> {
+  /// العربية: يخزن القيمة `repository`.
   final PoliciesRepository repository;
 
   GetPolicyByIdUseCase(this.repository);

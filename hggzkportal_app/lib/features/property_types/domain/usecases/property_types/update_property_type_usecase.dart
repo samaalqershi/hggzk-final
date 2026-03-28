@@ -4,7 +4,8 @@ import '../../../../../core/error/failures.dart';
 import '../../../../../core/usecases/usecase.dart';
 import '../../repositories/property_types_repository.dart';
 
-class UpdatePropertyTypeUseCase implements UseCase<bool, UpdatePropertyTypeParams> {
+class UpdatePropertyTypeUseCase
+    implements UseCase<bool, UpdatePropertyTypeParams> {
   final PropertyTypesRepository repository;
 
   UpdatePropertyTypeUseCase(this.repository);
@@ -22,10 +23,15 @@ class UpdatePropertyTypeUseCase implements UseCase<bool, UpdatePropertyTypeParam
 }
 
 class UpdatePropertyTypeParams extends Equatable {
+  /// العربية: يخزن القيمة `propertyTypeId`.
   final String propertyTypeId;
+
   final String name;
+
   final String description;
+
   final List<String> defaultAmenities;
+
   final String icon;
 
   const UpdatePropertyTypeParams({
@@ -37,5 +43,6 @@ class UpdatePropertyTypeParams extends Equatable {
   });
 
   @override
-  List<Object> get props => [propertyTypeId, name, description, defaultAmenities, icon];
+  List<Object> get props =>
+      [propertyTypeId, name, description, defaultAmenities, icon];
 }

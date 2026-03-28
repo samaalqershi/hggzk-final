@@ -10,7 +10,9 @@ import '../models/currency_model.dart';
 
 class CurrenciesRepositoryImpl implements CurrenciesRepository {
   final CurrenciesRemoteDataSource remoteDataSource;
+
   final CurrenciesLocalDataSource localDataSource;
+
   final NetworkInfo networkInfo;
 
   CurrenciesRepositoryImpl({
@@ -42,7 +44,8 @@ class CurrenciesRepositoryImpl implements CurrenciesRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> saveCurrencies(List<Currency> currencies) async {
+  Future<Either<Failure, bool>> saveCurrencies(
+      List<Currency> currencies) async {
     if (!await networkInfo.isConnected) {
       return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
@@ -55,16 +58,15 @@ class CurrenciesRepositoryImpl implements CurrenciesRepository {
             'لا يمكن حفظ أكثر من عملة افتراضية. الرجاء إلغاء الافتراضية للعملات الأخرى.'));
       }
 
-      final currencyModels = currencies
-          .map((c) => CurrencyModel.fromEntity(c))
-          .toList();
-      
+      final currencyModels =
+          currencies.map((c) => CurrencyModel.fromEntity(c)).toList();
+
       final result = await remoteDataSource.saveCurrencies(currencyModels);
-      
+
       if (result) {
         await localDataSource.cacheCurrencies(currencyModels);
       }
-      
+
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -102,7 +104,7 @@ class CurrenciesRepositoryImpl implements CurrenciesRepository {
 
     try {
       final currentCurrencies = await remoteDataSource.getCurrencies();
-      
+
       // If there is already a default different than requested, allow replacing
       // but ensure only one remains default after update below.
       final updatedCurrencies = currentCurrencies.map((c) {
@@ -116,7 +118,7 @@ class CurrenciesRepositoryImpl implements CurrenciesRepository {
           lastUpdated: c.lastUpdated,
         );
       }).toList();
-      
+
       // Extra safety: assert exactly one default
       final defaults = updatedCurrencies.where((c) => c.isDefault).length;
       if (defaults != 1) {
@@ -125,11 +127,11 @@ class CurrenciesRepositoryImpl implements CurrenciesRepository {
       }
 
       final result = await remoteDataSource.saveCurrencies(updatedCurrencies);
-      
+
       if (result) {
         await localDataSource.cacheCurrencies(updatedCurrencies);
       }
-      
+
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -139,12 +141,14 @@ class CurrenciesRepositoryImpl implements CurrenciesRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getCurrencyStats({DateTime? startDate, DateTime? endDate}) async {
+  Future<Either<Failure, Map<String, dynamic>>> getCurrencyStats(
+      {DateTime? startDate, DateTime? endDate}) async {
     if (!await networkInfo.isConnected) {
       return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
     }
     try {
-      final stats = await remoteDataSource.getCurrencyStats(startDate: startDate, endDate: endDate);
+      final stats = await remoteDataSource.getCurrencyStats(
+          startDate: startDate, endDate: endDate);
       return Right(stats);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

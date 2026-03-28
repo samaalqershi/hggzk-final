@@ -9,7 +9,6 @@ import 'arabic_text_utils.dart';
 import '../../features/admin_bookings/domain/entities/booking.dart';
 import '../../features/admin_bookings/domain/entities/booking_details.dart';
 import '../utils/formatters.dart';
-
 class InvoicePdfGenerator {
   InvoicePdfGenerator._();
 
@@ -29,7 +28,6 @@ class InvoicePdfGenerator {
   static const PdfColor lightGray = PdfColor.fromInt(0xFFE7E7E7);
   static const PdfColor veryLightGray = PdfColor.fromInt(0xFFF5F5F5);
   static const PdfColor white = PdfColors.white;
-
   static Future<Uint8List> generate(BookingDetails details) async {
     final doc = pw.Document();
     final booking = details.booking;
@@ -950,7 +948,6 @@ class InvoicePdfGenerator {
       ),
     );
   }
-
   static String _shapeArabic(String text) => ArabicTextUtils.shape(text);
 
   static pw.Widget _rtlText(
@@ -1102,13 +1099,11 @@ class InvoicePdfGenerator {
       ),
     );
   }
-
   static String _formatMoneyArabic(double amount, String currency) {
     final formatter = NumberFormat('#,##0.00');
     final currencyArabic = _getCurrencyArabic(currency);
     return '${formatter.format(amount)} $currencyArabic';
   }
-
   static String _getCurrencyArabic(String currency) {
     switch (currency.toUpperCase()) {
       case 'USD':
@@ -1123,7 +1118,6 @@ class InvoicePdfGenerator {
         return currency;
     }
   }
-
   static String _getStatusTextArabic(String status) {
     switch (status.toLowerCase()) {
       case 'confirmed':
@@ -1138,7 +1132,6 @@ class InvoicePdfGenerator {
         return status;
     }
   }
-
   static PdfColor _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'confirmed':
@@ -1153,7 +1146,6 @@ class InvoicePdfGenerator {
         return gray;
     }
   }
-
   static String _generateInvoiceNumber({
     required String bookingId,
     required DateTime bookedAt,
@@ -1172,7 +1164,6 @@ class InvoicePdfGenerator {
 
     return 'INV$year$month$day-$idSegment';
   }
-
   static String _formatBookingReference(String bookingId) {
     if (bookingId.isEmpty) return 'N/A';
 
@@ -1186,7 +1177,6 @@ class InvoicePdfGenerator {
 
     return '${padded.substring(0, 3)}-${padded.substring(3, 6)}-${padded.substring(6, 9)}';
   }
-
   @visibleForTesting
   static ({String name, String? phone, String? email}) resolveGuestContact(
     Booking booking,
@@ -1214,7 +1204,6 @@ class InvoicePdfGenerator {
       email: email,
     );
   }
-
   static String? _coalesceNonEmpty(List<String?> values) {
     for (final value in values) {
       final normalized = _normalize(value);
@@ -1224,7 +1213,6 @@ class InvoicePdfGenerator {
     }
     return null;
   }
-
   static String? _normalize(String? value) {
     if (value == null) return null;
     final trimmed = value.trim();

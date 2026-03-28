@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../../core/error/failures.dart';
 import '../../../../../../core/models/paginated_result.dart';
-import '../../../../../../core/enums/booking_status.dart';
 import '../../../domain/entities/booking.dart';
 import '../../../domain/usecases/bookings/cancel_booking_usecase.dart';
 import '../../../domain/usecases/bookings/update_booking_usecase.dart';
@@ -12,25 +11,71 @@ import '../../../domain/usecases/bookings/check_out_usecase.dart';
 import 'bookings_list_event.dart';
 import 'bookings_list_state.dart';
 
+/// العربية: يدير قائمة الحجوزات وعملياتها المرتبطة مثل التحميل والتحديث والإلغاء والاختيار.
+/// English: Manages the booking list and related actions such as loading, refreshing, canceling, and selection.
 class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
+  /// العربية: ينفذ إلغاء الحجز مع سبب الإلغاء وخيار استرجاع الدفعات.
+  /// English: Executes booking cancellation with a reason and optional payment refunds.
   final CancelBookingUseCase cancelBookingUseCase;
+
+  /// العربية: ينفذ تحديث بيانات الحجز الحالي.
+  /// English: Applies updates to the current booking.
   final UpdateBookingUseCase updateBookingUseCase;
+
+  /// العربية: يعتمد الحجز بعد المراجعة أو الموافقة.
+  /// English: Confirms a booking after review or approval.
   final ConfirmBookingUseCase confirmBookingUseCase;
+
+  /// العربية: يجلب الحجوزات حسب النطاق الزمني والصفحة والفلاتر الحالية.
+  /// English: Fetches bookings by date range, page, and active filters.
   final GetBookingsByDateRangeUseCase getBookingsByDateRangeUseCase;
+
+  /// العربية: ينفذ تسجيل الوصول للحجوزات المؤكدة.
+  /// English: Performs check-in for confirmed bookings.
   final CheckInUseCase checkInUseCase;
+
+  /// العربية: ينفذ تسجيل المغادرة للحجوزات النشطة.
+  /// English: Performs check-out for active bookings.
   final CheckOutUseCase checkOutUseCase;
 
-  // متغيرات لحفظ حالة البحث والفلاتر
+  /// العربية: يحتفظ ببداية آخر نطاق بحث حتى يمكن إعادة استخدامه في التحديث والتنقل.
+  /// English: Stores the start of the last query so refresh and pagination can reuse it.
   DateTime? _currentStartDate;
+
+  /// العربية: يحتفظ بنهاية آخر نطاق بحث.
+  /// English: Stores the end of the last query.
   DateTime? _currentEndDate;
+
+  /// العربية: يحفظ فلتر المستخدم النشط بين الطلبات المتتالية.
+  /// English: Preserves the active user filter between requests.
   String? _currentUserId;
+
+  /// العربية: يحفظ اسم الضيف أو بريده المستخدم في البحث الأخير.
+  /// English: Preserves the guest name or email from the last search.
   String? _currentGuestNameOrEmail;
+
+  /// العربية: يحفظ فلتر الوحدة النشطة.
+  /// English: Preserves the active unit filter.
   String? _currentUnitId;
+
+  /// العربية: يحفظ فلتر مصدر الحجز النشط.
+  /// English: Preserves the active booking source filter.
   String? _currentBookingSource;
+
+  /// العربية: يحفظ رقم الصفحة الحالية لتسهيل إعادة التحميل والانتقال.
+  /// English: Stores the current page number for refreshes and navigation.
   int _currentPageNumber = 1;
+
+  /// العربية: يحفظ حجم الصفحة الحالي المستخدم في الاستعلامات اللاحقة.
+  /// English: Stores the current page size used by subsequent queries.
   int _currentPageSize = 10;
+
+  /// العربية: يمنع إطلاق طلبات تحميل إضافية متداخلة أثناء التحميل التدريجي.
+  /// English: Prevents overlapping load-more requests during incremental loading.
   bool _isLoadingMore = false;
 
+  /// العربية: ينشئ BLoC ويصل كل حدث بمعالجه المناسب.
+  /// English: Creates the bloc and wires each event to its corresponding handler.
   BookingsListBloc({
     required this.cancelBookingUseCase,
     required this.updateBookingUseCase,
@@ -56,6 +101,8 @@ class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
     on<ClearSelectionEvent>(_onClearSelection);
   }
 
+  /// العربية: يجلب صفحة الحجوزات المطلوبة مع الحفاظ على سياق الفلاتر والتحميل التدريجي.
+  /// English: Fetches the requested booking page while preserving filters and incremental loading.
   Future<void> _onLoadBookings(
     LoadBookingsEvent event,
     Emitter<BookingsListState> emit,
@@ -159,6 +206,8 @@ class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
     );
   }
 
+  /// العربية: يعيد تحميل القائمة باستخدام آخر معايير بحث محفوظة دون تغيير سياق الواجهة.
+  /// English: Reloads the list using the last saved query while keeping the UI context intact.
   Future<void> _onRefreshBookings(
     RefreshBookingsEvent event,
     Emitter<BookingsListState> emit,
@@ -230,6 +279,8 @@ class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
     );
   }
 
+  /// العربية: يرسل طلب إلغاء الحجز ثم ينعكس النجاح أو الفشل على الحالة الحالية.
+  /// English: Sends the booking cancel request and reflects success or failure in the current state.
   Future<void> _onCancelBooking(
     CancelBookingEvent event,
     Emitter<BookingsListState> emit,
@@ -279,6 +330,8 @@ class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
     }
   }
 
+  /// العربية: يرسل طلب تعديل الحجز ثم يعيد تحميل القائمة لتثبيت التغييرات.
+  /// English: Sends the booking update request and reloads the list to reflect the changes.
   Future<void> _onUpdateBooking(
     UpdateBookingEvent event,
     Emitter<BookingsListState> emit,
@@ -323,6 +376,8 @@ class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
     }
   }
 
+  /// العربية: يعتمد الحجز المحدد ثم يعيد القائمة بعد نجاح العملية.
+  /// English: Confirms the selected booking and refreshes the list after success.
   Future<void> _onConfirmBooking(
     ConfirmBookingEvent event,
     Emitter<BookingsListState> emit,
@@ -362,6 +417,8 @@ class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
     }
   }
 
+  /// العربية: يسجل وصول الضيف للحجز المحدد مع الحفاظ على الصفحة الحالية أثناء التنفيذ.
+  /// English: Checks the guest in while keeping the current page visible during execution.
   Future<void> _onCheckInBooking(
     CheckInBookingEvent event,
     Emitter<BookingsListState> emit,
@@ -401,6 +458,8 @@ class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
     }
   }
 
+  /// العربية: يسجل مغادرة الضيف ثم ينعش القائمة بعد النجاح.
+  /// English: Checks the guest out and refreshes the list after success.
   Future<void> _onCheckOutBooking(
     CheckOutBookingEvent event,
     Emitter<BookingsListState> emit,
@@ -440,6 +499,8 @@ class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
     }
   }
 
+  /// العربية: يحول معايير الفلترة إلى تحميل جديد يبدأ من الصفحة الأولى.
+  /// English: Converts filter changes into a fresh load request that starts from page one.
   Future<void> _onFilterBookings(
     FilterBookingsEvent event,
     Emitter<BookingsListState> emit,
@@ -458,6 +519,8 @@ class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
     ));
   }
 
+  /// العربية: يربط البحث النصي بتحميل جديد يبدأ من الصفحة الأولى حتى تظهر النتائج الصحيحة.
+  /// English: Turns text search into a fresh load request starting from the first page.
   Future<void> _onSearchBookings(
     SearchBookingsEvent event,
     Emitter<BookingsListState> emit,
@@ -475,6 +538,8 @@ class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
     ));
   }
 
+  /// العربية: ينتقل إلى الصفحة المطلوبة فقط إذا كانت مختلفة عن الصفحة الحالية.
+  /// English: Moves to the requested page only when it differs from the current page.
   Future<void> _onChangePage(
     ChangePageEvent event,
     Emitter<BookingsListState> emit,
@@ -500,6 +565,8 @@ class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
     ));
   }
 
+  /// العربية: يغيّر حجم الصفحة ثم يعيد التحميل من الصفحة الأولى للمحافظة على اتساق الترقيم.
+  /// English: Changes the page size and reloads from the first page to keep pagination consistent.
   Future<void> _onChangePageSize(
     ChangePageSizeEvent event,
     Emitter<BookingsListState> emit,
@@ -521,6 +588,8 @@ class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
     ));
   }
 
+  /// العربية: يضيف حجزًا واحدًا إلى مجموعة الاختيار إذا لم يكن موجودًا بالفعل.
+  /// English: Adds one booking to the selection set if it is not already included.
   Future<void> _onSelectBooking(
     SelectBookingEvent event,
     Emitter<BookingsListState> emit,
@@ -542,6 +611,8 @@ class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
     }
   }
 
+  /// العربية: يزيل الحجز المطلوب من مجموعة الاختيار الحالية فقط.
+  /// English: Removes the requested booking from the current selection only.
   Future<void> _onDeselectBooking(
     DeselectBookingEvent event,
     Emitter<BookingsListState> emit,
@@ -555,6 +626,8 @@ class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
     }
   }
 
+  /// العربية: يستبدل الاختيار الحالي بالحجوزات المطابقة للمعرّفات المرسلة.
+  /// English: Replaces the current selection with bookings matching the supplied ids.
   Future<void> _onSelectMultipleBookings(
     SelectMultipleBookingsEvent event,
     Emitter<BookingsListState> emit,
@@ -569,6 +642,8 @@ class BookingsListBloc extends Bloc<BookingsListEvent, BookingsListState> {
     }
   }
 
+  /// العربية: يمسح جميع الحجوزات المحددة ويعيد الحالة إلى وضع غير محدد.
+  /// English: Clears every selected booking and returns the state to an unselected mode.
   Future<void> _onClearSelection(
     ClearSelectionEvent event,
     Emitter<BookingsListState> emit,

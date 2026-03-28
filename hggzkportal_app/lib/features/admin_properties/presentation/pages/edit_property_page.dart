@@ -1,41 +1,38 @@
 // lib/features/admin_properties/presentation/pages/edit_property_page.dart
 
-import 'package:hggzkportal/core/theme/app_theme.dart';
-import 'package:hggzkportal/features/admin_properties/domain/entities/property_image.dart';
+import 'dart:math' as math;
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:get_it/get_it.dart';
-import 'dart:ui';
-import 'dart:math' as math;
-import 'package:hggzkportal/core/theme/app_colors.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
-import '../bloc/properties/properties_bloc.dart';
-import '../bloc/property_types/property_types_bloc.dart';
-import '../bloc/amenities/amenities_bloc.dart';
-import '../bloc/property_images/property_images_bloc.dart';
-import '../widgets/property_image_gallery.dart';
-import '../widgets/amenity_selector_widget.dart';
-import '../widgets/property_map_view.dart';
-import 'package:hggzkportal/injection_container.dart' as di;
+import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:hggzkportal/core/usecases/usecase.dart';
-import 'package:hggzkportal/features/admin_currencies/domain/usecases/get_currencies_usecase.dart';
 import 'package:hggzkportal/features/admin_cities/domain/usecases/get_cities_usecase.dart'
     as ci_uc;
-import '../../domain/entities/property.dart';
-import '../../domain/entities/property_type.dart';
-import 'package:hggzkportal/features/helpers/presentation/utils/search_navigation_helper.dart';
+import 'package:hggzkportal/features/admin_currencies/domain/usecases/get_currencies_usecase.dart';
+import 'package:hggzkportal/features/admin_properties/domain/entities/property.dart';
+import 'package:hggzkportal/features/admin_properties/domain/entities/property_image.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/bloc/amenities/amenities_bloc.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/bloc/properties/properties_bloc.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/bloc/property_images/property_images_bloc.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/widgets/amenity_selector_widget.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/widgets/property_image_gallery.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/widgets/property_map_view.dart';
 import 'package:hggzkportal/features/admin_users/domain/entities/user.dart';
+import 'package:hggzkportal/features/helpers/presentation/utils/search_navigation_helper.dart';
+import 'package:hggzkportal/features/property_types/presentation/bloc/property_types/property_types_bloc.dart';
+import 'package:hggzkportal/features/property_types/presentation/bloc/property_types/property_types_event.dart';
+import 'package:hggzkportal/injection_container.dart' as di;
 
 class EditPropertyPage extends StatelessWidget {
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
-
   const EditPropertyPage({
     super.key,
     required this.propertyId,
   });
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -61,12 +58,11 @@ class EditPropertyPage extends StatelessWidget {
 }
 
 class _EditPropertyView extends StatefulWidget {
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
-
   const _EditPropertyView({
     required this.propertyId,
   });
-
   @override
   State<_EditPropertyView> createState() => _EditPropertyViewState();
 }
@@ -112,7 +108,6 @@ class _EditPropertyViewState extends State<_EditPropertyView>
   List<String> _originalImageUrls = [];
   bool _imagesChanged = false;
   List<String> _originalAmenities = [];
-
   @override
   void initState() {
     super.initState();
@@ -234,8 +229,13 @@ class _EditPropertyViewState extends State<_EditPropertyView>
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (!didPop && await _onWillPop() && mounted) {
+          context.pop();
+        }
+      },
       child: BlocListener<PropertiesBloc, PropertiesState>(
         listener: (context, state) {
           if (state is PropertyDetailsLoaded && !_isDataLoaded) {
@@ -325,8 +325,8 @@ class _EditPropertyViewState extends State<_EditPropertyView>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.8),
-                AppTheme.darkBackground3.withOpacity(0.6),
+                AppTheme.darkBackground2.withValues(alpha: 0.8),
+                AppTheme.darkBackground3.withValues(alpha: 0.6),
               ],
             ),
           ),
@@ -360,14 +360,14 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppTheme.primaryBlue.withOpacity(0.3),
-                        AppTheme.primaryPurple.withOpacity(0.2),
-                        AppTheme.primaryViolet.withOpacity(0.1),
+                        AppTheme.primaryBlue.withValues(alpha: 0.3),
+                        AppTheme.primaryPurple.withValues(alpha: 0.2),
+                        AppTheme.primaryViolet.withValues(alpha: 0.1),
                       ],
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                         blurRadius: 30,
                         spreadRadius: 10,
                       ),
@@ -424,13 +424,13 @@ class _EditPropertyViewState extends State<_EditPropertyView>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -446,13 +446,13 @@ class _EditPropertyViewState extends State<_EditPropertyView>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkSurface.withOpacity(0.5),
-                    AppTheme.darkSurface.withOpacity(0.3),
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -490,10 +490,10 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.warning.withOpacity(0.2),
+                          color: AppTheme.warning.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppTheme.warning.withOpacity(0.5),
+                            color: AppTheme.warning.withValues(alpha: 0.5),
                             width: 1,
                           ),
                         ),
@@ -526,10 +526,10 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.error.withOpacity(0.1),
+                  color: AppTheme.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.error.withOpacity(0.3),
+                    color: AppTheme.error.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -552,13 +552,13 @@ class _EditPropertyViewState extends State<_EditPropertyView>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
+                    AppTheme.error.withValues(alpha: 0.2),
+                    AppTheme.error.withValues(alpha: 0.1),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.error.withOpacity(0.3),
+                  color: AppTheme.error.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -602,23 +602,23 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                   decoration: BoxDecoration(
                     gradient: isActive ? AppTheme.primaryGradient : null,
                     color: !isActive
-                        ? AppTheme.darkSurface.withOpacity(0.5)
+                        ? AppTheme.darkSurface.withValues(alpha: 0.5)
                         : null,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isModified
-                          ? AppTheme.warning.withOpacity(0.5)
+                          ? AppTheme.warning.withValues(alpha: 0.5)
                           : isActive
-                              ? AppTheme.primaryBlue.withOpacity(0.5)
-                              : AppTheme.darkBorder.withOpacity(0.3),
+                              ? AppTheme.primaryBlue.withValues(alpha: 0.5)
+                              : AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: isModified ? 2 : 1,
                     ),
                     boxShadow: isActive
                         ? [
                             BoxShadow(
                               color: isModified
-                                  ? AppTheme.warning.withOpacity(0.3)
-                                  : AppTheme.primaryBlue.withOpacity(0.3),
+                                  ? AppTheme.warning.withValues(alpha: 0.3)
+                                  : AppTheme.primaryBlue.withValues(alpha: 0.3),
                               blurRadius: 10,
                             ),
                           ]
@@ -655,12 +655,12 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                             ? isModified
                                 ? LinearGradient(colors: [
                                     AppTheme.warning,
-                                    AppTheme.warning.withOpacity(0.5)
+                                    AppTheme.warning.withValues(alpha: 0.5)
                                   ])
                                 : AppTheme.primaryGradient
                             : null,
                         color: !isCompleted
-                            ? AppTheme.darkBorder.withOpacity(0.2)
+                            ? AppTheme.darkBorder.withValues(alpha: 0.2)
                             : null,
                         borderRadius: BorderRadius.circular(1),
                       ),
@@ -895,13 +895,13 @@ class _EditPropertyViewState extends State<_EditPropertyView>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.7),
-                  AppTheme.darkCard.withOpacity(0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.7),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -1133,7 +1133,7 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                     gradient: LinearGradient(
                       colors: [
                         AppTheme.warning,
-                        AppTheme.warning.withOpacity(0.8),
+                        AppTheme.warning.withValues(alpha: 0.8),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
@@ -1191,8 +1191,8 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                 'value': _systemCommissionRate == null
                     ? 'العمولة العامة'
                     : '${_systemCommissionRate!.toStringAsFixed(2)}%',
-                'changed':
-                    _systemCommissionRate != _originalProperty?.systemCommissionRate
+                'changed': _systemCommissionRate !=
+                    _originalProperty?.systemCommissionRate
               },
               {
                 'label': 'مميز',
@@ -1285,10 +1285,10 @@ class _EditPropertyViewState extends State<_EditPropertyView>
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.warning.withOpacity(0.1),
+        color: AppTheme.warning.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1314,7 +1314,7 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                   TextSpan(
                     text: value,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.warning.withOpacity(0.8),
+                      color: AppTheme.warning.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -1349,13 +1349,13 @@ class _EditPropertyViewState extends State<_EditPropertyView>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.3),
-                AppTheme.darkCard.withOpacity(0.2),
+                AppTheme.darkCard.withValues(alpha: 0.3),
+                AppTheme.darkCard.withValues(alpha: 0.2),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.2),
+              color: AppTheme.darkBorder.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -1363,7 +1363,7 @@ class _EditPropertyViewState extends State<_EditPropertyView>
             children: [
               Icon(
                 icon,
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -1377,7 +1377,7 @@ class _EditPropertyViewState extends State<_EditPropertyView>
               ),
               Icon(
                 Icons.lock_outline_rounded,
-                color: AppTheme.textMuted.withOpacity(0.3),
+                color: AppTheme.textMuted.withValues(alpha: 0.3),
                 size: 16,
               ),
             ],
@@ -1395,13 +1395,13 @@ class _EditPropertyViewState extends State<_EditPropertyView>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.warning.withOpacity(0.1),
-            AppTheme.warning.withOpacity(0.05),
+            AppTheme.warning.withValues(alpha: 0.1),
+            AppTheme.warning.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.warning.withOpacity(0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1521,13 +1521,13 @@ class _EditPropertyViewState extends State<_EditPropertyView>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1541,12 +1541,12 @@ class _EditPropertyViewState extends State<_EditPropertyView>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: maxLines == 1
                   ? Icon(
                       icon,
-                      color: AppTheme.primaryBlue.withOpacity(0.7),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                       size: 20,
                     )
                   : null,
@@ -1593,19 +1593,19 @@ class _EditPropertyViewState extends State<_EditPropertyView>
               gradient: LinearGradient(
                 colors: hasChanged
                     ? [
-                        AppTheme.warning.withOpacity(0.1),
-                        AppTheme.warning.withOpacity(0.05),
+                        AppTheme.warning.withValues(alpha: 0.1),
+                        AppTheme.warning.withValues(alpha: 0.05),
                       ]
                     : [
-                        AppTheme.darkCard.withOpacity(0.5),
-                        AppTheme.darkCard.withOpacity(0.3),
+                        AppTheme.darkCard.withValues(alpha: 0.5),
+                        AppTheme.darkCard.withValues(alpha: 0.3),
                       ],
               ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: hasChanged
-                    ? AppTheme.warning.withOpacity(0.3)
-                    : AppTheme.darkBorder.withOpacity(0.3),
+                    ? AppTheme.warning.withValues(alpha: 0.3)
+                    : AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -1615,7 +1615,7 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                   Icons.person_search_rounded,
                   color: hasChanged
                       ? AppTheme.warning
-                      : AppTheme.primaryBlue.withOpacity(0.7),
+                      : AppTheme.primaryBlue.withValues(alpha: 0.7),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -1630,7 +1630,7 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                           color: (_selectedOwner == null &&
                                   (_originalProperty?.ownerName == null ||
                                       _originalProperty!.ownerName.isEmpty))
-                              ? AppTheme.textMuted.withOpacity(0.5)
+                              ? AppTheme.textMuted.withValues(alpha: 0.5)
                               : AppTheme.textWhite,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -1650,7 +1650,7 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                 Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 16,
-                  color: AppTheme.textMuted.withOpacity(0.7),
+                  color: AppTheme.textMuted.withValues(alpha: 0.7),
                 ),
               ],
             ),
@@ -1710,7 +1710,7 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                     size: 32,
                     color: isSelected
                         ? (hasChanged ? AppTheme.warning : AppTheme.warning)
-                        : AppTheme.textMuted.withOpacity(0.5),
+                        : AppTheme.textMuted.withValues(alpha: 0.5),
                   ),
                 ),
               ),
@@ -1730,21 +1730,21 @@ class _EditPropertyViewState extends State<_EditPropertyView>
         gradient: LinearGradient(
           colors: hasChanged
               ? [
-                  AppTheme.warning.withOpacity(0.1),
-                  AppTheme.warning.withOpacity(0.05),
+                  AppTheme.warning.withValues(alpha: 0.1),
+                  AppTheme.warning.withValues(alpha: 0.05),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.3),
-                  AppTheme.darkCard.withOpacity(0.2),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.2),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasChanged
-              ? AppTheme.warning.withOpacity(0.3)
+              ? AppTheme.warning.withValues(alpha: 0.3)
               : _isFeatured
-                  ? AppTheme.warning.withOpacity(0.3)
-                  : AppTheme.darkBorder.withOpacity(0.3),
+                  ? AppTheme.warning.withValues(alpha: 0.3)
+                  : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1792,7 +1792,7 @@ class _EditPropertyViewState extends State<_EditPropertyView>
             },
             activeThumbColor: AppTheme.warning,
             inactiveThumbColor: AppTheme.textMuted,
-            inactiveTrackColor: AppTheme.darkBorder.withOpacity(0.3),
+            inactiveTrackColor: AppTheme.darkBorder.withValues(alpha: 0.3),
           ),
         ],
       ),
@@ -1811,19 +1811,19 @@ class _EditPropertyViewState extends State<_EditPropertyView>
         gradient: LinearGradient(
           colors: hasChanges
               ? [
-                  AppTheme.warning.withOpacity(0.05),
-                  AppTheme.darkCard.withOpacity(0.4),
+                  AppTheme.warning.withValues(alpha: 0.05),
+                  AppTheme.darkCard.withValues(alpha: 0.4),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasChanges
-              ? AppTheme.warning.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.warning.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1845,7 +1845,7 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.warning.withOpacity(0.2),
+                    color: AppTheme.warning.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -1916,10 +1916,10 @@ class _EditPropertyViewState extends State<_EditPropertyView>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.error.withOpacity(0.1),
+        color: AppTheme.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.error.withOpacity(0.3),
+          color: AppTheme.error.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1961,13 +1961,13 @@ class _EditPropertyViewState extends State<_EditPropertyView>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1984,13 +1984,13 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withOpacity(0.3),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -2019,15 +2019,15 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                   gradient: _hasChanges
                       ? LinearGradient(colors: [
                           AppTheme.warning,
-                          AppTheme.warning.withOpacity(0.8)
+                          AppTheme.warning.withValues(alpha: 0.8)
                         ])
                       : AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
                       color: _hasChanges
-                          ? AppTheme.warning.withOpacity(0.3)
-                          : AppTheme.primaryBlue.withOpacity(0.3),
+                          ? AppTheme.warning.withValues(alpha: 0.3)
+                          : AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -2094,8 +2094,8 @@ class _EditPropertyViewState extends State<_EditPropertyView>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
+                    AppTheme.error.withValues(alpha: 0.2),
+                    AppTheme.error.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -2674,19 +2674,19 @@ class _EditPropertyViewState extends State<_EditPropertyView>
 
 // Currency Dropdown Widget
 class _CurrencyDropdown extends StatefulWidget {
+  /// العربية: يخزن القيمة `value`.
   final String value;
   final ValueChanged<String> onChanged;
   const _CurrencyDropdown({required this.value, required this.onChanged});
-
   @override
   State<_CurrencyDropdown> createState() => _CurrencyDropdownState();
 }
 
 class _CurrencyDropdownState extends State<_CurrencyDropdown> {
+  /// العربية: يخزن القيمة `codes`.
   List<String> _codes = const [];
   bool _loading = true;
   String? _error;
-
   @override
   void initState() {
     super.initState();
@@ -2724,7 +2724,7 @@ class _CurrencyDropdownState extends State<_CurrencyDropdown> {
       labelText: 'العملة',
       labelStyle: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
       filled: true,
-      fillColor: AppTheme.darkSurface.withOpacity(0.3),
+      fillColor: AppTheme.darkSurface.withValues(alpha: 0.3),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
@@ -2776,6 +2776,7 @@ class _CurrencyDropdownState extends State<_CurrencyDropdown> {
 
 // City Dropdown Widget
 class _CityDropdown extends StatefulWidget {
+  /// العربية: يخزن القيمة `value`.
   final String? value;
   final ValueChanged<String?> onChanged;
   final bool requiredField;
@@ -2783,16 +2784,15 @@ class _CityDropdown extends StatefulWidget {
       {required this.value,
       required this.onChanged,
       this.requiredField = false});
-
   @override
   State<_CityDropdown> createState() => _CityDropdownState();
 }
 
 class _CityDropdownState extends State<_CityDropdown> {
+  /// العربية: يخزن القيمة `cities`.
   List<String> _cities = const [];
   bool _loading = true;
   String? _error;
-
   @override
   void initState() {
     super.initState();
@@ -2828,7 +2828,7 @@ class _CityDropdownState extends State<_CityDropdown> {
           widget.requiredField ? 'المدينة (إجباري)' : 'المدينة (اختياري)',
       labelStyle: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
       filled: true,
-      fillColor: AppTheme.darkSurface.withOpacity(0.3),
+      fillColor: AppTheme.darkSurface.withValues(alpha: 0.3),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
@@ -2884,10 +2884,9 @@ class _CityDropdownState extends State<_CityDropdown> {
 
 // Additional Dialogs
 class _ResetConfirmationDialog extends StatelessWidget {
+  /// العربية: يخزن القيمة `onConfirm`.
   final VoidCallback onConfirm;
-
   const _ResetConfirmationDialog({required this.onConfirm});
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -2897,13 +2896,13 @@ class _ResetConfirmationDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.warning.withOpacity(0.3),
+            color: AppTheme.warning.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2916,8 +2915,8 @@ class _ResetConfirmationDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.warning.withOpacity(0.2),
-                    AppTheme.warning.withOpacity(0.1),
+                    AppTheme.warning.withValues(alpha: 0.2),
+                    AppTheme.warning.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -2953,10 +2952,10 @@ class _ResetConfirmationDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkSurface.withOpacity(0.5),
+                        color: AppTheme.darkSurface.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.darkBorder.withOpacity(0.3),
+                          color: AppTheme.darkBorder.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -2984,7 +2983,7 @@ class _ResetConfirmationDialog extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             AppTheme.warning,
-                            AppTheme.warning.withOpacity(0.8),
+                            AppTheme.warning.withValues(alpha: 0.8),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -3020,13 +3019,13 @@ class _UnsavedChangesDialog extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.95),
-              AppTheme.darkCard.withOpacity(0.85),
+              AppTheme.darkCard.withValues(alpha: 0.95),
+              AppTheme.darkCard.withValues(alpha: 0.85),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.error.withOpacity(0.3),
+            color: AppTheme.error.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -3039,8 +3038,8 @@ class _UnsavedChangesDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.error.withOpacity(0.2),
-                    AppTheme.error.withOpacity(0.1),
+                    AppTheme.error.withValues(alpha: 0.2),
+                    AppTheme.error.withValues(alpha: 0.1),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -3101,10 +3100,10 @@ class _UnsavedChangesDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.error.withOpacity(0.1),
+                        color: AppTheme.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppTheme.error.withOpacity(0.3),
+                          color: AppTheme.error.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -3130,10 +3129,9 @@ class _UnsavedChangesDialog extends StatelessWidget {
 }
 
 class _DeleteConfirmationDialog extends StatelessWidget {
+  /// العربية: يخزن القيمة `onConfirm`.
   final VoidCallback onConfirm;
-
   const _DeleteConfirmationDialog({required this.onConfirm});
-
   @override
   Widget build(BuildContext context) {
     return BackdropFilter(
@@ -3147,18 +3145,18 @@ class _DeleteConfirmationDialog extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppTheme.darkCard.withOpacity(0.95),
-                AppTheme.darkCard.withOpacity(0.85),
+                AppTheme.darkCard.withValues(alpha: 0.95),
+                AppTheme.darkCard.withValues(alpha: 0.85),
               ],
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: AppTheme.error.withOpacity(0.3),
+              color: AppTheme.error.withValues(alpha: 0.3),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.error.withOpacity(0.2),
+                color: AppTheme.error.withValues(alpha: 0.2),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -3173,8 +3171,8 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.error.withOpacity(0.2),
-                      AppTheme.error.withOpacity(0.1),
+                      AppTheme.error.withValues(alpha: 0.2),
+                      AppTheme.error.withValues(alpha: 0.1),
                     ],
                   ),
                   shape: BoxShape.circle,
@@ -3205,7 +3203,7 @@ class _DeleteConfirmationDialog extends StatelessWidget {
               Text(
                 'لا يمكن التراجع عن هذا الإجراء',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppTheme.error.withOpacity(0.8),
+                  color: AppTheme.error.withValues(alpha: 0.8),
                   fontStyle: FontStyle.italic,
                 ),
                 textAlign: TextAlign.center,
@@ -3221,13 +3219,13 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              AppTheme.darkSurface.withOpacity(0.5),
-                              AppTheme.darkSurface.withOpacity(0.3),
+                              AppTheme.darkSurface.withValues(alpha: 0.5),
+                              AppTheme.darkSurface.withValues(alpha: 0.3),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppTheme.darkBorder.withOpacity(0.3),
+                            color: AppTheme.darkBorder.withValues(alpha: 0.3),
                             width: 1,
                           ),
                         ),
@@ -3252,13 +3250,13 @@ class _DeleteConfirmationDialog extends StatelessWidget {
                           gradient: LinearGradient(
                             colors: [
                               AppTheme.error,
-                              AppTheme.error.withOpacity(0.8),
+                              AppTheme.error.withValues(alpha: 0.8),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.error.withOpacity(0.3),
+                              color: AppTheme.error.withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 4),
                             ),
@@ -3288,10 +3286,9 @@ class _DeleteConfirmationDialog extends StatelessWidget {
 
 // Custom Background Painter for Edit Mode
 class _EditPropertyBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
-
   _EditPropertyBackgroundPainter({required this.glowIntensity});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -3299,8 +3296,8 @@ class _EditPropertyBackgroundPainter extends CustomPainter {
     // Draw glowing orbs with edit theme
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.warning.withOpacity(0.1 * glowIntensity),
-        AppTheme.warning.withOpacity(0.05 * glowIntensity),
+        AppTheme.warning.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.warning.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(
@@ -3316,8 +3313,8 @@ class _EditPropertyBackgroundPainter extends CustomPainter {
 
     paint.shader = RadialGradient(
       colors: [
-        AppTheme.primaryPurple.withOpacity(0.1 * glowIntensity),
-        AppTheme.primaryPurple.withOpacity(0.05 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.1 * glowIntensity),
+        AppTheme.primaryPurple.withValues(alpha: 0.05 * glowIntensity),
         Colors.transparent,
       ],
     ).createShader(Rect.fromCircle(

@@ -3,22 +3,20 @@
 import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hggzkportal/core/theme/app_colors.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import '../../domain/entities/policy.dart';
 
 class PolicyEditorWidget extends StatefulWidget {
+  /// العربية: يخزن القيمة `policy`.
   final Policy? policy;
   final Function(Policy) onSave;
   final VoidCallback onCancel;
-  
   const PolicyEditorWidget({
     super.key,
     this.policy,
     required this.onSave,
     required this.onCancel,
   });
-  
   @override
   State<PolicyEditorWidget> createState() => _PolicyEditorWidgetState();
 }
@@ -28,7 +26,6 @@ class _PolicyEditorWidgetState extends State<PolicyEditorWidget> {
   final _descriptionController = TextEditingController();
   final _rulesController = TextEditingController();
   PolicyType _selectedType = PolicyType.cancellation;
-  
   @override
   void initState() {
     super.initState();
@@ -38,14 +35,14 @@ class _PolicyEditorWidgetState extends State<PolicyEditorWidget> {
       _selectedType = widget.policy!.policyType;
     }
   }
-  
+
   @override
   void dispose() {
     _descriptionController.dispose();
     _rulesController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -74,9 +71,12 @@ class _PolicyEditorWidgetState extends State<PolicyEditorWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ShaderMask(
-                  shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+                  shaderCallback: (bounds) =>
+                      AppTheme.primaryGradient.createShader(bounds),
                   child: Text(
-                    widget.policy != null ? 'تعديل السياسة' : 'إضافة سياسة جديدة',
+                    widget.policy != null
+                        ? 'تعديل السياسة'
+                        : 'إضافة سياسة جديدة',
                     style: AppTextStyles.heading3.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -101,9 +101,9 @@ class _PolicyEditorWidgetState extends State<PolicyEditorWidget> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Policy Type Selector
             Text(
               'نوع السياسة',
@@ -154,9 +154,9 @@ class _PolicyEditorWidgetState extends State<PolicyEditorWidget> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Description Field
             Text(
               'الوصف',
@@ -202,9 +202,9 @@ class _PolicyEditorWidgetState extends State<PolicyEditorWidget> {
                 },
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Rules Field
             Text(
               'القواعد',
@@ -250,9 +250,9 @@ class _PolicyEditorWidgetState extends State<PolicyEditorWidget> {
                 },
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Action Buttons
             Row(
               children: [
@@ -316,11 +316,11 @@ class _PolicyEditorWidgetState extends State<PolicyEditorWidget> {
       ),
     );
   }
-  
+
   void _savePolicy() {
     if (_formKey.currentState!.validate()) {
       HapticFeedback.mediumImpact();
-      
+
       final policy = Policy(
         id: widget.policy?.id ?? '',
         propertyId: widget.policy?.propertyId ?? '',
@@ -329,11 +329,11 @@ class _PolicyEditorWidgetState extends State<PolicyEditorWidget> {
         rules: _rulesController.text,
         isActive: true,
       );
-      
+
       widget.onSave(policy);
     }
   }
-  
+
   String _getPolicyTypeLabel(PolicyType type) {
     switch (type) {
       case PolicyType.cancellation:

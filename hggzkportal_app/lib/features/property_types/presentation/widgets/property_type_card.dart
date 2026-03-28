@@ -6,10 +6,15 @@ import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import '../../domain/entities/property_type.dart';
 
 class PropertyTypeCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `propertyType`.
   final PropertyType propertyType;
+
   final bool isSelected;
+
   final VoidCallback onTap;
+
   final VoidCallback onEdit;
+
   final VoidCallback onDelete;
 
   const PropertyTypeCard({
@@ -28,7 +33,9 @@ class PropertyTypeCard extends StatefulWidget {
 class _PropertyTypeCardState extends State<PropertyTypeCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   late Animation<double> _scaleAnimation;
+
   bool _isHovered = false;
 
   @override
@@ -108,32 +115,32 @@ class _PropertyTypeCardState extends State<PropertyTypeCard>
                   gradient: LinearGradient(
                     colors: widget.isSelected
                         ? [
-                            AppTheme.primaryBlue.withOpacity(0.2),
-                            AppTheme.primaryPurple.withOpacity(0.1),
+                            AppTheme.primaryBlue.withValues(alpha: 0.2),
+                            AppTheme.primaryPurple.withValues(alpha: 0.1),
                           ]
                         : _isHovered
                             ? [
-                                AppTheme.darkCard.withOpacity(0.8),
-                                AppTheme.darkCard.withOpacity(0.6),
+                                AppTheme.darkCard.withValues(alpha: 0.8),
+                                AppTheme.darkCard.withValues(alpha: 0.6),
                               ]
                             : [
-                                AppTheme.darkCard.withOpacity(0.5),
-                                AppTheme.darkCard.withOpacity(0.3),
+                                AppTheme.darkCard.withValues(alpha: 0.5),
+                                AppTheme.darkCard.withValues(alpha: 0.3),
                               ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: widget.isSelected
-                        ? AppTheme.primaryBlue.withOpacity(0.5)
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.5)
                         : _isHovered
-                            ? AppTheme.darkBorder.withOpacity(0.5)
-                            : AppTheme.darkBorder.withOpacity(0.3),
+                            ? AppTheme.darkBorder.withValues(alpha: 0.5)
+                            : AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                   boxShadow: widget.isSelected
                       ? [
                           BoxShadow(
-                            color: AppTheme.primaryBlue.withOpacity(0.2),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -173,7 +180,8 @@ class _PropertyTypeCardState extends State<PropertyTypeCard>
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                if (widget.propertyType.description.isNotEmpty) ...[
+                                if (widget
+                                    .propertyType.description.isNotEmpty) ...[
                                   const SizedBox(height: 2),
                                   Text(
                                     widget.propertyType.description,
@@ -184,25 +192,31 @@ class _PropertyTypeCardState extends State<PropertyTypeCard>
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
-                                if (widget.propertyType.defaultAmenities.isNotEmpty) ...[
+                                if (widget.propertyType.defaultAmenities
+                                    .isNotEmpty) ...[
                                   const SizedBox(height: 4),
                                   Wrap(
                                     spacing: 4,
                                     runSpacing: 2,
-                                    children: widget.propertyType.defaultAmenities
+                                    children: widget
+                                        .propertyType.defaultAmenities
                                         .take(3)
                                         .map((amenity) => Container(
-                                              padding: const EdgeInsets.symmetric(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
                                                 horizontal: 6,
                                                 vertical: 2,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: AppTheme.primaryBlue.withOpacity(0.1),
-                                                borderRadius: BorderRadius.circular(4),
+                                                color: AppTheme.primaryBlue
+                                                    .withValues(alpha: 0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
                                               ),
                                               child: Text(
                                                 amenity,
-                                                style: AppTextStyles.overline.copyWith(
+                                                style: AppTextStyles.overline
+                                                    .copyWith(
                                                   color: AppTheme.primaryBlue,
                                                 ),
                                               ),
@@ -236,8 +250,7 @@ class _PropertyTypeCardState extends State<PropertyTypeCard>
                                 size: 18,
                               ),
                             ),
-                          ]
-                          else if (isSmall) ...[
+                          ] else if (isSmall) ...[
                             PopupMenuButton<String>(
                               color: AppTheme.darkCard,
                               onSelected: (value) {
@@ -252,7 +265,9 @@ class _PropertyTypeCardState extends State<PropertyTypeCard>
                                   value: 'edit',
                                   child: Row(
                                     children: [
-                                      Icon(Icons.edit_rounded, color: AppTheme.primaryBlue, size: 18),
+                                      Icon(Icons.edit_rounded,
+                                          color: AppTheme.primaryBlue,
+                                          size: 18),
                                       const SizedBox(width: 8),
                                       const Text('تعديل'),
                                     ],
@@ -262,14 +277,16 @@ class _PropertyTypeCardState extends State<PropertyTypeCard>
                                   value: 'delete',
                                   child: Row(
                                     children: [
-                                      Icon(Icons.delete_rounded, color: AppTheme.error, size: 18),
+                                      Icon(Icons.delete_rounded,
+                                          color: AppTheme.error, size: 18),
                                       const SizedBox(width: 8),
                                       const Text('حذف'),
                                     ],
                                   ),
                                 ),
                               ],
-                              icon: Icon(Icons.more_vert_rounded, color: AppTheme.textMuted),
+                              icon: Icon(Icons.more_vert_rounded,
+                                  color: AppTheme.textMuted),
                             ),
                           ],
                         ],

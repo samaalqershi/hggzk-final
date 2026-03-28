@@ -1,8 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../../../domain/entities/unit.dart';
 import '../../../domain/entities/unit_type.dart';
-import '../../../domain/entities/money.dart';
 import '../../../domain/entities/pricing_method.dart';
 import '../../../domain/usecases/create_unit_usecase.dart';
 import '../../../domain/usecases/update_unit_usecase.dart';
@@ -12,12 +10,27 @@ import '../../../domain/usecases/get_unit_fields_usecase.dart';
 part 'unit_form_event.dart';
 part 'unit_form_state.dart';
 
+/// يمثل هذا الكلاس UnitFormBloc البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitFormBloc in the admin unit workflow.
 class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
+  /// This field keeps the createUnitUseCase value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة createUnitUseCase التي يعتمد عليها مسار إدارة الوحدات.
   final CreateUnitUseCase createUnitUseCase;
+
+  /// يحتفظ هذا الحقل بقيمة updateUnitUseCase التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the updateUnitUseCase value used by the admin unit workflow.
   final UpdateUnitUseCase updateUnitUseCase;
+
+  /// يحتفظ هذا الحقل بقيمة getUnitTypesByPropertyUseCase التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the getUnitTypesByPropertyUseCase value used by the admin unit workflow.
   final GetUnitTypesByPropertyUseCase getUnitTypesByPropertyUseCase;
+
+  /// يحتفظ هذا الحقل بقيمة getUnitFieldsUseCase التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the getUnitFieldsUseCase value used by the admin unit workflow.
   final GetUnitFieldsUseCase getUnitFieldsUseCase;
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitFormBloc.
+  /// This constructor creates an instance of UnitFormBloc.
   UnitFormBloc({
     required this.createUnitUseCase,
     required this.updateUnitUseCase,
@@ -38,6 +51,8 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     on<UpdateCancellationPolicyEvent>(_onUpdateCancellationPolicy);
   }
 
+  /// ينفذ هذا الأسلوب عملية _onInitializeForm ضمن مسار إدارة الوحدات.
+  /// This method performs the _onInitializeForm operation in the admin unit workflow.
   Future<void> _onInitializeForm(
     InitializeFormEvent event,
     Emitter<UnitFormState> emit,
@@ -53,6 +68,8 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _onUpdateUnitName ضمن مسار إدارة الوحدات.
+  /// This method performs the _onUpdateUnitName operation in the admin unit workflow.
   Future<void> _onUpdateUnitName(
     UpdateUnitNameEvent event,
     Emitter<UnitFormState> emit,
@@ -65,6 +82,8 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _onUpdateDescription ضمن مسار إدارة الوحدات.
+  /// This method performs the _onUpdateDescription operation in the admin unit workflow.
   Future<void> _onUpdateDescription(
     UpdateDescriptionEvent event,
     Emitter<UnitFormState> emit,
@@ -77,6 +96,8 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _onPropertySelected ضمن مسار إدارة الوحدات.
+  /// This method performs the _onPropertySelected operation in the admin unit workflow.
   Future<void> _onPropertySelected(
     PropertySelectedEvent event,
     Emitter<UnitFormState> emit,
@@ -99,6 +120,8 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _onUnitTypeSelected ضمن مسار إدارة الوحدات.
+  /// This method performs the _onUnitTypeSelected operation in the admin unit workflow.
   Future<void> _onUnitTypeSelected(
     UnitTypeSelectedEvent event,
     Emitter<UnitFormState> emit,
@@ -131,6 +154,8 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _onUpdateCapacity ضمن مسار إدارة الوحدات.
+  /// This method performs the _onUpdateCapacity operation in the admin unit workflow.
   Future<void> _onUpdateCapacity(
     UpdateCapacityEvent event,
     Emitter<UnitFormState> emit,
@@ -144,6 +169,8 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _onUpdateUnitImage ضمن مسار إدارة الوحدات.
+  /// This method performs the _onUpdateUnitImage operation in the admin unit workflow.
   Future<void> _onUpdateUnitImage(
     UpdateUnitImageEvent event,
     Emitter<UnitFormState> emit,
@@ -156,6 +183,8 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _onUpdatePricing ضمن مسار إدارة الوحدات.
+  /// This method performs the _onUpdatePricing operation in the admin unit workflow.
   Future<void> _onUpdatePricing(
     UpdatePricingEvent event,
     Emitter<UnitFormState> emit,
@@ -168,6 +197,8 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _onUpdateFeatures ضمن مسار إدارة الوحدات.
+  /// This method performs the _onUpdateFeatures operation in the admin unit workflow.
   Future<void> _onUpdateFeatures(
     UpdateFeaturesEvent event,
     Emitter<UnitFormState> emit,
@@ -180,6 +211,8 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _onUpdateDynamicFields ضمن مسار إدارة الوحدات.
+  /// This method performs the _onUpdateDynamicFields operation in the admin unit workflow.
   Future<void> _onUpdateDynamicFields(
     UpdateDynamicFieldsEvent event,
     Emitter<UnitFormState> emit,
@@ -192,6 +225,8 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _onUpdateCancellationPolicy ضمن مسار إدارة الوحدات.
+  /// This method performs the _onUpdateCancellationPolicy operation in the admin unit workflow.
   Future<void> _onUpdateCancellationPolicy(
     UpdateCancellationPolicyEvent event,
     Emitter<UnitFormState> emit,
@@ -205,6 +240,8 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _onSubmitForm ضمن مسار إدارة الوحدات.
+  /// This method performs the _onSubmitForm operation in the admin unit workflow.
   Future<void> _onSubmitForm(
     SubmitFormEvent event,
     Emitter<UnitFormState> emit,
@@ -282,6 +319,8 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
   }
 
   // دالة للتحقق من صحة البيانات
+  /// ينفذ هذا الأسلوب عملية _validateFormData ضمن مسار إدارة الوحدات.
+  /// This method performs the _validateFormData operation in the admin unit workflow.
   bool _validateFormData(UnitFormReady state) {
     if (state.isEditMode) {
       return state.unitId != null;
@@ -295,6 +334,8 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
         state.pricingMethod != null;
   }
 
+  /// ينفذ هذا الأسلوب عملية _convertDynamicFieldsToList ضمن مسار إدارة الوحدات.
+  /// This method performs the _convertDynamicFieldsToList operation in the admin unit workflow.
   List<Map<String, dynamic>> _convertDynamicFieldsToList(
     Map<String, dynamic> fieldValues,
   ) {

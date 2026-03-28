@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 /// يمثل بيانات الإتاحة والتسعير ليوم واحد محدد لوحدة معينة
 class DailySchedule extends Equatable {
   /// معرّف الجدول اليومي
+  /// العربية: يخزن القيمة `id`.
   final String id;
 
   /// معرّف الوحدة
@@ -257,6 +258,7 @@ enum PricingTier {
 
 /// Extension لتحويل String إلى ScheduleStatus
 extension ScheduleStatusExtension on String {
+  /// العربية: يعالج `toScheduleStatus`.
   ScheduleStatus toScheduleStatus() {
     switch (toLowerCase()) {
       case 'available':
@@ -277,6 +279,7 @@ extension ScheduleStatusExtension on String {
 
 /// Extension لتحويل ScheduleStatus إلى String
 extension ScheduleStatusStringExtension on ScheduleStatus {
+  /// العربية: يعالج `toServerString`.
   String toServerString() {
     switch (this) {
       case ScheduleStatus.available:
@@ -310,6 +313,7 @@ extension ScheduleStatusStringExtension on ScheduleStatus {
 
 /// Extension لتحويل String إلى PriceType
 extension PriceTypeExtension on String {
+  /// العربية: يعالج `toPriceType`.
   PriceType? toPriceType() {
     switch (toLowerCase()) {
       case 'base':
@@ -332,6 +336,7 @@ extension PriceTypeExtension on String {
 
 /// Extension لتحويل PriceType إلى String
 extension PriceTypeStringExtension on PriceType {
+  /// العربية: يعالج `toServerString`.
   String toServerString() {
     switch (this) {
       case PriceType.base:
@@ -369,6 +374,7 @@ extension PriceTypeStringExtension on PriceType {
 
 /// Extension لتحويل String إلى PricingTier
 extension PricingTierExtension on String {
+  /// العربية: يعالج `toPricingTier`.
   PricingTier? toPricingTier() {
     switch (toLowerCase()) {
       case 'normal':
@@ -389,6 +395,7 @@ extension PricingTierExtension on String {
 
 /// Extension لتحويل PricingTier إلى String
 extension PricingTierStringExtension on PricingTier {
+  /// العربية: يعالج `toServerString`.
   String toServerString() {
     switch (this) {
       case PricingTier.normal:

@@ -7,7 +7,6 @@ import '../../../../../core/enums/payment_method_enum.dart';
 import '../../domain/entities/payment.dart';
 import '../../domain/entities/payment_details.dart';
 import '../../domain/entities/payment_analytics.dart';
-import '../../domain/entities/refund.dart';
 import '../../domain/repositories/payments_repository.dart';
 import '../datasources/payments_local_datasource.dart';
 import '../datasources/payments_remote_datasource.dart';
@@ -15,16 +14,15 @@ import '../models/payment_model.dart';
 import '../models/money_model.dart';
 
 class PaymentsRepositoryImpl implements PaymentsRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final PaymentsRemoteDataSource remoteDataSource;
   final PaymentsLocalDataSource localDataSource;
   final NetworkInfo networkInfo;
-
   PaymentsRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
     required this.networkInfo,
   });
-
   @override
   Future<Either<Failure, bool>> refundPayment({
     required String paymentId,

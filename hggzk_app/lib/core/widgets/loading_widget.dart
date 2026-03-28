@@ -5,14 +5,35 @@ import 'package:shimmer/shimmer.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_dimensions.dart';
 
+/// يعرض أنماط تحميل متعددة لتناسب الشاشات الخفيفة والثقيلة على حد سواء.
+/// Provides several loading styles for light and heavy screens alike.
 class LoadingWidget extends StatelessWidget {
+  /// النمط البصري المختار لمؤشر التحميل.
+  /// Selected loading style.
   final LoadingType type;
+
+  /// الحجم الأساسي للمؤشر عندما يحتاج إلى قياس مرن.
+  /// Base size used by loaders that scale with available space.
   final double? size;
+
+  /// اللون الرئيسي الذي يطبع شخصية المؤشر البصرية.
+  /// Main accent color used by the loading indicator.
   final Color? color;
+
+  /// الرسالة الاختيارية التي تشرح ما الذي ينتظره المستخدم.
+  /// Optional message explaining what the user is waiting for.
   final String? message;
+
+  /// مسافة خارجية تسمح بدمج المؤشر داخل بطاقات أو صفحات مختلفة.
+  /// External padding that lets the loader fit inside different surfaces.
   final EdgeInsets? padding;
+
+  /// أصل SVG المستخدم في النمط المستقبلي.
+  /// SVG asset used by the futuristic loader style.
   final String? svgAsset;
 
+  /// ينشئ المؤشر مع اختيار نمط التحميل والرسالة والهوامش.
+  /// Creates the loader with a configurable style, message, and padding.
   const LoadingWidget({
     super.key,
     this.type = LoadingType.circular,
@@ -23,6 +44,8 @@ class LoadingWidget extends StatelessWidget {
     this.svgAsset,
   });
 
+  /// يختار المؤشر المناسب ثم يلفه برسالة اختيارية عند الحاجة.
+  /// Chooses the appropriate loader and optionally appends a message.
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -86,6 +109,8 @@ class LoadingWidget extends StatelessWidget {
     );
   }
 
+  /// يعرض شريط تقدم أفقيًا عندما تكون العملية قصيرة وواضحة.
+  /// Renders a horizontal progress bar for straightforward loading states.
   Widget _buildLinearLoader(Color color) {
     return SizedBox(
       width: double.infinity,
@@ -96,6 +121,8 @@ class LoadingWidget extends StatelessWidget {
     );
   }
 
+  /// يعرض سطحًا متحركًا يوحي بتحميل محتوى هيكلي.
+  /// Renders a shimmering skeleton for content-heavy screens.
   Widget _buildShimmerLoader() {
     return Shimmer.fromColors(
       baseColor: AppTheme.shimmer,
@@ -111,6 +138,8 @@ class LoadingWidget extends StatelessWidget {
     );
   }
 
+  /// يعرض نبضة دائرية خفيفة عندما يكون المطلوب إشارة انتظار صغيرة.
+  /// Renders a subtle pulsing circle for compact waiting states.
   Widget _buildPulseLoader(Color color, double size) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.8, end: 1.2),
@@ -142,6 +171,8 @@ class LoadingWidget extends StatelessWidget {
     );
   }
 
+  /// يعرض ثلاث نقاط متحركة عندما نريد مؤشّرًا بسيطًا وغير مزعج.
+  /// Renders a three-dot loader for minimal, low-distraction feedback.
   Widget _buildDotsLoader(Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -166,6 +197,8 @@ class LoadingWidget extends StatelessWidget {
   }
 }
 
+/// يحدد أنماط التحميل المتاحة كي تختار الواجهة الشكل الأنسب لكل حالة.
+/// Enumerates the loading styles available to the rest of the app.
 enum LoadingType {
   circular,
   linear,
@@ -175,12 +208,27 @@ enum LoadingType {
   futuristic,
 }
 
+/// النمط المستقبلي الذي يجمع الدوران والنبض والعرض داخل أصل SVG واحد.
+/// Futuristic loader that combines rotation, pulsing, and SVG rendering.
 class _FuturisticLoading extends StatefulWidget {
+  /// لون الطابع البصري الداخلي.
+  /// Accent color for the inner visual layers.
   final Color color;
+
+  /// الارتفاع الكلي للحاوية حتى تبقى متناسقة مع بقية الشاشات.
+  /// Total container height used to keep layout consistent.
   final double height;
+
+  /// حجم الدائرة الداخلية التي تدور أو تنبض.
+  /// Size of the inner circle that rotates or pulses.
   final double innerSize;
+
+  /// ملف الـ SVG الذي يظهر داخل مؤشر التحميل.
+  /// SVG asset rendered inside the loader.
   final String svgAsset;
 
+  /// ينشئ المؤشر المستقبلي مع عناصره المرئية القابلة للضبط.
+  /// Creates the futuristic loader with configurable visual elements.
   const _FuturisticLoading({
     required this.color,
     required this.height,
@@ -188,17 +236,34 @@ class _FuturisticLoading extends StatefulWidget {
     required this.svgAsset,
   });
 
+  /// ينشئ كائن الحالة الذي يدير حركتي الدوران والتكبير.
+  /// Creates the state object that drives rotation and scale animations.
   @override
   State<_FuturisticLoading> createState() => _FuturisticLoadingState();
 }
 
+/// يدير الرسوم المتحركة الداخلية للمؤشر المستقبلي على نحو متزامن.
+/// Coordinates the internal animations for the futuristic loader.
 class _FuturisticLoadingState extends State<_FuturisticLoading>
     with TickerProviderStateMixin {
+  /// متحكم الحركة الذي يغذي الطبقة الخارجية بالدوران المستمر.
+  /// Animation controller driving the outer motion.
   late AnimationController _controller;
+
+  /// متحكم حركة الدوران الداخلي.
+  /// Animation controller for the inner rotation.
   late AnimationController _rotationController;
+
+  /// متحكم التمدد والانكماش الذي يعطي المؤشر إحساسًا حيًا.
+  /// Animation controller that creates the breathing scale effect.
   late AnimationController _scaleController;
+
+  /// الحركة المشتقة من متحكم التكبير.
+  /// Derived scale animation used by the pulsing effect.
   late Animation<double> _scaleAnimation;
 
+  /// Initializes the state for this widget.
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -227,6 +292,8 @@ class _FuturisticLoadingState extends State<_FuturisticLoading>
     ));
   }
 
+  /// Releases the resources used by this instance.
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _controller.dispose();
@@ -235,6 +302,8 @@ class _FuturisticLoadingState extends State<_FuturisticLoading>
     super.dispose();
   }
 
+  /// يبني شجرة التحميل المناسبة وفق النمط المختار.
+  /// Builds the loading tree that matches the selected style.
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -259,7 +328,6 @@ class _FuturisticLoadingState extends State<_FuturisticLoading>
                 child: const SizedBox.expand(),
               ),
 
-
               // الدائرة الخارجية الثابتة
               Container(
                 width: widget.innerSize,
@@ -279,13 +347,14 @@ class _FuturisticLoadingState extends State<_FuturisticLoading>
                     height: widget.innerSize * 0.82,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
                     ),
                   ),
                 ),
               ),
 
-              // الدائرة المتحركة
+              // نترك هنا مساحة ثابتة حتى يبقى مركز المؤشر مضبوطًا.
               const SizedBox.shrink(),
             ],
           );
@@ -295,16 +364,26 @@ class _FuturisticLoadingState extends State<_FuturisticLoading>
   }
 }
 
-// رسام الدائرة المتحركة
+/// يرسم القوس الدائري المتحرك الذي يشكل قلب المؤشر.
+/// Draws the animated circular arc that forms the loader core.
 class _CircularProgressPainter extends CustomPainter {
+  /// اللون المستخدم في القوس والتوهج.
+  /// Color used by the arc and glow.
   final Color color;
+
+  /// قيمة التقدم الحالية التي تحدد طول القوس.
+  /// Current progress value that determines the arc length.
   final double progress;
 
+  /// ينشئ الرسام مع اللون والتقدم المطلوبين.
+  /// Creates the painter with the selected color and progress.
   _CircularProgressPainter({
     required this.color,
     required this.progress,
   });
 
+  /// يرسم القوس واللمعة والنقاط النهائية في طبقة واحدة.
+  /// Paints the arc, glow, and terminal dots in one pass.
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
@@ -386,17 +465,29 @@ class _CircularProgressPainter extends CustomPainter {
         Offset(x2, y2), 2.5, dotPaint..color = color.withValues(alpha: 0.7));
   }
 
+  /// يعيد الرسم دائمًا لأن مؤشر التحميل يتغير باستمرار.
+  /// Always repaints because the loader animation is continuous.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-// رسام الموجات
+/// يرسم الموجات المتدرجة خلف المؤشر المستقبلي.
+/// Draws the fading ripple waves behind the futuristic loader.
 class _RipplePainter extends CustomPainter {
+  /// قيمة الحركة التي توسع الموجات وتصغرها.
+  /// Animation value that expands and contracts the ripples.
   final double animationValue;
+
+  /// لون الموجات.
+  /// Ripple color.
   final Color color;
 
+  /// ينشئ رسام الموجات مع قيمة الحركة واللون.
+  /// Creates the ripple painter with its animation value and color.
   _RipplePainter({required this.animationValue, required this.color});
 
+  /// يرسم دوائر متداخلة لتكوين أثر الموجة حول المؤشر.
+  /// Paints concentric circles to form the ripple around the loader.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -414,9 +505,10 @@ class _RipplePainter extends CustomPainter {
 
       canvas.drawCircle(center, radius, paint);
     }
-
   }
 
+  /// يعيد الرسم مع كل تغير في الحركة ليبقى الأثر حيًا.
+  /// Repaints on every animation update to keep the effect alive.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

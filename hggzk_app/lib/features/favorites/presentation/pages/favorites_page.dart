@@ -6,50 +6,94 @@ import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../bloc/favorites_bloc.dart';
 import '../bloc/favorites_event.dart';
 import '../bloc/favorites_state.dart';
 import '../widgets/favorite_property_card_widget.dart';
-import '../../../../injection_container.dart';
-import '../../../../services/local_storage_service.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
+import 'package:hggzk/core/services/local_storage_service.dart';
 import '../../../../core/constants/storage_constants.dart';
 
+/// Describes the `FavoritesPage` page widget.
+/// العربية: يمثل عنصر الصفحة `FavoritesPage`.
 class FavoritesPage extends StatefulWidget {
+  /// Builds a new `FavoritesPage` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `FavoritesPage`.
   const FavoritesPage({super.key});
 
+  /// Builds the state object for this widget.
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<FavoritesPage> createState() => _FavoritesPageState();
 }
 
+/// Describes the state for `FavoritesPageState`.
+/// العربية: يمثل الحالة الخاصة بـ `FavoritesPageState`.
 class _FavoritesPageState extends State<FavoritesPage>
     with TickerProviderStateMixin {
   // Animation Controllers
+  /// Keeps the `fadeController` value.
+  /// العربية: يخزن القيمة `fadeController`.
   late AnimationController _fadeController;
-  late AnimationController _scaleController;
+
+  /// Keeps the `glowController` value.
+  /// العربية: يخزن القيمة `glowController`.
   late AnimationController _glowController;
+
+  /// Keeps the `particleController` value.
+  /// العربية: يخزن القيمة `particleController`.
   late AnimationController _particleController;
+
+  /// Keeps the `filterController` value.
+  /// العربية: يخزن القيمة `filterController`.
   late AnimationController _filterController;
 
   // Animations
+  /// Keeps the `fadeAnimation` value.
+  /// العربية: يخزن القيمة `fadeAnimation`.
   late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
+
+  /// Keeps the `glowAnimation` value.
+  /// العربية: يخزن القيمة `glowAnimation`.
   late Animation<double> _glowAnimation;
+
+  /// Keeps the `particleAnimation` value.
+  /// العربية: يخزن القيمة `particleAnimation`.
   late Animation<double> _particleAnimation;
+
+  /// Keeps the `filterAnimation` value.
+  /// العربية: يخزن القيمة `filterAnimation`.
   late Animation<double> _filterAnimation;
 
   // UI State
   final ScrollController _scrollController = ScrollController();
+
+  /// Keeps the `particles` value.
+  /// العربية: يخزن القيمة `particles`.
   final List<_MinimalParticle> _particles = [];
+
+  /// Keeps the `selectedFilter` value.
+  /// العربية: يخزن القيمة `selectedFilter`.
   String _selectedFilter = 'all';
+
+  /// Keeps the `sortBy` value.
+  /// العربية: يخزن القيمة `sortBy`.
   String _sortBy = 'recent';
+
+  /// Indicates whether `isGridView` is enabled.
+  /// العربية: يحدد ما إذا كانت القيمة `isGridView` مفعلة.
   bool _isGridView = false;
 
   // Search
   final TextEditingController _searchController = TextEditingController();
+
+  /// Keeps the `searchQuery` value.
+  /// العربية: يخزن القيمة `searchQuery`.
   String _searchQuery = '';
 
+  /// Initializes the state for this widget.
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -58,14 +102,11 @@ class _FavoritesPageState extends State<FavoritesPage>
     _loadFavorites();
   }
 
+  /// Initializes the animations.
+  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
-
-    _scaleController = AnimationController(
-      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
 
@@ -89,14 +130,6 @@ class _FavoritesPageState extends State<FavoritesPage>
       curve: Curves.easeOut,
     );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.95,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.easeOutBack,
-    ));
-
     _glowAnimation = Tween<double>(
       begin: 0.3,
       end: 1.0,
@@ -117,24 +150,28 @@ class _FavoritesPageState extends State<FavoritesPage>
 
     // Start animations
     _fadeController.forward();
-    _scaleController.forward();
     _filterController.forward();
   }
 
+  /// Generates the particles.
+  /// العربية: ينشئ particles.
   void _generateParticles() {
     for (int i = 0; i < 5; i++) {
       _particles.add(_MinimalParticle());
     }
   }
 
+  /// Loads the favorites.
+  /// العربية: يحمل favorites.
   void _loadFavorites() {
     context.read<FavoritesBloc>().add(const LoadFavoritesEvent());
   }
 
+  /// Releases the resources used by this instance.
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _fadeController.dispose();
-    _scaleController.dispose();
     _glowController.dispose();
     _particleController.dispose();
     _filterController.dispose();
@@ -143,6 +180,8 @@ class _FavoritesPageState extends State<FavoritesPage>
     super.dispose();
   }
 
+  /// Builds the widget tree for this component.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -204,6 +243,8 @@ class _FavoritesPageState extends State<FavoritesPage>
     );
   }
 
+  /// Builds the premium background.
+  /// العربية: يبني premium background.
   Widget _buildPremiumBackground() {
     return AnimatedBuilder(
       animation: _particleAnimation,
@@ -232,6 +273,8 @@ class _FavoritesPageState extends State<FavoritesPage>
     );
   }
 
+  /// Builds the floating particles.
+  /// العربية: يبني floating particles.
   Widget _buildFloatingParticles() {
     return AnimatedBuilder(
       animation: _particleController,
@@ -247,6 +290,8 @@ class _FavoritesPageState extends State<FavoritesPage>
     );
   }
 
+  /// Builds the premium app bar.
+  /// العربية: يبني premium app bar.
   Widget _buildPremiumAppBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -285,9 +330,10 @@ class _FavoritesPageState extends State<FavoritesPage>
             icon: Icons.search_rounded,
             onTap: () {
               final normalized = _searchQuery.trim();
-              context.push('/search', extra: normalized.isEmpty
-                  ? const <String, dynamic>{}
-                  : <String, dynamic>{'searchTerm': normalized});
+              context.push('/search',
+                  extra: normalized.isEmpty
+                      ? const <String, dynamic>{}
+                      : <String, dynamic>{'searchTerm': normalized});
             },
           ),
           const SizedBox(width: 8),
@@ -307,6 +353,8 @@ class _FavoritesPageState extends State<FavoritesPage>
     );
   }
 
+  /// Builds the minimal icon button.
+  /// العربية: يبني minimal icon button.
   Widget _buildMinimalIconButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -341,6 +389,8 @@ class _FavoritesPageState extends State<FavoritesPage>
     );
   }
 
+  /// Builds the search and filters.
+  /// العربية: يبني search and filters.
   Widget _buildSearchAndFilters() {
     return FadeTransition(
       opacity: _filterAnimation,
@@ -404,55 +454,8 @@ class _FavoritesPageState extends State<FavoritesPage>
     );
   }
 
-  Widget _buildFilterChip({
-    required String label,
-    required String value,
-    required bool isSelected,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        setState(() {
-          _selectedFilter = value;
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: const EdgeInsets.only(right: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        decoration: BoxDecoration(
-          gradient: isSelected
-              ? LinearGradient(
-                  colors: [
-                    AppTheme.primaryBlue.withOpacity(0.15),
-                    AppTheme.primaryPurple.withOpacity(0.08),
-                  ],
-                )
-              : null,
-          color: !isSelected ? AppTheme.darkCard.withOpacity(0.3) : null,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected
-                ? AppTheme.primaryBlue.withOpacity(0.3)
-                : AppTheme.darkBorder.withOpacity(0.08),
-            width: 0.5,
-          ),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: AppTextStyles.caption.copyWith(
-              color: isSelected
-                  ? AppTheme.primaryBlue
-                  : AppTheme.textMuted.withOpacity(0.6),
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
+  /// Builds the favorites list.
+  /// العربية: يبني favorites list.
   Widget _buildFavoritesList(List<dynamic> favorites) {
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -503,6 +506,8 @@ class _FavoritesPageState extends State<FavoritesPage>
     );
   }
 
+  /// Builds the loading state.
+  /// العربية: يبني loading state.
   Widget _buildLoadingState() {
     return const Center(
       child: LoadingWidget(
@@ -512,6 +517,8 @@ class _FavoritesPageState extends State<FavoritesPage>
     );
   }
 
+  /// Builds the empty state.
+  /// العربية: يبني empty state.
   Widget _buildEmptyState() {
     return Center(
       child: TweenAnimationBuilder<double>(
@@ -617,6 +624,8 @@ class _FavoritesPageState extends State<FavoritesPage>
     );
   }
 
+  /// Builds the no results state.
+  /// العربية: يبني no results state.
   Widget _buildNoResultsState() {
     return Center(
       child: Container(
@@ -649,6 +658,8 @@ class _FavoritesPageState extends State<FavoritesPage>
     );
   }
 
+  /// Builds the error state.
+  /// العربية: يبني error state.
   Widget _buildErrorState(String message) {
     return Center(
       child: Container(
@@ -715,10 +726,14 @@ class _FavoritesPageState extends State<FavoritesPage>
     );
   }
 
+  /// Builds the initial state.
+  /// العربية: يبني initial state.
   Widget _buildInitialState() {
     return const SizedBox.shrink();
   }
 
+  /// Processes `filterAndSortFavorites`.
+  /// العربية: يعالج `filterAndSortFavorites`.
   List<dynamic> _filterAndSortFavorites(List<dynamic> favorites) {
     var filtered = favorites.where((favorite) {
       // Search filter
@@ -762,40 +777,15 @@ class _FavoritesPageState extends State<FavoritesPage>
     return filtered;
   }
 
-  void _showSortOptions() {
-    HapticFeedback.lightImpact();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _SortOptionsSheet(
-        currentSort: _sortBy,
-        onSortChanged: (value) {
-          setState(() {
-            _sortBy = value;
-          });
-          Navigator.pop(context);
-        },
-      ),
-    );
-  }
-
-  void _showMoreOptions() {
-    HapticFeedback.lightImpact();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _MoreOptionsSheet(
-        onClearAll: _clearAllFavorites,
-        onExport: _exportFavorites,
-      ),
-    );
-  }
-
+  /// Navigates to the to property.
+  /// العربية: ينتقل إلى to property.
   void _navigateToProperty(dynamic favorite) {
     HapticFeedback.lightImpact();
     context.push('/property/${favorite.propertyId}');
   }
 
+  /// Removes the from favorites.
+  /// العربية: يزيل from favorites.
   void _removeFromFavorites(dynamic favorite) {
     HapticFeedback.mediumImpact();
     final uid =
@@ -808,269 +798,11 @@ class _FavoritesPageState extends State<FavoritesPage>
           ),
         );
   }
-
-  void _clearAllFavorites() {
-    HapticFeedback.heavyImpact();
-    context.read<FavoritesBloc>().add(const ClearFavoritesEvent());
-  }
-
-  void _exportFavorites() {
-    HapticFeedback.lightImpact();
-    // Implement export functionality
-  }
-}
-
-// Sort Options Sheet
-class _SortOptionsSheet extends StatelessWidget {
-  final String currentSort;
-  final Function(String) onSortChanged;
-
-  const _SortOptionsSheet({
-    required this.currentSort,
-    required this.onSortChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(12),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.darkCard.withOpacity(0.9),
-                  AppTheme.darkCard.withOpacity(0.85),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.08),
-                width: 0.5,
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 32,
-                  height: 3,
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppTheme.darkBorder.withOpacity(0.2),
-                        AppTheme.darkBorder.withOpacity(0.08),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(1.5),
-                  ),
-                ),
-                _buildSortOption(
-                  title: 'الأحدث',
-                  value: 'recent',
-                  isSelected: currentSort == 'recent',
-                ),
-                _buildSortOption(
-                  title: 'السعر (الأقل)',
-                  value: 'price_low',
-                  isSelected: currentSort == 'price_low',
-                ),
-                _buildSortOption(
-                  title: 'السعر (الأعلى)',
-                  value: 'price_high',
-                  isSelected: currentSort == 'price_high',
-                ),
-                _buildSortOption(
-                  title: 'الاسم',
-                  value: 'name',
-                  isSelected: currentSort == 'name',
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSortOption({
-    required String title,
-    required String value,
-    required bool isSelected,
-  }) {
-    return InkWell(
-      onTap: () => onSortChanged(value),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Container(
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                gradient: isSelected
-                    ? LinearGradient(
-                        colors: [AppTheme.primaryBlue, AppTheme.primaryPurple],
-                      )
-                    : null,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected
-                      ? Colors.transparent
-                      : AppTheme.darkBorder.withOpacity(0.2),
-                  width: 1.5,
-                ),
-              ),
-              child: isSelected
-                  ? const Icon(
-                      Icons.check_rounded,
-                      size: 14,
-                      color: Colors.white,
-                    )
-                  : null,
-            ),
-            const SizedBox(width: 12),
-            Text(
-              title,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: isSelected
-                    ? AppTheme.primaryBlue
-                    : AppTheme.textWhite.withOpacity(0.7),
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// More Options Sheet
-class _MoreOptionsSheet extends StatelessWidget {
-  final VoidCallback onClearAll;
-  final VoidCallback onExport;
-
-  const _MoreOptionsSheet({
-    required this.onClearAll,
-    required this.onExport,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(12),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.darkCard.withOpacity(0.9),
-                  AppTheme.darkCard.withOpacity(0.85),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.08),
-                width: 0.5,
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 32,
-                  height: 3,
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppTheme.darkBorder.withOpacity(0.2),
-                        AppTheme.darkBorder.withOpacity(0.08),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(1.5),
-                  ),
-                ),
-                _buildOption(
-                  icon: Icons.download_rounded,
-                  title: 'تصدير المفضلات',
-                  onTap: () {
-                    Navigator.pop(context);
-                    onExport();
-                  },
-                ),
-                _buildOption(
-                  icon: Icons.clear_all_rounded,
-                  title: 'مسح الكل',
-                  color: AppTheme.error,
-                  onTap: () {
-                    Navigator.pop(context);
-                    onClearAll();
-                  },
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOption({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-    Color? color,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    (color ?? AppTheme.primaryBlue).withOpacity(0.1),
-                    (color ?? AppTheme.primaryBlue).withOpacity(0.05),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                icon,
-                color: (color ?? AppTheme.primaryBlue).withOpacity(0.8),
-                size: 18,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              title,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: (color ?? AppTheme.textWhite).withOpacity(0.8),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 // Minimal Particle
+/// Describes `MinimalParticle`.
+/// العربية: يمثل `MinimalParticle`.
 class _MinimalParticle {
   double x = math.Random().nextDouble();
   double y = math.Random().nextDouble();
@@ -1084,6 +816,8 @@ class _MinimalParticle {
     AppTheme.primaryCyan,
   ][math.Random().nextInt(3)];
 
+  /// Updates the required operation for `update`.
+  /// العربية: يحدّث العملية المطلوبة لـ `update`.
   void update() {
     x += vx;
     y += vy;
@@ -1093,15 +827,26 @@ class _MinimalParticle {
 }
 
 // Painters
+/// Describes `PremiumBackgroundPainter`.
+/// العربية: يمثل `PremiumBackgroundPainter`.
 class _PremiumBackgroundPainter extends CustomPainter {
+  /// Keeps the `animation` value.
+  /// العربية: يخزن القيمة `animation`.
   final double animation;
+
+  /// Keeps the `glowIntensity` value.
+  /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
 
+  /// Builds a new `PremiumBackgroundPainter` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `PremiumBackgroundPainter`.
   _PremiumBackgroundPainter({
     required this.animation,
     required this.glowIntensity,
   });
 
+  /// Processes `paint`.
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1123,19 +868,32 @@ class _PremiumBackgroundPainter extends CustomPainter {
     }
   }
 
+  /// Processes `shouldRepaint`.
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+/// Describes `ParticlePainter`.
+/// العربية: يمثل `ParticlePainter`.
 class _ParticlePainter extends CustomPainter {
+  /// Keeps the `particles` value.
+  /// العربية: يخزن القيمة `particles`.
   final List<_MinimalParticle> particles;
+
+  /// Keeps the `animation` value.
+  /// العربية: يخزن القيمة `animation`.
   final double animation;
 
+  /// Builds a new `ParticlePainter` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ParticlePainter`.
   _ParticlePainter({
     required this.particles,
     required this.animation,
   });
 
+  /// Processes `paint`.
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
@@ -1154,6 +912,8 @@ class _ParticlePainter extends CustomPainter {
     }
   }
 
+  /// Processes `shouldRepaint`.
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

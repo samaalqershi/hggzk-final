@@ -19,18 +19,31 @@ import '../providers/typing_indicator_provider.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 
+/// Full chat conversation screen with message history, composer, and reply
+/// handling.
+/// شاشة محادثة كاملة تعرض السجل ومحرر الرسائل ومعالجة الردود.
 class ChatPage extends StatefulWidget {
+  /// Conversation shown on this screen.
+  /// المحادثة المعروضة على هذه الشاشة.
   final Conversation conversation;
 
+  /// Builds the chat page for one conversation.
+  /// ينشئ صفحة الدردشة لمحادثة واحدة.
   const ChatPage({
     super.key,
     required this.conversation,
   });
 
+  /// Builds the state object for this widget.
+  /// ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
+/// Keeps the message list, composer, scroll logic, and typing indicator in
+/// sync with the selected conversation.
+/// يبقي قائمة الرسائل والمحرر ومنطق التمرير ومؤشر الكتابة متزامنة مع
+/// المحادثة المختارة.
 class _ChatPageState extends State<ChatPage>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
@@ -39,32 +52,75 @@ class _ChatPageState extends State<ChatPage>
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
   // Message keys for scrolling to reply
+  /// Message anchors used when jumping to a reply target.
+  /// مفاتيح الرسائل المستخدمة عند القفز إلى رسالة رد.
   final Map<String, GlobalKey> _messageKeys = {};
 
   // Animation Controllers
+  /// Drives the page entrance fade.
+  /// يقود تلاشي دخول الصفحة.
   late AnimationController _fadeController;
+
+  /// Animates the premium background layers.
+  /// يحرك طبقات الخلفية المميزة.
   late AnimationController _backgroundController;
+
+  /// Animates the floating particle field.
+  /// يحرك حقل الجسيمات الطافية.
   late AnimationController _particleController;
+
+  /// Drives the soft glow overlays.
+  /// يقود طبقات التوهج الناعم.
   late AnimationController _glowController;
 
+  /// Opacity animation for the main page shell.
+  /// حركة الشفافية لغلاف الصفحة الرئيسي.
   late Animation<double> _fadeAnimation;
+
+  /// Motion value used by the animated background.
+  /// قيمة الحركة المستخدمة بالخلفية المتحركة.
   late Animation<double> _backgroundAnimation;
+
+  /// Subtle scale animation for the page content.
+  /// حركة تكبير خفيفة لمحتوى الصفحة.
   late Animation<double> _scaleAnimation;
+
+  /// Soft glow intensity used in layered decorations.
+  /// شدة التوهج الناعم في الزخارف المتراكبة.
   late Animation<double> _glowAnimation;
 
   // Particles for background
+  /// Animated background particles.
+  /// جسيمات خلفية متحركة.
   final List<_ChatParticle> _particles = [];
 
+  /// Debounces typing indicators.
+  /// يؤخر مؤشرات الكتابة.
   Timer? _typingTimer;
+
+  /// True while the composer is actively being edited.
+  /// تكون صحيحة أثناء تحرير المحرر فعليًا.
   bool _isTyping = false;
+
+  /// Shows the jump-to-bottom affordance when the user scrolls away.
+  /// يعرض زر العودة إلى الأسفل عندما يبتعد المستخدم عن النهاية.
   bool _showScrollToBottom = false;
+
+  /// Message id currently used as the reply target.
+  /// معرّف الرسالة المستخدم حاليًا كهدف للرد.
   String? _replyToMessageId;
+
+  /// Message currently being edited.
+  /// الرسالة التي يجري تعديلها حاليًا.
   Message? _editingMessage;
 
   String? _currentUserId; // سيتم ملؤه من AuthBloc
   StreamSubscription<AuthState>?
       _authSubscription; // للاشتراك في تغييرات حالة المصادقة
 
+  /// Initializes animations, scroll listeners, and the current conversation
+  /// context.
+  /// يهيئ الحركات ومستمعات التمرير وسياق المحادثة الحالي.
   @override
   void initState() {
     super.initState();
@@ -78,6 +134,7 @@ class _ChatPageState extends State<ChatPage>
     _initializeTypingIndicator();
   }
 
+  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 400),
@@ -128,12 +185,14 @@ class _ChatPageState extends State<ChatPage>
     _fadeController.forward();
   }
 
+  /// العربية: ينشئ particles.
   void _generateParticles() {
     for (int i = 0; i < 8; i++) {
       _particles.add(_ChatParticle());
     }
   }
 
+  /// العربية: يهيئ typing indicator.
   void _initializeTypingIndicator() {
     final typingProvider = context.read<TypingIndicatorProvider>();
 
@@ -148,6 +207,7 @@ class _ChatPageState extends State<ChatPage>
     });
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -163,6 +223,7 @@ class _ChatPageState extends State<ChatPage>
     super.dispose();
   }
 
+  /// العربية: يعالج `didChangeAppLifecycleState`.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -170,6 +231,7 @@ class _ChatPageState extends State<ChatPage>
     }
   }
 
+  /// العربية: يحمل messages.
   void _loadMessages() {
     context.read<ChatBloc>().add(
           LoadMessagesEvent(
@@ -178,6 +240,7 @@ class _ChatPageState extends State<ChatPage>
         );
   }
 
+  /// العربية: يعالج `onScroll`.
   void _onScroll() {
     if (_scrollController.hasClients) {
       final showButton = _scrollController.offset > 200;
@@ -194,6 +257,7 @@ class _ChatPageState extends State<ChatPage>
     }
   }
 
+  /// العربية: يحمل more messages.
   void _loadMoreMessages() {
     final state = context.read<ChatBloc>().state;
     if (state is ChatLoaded && !state.isLoadingMessages) {
@@ -210,6 +274,7 @@ class _ChatPageState extends State<ChatPage>
     }
   }
 
+  /// العربية: يعالج `onTypingChanged`.
   void _onTypingChanged() {
     if (_messageController.text.isNotEmpty && !_isTyping) {
       _isTyping = true;
@@ -235,6 +300,7 @@ class _ChatPageState extends State<ChatPage>
     });
   }
 
+  /// العربية: يعالج `markMessagesAsRead`.
   void _markMessagesAsRead() {
     final userId = _currentUserId;
     if (userId == null || userId.isEmpty) return;
@@ -262,6 +328,7 @@ class _ChatPageState extends State<ChatPage>
   }
 
   // FIXED: Scroll to reply message
+  /// العربية: يعالج `scrollToMessage`.
   void _scrollToMessage(String messageId) {
     final key = _messageKeys[messageId];
     if (key?.currentContext != null) {
@@ -278,6 +345,7 @@ class _ChatPageState extends State<ChatPage>
     }
   }
 
+  /// العربية: يعالج `syncCurrentUser`.
   void _syncCurrentUser() {
     // محاولة الحصول مباشرةً من حالة AuthBloc الحالية
     final authState = context.read<AuthBloc>().state;
@@ -297,6 +365,7 @@ class _ChatPageState extends State<ChatPage>
     });
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     final effectiveUserId =
@@ -338,6 +407,7 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
+  /// العربية: يبني premium background.
   Widget _buildPremiumBackground() {
     return AnimatedBuilder(
       animation: Listenable.merge([_backgroundAnimation, _glowAnimation]),
@@ -366,6 +436,7 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
+  /// العربية: يبني floating particles.
   Widget _buildFloatingParticles() {
     return AnimatedBuilder(
       animation: _particleController,
@@ -381,6 +452,7 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
+  /// العربية: يبني messages list with effects.
   Widget _buildMessagesListWithEffects({required String userId}) {
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -421,6 +493,7 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
+  /// العربية: يبني premium loading state.
   Widget _buildPremiumLoadingState() {
     return Center(
       child: TweenAnimationBuilder<double>(
@@ -481,6 +554,7 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
+  /// العربية: يبني premium empty state.
   Widget _buildPremiumEmptyState() {
     return Center(
       child: TweenAnimationBuilder<double>(
@@ -567,6 +641,7 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
+  /// العربية: يبني messages list.
   Widget _buildMessagesList(List<Message> messages, List<String> typingUsers,
       {required String userId}) {
     return ListView.builder(
@@ -631,6 +706,7 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
+  /// العربية: يبني premium date separator.
   Widget _buildPremiumDateSeparator(DateTime date) {
     final text = _getDateSeparatorText(date);
     return Padding(
@@ -703,6 +779,7 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
+  /// العربية: يبني floating scroll button.
   Widget _buildFloatingScrollButton() {
     return Positioned(
       bottom: 8,
@@ -745,6 +822,7 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
+  /// العربية: يبني premium bottom section.
   Widget _buildPremiumBottomSection() {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -776,6 +854,7 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
+  /// العربية: يبني premium reply section.
   Widget _buildPremiumReplySection() {
     final state = context.read<ChatBloc>().state;
     if (state is! ChatLoaded) return const SizedBox.shrink();
@@ -895,6 +974,7 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
+  /// العربية: يبني premium edit section.
   Widget _buildPremiumEditSection() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -976,6 +1056,7 @@ class _ChatPageState extends State<ChatPage>
   }
 
   // Helper methods
+  /// العربية: يرسل message.
   void _sendMessage(String content) {
     if (content.trim().isEmpty) return;
 
@@ -1009,16 +1090,19 @@ class _ChatPageState extends State<ChatPage>
     _scrollToBottom();
   }
 
+  /// العربية: يعالج `pickAttachment`.
   void _pickAttachment() {
     HapticFeedback.lightImpact();
     // Implement attachment picker
   }
 
+  /// العربية: يشارك location.
   void _shareLocation() {
     HapticFeedback.lightImpact();
     // Implement location sharing
   }
 
+  /// العربية: يضبط reply to.
   void _setReplyTo(Message message) {
     setState(() {
       _replyToMessageId = message.id;
@@ -1026,6 +1110,7 @@ class _ChatPageState extends State<ChatPage>
     _messageFocusNode.requestFocus();
   }
 
+  /// العربية: يبدأ editing message.
   void _startEditingMessage(Message message) {
     setState(() {
       _editingMessage = message;
@@ -1034,6 +1119,7 @@ class _ChatPageState extends State<ChatPage>
     _messageFocusNode.requestFocus();
   }
 
+  /// العربية: يحذف message.
   void _deleteMessage(Message message) {
     HapticFeedback.lightImpact();
     showDialog(
@@ -1050,6 +1136,7 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
+  /// العربية: يعالج `addReaction`.
   void _addReaction(Message message, String reactionType, String userId) {
     HapticFeedback.lightImpact();
 
@@ -1074,6 +1161,7 @@ class _ChatPageState extends State<ChatPage>
     }
   }
 
+  /// العربية: يعالج `scrollToBottom`.
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
@@ -1084,6 +1172,7 @@ class _ChatPageState extends State<ChatPage>
     }
   }
 
+  /// العربية: يفتح chat settings.
   void _openChatSettings() {
     Navigator.push(
       context,
@@ -1095,12 +1184,14 @@ class _ChatPageState extends State<ChatPage>
     );
   }
 
+  /// العربية: يعالج `isSameDay`.
   bool _isSameDay(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
         date1.month == date2.month &&
         date1.day == date2.day;
   }
 
+  /// العربية: يعيد date separator text.
   String _getDateSeparatorText(DateTime date) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -1129,11 +1220,15 @@ class _ChatPageState extends State<ChatPage>
 }
 
 // Premium Delete Dialog
+/// العربية: يمثل `PremiumDeleteDialog`.
 class _PremiumDeleteDialog extends StatelessWidget {
+  /// العربية: يخزن القيمة `onConfirm`.
   final VoidCallback onConfirm;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `PremiumDeleteDialog`.
   const _PremiumDeleteDialog({required this.onConfirm});
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -1262,6 +1357,7 @@ class _PremiumDeleteDialog extends StatelessWidget {
 }
 
 // Chat Particle
+/// العربية: يمثل `ChatParticle`.
 class _ChatParticle {
   double x = math.Random().nextDouble();
   double y = math.Random().nextDouble();
@@ -1275,6 +1371,7 @@ class _ChatParticle {
     AppTheme.primaryCyan,
   ][math.Random().nextInt(3)];
 
+  /// العربية: يحدّث العملية المطلوبة لـ `update`.
   void update() {
     x += vx;
     y += vy;
@@ -1284,15 +1381,21 @@ class _ChatParticle {
 }
 
 // Painters
+/// العربية: يمثل `PremiumBackgroundPainter`.
 class _PremiumBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `animation`.
   final double animation;
+
+  /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `PremiumBackgroundPainter`.
   _PremiumBackgroundPainter({
     required this.animation,
     required this.glowIntensity,
   });
 
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1314,19 +1417,26 @@ class _PremiumBackgroundPainter extends CustomPainter {
     }
   }
 
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+/// العربية: يمثل `ParticlePainter`.
 class _ParticlePainter extends CustomPainter {
+  /// العربية: يخزن القيمة `particles`.
   final List<_ChatParticle> particles;
+
+  /// العربية: يخزن القيمة `animation`.
   final double animation;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `ParticlePainter`.
   _ParticlePainter({
     required this.particles,
     required this.animation,
   });
 
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
@@ -1345,6 +1455,7 @@ class _ParticlePainter extends CustomPainter {
     }
   }
 
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

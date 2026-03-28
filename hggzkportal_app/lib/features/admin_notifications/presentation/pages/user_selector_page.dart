@@ -10,14 +10,13 @@ import 'package:hggzkportal/core/widgets/loading_widget.dart';
 import 'package:hggzkportal/core/widgets/error_widget.dart';
 import 'package:hggzkportal/core/widgets/empty_widget.dart';
 import 'package:hggzkportal/injection_container.dart' as di;
-
 class AdminUserSelectorPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `allowMultiSelect`.
   final bool allowMultiSelect;
   final void Function(List<User>)? onUsersSelected;
   final void Function(User)? onUserSelected;
   final String? initialSearchTerm;
   final String? initialRole; // 'Owner' | 'Admin' | 'Staff' | 'Client'
-
   const AdminUserSelectorPage({
     super.key,
     this.allowMultiSelect = false,
@@ -26,28 +25,23 @@ class AdminUserSelectorPage extends StatefulWidget {
     this.initialSearchTerm,
     this.initialRole,
   });
-
   @override
   State<AdminUserSelectorPage> createState() => _AdminUserSelectorPageState();
 }
-
 class _AdminUserSelectorPageState extends State<AdminUserSelectorPage> {
   final SearchUsersUseCase _searchUsers = di.sl<SearchUsersUseCase>();
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-
   List<SearchResult> _users = [];
   final List<String> _selectedIds = [];
   bool _isLoading = false;
   bool _hasError = false;
   String? _errorMessage;
-
   String? _roleName; // Admin, Owner, Client, Staff, Guest
   bool? _isActive;
   int _page = 1;
   int _totalPages = 1;
   bool _loadingMore = false;
-
   @override
   void initState() {
     super.initState();
@@ -56,31 +50,29 @@ class _AdminUserSelectorPageState extends State<AdminUserSelectorPage> {
     _scrollController.addListener(_onScroll);
     _load();
   }
-
   @override
   void dispose() {
     _searchController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
-
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       if (!_loadingMore && _page < _totalPages) _loadMore();
     }
   }
-
   String? _normalizeRole(String? role) {
     if (role == null) return null;
     final lower = role.toLowerCase();
     if (lower.contains('admin')) return 'Admin';
     if (lower.contains('owner')) return 'Owner';
-    if (lower.contains('staff') || lower.contains('manager') || lower.contains('reception')) return 'Staff';
+    if (lower.contains('staff') ||
+        lower.contains('manager') ||
+        lower.contains('reception')) return 'Staff';
     if (lower.contains('client') || lower.contains('customer')) return 'Client';
     return role;
   }
-
   Future<void> _load({bool refresh = false}) async {
     if (refresh) {
       _page = 1;
@@ -92,7 +84,8 @@ class _AdminUserSelectorPageState extends State<AdminUserSelectorPage> {
     });
 
     final res = await _searchUsers(
-      searchTerm: _searchController.text.isEmpty ? null : _searchController.text,
+      searchTerm:
+          _searchController.text.isEmpty ? null : _searchController.text,
       role: _roleName,
       isActive: _isActive,
       pageNumber: _page,
@@ -113,12 +106,12 @@ class _AdminUserSelectorPageState extends State<AdminUserSelectorPage> {
       });
     });
   }
-
   Future<void> _loadMore() async {
     setState(() => _loadingMore = true);
     _page++;
     final res = await _searchUsers(
-      searchTerm: _searchController.text.isEmpty ? null : _searchController.text,
+      searchTerm:
+          _searchController.text.isEmpty ? null : _searchController.text,
       role: _roleName,
       isActive: _isActive,
       pageNumber: _page,
@@ -126,7 +119,8 @@ class _AdminUserSelectorPageState extends State<AdminUserSelectorPage> {
     );
     res.fold((f) {
       _page--;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(f.message)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(f.message)));
     }, (p) {
       setState(() {
         _users.addAll(p.items);
@@ -134,7 +128,6 @@ class _AdminUserSelectorPageState extends State<AdminUserSelectorPage> {
     });
     setState(() => _loadingMore = false);
   }
-
   void _toggle(String id) {
     setState(() {
       if (widget.allowMultiSelect) {
@@ -150,7 +143,6 @@ class _AdminUserSelectorPageState extends State<AdminUserSelectorPage> {
       }
     });
   }
-
   void _confirm() {
     final selected = _users
         .where((u) => _selectedIds.contains(u.id))
@@ -163,7 +155,6 @@ class _AdminUserSelectorPageState extends State<AdminUserSelectorPage> {
     }
     Navigator.of(context).pop(selected);
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,7 +163,8 @@ class _AdminUserSelectorPageState extends State<AdminUserSelectorPage> {
         child: Column(
           children: [
             SearchHeader(
-              title: widget.allowMultiSelect ? 'اختر المستخدمين' : 'اختر مستخدماً',
+              title:
+                  widget.allowMultiSelect ? 'اختر المستخدمين' : 'اختر مستخدماً',
               searchHint: 'ابحث بالاسم أو البريد أو الهاتف...',
               searchController: _searchController,
               onSearchChanged: (v) {
@@ -210,7 +202,7 @@ class _AdminUserSelectorPageState extends State<AdminUserSelectorPage> {
                 ),
                 FilterOption(
                   label: 'Staff',
-                isSelected: _roleName == 'Staff',
+                  isSelected: _roleName == 'Staff',
                   onChanged: (s) {
                     setState(() => _roleName = s ? 'Manager' : null);
                     _load(refresh: true);
@@ -218,7 +210,7 @@ class _AdminUserSelectorPageState extends State<AdminUserSelectorPage> {
                 ),
                 FilterOption(
                   label: 'Client',
-                isSelected: _roleName == 'Client',
+                  isSelected: _roleName == 'Client',
                   onChanged: (s) {
                     setState(() => _roleName = s ? 'Customer' : null);
                     _load(refresh: true);
@@ -246,9 +238,10 @@ class _AdminUserSelectorPageState extends State<AdminUserSelectorPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.5),
+                  color: AppTheme.darkCard.withValues(alpha: 0.5),
                   border: Border(
-                    top: BorderSide(color: AppTheme.darkBorder.withOpacity(0.3)),
+                    top: BorderSide(
+                        color: AppTheme.darkBorder.withValues(alpha: 0.3)),
                   ),
                 ),
                 child: Row(
@@ -261,13 +254,16 @@ class _AdminUserSelectorPageState extends State<AdminUserSelectorPage> {
                     ),
                     TextButton(
                       onPressed: () => setState(() => _selectedIds.clear()),
-                      child: Text('إلغاء', style: TextStyle(color: AppTheme.textMuted)),
+                      child: Text('إلغاء',
+                          style: TextStyle(color: AppTheme.textMuted)),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: _confirm,
-                      style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryBlue),
-                      child: Text('تأكيد', style: TextStyle(color: AppTheme.textWhite)),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryBlue),
+                      child: Text('تأكيد',
+                          style: TextStyle(color: AppTheme.textWhite)),
                     ),
                   ],
                 ),
@@ -277,13 +273,13 @@ class _AdminUserSelectorPageState extends State<AdminUserSelectorPage> {
       ),
     );
   }
-
   Widget _buildContent() {
     if (_isLoading && _users.isEmpty) {
       return const LoadingWidget(message: 'جاري تحميل المستخدمين...');
     }
     if (_hasError) {
-      return CustomErrorWidget(message: _errorMessage, onRetry: () => _load(refresh: true));
+      return CustomErrorWidget(
+          message: _errorMessage, onRetry: () => _load(refresh: true));
     }
     if (_users.isEmpty) {
       return const EmptyWidget(message: 'لا توجد نتائج');
@@ -312,4 +308,3 @@ class _AdminUserSelectorPageState extends State<AdminUserSelectorPage> {
     );
   }
 }
-

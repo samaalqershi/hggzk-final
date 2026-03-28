@@ -5,19 +5,17 @@ import 'package:flutter/cupertino.dart';
 import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-
 class NotificationsStatsCard extends StatelessWidget {
+  /// العربية: يخزن القيمة `stats`.
   final Map<String, int> stats;
   final DateTime? startDate;
   final DateTime? endDate;
-
   const NotificationsStatsCard({
     super.key,
     required this.stats,
     this.startDate,
     this.endDate,
   });
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -86,7 +84,6 @@ class NotificationsStatsCard extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildStatCard({
     required String title,
     required String value,
@@ -183,7 +180,7 @@ class NotificationsStatsCard extends StatelessWidget {
                                       isPositive
                                           ? CupertinoIcons.arrow_up_right
                                           : CupertinoIcons.arrow_down_right,
-                                    size: 8,
+                                      size: 8,
                                       color: isPositive
                                           ? AppTheme.success
                                           : AppTheme.error,

@@ -12,12 +12,11 @@ import '../../../auth/data/datasources/auth_local_datasource.dart';
 import '../../../../core/network/api_client.dart';
 
 class SettingsRepositoryImpl implements SettingsRepository {
+  /// العربية: يخزن القيمة `localDataSource`.
   final SettingsLocalDataSource localDataSource;
-
   SettingsRepositoryImpl({
     required this.localDataSource,
   });
-
   @override
   Future<Either<Failure, AppSettings>> getSettings() async {
     try {
@@ -57,20 +56,26 @@ class SettingsRepositoryImpl implements SettingsRepository {
         final api = di.sl<ApiClient>();
         final local = di.sl<LocalStorageService>();
         final auth = di.sl<AuthLocalDataSource>();
-        final userId = (await auth.getCachedUser())?.userId ?? (local.getData(StorageConstants.userId)?.toString() ?? '');
-        
+        final userId = (await auth.getCachedUser())?.userId ??
+            (local.getData(StorageConstants.userId)?.toString() ?? '');
+
         if (userId.isNotEmpty) {
           // Get current settings to send complete data
           final currentSettings = await localDataSource.getCachedSettings();
-          
+
           // Prepare notification settings data
           final notificationSettingsData = currentSettings != null
               ? {
-                  'bookingNotifications': currentSettings.notificationSettings.bookingNotifications,
-                  'promotionalNotifications': currentSettings.notificationSettings.promotionalNotifications,
-                  'emailNotifications': currentSettings.notificationSettings.emailNotifications,
-                  'smsNotifications': currentSettings.notificationSettings.smsNotifications,
-                  'pushNotifications': currentSettings.notificationSettings.pushNotifications,
+                  'bookingNotifications':
+                      currentSettings.notificationSettings.bookingNotifications,
+                  'promotionalNotifications': currentSettings
+                      .notificationSettings.promotionalNotifications,
+                  'emailNotifications':
+                      currentSettings.notificationSettings.emailNotifications,
+                  'smsNotifications':
+                      currentSettings.notificationSettings.smsNotifications,
+                  'pushNotifications':
+                      currentSettings.notificationSettings.pushNotifications,
                 }
               : {
                   'bookingNotifications': true,
@@ -79,7 +84,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
                   'smsNotifications': false,
                   'pushNotifications': true,
                 };
-          
+
           // Send complete settings with updated biometric value
           await api.put('/api/client/settings', data: {
             'userId': userId,
@@ -119,8 +124,9 @@ class SettingsRepositoryImpl implements SettingsRepository {
         notificationTone: settings.notificationTone,
         categoryPreferences: settings.categoryPreferences,
       );
-      
-      final result = await localDataSource.updateNotificationSettings(notificationModel);
+
+      final result =
+          await localDataSource.updateNotificationSettings(notificationModel);
       return Right(result);
     } catch (e) {
       return ErrorHandler.handle(e);

@@ -13,7 +13,6 @@ class UnitTypeModel {
   final bool isMultiDays;
   final bool isRequiredToDetermineTheHour;
   final List<UnitTypeFieldModel> fields;
-
   const UnitTypeModel({
     required this.id,
     required this.propertyTypeId,
@@ -23,11 +22,10 @@ class UnitTypeModel {
     required this.icon,
     required this.isHasAdults,
     required this.isHasChildren,
-    required this.isMultiDays,  
+    required this.isMultiDays,
     required this.isRequiredToDetermineTheHour,
     this.fields = const [],
   });
-
   factory UnitTypeModel.fromJson(Map<String, dynamic> json) {
     return UnitTypeModel(
       id: json['id'] ?? '',
@@ -39,14 +37,14 @@ class UnitTypeModel {
       isHasAdults: json['isHasAdults'] ?? false,
       isHasChildren: json['isHasChildren'] ?? false,
       isMultiDays: json['isMultiDays'] ?? false,
-      isRequiredToDetermineTheHour: json['isRequiredToDetermineTheHour'] ?? false,
+      isRequiredToDetermineTheHour:
+          json['isRequiredToDetermineTheHour'] ?? false,
       fields: (json['fields'] as List?)
               ?.map((e) => UnitTypeFieldModel.fromJson(e))
               .toList() ??
           const [],
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,

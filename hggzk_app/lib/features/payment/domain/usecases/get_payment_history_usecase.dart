@@ -1,5 +1,3 @@
-/// features/payment/domain/usecases/get_payment_history_usecase.dart
-
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import '../../../../core/error/failures.dart';
@@ -8,26 +6,28 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/transaction.dart';
 import '../repositories/payment_repository.dart';
 
-class GetPaymentHistoryUseCase 
+/// يجلب سجل المدفوعات مع التحقق من صحة الفلاتر قبل التنفيذ.
+/// Fetches payment history while validating filters before execution.
+class GetPaymentHistoryUseCase
     implements UseCase<PaginatedResult<Transaction>, GetPaymentHistoryParams> {
   final PaymentRepository repository;
-
   GetPaymentHistoryUseCase(this.repository);
-
   @override
   Future<Either<Failure, PaginatedResult<Transaction>>> call(
       GetPaymentHistoryParams params) async {
     // Validate date range
     if (params.fromDate != null && params.toDate != null) {
       if (params.fromDate!.isAfter(params.toDate!)) {
-        return const Left(ValidationFailure('تاريخ البداية يجب أن يكون قبل تاريخ النهاية'));
+        return const Left(
+            ValidationFailure('تاريخ البداية يجب أن يكون قبل تاريخ النهاية'));
       }
     }
 
     // Validate amount range
     if (params.minAmount != null && params.maxAmount != null) {
       if (params.minAmount! > params.maxAmount!) {
-        return const Left(ValidationFailure('الحد الأدنى للمبلغ يجب أن يكون أقل من الحد الأقصى'));
+        return const Left(ValidationFailure(
+            'الحد الأدنى للمبلغ يجب أن يكون أقل من الحد الأقصى'));
       }
     }
 
@@ -37,7 +37,8 @@ class GetPaymentHistoryUseCase
     }
 
     if (params.pageSize < 1 || params.pageSize > 100) {
-      return const Left(ValidationFailure('حجم الصفحة يجب أن يكون بين 1 و 100'));
+      return const Left(
+          ValidationFailure('حجم الصفحة يجب أن يكون بين 1 و 100'));
     }
 
     return await repository.getPaymentHistory(
@@ -54,6 +55,9 @@ class GetPaymentHistoryUseCase
   }
 }
 
+/// يحمل معايير الصفحة والفلاتر الزمنية والمالية الخاصة بسجل المدفوعات.
+/// Holds paging information together with time and amount filters for payment
+/// history.
 class GetPaymentHistoryParams extends Equatable {
   final String userId;
   final int pageNumber;
@@ -64,7 +68,6 @@ class GetPaymentHistoryParams extends Equatable {
   final DateTime? toDate;
   final double? minAmount;
   final double? maxAmount;
-
   const GetPaymentHistoryParams({
     required this.userId,
     this.pageNumber = 1,
@@ -76,7 +79,6 @@ class GetPaymentHistoryParams extends Equatable {
     this.minAmount,
     this.maxAmount,
   });
-
   @override
   List<Object?> get props => [
         userId,

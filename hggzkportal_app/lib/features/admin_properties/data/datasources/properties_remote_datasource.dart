@@ -9,6 +9,7 @@ import 'package:hggzkportal/core/models/paginated_result.dart';
 import '../models/property_model.dart';
 
 abstract class PropertiesRemoteDataSource {
+  /// العربية: يعيد all properties.
   Future<PaginatedResult<PropertyModel>> getAllProperties({
     int? pageNumber,
     int? pageSize,
@@ -24,13 +25,16 @@ abstract class PropertiesRemoteDataSource {
     bool? isApproved,
     bool? hasActiveBookings,
   });
-  
   Future<PropertyModel> getPropertyById(String propertyId);
-  Future<PropertyModel> getPropertyDetails(String propertyId, {bool includeUnits = false});
-  Future<PropertyModel> getPropertyDetailsPublic(String propertyId, {bool includeUnits = false});
+  Future<PropertyModel> getPropertyDetails(String propertyId,
+      {bool includeUnits = false});
+  Future<PropertyModel> getPropertyDetailsPublic(String propertyId,
+      {bool includeUnits = false});
   Future<String> createProperty(Map<String, dynamic> propertyData);
-  Future<bool> updateProperty(String propertyId, Map<String, dynamic> propertyData);
-  Future<bool> updatePropertyAsOwner(String propertyId, Map<String, dynamic> propertyData);
+  Future<bool> updateProperty(
+      String propertyId, Map<String, dynamic> propertyData);
+  Future<bool> updatePropertyAsOwner(
+      String propertyId, Map<String, dynamic> propertyData);
   Future<bool> deleteProperty(String propertyId);
   Future<bool> approveProperty(String propertyId);
   Future<bool> rejectProperty(String propertyId);
@@ -38,15 +42,15 @@ abstract class PropertiesRemoteDataSource {
     int? pageNumber,
     int? pageSize,
   });
-  Future<bool> addPropertyToSections(String propertyId, List<String> sectionIds);
+  Future<bool> addPropertyToSections(
+      String propertyId, List<String> sectionIds);
 }
 
 class PropertiesRemoteDataSourceImpl implements PropertiesRemoteDataSource {
+  /// العربية: يخزن القيمة `apiClient`.
   final ApiClient apiClient;
   static const String _baseEndpoint = '/api/admin/properties';
-  
   PropertiesRemoteDataSourceImpl({required this.apiClient});
-  
   @override
   Future<PaginatedResult<PropertyModel>> getAllProperties({
     int? pageNumber,
@@ -72,75 +76,85 @@ class PropertiesRemoteDataSourceImpl implements PropertiesRemoteDataSource {
               : pageSize);
       final queryParams = <String, dynamic>{
         if (pageNumber != null) 'pageNumber': pageNumber,
-        if (effectivePageSize != null) 'pageSize': effectivePageSize,
+        'pageSize': effectivePageSize,
         if (searchTerm != null) 'searchTerm': searchTerm,
         if (propertyTypeId != null) 'propertyTypeId': propertyTypeId,
         if (minPrice != null) 'minPrice': minPrice,
         if (maxPrice != null) 'maxPrice': maxPrice,
         if (sortBy != null) 'sortBy': sortBy,
         if (isAscending != null) 'isAscending': isAscending,
-        if (amenityIds != null && amenityIds.isNotEmpty) 'amenityIds': amenityIds,
-        if (starRatings != null && starRatings.isNotEmpty) 'starRatings': starRatings,
+        if (amenityIds != null && amenityIds.isNotEmpty)
+          'amenityIds': amenityIds,
+        if (starRatings != null && starRatings.isNotEmpty)
+          'starRatings': starRatings,
         if (minAverageRating != null) 'minAverageRating': minAverageRating,
         if (isApproved != null) 'isApproved': isApproved,
         if (hasActiveBookings != null) 'hasActiveBookings': hasActiveBookings,
       };
-      
+
       final response = await apiClient.get(
         _baseEndpoint,
         queryParameters: queryParams,
       );
-      
+
       return PaginatedResult<PropertyModel>.fromJson(
         response.data,
-        (json) => PropertyModel.fromJson(json as Map<String, dynamic>),
+        (json) => PropertyModel.fromJson(json),
       );
     } on api.ApiException catch (e) {
       throw ServerException(e.message);
-    } on DioException catch (e) { // Fallback if ApiClient throws DioException in some paths
-      throw ServerException(e.response?.data['message'] ?? 'Failed to fetch properties');
+    } on DioException catch (e) {
+      // Fallback if ApiClient throws DioException in some paths
+      throw ServerException(
+          e.response?.data['message'] ?? 'Failed to fetch properties');
     }
   }
-  
+
   @override
   Future<PropertyModel> getPropertyById(String propertyId) async {
     try {
       final response = await apiClient.get('$_baseEndpoint/$propertyId');
-      
+
       if (response.data['success'] == true) {
         return PropertyModel.fromJson(response.data['data']);
       } else {
-        throw ServerException(response.data['message'] ?? 'Failed to get property');
+        throw ServerException(
+            response.data['message'] ?? 'Failed to get property');
       }
     } on api.ApiException catch (e) {
       throw ServerException(e.message);
     } on DioException catch (e) {
-      throw ServerException(e.response?.data['message'] ?? 'Failed to fetch property');
+      throw ServerException(
+          e.response?.data['message'] ?? 'Failed to fetch property');
     }
   }
-  
+
   @override
-  Future<PropertyModel> getPropertyDetails(String propertyId, {bool includeUnits = false}) async {
+  Future<PropertyModel> getPropertyDetails(String propertyId,
+      {bool includeUnits = false}) async {
     try {
       final response = await apiClient.get(
         '$_baseEndpoint/$propertyId/details',
         queryParameters: {'includeUnits': includeUnits},
       );
-      
+
       if (response.data['success'] == true) {
         return PropertyModel.fromJson(response.data['data']);
       } else {
-        throw ServerException(response.data['message'] ?? 'Failed to get property details');
+        throw ServerException(
+            response.data['message'] ?? 'Failed to get property details');
       }
     } on api.ApiException catch (e) {
       throw ServerException(e.message);
     } on DioException catch (e) {
-      throw ServerException(e.response?.data['message'] ?? 'Failed to fetch property details');
+      throw ServerException(
+          e.response?.data['message'] ?? 'Failed to fetch property details');
     }
   }
 
   @override
-  Future<PropertyModel> getPropertyDetailsPublic(String propertyId, {bool includeUnits = false}) async {
+  Future<PropertyModel> getPropertyDetailsPublic(String propertyId,
+      {bool includeUnits = false}) async {
     try {
       final response = await apiClient.get(
         '/api/client/properties/$propertyId',
@@ -153,15 +167,17 @@ class PropertiesRemoteDataSourceImpl implements PropertiesRemoteDataSource {
             : response.data;
         return PropertyModel.fromJson(data as Map<String, dynamic>);
       } else {
-        throw ServerException(response.data['message'] ?? 'Failed to get public property details');
+        throw ServerException(response.data['message'] ??
+            'Failed to get public property details');
       }
     } on api.ApiException catch (e) {
       throw ServerException(e.message);
     } on DioException catch (e) {
-      throw ServerException(e.response?.data['message'] ?? 'Failed to fetch public property details');
+      throw ServerException(e.response?.data['message'] ??
+          'Failed to fetch public property details');
     }
   }
-  
+
   @override
   Future<String> createProperty(Map<String, dynamic> propertyData) async {
     try {
@@ -170,7 +186,8 @@ class PropertiesRemoteDataSourceImpl implements PropertiesRemoteDataSource {
         final images = propertyData['images'] as List;
         for (int i = 0; i < images.length; i++) {
           if (images[i] is String) {
-            images[i] = (images[i] as String).replaceAll(ApiConstants.imageBaseUrl, '');
+            images[i] =
+                (images[i] as String).replaceAll(ApiConstants.imageBaseUrl, '');
           }
         }
       }
@@ -180,34 +197,38 @@ class PropertiesRemoteDataSourceImpl implements PropertiesRemoteDataSource {
       if (currency != null && currency is String && currency.isNotEmpty) {
         headers[ApiConstants.xPropertyCurrency] = currency;
       }
-      
+
       final response = await apiClient.post(
         _baseEndpoint,
         data: propertyData,
         options: Options(headers: headers),
       );
-      
+
       if (response.data['success'] == true) {
         return response.data['data'] as String;
       } else {
-        throw ServerException(response.data['message'] ?? 'Failed to create property');
+        throw ServerException(
+            response.data['message'] ?? 'Failed to create property');
       }
     } on api.ApiException catch (e) {
       throw ServerException(e.message);
     } on DioException catch (e) {
-      throw ServerException(e.response?.data['message'] ?? 'Failed to create property');
+      throw ServerException(
+          e.response?.data['message'] ?? 'Failed to create property');
     }
   }
-  
+
   @override
-  Future<bool> updateProperty(String propertyId, Map<String, dynamic> propertyData) async {
+  Future<bool> updateProperty(
+      String propertyId, Map<String, dynamic> propertyData) async {
     try {
       // Remove http:// from image URLs before saving
       if (propertyData['images'] != null) {
         final images = propertyData['images'] as List;
         for (int i = 0; i < images.length; i++) {
           if (images[i] is String) {
-            images[i] = (images[i] as String).replaceAll(ApiConstants.imageBaseUrl, '');
+            images[i] =
+                (images[i] as String).replaceAll(ApiConstants.imageBaseUrl, '');
           }
         }
       }
@@ -217,7 +238,7 @@ class PropertiesRemoteDataSourceImpl implements PropertiesRemoteDataSource {
       if (currency != null && currency is String && currency.isNotEmpty) {
         headers[ApiConstants.xPropertyCurrency] = currency;
       }
-      
+
       final response = await apiClient.put(
         '$_baseEndpoint/$propertyId',
         data: propertyData,
@@ -235,19 +256,22 @@ class PropertiesRemoteDataSourceImpl implements PropertiesRemoteDataSource {
     } on api.ApiException catch (e) {
       throw ServerException(e.message);
     } on DioException catch (e) {
-      throw ServerException(e.response?.data['message'] ?? 'Failed to update property');
+      throw ServerException(
+          e.response?.data['message'] ?? 'Failed to update property');
     }
   }
 
   @override
-  Future<bool> updatePropertyAsOwner(String propertyId, Map<String, dynamic> propertyData) async {
+  Future<bool> updatePropertyAsOwner(
+      String propertyId, Map<String, dynamic> propertyData) async {
     try {
       // Normalize images and currency header similar to admin update
       if (propertyData['images'] != null) {
         final images = propertyData['images'] as List;
         for (int i = 0; i < images.length; i++) {
           if (images[i] is String) {
-            images[i] = (images[i] as String).replaceAll(ApiConstants.imageBaseUrl, '');
+            images[i] =
+                (images[i] as String).replaceAll(ApiConstants.imageBaseUrl, '');
           }
         }
       }
@@ -267,17 +291,20 @@ class PropertiesRemoteDataSourceImpl implements PropertiesRemoteDataSource {
       if (data is Map) {
         final success = data['success'] == true || response.statusCode == 200;
         if (success) return true;
-        final message = data['message'] ?? data['error'] ?? 'Failed to update property as owner';
+        final message = data['message'] ??
+            data['error'] ??
+            'Failed to update property as owner';
         throw ServerException(message);
       }
       return response.statusCode == 200;
     } on api.ApiException catch (e) {
       throw ServerException(e.message);
     } on DioException catch (e) {
-      throw ServerException(e.response?.data['message'] ?? 'Failed to update property as owner');
+      throw ServerException(
+          e.response?.data['message'] ?? 'Failed to update property as owner');
     }
   }
-  
+
   @override
   Future<bool> deleteProperty(String propertyId) async {
     try {
@@ -292,35 +319,40 @@ class PropertiesRemoteDataSourceImpl implements PropertiesRemoteDataSource {
       throw ServerException(e.message);
     } on DioException catch (e) {
       final data = e.response?.data;
-      final message = data is Map ? (data['message'] ?? data['error']) : e.message;
+      final message =
+          data is Map ? (data['message'] ?? data['error']) : e.message;
       throw ServerException(message ?? 'Failed to delete property');
     }
   }
-  
+
   @override
   Future<bool> approveProperty(String propertyId) async {
     try {
-      final response = await apiClient.post('$_baseEndpoint/$propertyId/approve');
+      final response =
+          await apiClient.post('$_baseEndpoint/$propertyId/approve');
       return response.data['success'] == true;
     } on api.ApiException catch (e) {
       throw ServerException(e.message);
     } on DioException catch (e) {
-      throw ServerException(e.response?.data['message'] ?? 'Failed to approve property');
+      throw ServerException(
+          e.response?.data['message'] ?? 'Failed to approve property');
     }
   }
-  
+
   @override
   Future<bool> rejectProperty(String propertyId) async {
     try {
-      final response = await apiClient.post('$_baseEndpoint/$propertyId/reject');
+      final response =
+          await apiClient.post('$_baseEndpoint/$propertyId/reject');
       return response.data['success'] == true;
     } on api.ApiException catch (e) {
       throw ServerException(e.message);
     } on DioException catch (e) {
-      throw ServerException(e.response?.data['message'] ?? 'Failed to reject property');
+      throw ServerException(
+          e.response?.data['message'] ?? 'Failed to reject property');
     }
   }
-  
+
   @override
   Future<PaginatedResult<PropertyModel>> getPendingProperties({
     int? pageNumber,
@@ -331,25 +363,27 @@ class PropertiesRemoteDataSourceImpl implements PropertiesRemoteDataSource {
         if (pageNumber != null) 'pageNumber': pageNumber,
         if (pageSize != null) 'pageSize': pageSize,
       };
-      
+
       final response = await apiClient.get(
         '$_baseEndpoint/pending',
         queryParameters: queryParams,
       );
-      
+
       return PaginatedResult<PropertyModel>.fromJson(
         response.data,
-        (json) => PropertyModel.fromJson(json as Map<String, dynamic>),
+        (json) => PropertyModel.fromJson(json),
       );
     } on api.ApiException catch (e) {
       throw ServerException(e.message);
     } on DioException catch (e) {
-      throw ServerException(e.response?.data['message'] ?? 'Failed to fetch pending properties');
+      throw ServerException(
+          e.response?.data['message'] ?? 'Failed to fetch pending properties');
     }
   }
-  
+
   @override
-  Future<bool> addPropertyToSections(String propertyId, List<String> sectionIds) async {
+  Future<bool> addPropertyToSections(
+      String propertyId, List<String> sectionIds) async {
     try {
       final response = await apiClient.post(
         '/api/admin/properties/$propertyId/sections',
@@ -359,7 +393,8 @@ class PropertiesRemoteDataSourceImpl implements PropertiesRemoteDataSource {
     } on api.ApiException catch (e) {
       throw ServerException(e.message);
     } on DioException catch (e) {
-      throw ServerException(e.response?.data['message'] ?? 'Failed to add property to sections');
+      throw ServerException(
+          e.response?.data['message'] ?? 'Failed to add property to sections');
     }
   }
 }

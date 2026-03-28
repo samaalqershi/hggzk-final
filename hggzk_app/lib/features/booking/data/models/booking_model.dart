@@ -2,7 +2,9 @@ import '../../../../core/enums/booking_status.dart';
 import '../../domain/entities/booking.dart';
 import 'payment_model.dart';
 
+/// العربية: يمثل نموذج البيانات `BookingModel`.
 class BookingModel extends Booking {
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingModel`.
   const BookingModel({
     required super.id,
     required super.bookingNumber,
@@ -48,6 +50,7 @@ class BookingModel extends Booking {
     super.isPaid,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingModel.fromJson`.
   factory BookingModel.fromJson(Map<String, dynamic> json) {
     final totalPriceField = json['totalPrice'];
     double _totalAmount = 0.0;
@@ -57,7 +60,8 @@ class BookingModel extends Booking {
       _totalAmount = _toDouble(json['totalAmount']);
     } else if (totalPriceField is Map) {
       _totalAmount = _toDouble(totalPriceField['amount']);
-      _currency = (json['currency'] ?? totalPriceField['currency'] ?? 'YER') as String;
+      _currency =
+          (json['currency'] ?? totalPriceField['currency'] ?? 'YER') as String;
     } else {
       _totalAmount = _toDouble(totalPriceField);
       _currency = (json['currency'] ?? 'YER') as String;
@@ -73,8 +77,14 @@ class BookingModel extends Booking {
       propertyAddress: json['propertyAddress'],
       unitId: json['unitId'],
       unitName: json['unitName'],
-      checkInDate: DateTime.parse(json['checkInDate'] ?? json['checkIn'] ?? DateTime.now().toIso8601String()).toLocal(),
-      checkOutDate: DateTime.parse(json['checkOutDate'] ?? json['checkOut'] ?? DateTime.now().toIso8601String()).toLocal(),
+      checkInDate: DateTime.parse(json['checkInDate'] ??
+              json['checkIn'] ??
+              DateTime.now().toIso8601String())
+          .toLocal(),
+      checkOutDate: DateTime.parse(json['checkOutDate'] ??
+              json['checkOut'] ??
+              DateTime.now().toIso8601String())
+          .toLocal(),
       numberOfNights: json['numberOfNights'] ?? _calculateNights(json),
       adultGuests: json['adultGuests'] ?? json['guestsCount'] ?? 1,
       childGuests: json['childGuests'] ?? 0,
@@ -84,12 +94,15 @@ class BookingModel extends Booking {
       finalAmount: json['finalAmount']?.toDouble(),
       currency: _currency,
       status: parseBookingStatus(json['status']),
-      bookingDate: DateTime.parse(json['bookingDate'] ?? json['bookedAt'] ?? DateTime.now().toIso8601String()).toLocal(),
-      actualCheckInDate: json['actualCheckInDate'] != null 
-          ? DateTime.parse(json['actualCheckInDate']).toLocal() 
+      bookingDate: DateTime.parse(json['bookingDate'] ??
+              json['bookedAt'] ??
+              DateTime.now().toIso8601String())
+          .toLocal(),
+      actualCheckInDate: json['actualCheckInDate'] != null
+          ? DateTime.parse(json['actualCheckInDate']).toLocal()
           : null,
-      actualCheckOutDate: json['actualCheckOutDate'] != null 
-          ? DateTime.parse(json['actualCheckOutDate']).toLocal() 
+      actualCheckOutDate: json['actualCheckOutDate'] != null
+          ? DateTime.parse(json['actualCheckOutDate']).toLocal()
           : null,
       specialRequests: json['specialRequests'] ?? json['specialNotes'],
       cancellationReason: json['cancellationReason'],
@@ -125,6 +138,7 @@ class BookingModel extends Booking {
     );
   }
 
+  /// العربية: يعالج `toDouble`.
   static double _toDouble(dynamic v) {
     if (v is num) return v.toDouble();
     if (v is String) {
@@ -134,6 +148,7 @@ class BookingModel extends Booking {
     return 0.0;
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -165,7 +180,8 @@ class BookingModel extends Booking {
       'isWalkIn': isWalkIn,
       'customerRating': customerRating,
       'completionNotes': completionNotes,
-      'services': services.map((e) => (e as BookingServiceModel).toJson()).toList(),
+      'services':
+          services.map((e) => (e as BookingServiceModel).toJson()).toList(),
       'payments': payments.map((e) => (e as PaymentModel).toJson()).toList(),
       'unitImages': unitImages,
       'contactInfo': (contactInfo as ContactInfoModel).toJson(),
@@ -183,10 +199,13 @@ class BookingModel extends Booking {
     };
   }
 
+  /// العربية: يعالج `calculateNights`.
   static int _calculateNights(Map<String, dynamic> json) {
     try {
-      final checkIn = DateTime.parse(json['checkInDate'] ?? json['checkIn']).toLocal();
-      final checkOut = DateTime.parse(json['checkOutDate'] ?? json['checkOut']).toLocal();
+      final checkIn =
+          DateTime.parse(json['checkInDate'] ?? json['checkIn']).toLocal();
+      final checkOut =
+          DateTime.parse(json['checkOutDate'] ?? json['checkOut']).toLocal();
       final ciDate = DateTime(checkIn.year, checkIn.month, checkIn.day);
       final coDate = DateTime(checkOut.year, checkOut.month, checkOut.day);
       final nights = coDate.difference(ciDate).inDays;
@@ -196,9 +215,10 @@ class BookingModel extends Booking {
     }
   }
 
+  /// العربية: يحلل booking status.
   static BookingStatus parseBookingStatus(dynamic status) {
     if (status == null) return BookingStatus.pending;
-    
+
     final statusStr = status.toString().toLowerCase();
     switch (statusStr) {
       case 'confirmed':
@@ -218,7 +238,9 @@ class BookingModel extends Booking {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `BookingServiceModel`.
 class BookingServiceModel extends BookingService {
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingServiceModel`.
   const BookingServiceModel({
     required super.id,
     required super.serviceId,
@@ -229,6 +251,7 @@ class BookingServiceModel extends BookingService {
     required super.currency,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingServiceModel.fromJson`.
   factory BookingServiceModel.fromJson(Map<String, dynamic> json) {
     return BookingServiceModel(
       id: json['id'] ?? '',
@@ -241,6 +264,7 @@ class BookingServiceModel extends BookingService {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -254,13 +278,16 @@ class BookingServiceModel extends BookingService {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `ContactInfoModel`.
 class ContactInfoModel extends ContactInfo {
+  /// العربية: ينشئ مثيلًا جديدًا من `ContactInfoModel`.
   const ContactInfoModel({
     required super.phoneNumber,
     required super.email,
     super.alternativePhone,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `ContactInfoModel.fromJson`.
   factory ContactInfoModel.fromJson(Map<String, dynamic> json) {
     return ContactInfoModel(
       phoneNumber: json['phoneNumber'] ?? '',
@@ -269,6 +296,7 @@ class ContactInfoModel extends ContactInfo {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'phoneNumber': phoneNumber,
@@ -278,7 +306,9 @@ class ContactInfoModel extends ContactInfo {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `BookingUserReviewModel`.
 class BookingUserReviewModel extends BookingUserReview {
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingUserReviewModel`.
   const BookingUserReviewModel({
     required super.id,
     required super.bookingId,
@@ -296,6 +326,7 @@ class BookingUserReviewModel extends BookingUserReview {
     required super.isDisabled,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingUserReviewModel.fromJson`.
   factory BookingUserReviewModel.fromJson(Map<String, dynamic> json) {
     return BookingUserReviewModel(
       id: json['id'] ?? '',
@@ -321,6 +352,7 @@ class BookingUserReviewModel extends BookingUserReview {
     );
   }
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingUserReviewModel.fromEntity`.
   factory BookingUserReviewModel.fromEntity(BookingUserReview entity) {
     return BookingUserReviewModel(
       id: entity.id,
@@ -340,6 +372,7 @@ class BookingUserReviewModel extends BookingUserReview {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,

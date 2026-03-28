@@ -5,18 +5,33 @@ import 'dart:math' as math;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../injection_container.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import '../../../review/presentation/bloc/review_bloc.dart';
 import '../../../review/presentation/bloc/review_event.dart';
 import '../../../review/presentation/bloc/review_state.dart';
 import '../../../review/domain/entities/review.dart';
 
+/// Describes the ReviewsSummaryWidget widget used in the property feature.
+/// العربية: يمثل العنصر `ReviewsSummaryWidget`.
 class ReviewsSummaryWidget extends StatefulWidget {
+  /// Keeps the propertyId value available to this object.
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
+
+  /// Keeps the reviewsCount value available to this object.
+  /// العربية: يخزن القيمة `reviewsCount`.
   final int reviewsCount;
+
+  /// Keeps the averageRating value available to this object.
+  /// العربية: يخزن القيمة `averageRating`.
   final double averageRating;
+
+  /// Keeps the onViewAll value available to this object.
+  /// العربية: يخزن القيمة `onViewAll`.
   final VoidCallback onViewAll;
 
+  /// Constructs the ReviewsSummaryWidget value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewsSummaryWidget`.
   const ReviewsSummaryWidget({
     super.key,
     required this.propertyId,
@@ -25,23 +40,50 @@ class ReviewsSummaryWidget extends StatefulWidget {
     required this.onViewAll,
   });
 
+  /// Builds the state object for this widget used by this feature.
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<ReviewsSummaryWidget> createState() => _ReviewsSummaryWidgetState();
 }
 
+/// Describes the state for `ReviewsSummaryWidgetState`.
+/// العربية: يمثل الحالة الخاصة بـ `ReviewsSummaryWidgetState`.
 class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     with TickerProviderStateMixin {
+  /// Keeps the chartController value available to this object.
+  /// العربية: يخزن القيمة `chartController`.
   late AnimationController _chartController;
+
+  /// Keeps the pulseController value available to this object.
+  /// العربية: يخزن القيمة `pulseController`.
   late AnimationController _pulseController;
+
+  /// Keeps the starController value available to this object.
+  /// العربية: يخزن القيمة `starController`.
   late AnimationController _starController;
+
+  /// Keeps the glowController value available to this object.
+  /// العربية: يخزن القيمة `glowController`.
   late AnimationController _glowController;
 
+  /// Keeps the chartAnimation value available to this object.
+  /// العربية: يخزن القيمة `chartAnimation`.
   late Animation<double> _chartAnimation;
+
+  /// Keeps the pulseAnimation value available to this object.
+  /// العربية: يخزن القيمة `pulseAnimation`.
   late Animation<double> _pulseAnimation;
+
+  /// Keeps the starAnimation value available to this object.
+  /// العربية: يخزن القيمة `starAnimation`.
   late Animation<double> _starAnimation;
 
+  /// Keeps the stars value available to this object.
+  /// العربية: يخزن القيمة `stars`.
   final List<_AnimatedStar> _stars = [];
 
+  /// Initializes the state for this widget.
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -50,6 +92,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     _startAnimations();
   }
 
+  /// Initializes the animations.
+  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     _chartController = AnimationController(
       duration: const Duration(milliseconds: 1200),
@@ -93,12 +137,16 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     ).animate(_starController);
   }
 
+  /// Generates the stars.
+  /// العربية: ينشئ stars.
   void _generateStars() {
     for (int i = 0; i < 10; i++) {
       _stars.add(_AnimatedStar());
     }
   }
 
+  /// Starts the animations.
+  /// العربية: يبدأ animations.
   void _startAnimations() {
     Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted) {
@@ -107,6 +155,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     });
   }
 
+  /// Releases the resources used by this instance.
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _chartController.dispose();
@@ -116,6 +166,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     super.dispose();
   }
 
+  /// Builds the widget tree for this component.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -153,6 +205,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     );
   }
 
+  /// Builds the content.
+  /// العربية: يبني content.
   Widget _buildContent(ReviewsSummary summary) {
     return Stack(
       children: [
@@ -177,6 +231,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     );
   }
 
+  /// Builds the error state.
+  /// العربية: يبني error state.
   Widget _buildErrorState(String message) {
     return Center(
       child: Padding(
@@ -192,6 +248,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     );
   }
 
+  /// Builds the animated background.
+  /// العربية: يبني animated background.
   Widget _buildAnimatedBackground() {
     return Positioned.fill(
       child: AnimatedBuilder(
@@ -208,6 +266,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     );
   }
 
+  /// Builds the empty state.
+  /// العربية: يبني empty state.
   Widget _buildEmptyState() {
     return Center(
       child: Container(
@@ -299,6 +359,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     );
   }
 
+  /// Builds the futuristic rating summary.
+  /// العربية: يبني futuristic rating summary.
   Widget _buildFuturisticRatingSummary(ReviewsSummary summary) {
     return AnimatedBuilder(
       animation: _pulseAnimation,
@@ -341,6 +403,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     );
   }
 
+  /// Builds the rating circle.
+  /// العربية: يبني rating circle.
   Widget _buildRatingCircle(ReviewsSummary summary) {
     final ratingColor = _getRatingColor(summary.averageRating);
     return Container(
@@ -422,6 +486,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     );
   }
 
+  /// Builds the rating categories.
+  /// العربية: يبني rating categories.
   Widget _buildRatingCategories(ReviewsSummary summary) {
     final sampleReviews = _getSampleReviews(summary);
 
@@ -475,6 +541,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     );
   }
 
+  /// Builds the futuristic rating category.
+  /// العربية: يبني futuristic rating category.
   Widget _buildFuturisticRatingCategory(
       String label, double rating, IconData icon) {
     return Row(
@@ -547,6 +615,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     );
   }
 
+  /// Builds the futuristic rating bars.
+  /// العربية: يبني futuristic rating bars.
   Widget _buildFuturisticRatingBars(ReviewsSummary summary) {
     final ratingDistribution = List.generate(5, (index) {
       final stars = 5 - index;
@@ -626,6 +696,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     );
   }
 
+  /// Builds the rating bar.
+  /// العربية: يبني rating bar.
   Widget _buildRatingBar(int stars, int count, double percentage, int delay) {
     return Row(
       children: [
@@ -701,6 +773,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     );
   }
 
+  /// Builds the futuristic recent reviews.
+  /// العربية: يبني futuristic recent reviews.
   Widget _buildFuturisticRecentReviews(ReviewsSummary summary) {
     final recentReviews = summary.latestReviews;
 
@@ -751,6 +825,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     );
   }
 
+  /// Builds the futuristic mini review card.
+  /// العربية: يبني futuristic mini review card.
   Widget _buildFuturisticMiniReviewCard({
     required String userName,
     required double rating,
@@ -858,6 +934,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     );
   }
 
+  /// Builds the view all button.
+  /// العربية: يبني view all button.
   Widget _buildViewAllButton() {
     return Center(
       child: _buildGlowingButton(
@@ -902,6 +980,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     );
   }
 
+  /// Builds the glowing button.
+  /// العربية: يبني glowing button.
   Widget _buildGlowingButton({
     required VoidCallback onPressed,
     required Widget child,
@@ -943,6 +1023,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     );
   }
 
+  /// Exposes the rating color.
+  /// العربية: يعيد rating color.
   Color _getRatingColor(double rating) {
     if (rating >= 4.5) return AppTheme.success;
     if (rating >= 3.5) return AppTheme.warning;
@@ -950,6 +1032,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     return AppTheme.error;
   }
 
+  /// Exposes the sample reviews.
+  /// العربية: يعيد sample reviews.
   List<Review> _getSampleReviews(ReviewsSummary summary) {
     final Map<String, Review> byId = {};
 
@@ -964,6 +1048,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     return byId.values.toList();
   }
 
+  /// Processes the calculateAverage flow and maps it into the property feature behavior.
+  /// العربية: يعالج `calculateAverage`.
   double _calculateAverage(
     List<Review> reviews,
     double Function(Review) selector,
@@ -973,6 +1059,8 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     return total / reviews.length;
   }
 
+  /// Formats the review date.
+  /// العربية: ينسق review date.
   String _formatReviewDate(DateTime date) {
     final local = date.toLocal();
     final now = DateTime.now();
@@ -997,17 +1085,37 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
 }
 
 // باقي الكلاسات بأحجام أصغر
+/// Describes the AnimatedStar type used in the property feature.
+/// العربية: يمثل `AnimatedStar`.
 class _AnimatedStar {
+  /// Keeps the x value available to this object.
+  /// العربية: يخزن القيمة `x`.
   late double x;
+
+  /// Keeps the y value available to this object.
+  /// العربية: يخزن القيمة `y`.
   late double y;
+
+  /// Keeps the size value available to this object.
+  /// العربية: يخزن القيمة `size`.
   late double size;
+
+  /// Keeps the speed value available to this object.
+  /// العربية: يخزن القيمة `speed`.
   late double speed;
+
+  /// Keeps the opacity value available to this object.
+  /// العربية: يخزن القيمة `opacity`.
   late double opacity;
 
+  /// Constructs the AnimatedStar value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `AnimatedStar`.
   _AnimatedStar() {
     reset();
   }
 
+  /// Processes the reset flow and maps it into the property feature behavior.
+  /// العربية: يعالج `reset`.
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -1016,6 +1124,8 @@ class _AnimatedStar {
     opacity = math.Random().nextDouble() * 0.2 + 0.05;
   }
 
+  /// Updates the required operation for `update`.
+  /// العربية: يحدّث العملية المطلوبة لـ `update`.
   void update() {
     y -= speed;
     if (y < 0) {
@@ -1025,15 +1135,26 @@ class _AnimatedStar {
   }
 }
 
+/// Describes the StarBackgroundPainter type used in the property feature.
+/// العربية: يمثل `StarBackgroundPainter`.
 class _StarBackgroundPainter extends CustomPainter {
+  /// Keeps the stars value available to this object.
+  /// العربية: يخزن القيمة `stars`.
   final List<_AnimatedStar> stars;
+
+  /// Keeps the animationValue value available to this object.
+  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
 
+  /// Constructs the StarBackgroundPainter value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `StarBackgroundPainter`.
   _StarBackgroundPainter({
     required this.stars,
     required this.animationValue,
   });
 
+  /// Processes the paint flow and maps it into the property feature behavior.
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     for (var star in stars) {
@@ -1052,6 +1173,8 @@ class _StarBackgroundPainter extends CustomPainter {
     }
   }
 
+  /// Processes the drawStar flow and maps it into the property feature behavior.
+  /// العربية: يعالج `drawStar`.
   void _drawStar(Canvas canvas, Offset center, double radius, Paint paint) {
     final path = Path();
     const spikes = 5;
@@ -1074,19 +1197,32 @@ class _StarBackgroundPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
+  /// Processes the shouldRepaint flow and maps it into the property feature behavior.
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
+/// Describes the CircleStarsPainter type used in the property feature.
+/// العربية: يمثل `CircleStarsPainter`.
 class _CircleStarsPainter extends CustomPainter {
+  /// Keeps the rotation value available to this object.
+  /// العربية: يخزن القيمة `rotation`.
   final double rotation;
+
+  /// Keeps the color value available to this object.
+  /// العربية: يخزن القيمة `color`.
   final Color color;
 
+  /// Constructs the CircleStarsPainter value used by this feature.
+  /// العربية: ينشئ مثيلًا جديدًا من `CircleStarsPainter`.
   _CircleStarsPainter({
     required this.rotation,
     required this.color,
   });
 
+  /// Processes the paint flow and maps it into the property feature behavior.
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
@@ -1103,6 +1239,8 @@ class _CircleStarsPainter extends CustomPainter {
     }
   }
 
+  /// Processes the drawStar flow and maps it into the property feature behavior.
+  /// العربية: يعالج `drawStar`.
   void _drawStar(Canvas canvas, Offset center, double radius, Paint paint) {
     final path = Path();
     const spikes = 5;
@@ -1125,766 +1263,8 @@ class _CircleStarsPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
+  /// Processes the shouldRepaint flow and maps it into the property feature behavior.
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
-
-// import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'dart:ui';
-// import '../../../../core/theme/app_theme.dart';
-// import '../../../../core/theme/app_text_styles.dart';
-
-// class ReviewsSummaryWidget extends StatefulWidget {
-//   final String propertyId;
-//   final int reviewsCount;
-//   final double averageRating;
-//   final VoidCallback onViewAll;
-
-//   const ReviewsSummaryWidget({
-//     super.key,
-//     required this.propertyId,
-//     required this.reviewsCount,
-//     required this.averageRating,
-//     required this.onViewAll,
-//   });
-
-//   @override
-//   State<ReviewsSummaryWidget> createState() => _ReviewsSummaryWidgetState();
-// }
-
-// class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
-//     with SingleTickerProviderStateMixin {
-//   late AnimationController _animationController;
-//   late Animation<double> _fadeAnimation;
-//   late Animation<double> _scaleAnimation;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _animationController = AnimationController(
-//       duration: const Duration(milliseconds: 800),
-//       vsync: this,
-//     );
-
-//     _fadeAnimation = Tween<double>(
-//       begin: 0.0,
-//       end: 1.0,
-//     ).animate(CurvedAnimation(
-//       parent: _animationController,
-//       curve: Curves.easeOut,
-//     ));
-
-//     _scaleAnimation = Tween<double>(
-//       begin: 0.95,
-//       end: 1.0,
-//     ).animate(CurvedAnimation(
-//       parent: _animationController,
-//       curve: Curves.easeOutBack,
-//     ));
-
-//     _animationController.forward();
-//   }
-
-//   @override
-//   void dispose() {
-//     _animationController.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     if (widget.reviewsCount == 0) {
-//       return _buildEmptyState();
-//     }
-
-//     return FadeTransition(
-//       opacity: _fadeAnimation,
-//       child: ScaleTransition(
-//         scale: _scaleAnimation,
-//         child: SingleChildScrollView(
-//           physics: const BouncingScrollPhysics(),
-//           padding: const EdgeInsets.all(20),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               _buildElegantRatingSummary(),
-//               const SizedBox(height: 24),
-//               _buildElegantRatingBars(),
-//               const SizedBox(height: 24),
-//               _buildElegantRecentReviews(),
-//               const SizedBox(height: 20),
-//               _buildViewAllButton(),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildEmptyState() {
-//     return Center(
-//       child: Container(
-//         padding: const EdgeInsets.all(32),
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             Container(
-//               width: 100,
-//               height: 100,
-//               decoration: BoxDecoration(
-//                 gradient: RadialGradient(
-//                   colors: [
-//                     AppTheme.warning.withOpacity(0.1),
-//                     AppTheme.warning.withOpacity(0.03),
-//                   ],
-//                 ),
-//                 shape: BoxShape.circle,
-//               ),
-//               child: Icon(
-//                 Icons.rate_review_rounded,
-//                 size: 48,
-//                 color: AppTheme.warning.withOpacity(0.5),
-//               ),
-//             ),
-//             const SizedBox(height: 20),
-//             Text(
-//               'لا توجد تقييمات بعد',
-//               style: AppTextStyles.h3.copyWith(
-//                 color: AppTheme.textWhite,
-//                 fontWeight: FontWeight.w600,
-//               ),
-//             ),
-//             const SizedBox(height: 8),
-//             Text(
-//               'كن أول من يقيم هذا العقار',
-//               style: AppTextStyles.bodySmall.copyWith(
-//                 color: AppTheme.textMuted,
-//               ),
-//             ),
-//             const SizedBox(height: 24),
-//             Container(
-//               decoration: BoxDecoration(
-//                 gradient: LinearGradient(
-//                   colors: [AppTheme.warning, AppTheme.warning.withOpacity(0.8)],
-//                 ),
-//                 borderRadius: BorderRadius.circular(14),
-//               ),
-//               child: Material(
-//                 color: Colors.transparent,
-//                 borderRadius: BorderRadius.circular(14),
-//                 child: InkWell(
-//                   onTap: () => HapticFeedback.lightImpact(),
-//                   borderRadius: BorderRadius.circular(14),
-//                   child: Padding(
-//                     padding: const EdgeInsets.symmetric(
-//                       horizontal: 24,
-//                       vertical: 14,
-//                     ),
-//                     child: Row(
-//                       mainAxisSize: MainAxisSize.min,
-//                       children: [
-//                         const Icon(Icons.edit_rounded,
-//                             size: 18, color: Colors.white),
-//                         const SizedBox(width: 8),
-//                         Text(
-//                           'اكتب أول تقييم',
-//                           style: AppTextStyles.buttonMedium.copyWith(
-//                             color: Colors.white,
-//                             fontWeight: FontWeight.w600,
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildElegantRatingSummary() {
-//     return Container(
-//       padding: const EdgeInsets.all(20),
-//       decoration: BoxDecoration(
-//         gradient: LinearGradient(
-//           begin: Alignment.topLeft,
-//           end: Alignment.bottomRight,
-//           colors: [
-//             AppTheme.warning.withOpacity(0.08),
-//             AppTheme.warning.withOpacity(0.03),
-//           ],
-//         ),
-//         borderRadius: BorderRadius.circular(20),
-//         border: Border.all(
-//           color: AppTheme.warning.withOpacity(0.15),
-//           width: 1,
-//         ),
-//       ),
-//       child: ClipRRect(
-//         borderRadius: BorderRadius.circular(20),
-//         child: BackdropFilter(
-//           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-//           child: Row(
-//             children: [
-//               Container(
-//                 width: 100,
-//                 height: 100,
-//                 decoration: BoxDecoration(
-//                   gradient: LinearGradient(
-//                     colors: [
-//                       _getRatingColor(widget.averageRating).withOpacity(0.2),
-//                       _getRatingColor(widget.averageRating).withOpacity(0.1),
-//                     ],
-//                   ),
-//                   shape: BoxShape.circle,
-//                 ),
-//                 child: Column(
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   children: [
-//                     Text(
-//                       widget.averageRating.toStringAsFixed(1),
-//                       style: AppTextStyles.h1.copyWith(
-//                         color: _getRatingColor(widget.averageRating),
-//                         fontWeight: FontWeight.w700,
-//                       ),
-//                     ),
-//                     Row(
-//                       mainAxisSize: MainAxisSize.min,
-//                       children: List.generate(5, (index) {
-//                         return Icon(
-//                           index < widget.averageRating.round()
-//                               ? Icons.star_rounded
-//                               : Icons.star_outline_rounded,
-//                           size: 12,
-//                           color: AppTheme.warning,
-//                         );
-//                       }),
-//                     ),
-//                     const SizedBox(height: 4),
-//                     Text(
-//                       '${widget.reviewsCount} تقييم',
-//                       style: AppTextStyles.caption.copyWith(
-//                         color: AppTheme.textMuted,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               const SizedBox(width: 20),
-//               Expanded(child: _buildRatingCategories()),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildRatingCategories() {
-//     final categories = [
-//       {
-//         'label': 'النظافة',
-//         'rating': 4.5,
-//         'icon': Icons.cleaning_services_rounded
-//       },
-//       {'label': 'الخدمة', 'rating': 4.3, 'icon': Icons.room_service_rounded},
-//       {'label': 'الموقع', 'rating': 4.7, 'icon': Icons.location_on_rounded},
-//       {'label': 'القيمة', 'rating': 4.2, 'icon': Icons.attach_money_rounded},
-//     ];
-
-//     return Column(
-//       children: categories.asMap().entries.map((entry) {
-//         final index = entry.key;
-//         final category = entry.value;
-//         return Padding(
-//           padding: const EdgeInsets.only(bottom: 10),
-//           child: _buildElegantRatingCategory(
-//             category['label'] as String,
-//             category['rating'] as double,
-//             category['icon'] as IconData,
-//             index,
-//           ),
-//         );
-//       }).toList(),
-//     );
-//   }
-
-//   Widget _buildElegantRatingCategory(
-//       String label, double rating, IconData icon, int index) {
-//     return Row(
-//       children: [
-//         Container(
-//           width: 28,
-//           height: 28,
-//           decoration: BoxDecoration(
-//             color: AppTheme.primaryBlue.withOpacity(0.1),
-//             borderRadius: BorderRadius.circular(8),
-//           ),
-//           child: Icon(
-//             icon,
-//             size: 14,
-//             color: AppTheme.primaryBlue,
-//           ),
-//         ),
-//         const SizedBox(width: 10),
-//         SizedBox(
-//           width: 50,
-//           child: Text(
-//             label,
-//             style: AppTextStyles.caption.copyWith(
-//               color: AppTheme.textMuted,
-//             ),
-//           ),
-//         ),
-//         const SizedBox(width: 8),
-//         Expanded(
-//           child: Stack(
-//             children: [
-//               Container(
-//                 height: 4,
-//                 decoration: BoxDecoration(
-//                   color: AppTheme.darkBorder.withOpacity(0.2),
-//                   borderRadius: BorderRadius.circular(2),
-//                 ),
-//               ),
-//               TweenAnimationBuilder<double>(
-//                 tween: Tween(begin: 0.0, end: rating / 5),
-//                 duration: Duration(milliseconds: 800 + (index * 100)),
-//                 curve: Curves.easeOutCubic,
-//                 builder: (context, value, child) {
-//                   return Container(
-//                     height: 4,
-//                     width: (MediaQuery.of(context).size.width - 220) * value,
-//                     decoration: BoxDecoration(
-//                       gradient: LinearGradient(
-//                         colors: [
-//                           _getRatingColor(rating),
-//                           _getRatingColor(rating).withOpacity(0.7),
-//                         ],
-//                       ),
-//                       borderRadius: BorderRadius.circular(2),
-//                     ),
-//                   );
-//                 },
-//               ),
-//             ],
-//           ),
-//         ),
-//         const SizedBox(width: 8),
-//         Text(
-//           rating.toStringAsFixed(1),
-//           style: AppTextStyles.caption.copyWith(
-//             color: AppTheme.textWhite,
-//             fontWeight: FontWeight.w600,
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildElegantRatingBars() {
-//     final ratingDistribution = [
-//       {'stars': 5, 'count': 45, 'percentage': 0.45},
-//       {'stars': 4, 'count': 30, 'percentage': 0.30},
-//       {'stars': 3, 'count': 15, 'percentage': 0.15},
-//       {'stars': 2, 'count': 7, 'percentage': 0.07},
-//       {'stars': 1, 'count': 3, 'percentage': 0.03},
-//     ];
-
-//     return Container(
-//       padding: const EdgeInsets.all(20),
-//       decoration: BoxDecoration(
-//         gradient: AppTheme.glassGradient,
-//         borderRadius: BorderRadius.circular(20),
-//         border: Border.all(
-//           color: AppTheme.darkBorder.withOpacity(0.1),
-//           width: 1,
-//         ),
-//       ),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Row(
-//             children: [
-//               Container(
-//                 width: 36,
-//                 height: 36,
-//                 decoration: BoxDecoration(
-//                   gradient: AppTheme.primaryGradient,
-//                   borderRadius: BorderRadius.circular(10),
-//                 ),
-//                 child: const Icon(
-//                   Icons.bar_chart_rounded,
-//                   size: 18,
-//                   color: Colors.white,
-//                 ),
-//               ),
-//               const SizedBox(width: 12),
-//               Text(
-//                 'توزيع التقييمات',
-//                 style: AppTextStyles.bodyLarge.copyWith(
-//                   color: AppTheme.textWhite,
-//                   fontWeight: FontWeight.w600,
-//                 ),
-//               ),
-//             ],
-//           ),
-//           const SizedBox(height: 16),
-//           ...ratingDistribution.asMap().entries.map((entry) {
-//             final index = entry.key;
-//             final data = entry.value;
-
-//             return TweenAnimationBuilder<double>(
-//               tween: Tween(begin: 0.0, end: 1.0),
-//               duration: Duration(milliseconds: 600 + (index * 100)),
-//               curve: Curves.easeOutCubic,
-//               builder: (context, value, child) {
-//                 return Opacity(
-//                   opacity: value,
-//                   child: Transform.translate(
-//                     offset: Offset((1 - value) * 20, 0),
-//                     child: Padding(
-//                       padding: const EdgeInsets.only(bottom: 10),
-//                       child: _buildRatingBar(
-//                         data['stars'] as int,
-//                         data['count'] as int,
-//                         (data['percentage'] as double) * value,
-//                       ),
-//                     ),
-//                   ),
-//                 );
-//               },
-//             );
-//           }),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildRatingBar(int stars, int count, double percentage) {
-//     return Row(
-//       children: [
-//         SizedBox(
-//           width: 40,
-//           child: Row(
-//             children: [
-//               Text(
-//                 stars.toString(),
-//                 style: AppTextStyles.bodySmall.copyWith(
-//                   color: AppTheme.textWhite,
-//                   fontWeight: FontWeight.w600,
-//                 ),
-//               ),
-//               const SizedBox(width: 4),
-//               Icon(
-//                 Icons.star_rounded,
-//                 size: 14,
-//                 color: AppTheme.warning,
-//               ),
-//             ],
-//           ),
-//         ),
-//         const SizedBox(width: 12),
-//         Expanded(
-//           child: Stack(
-//             children: [
-//               Container(
-//                 height: 8,
-//                 decoration: BoxDecoration(
-//                   color: AppTheme.darkBorder.withOpacity(0.15),
-//                   borderRadius: BorderRadius.circular(4),
-//                 ),
-//               ),
-//               Container(
-//                 height: 8,
-//                 width: (MediaQuery.of(context).size.width - 160) * percentage,
-//                 decoration: BoxDecoration(
-//                   gradient: LinearGradient(
-//                     colors: [
-//                       AppTheme.warning,
-//                       AppTheme.warning.withOpacity(0.7),
-//                     ],
-//                   ),
-//                   borderRadius: BorderRadius.circular(4),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//         const SizedBox(width: 12),
-//         SizedBox(
-//           width: 30,
-//           child: Text(
-//             count.toString(),
-//             style: AppTextStyles.caption.copyWith(
-//               color: AppTheme.textMuted,
-//             ),
-//             textAlign: TextAlign.end,
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildElegantRecentReviews() {
-//     final recentReviews = [
-//       {
-//         'userName': 'أحمد محمد',
-//         'rating': 4.5,
-//         'date': 'منذ 3 أيام',
-//         'comment': 'مكان رائع ونظيف، الخدمة ممتازة والموقع مميز.',
-//         'avatar': 'أ',
-//         'avatarColor': AppTheme.primaryBlue,
-//       },
-//       {
-//         'userName': 'فاطمة علي',
-//         'rating': 5.0,
-//         'date': 'منذ أسبوع',
-//         'comment': 'تجربة استثنائية! المكان يفوق التوقعات.',
-//         'avatar': 'ف',
-//         'avatarColor': AppTheme.primaryPurple,
-//       },
-//     ];
-
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Row(
-//           children: [
-//             Container(
-//               width: 36,
-//               height: 36,
-//               decoration: BoxDecoration(
-//                 gradient: AppTheme.primaryGradient,
-//                 borderRadius: BorderRadius.circular(10),
-//               ),
-//               child: const Icon(
-//                 Icons.message_rounded,
-//                 size: 18,
-//                 color: Colors.white,
-//               ),
-//             ),
-//             const SizedBox(width: 12),
-//             Text(
-//               'أحدث التقييمات',
-//               style: AppTextStyles.bodyLarge.copyWith(
-//                 color: AppTheme.textWhite,
-//                 fontWeight: FontWeight.w600,
-//               ),
-//             ),
-//           ],
-//         ),
-//         const SizedBox(height: 16),
-//         ...recentReviews.map((review) => _buildElegantReviewCard(
-//               userName: review['userName'] as String,
-//               rating: review['rating'] as double,
-//               date: review['date'] as String,
-//               comment: review['comment'] as String,
-//               avatar: review['avatar'] as String,
-//               avatarColor: review['avatarColor'] as Color,
-//             )),
-//       ],
-//     );
-//   }
-
-//   Widget _buildElegantReviewCard({
-//     required String userName,
-//     required double rating,
-//     required String date,
-//     required String comment,
-//     required String avatar,
-//     required Color avatarColor,
-//   }) {
-//     return Container(
-//       margin: const EdgeInsets.only(bottom: 12),
-//       padding: const EdgeInsets.all(16),
-//       decoration: BoxDecoration(
-//         gradient: AppTheme.glassGradient,
-//         borderRadius: BorderRadius.circular(16),
-//         border: Border.all(
-//           color: AppTheme.darkBorder.withOpacity(0.1),
-//           width: 1,
-//         ),
-//       ),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Row(
-//             children: [
-//               Container(
-//                 width: 42,
-//                 height: 42,
-//                 decoration: BoxDecoration(
-//                   gradient: LinearGradient(
-//                     colors: [
-//                       avatarColor.withOpacity(0.2),
-//                       avatarColor.withOpacity(0.1),
-//                     ],
-//                   ),
-//                   shape: BoxShape.circle,
-//                   border: Border.all(
-//                     color: avatarColor.withOpacity(0.3),
-//                     width: 1,
-//                   ),
-//                 ),
-//                 child: Center(
-//                   child: Text(
-//                     avatar,
-//                     style: AppTextStyles.bodyLarge.copyWith(
-//                       color: avatarColor,
-//                       fontWeight: FontWeight.w700,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//               const SizedBox(width: 12),
-//               Expanded(
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Text(
-//                       userName,
-//                       style: AppTextStyles.bodyMedium.copyWith(
-//                         color: AppTheme.textWhite,
-//                         fontWeight: FontWeight.w600,
-//                       ),
-//                     ),
-//                     Text(
-//                       date,
-//                       style: AppTextStyles.caption.copyWith(
-//                         color: AppTheme.textMuted,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               Container(
-//                 padding: const EdgeInsets.symmetric(
-//                   horizontal: 10,
-//                   vertical: 5,
-//                 ),
-//                 decoration: BoxDecoration(
-//                   gradient: LinearGradient(
-//                     colors: [
-//                       _getRatingColor(rating).withOpacity(0.15),
-//                       _getRatingColor(rating).withOpacity(0.08),
-//                     ],
-//                   ),
-//                   borderRadius: BorderRadius.circular(10),
-//                   border: Border.all(
-//                     color: _getRatingColor(rating).withOpacity(0.3),
-//                     width: 0.5,
-//                   ),
-//                 ),
-//                 child: Row(
-//                   mainAxisSize: MainAxisSize.min,
-//                   children: [
-//                     Icon(
-//                       Icons.star_rounded,
-//                       size: 14,
-//                       color: _getRatingColor(rating),
-//                     ),
-//                     const SizedBox(width: 4),
-//                     Text(
-//                       rating.toStringAsFixed(1),
-//                       style: AppTextStyles.caption.copyWith(
-//                         color: _getRatingColor(rating),
-//                         fontWeight: FontWeight.w700,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ],
-//           ),
-//           const SizedBox(height: 12),
-//           Text(
-//             comment,
-//             style: AppTextStyles.bodySmall.copyWith(
-//               color: AppTheme.textLight,
-//               height: 1.6,
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildViewAllButton() {
-//     return Center(
-//       child: Container(
-//         decoration: BoxDecoration(
-//           gradient: AppTheme.primaryGradient,
-//           borderRadius: BorderRadius.circular(14),
-//           boxShadow: [
-//             BoxShadow(
-//               color: AppTheme.primaryBlue.withOpacity(0.2),
-//               blurRadius: 12,
-//               offset: const Offset(0, 4),
-//             ),
-//           ],
-//         ),
-//         child: Material(
-//           color: Colors.transparent,
-//           borderRadius: BorderRadius.circular(14),
-//           child: InkWell(
-//             onTap: widget.onViewAll,
-//             borderRadius: BorderRadius.circular(14),
-//             child: Padding(
-//               padding: const EdgeInsets.symmetric(
-//                 horizontal: 24,
-//                 vertical: 14,
-//               ),
-//               child: Row(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: [
-//                   Text(
-//                     'عرض جميع التقييمات',
-//                     style: AppTextStyles.buttonMedium.copyWith(
-//                       color: Colors.white,
-//                       fontWeight: FontWeight.w600,
-//                     ),
-//                   ),
-//                   const SizedBox(width: 8),
-//                   Container(
-//                     padding: const EdgeInsets.symmetric(
-//                       horizontal: 8,
-//                       vertical: 4,
-//                     ),
-//                     decoration: BoxDecoration(
-//                       color: Colors.white.withOpacity(0.15),
-//                       borderRadius: BorderRadius.circular(8),
-//                     ),
-//                     child: Text(
-//                       widget.reviewsCount.toString(),
-//                       style: AppTextStyles.caption.copyWith(
-//                         color: Colors.white,
-//                         fontWeight: FontWeight.w700,
-//                       ),
-//                     ),
-//                   ),
-//                   const SizedBox(width: 8),
-//                   const Icon(
-//                     Icons.arrow_forward_rounded,
-//                     size: 16,
-//                     color: Colors.white,
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Color _getRatingColor(double rating) {
-//     if (rating >= 4.5) return AppTheme.success;
-//     if (rating >= 3.5) return AppTheme.warning;
-//     if (rating >= 2.5) return AppTheme.info;
-//     return AppTheme.error;
-//   }
-// }

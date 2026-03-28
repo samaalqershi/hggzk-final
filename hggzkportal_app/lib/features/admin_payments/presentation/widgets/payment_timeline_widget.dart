@@ -1,22 +1,19 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:ui';
 import '../../domain/entities/payment_details.dart';
 import '../../domain/entities/refund.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../../../../core/theme/app_text_styles.dart';
-import '../../../../../../core/theme/app_dimensions.dart';
 
 class PaymentTimelineWidget extends StatefulWidget {
+  /// العربية: يخزن القيمة `activities`.
   final List<PaymentActivity> activities;
   final List<Refund> refunds;
-
   const PaymentTimelineWidget({
     super.key,
     required this.activities,
     required this.refunds,
   });
-
   @override
   State<PaymentTimelineWidget> createState() => _PaymentTimelineWidgetState();
 }
@@ -27,7 +24,6 @@ class _PaymentTimelineWidgetState extends State<PaymentTimelineWidget>
   late List<Animation<double>> _fadeAnimations;
   late List<Animation<Offset>> _slideAnimations;
   bool _isExpanded = true;
-
   @override
   void initState() {
     super.initState();
@@ -507,13 +503,13 @@ class _PaymentTimelineWidgetState extends State<PaymentTimelineWidget>
 }
 
 class TimelineItem {
+  /// العربية: يخزن القيمة `type`.
   final TimelineItemType type;
   final String title;
   final String description;
   final DateTime timestamp;
   final String? userName;
   final dynamic data;
-
   TimelineItem({
     required this.type,
     required this.title,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 /// 🎨 Service Icons Utility
 class ServiceIcons {
+  /// العربية: ينشئ مثيلًا جديدًا من `ServiceIcons._`.
   ServiceIcons._();
 
   /// Service Icon Model
@@ -55,7 +56,7 @@ class ServiceIcons {
       icon: Icons.plumbing,
       category: 'تنظيف',
     ),
-    
+
     // خدمات الطعام والضيافة
     ServiceIconData(
       name: 'room_service',
@@ -141,7 +142,7 @@ class ServiceIcons {
       icon: Icons.fastfood,
       category: 'ضيافة',
     ),
-    
+
     // خدمات النقل والمواصلات
     ServiceIconData(
       name: 'airport_shuttle',
@@ -215,7 +216,7 @@ class ServiceIcons {
       icon: Icons.local_parking,
       category: 'نقل',
     ),
-    
+
     // خدمات الاتصالات والإنترنت
     ServiceIconData(
       name: 'wifi',
@@ -289,7 +290,7 @@ class ServiceIcons {
       icon: Icons.fax,
       category: 'اتصالات',
     ),
-    
+
     // خدمات الترفيه والاستجمام
     ServiceIconData(
       name: 'spa',
@@ -375,7 +376,7 @@ class ServiceIcons {
       icon: Icons.celebration,
       category: 'ترفيه',
     ),
-    
+
     // خدمات الأعمال
     ServiceIconData(
       name: 'business_center',
@@ -443,7 +444,7 @@ class ServiceIcons {
       icon: Icons.laptop,
       category: 'أعمال',
     ),
-    
+
     // خدمات الصحة والعناية
     ServiceIconData(
       name: 'medical_services',
@@ -511,7 +512,7 @@ class ServiceIcons {
       icon: Icons.self_improvement,
       category: 'صحة',
     ),
-    
+
     // خدمات التسوق
     ServiceIconData(
       name: 'shopping_cart',
@@ -573,7 +574,7 @@ class ServiceIcons {
       icon: Icons.card_giftcard,
       category: 'تسوق',
     ),
-    
+
     // خدمات الأطفال والعائلة
     ServiceIconData(
       name: 'child_care',
@@ -623,7 +624,7 @@ class ServiceIcons {
       icon: Icons.pregnant_woman,
       category: 'عائلة',
     ),
-    
+
     // خدمات الحيوانات الأليفة
     ServiceIconData(
       name: 'pets',
@@ -631,7 +632,7 @@ class ServiceIcons {
       icon: Icons.pets,
       category: 'حيوانات',
     ),
-    
+
     // خدمات الأمان
     ServiceIconData(
       name: 'security',
@@ -681,7 +682,7 @@ class ServiceIcons {
       icon: Icons.camera_alt,
       category: 'أمان',
     ),
-    
+
     // خدمات مالية
     ServiceIconData(
       name: 'local_atm',
@@ -725,7 +726,7 @@ class ServiceIcons {
       icon: Icons.savings,
       category: 'مالية',
     ),
-    
+
     // خدمات أخرى
     ServiceIconData(
       name: 'handshake',
@@ -804,18 +805,18 @@ class ServiceIcons {
     final lowerQuery = query.toLowerCase();
     return icons.where((icon) {
       return icon.name.toLowerCase().contains(lowerQuery) ||
-             icon.label.toLowerCase().contains(lowerQuery);
+          icon.label.toLowerCase().contains(lowerQuery);
     }).toList();
   }
 }
 
 /// Service Icon Data Model
 class ServiceIconData {
+  /// العربية: يخزن القيمة `name`.
   final String name;
   final String label;
   final IconData icon;
   final String category;
-
   const ServiceIconData({
     required this.name,
     required this.label,

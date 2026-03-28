@@ -3,11 +3,10 @@ import 'package:hggzkportal/features/admin_notifications/domain/repositories/adm
 import 'package:hggzkportal/features/admin_notifications/domain/entities/admin_notification.dart';
 import '../../../../../core/error/failures.dart';
 import '../../../../../core/models/paginated_result.dart';
-
 class GetUserAdminNotificationsUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final AdminNotificationsRepository repository;
   GetUserAdminNotificationsUseCase(this.repository);
-
   Future<Either<Failure, PaginatedResult<AdminNotificationEntity>>> call({
     required String userId,
     int page = 1,

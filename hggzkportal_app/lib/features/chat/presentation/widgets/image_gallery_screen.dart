@@ -9,15 +9,39 @@ import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/message.dart';
 import 'reaction_picker_widget.dart';
 
+/// يعرّف الكلاس `ImageGalleryScreen`.
+/// Describes the `ImageGalleryScreen` class.
 class ImageGalleryScreen extends StatefulWidget {
+  /// Holds the `message` value.
+  /// العربية: يخزن القيمة `message`.
   final Message message;
+
+  /// يخزن العضو `isMe`.
+  /// Holds the `isMe` member.
   final bool isMe;
+
+  /// يخزن العضو `onReply`.
+  /// Holds the `onReply` member.
   final VoidCallback? onReply;
+
+  /// يخزن العضو `onEdit`.
+  /// Holds the `onEdit` member.
   final VoidCallback? onEdit;
+
+  /// يخزن العضو `onDelete`.
+  /// Holds the `onDelete` member.
   final VoidCallback? onDelete;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(String)? onReaction;
+
+  /// يخزن العضو `initialIndex`.
+  /// Holds the `initialIndex` member.
   final int initialIndex;
 
+  /// ينشئ مثيلاً من `ImageGalleryScreen`.
+  /// Builds an instance of `ImageGalleryScreen`.
   const ImageGalleryScreen({
     super.key,
     required this.message,
@@ -29,20 +53,42 @@ class ImageGalleryScreen extends StatefulWidget {
     this.initialIndex = 0,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<ImageGalleryScreen> createState() => _ImageGalleryScreenState();
 }
 
+/// يعرّف الكلاس `_ImageGalleryScreenState`.
+/// Describes the `_ImageGalleryScreenState` class.
 class _ImageGalleryScreenState extends State<ImageGalleryScreen>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_pageController`.
+  /// Holds the `_pageController` member.
   late PageController _pageController;
+
+  /// يخزن العضو `_controlsAnimationController`.
+  /// Holds the `_controlsAnimationController` member.
   late AnimationController _controlsAnimationController;
+
+  /// يخزن العضو `_controlsAnimation`.
+  /// Holds the `_controlsAnimation` member.
   late Animation<double> _controlsAnimation;
 
+  /// يخزن العضو `_currentIndex`.
+  /// Holds the `_currentIndex` member.
   int _currentIndex = 0;
+
+  /// يخزن العضو `_showControls`.
+  /// Holds the `_showControls` member.
   bool _showControls = true;
+
+  /// يخزن العضو `_showReactions`.
+  /// Holds the `_showReactions` member.
   bool _showReactions = false;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -65,6 +111,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen>
     _controlsAnimationController.forward();
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _pageController.dispose();
@@ -72,6 +120,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen>
     super.dispose();
   }
 
+  /// ينفذ العملية `_toggleControls`.
+  /// Runs the `_toggleControls` operation.
   void _toggleControls() {
     setState(() {
       _showControls = !_showControls;
@@ -83,6 +133,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen>
     });
   }
 
+  /// ينفذ العملية `_showOptions`.
+  /// Runs the `_showOptions` operation.
   void _showOptions() {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
@@ -123,6 +175,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen>
     );
   }
 
+  /// ينفذ العملية `_saveCurrentImage`.
+  /// Runs the `_saveCurrentImage` operation.
   void _saveCurrentImage() {
     // TODO: Implement save to gallery
     HapticFeedback.mediumImpact();
@@ -139,11 +193,15 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen>
     );
   }
 
+  /// ينفذ العملية `_shareCurrentImage`.
+  /// Runs the `_shareCurrentImage` operation.
   void _shareCurrentImage() {
     // TODO: Implement share image
     HapticFeedback.mediumImpact();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     final images = widget.message.attachments.where((a) => a.isImage).toList();
@@ -235,6 +293,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen>
     );
   }
 
+  /// ينفذ العملية `_buildTopBar`.
+  /// Runs the `_buildTopBar` operation.
   Widget _buildTopBar(int imageCount) {
     return Positioned(
       top: 0,
@@ -327,6 +387,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen>
     );
   }
 
+  /// ينفذ العملية `_buildBottomBar`.
+  /// Runs the `_buildBottomBar` operation.
   Widget _buildBottomBar() {
     return Positioned(
       bottom: 0,
@@ -408,6 +470,8 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen>
     );
   }
 
+  /// ينفذ العملية `_buildActionButton`.
+  /// Runs the `_buildActionButton` operation.
   Widget _buildActionButton({
     required IconData icon,
     required String label,
@@ -456,16 +520,43 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen>
   }
 }
 
+/// يعرّف الكلاس `_ImageOptionsSheet`.
+/// Describes the `_ImageOptionsSheet` class.
 class _ImageOptionsSheet extends StatelessWidget {
+  /// Holds the `message` value.
+  /// العربية: يخزن القيمة `message`.
   final Message message;
+
+  /// يخزن العضو `isMe`.
+  /// Holds the `isMe` member.
   final bool isMe;
+
+  /// يخزن العضو `currentIndex`.
+  /// Holds the `currentIndex` member.
   final int currentIndex;
+
+  /// يخزن العضو `onReply`.
+  /// Holds the `onReply` member.
   final VoidCallback? onReply;
+
+  /// يخزن العضو `onEdit`.
+  /// Holds the `onEdit` member.
   final VoidCallback? onEdit;
+
+  /// يخزن العضو `onDelete`.
+  /// Holds the `onDelete` member.
   final VoidCallback? onDelete;
+
+  /// يخزن العضو `onSaveImage`.
+  /// Holds the `onSaveImage` member.
   final VoidCallback? onSaveImage;
+
+  /// يخزن العضو `onShareImage`.
+  /// Holds the `onShareImage` member.
   final VoidCallback? onShareImage;
 
+  /// ينشئ مثيلاً من `_ImageOptionsSheet`.
+  /// Builds an instance of `_ImageOptionsSheet`.
   const _ImageOptionsSheet({
     required this.message,
     required this.isMe,
@@ -477,6 +568,8 @@ class _ImageOptionsSheet extends StatelessWidget {
     this.onShareImage,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -569,6 +662,8 @@ class _ImageOptionsSheet extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildOption`.
+  /// Runs the `_buildOption` operation.
   Widget _buildOption({
     required IconData icon,
     required String title,

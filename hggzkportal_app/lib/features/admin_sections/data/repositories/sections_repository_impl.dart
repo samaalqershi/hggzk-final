@@ -11,14 +11,14 @@ import '../../domain/repositories/sections_repository.dart';
 import '../datasources/sections_remote_datasource.dart';
 import '../datasources/sections_local_datasource.dart';
 import '../models/section_model.dart';
-import '../models/property_in_section_model.dart';
-import '../models/unit_in_section_model.dart';
 import '../../../../core/enums/section_target.dart';
 import '../../../../core/enums/section_type.dart';
 import '../../../../core/enums/section_content_type.dart';
 
 class SectionsRepositoryImpl implements SectionsRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final SectionsRemoteDataSource remoteDataSource;
+
   final SectionsLocalDataSource localDataSource;
 
   SectionsRepositoryImpl({
@@ -101,8 +101,8 @@ class SectionsRepositoryImpl implements SectionsRepository {
   }
 
   @override
-  Future<Either<Failure, domain.Section>> createSection(
-      domain.Section section, {String? tempKey}) async {
+  Future<Either<Failure, domain.Section>> createSection(domain.Section section,
+      {String? tempKey}) async {
     try {
       final model = await remoteDataSource.createSection(SectionModel(
         tempKey: (tempKey != null && tempKey.isNotEmpty) ? tempKey : null,

@@ -5,17 +5,29 @@ import '../constants/api_constants.dart';
 import 'api_interceptors.dart';
 import 'api_exceptions.dart';
 
+/// طبقة وصول شبكة موحدة تضبط Dio وتطبّق السياسات المشتركة قبل أي طلب.
+/// Central network gateway that configures Dio and applies shared request policy.
 class ApiClient {
+  /// نسخة Dio التي تعمل عليها الإعدادات والـ interceptors.
+  /// Backing Dio instance configured by this client.
   late final Dio _dio;
+
+  /// يمنع إعادة تهيئة المنطقة الزمنية أكثر من مرة خلال عمر التطبيق.
+  /// Prevents repeated timezone initialization during the app lifetime.
   static bool _timezoneInitialized = false;
 
+  /// يثبت نسخة Dio الواحدة ويطبق عليها إعدادات الشبكة المشتركة
+  /// فور إنشاء العميل.
+  /// Attaches the shared Dio instance and applies the app-wide
+  /// networking policy immediately.
   ApiClient(Dio dio) {
     _dio = dio;
     _setupDioClient();
     _initializeTimezone(); // إضافة
   }
 
-  // تهيئة timezone مرة واحدة عند بدء التطبيق
+  /// يحمّل معلومات المنطقة الزمنية مرة واحدة كي تُستخدم في جميع الطلبات لاحقًا.
+  /// Loads timezone metadata once so subsequent requests can reuse it.
   Future<void> _initializeTimezone() async {
     if (_timezoneInitialized) return;
 
@@ -28,6 +40,8 @@ class ApiClient {
     }
   }
 
+  /// يضبط عناوين الطلبات الافتراضية والاعتراضات التي تحفظ سياق الجلسة.
+  /// Configures default headers and interceptors that preserve session context.
   void _setupDioClient() {
     final normalizedBaseUrl = _normalizeBaseUrl(ApiConstants.baseUrl);
     _dio.options = BaseOptions(
@@ -58,6 +72,10 @@ class ApiClient {
     ]);
   }
 
+  /// يطبع العنوان الأساسي قبل استخدامه حتى لا تتضاعف الشرطات عند
+  /// بناء المسارات النسبية.
+  /// Normalizes the base URL before use so relative paths do not end
+  /// up with duplicated slashes.
   String _normalizeBaseUrl(String baseUrl) {
     var v = baseUrl.trim();
     // Remove trailing slash to avoid double slashes when passing relative paths
@@ -67,6 +85,8 @@ class ApiClient {
     return v;
   }
 
+  /// يجري طلب `GET` مع إعادة محاولة محدودة للأخطاء المؤقتة فقط.
+  /// Performs a GET request with bounded retries for transient failures only.
   Future<Response> get(
     String path, {
     Map<String, dynamic>? queryParameters,
@@ -130,6 +150,8 @@ class ApiClient {
   //     throw ApiException.fromDioError(e);
   //   }
   // }
+  /// يرسل طلب `POST` ويحوّل أخطاء Dio إلى استثناءات التطبيق الموحدة.
+  /// Sends a POST request and converts Dio failures into the app's normalized exception.
   Future<Response> post(
     String path, {
     dynamic data,
@@ -209,6 +231,10 @@ class ApiClient {
     }
   }
 
+  /// يرسل طلب `PUT` مع نفس آلية تحويل الأخطاء المستخدمة في بقية
+  /// العمليات.
+  /// Sends a `PUT` request using the same error translation strategy
+  /// as the rest of the client.
   Future<Response> put(
     String path, {
     dynamic data,
@@ -234,6 +260,8 @@ class ApiClient {
     }
   }
 
+  /// Processes the `patch` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `patch`.
   Future<Response> patch(
     String path, {
     dynamic data,
@@ -259,6 +287,8 @@ class ApiClient {
     }
   }
 
+  /// Deletes the required operation for `delete`.
+  /// العربية: يحذف العملية المطلوبة لـ `delete`.
   Future<Response> delete(
     String path, {
     dynamic data,
@@ -280,6 +310,8 @@ class ApiClient {
     }
   }
 
+  /// Processes the `upload` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `upload`.
   Future<Response> upload(
     String path, {
     required FormData formData,
@@ -306,14 +338,20 @@ class ApiClient {
     }
   }
 
+  /// Updates the base url.
+  /// العربية: يحدّث base url.
   void updateBaseUrl(String baseUrl) {
     _dio.options.baseUrl = _normalizeBaseUrl(baseUrl);
   }
 
+  /// Updates the headers.
+  /// العربية: يحدّث headers.
   void updateHeaders(Map<String, dynamic> headers) {
     _dio.options.headers.addAll(headers);
   }
 
+  /// Processes the `clearHeaders` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `clearHeaders`.
   void clearHeaders() {
     _dio.options.headers.clear();
   }

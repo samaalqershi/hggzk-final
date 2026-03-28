@@ -5,7 +5,7 @@ import '../../../../../core/usecases/usecase.dart';
 import '../../entities/unit_type_field.dart';
 import '../../repositories/unit_type_fields_repository.dart';
 
-class GetFieldsByUnitTypeUseCase 
+class GetFieldsByUnitTypeUseCase
     implements UseCase<List<UnitTypeField>, GetFieldsByUnitTypeParams> {
   final UnitTypeFieldsRepository repository;
 
@@ -28,12 +28,19 @@ class GetFieldsByUnitTypeUseCase
 }
 
 class GetFieldsByUnitTypeParams extends Equatable {
+  /// العربية: يخزن القيمة `unitTypeId`.
   final String unitTypeId;
+
   final String? searchTerm;
+
   final bool? isActive;
+
   final bool? isSearchable;
+
   final bool? isPublic;
+
   final bool? isForUnits;
+
   final String? category;
 
   const GetFieldsByUnitTypeParams({

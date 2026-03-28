@@ -4,10 +4,18 @@ import '../../domain/entities/notification_channel.dart';
 import '../../domain/repositories/notification_channels_repository.dart';
 import '../datasources/notification_channels_remote_datasource.dart';
 
-class NotificationChannelsRepositoryImpl implements INotificationChannelsRepository {
+/// البعيد مع إبقاء أخطاء الشبكة معزولة داخل طبقة المستودع.
+/// operations against the remote data source while keeping network failures
+/// isolated inside the repository layer.
+class NotificationChannelsRepositoryImpl
+    implements INotificationChannelsRepository {
   final NotificationChannelsRemoteDataSource remote;
+
+  /// the real requests.
   NotificationChannelsRepositoryImpl({required this.remote});
 
+  /// تتسرب تفاصيل النقل إلى المجال.
+  /// objects so transport details do not leak into the domain.
   @override
   Future<Either<Failure, List<NotificationChannel>>> getChannels({
     String? search,
@@ -40,6 +48,8 @@ class NotificationChannelsRepositoryImpl implements INotificationChannelsReposit
     }
   }
 
+  /// بعد حفظها.
+  /// the final saved result.
   @override
   Future<Either<Failure, NotificationChannel>> createChannel({
     required String name,
@@ -64,6 +74,8 @@ class NotificationChannelsRepositoryImpl implements INotificationChannelsReposit
     }
   }
 
+  /// التحويل.
+  /// converted copy.
   @override
   Future<Either<Failure, NotificationChannel>> updateChannel(
     String id, {
@@ -88,6 +100,8 @@ class NotificationChannelsRepositoryImpl implements INotificationChannelsReposit
     }
   }
 
+  /// من ذلك.
+  /// the UI does not need more than that.
   @override
   Future<Either<Failure, bool>> deleteChannel(String id) async {
     try {
@@ -98,21 +112,26 @@ class NotificationChannelsRepositoryImpl implements INotificationChannelsReposit
     }
   }
 
+  /// النشطين فقط.
+  /// active-only option.
   @override
   Future<Either<Failure, List<UserChannelSubscription>>> getChannelSubscribers(
     String channelId, {
     bool activeOnly = true,
   }) async {
     try {
-      final items = await remote.getChannelSubscribers(channelId, activeOnly: activeOnly);
+      final items =
+          await remote.getChannelSubscribers(channelId, activeOnly: activeOnly);
       return Right(items);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
   }
 
+  /// added.
   @override
-  Future<Either<Failure, int>> addSubscribers(String channelId, List<String> userIds) async {
+  Future<Either<Failure, int>> addSubscribers(
+      String channelId, List<String> userIds) async {
     try {
       final count = await remote.addSubscribers(channelId, userIds);
       return Right(count);
@@ -122,7 +141,8 @@ class NotificationChannelsRepositoryImpl implements INotificationChannelsReposit
   }
 
   @override
-  Future<Either<Failure, int>> removeSubscribers(String channelId, List<String> userIds) async {
+  Future<Either<Failure, int>> removeSubscribers(
+      String channelId, List<String> userIds) async {
     try {
       final count = await remote.removeSubscribers(channelId, userIds);
       return Right(count);
@@ -131,6 +151,8 @@ class NotificationChannelsRepositoryImpl implements INotificationChannelsReposit
     }
   }
 
+  /// النشاط.
+  /// the activity log.
   @override
   Future<Either<Failure, ChannelNotificationHistory>> sendChannelNotification(
     String channelId, {
@@ -160,13 +182,19 @@ class NotificationChannelsRepositoryImpl implements INotificationChannelsReposit
     int pageSize = 20,
   }) async {
     try {
-      final items = await remote.getChannelHistory(channelId, page: page, pageSize: pageSize);
+      final items = await remote.getChannelHistory(
+        channelId,
+        page: page,
+        pageSize: pageSize,
+      );
       return Right(items);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
   }
 
+  /// بطاقات الإحصاء.
+  /// statistics cards.
   @override
   Future<Either<Failure, ChannelStatistics>> getStatistics() async {
     try {
@@ -177,8 +205,11 @@ class NotificationChannelsRepositoryImpl implements INotificationChannelsReposit
     }
   }
 
+  /// أرقام مخصصة لها.
+  /// channel-specific numbers.
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getChannelStatistics(String channelId) async {
+  Future<Either<Failure, Map<String, dynamic>>> getChannelStatistics(
+      String channelId) async {
     try {
       final stats = await remote.getChannelStatistics(channelId);
       return Right(stats);
@@ -187,8 +218,11 @@ class NotificationChannelsRepositoryImpl implements INotificationChannelsReposit
     }
   }
 
+  /// متطابقة مع الواقع.
+  /// screen stays aligned with reality.
   @override
-  Future<Either<Failure, List<NotificationChannel>>> getUserChannels(String userId) async {
+  Future<Either<Failure, List<NotificationChannel>>> getUserChannels(
+      String userId) async {
     try {
       final items = await remote.getUserChannels(userId);
       return Right(items);
@@ -197,6 +231,8 @@ class NotificationChannelsRepositoryImpl implements INotificationChannelsReposit
     }
   }
 
+  /// الاشتراك على أكثر من طلب.
+  /// subscription state does not get split across multiple requests.
   @override
   Future<Either<Failure, bool>> updateUserSubscriptions(
     String userId, {

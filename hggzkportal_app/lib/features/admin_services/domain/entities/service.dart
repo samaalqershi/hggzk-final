@@ -1,8 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'money.dart';
 import 'pricing_model.dart';
-
-/// 🛎️ Entity للخدمة
 class Service extends Equatable {
   final String id;
   final String propertyId;
@@ -12,7 +10,6 @@ class Service extends Equatable {
   final PricingModel pricingModel;
   final String icon;
   final String? description;
-
   const Service({
     required this.id,
     required this.propertyId,
@@ -23,7 +20,6 @@ class Service extends Equatable {
     required this.icon,
     this.description,
   });
-
   @override
   List<Object?> get props => [
         id,

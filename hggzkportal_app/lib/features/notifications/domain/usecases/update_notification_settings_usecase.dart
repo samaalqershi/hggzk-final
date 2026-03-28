@@ -4,13 +4,15 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/notification_repository.dart';
 
-class UpdateNotificationSettingsUseCase implements UseCase<void, UpdateNotificationSettingsParams> {
+class UpdateNotificationSettingsUseCase
+    implements UseCase<void, UpdateNotificationSettingsParams> {
   final NotificationRepository repository;
 
   UpdateNotificationSettingsUseCase(this.repository);
 
   @override
-  Future<Either<Failure, void>> call(UpdateNotificationSettingsParams params) async {
+  Future<Either<Failure, void>> call(
+      UpdateNotificationSettingsParams params) async {
     return await repository.updateNotificationSettings(params.settings);
   }
 }

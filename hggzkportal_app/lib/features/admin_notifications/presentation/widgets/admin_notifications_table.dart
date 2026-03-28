@@ -8,13 +8,12 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/admin_notification.dart';
-
 class AdminNotificationsTable extends StatefulWidget {
+  /// العربية: يخزن القيمة `notifications`.
   final List<AdminNotificationEntity> notifications;
   final Function(String) onNotificationTap;
   final Function(String)? onResend;
   final Function(String)? onDelete;
-
   const AdminNotificationsTable({
     super.key,
     required this.notifications,
@@ -22,19 +21,15 @@ class AdminNotificationsTable extends StatefulWidget {
     this.onResend,
     this.onDelete,
   });
-
   @override
   State<AdminNotificationsTable> createState() =>
       _AdminNotificationsTableState();
 }
-
 class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
-  final String _sortColumn = 'date';
-  final bool _sortAscending = false;
+  /// العربية: يخزن القيمة `hoveredIndex`.
   int? _hoveredIndex;
   Set<String> _selectedIds = {};
   bool _selectAll = false;
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -52,7 +47,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       },
     );
   }
-
   Widget _buildMobileView() {
     return AnimationLimiter(
       child: Column(
@@ -71,7 +65,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       ),
     );
   }
-
   Widget _buildMobileCard(AdminNotificationEntity notification, int index) {
     final isSelected = _selectedIds.contains(notification.id);
 
@@ -212,7 +205,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       ),
     );
   }
-
   Widget _buildCompactView() {
     return Container(
       decoration: BoxDecoration(
@@ -239,7 +231,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       ),
     );
   }
-
   Widget _buildDesktopView(BoxConstraints constraints) {
     return Container(
       decoration: BoxDecoration(
@@ -272,7 +263,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       ),
     );
   }
-
   Widget _buildTableHeader({required bool isCompact}) {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -315,7 +305,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       ),
     );
   }
-
   Widget _buildHeaderCell(String text, double width,
       {bool isExpanded = false}) {
     return isExpanded
@@ -339,7 +328,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
             ),
           );
   }
-
   Widget _buildTableRow(AdminNotificationEntity notification, int index) {
     final isSelected = _selectedIds.contains(notification.id);
     final isHovered = _hoveredIndex == index;
@@ -404,7 +392,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       ),
     );
   }
-
   Widget _buildCompactRow(AdminNotificationEntity notification, int index) {
     final isSelected = _selectedIds.contains(notification.id);
 
@@ -472,7 +459,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       ),
     );
   }
-
   Widget _buildCell(String text, double width) {
     return SizedBox(
       width: width,
@@ -486,9 +472,9 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       ),
     );
   }
-
   Widget _buildRecipientInline(AdminNotificationEntity n, double width) {
-    final name = n.recipientName?.isNotEmpty == true ? n.recipientName! : n.recipientId;
+    final name =
+        n.recipientName?.isNotEmpty == true ? n.recipientName! : n.recipientId;
     final email = n.recipientEmail;
     final phone = n.recipientPhone;
     final subtitle = [
@@ -523,9 +509,9 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       ),
     );
   }
-
   Widget _buildRecipientSummary(AdminNotificationEntity n) {
-    final name = n.recipientName?.isNotEmpty == true ? n.recipientName! : n.recipientId;
+    final name =
+        n.recipientName?.isNotEmpty == true ? n.recipientName! : n.recipientId;
     final email = n.recipientEmail;
     final phone = n.recipientPhone;
     final lines = <String>[];
@@ -541,9 +527,9 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       overflow: TextOverflow.ellipsis,
     );
   }
-
   Widget _buildRecipientBlock(AdminNotificationEntity n) {
-    final name = n.recipientName?.isNotEmpty == true ? n.recipientName! : n.recipientId;
+    final name =
+        n.recipientName?.isNotEmpty == true ? n.recipientName! : n.recipientId;
     final email = n.recipientEmail;
     final phone = n.recipientPhone;
     return Column(
@@ -618,7 +604,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       ],
     );
   }
-
   Widget _buildTypeIcon(String type) {
     IconData icon;
     Color color;
@@ -659,7 +644,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       ),
     );
   }
-
   Widget _buildStatusBadge(String status) {
     Color statusColor;
     String statusText;
@@ -726,7 +710,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       ),
     );
   }
-
   Widget _buildPriorityBadge(String priority) {
     Color priorityColor;
     String priorityText;
@@ -779,7 +762,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       ),
     );
   }
-
   Widget _buildActionButtons(String notificationId) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -803,7 +785,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       ],
     );
   }
-
   Widget _buildActionIcon({
     required IconData icon,
     required VoidCallback onTap,
@@ -838,7 +819,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       ),
     );
   }
-
   void _toggleSelection(String id) {
     HapticFeedback.lightImpact();
     setState(() {
@@ -849,7 +829,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       }
     });
   }
-
   void _toggleSelectAll(bool value) {
     HapticFeedback.lightImpact();
     setState(() {
@@ -861,7 +840,6 @@ class _AdminNotificationsTableState extends State<AdminNotificationsTable> {
       }
     });
   }
-
   String _formatDateTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);

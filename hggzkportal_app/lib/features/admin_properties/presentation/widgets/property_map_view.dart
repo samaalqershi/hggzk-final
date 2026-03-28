@@ -10,26 +10,25 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class PropertyMapView extends StatefulWidget {
+  /// العربية: يعالج `Function`.
   final Function(LatLng)? onLocationSelected;
   final LatLng? initialLocation;
   final bool isReadOnly;
-
   const PropertyMapView({
     super.key,
     this.onLocationSelected,
     this.initialLocation,
     this.isReadOnly = false,
   });
-
   @override
   State<PropertyMapView> createState() => _PropertyMapViewState();
 }
 
 class _PropertyMapViewState extends State<PropertyMapView> {
+  /// العربية: يخزن القيمة `mapController`.
   GoogleMapController? _mapController;
   LatLng? _selectedLocation;
   Set<Marker> _markers = {};
-
   @override
   void initState() {
     super.initState();

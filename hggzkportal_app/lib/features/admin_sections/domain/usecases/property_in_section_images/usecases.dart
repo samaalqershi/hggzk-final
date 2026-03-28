@@ -8,14 +8,23 @@ import '../../repositories/property_in_section_images_repository.dart';
 
 // Upload PropertyInSection Image
 class UploadPropertyInSectionImageParams {
+  /// العربية: يخزن القيمة `propertyInSectionId`.
   final String? propertyInSectionId;
+
   final String? tempKey;
+
   final String filePath;
+
   final String? category;
+
   final String? alt;
+
   final bool isPrimary;
+
   final int? order;
+
   final List<String>? tags;
+
   final ProgressCallback? onSendProgress;
 
   UploadPropertyInSectionImageParams({
@@ -32,6 +41,7 @@ class UploadPropertyInSectionImageParams {
 }
 
 class UploadPropertyInSectionImageUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final PropertyInSectionImagesRepository repository;
 
   UploadPropertyInSectionImageUseCase(this.repository);
@@ -54,13 +64,16 @@ class UploadPropertyInSectionImageUseCase {
 
 // Get PropertyInSection Images
 class GetPropertyInSectionImagesParams {
+  /// العربية: يخزن القيمة `propertyInSectionId`.
   final String? propertyInSectionId;
+
   final String? tempKey;
 
   GetPropertyInSectionImagesParams({this.propertyInSectionId, this.tempKey});
 }
 
 class GetPropertyInSectionImagesUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final PropertyInSectionImagesRepository repository;
 
   GetPropertyInSectionImagesUseCase(this.repository);
@@ -76,7 +89,9 @@ class GetPropertyInSectionImagesUseCase {
 
 // Update PropertyInSection Image
 class UpdatePropertyInSectionImageParams {
+  /// العربية: يخزن القيمة `imageId`.
   final String imageId;
+
   final Map<String, dynamic> data;
 
   UpdatePropertyInSectionImageParams({
@@ -86,6 +101,7 @@ class UpdatePropertyInSectionImageParams {
 }
 
 class UpdatePropertyInSectionImageUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final PropertyInSectionImagesRepository repository;
 
   UpdatePropertyInSectionImageUseCase(this.repository);
@@ -98,6 +114,7 @@ class UpdatePropertyInSectionImageUseCase {
 
 // Delete PropertyInSection Image
 class DeletePropertyInSectionImageUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final PropertyInSectionImagesRepository repository;
 
   DeletePropertyInSectionImageUseCase(this.repository);
@@ -109,6 +126,7 @@ class DeletePropertyInSectionImageUseCase {
 
 // Delete Multiple PropertyInSection Images
 class DeleteMultiplePropertyInSectionImagesUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final PropertyInSectionImagesRepository repository;
 
   DeleteMultiplePropertyInSectionImagesUseCase(this.repository);
@@ -120,8 +138,11 @@ class DeleteMultiplePropertyInSectionImagesUseCase {
 
 // Reorder PropertyInSection Images
 class ReorderPropertyInSectionImagesParams {
+  /// العربية: يخزن القيمة `propertyInSectionId`.
   final String? propertyInSectionId;
+
   final String? tempKey;
+
   final List<String> imageIds;
 
   ReorderPropertyInSectionImagesParams({
@@ -132,6 +153,7 @@ class ReorderPropertyInSectionImagesParams {
 }
 
 class ReorderPropertyInSectionImagesUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final PropertyInSectionImagesRepository repository;
 
   ReorderPropertyInSectionImagesUseCase(this.repository);
@@ -148,8 +170,11 @@ class ReorderPropertyInSectionImagesUseCase {
 
 // Set Primary PropertyInSection Image
 class SetPrimaryPropertyInSectionImageParams {
+  /// العربية: يخزن القيمة `propertyInSectionId`.
   final String? propertyInSectionId;
+
   final String? tempKey;
+
   final String imageId;
 
   SetPrimaryPropertyInSectionImageParams({
@@ -160,6 +185,7 @@ class SetPrimaryPropertyInSectionImageParams {
 }
 
 class SetPrimaryPropertyInSectionImageUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final PropertyInSectionImagesRepository repository;
 
   SetPrimaryPropertyInSectionImageUseCase(this.repository);
@@ -176,11 +202,17 @@ class SetPrimaryPropertyInSectionImageUseCase {
 
 // Upload Multiple PropertyInSection Images
 class UploadMultiplePropertyInSectionImagesParams {
+  /// العربية: يخزن القيمة `propertyInSectionId`.
   final String? propertyInSectionId;
+
   final String? tempKey;
+
   final List<String> filePaths;
+
   final String? category;
+
   final List<String>? tags;
+
   final void Function(String filePath, int sent, int total)? onProgress;
 
   UploadMultiplePropertyInSectionImagesParams({
@@ -194,6 +226,7 @@ class UploadMultiplePropertyInSectionImagesParams {
 }
 
 class UploadMultiplePropertyInSectionImagesUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final PropertyInSectionImagesRepository repository;
 
   UploadMultiplePropertyInSectionImagesUseCase(this.repository);

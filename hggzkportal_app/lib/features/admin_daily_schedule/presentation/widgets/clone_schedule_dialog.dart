@@ -19,6 +19,7 @@ import '../../domain/usecases/clone_schedule.dart';
 /// - تأثيرات أنيميشن متقدمة
 class CloneScheduleDialog extends StatefulWidget {
   /// معرف الوحدة
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
 
   /// تاريخ البداية المصدر
@@ -71,16 +72,24 @@ class CloneScheduleDialog extends StatefulWidget {
 class _CloneScheduleDialogState extends State<CloneScheduleDialog>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   late Animation<double> _scaleAnimation;
+
   late Animation<double> _fadeAnimation;
 
   DateTime? _sourceStart;
+
   DateTime? _sourceEnd;
+
   late DateTime _targetStart;
+
   int _repeatCount = 1;
+
   String _adjustmentType = 'none'; // none, fixed, percentage
   double _adjustmentValue = 0;
+
   bool _overwrite = false;
+
   bool _isLoading = false;
 
   @override
@@ -91,6 +100,7 @@ class _CloneScheduleDialogState extends State<CloneScheduleDialog>
     _targetStart = widget.initialTargetStart ??
         widget.initialSourceStart ??
         DateTime.now();
+
     _initializeAnimations();
   }
 
@@ -144,15 +154,16 @@ class _CloneScheduleDialogState extends State<CloneScheduleDialog>
                 BoxConstraints(maxHeight: maxH, maxWidth: size.width * 0.95),
             decoration: BoxDecoration(
               gradient: LinearGradient(colors: [
-                AppTheme.darkCard.withOpacity(0.95),
-                AppTheme.darkCard.withOpacity(0.85),
+                AppTheme.darkCard.withValues(alpha: 0.95),
+                AppTheme.darkCard.withValues(alpha: 0.85),
               ]),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                  color: AppTheme.primaryPurple.withOpacity(0.25), width: 1),
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.25),
+                  width: 1),
               boxShadow: [
                 BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.12),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.12),
                     blurRadius: 24,
                     spreadRadius: 4),
               ],
@@ -262,12 +273,12 @@ class _CloneScheduleDialogState extends State<CloneScheduleDialog>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: [
-          AppTheme.primaryPurple.withOpacity(0.1),
-          AppTheme.primaryBlue.withOpacity(0.05),
+          AppTheme.primaryPurple.withValues(alpha: 0.1),
+          AppTheme.primaryBlue.withValues(alpha: 0.05),
         ]),
         border: Border(
             bottom: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3), width: 1)),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3), width: 1)),
       ),
       child: Row(children: [
         Container(
@@ -307,7 +318,8 @@ class _CloneScheduleDialogState extends State<CloneScheduleDialog>
       decoration: BoxDecoration(
           border: Border(
               top: BorderSide(
-                  color: AppTheme.darkBorder.withOpacity(0.3), width: 1))),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
+                  width: 1))),
       child: Row(children: [
         Expanded(
           child: GestureDetector(
@@ -315,10 +327,11 @@ class _CloneScheduleDialogState extends State<CloneScheduleDialog>
             child: Container(
               height: 46,
               decoration: BoxDecoration(
-                color: AppTheme.darkSurface.withOpacity(0.5),
+                color: AppTheme.darkSurface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                    color: AppTheme.darkBorder.withOpacity(0.3), width: 1),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.3),
+                    width: 1),
               ),
               child: Center(
                   child: Text('إلغاء',
@@ -339,7 +352,7 @@ class _CloneScheduleDialogState extends State<CloneScheduleDialog>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -415,12 +428,12 @@ class _CloneScheduleDialogState extends State<CloneScheduleDialog>
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: [
-            AppTheme.darkSurface.withOpacity(0.6),
-            AppTheme.darkSurface.withOpacity(0.4)
+            AppTheme.darkSurface.withValues(alpha: 0.6),
+            AppTheme.darkSurface.withValues(alpha: 0.4)
           ]),
           borderRadius: BorderRadius.circular(12),
-          border:
-              Border.all(color: AppTheme.darkBorder.withOpacity(0.3), width: 1),
+          border: Border.all(
+              color: AppTheme.darkBorder.withValues(alpha: 0.3), width: 1),
         ),
         child: Row(children: [
           Icon(Icons.calendar_today_rounded,
@@ -465,19 +478,19 @@ class _CloneScheduleDialogState extends State<CloneScheduleDialog>
         style: AppTextStyles.bodyMedium.copyWith(color: AppTheme.textWhite),
         decoration: InputDecoration(
           filled: true,
-          fillColor: AppTheme.darkSurface.withOpacity(0.5),
+          fillColor: AppTheme.darkSurface.withValues(alpha: 0.5),
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide:
-                  BorderSide(color: AppTheme.darkBorder.withOpacity(0.3))),
+              borderSide: BorderSide(
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3))),
           enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide:
-                  BorderSide(color: AppTheme.darkBorder.withOpacity(0.3))),
+              borderSide: BorderSide(
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3))),
           focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide:
-                  BorderSide(color: AppTheme.primaryPurple.withOpacity(0.5))),
+              borderSide: BorderSide(
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.5))),
         ),
         onChanged: onChanged,
       ),
@@ -501,19 +514,19 @@ class _CloneScheduleDialogState extends State<CloneScheduleDialog>
         style: AppTextStyles.bodyMedium.copyWith(color: AppTheme.textWhite),
         decoration: InputDecoration(
           filled: true,
-          fillColor: AppTheme.darkSurface.withOpacity(0.5),
+          fillColor: AppTheme.darkSurface.withValues(alpha: 0.5),
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide:
-                  BorderSide(color: AppTheme.darkBorder.withOpacity(0.3))),
+              borderSide: BorderSide(
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3))),
           enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide:
-                  BorderSide(color: AppTheme.darkBorder.withOpacity(0.3))),
+              borderSide: BorderSide(
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3))),
           focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide:
-                  BorderSide(color: AppTheme.primaryPurple.withOpacity(0.5))),
+              borderSide: BorderSide(
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.5))),
         ),
         items: items,
         onChanged: onChanged,
@@ -542,8 +555,7 @@ class _CloneScheduleDialogState extends State<CloneScheduleDialog>
       unitId: widget.unitId,
       sourceStartDate: _sourceStart!,
       sourceEndDate: _sourceEnd!,
-      targetStartDate:
-          _targetStart ?? _sourceStart!.add(const Duration(days: 7)),
+      targetStartDate: _targetStart,
       overwrite: _overwrite,
     );
 

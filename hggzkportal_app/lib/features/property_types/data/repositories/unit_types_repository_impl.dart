@@ -8,7 +8,9 @@ import '../../domain/repositories/unit_types_repository.dart';
 import '../datasources/unit_types_remote_datasource.dart';
 
 class UnitTypesRepositoryImpl implements UnitTypesRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final UnitTypesRemoteDataSource remoteDataSource;
+
   final NetworkInfo networkInfo;
 
   UnitTypesRepositoryImpl({
@@ -17,7 +19,9 @@ class UnitTypesRepositoryImpl implements UnitTypesRepository {
   });
 
   @override
-  Future<Either<Failure, PaginatedResult<UnitType>>> getUnitTypesByPropertyType({
+  Future<Either<Failure, PaginatedResult<UnitType>>>
+
+      getUnitTypesByPropertyType({
     required String propertyTypeId,
     required int pageNumber,
     required int pageSize,

@@ -13,13 +13,11 @@ class PaymentAnalyticsBloc
   final GetRevenueReportUseCase getRevenueReportUseCase;
   final GetPaymentTrendsUseCase getPaymentTrendsUseCase;
   final GetRefundStatisticsUseCase getRefundStatisticsUseCase;
-
   DateTime _currentStartDate =
       DateTime.now().subtract(const Duration(days: 30));
   DateTime _currentEndDate = DateTime.now();
   String? _currentPropertyId;
   AnalyticsPeriod _currentPeriod = AnalyticsPeriod.month;
-
   PaymentAnalyticsBloc({
     required this.getPaymentAnalyticsUseCase,
     required this.getRevenueReportUseCase,
@@ -38,7 +36,6 @@ class PaymentAnalyticsBloc
     on<ChangeChartTypeEvent>(_onChangeChartType);
     on<ToggleMetricEvent>(_onToggleMetric);
   }
-
   Future<void> _onLoadPaymentAnalytics(
     LoadPaymentAnalyticsEvent event,
     Emitter<PaymentAnalyticsState> emit,
@@ -436,8 +433,8 @@ class PaymentAnalyticsBloc
 }
 
 class DateRange {
+  /// العربية: يخزن القيمة `start`.
   final DateTime start;
   final DateTime end;
-
   DateRange({required this.start, required this.end});
 }

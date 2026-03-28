@@ -11,20 +11,36 @@ import 'package:hggzk/core/theme/app_text_styles.dart';
 import 'package:hggzk/core/theme/app_theme.dart';
 import 'package:hggzk/features/ai_assistant/data/models/ai_assistant_models.dart';
 import 'package:hggzk/features/ai_assistant/data/services/ai_assistant_remote_service.dart';
-import 'package:hggzk/injection_container.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
 
+/// Describes the `AiChatPage` page widget.
+/// العربية: يمثل عنصر الصفحة `AiChatPage`.
 class AiChatPage extends StatefulWidget {
+  /// Builds a new `AiChatPage` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `AiChatPage`.
   const AiChatPage({super.key});
 
+  /// Builds the state object for this widget.
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<AiChatPage> createState() => _AiChatPageState();
 }
 
+/// Describes the state for `AiChatPageState`.
+/// العربية: يمثل الحالة الخاصة بـ `AiChatPageState`.
 class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
+  /// Keeps the `headerAnimationController` value.
+  /// العربية: يخزن القيمة `headerAnimationController`.
   late final AnimationController _headerAnimationController;
+
+  /// Keeps the `headerAnimation` value.
+  /// العربية: يخزن القيمة `headerAnimation`.
   late final Animation<double> _headerAnimation;
 
   final ChatMessagesController _controller = ChatMessagesController();
+
+  /// Keeps the `assistantService` value.
+  /// العربية: يخزن القيمة `assistantService`.
   late final AiAssistantRemoteService _assistantService;
 
   final ChatUser _currentUser = const ChatUser(
@@ -37,15 +53,30 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     firstName: 'المساعد الذكي',
   );
 
+  /// Keeps the `messages` value.
+  /// العربية: يخزن القيمة `messages`.
   final List<ChatMessage> _messages = <ChatMessage>[];
   final List<AiAssistantHistoryMessage> _history =
       <AiAssistantHistoryMessage>[];
 
+  /// Indicates whether `isLoading` is enabled.
+  /// العربية: يحدد ما إذا كانت القيمة `isLoading` مفعلة.
   bool _isLoading = true;
+
+  /// Indicates whether `isTyping` is enabled.
+  /// العربية: يحدد ما إذا كانت القيمة `isTyping` مفعلة.
   bool _isTyping = false;
+
+  /// Indicates whether `isResetting` is enabled.
+  /// العربية: يحدد ما إذا كانت القيمة `isResetting` مفعلة.
   bool _isResetting = false;
+
+  /// Keeps the `error` value.
+  /// العربية: يخزن القيمة `error`.
   String? _error;
 
+  /// Initializes the state for this widget.
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -58,6 +89,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     });
   }
 
+  /// Sets the up animations.
+  /// العربية: يضبط up animations.
   void _setupAnimations() {
     _headerAnimationController = AnimationController(
       duration: const Duration(milliseconds: 600),
@@ -70,6 +103,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     _headerAnimationController.forward();
   }
 
+  /// Initializes the chat.
+  /// العربية: يهيئ chat.
   Future<void> _initializeChat() async {
     setState(() {
       _isLoading = true;
@@ -104,6 +139,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     }
   }
 
+  /// Releases the resources used by this instance.
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _headerAnimationController.dispose();
@@ -111,6 +148,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  /// Processes `appendMessage`.
+  /// العربية: يعالج `appendMessage`.
   void _appendMessage(ChatMessage message, {bool addToHistory = true}) {
     _messages.insert(0, message);
     _controller.addMessage(message);
@@ -125,6 +164,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     }
   }
 
+  /// Sends the message.
+  /// العربية: يرسل message.
   Future<void> _sendMessage(ChatMessage message) async {
     if (_isLoading || _isTyping || _isResetting) return;
 
@@ -187,6 +228,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     }
   }
 
+  /// Builds the assistant message.
+  /// العربية: يبني assistant message.
   ChatMessage _buildAssistantMessage({
     required String reply,
     required List<AiAssistantResultCard> cards,
@@ -214,6 +257,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     );
   }
 
+  /// Processes `copyAssistantMessage`.
+  /// العربية: يعالج `copyAssistantMessage`.
   Future<void> _copyAssistantMessage(String text) async {
     final cleanText = text.trim();
     if (cleanText.isEmpty) {
@@ -234,6 +279,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     );
   }
 
+  /// Builds the assistant cards bubble.
+  /// العربية: يبني assistant cards bubble.
   Widget _buildAssistantCardsBubble(
     ChatMessage message,
     List<AiAssistantResultCard> cards,
@@ -295,6 +342,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     );
   }
 
+  /// Builds the result card.
+  /// العربية: يبني result card.
   Widget _buildResultCard(AiAssistantResultCard card) {
     if (card.type == 'review' || card.type == 'review_summary') {
       return _buildReviewResultCard(card);
@@ -406,6 +455,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     );
   }
 
+  /// Builds the review result card.
+  /// العربية: يبني review result card.
   Widget _buildReviewResultCard(AiAssistantResultCard card) {
     final averageRating = _metaNumber(card, 'average_rating');
     final totalReviews = _metaInt(card, 'total_reviews');
@@ -526,6 +577,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     );
   }
 
+  /// Builds the review chip.
+  /// العربية: يبني review chip.
   Widget _buildReviewChip(String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
@@ -543,12 +596,16 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     );
   }
 
+  /// Processes `metaNumber`.
+  /// العربية: يعالج `metaNumber`.
   double? _metaNumber(AiAssistantResultCard card, String key) {
     final value = card.metadata?[key];
     if (value is num) return value.toDouble();
     return double.tryParse(value?.toString() ?? '');
   }
 
+  /// Processes `metaInt`.
+  /// العربية: يعالج `metaInt`.
   int? _metaInt(AiAssistantResultCard card, String key) {
     final value = card.metadata?[key];
     if (value is int) return value;
@@ -556,6 +613,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     return int.tryParse(value?.toString() ?? '');
   }
 
+  /// Processes `metaString`.
+  /// العربية: يعالج `metaString`.
   String? _metaString(AiAssistantResultCard card, String key) {
     final value = card.metadata?[key];
     final text = value?.toString().trim();
@@ -565,6 +624,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     return text;
   }
 
+  /// Builds the distribution text.
+  /// العربية: يبني distribution text.
   String _buildDistributionText(AiAssistantResultCard card) {
     final raw = card.metadata?['rating_distribution'];
     if (raw is! Map) {
@@ -587,6 +648,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     return mapped.take(3).map((e) => '${e.key}★ ${e.value}').join(' • ');
   }
 
+  /// Builds the card placeholder.
+  /// العربية: يبني card placeholder.
   Widget _buildCardPlaceholder() {
     return Container(
       width: double.infinity,
@@ -599,6 +662,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     );
   }
 
+  /// Formats the card price.
+  /// العربية: ينسق card price.
   String _formatCardPrice(AiAssistantResultCard card) {
     if (card.price == null) {
       return 'السعر عند الطلب';
@@ -613,6 +678,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     return currency.isEmpty ? priceText : '$priceText $currency';
   }
 
+  /// Opens the result card.
+  /// العربية: يفتح result card.
   void _openResultCard(AiAssistantResultCard card) {
     final propertyId = card.propertyId.trim();
     if (propertyId.isEmpty) {
@@ -626,6 +693,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     context.push('/property/$propertyId', extra: extra);
   }
 
+  /// Processes `clearChat`.
+  /// العربية: يعالج `clearChat`.
   void _clearChat() {
     _messages.clear();
     _history.clear();
@@ -633,6 +702,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     _initializeChat();
   }
 
+  /// Processes `resetConversation`.
+  /// العربية: يعالج `resetConversation`.
   Future<bool> _resetConversation() async {
     if (_isResetting) return false;
 
@@ -677,6 +748,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     }
   }
 
+  /// Builds the widget tree for this component.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -710,6 +783,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     );
   }
 
+  /// Builds the header.
+  /// العربية: يبني header.
   Widget _buildHeader() {
     return FadeTransition(
       opacity: _headerAnimation,
@@ -824,6 +899,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     );
   }
 
+  /// Builds the loading view.
+  /// العربية: يبني loading view.
   Widget _buildLoadingView() {
     return Center(
       child: Column(
@@ -858,6 +935,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     );
   }
 
+  /// Builds the error view.
+  /// العربية: يبني error view.
   Widget _buildErrorView(String message) {
     return Center(
       child: Padding(
@@ -916,6 +995,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     );
   }
 
+  /// Builds the chat view.
+  /// العربية: يبني chat view.
   Widget _buildChatView() {
     return SelectionArea(
       child: AiChatWidget(
@@ -977,6 +1058,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     );
   }
 
+  /// Shows the clear confirmation.
+  /// العربية: يعرض clear confirmation.
   void _showClearConfirmation() {
     showDialog<void>(
       context: context,

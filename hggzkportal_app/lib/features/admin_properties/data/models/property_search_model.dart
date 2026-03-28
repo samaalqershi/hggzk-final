@@ -6,6 +6,7 @@ import '../../domain/entities/property_search_result.dart';
 import 'property_model.dart';
 
 class PropertySearchModel extends PropertySearchResult {
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertySearchModel`.
   const PropertySearchModel({
     required List<Property> properties,
     required int totalCount,
@@ -17,17 +18,16 @@ class PropertySearchModel extends PropertySearchResult {
     SearchStatistics? statistics,
     PriceRange? priceRange,
   }) : super(
-    properties: properties,
-    totalCount: totalCount,
-    pageNumber: pageNumber,
-    pageSize: pageSize,
-    totalPages: totalPages,
-    hasPreviousPage: hasPreviousPage,
-    hasNextPage: hasNextPage,
-    statistics: statistics,
-    priceRange: priceRange,
-  );
-  
+          properties: properties,
+          totalCount: totalCount,
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          totalPages: totalPages,
+          hasPreviousPage: hasPreviousPage,
+          hasNextPage: hasNextPage,
+          statistics: statistics,
+          priceRange: priceRange,
+        );
   factory PropertySearchModel.fromJson(Map<String, dynamic> json) {
     return PropertySearchModel(
       properties: (json['properties'] as List<dynamic>)
@@ -47,35 +47,37 @@ class PropertySearchModel extends PropertySearchResult {
           : null,
     );
   }
-  
   Map<String, dynamic> toJson() {
     return {
-      'properties': properties.map((e) => (e as PropertyModel).toJson()).toList(),
+      'properties':
+          properties.map((e) => (e as PropertyModel).toJson()).toList(),
       'totalCount': totalCount,
       'pageNumber': pageNumber,
       'pageSize': pageSize,
       'totalPages': totalPages,
       'hasPreviousPage': hasPreviousPage,
       'hasNextPage': hasNextPage,
-      if (statistics != null) 'statistics': (statistics as SearchStatisticsModel).toJson(),
-      if (priceRange != null) 'priceRange': (priceRange as PriceRangeModel).toJson(),
+      if (statistics != null)
+        'statistics': (statistics as SearchStatisticsModel).toJson(),
+      if (priceRange != null)
+        'priceRange': (priceRange as PriceRangeModel).toJson(),
     };
   }
 }
 
 class SearchStatisticsModel extends SearchStatistics {
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchStatisticsModel`.
   const SearchStatisticsModel({
     required int searchDurationMs,
     required int appliedFiltersCount,
     required int totalResultsBeforePaging,
     required List<String> suggestions,
   }) : super(
-    searchDurationMs: searchDurationMs,
-    appliedFiltersCount: appliedFiltersCount,
-    totalResultsBeforePaging: totalResultsBeforePaging,
-    suggestions: suggestions,
-  );
-  
+          searchDurationMs: searchDurationMs,
+          appliedFiltersCount: appliedFiltersCount,
+          totalResultsBeforePaging: totalResultsBeforePaging,
+          suggestions: suggestions,
+        );
   factory SearchStatisticsModel.fromJson(Map<String, dynamic> json) {
     return SearchStatisticsModel(
       searchDurationMs: json['searchDurationMs'] as int,
@@ -84,7 +86,6 @@ class SearchStatisticsModel extends SearchStatistics {
       suggestions: (json['suggestions'] as List<dynamic>).cast<String>(),
     );
   }
-  
   Map<String, dynamic> toJson() {
     return {
       'searchDurationMs': searchDurationMs,
@@ -96,16 +97,16 @@ class SearchStatisticsModel extends SearchStatistics {
 }
 
 class PriceRangeModel extends PriceRange {
+  /// العربية: ينشئ مثيلًا جديدًا من `PriceRangeModel`.
   const PriceRangeModel({
     required double minPrice,
     required double maxPrice,
     required double averagePrice,
   }) : super(
-    minPrice: minPrice,
-    maxPrice: maxPrice,
-    averagePrice: averagePrice,
-  );
-  
+          minPrice: minPrice,
+          maxPrice: maxPrice,
+          averagePrice: averagePrice,
+        );
   factory PriceRangeModel.fromJson(Map<String, dynamic> json) {
     return PriceRangeModel(
       minPrice: (json['minPrice'] as num).toDouble(),
@@ -113,7 +114,6 @@ class PriceRangeModel extends PriceRange {
       averagePrice: (json['averagePrice'] as num).toDouble(),
     );
   }
-  
   Map<String, dynamic> toJson() {
     return {
       'minPrice': minPrice,

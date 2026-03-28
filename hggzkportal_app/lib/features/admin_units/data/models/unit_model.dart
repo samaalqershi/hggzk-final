@@ -4,7 +4,11 @@ import '../../domain/entities/unit.dart';
 import '../../domain/entities/pricing_method.dart';
 import 'unit_field_value_model.dart';
 
+/// يمثل هذا الكلاس UnitModel البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitModel in the admin unit workflow.
 class UnitModel extends Unit {
+  /// This constructor creates a new UnitModel instance.
+  /// ينشئ مثيلًا جديدًا من UnitModel.
   const UnitModel({
     required String id,
     required String propertyId,
@@ -49,6 +53,8 @@ class UnitModel extends Unit {
           cancellationWindowDays: cancellationWindowDays,
         );
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitModel.
+  /// This constructor creates an instance of UnitModel.
   factory UnitModel.fromJson(Map<String, dynamic> json) {
     int? readNullableInt(List<String> keys) {
       for (final key in keys) {
@@ -119,6 +125,8 @@ class UnitModel extends Unit {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية toJson ضمن مسار إدارة الوحدات.
+  /// This method performs the toJson operation in the admin unit workflow.
   Map<String, dynamic> toJson() {
     return {
       'id': id,

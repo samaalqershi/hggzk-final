@@ -6,11 +6,24 @@ import '../../../../core/network/api_exceptions.dart';
 import '../../../../core/utils/timezone_helper.dart';
 import '../models/ai_assistant_models.dart';
 
+/// Encapsulates the network calls used by the in-app AI assistant so the UI
+/// can reset conversations and request replies through one focused service.
+/// يغلف نداءات الشبكة التي يستخدمها المساعد الذكي داخل التطبيق حتى تتمكن
+/// الواجهة من إعادة تعيين المحادثة وطلب الردود عبر خدمة واحدة متخصصة.
 class AiAssistantRemoteService {
+  /// Shared API client used to talk to the backend assistant endpoints.
+  /// عميل الـ API المشترك المستخدم للتواصل مع endpoints الخاصة بالمساعد.
   final ApiClient apiClient;
 
+  /// Injects the networking dependency so the service stays reusable and
+  /// test-friendly.
+  /// يحقن الاعتماد الشبكي حتى تبقى الخدمة قابلة لإعادة الاستخدام والاختبار.
   AiAssistantRemoteService({required this.apiClient});
 
+  /// Starts a fresh assistant session on the backend when the user clears the
+  /// current conversation history.
+  /// يبدأ جلسة جديدة للمساعد على الخادم عندما يطلب المستخدم مسح سجل المحادثة
+  /// الحالي.
   Future<void> resetConversation() async {
     try {
       final response = await apiClient.post(
@@ -48,6 +61,10 @@ class AiAssistantRemoteService {
     }
   }
 
+  /// Sends one user message together with the trimmed conversation history and
+  /// returns the assistant reply plus any structured cards.
+  /// يرسل رسالة مستخدم واحدة مع سجل المحادثة المختصر ويعيد رد المساعد مع
+  /// البطاقات المهيكلة إن وجدت.
   Future<AiAssistantChatResponse> sendMessage({
     required String message,
     required List<AiAssistantHistoryMessage> history,

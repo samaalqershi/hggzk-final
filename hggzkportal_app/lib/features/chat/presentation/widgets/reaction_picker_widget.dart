@@ -3,33 +3,70 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 
+/// يعرّف الكلاس `ReactionPickerWidget`.
+/// Describes the `ReactionPickerWidget` class.
 class ReactionPickerWidget extends StatefulWidget {
+  /// Receives `Function`.
+  /// العربية: يعالج `Function`.
   final Function(String) onReaction;
 
+  /// ينشئ مثيلاً من `ReactionPickerWidget`.
+  /// Builds an instance of `ReactionPickerWidget`.
   const ReactionPickerWidget({
     super.key,
     required this.onReaction,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<ReactionPickerWidget> createState() => _ReactionPickerWidgetState();
 }
 
+/// يعرّف الكلاس `_ReactionPickerWidgetState`.
+/// Describes the `_ReactionPickerWidgetState` class.
 class _ReactionPickerWidgetState extends State<ReactionPickerWidget>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_scaleAnimations`.
+  /// Holds the `_scaleAnimations` member.
   late List<Animation<double>> _scaleAnimations;
+
+  /// يخزن العضو `_containerAnimation`.
+  /// Holds the `_containerAnimation` member.
   late Animation<double> _containerAnimation;
 
+  /// يخزن العضو `reactions`.
+  /// Holds the `reactions` member.
   final List<ReactionItem> reactions = [
     ReactionItem(emoji: '👍', type: 'like'),
+
+    /// ينفذ العملية `ReactionItem`.
+    /// Runs the `ReactionItem` operation.
     ReactionItem(emoji: '❤️', type: 'love'),
+
+    /// ينفذ العملية `ReactionItem`.
+    /// Runs the `ReactionItem` operation.
     ReactionItem(emoji: '😂', type: 'laugh'),
+
+    /// ينفذ العملية `ReactionItem`.
+    /// Runs the `ReactionItem` operation.
     ReactionItem(emoji: '😮', type: 'wow'),
+
+    /// ينفذ العملية `ReactionItem`.
+    /// Runs the `ReactionItem` operation.
     ReactionItem(emoji: '😢', type: 'sad'),
+
+    /// ينفذ العملية `ReactionItem`.
+    /// Runs the `ReactionItem` operation.
     ReactionItem(emoji: '😠', type: 'angry'),
   ];
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -62,12 +99,16 @@ class _ReactionPickerWidgetState extends State<ReactionPickerWidget>
     _animationController.forward();
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -136,26 +177,48 @@ class _ReactionPickerWidgetState extends State<ReactionPickerWidget>
   }
 }
 
+/// يعرّف الكلاس `_MinimalReactionButton`.
+/// Describes the `_MinimalReactionButton` class.
 class _MinimalReactionButton extends StatefulWidget {
+  /// Holds the `reaction` value.
+  /// العربية: يخزن القيمة `reaction`.
   final ReactionItem reaction;
+
+  /// يخزن العضو `onTap`.
+  /// Holds the `onTap` member.
   final VoidCallback onTap;
 
+  /// ينشئ مثيلاً من `_MinimalReactionButton`.
+  /// Builds an instance of `_MinimalReactionButton`.
   const _MinimalReactionButton({
     required this.reaction,
     required this.onTap,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
-  State<_MinimalReactionButton> createState() => 
-      _MinimalReactionButtonState();
+  State<_MinimalReactionButton> createState() => _MinimalReactionButtonState();
 }
 
+/// يعرّف الكلاس `_MinimalReactionButtonState`.
+/// Describes the `_MinimalReactionButtonState` class.
 class _MinimalReactionButtonState extends State<_MinimalReactionButton>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
+
+  /// يخزن العضو `_isPressed`.
+  /// Holds the `_isPressed` member.
   bool _isPressed = false;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -172,12 +235,16 @@ class _MinimalReactionButtonState extends State<_MinimalReactionButton>
     ));
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -224,10 +291,19 @@ class _MinimalReactionButtonState extends State<_MinimalReactionButton>
   }
 }
 
+/// يعرّف الكلاس `ReactionItem`.
+/// Describes the `ReactionItem` class.
 class ReactionItem {
+  /// Holds the `emoji` value.
+  /// العربية: يخزن القيمة `emoji`.
   final String emoji;
+
+  /// يخزن العضو `type`.
+  /// Holds the `type` member.
   final String type;
 
+  /// ينشئ مثيلاً من `ReactionItem`.
+  /// Builds an instance of `ReactionItem`.
   ReactionItem({
     required this.emoji,
     required this.type,

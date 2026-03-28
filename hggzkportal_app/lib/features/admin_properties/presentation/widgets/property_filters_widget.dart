@@ -4,22 +4,23 @@ import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
-import '../bloc/property_types/property_types_bloc.dart';
+import 'package:hggzkportal/features/property_types/presentation/bloc/property_types/property_types_bloc.dart';
+import 'package:hggzkportal/features/property_types/presentation/bloc/property_types/property_types_state.dart';
 import '../bloc/amenities/amenities_bloc.dart';
 
 class PropertyFiltersWidget extends StatefulWidget {
+  /// العربية: يعالج `Function`.
   final Function(Map<String, dynamic>) onFilterChanged;
-
   const PropertyFiltersWidget({
     super.key,
     required this.onFilterChanged,
   });
-
   @override
   State<PropertyFiltersWidget> createState() => _PropertyFiltersWidgetState();
 }
 
 class _PropertyFiltersWidgetState extends State<PropertyFiltersWidget> {
+  /// العربية: يخزن القيمة `selectedPropertyTypeId`.
   String? _selectedPropertyTypeId;
   RangeValues _priceRange = const RangeValues(0, 1000);
   final List<int> _selectedStarRatings = [];
@@ -28,7 +29,6 @@ class _PropertyFiltersWidgetState extends State<PropertyFiltersWidget> {
   final List<String> _selectedAmenityIds = [];
   double? _minAverageRating;
   final TextEditingController _searchController = TextEditingController();
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -660,7 +660,8 @@ class _PropertyFiltersWidgetState extends State<PropertyFiltersWidget> {
         if (state is AmenitiesLoaded && state.amenities.isNotEmpty) {
           final amenities = state.amenities;
           return _buildFilterContainer(
-            label: 'المرافق (${_selectedAmenityIds.length}/${amenities.length})',
+            label:
+                'المرافق (${_selectedAmenityIds.length}/${amenities.length})',
             icon: Icons.check_box_rounded,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -811,9 +812,7 @@ class _PropertyFiltersWidgetState extends State<PropertyFiltersWidget> {
                   checkmarkColor: AppTheme.textWhite,
                   backgroundColor: AppTheme.darkSurface,
                   labelStyle: AppTextStyles.bodySmall.copyWith(
-                    color: isSelected
-                        ? AppTheme.textWhite
-                        : AppTheme.textLight,
+                    color: isSelected ? AppTheme.textWhite : AppTheme.textLight,
                   ),
                 );
               }).toList(),

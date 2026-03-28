@@ -11,28 +11,52 @@ import '../../domain/entities/section.dart' as section_domain;
 import '../datasources/home_local_datasource.dart';
 import '../datasources/home_remote_datasource.dart';
 import '../models/property_type_with_units_model.dart';
-import '../../domain/entities/property_types_with_units.dart' as combined_domain;
+import '../../domain/entities/property_types_with_units.dart'
+    as combined_domain;
 
+/// يطبّق عقد الصفحة الرئيسية عبر الموازنة بين الخادم والكاش المحلي بحيث تبقى
+/// الواجهة سريعة، وتستعيد البيانات المحفوظة عند ضعف الاتصال أو انقطاعه.
+/// Implements the home repository by balancing remote calls with local cache
+/// so the UI stays fast and can recover stored data when connectivity is weak
+/// or unavailable.
 class HomeRepositoryImpl implements HomeRepository {
+  /// المصدر البعيد الذي يوفر بيانات الأقسام والأنواع والتحليلات من الخادم.
+  /// Remote source that provides sections, types, and analytics calls from the
+  /// backend.
   final HomeRemoteDataSource remoteDataSource;
+
+  /// المصدر المحلي المستخدم للكاش السريع واسترجاع البيانات عند غياب الشبكة.
+  /// Local source used for fast caching and offline-style restoration.
   final HomeLocalDataSource localDataSource;
+
+  /// واجهة معرفة حالة الشبكة قبل تقرير ما إذا كنا سنعتمد على الخادم أو الكاش.
+  /// Connectivity abstraction used to decide whether to rely on the backend or
+  /// cached data.
   final NetworkInfo networkInfo;
 
+  /// يربط التنفيذ بمصادر البيانات وحالة الشبكة التي يحتاجها لاتخاذ القرار
+  /// بين القراءة البعيدة والمحلية.
+  /// Binds the implementation to the data sources and network state it needs to
+  /// choose between remote and local reads.
   HomeRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
     required this.networkInfo,
   });
-
   @override
   Future<Either<Failure, void>> recordSectionImpression({
     required String sectionId,
   }) async {
     try {
-      // Record impression locally first for immediate response
+      // نحفظ الانطباع محليًا أولًا حتى تبقى الاستجابة فورية حتى لو تأخرت
+      // مزامنة الخادم.
+      // Record the impression locally first so the response stays immediate
+      // even if backend sync is delayed.
       await localDataSource.recordSectionImpression(sectionId: sectionId);
-      
-      // Then try to sync with server if connected
+
+      // نحاول بعد ذلك مزامنة السجل مع الخادم ما دام الاتصال متاحًا.
+      // Then try to synchronize the record with the backend whenever the device
+      // is online.
       if (await networkInfo.isConnected) {
         await remoteDataSource.recordSectionImpression(sectionId: sectionId);
       }
@@ -43,16 +67,22 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
-  Future<Either<Failure, combined_domain.PropertyTypesWithUnits>> getPropertyTypesWithUnits() async {
+  Future<Either<Failure, combined_domain.PropertyTypesWithUnits>>
+      getPropertyTypesWithUnits() async {
     if (await networkInfo.isConnected) {
       try {
-        final List<PropertyTypeWithUnitsModel> result = await remoteDataSource.getPropertyTypesWithUnits();
+        final List<PropertyTypeWithUnitsModel> result =
+            await remoteDataSource.getPropertyTypesWithUnits();
 
-        // Map to domain lists
-        final propertyTypes = result.map((e) => e.propertyType.toEntity()).toList();
+        // نحول استجابة الشبكة إلى الكيانات التي تستخدمها بقية طبقات التطبيق.
+        // Convert the network response into the domain entities consumed by the
+        // rest of the application.
+        final propertyTypes =
+            result.map((e) => e.propertyType.toEntity()).toList();
         final Map<String, List<domain.UnitType>> unitTypesByPt = {};
         for (final item in result) {
-          unitTypesByPt[item.propertyType.id] = item.unitTypes.map((m) => m.toEntity()).toList();
+          unitTypesByPt[item.propertyType.id] =
+              item.unitTypes.map((m) => m.toEntity()).toList();
         }
 
         return Right(combined_domain.PropertyTypesWithUnits(
@@ -75,15 +105,18 @@ class HomeRepositoryImpl implements HomeRepository {
     Map<String, dynamic>? metadata,
   }) async {
     try {
-      // Record interaction locally first
+      // نسجل التفاعل محليًا أولًا حتى لا تنتظر الواجهة الرحلة الشبكية.
+      // Store the interaction locally first so the UI does not wait for a
+      // network round trip.
       await localDataSource.recordSectionInteraction(
         sectionId: sectionId,
         interactionType: interactionType,
         itemId: itemId,
         metadata: metadata,
       );
-      
-      // Then try to sync with server if connected
+
+      // بعد ذلك نحاول إرسال نفس السجل إلى الخادم إذا كانت الشبكة متاحة.
+      // After that, try to push the same record to the backend when online.
       if (await networkInfo.isConnected) {
         await remoteDataSource.recordSectionInteraction(
           sectionId: sectionId,
@@ -92,7 +125,7 @@ class HomeRepositoryImpl implements HomeRepository {
           metadata: metadata,
         );
       }
-      
+
       return const Right(null);
     } catch (e) {
       return ErrorHandler.handle(e);
@@ -100,7 +133,8 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
-  Future<Either<Failure, core.PaginatedResult<section_domain.Section>>> getSections({
+  Future<Either<Failure, core.PaginatedResult<section_domain.Section>>>
+      getSections({
     int pageNumber = 1,
     int pageSize = 10,
     String? target,
@@ -109,18 +143,23 @@ class HomeRepositoryImpl implements HomeRepository {
   }) async {
     if (await networkInfo.isConnected) {
       try {
-        // Try to get fresh data from server
+        // نبدأ دائمًا بنسخة جديدة من الخادم عندما تكون الشبكة متاحة.
+        // Start with a fresh server copy whenever connectivity is available.
         final result = await remoteDataSource.getSections(
           pageNumber: pageNumber,
           pageSize: pageSize,
           target: target,
           type: type,
         );
-        
-        // Cache the fresh data
+
+        // نخزن النتيجة الجديدة محليًا حتى تصبح متاحة عند الانقطاع أو التراجع.
+        // Cache the fresh result locally so it can be reused when connectivity
+        // drops or later calls need a fallback.
         await localDataSource.cacheSections(result.items);
-        
-        // Map models to entities
+
+        // نحول الموديلات القادمة من طبقة البيانات إلى كيانات المجال المعتمدة.
+        // Convert data-layer models into the domain entities the rest of the
+        // feature expects.
         final mapped = core.PaginatedResult<section_domain.Section>(
           items: result.items.map((m) => m.toEntity()).toList(),
           pageNumber: result.pageNumber,
@@ -128,10 +167,12 @@ class HomeRepositoryImpl implements HomeRepository {
           totalCount: result.totalCount,
           metadata: result.metadata,
         );
-        
+
         return Right(mapped);
       } catch (e) {
-        // If server fails, try to get cached data
+        // إذا فشل الخادم نحاول إنقاذ التجربة من الكاش بدل إسقاط الشاشة كاملة.
+        // If the backend fails, rescue the experience from local cache instead
+        // of collapsing the whole screen.
         try {
           final cachedSections = await localDataSource.getCachedSections(
             pageNumber: pageNumber,
@@ -152,7 +193,8 @@ class HomeRepositoryImpl implements HomeRepository {
         }
       }
     } else {
-      // No network, get cached data
+      // عند غياب الشبكة نعتمد مباشرة على النسخة المحلية المخزنة.
+      // When offline, rely directly on the locally cached snapshot.
       try {
         final cachedSections = await localDataSource.getCachedSections(
           pageNumber: pageNumber,
@@ -169,13 +211,15 @@ class HomeRepositoryImpl implements HomeRepository {
         );
         return Right(mapped);
       } catch (e) {
-        return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت ولا توجد بيانات محفوظة'));
+        return const Left(
+            NetworkFailure('لا يوجد اتصال بالإنترنت ولا توجد بيانات محفوظة'));
       }
     }
   }
 
   @override
-  Future<Either<Failure, core.PaginatedResult<SectionPropertyItemModel>>> getSectionPropertyItems({
+  Future<Either<Failure, core.PaginatedResult<SectionPropertyItemModel>>>
+      getSectionPropertyItems({
     required String sectionId,
     int pageNumber = 1,
     int pageSize = 10,
@@ -183,27 +227,34 @@ class HomeRepositoryImpl implements HomeRepository {
   }) async {
     if (await networkInfo.isConnected) {
       try {
-        // Record section impression when fetching items
+        // نحتسب فتح عناصر القسم كإشارة إلى أن المستخدم وصل فعلًا إلى هذا
+        // المحتوى.
+        // Treat opening section items as a signal that the user actually
+        // reached this content.
         await recordSectionImpression(sectionId: sectionId);
-        
-        // Get fresh data from server
+
+        // نجلب الصفحة الجديدة من الخادم ما دمنا متصلين.
+        // Fetch the fresh page from the backend while connectivity exists.
         final result = await remoteDataSource.getSectionPropertyItems(
           sectionId: sectionId,
           pageNumber: pageNumber,
           pageSize: pageSize,
         );
-        
-        // Cache the fresh data
+
+        // نخزن النتيجة حتى تبقى متاحة لو احتجنا الرجوع إليها لاحقًا.
+        // Cache the result so it remains available for later fallback.
         await localDataSource.cacheSectionPropertyItems(
           sectionId: sectionId,
           items: result.items,
         );
-        
+
         return Right(result);
       } catch (e) {
-        // If server fails, try to get cached data
+        // إذا أخفق الطلب البعيد نعيد المحاولة من النسخة المحلية.
+        // If the remote request fails, retry against the local snapshot.
         try {
-          final cachedItems = await localDataSource.getCachedSectionPropertyItems(
+          final cachedItems =
+              await localDataSource.getCachedSectionPropertyItems(
             sectionId: sectionId,
             pageNumber: pageNumber,
             pageSize: pageSize,
@@ -214,7 +265,8 @@ class HomeRepositoryImpl implements HomeRepository {
         }
       }
     } else {
-      // No network, get cached data
+      // من دون شبكة نرجع مباشرة إلى البيانات المخزنة لهذا القسم.
+      // Without connectivity, fall back directly to stored section data.
       try {
         final cachedItems = await localDataSource.getCachedSectionPropertyItems(
           sectionId: sectionId,
@@ -223,7 +275,8 @@ class HomeRepositoryImpl implements HomeRepository {
         );
         return Right(cachedItems);
       } catch (e) {
-        return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت ولا توجد بيانات محفوظة'));
+        return const Left(
+            NetworkFailure('لا يوجد اتصال بالإنترنت ولا توجد بيانات محفوظة'));
       }
     }
   }
@@ -232,15 +285,20 @@ class HomeRepositoryImpl implements HomeRepository {
   Future<Either<Failure, List<domain.PropertyType>>> getPropertyTypes() async {
     if (await networkInfo.isConnected) {
       try {
-        // Get fresh data from server
+        // نجلب أحدث أنواع العقارات من الخادم لتغذية واجهة الاختيار الأولى.
+        // Fetch the latest property types from the backend for the primary
+        // selector UI.
         final result = await remoteDataSource.getPropertyTypes();
-        
-        // Cache the fresh data
+
+        // نخزن النسخة الحديثة محليًا حتى تبقى متاحة للجلسات التالية.
+        // Save the fresh copy locally so it remains available in later sessions.
         await localDataSource.cachePropertyTypes(result);
-        
+
         return Right(result.map((model) => model.toEntity()).toList());
       } catch (e) {
-        // If server fails, try to get cached data
+        // إذا تعذر الجلب البعيد نعود إلى الكاش بدل إسقاط التدفق.
+        // If the remote fetch fails, fall back to cache rather than breaking
+        // the flow.
         try {
           final cachedTypes = await localDataSource.getCachedPropertyTypes();
           return Right(cachedTypes.map((model) => model.toEntity()).toList());
@@ -249,12 +307,15 @@ class HomeRepositoryImpl implements HomeRepository {
         }
       }
     } else {
-      // No network, get cached data
+      // في وضع عدم الاتصال نستخدم الكاش مباشرة لأنه المصدر الوحيد المتاح.
+      // In offline mode, use the cache directly because it is the only
+      // available source.
       try {
         final cachedTypes = await localDataSource.getCachedPropertyTypes();
         return Right(cachedTypes.map((model) => model.toEntity()).toList());
       } catch (e) {
-        return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت ولا توجد بيانات محفوظة'));
+        return const Left(
+            NetworkFailure('لا يوجد اتصال بالإنترنت ولا توجد بيانات محفوظة'));
       }
     }
   }
@@ -265,20 +326,26 @@ class HomeRepositoryImpl implements HomeRepository {
   }) async {
     if (await networkInfo.isConnected) {
       try {
-        // Get fresh data from server
+        // نجلب أحدث أنواع الوحدات التابعة لنوع العقار المختار من الخادم.
+        // Fetch the latest unit types for the selected property type from the
+        // backend.
         final result = await remoteDataSource.getUnitTypes(
           propertyTypeId: propertyTypeId,
         );
-        
-        // Cache the fresh data
+
+        // نخزن النتيجة حتى تبقى مرتبطة بنوع العقار نفسه للاستخدام اللاحق.
+        // Cache the result so it remains available for the same property-type
+        // context later.
         await localDataSource.cacheUnitTypes(
           propertyTypeId: propertyTypeId,
           unitTypes: result,
         );
-        
+
         return Right(result.map((model) => model.toEntity()).toList());
       } catch (e) {
-        // If server fails, try to get cached data
+        // إذا فشل المصدر البعيد نحاول إنقاذ الطلب من الكاش المحلي.
+        // If the remote source fails, try to fulfill the request from local
+        // cache.
         try {
           final cachedTypes = await localDataSource.getCachedUnitTypes(
             propertyTypeId: propertyTypeId,
@@ -289,14 +356,16 @@ class HomeRepositoryImpl implements HomeRepository {
         }
       }
     } else {
-      // No network, get cached data
+      // من دون شبكة نعيد البيانات المخزنة لهذا النوع مباشرة.
+      // Without connectivity, return the cached data for this type directly.
       try {
         final cachedTypes = await localDataSource.getCachedUnitTypes(
           propertyTypeId: propertyTypeId,
         );
         return Right(cachedTypes.map((model) => model.toEntity()).toList());
       } catch (e) {
-        return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت ولا توجد بيانات محفوظة'));
+        return const Left(
+            NetworkFailure('لا يوجد اتصال بالإنترنت ولا توجد بيانات محفوظة'));
       }
     }
   }

@@ -1,23 +1,21 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:permission_handler/permission_handler.dart' as permission_handler;
+import 'package:permission_handler/permission_handler.dart'
+    as permission_handler;
 
 class LocationService {
-  // Location settings for high accuracy
   static const LocationSettings _locationSettings = LocationSettings(
     accuracy: LocationAccuracy.high,
     distanceFilter: 100,
   );
 
-  // Check if location services are enabled
   Future<bool> isLocationServiceEnabled() async {
     return await Geolocator.isLocationServiceEnabled();
   }
 
-  // Request location permission
   Future<LocationPermissionStatus> requestLocationPermission() async {
     final status = await permission_handler.Permission.location.request();
-    
+
     switch (status) {
       case permission_handler.PermissionStatus.granted:
         return LocationPermissionStatus.granted;
@@ -32,10 +30,9 @@ class LocationService {
     }
   }
 
-  // Check location permission
   Future<LocationPermissionStatus> checkLocationPermission() async {
     final permission = await Geolocator.checkPermission();
-    
+
     switch (permission) {
       case LocationPermission.always:
       case LocationPermission.whileInUse:
@@ -49,7 +46,6 @@ class LocationService {
     }
   }
 
-  // Get current position
   Future<LocationData> getCurrentLocation() async {
     try {
       // Check if location services are enabled
@@ -106,7 +102,6 @@ class LocationService {
     }
   }
 
-  // Get last known position
   Future<LocationData?> getLastKnownLocation() async {
     try {
       final position = await Geolocator.getLastKnownPosition();
@@ -128,7 +123,6 @@ class LocationService {
     }
   }
 
-  // Calculate distance between two points
   double calculateDistance(
     double startLatitude,
     double startLongitude,
@@ -143,7 +137,6 @@ class LocationService {
     );
   }
 
-  // Get address from coordinates
   Future<AddressData?> getAddressFromCoordinates(
     double latitude,
     double longitude,
@@ -173,7 +166,6 @@ class LocationService {
     }
   }
 
-  // Get coordinates from address
   Future<LocationData?> getCoordinatesFromAddress(String address) async {
     try {
       final locations = await locationFromAddress(address);
@@ -191,7 +183,6 @@ class LocationService {
     }
   }
 
-  // Start location stream
   Stream<LocationData> getLocationStream({
     int distanceFilter = 10,
     LocationAccuracy accuracy = LocationAccuracy.high,
@@ -213,17 +204,14 @@ class LocationService {
         ));
   }
 
-  // Open location settings
   Future<bool> openLocationSettings() async {
     return await Geolocator.openLocationSettings();
   }
 
-  // Open app settings
   Future<bool> openAppSettings() async {
     return await permission_handler.openAppSettings();
   }
 
-  // Format address helper
   String _formatAddress(Placemark placemark) {
     final parts = <String>[];
     if (placemark.street != null && placemark.street!.isNotEmpty) {
@@ -235,7 +223,7 @@ class LocationService {
     if (placemark.locality != null && placemark.locality!.isNotEmpty) {
       parts.add(placemark.locality!);
     }
-    if (placemark.administrativeArea != null && 
+    if (placemark.administrativeArea != null &&
         placemark.administrativeArea!.isNotEmpty) {
       parts.add(placemark.administrativeArea!);
     }
@@ -249,12 +237,19 @@ class LocationService {
 // Data classes
 class LocationData {
   final double latitude;
+
   final double longitude;
+
   final double? accuracy;
+
   final double? altitude;
+
   final double? speed;
+
   final double? speedAccuracy;
+
   final double? heading;
+
   final DateTime? timestamp;
 
   LocationData({
@@ -282,11 +277,17 @@ class LocationData {
 
 class AddressData {
   final String? street;
+
   final String? subLocality;
+
   final String? locality;
+
   final String? administrativeArea;
+
   final String? country;
+
   final String? postalCode;
+
   final String formattedAddress;
 
   AddressData({
@@ -319,6 +320,7 @@ enum LocationErrorType {
 // Exception
 class LocationServiceException implements Exception {
   final String message;
+
   final LocationErrorType type;
 
   LocationServiceException(this.message, this.type);

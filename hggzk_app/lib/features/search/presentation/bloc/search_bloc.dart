@@ -11,29 +11,71 @@ import '../../domain/usecases/get_search_filters_usecase.dart';
 import '../../domain/usecases/get_search_suggestions_usecase.dart';
 import '../../domain/usecases/search_properties_usecase.dart';
 import '../../domain/repositories/search_repository.dart';
-import '../../../../services/data_sync_service.dart';
-import '../../../../services/filter_storage_service.dart';
+import 'package:hggzk/core/services/data_sync_service.dart';
+import 'package:hggzk/core/services/filter_storage_service.dart';
 import 'package:hggzk/features/home/data/models/unit_type_model.dart';
 import 'search_event.dart';
 import 'search_state.dart';
 
+/// Coordinates search queries, pagination, filters, saved searches, and
+/// suggestion loading for the discovery experience.
+/// ينسق استعلامات البحث والتصفح الصفحي والفلاتر والبحث المحفوظ والاقتراحات
+/// الخاصة بتجربة الاكتشاف.
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
+  /// Executes property search requests against the domain layer.
+  /// ينفذ طلبات البحث عن العقارات من طبقة المجال.
   final SearchPropertiesUseCase searchPropertiesUseCase;
+
+  /// Loads available filters for the current search context.
+  /// يجلب الفلاتر المتاحة لسياق البحث الحالي.
   final GetSearchFiltersUseCase getSearchFiltersUseCase;
+
+  /// Produces live suggestions from the user's current query.
+  /// ينتج الاقتراحات الحية من استعلام المستخدم الحالي.
   final GetSearchSuggestionsUseCase getSearchSuggestionsUseCase;
+
+  /// Persists saved searches and fetches discovery helpers.
+  /// يحفظ عمليات البحث ويجلب أدوات الاكتشاف المساندة.
   final SearchRepository searchRepository;
+
+  /// Stores recent and saved query snapshots locally.
+  /// يخزن لقطات الاستعلامات الأخيرة والمحفوطة محليًا.
   final SharedPreferences sharedPreferences;
+
+  /// Supplies supporting metadata such as unit types during search.
+  /// يزود البيانات المساندة مثل أنواع الوحدات أثناء البحث.
   final DataSyncService dataSyncService;
+
+  /// Persists filter state so the user can resume a previous search.
+  /// يحفظ حالة الفلاتر كي يتمكن المستخدم من استكمال بحث سابق.
   final FilterStorageService filterStorageService;
 
+  /// SharedPreferences key used for recent searches.
+  /// مفتاح SharedPreferences المخصص لعمليات البحث الأخيرة.
   static const String _recentSearchesKey = 'recent_searches';
+
+  /// SharedPreferences key used for saved searches.
+  /// مفتاح SharedPreferences المخصص لعمليات البحث المحفوظة.
   static const String _savedSearchesKey = 'saved_searches';
+
+  /// Maximum number of recent queries kept in local storage.
+  /// الحد الأقصى لعدد الاستعلامات الحديثة المخزنة محليًا.
   static const int _maxRecentSearches = 10;
 
+  /// Holds the latest filter payload used for the next request.
+  /// يحتفظ بأحدث حمولة للفلاتر لاستخدامها في الطلب التالي.
   Map<String, dynamic> _currentFilters = {};
+
+  /// Tracks the latest paginated result set for load-more flows.
+  /// يتتبع آخر مجموعة نتائج متدرجة لمسارات تحميل المزيد.
   PaginatedResult<SearchResult>? _currentSearchResults;
+
+  /// Guards suggestion updates so stale responses do not overwrite newer text.
+  /// يحمي تحديثات الاقتراحات كي لا تطغى الاستجابات القديمة على النص الأحدث.
   int _suggestionsRequestToken = 0;
 
+  /// Builds the bloc that powers search queries and local search memory.
+  /// يبني الـ bloc الذي يشغّل استعلامات البحث وذاكرة البحث المحلية.
   SearchBloc({
     required this.searchPropertiesUseCase,
     required this.getSearchFiltersUseCase,
@@ -64,6 +106,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<ToggleViewModeEvent>(_onToggleViewMode);
   }
 
+  /// Switches between list, grid, and map presentation modes.
+  /// يبدّل بين أوضاع العرض القائمة والشبكة والخريطة.
   void _onToggleViewMode(
     ToggleViewModeEvent event,
     Emitter<SearchState> emit,
@@ -85,6 +129,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     }
   }
 
+  /// Executes a property search and prepares the bloc for either fresh or
+  /// paginated results.
+  /// ينفذ بحث العقارات ويجهز الـ bloc لنتائج جديدة أو متدرجة.
   Future<void> _onSearchProperties(
     SearchPropertiesEvent event,
     Emitter<SearchState> emit,
@@ -251,6 +298,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     );
   }
 
+  /// Recomputes filter facets against the current payload without loading the
+  /// full result list.
+  /// يعيد حساب فلاتر الواجهة على الحمولة الحالية دون تحميل قائمة النتائج
+  /// كاملة.
   Future<void> _onPreviewSearchFacets(
     PreviewSearchFacetsEvent event,
     Emitter<SearchState> emit,
@@ -321,6 +372,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     );
   }
 
+  /// Requests the next page using the last successful filter snapshot.
+  /// يطلب الصفحة التالية باستخدام آخر لقطة فلاتر ناجحة.
   void _onLoadMoreSearchResults(
     LoadMoreSearchResultsEvent event,
     Emitter<SearchState> emit,
@@ -362,6 +415,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     }
   }
 
+  /// Loads the filter catalog from the backend and falls back to local data
+  /// when the network path fails.
+  /// يحمل كتالوج الفلاتر من الخلفية ويعود إلى البيانات المحلية عند فشل
+  /// المسار الشبكي.
   Future<void> _onGetSearchFilters(
     GetSearchFiltersEvent event,
     Emitter<SearchState> emit,
@@ -396,6 +453,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     }
   }
 
+  /// Builds a lightweight filter set from cached property-type data.
+  /// يبني مجموعة فلاتر خفيفة من بيانات أنواع العقارات المخزنة.
   Future<void> _loadFiltersFromLocalData(Emitter<SearchState> emit) async {
     try {
       // جلب أنواع العقارات المحفوظة (تُعاد كـ Future لذلك نستخدم await)
@@ -436,6 +495,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     }
   }
 
+  /// Fetches live suggestions for the current query and ignores stale results.
+  /// يجلب اقتراحات حية للاستعلام الحالي ويتجاهل النتائج القديمة.
   Future<void> _onGetSearchSuggestions(
     GetSearchSuggestionsEvent event,
     Emitter<SearchState> emit,
@@ -481,6 +542,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     );
   }
 
+  /// Clears the suggestion overlay and invalidates older suggestion responses.
+  /// يمسح طبقة الاقتراحات ويبطل الاستجابات الأقدم.
   void _onClearSearchSuggestions(
     ClearSearchSuggestionsEvent event,
     Emitter<SearchState> emit,
@@ -491,6 +554,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     ));
   }
 
+  /// Loads personalized properties that help the user continue exploring.
+  /// يحمل عقارات مخصصة تساعد المستخدم على مواصلة الاستكشاف.
   Future<void> _onGetRecommendedProperties(
     GetRecommendedPropertiesEvent event,
     Emitter<SearchState> emit,
@@ -519,6 +584,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     );
   }
 
+  /// Loads destination suggestions that are popular for discovery screens.
+  /// يحمل اقتراحات وجهات شائعة لشاشات الاكتشاف.
   Future<void> _onGetPopularDestinations(
     GetPopularDestinationsEvent event,
     Emitter<SearchState> emit,
@@ -547,6 +614,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     );
   }
 
+  /// Persists the latest filter payload without firing a new search yet.
+  /// يحفظ آخر حمولة للفلاتر دون إطلاق بحث جديد بعد.
   Future<void> _onUpdateSearchFilters(
     UpdateSearchFiltersEvent event,
     Emitter<SearchState> emit,
@@ -555,6 +624,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     await filterStorageService.saveCurrentFilters(_currentFilters);
   }
 
+  /// Resets the search results view but keeps the current filter memory.
+  /// يعيد ضبط عرض النتائج مع الإبقاء على ذاكرة الفلاتر الحالية.
   void _onClearSearchResults(
     ClearSearchResultsEvent event,
     Emitter<SearchState> emit,
@@ -566,6 +637,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     ));
   }
 
+  /// Clears the active search session and removes stored filter state.
+  /// يمسح جلسة البحث النشطة ويزيل حالة الفلاتر المخزنة.
   Future<void> _onClearSearch(
     ClearSearchEvent event,
     Emitter<SearchState> emit,
@@ -579,6 +652,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     ));
   }
 
+  /// Adds the current query to the top of the recent-search history.
+  /// يضيف الاستعلام الحالي إلى أعلى سجل البحث الأخير.
   Future<void> _onAddToRecentSearches(
     AddToRecentSearchesEvent event,
     Emitter<SearchState> emit,
@@ -604,6 +679,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         .copyWith(recentSearches: recentSearches));
   }
 
+  /// Restores the recent-search list from local storage.
+  /// يسترجع قائمة البحث الأخير من التخزين المحلي.
   void _onLoadRecentSearches(
     LoadRecentSearchesEvent event,
     Emitter<SearchState> emit,
@@ -614,6 +691,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         .copyWith(recentSearches: recentSearches));
   }
 
+  /// Removes the recent-search history from local storage and UI state.
+  /// يزيل سجل البحث الأخير من التخزين المحلي وحالة الواجهة.
   Future<void> _onClearRecentSearches(
     ClearRecentSearchesEvent event,
     Emitter<SearchState> emit,
@@ -622,6 +701,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     emit((state as SearchCombinedState).copyWith(recentSearches: []));
   }
 
+  /// Saves the current search payload so the user can replay it later.
+  /// يحفظ حمولة البحث الحالية كي يتمكن المستخدم من إعادة تشغيلها لاحقًا.
   Future<void> _onSaveSearch(
     SaveSearchEvent event,
     Emitter<SearchState> emit,
@@ -656,6 +737,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     emit((state as SearchCombinedState).copyWith(savedSearches: savedSearches));
   }
 
+  /// Restores saved searches from the local JSON snapshot.
+  /// يسترجع عمليات البحث المحفوظة من لقطة JSON المحلية.
   void _onLoadSavedSearches(
     LoadSavedSearchesEvent event,
     Emitter<SearchState> emit,
@@ -678,6 +761,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     }
   }
 
+  /// Removes one saved search and writes the updated list back to storage.
+  /// يحذف عملية بحث محفوظة واحدة ويعيد كتابة القائمة المحدّثة إلى التخزين.
   Future<void> _onDeleteSavedSearch(
     DeleteSavedSearchEvent event,
     Emitter<SearchState> emit,
@@ -705,6 +790,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     emit((state as SearchCombinedState).copyWith(savedSearches: savedSearches));
   }
 
+  /// Converts a saved payload back into a live search request.
+  /// يحول الحمولة المحفوظة إلى طلب بحث حي من جديد.
   void _onApplySavedSearch(
     ApplySavedSearchEvent event,
     Emitter<SearchState> emit,
@@ -743,6 +830,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     ));
   }
 
+  /// Converts the search event payload into a serializable filter snapshot.
+  /// يحول حمولة حدث البحث إلى لقطة فلاتر قابلة للتخزين.
   Map<String, dynamic> _buildFiltersMap(dynamic event) {
     final filters = <String, dynamic>{};
 
@@ -780,6 +869,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     return filters;
   }
 
+  /// Extracts the backend relaxation metadata that explains why results were
+  /// broadened.
+  /// يستخرج بيانات التخفيف من الخلفية التي تشرح لماذا تم توسيع النتائج.
   SearchRelaxationInfo? _extractRelaxationInfo(
       PaginatedResult<SearchResult> result) {
     print('🔍 [SearchBloc] Extracting relaxation info from result...');
@@ -843,6 +935,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     }
   }
 
+  /// Pulls facet data out of the paginated response metadata when available.
+  /// يستخرج بيانات الفلاتر من بيانات التعريف في الاستجابة المتدرجة عندما
+  /// تكون متاحة.
   SearchFilters? _extractFacets(PaginatedResult<SearchResult> result) {
     final metadata = result.metadata;
     if (metadata is! Map) {
@@ -857,6 +952,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     return null;
   }
 
+  /// Converts the active filter map into a searchable request payload.
+  /// يحول خريطة الفلاتر النشطة إلى حمولة طلب قابلة للبحث.
   SearchPropertiesParams _buildSearchParamsFromFilters(
     Map<String, dynamic> filters, {
     required String preferredCurrency,

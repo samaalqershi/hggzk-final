@@ -12,31 +12,55 @@ import '../bloc/notification_bloc.dart';
 import '../bloc/notification_event.dart';
 import '../bloc/notification_state.dart';
 
+/// تعرض شاشة إعدادات الإشعارات بحيث يستطيع المستخدم تخصيص القنوات والفئات
+/// التي يريد استقبالها، مع حفظ فوري للتغييرات عند التبديل.
+/// Shows the notification settings screen so the user can configure the
+/// channels and categories they want, with changes saved immediately on
+/// toggle.
 class NotificationSettingsPage extends StatefulWidget {
+  /// ينشئ صفحة إعدادات الإشعارات.
+  /// Creates the notification settings page.
   const NotificationSettingsPage({super.key});
 
+  /// ينشئ الحالة التي تدير قراءة الإعدادات وتعديلها داخل الصفحة.
+  /// Creates the state object that manages loading and editing settings on the
+  /// page.
   @override
   State<NotificationSettingsPage> createState() =>
       _NotificationSettingsPageState();
 }
 
+/// تدير نسخة الإعدادات الحالية وتنسق بين الواجهة و`NotificationBloc`.
+/// Manages the current settings snapshot and coordinates between the UI and
+/// `NotificationBloc`.
 class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
+  /// خريطة الإعدادات الحالية المحفوظة محليًا أو المزامنة من bloc.
+  /// Current settings map restored from the bloc or local state.
   Map<String, bool> _settings = {};
 
+  /// يحدد ما إذا كانت هناك تعديلات لم تُرسل بعد.
+  /// Indicates whether there are unsaved changes pending.
   bool _hasChanges = false;
 
+  /// يبدأ تحميل إعدادات الإشعارات عند فتح الصفحة.
+  /// Starts loading notification settings when the page opens.
   @override
   void initState() {
     super.initState();
     _loadSettings();
   }
 
+  /// يطلب الإعدادات الحالية من bloc.
+  /// Requests the current settings from the bloc.
   void _loadSettings() {
     context.read<NotificationBloc>().add(
           const LoadNotificationSettingsEvent(),
         );
   }
 
+  /// يبني الصفحة مع شريط علوي ومحتوى يستجيب لحالة التحميل.
+  /// Builds the page with an app bar and content that reacts to the loading
+  /// state.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,11 +88,15 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           return _buildContent();
         },
       ),
-      // Save button removed; updates happen instantly on toggle change
+      // Arabic: أزيل زر الحفظ لأن التحديثات تُرسل فور التبديل.
+      // English: The save button was removed because updates are sent
+      // immediately on toggle.
       bottomNavigationBar: null,
     );
   }
 
+  /// Arabic: يبني الشريط العلوي مع زر العودة وعنوان الشاشة.
+  /// English: Builds the app bar with the back button and page title.
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       backgroundColor: AppTheme.darkBackground,
@@ -91,6 +119,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     );
   }
 
+  /// Arabic: يبني المحتوى الرئيسي المكوّن من أقسام الإعدادات المختلفة.
+  /// English: Builds the main content made of the different settings sections.
   Widget _buildContent() {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -184,6 +214,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     );
   }
 
+  /// Arabic: يبني مجموعة من الإعدادات تحت عنوان واحد مع أيقونة مرجعية.
+  /// English: Builds a grouped section of settings under one title and
+  /// reference icon.
   Widget _buildSection({
     required String title,
     required IconData icon,
@@ -251,6 +284,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     );
   }
 
+  /// Arabic: يبني صفًا واحدًا لإعداد قابل للتبديل مع عنوان ووصف وأيقونة.
+  /// English: Builds a single toggleable setting row with a title, subtitle,
+  /// and icon.
   Widget _buildSettingTile({
     required String key,
     required String title,
@@ -308,9 +344,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               HapticFeedback.lightImpact();
               setState(() {
                 _settings[key] = value;
-                _hasChanges = false; // no pending changes; saved instantly
+                _hasChanges = false; // Arabic: لا توجد تغييرات معلّقة بعد الآن.
+                // English: No pending changes remain after the instant save.
               });
-              // Update instantly (no save button)
+              // Arabic: نرسل التحديث فورًا إلى bloc بدون زر حفظ منفصل.
+              // English: Send the update to the bloc immediately without a
+              // separate save button.
               context.read<NotificationBloc>().add(
                     UpdateNotificationSettingsEvent(settings: _settings),
                   );
@@ -322,6 +361,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     );
   }
 
+  /// Arabic: يعرض رسالة خطأ خفيفة عند فشل تحميل الإعدادات أو حفظها.
+  /// English: Shows a lightweight error snackbar when loading or saving the
+  /// settings fails.
   void _showErrorSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

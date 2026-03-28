@@ -3,20 +3,36 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hggzk/injection_container.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import 'package:hggzk/core/theme/app_theme.dart';
 import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/features/support/presentation/cubit/support_cubit.dart';
 import 'package:hggzk/features/support/presentation/cubit/support_state.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// Support screen that combines a contact form, helpful escalation channels,
+/// and device-aware submission feedback.
+///
+/// شاشة الدعم التي تجمع بين نموذج التواصل وقنوات التصعيد المفيدة وتغذية
+/// راجعة تراعي بيانات الجهاز.
 class SupportPage extends StatefulWidget {
+  /// Creates the entry page for the support workflow.
+  ///
+  /// ينشئ صفحة الدخول لمسار الدعم.
   const SupportPage({super.key});
 
+  /// Creates the animation-driven state for the support form.
+  ///
+  /// ينشئ الحالة المعتمدة على الحركة لنموذج الدعم.
   @override
   State<SupportPage> createState() => _SupportPageState();
 }
 
+/// Owns the support form controls, the decorative background motion, and the
+/// success/error feedback shown after submission.
+///
+/// يدير متحكمات النموذج وحركة الخلفية الزخرفية ورسائل النجاح أو الخطأ بعد
+/// الإرسال.
 class _SupportPageState extends State<SupportPage>
     with SingleTickerProviderStateMixin {
   static const List<String> _clientSupportNumbers = <String>[
@@ -30,10 +46,24 @@ class _SupportPageState extends State<SupportPage>
   final _subjectController = TextEditingController();
   final _messageController = TextEditingController();
 
+  /// Drives the background motion and the first entrance of the page content.
+  ///
+  /// يدير حركة الخلفية والدخول الأول لعناصر الصفحة.
   late AnimationController _animationController;
+
+  /// Fades the content from transparent to fully visible.
+  ///
+  /// يحول المحتوى من الشفافية إلى الظهور الكامل.
   late Animation<double> _fadeAnimation;
+
+  /// Adds a gentle upward offset to the content as it appears.
+  ///
+  /// يضيف إزاحة صاعدة خفيفة أثناء الظهور.
   late Animation<double> _slideAnimation;
 
+  /// Prepares the motion timeline before the page is first rendered.
+  ///
+  /// يجهز الخط الزمني للحركة قبل أول عرض للصفحة.
   @override
   void initState() {
     super.initState();
@@ -59,6 +89,9 @@ class _SupportPageState extends State<SupportPage>
     _animationController.forward();
   }
 
+  /// Releases every controller used by the support screen.
+  ///
+  /// يحرر كل متحكمات شاشة الدعم.
   @override
   void dispose() {
     _animationController.dispose();
@@ -69,6 +102,10 @@ class _SupportPageState extends State<SupportPage>
     super.dispose();
   }
 
+  /// Builds the support experience with validation, device-aware metadata, and
+  /// clear post-submit feedback.
+  ///
+  /// يبني تجربة الدعم مع التحقق وبيانات الجهاز وتغذية راجعة واضحة بعد الإرسال.
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
@@ -189,6 +226,11 @@ class _SupportPageState extends State<SupportPage>
     );
   }
 
+  /// Builds the intro card that explains where users should go when they need
+  /// help.
+  ///
+  /// يبني بطاقة المقدمة التي تشرح للمستخدم إلى أين يتجه عندما يحتاج إلى
+  /// المساعدة.
   Widget _buildHeaderCard(AppLocalizations? localizations) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
@@ -265,6 +307,11 @@ class _SupportPageState extends State<SupportPage>
     );
   }
 
+  /// Builds the form card that collects the user's issue and the context
+  /// support needs to respond.
+  ///
+  /// يبني بطاقة النموذج التي تجمع مشكلة المستخدم والسياق الذي يحتاجه فريق
+  /// الدعم للرد.
   Widget _buildContactFormCard(BuildContext context, SupportState state,
       AppLocalizations? localizations) {
     return ClipRRect(
@@ -425,6 +472,11 @@ class _SupportPageState extends State<SupportPage>
     );
   }
 
+  /// Builds a themed text field with the app's support styling and validation
+  /// hooks.
+  ///
+  /// يبني حقلاً منسقًا يتماشى مع هوية التطبيق البصرية ويستقبل التحقق من
+  /// الإدخال.
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -473,6 +525,10 @@ class _SupportPageState extends State<SupportPage>
     );
   }
 
+  /// Builds the escalation card that shows email, phone, WhatsApp, and
+  /// operating hours.
+  ///
+  /// يبني بطاقة التصعيد التي تعرض البريد والهاتف وWhatsApp وساعات العمل.
   Widget _buildContactInfoCard(AppLocalizations? localizations) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
@@ -553,6 +609,10 @@ class _SupportPageState extends State<SupportPage>
     );
   }
 
+  /// Builds one contact row and optionally makes it tappable for direct
+  /// actions.
+  ///
+  /// يبني صف اتصال واحدًا ويمكن أن يجعله قابلًا للنقر لتنفيذ إجراء مباشر.
   Widget _buildContactItem({
     required IconData icon,
     required String title,
@@ -616,16 +676,27 @@ class _SupportPageState extends State<SupportPage>
     );
   }
 
+  /// Launches the phone dialer with a Yemen-friendly international number.
+  ///
+  /// يفتح تطبيق الاتصال باستخدام رقم دولي مناسب لليمن.
   Future<void> _launchDirectCall(String phoneNumber) async {
     final intlNumber = _toInternationalYemenNumber(phoneNumber);
     await _launchExternalLink(Uri.parse('tel:+$intlNumber'));
   }
 
+  /// Opens WhatsApp with the same phone number so the user can continue the
+  /// conversation in chat.
+  ///
+  /// يفتح WhatsApp بنفس الرقم حتى يستطيع المستخدم متابعة التواصل في الدردشة.
   Future<void> _launchWhatsApp(String phoneNumber) async {
     final intlNumber = _toInternationalYemenNumber(phoneNumber);
     await _launchExternalLink(Uri.parse('https://wa.me/$intlNumber'));
   }
 
+  /// Sends the user to an external app and falls back to an error message if
+  /// the device cannot open it.
+  ///
+  /// يرسل المستخدم إلى تطبيق خارجي ويعرض رسالة خطأ إذا تعذر فتحه.
   Future<void> _launchExternalLink(Uri uri) async {
     final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!opened && mounted) {
@@ -633,6 +704,11 @@ class _SupportPageState extends State<SupportPage>
     }
   }
 
+  /// Normalizes a local Yemeni number into the international format required
+  /// by phone and WhatsApp links.
+  ///
+  /// يطبع رقمًا محليًا يمنيًا إلى الصيغة الدولية المطلوبة لروابط الاتصال
+  /// وWhatsApp.
   String _toInternationalYemenNumber(String phoneNumber) {
     final normalized = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
     if (normalized.startsWith('967')) {
@@ -644,6 +720,9 @@ class _SupportPageState extends State<SupportPage>
     return '967$normalized';
   }
 
+  /// Formats a phone number for readable display inside the contact card.
+  ///
+  /// ينسق رقم الهاتف ليظهر بشكل مقروء داخل بطاقة التواصل.
   String _formatPhoneForDisplay(String phoneNumber) {
     final normalized = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
     if (normalized.length == 9) {
@@ -652,6 +731,9 @@ class _SupportPageState extends State<SupportPage>
     return '+$normalized';
   }
 
+  /// Validates the form and forwards the message to the cubit for submission.
+  ///
+  /// يتحقق من صحة النموذج ثم يمرر الرسالة إلى الـ cubit لإرسالها.
   void _submitForm(BuildContext context) {
     if (_formKey.currentState!.validate()) {
       context.read<SupportCubit>().sendSupportMessage(
@@ -663,6 +745,9 @@ class _SupportPageState extends State<SupportPage>
     }
   }
 
+  /// Clears the text controllers after a successful submission.
+  ///
+  /// يمسح متحكمات النص بعد نجاح الإرسال.
   void _clearForm() {
     _nameController.clear();
     _emailController.clear();
@@ -670,6 +755,11 @@ class _SupportPageState extends State<SupportPage>
     _messageController.clear();
   }
 
+  /// Shows the confirmation dialog and surfaces the tracking number so the
+  /// user can reference the request later.
+  ///
+  /// يعرض نافذة التأكيد ويظهر رقم التتبع حتى يستطيع المستخدم الرجوع إلى
+  /// الطلب لاحقًا.
   void _showSuccessDialog(BuildContext context, AppLocalizations? localizations,
       String referenceNumber) {
     showDialog(
@@ -806,6 +896,9 @@ class _SupportPageState extends State<SupportPage>
     );
   }
 
+  /// Surfaces submission failures in a compact toast-style message.
+  ///
+  /// يعرض فشل الإرسال في رسالة صغيرة من نوع snackbar.
   void _showErrorSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -825,11 +918,26 @@ class _SupportPageState extends State<SupportPage>
   }
 }
 
+/// Paints the soft motion backdrop behind the support form so the page feels
+/// alive without distracting from the fields.
+///
+/// يرسم الخلفية الحركية الناعمة خلف نموذج الدعم حتى تبدو الصفحة حية من دون
+/// أن تشتت الانتباه عن الحقول.
 class _SupportBackgroundPainter extends CustomPainter {
+  /// Normalized animation progress used to shift the glow positions.
+  ///
+  /// تقدّم الحركة المطبّع المستخدم لتحريك مواقع التوهج.
   final double animationValue;
 
+  /// Creates the painter with the current animation progress.
+  ///
+  /// ينشئ الـ painter بقيمة التقدم الحالية للحركة.
   _SupportBackgroundPainter({required this.animationValue});
 
+  /// Draws the blurred glow circles that give the support page its animated
+  /// atmosphere.
+  ///
+  /// يرسم دوائر التوهج الضبابية التي تمنح صفحة الدعم جوها المتحرك.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -867,6 +975,10 @@ class _SupportBackgroundPainter extends CustomPainter {
     );
   }
 
+  /// Repaints whenever the animation progress changes so the background motion
+  /// stays in sync.
+  ///
+  /// يعيد الرسم كلما تغيرت قيمة الحركة حتى تبقى الخلفية متزامنة معها.
   @override
   bool shouldRepaint(covariant _SupportBackgroundPainter oldDelegate) {
     return oldDelegate.animationValue != animationValue;

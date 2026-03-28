@@ -6,13 +6,16 @@ import '../../../../core/models/paginated_result.dart';
 import '../entities/notification.dart';
 import '../repositories/notification_repository.dart';
 
-class GetNotificationsUseCase implements UseCase<PaginatedResult<NotificationEntity>, GetNotificationsParams> {
+class GetNotificationsUseCase
+    implements
+        UseCase<PaginatedResult<NotificationEntity>, GetNotificationsParams> {
   final NotificationRepository repository;
 
   GetNotificationsUseCase(this.repository);
 
   @override
-  Future<Either<Failure, PaginatedResult<NotificationEntity>>> call(GetNotificationsParams params) async {
+  Future<Either<Failure, PaginatedResult<NotificationEntity>>> call(
+      GetNotificationsParams params) async {
     return await repository.getNotifications(
       page: params.page,
       limit: params.limit,
@@ -23,7 +26,9 @@ class GetNotificationsUseCase implements UseCase<PaginatedResult<NotificationEnt
 
 class GetNotificationsParams extends Equatable {
   final int page;
+
   final int limit;
+
   final String? type;
 
   const GetNotificationsParams({

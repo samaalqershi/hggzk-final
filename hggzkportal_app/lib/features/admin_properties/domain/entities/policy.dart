@@ -14,6 +14,7 @@ enum PolicyType {
 }
 
 class Policy extends Equatable {
+  /// العربية: يخزن القيمة `id`.
   final String id;
   final String propertyId;
   final PolicyType policyType;
@@ -21,7 +22,6 @@ class Policy extends Equatable {
   final String rules;
   final bool isActive;
   final DateTime? effectiveDate;
-  
   const Policy({
     required this.id,
     required this.propertyId,
@@ -31,7 +31,6 @@ class Policy extends Equatable {
     this.isActive = true,
     this.effectiveDate,
   });
-  
   String get policyTypeLabel {
     switch (policyType) {
       case PolicyType.cancellation:
@@ -52,10 +51,15 @@ class Policy extends Equatable {
         return 'أخرى';
     }
   }
-  
+
   @override
   List<Object?> get props => [
-    id, propertyId, policyType, description,
-    rules, isActive, effectiveDate,
-  ];
+        id,
+        propertyId,
+        policyType,
+        description,
+        rules,
+        isActive,
+        effectiveDate,
+      ];
 }

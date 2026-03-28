@@ -6,11 +6,21 @@ import '../../domain/entities/support_message.dart';
 import '../../domain/repositories/support_repository.dart';
 import 'support_state.dart';
 
+/// العربية: يدير إرسال رسائل الدعم مع جمع معلومات الجهاز والإصدار حتى
+/// تصل الرسالة إلى الفريق بسياق يكفي للتشخيص.
+/// Orchestrates support-message submission while attaching device and app-version context for easier triage.
 class SupportCubit extends Cubit<SupportState> {
+  /// العربية: طبقة الوصول إلى التخزين أو الشبكة التي تستقبل رسالة الدعم بعد تجهيزها.
+  /// Repository layer that receives the prepared support message.
   final SupportRepository repository;
 
+  /// العربية: يحقن المستودع المسؤول عن الإرسال ليبقى الـ cubit قابلاً للاختبار.
+  /// Injects the repository responsible for sending the message and keeps the cubit testable.
   SupportCubit({required this.repository}) : super(SupportInitial());
 
+  /// العربية: يجمع تفاصيل الرسالة ثم يضيف بيانات الجهاز والإصدار قبل
+  /// تمريرها إلى المستودع وإصدار حالة النجاح أو الفشل.
+  /// Collects the message details, appends device and app-version data, and forwards everything to the repository before emitting success or failure states.
   Future<void> sendSupportMessage({
     required String userName,
     required String userEmail,

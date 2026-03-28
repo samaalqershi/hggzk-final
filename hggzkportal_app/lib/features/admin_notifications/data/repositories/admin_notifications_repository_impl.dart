@@ -5,13 +5,12 @@ import '../../../../core/models/paginated_result.dart';
 import '../../domain/entities/admin_notification.dart';
 import '../../domain/repositories/admin_notifications_repository.dart';
 import '../datasources/admin_notifications_remote_datasource.dart';
-
 class AdminNotificationsRepositoryImpl implements AdminNotificationsRepository {
+  /// العربية: يخزن القيمة `remote`.
   final AdminNotificationsRemoteDataSource remote;
   final NetworkInfo networkInfo;
   AdminNotificationsRepositoryImpl(
       {required this.remote, required this.networkInfo});
-
   @override
   Future<Either<Failure, String>> create(
       {required String type,
@@ -27,7 +26,6 @@ class AdminNotificationsRepositoryImpl implements AdminNotificationsRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
-
   @override
   Future<Either<Failure, int>> broadcast(
       {required String type,
@@ -55,7 +53,6 @@ class AdminNotificationsRepositoryImpl implements AdminNotificationsRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
-
   @override
   Future<Either<Failure, bool>> delete(String notificationId) async {
     if (!await networkInfo.isConnected) return const Left(NetworkFailure());
@@ -66,7 +63,6 @@ class AdminNotificationsRepositoryImpl implements AdminNotificationsRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
-
   @override
   Future<Either<Failure, PaginatedResult<AdminNotificationEntity>>> getSystem(
       {int page = 1, int pageSize = 20, String? type, String? status}) async {
@@ -79,7 +75,6 @@ class AdminNotificationsRepositoryImpl implements AdminNotificationsRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
-
   @override
   Future<Either<Failure, PaginatedResult<AdminNotificationEntity>>> getUser(
       {required String userId,
@@ -95,7 +90,6 @@ class AdminNotificationsRepositoryImpl implements AdminNotificationsRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
-
   @override
   Future<Either<Failure, bool>> resend(String notificationId) async {
     if (!await networkInfo.isConnected) return const Left(NetworkFailure());
@@ -106,9 +100,9 @@ class AdminNotificationsRepositoryImpl implements AdminNotificationsRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
-
   @override
-  Future<Either<Failure, Map<String, int>>> getStats({DateTime? startDate, DateTime? endDate}) async {
+  Future<Either<Failure, Map<String, int>>> getStats(
+      {DateTime? startDate, DateTime? endDate}) async {
     if (!await networkInfo.isConnected) return const Left(NetworkFailure());
     try {
       final res = await remote.getStats(startDate: startDate, endDate: endDate);

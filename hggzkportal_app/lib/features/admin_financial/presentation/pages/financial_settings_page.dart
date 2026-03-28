@@ -7,20 +7,18 @@ import 'package:hggzkportal/core/theme/app_theme.dart';
 
 class FinancialSettingsPage extends StatefulWidget {
   const FinancialSettingsPage({super.key});
-
   @override
   State<FinancialSettingsPage> createState() => _FinancialSettingsPageState();
 }
 
 class _FinancialSettingsPageState extends State<FinancialSettingsPage> {
   final ApiClient _apiClient = GetIt.instance<ApiClient>();
-  final TextEditingController _commissionRateController = TextEditingController();
-
+  final TextEditingController _commissionRateController =
+      TextEditingController();
   bool _isLoading = true;
   bool _isSaving = false;
   String? _errorMessage;
   double _loadedRate = 5.0;
-
   @override
   void initState() {
     super.initState();
@@ -40,7 +38,8 @@ class _FinancialSettingsPageState extends State<FinancialSettingsPage> {
     });
 
     try {
-      final response = await _apiClient.get('/api/admin/system-settings/commission');
+      final response =
+          await _apiClient.get('/api/admin/system-settings/commission');
       final data = response.data;
 
       if (data is Map<String, dynamic> && data['success'] == true) {
@@ -88,7 +87,8 @@ class _FinancialSettingsPageState extends State<FinancialSettingsPage> {
       );
 
       final data = response.data;
-      final success = data is Map<String, dynamic> ? data['success'] == true : false;
+      final success =
+          data is Map<String, dynamic> ? data['success'] == true : false;
 
       if (success) {
         setState(() {
@@ -116,7 +116,10 @@ class _FinancialSettingsPageState extends State<FinancialSettingsPage> {
       return value.toStringAsFixed(0);
     }
 
-    return value.toStringAsFixed(2).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+    return value
+        .toStringAsFixed(2)
+        .replaceAll(RegExp(r'0+$'), '')
+        .replaceAll(RegExp(r'\.$'), '');
   }
 
   void _showSnackBar(String message, {bool isError = false}) {
@@ -151,7 +154,8 @@ class _FinancialSettingsPageState extends State<FinancialSettingsPage> {
                       children: [
                         Text(
                           _errorMessage!,
-                          style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
+                          style: AppTextStyles.bodyMedium
+                              .copyWith(color: Colors.white),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16),
@@ -170,7 +174,8 @@ class _FinancialSettingsPageState extends State<FinancialSettingsPage> {
                     decoration: BoxDecoration(
                       color: AppTheme.darkCard,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppTheme.darkBorder.withOpacity(0.4)),
+                      border: Border.all(
+                          color: AppTheme.darkBorder.withValues(alpha: 0.4)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,24 +190,32 @@ class _FinancialSettingsPageState extends State<FinancialSettingsPage> {
                         const SizedBox(height: 8),
                         Text(
                           'هذه النسبة تُطبق تلقائيًا على كل حجز ما لم يتم تعيين عمولة مخصصة لعقار محدد.',
-                          style: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
+                          style: AppTextStyles.bodySmall
+                              .copyWith(color: AppTheme.textMuted),
                         ),
                         const SizedBox(height: 20),
                         TextFormField(
                           controller: _commissionRateController,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
                           inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d*\.?\d{0,2}')),
                           ],
-                          style: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
+                          style: AppTextStyles.bodyMedium
+                              .copyWith(color: Colors.white),
                           decoration: InputDecoration(
                             labelText: 'نسبة العمولة (%)',
-                            labelStyle: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted),
+                            labelStyle: AppTextStyles.bodySmall
+                                .copyWith(color: AppTheme.textMuted),
                             hintText: 'مثال: 5',
-                            hintStyle: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted.withOpacity(0.7)),
+                            hintStyle: AppTextStyles.bodySmall.copyWith(
+                                color:
+                                    AppTheme.textMuted.withValues(alpha: 0.7)),
                             suffixText: '%',
                             filled: true,
-                            fillColor: AppTheme.darkSurface.withOpacity(0.6),
+                            fillColor:
+                                AppTheme.darkSurface.withValues(alpha: 0.6),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -211,7 +224,8 @@ class _FinancialSettingsPageState extends State<FinancialSettingsPage> {
                         const SizedBox(height: 12),
                         Text(
                           'القيمة الحالية المحفوظة: ${_formatRate(_loadedRate)}%',
-                          style: AppTextStyles.bodySmall.copyWith(color: AppTheme.primaryBlue),
+                          style: AppTextStyles.bodySmall
+                              .copyWith(color: AppTheme.primaryBlue),
                         ),
                         const SizedBox(height: 20),
                         Row(
@@ -229,7 +243,8 @@ class _FinancialSettingsPageState extends State<FinancialSettingsPage> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: _isSaving ? null : _saveCommissionSettings,
+                                onPressed:
+                                    _isSaving ? null : _saveCommissionSettings,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppTheme.primaryBlue,
                                   foregroundColor: Colors.white,
@@ -238,7 +253,8 @@ class _FinancialSettingsPageState extends State<FinancialSettingsPage> {
                                     ? const SizedBox(
                                         width: 18,
                                         height: 18,
-                                        child: CircularProgressIndicator(strokeWidth: 2),
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2),
                                       )
                                     : const Text('حفظ'),
                               ),

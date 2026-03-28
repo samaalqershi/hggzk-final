@@ -5,13 +5,15 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/user_lifetime_stats.dart';
 import '../repositories/users_repository.dart';
 
-class GetUserLifetimeStatsUseCase implements UseCase<UserLifetimeStats, GetUserLifetimeStatsParams> {
+class GetUserLifetimeStatsUseCase
+    implements UseCase<UserLifetimeStats, GetUserLifetimeStatsParams> {
   final UsersRepository repository;
 
   GetUserLifetimeStatsUseCase(this.repository);
 
   @override
-  Future<Either<Failure, UserLifetimeStats>> call(GetUserLifetimeStatsParams params) {
+  Future<Either<Failure, UserLifetimeStats>> call(
+      GetUserLifetimeStatsParams params) {
     return repository.getUserLifetimeStats(params.userId);
   }
 }

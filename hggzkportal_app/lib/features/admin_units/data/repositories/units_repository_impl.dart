@@ -11,17 +11,31 @@ import '../../domain/repositories/units_repository.dart';
 import '../datasources/units_local_datasource.dart';
 import '../datasources/units_remote_datasource.dart';
 
+/// يمثل هذا الكلاس UnitsRepositoryImpl البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitsRepositoryImpl in the admin unit workflow.
 class UnitsRepositoryImpl implements UnitsRepository {
+  /// This field keeps the remoteDataSource value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة remoteDataSource التي يعتمد عليها مسار إدارة الوحدات.
   final UnitsRemoteDataSource remoteDataSource;
+
+  /// يحتفظ هذا الحقل بقيمة localDataSource التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the localDataSource value used by the admin unit workflow.
   final UnitsLocalDataSource localDataSource;
+
+  /// يحتفظ هذا الحقل بقيمة networkInfo التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the networkInfo value used by the admin unit workflow.
   final NetworkInfo networkInfo;
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitsRepositoryImpl.
+  /// This constructor creates an instance of UnitsRepositoryImpl.
   UnitsRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
     required this.networkInfo,
   });
 
+  /// ينفذ هذا الأسلوب عملية getUnits ضمن مسار إدارة الوحدات.
+  /// This method performs the getUnits operation in the admin unit workflow.
   @override
   Future<Either<Failure, PaginatedResult<Unit>>> getUnits({
     int? pageNumber,
@@ -104,6 +118,8 @@ class UnitsRepositoryImpl implements UnitsRepository {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية getUnitDetails ضمن مسار إدارة الوحدات.
+  /// This method performs the getUnitDetails operation in the admin unit workflow.
   @override
   Future<Either<Failure, Unit>> getUnitDetails(String unitId) async {
     if (await networkInfo.isConnected) {
@@ -128,6 +144,8 @@ class UnitsRepositoryImpl implements UnitsRepository {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية getUnitAnalytics ضمن مسار إدارة الوحدات.
+  /// This method performs the getUnitAnalytics operation in the admin unit workflow.
   @override
   Future<Either<Failure, UnitAnalytics>> getUnitAnalytics({
     required String unitId,
@@ -154,6 +172,8 @@ class UnitsRepositoryImpl implements UnitsRepository {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية createUnit ضمن مسار إدارة الوحدات.
+  /// This method performs the createUnit operation in the admin unit workflow.
   @override
   Future<Either<Failure, String>> createUnit({
     required String propertyId,
@@ -198,6 +218,8 @@ class UnitsRepositoryImpl implements UnitsRepository {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية updateUnit ضمن مسار إدارة الوحدات.
+  /// This method performs the updateUnit operation in the admin unit workflow.
   @override
   Future<Either<Failure, bool>> updateUnit({
     required String unitId,
@@ -240,6 +262,8 @@ class UnitsRepositoryImpl implements UnitsRepository {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية deleteUnit ضمن مسار إدارة الوحدات.
+  /// This method performs the deleteUnit operation in the admin unit workflow.
   @override
   Future<Either<Failure, bool>> deleteUnit(String unitId) async {
     if (await networkInfo.isConnected) {
@@ -254,6 +278,8 @@ class UnitsRepositoryImpl implements UnitsRepository {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية getUnitTypesByProperty ضمن مسار إدارة الوحدات.
+  /// This method performs the getUnitTypesByProperty operation in the admin unit workflow.
   @override
   Future<Either<Failure, List<UnitType>>> getUnitTypesByProperty(
     String propertyTypeId,
@@ -272,6 +298,8 @@ class UnitsRepositoryImpl implements UnitsRepository {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية getUnitFields ضمن مسار إدارة الوحدات.
+  /// This method performs the getUnitFields operation in the admin unit workflow.
   @override
   Future<Either<Failure, List<UnitTypeField>>> getUnitFields(
     String unitTypeId,
@@ -288,6 +316,8 @@ class UnitsRepositoryImpl implements UnitsRepository {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية assignUnitToSections ضمن مسار إدارة الوحدات.
+  /// This method performs the assignUnitToSections operation in the admin unit workflow.
   @override
   Future<Either<Failure, bool>> assignUnitToSections(
     String unitId,
@@ -309,6 +339,8 @@ class UnitsRepositoryImpl implements UnitsRepository {
   }
 
   /// تحويل قيم الحقول إلى string كما يتوقعها Backend
+  /// ينفذ هذا الأسلوب عملية _convertFieldValuesToString ضمن مسار إدارة الوحدات.
+  /// This method performs the _convertFieldValuesToString operation in the admin unit workflow.
   List<Map<String, dynamic>> _convertFieldValuesToString(
     List<Map<String, dynamic>>? fieldValues,
   ) {

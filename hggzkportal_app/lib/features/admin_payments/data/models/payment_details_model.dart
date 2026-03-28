@@ -1,11 +1,9 @@
-import 'package:hggzkportal/features/admin_payments/domain/entities/payment.dart';
-import 'package:hggzkportal/features/admin_payments/domain/entities/refund.dart';
-
 import '../../domain/entities/payment_details.dart';
 import 'payment_model.dart';
 import 'refund_model.dart';
 
 class PaymentDetailsModel extends PaymentDetails {
+  /// العربية: ينشئ مثيلًا جديدًا من `PaymentDetailsModel`.
   const PaymentDetailsModel({
     required super.payment,
     required super.refunds,
@@ -15,7 +13,6 @@ class PaymentDetailsModel extends PaymentDetails {
     super.gatewayInfo,
     super.additionalData,
   });
-
   factory PaymentDetailsModel.fromJson(Map<String, dynamic> json) {
     // Check if 'payment' field exists - this means it's the full details response
     if (json.containsKey('payment') && json['payment'] != null) {
@@ -43,8 +40,8 @@ class PaymentDetailsModel extends PaymentDetails {
       // This is just a Payment object, create minimal PaymentDetails
       return PaymentDetailsModel(
         payment: PaymentModel.fromJson(json),
-        refunds: [],
-        activities: [],
+        refunds: const [],
+        activities: const [],
         bookingInfo: null,
         customerInfo: null,
         gatewayInfo: null,
@@ -52,7 +49,6 @@ class PaymentDetailsModel extends PaymentDetails {
       );
     }
   }
-
   Map<String, dynamic> toJson() {
     return {
       'payment': (payment as PaymentModel).toJson(),
@@ -71,6 +67,7 @@ class PaymentDetailsModel extends PaymentDetails {
 }
 
 class PaymentActivityModel extends PaymentActivity {
+  /// العربية: ينشئ مثيلًا جديدًا من `PaymentActivityModel`.
   const PaymentActivityModel({
     required super.id,
     required super.action,
@@ -80,7 +77,6 @@ class PaymentActivityModel extends PaymentActivity {
     super.userName,
     super.data,
   });
-
   factory PaymentActivityModel.fromJson(Map<String, dynamic> json) {
     return PaymentActivityModel(
       id: json['id']?.toString() ?? '',
@@ -92,7 +88,6 @@ class PaymentActivityModel extends PaymentActivity {
       data: json['data'] as Map<String, dynamic>?,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -107,6 +102,7 @@ class PaymentActivityModel extends PaymentActivity {
 }
 
 class BookingInfoModel extends BookingInfo {
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingInfoModel`.
   const BookingInfoModel({
     required super.bookingId,
     required super.bookingReference,
@@ -116,7 +112,6 @@ class BookingInfoModel extends BookingInfo {
     required super.propertyName,
     required super.guestsCount,
   });
-
   factory BookingInfoModel.fromJson(Map<String, dynamic> json) {
     return BookingInfoModel(
       bookingId: json['bookingId']?.toString() ?? '',
@@ -128,7 +123,6 @@ class BookingInfoModel extends BookingInfo {
       guestsCount: json['guestsCount'] ?? 1,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'bookingId': bookingId,
@@ -143,6 +137,7 @@ class BookingInfoModel extends BookingInfo {
 }
 
 class CustomerInfoModel extends CustomerInfo {
+  /// العربية: ينشئ مثيلًا جديدًا من `CustomerInfoModel`.
   const CustomerInfoModel({
     required super.customerId,
     required super.name,
@@ -152,7 +147,6 @@ class CustomerInfoModel extends CustomerInfo {
     super.nationality,
     super.additionalInfo,
   });
-
   factory CustomerInfoModel.fromJson(Map<String, dynamic> json) {
     return CustomerInfoModel(
       customerId: json['customerId']?.toString() ?? '',
@@ -164,7 +158,6 @@ class CustomerInfoModel extends CustomerInfo {
       additionalInfo: json['additionalInfo'] as Map<String, dynamic>?,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'customerId': customerId,
@@ -179,6 +172,7 @@ class CustomerInfoModel extends CustomerInfo {
 }
 
 class PaymentGatewayInfoModel extends PaymentGatewayInfo {
+  /// العربية: ينشئ مثيلًا جديدًا من `PaymentGatewayInfoModel`.
   const PaymentGatewayInfoModel({
     required super.gatewayName,
     required super.gatewayTransactionId,
@@ -187,7 +181,6 @@ class PaymentGatewayInfoModel extends PaymentGatewayInfo {
     super.responseMessage,
     super.rawResponse,
   });
-
   factory PaymentGatewayInfoModel.fromJson(Map<String, dynamic> json) {
     return PaymentGatewayInfoModel(
       gatewayName: json['gatewayName'] ?? '',
@@ -198,7 +191,6 @@ class PaymentGatewayInfoModel extends PaymentGatewayInfo {
       rawResponse: json['rawResponse'] as Map<String, dynamic>?,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'gatewayName': gatewayName,

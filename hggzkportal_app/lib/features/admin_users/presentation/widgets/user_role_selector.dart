@@ -9,6 +9,7 @@ import 'package:hggzkportal/core/theme/app_text_styles.dart';
 
 class UserRoleSelector extends StatefulWidget {
   final String? currentRole;
+
   final Function(String) onRoleSelected;
 
   const UserRoleSelector({
@@ -25,18 +26,23 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
     with TickerProviderStateMixin {
   // Animation Controllers
   late AnimationController _backgroundAnimationController;
+
   late AnimationController _glowController;
+
   late AnimationController _slideController;
-  
+
   // Animations
   late Animation<double> _backgroundRotation;
+
   late Animation<double> _glowAnimation;
+
   late Animation<double> _slideAnimation;
+
   late Animation<double> _fadeAnimation;
-  
+
   // State
   String? _selectedRole;
-  
+
   final List<Map<String, dynamic>> _roles = [
     {
       'id': 'admin',
@@ -78,23 +84,23 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
     _selectedRole = widget.currentRole;
     _initializeAnimations();
   }
-  
+
   void _initializeAnimations() {
     _backgroundAnimationController = AnimationController(
       duration: const Duration(seconds: 20),
       vsync: this,
     )..repeat();
-    
+
     _glowController = AnimationController(
       duration: const Duration(seconds: 3),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
-    
+
     _backgroundRotation = Tween<double>(
       begin: 0,
       end: 2 * math.pi,
@@ -102,7 +108,7 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
       parent: _backgroundAnimationController,
       curve: Curves.linear,
     ));
-    
+
     _glowAnimation = Tween<double>(
       begin: 0.3,
       end: 1.0,
@@ -110,17 +116,17 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
       parent: _glowController,
       curve: Curves.easeInOut,
     ));
-    
+
     _slideAnimation = CurvedAnimation(
       parent: _slideController,
       curve: Curves.easeOutCubic,
     );
-    
+
     _fadeAnimation = CurvedAnimation(
       parent: _slideController,
       curve: Curves.easeIn,
     );
-    
+
     _slideController.forward();
   }
 
@@ -148,15 +154,15 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.darkCard.withOpacity(0.95),
-                AppTheme.darkCard.withOpacity(0.85),
+                AppTheme.darkCard.withValues(alpha: 0.95),
+                AppTheme.darkCard.withValues(alpha: 0.85),
               ],
             ),
             borderRadius: const BorderRadius.vertical(
               top: Radius.circular(24),
             ),
             border: Border.all(
-              color: AppTheme.primaryBlue.withOpacity(0.3),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -170,7 +176,7 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
                 children: [
                   // Animated Background
                   _buildAnimatedBackground(),
-                  
+
                   // Content
                   Column(
                     children: [
@@ -190,7 +196,7 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
       ),
     );
   }
-  
+
   Widget _buildAnimatedBackground() {
     return Positioned.fill(
       child: AnimatedBuilder(
@@ -217,7 +223,7 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
         borderRadius: BorderRadius.circular(2),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
             blurRadius: 6,
           ),
         ],
@@ -231,7 +237,7 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -248,7 +254,8 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.4 * _glowAnimation.value),
+                      color: AppTheme.primaryBlue
+                          .withValues(alpha: 0.4 * _glowAnimation.value),
                       blurRadius: 20,
                       spreadRadius: 2,
                     ),
@@ -268,7 +275,8 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ShaderMask(
-                  shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+                  shaderCallback: (bounds) =>
+                      AppTheme.primaryGradient.createShader(bounds),
                   child: Text(
                     'اختر دور المستخدم',
                     style: AppTextStyles.heading3.copyWith(
@@ -300,14 +308,15 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
       itemBuilder: (context, index) {
         final role = _roles[index];
         final isSelected = _selectedRole == role['id'];
-        
+
         return TweenAnimationBuilder<double>(
           tween: Tween(begin: 0, end: 1),
           duration: Duration(milliseconds: 300 + (index * 100)),
           curve: Curves.easeOutBack,
           builder: (context, value, child) {
-            final double clampedOpacity = value.clamp(0.0, 1.0) as double;
-            final double clampedScale = value < 0 ? 0 : value; // allow overshoot >1 for scale
+            final double clampedOpacity = value.clamp(0.0, 1.0);
+            final double clampedScale =
+                value < 0 ? 0 : value; // allow overshoot >1 for scale
             return Transform.scale(
               scale: clampedScale,
               child: Opacity(
@@ -336,25 +345,26 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
           gradient: LinearGradient(
             colors: isSelected
                 ? [
-                    (role['gradient'] as List<Color>)[0].withOpacity(0.2),
-                    (role['gradient'] as List<Color>)[1].withOpacity(0.1),
+                    (role['gradient'] as List<Color>)[0].withValues(alpha: 0.2),
+                    (role['gradient'] as List<Color>)[1].withValues(alpha: 0.1),
                   ]
                 : [
-                    AppTheme.darkCard.withOpacity(0.5),
-                    AppTheme.darkCard.withOpacity(0.3),
+                    AppTheme.darkCard.withValues(alpha: 0.5),
+                    AppTheme.darkCard.withValues(alpha: 0.3),
                   ],
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
-                ? (role['gradient'] as List<Color>)[0].withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.3),
+                ? (role['gradient'] as List<Color>)[0].withValues(alpha: 0.5)
+                : AppTheme.darkBorder.withValues(alpha: 0.3),
             width: isSelected ? 1.5 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: (role['gradient'] as List<Color>)[0].withOpacity(0.3),
+                    color: (role['gradient'] as List<Color>)[0]
+                        .withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 6),
                   ),
@@ -382,7 +392,8 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: (role['gradient'] as List<Color>)[0].withOpacity(0.3),
+                              color: (role['gradient'] as List<Color>)[0]
+                                  .withValues(alpha: 0.3),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -395,7 +406,7 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
                         ),
                       ),
                       const SizedBox(width: 16),
-                      
+
                       // Title & Description
                       Expanded(
                         child: Column(
@@ -418,7 +429,7 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
                           ],
                         ),
                       ),
-                      
+
                       // Selection Indicator
                       if (isSelected)
                         Container(
@@ -431,7 +442,8 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: (role['gradient'] as List<Color>)[0].withOpacity(0.4),
+                                color: (role['gradient'] as List<Color>)[0]
+                                    .withValues(alpha: 0.4),
                                 blurRadius: 8,
                               ),
                             ],
@@ -444,14 +456,14 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
                         ),
                     ],
                   ),
-                  
+
                   // Features
                   if (isSelected) ...[
                     const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppTheme.darkBackground.withOpacity(0.3),
+                        color: AppTheme.darkBackground.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -465,7 +477,8 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
                           Expanded(
                             child: Wrap(
                               spacing: 8,
-                              children: (role['features'] as List<String>).map((feature) {
+                              children: (role['features'] as List<String>)
+                                  .map((feature) {
                                 return Chip(
                                   label: Text(
                                     feature,
@@ -474,9 +487,12 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
                                       fontSize: 10,
                                     ),
                                   ),
-                                  backgroundColor: (role['gradient'] as List<Color>)[0].withOpacity(0.2),
+                                  backgroundColor:
+                                      (role['gradient'] as List<Color>)[0]
+                                          .withValues(alpha: 0.2),
                                   side: BorderSide.none,
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 2),
                                 );
                               }).toList(),
                             ),
@@ -500,13 +516,13 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -522,13 +538,13 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.darkSurface.withOpacity(0.5),
-                      AppTheme.darkSurface.withOpacity(0.3),
+                      AppTheme.darkSurface.withValues(alpha: 0.5),
+                      AppTheme.darkSurface.withValues(alpha: 0.3),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.darkBorder.withOpacity(0.3),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -543,9 +559,9 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
               ),
             ),
           ),
-          
+
           const SizedBox(width: 12),
-          
+
           // Confirm Button
           Expanded(
             child: AnimatedBuilder(
@@ -570,8 +586,8 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
                         boxShadow: _selectedRole != null
                             ? [
                                 BoxShadow(
-                                  color: AppTheme.primaryBlue.withOpacity(
-                                    0.3 + 0.2 * _glowAnimation.value,
+                                  color: AppTheme.primaryBlue.withValues(
+                                    alpha: 0.3 + 0.2 * _glowAnimation.value,
                                   ),
                                   blurRadius: 12 + 8 * _glowAnimation.value,
                                   offset: const Offset(0, 4),
@@ -603,36 +619,37 @@ class _UserRoleSelectorState extends State<UserRoleSelector>
 // Custom Background Painter
 class _SelectorBackgroundPainter extends CustomPainter {
   final double rotation;
+
   final double glowIntensity;
-  
+
   _SelectorBackgroundPainter({
     required this.rotation,
     required this.glowIntensity,
   });
-  
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.5;
-    
+
     // Draw animated circles
-    paint.color = AppTheme.primaryBlue.withOpacity(0.02 * glowIntensity);
-    
+    paint.color = AppTheme.primaryBlue.withValues(alpha: 0.02 * glowIntensity);
+
     for (int i = 0; i < 3; i++) {
       final radius = 100.0 + i * 50;
       final center = Offset(
         size.width / 2 + math.cos(rotation + i) * 30,
         size.height / 2 + math.sin(rotation + i) * 30,
       );
-      
+
       canvas.drawCircle(center, radius, paint);
     }
-    
+
     // Draw decorative lines
-    paint.color = AppTheme.primaryBlue.withOpacity(0.01);
+    paint.color = AppTheme.primaryBlue.withValues(alpha: 0.01);
     const lineCount = 5;
-    
+
     for (int i = 0; i < lineCount; i++) {
       final y = size.height * (i + 1) / (lineCount + 1);
       canvas.drawLine(
@@ -642,7 +659,7 @@ class _SelectorBackgroundPainter extends CustomPainter {
       );
     }
   }
-  
+
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

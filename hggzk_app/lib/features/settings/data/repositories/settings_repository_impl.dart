@@ -5,19 +5,25 @@ import '../../domain/entities/app_settings.dart';
 import '../../domain/repositories/settings_repository.dart';
 import '../datasources/settings_local_datasource.dart';
 import '../models/app_settings_model.dart';
-import '../../../../injection_container.dart' as di;
+import 'package:hggzk/app/dependency_injection/injection_container.dart' as di;
 import '../../../../core/constants/storage_constants.dart';
-import '../../../../services/local_storage_service.dart';
+import 'package:hggzk/core/services/local_storage_service.dart';
 import '../../../auth/data/datasources/auth_local_datasource.dart';
 import '../../../../core/network/api_client.dart';
 
+/// ينسق بين طبقة المجال والتخزين المحلي والمزامنة الخلفية في ميزة الإعدادات.
+/// Coordinates domain requests, local persistence, and backend sync for the
+/// settings feature.
 class SettingsRepositoryImpl implements SettingsRepository {
+  /// مصدر التخزين المحلي الذي يقرأ الإعدادات ويحفظها على الجهاز.
+  /// Local data source that reads and writes settings on the device.
   final SettingsLocalDataSource localDataSource;
 
+  /// ينشئ المستودع مع مصدر البيانات المحلي الذي يعتمد عليه.
+  /// Creates the repository with the local data source it depends on.
   SettingsRepositoryImpl({
     required this.localDataSource,
   });
-
   @override
   Future<Either<Failure, AppSettings>> getSettings() async {
     try {

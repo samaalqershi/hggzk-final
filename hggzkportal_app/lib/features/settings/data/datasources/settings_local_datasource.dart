@@ -4,6 +4,7 @@ import '../../../../core/error/exceptions.dart';
 import '../models/app_settings_model.dart';
 
 abstract class SettingsLocalDataSource {
+  /// العربية: يعيد settings.
   Future<AppSettingsModel> getSettings();
   Future<bool> saveSettings(AppSettingsModel settings);
   Future<bool> updateLanguage(String languageCode);
@@ -17,6 +18,7 @@ abstract class SettingsLocalDataSource {
 }
 
 class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
+  /// العربية: يخزن القيمة `localStorage`.
   final LocalStorageService localStorage;
   static const String _settingsKey = 'app_settings';
   static const String _languageKey = 'preferred_language';
@@ -25,19 +27,17 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   static const String _currencyKey = 'preferred_currency';
   static const String _timeZoneKey = 'time_zone';
   static const String _notificationKey = 'notification_settings';
-
   SettingsLocalDataSourceImpl({required this.localStorage});
-
   @override
   Future<AppSettingsModel> getSettings() async {
     try {
       final settingsJson = localStorage.getData(_settingsKey);
-      
+
       if (settingsJson != null && settingsJson is String) {
         final Map<String, dynamic> json = jsonDecode(settingsJson);
         return AppSettingsModel.fromJson(json);
       }
-      
+
       // Return default settings if none exist
       return _createDefaultSettings();
     } catch (e) {
@@ -59,7 +59,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   Future<bool> updateLanguage(String languageCode) async {
     try {
       await localStorage.saveData(_languageKey, languageCode);
-      
+
       final settings = await getSettings();
       final updatedSettings = AppSettingsModel.fromEntity(
         settings.copyWith(
@@ -67,7 +67,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
           lastUpdated: DateTime.now(),
         ),
       );
-      
+
       return await saveSettings(updatedSettings);
     } catch (e) {
       throw CacheException('Failed to update language: $e');
@@ -78,7 +78,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   Future<bool> updateTheme(bool isDarkMode) async {
     try {
       await localStorage.saveData(_themeKey, isDarkMode);
-      
+
       final settings = await getSettings();
       final updatedSettings = AppSettingsModel.fromEntity(
         settings.copyWith(
@@ -86,7 +86,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
           lastUpdated: DateTime.now(),
         ),
       );
-      
+
       return await saveSettings(updatedSettings);
     } catch (e) {
       throw CacheException('Failed to update theme: $e');
@@ -117,11 +117,12 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   }
 
   @override
-  Future<bool> updateNotificationSettings(NotificationSettingsModel settings) async {
+  Future<bool> updateNotificationSettings(
+      NotificationSettingsModel settings) async {
     try {
       final json = jsonEncode(settings.toJson());
       await localStorage.saveData(_notificationKey, json);
-      
+
       final currentSettings = await getSettings();
       final updatedSettings = AppSettingsModel.fromEntity(
         currentSettings.copyWith(
@@ -129,7 +130,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
           lastUpdated: DateTime.now(),
         ),
       );
-      
+
       return await saveSettings(updatedSettings);
     } catch (e) {
       throw CacheException('Failed to update notification settings: $e');
@@ -140,7 +141,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   Future<bool> updateCurrency(String currencyCode) async {
     try {
       await localStorage.saveData(_currencyKey, currencyCode);
-      
+
       final settings = await getSettings();
       final updatedSettings = AppSettingsModel.fromEntity(
         settings.copyWith(
@@ -148,7 +149,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
           lastUpdated: DateTime.now(),
         ),
       );
-      
+
       return await saveSettings(updatedSettings);
     } catch (e) {
       throw CacheException('Failed to update currency: $e');
@@ -159,7 +160,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   Future<bool> updateTimeZone(String timeZone) async {
     try {
       await localStorage.saveData(_timeZoneKey, timeZone);
-      
+
       final settings = await getSettings();
       final updatedSettings = AppSettingsModel.fromEntity(
         settings.copyWith(
@@ -167,7 +168,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
           lastUpdated: DateTime.now(),
         ),
       );
-      
+
       return await saveSettings(updatedSettings);
     } catch (e) {
       throw CacheException('Failed to update time zone: $e');

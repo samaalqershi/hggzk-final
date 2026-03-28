@@ -18,7 +18,6 @@ import '../../../admin_bookings/presentation/widgets/booking_confirmation_dialog
 import '../widgets/void_payment_dialog.dart'; // 🎯 إضافة
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/error_widget.dart';
 import '../../../../core/widgets/empty_widget.dart';
@@ -26,8 +25,8 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 
 class PaymentsListPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `PaymentsListPage`.
   const PaymentsListPage({super.key});
-
   @override
   State<PaymentsListPage> createState() => _PaymentsListPageState();
 }
@@ -37,13 +36,11 @@ class _PaymentsListPageState extends State<PaymentsListPage>
   // 🎯 تغيير إلى TickerProviderStateMixin
   late AnimationController _animationController;
   late AnimationController _pulseAnimationController; // 🎯 للـ pulse animation
-  late Animation<double> _fadeAnimation;
   final ScrollController _scrollController = ScrollController();
   bool _showFilters = false;
   bool _isGridView = false; // 🎯 إضافة grid view option
   DateTime? _defaultStart;
   DateTime? _defaultEnd;
-
   @override
   void initState() {
     super.initState();
@@ -58,10 +55,6 @@ class _PaymentsListPageState extends State<PaymentsListPage>
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
     _animationController.forward();
 
     // Load payments with default last 30 days window for trends
@@ -69,7 +62,6 @@ class _PaymentsListPageState extends State<PaymentsListPage>
     final last30 = now.subtract(const Duration(days: 30));
     _defaultStart = last30;
     _defaultEnd = now;
-
     _loadPayments();
     _setupScrollListener(); // 🎯 إضافة scroll listener
   }
@@ -117,25 +109,6 @@ class _PaymentsListPageState extends State<PaymentsListPage>
         }
       }
     });
-  }
-
-  Widget _buildTrendNote(PaymentsListLoaded state) {
-    final start = _defaultStart;
-    final end = _defaultEnd;
-    if (start == null || end == null) return const SizedBox.shrink();
-    final days = end.difference(start).inDays;
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: Text(
-          'الاتجاهات محسوبة لآخر $days يومًا',
-          style: AppTextStyles.caption.copyWith(
-            color: AppTheme.textMuted,
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -212,7 +185,7 @@ class _PaymentsListPageState extends State<PaymentsListPage>
             color: AppTheme.textWhite,
             shadows: [
               Shadow(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                 blurRadius: 10,
               ),
             ],
@@ -224,7 +197,7 @@ class _PaymentsListPageState extends State<PaymentsListPage>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.1),
+                AppTheme.primaryBlue.withValues(alpha: 0.1),
                 AppTheme.darkBackground,
               ],
             ),
@@ -268,21 +241,21 @@ class _PaymentsListPageState extends State<PaymentsListPage>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.primaryPurple.withOpacity(0.2),
-                      AppTheme.primaryViolet.withOpacity(0.15),
+                      AppTheme.primaryPurple.withValues(alpha: 0.2),
+                      AppTheme.primaryViolet.withValues(alpha: 0.15),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.primaryPurple.withOpacity(
-                      0.3 + (_pulseAnimationController.value * 0.2),
+                    color: AppTheme.primaryPurple.withValues(
+                      alpha: 0.3 + (_pulseAnimationController.value * 0.2),
                     ),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryPurple.withOpacity(
-                        0.1 * _pulseAnimationController.value,
+                      color: AppTheme.primaryPurple.withValues(
+                        alpha: 0.1 * _pulseAnimationController.value,
                       ),
                       blurRadius: 8,
                       spreadRadius: 1,
@@ -326,8 +299,8 @@ class _PaymentsListPageState extends State<PaymentsListPage>
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.neonPurple.withOpacity(
-                          0.6 * _pulseAnimationController.value,
+                        color: AppTheme.neonPurple.withValues(
+                          alpha: 0.6 * _pulseAnimationController.value,
                         ),
                         blurRadius: 4,
                         spreadRadius: 1,
@@ -356,21 +329,21 @@ class _PaymentsListPageState extends State<PaymentsListPage>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.success.withOpacity(0.2),
-                      AppTheme.neonGreen.withOpacity(0.15),
+                      AppTheme.success.withValues(alpha: 0.2),
+                      AppTheme.neonGreen.withValues(alpha: 0.15),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.success.withOpacity(
-                      0.3 + (_pulseAnimationController.value * 0.2),
+                    color: AppTheme.success.withValues(
+                      alpha: 0.3 + (_pulseAnimationController.value * 0.2),
                     ),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.success.withOpacity(
-                        0.1 * _pulseAnimationController.value,
+                      color: AppTheme.success.withValues(
+                        alpha: 0.1 * _pulseAnimationController.value,
                       ),
                       blurRadius: 8,
                       spreadRadius: 1,
@@ -418,10 +391,10 @@ class _PaymentsListPageState extends State<PaymentsListPage>
           child: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.darkCard.withOpacity(0.3),
+              color: AppTheme.darkCard.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -630,273 +603,6 @@ class _PaymentsListPageState extends State<PaymentsListPage>
     return null;
   }
 
-  Widget _buildContentBody(
-    PaymentsListLoaded state,
-    bool isSmallScreen,
-    bool isMediumScreen,
-    double? tableHeight,
-    BoxConstraints constraints,
-  ) {
-    // للشاشات الصغيرة، نستخدم SingleChildScrollView
-    if (isSmallScreen) {
-      return SingleChildScrollView(
-        controller: _scrollController,
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            // Stats Cards
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimensions.paddingLarge,
-              ),
-              child: PaymentStatsCards(
-                statistics: {
-                  ...state.statistics,
-                  if (state.stats != null) ...state.stats!,
-                },
-              ),
-            ),
-            if (_defaultStart != null && _defaultEnd != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDimensions.paddingLarge,
-                ),
-                child: _buildTrendNote(state),
-              ),
-            const SizedBox(height: AppDimensions.spaceMedium),
-
-            // Payments Table - مع ارتفاع محدد للموبايل
-            Padding(
-              padding: const EdgeInsets.all(AppDimensions.paddingLarge),
-              child: SizedBox(
-                height: constraints.maxHeight * 0.5, // نصف الشاشة
-                child: FuturisticPaymentsTable(
-                  payments: state.payments.items,
-                  onPaymentTap: (payment) {
-                    // 🎯 استخدام GoRouter push للإضافة إلى المكدس
-                    context.push('/admin/payments/${payment.id}');
-                  },
-                  onRefundTap: context.select((AuthBloc bloc) {
-                    final s = bloc.state;
-                    final isAdmin = s is AuthAuthenticated
-                        ? s.user.isAdmin
-                        : s is AuthLoginSuccess
-                            ? s.user.isAdmin
-                            : s is AuthProfileUpdateSuccess
-                                ? s.user.isAdmin
-                                : s is AuthProfileImageUploadSuccess
-                                    ? s.user.isAdmin
-                                    : false;
-                    final isOwner = s is AuthAuthenticated
-                        ? s.user.isOwner
-                        : s is AuthLoginSuccess
-                            ? s.user.isOwner
-                            : s is AuthProfileUpdateSuccess
-                                ? s.user.isOwner
-                                : s is AuthProfileImageUploadSuccess
-                                    ? s.user.isOwner
-                                    : false;
-                    // ✅ منح المالك صلاحية الاسترداد أيضاً
-                    return (isAdmin || isOwner) ? _showRefundDialog : null;
-                  }),
-                  onVoidTap: context.select((AuthBloc bloc) {
-                    final s = bloc.state;
-                    final isAdmin = s is AuthAuthenticated
-                        ? s.user.isAdmin
-                        : s is AuthLoginSuccess
-                            ? s.user.isAdmin
-                            : s is AuthProfileUpdateSuccess
-                                ? s.user.isAdmin
-                                : s is AuthProfileImageUploadSuccess
-                                    ? s.user.isAdmin
-                                    : false;
-                    final isOwner = s is AuthAuthenticated
-                        ? s.user.isOwner
-                        : s is AuthLoginSuccess
-                            ? s.user.isOwner
-                            : s is AuthProfileUpdateSuccess
-                                ? s.user.isOwner
-                                : s is AuthProfileImageUploadSuccess
-                                    ? s.user.isOwner
-                                    : false;
-                    // ✅ منح المالك صلاحية الإلغاء أيضاً
-                    return (isAdmin || isOwner) ? _showVoidConfirmation : null;
-                  }),
-                ),
-              ),
-            ),
-
-            // Pagination
-            if (state.payments.hasNextPage)
-              Padding(
-                padding: const EdgeInsets.all(AppDimensions.paddingLarge),
-                child: _buildLoadMoreButton(),
-              ),
-          ],
-        ),
-      );
-    }
-
-    // للشاشات الأكبر، نستخدم CustomScrollView
-    return CustomScrollView(
-      controller: _scrollController,
-      physics: const BouncingScrollPhysics(),
-      slivers: [
-        // Stats Cards
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppDimensions.paddingLarge,
-            ),
-            child: PaymentStatsCards(
-              statistics: {
-                ...state.statistics,
-                if (state.stats != null) ...state.stats!,
-              },
-            ),
-          ),
-        ),
-        if (_defaultStart != null && _defaultEnd != null)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimensions.paddingLarge,
-              ),
-              child: _buildTrendNote(state),
-            ),
-          ),
-
-        const SliverToBoxAdapter(
-          child: SizedBox(height: AppDimensions.spaceMedium),
-        ),
-
-        // Payments Table - استخدام SliverFillRemaining
-        SliverFillRemaining(
-          hasScrollBody: false,
-          fillOverscroll: false,
-          child: Padding(
-            padding: const EdgeInsets.all(AppDimensions.paddingLarge),
-            child: FuturisticPaymentsTable(
-              payments: state.payments.items,
-              height: tableHeight, // تحديد الارتفاع
-              onPaymentTap: (payment) {
-                // 🎯 استخدام GoRouter push للإضافة إلى المكدس
-                context.push('/admin/payments/${payment.id}');
-              },
-              onRefundTap: context.select((AuthBloc bloc) {
-                final s = bloc.state;
-                final isAdmin = s is AuthAuthenticated
-                    ? s.user.isAdmin
-                    : s is AuthLoginSuccess
-                        ? s.user.isAdmin
-                        : s is AuthProfileUpdateSuccess
-                            ? s.user.isAdmin
-                            : s is AuthProfileImageUploadSuccess
-                                ? s.user.isAdmin
-                                : false;
-                final isOwner = s is AuthAuthenticated
-                    ? s.user.isOwner
-                    : s is AuthLoginSuccess
-                        ? s.user.isOwner
-                        : s is AuthProfileUpdateSuccess
-                            ? s.user.isOwner
-                            : s is AuthProfileImageUploadSuccess
-                                ? s.user.isOwner
-                                : false;
-                // ✅ منح المالك صلاحية الاسترداد أيضاً
-                return (isAdmin || isOwner) ? _showRefundDialog : null;
-              }),
-              onVoidTap: context.select((AuthBloc bloc) {
-                final s = bloc.state;
-                final isAdmin = s is AuthAuthenticated
-                    ? s.user.isAdmin
-                    : s is AuthLoginSuccess
-                        ? s.user.isAdmin
-                        : s is AuthProfileUpdateSuccess
-                            ? s.user.isAdmin
-                            : s is AuthProfileImageUploadSuccess
-                                ? s.user.isAdmin
-                                : false;
-                final isOwner = s is AuthAuthenticated
-                    ? s.user.isOwner
-                    : s is AuthLoginSuccess
-                        ? s.user.isOwner
-                        : s is AuthProfileUpdateSuccess
-                            ? s.user.isOwner
-                            : s is AuthProfileImageUploadSuccess
-                                ? s.user.isOwner
-                                : false;
-                // ✅ منح المالك صلاحية الإلغاء أيضاً
-                return (isAdmin || isOwner) ? _showVoidConfirmation : null;
-              }),
-            ),
-          ),
-        ),
-
-        // Pagination
-        if (state.payments.hasNextPage)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(AppDimensions.paddingLarge),
-              child: Center(
-                child: _buildLoadMoreButton(),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildLoadMoreButton() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: CupertinoButton(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 32,
-          vertical: 14,
-        ),
-        color: AppTheme.darkCard,
-        borderRadius: BorderRadius.circular(12),
-        onPressed: () {
-          final state = context.read<PaymentsListBloc>().state;
-          if (state is PaymentsListLoaded) {
-            context.read<PaymentsListBloc>().add(
-                  ChangePageEvent(
-                    pageNumber: state.payments.currentPage + 1,
-                  ),
-                );
-          }
-        },
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              CupertinoIcons.arrow_down_circle,
-              color: AppTheme.primaryBlue,
-              size: 20,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'تحميل المزيد',
-              style: AppTextStyles.buttonMedium.copyWith(
-                color: AppTheme.primaryBlue,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   // 🎯 إظهار نافذة الاسترداد المخصصة
   void _showRefundDialog(payment) {
     HapticFeedback.mediumImpact();
@@ -948,47 +654,6 @@ class _PaymentsListPageState extends State<PaymentsListPage>
               );
         },
       ),
-    );
-  }
-
-  // 🎯 Floating Action Button المحسّن (مثل الحجوزات)
-  Widget _buildEnhancedFloatingActionButton() {
-    return AnimatedBuilder(
-      animation: _pulseAnimationController,
-      builder: (context, child) {
-        return Container(
-          decoration: BoxDecoration(
-            gradient: AppTheme.primaryGradient,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.primaryBlue.withOpacity(
-                  0.2 + (_pulseAnimationController.value * 0.1),
-                ),
-                blurRadius: 12 + (_pulseAnimationController.value * 4),
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: FloatingActionButton.extended(
-            onPressed: () {
-              HapticFeedback.mediumImpact();
-              context.read<PaymentsListBloc>().add(
-                    const ExportPaymentsEvent(format: ExportFormat.excel),
-                  );
-            },
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            icon: const Icon(CupertinoIcons.arrow_down_doc, size: 20),
-            label: Text(
-              'تصدير',
-              style: AppTextStyles.buttonMedium.copyWith(
-                color: AppTheme.textWhiteAlways,
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }

@@ -6,7 +6,7 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/enums/payment_method_enum.dart';
-import '../../../../presentation/navigation/main_tab_notification.dart';
+import 'package:hggzk/app/navigation/switch_main_tab_notification.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../payment/presentation/bloc/payment_bloc.dart';
@@ -17,41 +17,56 @@ import '../bloc/booking_state.dart';
 import '../bloc/booking_event.dart';
 import '../widgets/payment_methods_widget.dart';
 
+/// العربية: يمثل عنصر الصفحة `BookingPaymentPage`.
 class BookingPaymentPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `bookingData`.
   final Map<String, dynamic> bookingData;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingPaymentPage`.
   const BookingPaymentPage({
     super.key,
     required this.bookingData,
   });
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<BookingPaymentPage> createState() => _BookingPaymentPageState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `BookingPaymentPageState`.
 class _BookingPaymentPageState extends State<BookingPaymentPage>
     with SingleTickerProviderStateMixin {
+  /// العربية: يخزن القيمة `controller`.
   late AnimationController _controller;
 
+  /// العربية: يخزن القيمة `selectedPaymentMethod`.
   PaymentMethod? _selectedPaymentMethod;
+
+  /// العربية: يخزن القيمة `acceptTerms`.
   bool _acceptTerms = false;
+
+  /// العربية: يخزن القيمة `holdNoticeShown`.
   bool _holdNoticeShown = false;
   final TextEditingController _walletCodeController = TextEditingController();
 
+  /// العربية: يعيد القيمة `returnToPrevious`.
   bool get _returnToPrevious => widget.bookingData['returnToPrevious'] == true;
 
   // ═══════════════════════════════════════════════════════════════
   // حساب الأسعار
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يعيد القيمة `nights`.
   int get _nights {
     final checkIn = widget.bookingData['checkIn'] as DateTime;
     final checkOut = widget.bookingData['checkOut'] as DateTime;
     return checkOut.difference(checkIn).inDays;
   }
 
+  /// العربية: يعيد القيمة `pricePerNight`.
   double get _pricePerNight =>
       (widget.bookingData['pricePerNight'] ?? 0.0) as double;
 
+  /// العربية: يعيد القيمة `servicesTotal`.
   double get _servicesTotal {
     final services =
         widget.bookingData['selectedServices'] as List<Map<String, dynamic>>;
@@ -61,19 +76,24 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     );
   }
 
+  /// العربية: يعيد القيمة `total`.
   double get _total => (_nights * _pricePerNight) + _servicesTotal;
 
+  /// العربية: يعيد القيمة `serverTotal`.
   double? get _serverTotal {
     final value = (widget.bookingData['totalAmount'] as num?)?.toDouble();
     if (value == null || value <= 0) return null;
     return value;
   }
 
+  /// العربية: يعيد القيمة `payableTotal`.
   double get _payableTotal => _serverTotal ?? _total;
 
+  /// العربية: يعيد القيمة `hasServerTotalMismatch`.
   bool get _hasServerTotalMismatch =>
       _serverTotal != null && (_serverTotal! - _total).abs() > 0.01;
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -91,6 +111,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     });
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _controller.dispose();
@@ -98,6 +119,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     super.dispose();
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -133,6 +155,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
   // ═══════════════════════════════════════════════════════════════
   // المحتوى الرئيسي
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني main content.
   Widget _buildMainContent() {
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -175,6 +198,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
   // ═══════════════════════════════════════════════════════════════
   // AppBar
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني sliver app bar.
   Widget _buildSliverAppBar() {
     return SliverAppBar(
       backgroundColor: AppTheme.darkBackground,
@@ -212,6 +236,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     );
   }
 
+  /// العربية: يبني back button.
   Widget _buildBackButton() {
     return Container(
       margin: const EdgeInsets.all(8),
@@ -246,6 +271,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
   // ═══════════════════════════════════════════════════════════════
   // بطاقة ملخص الحجز
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني booking summary card.
   Widget _buildBookingSummaryCard() {
     return Container(
       decoration: BoxDecoration(
@@ -430,6 +456,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     );
   }
 
+  /// العربية: يبني price item.
   Widget _buildPriceItem({
     required IconData icon,
     required String label,
@@ -483,6 +510,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
   // ═══════════════════════════════════════════════════════════════
   // قسم طرق الدفع
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني payment section.
   Widget _buildPaymentSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -542,6 +570,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
   // ═══════════════════════════════════════════════════════════════
   // بطاقة الشروط والأحكام
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني terms card.
   Widget _buildTermsCard() {
     return GestureDetector(
       onTap: () {
@@ -653,6 +682,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
   // ═══════════════════════════════════════════════════════════════
   // زر الدفع
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني pay button.
   Widget _buildPayButton() {
     final isValid = _selectedPaymentMethod != null && _acceptTerms;
 
@@ -712,6 +742,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
   // ═══════════════════════════════════════════════════════════════
   // حالة التحميل
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني loading state.
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -764,6 +795,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
   // ═══════════════════════════════════════════════════════════════
   // معالجة الدفع
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يعالج `processPayment`.
   void _processPayment() {
     HapticFeedback.mediumImpact();
 
@@ -820,7 +852,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
   // ═══════════════════════════════════════════════════════════════
   // Dialogs
   // ═══════════════════════════════════════════════════════════════
-
+  /// العربية: يعرض wallet code dialog.
   void _showWalletCodeDialog({
     required PaymentMethod method,
     required void Function(String code) onConfirm,
@@ -884,6 +916,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     );
   }
 
+  /// العربية: يعرض payment success dialog.
   void _showPaymentSuccessDialog({required String bookingId}) {
     HapticFeedback.heavyImpact();
 
@@ -938,6 +971,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     );
   }
 
+  /// العربية: يعرض payment error dialog.
   void _showPaymentErrorDialog({
     required String title,
     required String message,
@@ -959,6 +993,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     );
   }
 
+  /// العربية: يعرض unit unavailable dialog.
   void _showUnitUnavailableDialog() {
     _showPaymentErrorDialog(
       title: 'غير متاح',
@@ -966,6 +1001,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     );
   }
 
+  /// العربية: يعرض hold notice dialog.
   void _showHoldNoticeDialog() {
     HapticFeedback.selectionClick();
 
@@ -984,6 +1020,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     );
   }
 
+  /// العربية: يبني dialog.
   Widget _buildDialog({
     required IconData icon,
     required Color iconColor,
@@ -1131,7 +1168,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
   // ═══════════════════════════════════════════════════════════════
   // Handlers & Helpers
   // ═══════════════════════════════════════════════════════════════
-
+  /// العربية: يعالج payment state.
   void _handlePaymentState(BuildContext context, PaymentState state) {
     if (state is PaymentError) {
       final msg = state.message;
@@ -1193,6 +1230,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     }
   }
 
+  /// العربية: يعالج booking state.
   void _handleBookingState(BuildContext context, BookingState state) {
     if (state is BookingCreated) {
       context.push('/booking/confirmation', extra: state.booking);
@@ -1201,6 +1239,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     }
   }
 
+  /// العربية: يرسل saba cash otp.
   void _dispatchSabaCashOtp(String otp) {
     final authState = context.read<AuthBloc>().state;
     if (authState is! AuthAuthenticated) return;
@@ -1219,6 +1258,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
         );
   }
 
+  /// العربية: يرسل flosk otp.
   void _dispatchFloskOtp(String otp) {
     final authState = context.read<AuthBloc>().state;
     if (authState is! AuthAuthenticated) return;
@@ -1237,6 +1277,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
         );
   }
 
+  /// العربية: يعيد payment details.
   Map<String, dynamic>? _getPaymentDetails(PaymentMethod method,
       {String? walletCode}) {
     if (method == PaymentMethod.creditCard) {
@@ -1261,6 +1302,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     return null;
   }
 
+  /// العربية: يعيد wallet color.
   Color _getWalletColor(PaymentMethod method) {
     switch (method) {
       case PaymentMethod.jaibWallet:
@@ -1280,6 +1322,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     }
   }
 
+  /// العربية: يعيد wallet dialog title.
   String _getWalletDialogTitle(PaymentMethod method) {
     switch (method) {
       case PaymentMethod.jaibWallet:
@@ -1299,6 +1342,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     }
   }
 
+  /// العربية: يعيد wallet dialog description.
   String _getWalletDialogDescription(PaymentMethod method) {
     switch (method) {
       case PaymentMethod.jaibWallet:
@@ -1318,6 +1362,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     }
   }
 
+  /// العربية: يعيد wallet hint text.
   String _getWalletHintText(PaymentMethod method) {
     switch (method) {
       case PaymentMethod.jaibWallet:
@@ -1337,6 +1382,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
     }
   }
 
+  /// العربية: يعرض snack bar.
   void _showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

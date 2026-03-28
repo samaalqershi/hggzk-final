@@ -3,13 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'dart:ui';
 import '../theme/app_theme.dart';
 import '../theme/app_text_styles.dart';
-import '../utils/formatters.dart';
 
 /// Property Identity Card Tooltip - بطاقة العقار المنبثقة
 class PropertyIdentityCardTooltip {
   static OverlayEntry? _overlayEntry;
   static final GlobalKey<_PropertyCardContentState> _contentKey = GlobalKey();
-
   static void show({
     required BuildContext context,
     required GlobalKey targetKey,
@@ -63,7 +61,6 @@ class PropertyIdentityCardTooltip {
 
     Overlay.of(context).insert(_overlayEntry!);
   }
-
   static void hide() {
     _contentKey.currentState?.animateOut(() {
       _overlayEntry?.remove();
@@ -71,7 +68,6 @@ class PropertyIdentityCardTooltip {
     });
   }
 }
-
 class _PropertyCardOverlay extends StatelessWidget {
   final GlobalKey targetKey;
   final String propertyId;
@@ -94,7 +90,6 @@ class _PropertyCardOverlay extends StatelessWidget {
   final int policiesCount;
   final int unitsCount;
   final GlobalKey<_PropertyCardContentState> contentKey;
-
   const _PropertyCardOverlay({
     required this.targetKey,
     required this.propertyId,
@@ -118,7 +113,6 @@ class _PropertyCardOverlay extends StatelessWidget {
     required this.unitsCount,
     required this.contentKey,
   });
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -126,7 +120,7 @@ class _PropertyCardOverlay extends StatelessWidget {
         GestureDetector(
           onTap: PropertyIdentityCardTooltip.hide,
           child: Container(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
           ),
         ),
         _PropertyCardContent(
@@ -156,7 +150,6 @@ class _PropertyCardOverlay extends StatelessWidget {
     );
   }
 }
-
 class _PropertyCardContent extends StatefulWidget {
   final GlobalKey targetKey;
   final String propertyId;
@@ -178,7 +171,6 @@ class _PropertyCardContent extends StatefulWidget {
   final int amenitiesCount;
   final int policiesCount;
   final int unitsCount;
-
   const _PropertyCardContent({
     super.key,
     required this.targetKey,
@@ -202,17 +194,14 @@ class _PropertyCardContent extends StatefulWidget {
     required this.policiesCount,
     required this.unitsCount,
   });
-
   @override
   State<_PropertyCardContent> createState() => _PropertyCardContentState();
 }
-
 class _PropertyCardContentState extends State<_PropertyCardContent>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
-
   @override
   void initState() {
     super.initState();
@@ -231,23 +220,19 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
 
     _controller.forward();
   }
-
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-
   void animateOut(VoidCallback onComplete) {
     _controller.reverse().then((_) => onComplete());
   }
-
   Color _getStatusColor() {
     if (!widget.isApproved) return AppTheme.warning;
     if (widget.isFeatured) return AppTheme.primaryBlue;
     return AppTheme.success;
   }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -270,7 +255,7 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: statusColor.withOpacity(0.3),
+                      color: statusColor.withValues(alpha: 0.3),
                       blurRadius: 30,
                       offset: const Offset(0, 10),
                     ),
@@ -282,10 +267,10 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
                     filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: AppTheme.darkCard.withOpacity(0.95),
+                        color: AppTheme.darkCard.withValues(alpha: 0.95),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: statusColor.withOpacity(0.4),
+                          color: statusColor.withValues(alpha: 0.4),
                           width: 1.5,
                         ),
                       ),
@@ -345,15 +330,14 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
       },
     );
   }
-
   Widget _buildHeader(Color statusColor) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.1),
+        color: statusColor.withValues(alpha: 0.1),
         border: Border(
           bottom: BorderSide(
-            color: statusColor.withOpacity(0.2),
+            color: statusColor.withValues(alpha: 0.2),
           ),
         ),
       ),
@@ -362,7 +346,7 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.2),
+              color: statusColor.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -394,14 +378,13 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
       ),
     );
   }
-
   Widget _buildPropertyImage(Color statusColor) {
     return Container(
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.05),
+        color: statusColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: statusColor.withOpacity(0.2),
+          color: statusColor.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -415,8 +398,8 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    statusColor.withOpacity(0.3),
-                    statusColor.withOpacity(0.1),
+                    statusColor.withValues(alpha: 0.3),
+                    statusColor.withValues(alpha: 0.1),
                   ],
                 ),
               ),
@@ -424,12 +407,13 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
                   ? Image.network(
                       widget.coverImage!,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _buildDefaultImage(statusColor),
+                      errorBuilder: (_, __, ___) =>
+                          _buildDefaultImage(statusColor),
                     )
                   : _buildDefaultImage(statusColor),
             ),
           ),
-          
+
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -444,7 +428,7 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                
+
                 if (widget.shortDescription != null) ...[
                   const SizedBox(height: 8),
                   Text(
@@ -457,9 +441,9 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Badges Row
                 Wrap(
                   alignment: WrapAlignment.center,
@@ -468,12 +452,13 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
                   children: [
                     // Star Rating
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: AppTheme.warning.withOpacity(0.15),
+                        color: AppTheme.warning.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: AppTheme.warning.withOpacity(0.3),
+                          color: AppTheme.warning.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
@@ -495,15 +480,16 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
                         ],
                       ),
                     ),
-                    
+
                     // Status Badge
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.15),
+                        color: statusColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: statusColor.withOpacity(0.4),
+                          color: statusColor.withValues(alpha: 0.4),
                         ),
                       ),
                       child: Row(
@@ -517,7 +503,7 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
                               color: statusColor,
                               boxShadow: [
                                 BoxShadow(
-                                  color: statusColor.withOpacity(0.5),
+                                  color: statusColor.withValues(alpha: 0.5),
                                   blurRadius: 6,
                                 ),
                               ],
@@ -545,28 +531,26 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
       ),
     );
   }
-
   Widget _buildDefaultImage(Color color) {
     return Container(
-      color: color.withOpacity(0.1),
+      color: color.withValues(alpha: 0.1),
       child: Center(
         child: Icon(
           CupertinoIcons.photo,
           size: 60,
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
         ),
       ),
     );
   }
-
   Widget _buildInfoRow(IconData icon, String label, String value, Color color) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.15),
+          color: color.withValues(alpha: 0.15),
         ),
       ),
       child: Row(
@@ -603,12 +587,11 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
       ),
     );
   }
-
   Widget _buildStatsGrid() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.3),
+        color: AppTheme.darkSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -681,15 +664,15 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
       ),
     );
   }
-
-  Widget _buildStatItem(IconData icon, String value, String label, Color color) {
+  Widget _buildStatItem(
+      IconData icon, String value, String label, Color color) {
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -729,13 +712,12 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
       ),
     );
   }
-
   Widget _buildPropertyId() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.5),
+        color: AppTheme.darkSurface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(

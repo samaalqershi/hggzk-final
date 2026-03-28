@@ -6,7 +6,9 @@ import '../../../../../core/usecases/usecase.dart';
 import '../../../domain/repositories/sections_repository.dart';
 
 class UpdateItemOrderUseCase implements UseCase<void, UpdateItemOrderParams> {
+  /// العربية: يخزن القيمة `repository`.
   final SectionsRepository repository;
+
   UpdateItemOrderUseCase(this.repository);
 
   @override
@@ -16,7 +18,9 @@ class UpdateItemOrderUseCase implements UseCase<void, UpdateItemOrderParams> {
 }
 
 class UpdateItemOrderParams extends Equatable {
+  /// العربية: يخزن القيمة `sectionId`.
   final String sectionId;
+
   final UpdateItemOrderDto payload;
 
   const UpdateItemOrderParams({required this.sectionId, required this.payload});
@@ -24,4 +28,3 @@ class UpdateItemOrderParams extends Equatable {
   @override
   List<Object?> get props => [sectionId, payload];
 }
-

@@ -10,35 +10,75 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import 'image_preview_screen.dart';
 
+/// يعرّف الكلاس `MultiImagePickerModal`.
+/// Describes the `MultiImagePickerModal` class.
 class MultiImagePickerModal extends StatefulWidget {
+  /// Receives `Function`.
+  /// العربية: يعالج `Function`.
   final Function(List<File>) onImagesSelected;
+
+  /// يخزن العضو `maxImages`.
+  /// Holds the `maxImages` member.
   final int maxImages;
 
+  /// ينشئ مثيلاً من `MultiImagePickerModal`.
+  /// Builds an instance of `MultiImagePickerModal`.
   const MultiImagePickerModal({
     super.key,
     required this.onImagesSelected,
     this.maxImages = 10,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<MultiImagePickerModal> createState() => _MultiImagePickerModalState();
 }
 
+/// يعرّف الكلاس `_MultiImagePickerModalState`.
+/// Describes the `_MultiImagePickerModalState` class.
 class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     with TickerProviderStateMixin, WidgetsBindingObserver {
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
 
+  /// يخزن العضو `_mediaList`.
+  /// Holds the `_mediaList` member.
   final List<AssetEntity> _mediaList = [];
+
+  /// يخزن العضو `_selectedAssets`.
+  /// Holds the `_selectedAssets` member.
   final Map<String, AssetEntity> _selectedAssets = {};
+
+  /// يخزن العضو `_isLoading`.
+  /// Holds the `_isLoading` member.
   bool _isLoading = true;
+
+  /// يخزن العضو `_hasPermission`.
+  /// Holds the `_hasPermission` member.
   bool _hasPermission = false;
+
+  /// يخزن العضو `_currentPage`.
+  /// Holds the `_currentPage` member.
   int _currentPage = 0;
+
+  /// يخزن العضو `_hasMore`.
+  /// Holds the `_hasMore` member.
   bool _hasMore = true;
 
   final ScrollController _scrollController = ScrollController();
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -48,6 +88,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     _scrollController.addListener(_onScroll);
   }
 
+  /// ينفذ العملية `_initAnimations`.
+  /// Runs the `_initAnimations` operation.
   void _initAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -73,6 +115,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     _animationController.forward();
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     // Stop change notifications if started
@@ -86,6 +130,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     super.dispose();
   }
 
+  /// ينفذ العملية `didChangeAppLifecycleState`.
+  /// Runs the `didChangeAppLifecycleState` operation.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -93,6 +139,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     }
   }
 
+  /// ينفذ العملية `_recheckPermissionAfterSettings`.
+  /// Runs the `_recheckPermissionAfterSettings` operation.
   Future<void> _recheckPermissionAfterSettings() async {
     try {
       final permission = await PhotoManager.requestPermissionExtend();
@@ -119,6 +167,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     }
   }
 
+  /// ينفذ العملية `_onScroll`.
+  /// Runs the `_onScroll` operation.
   void _onScroll() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
@@ -126,6 +176,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     }
   }
 
+  /// ينفذ العملية `_requestPermission`.
+  /// Runs the `_requestPermission` operation.
   Future<void> _requestPermission() async {
     final permission = await PhotoManager.requestPermissionExtend();
     if (permission.isAuth || permission == PermissionState.limited) {
@@ -146,6 +198,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     }
   }
 
+  /// ينفذ العملية `_onPhotoLibraryChanged`.
+  /// Runs the `_onPhotoLibraryChanged` operation.
   void _onPhotoLibraryChanged(MethodCall call) {
     // Reload when user changes selected photos in limited access mode
     _mediaList.clear();
@@ -154,6 +208,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     _loadMedia();
   }
 
+  /// ينفذ العملية `_loadMedia`.
+  /// Runs the `_loadMedia` operation.
   Future<void> _loadMedia() async {
     final List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(
       type: RequestType.image,
@@ -179,6 +235,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     }
   }
 
+  /// ينفذ العملية `_loadMoreMedia`.
+  /// Runs the `_loadMoreMedia` operation.
   Future<void> _loadMoreMedia() async {
     if (!_hasMore || _isLoading) return;
 
@@ -187,6 +245,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     await _loadMedia();
   }
 
+  /// ينفذ العملية `_toggleSelection`.
+  /// Runs the `_toggleSelection` operation.
   void _toggleSelection(AssetEntity asset) {
     HapticFeedback.lightImpact();
     setState(() {
@@ -202,6 +262,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     });
   }
 
+  /// ينفذ العملية `_showMaxImagesAlert`.
+  /// Runs the `_showMaxImagesAlert` operation.
   void _showMaxImagesAlert() {
     HapticFeedback.mediumImpact();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -220,6 +282,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     );
   }
 
+  /// ينفذ العملية `_proceedWithSelection`.
+  /// Runs the `_proceedWithSelection` operation.
   Future<void> _proceedWithSelection() async {
     if (_selectedAssets.isEmpty) return;
 
@@ -266,6 +330,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     );
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -288,6 +354,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     );
   }
 
+  /// ينفذ العملية `_buildHeader`.
+  /// Runs the `_buildHeader` operation.
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -363,6 +431,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     );
   }
 
+  /// ينفذ العملية `_buildMediaGrid`.
+  /// Runs the `_buildMediaGrid` operation.
   Widget _buildMediaGrid() {
     if (_isLoading && _mediaList.isEmpty) {
       return Center(
@@ -422,6 +492,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     );
   }
 
+  /// ينفذ العملية `_buildNoPermission`.
+  /// Runs the `_buildNoPermission` operation.
   Widget _buildNoPermission() {
     return Center(
       child: Column(
@@ -586,6 +658,8 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
     );
   }
 
+  /// ينفذ العملية `_buildBottomBar`.
+  /// Runs the `_buildBottomBar` operation.
   Widget _buildBottomBar() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -677,12 +751,27 @@ class _MultiImagePickerModalState extends State<MultiImagePickerModal>
   }
 }
 
+/// يعرّف الكلاس `_MediaTile`.
+/// Describes the `_MediaTile` class.
 class _MediaTile extends StatefulWidget {
+  /// Holds the `asset` value.
+  /// العربية: يخزن القيمة `asset`.
   final AssetEntity asset;
+
+  /// يخزن العضو `isSelected`.
+  /// Holds the `isSelected` member.
   final bool isSelected;
+
+  /// يخزن العضو `selectionOrder`.
+  /// Holds the `selectionOrder` member.
   final int? selectionOrder;
+
+  /// يخزن العضو `onTap`.
+  /// Holds the `onTap` member.
   final VoidCallback onTap;
 
+  /// ينشئ مثيلاً من `_MediaTile`.
+  /// Builds an instance of `_MediaTile`.
   const _MediaTile({
     required this.asset,
     required this.isSelected,
@@ -690,15 +779,26 @@ class _MediaTile extends StatefulWidget {
     required this.onTap,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<_MediaTile> createState() => _MediaTileState();
 }
 
+/// يعرّف الكلاس `_MediaTileState`.
+/// Describes the `_MediaTileState` class.
 class _MediaTileState extends State<_MediaTile>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_controller`.
+  /// Holds the `_controller` member.
   late AnimationController _controller;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -715,12 +815,16 @@ class _MediaTileState extends State<_MediaTile>
     ));
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -863,6 +967,8 @@ class _MediaTileState extends State<_MediaTile>
     );
   }
 
+  /// ينفذ العملية `_formatDuration`.
+  /// Runs the `_formatDuration` operation.
   String _formatDuration(int seconds) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;

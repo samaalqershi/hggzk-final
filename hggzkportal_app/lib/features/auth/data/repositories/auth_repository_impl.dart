@@ -14,18 +14,32 @@ import '../datasources/auth_remote_datasource.dart';
 import '../models/auth_response_model.dart';
 import '../models/user_model.dart';
 
+/// يعرّف الكلاس `AuthRepositoryImpl`.
+/// Describes the `AuthRepositoryImpl` class.
 class AuthRepositoryImpl implements AuthRepository {
+  /// Holds the `remoteDataSource` value.
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final AuthRemoteDataSource remoteDataSource;
+
+  /// يخزن العضو `localDataSource`.
+  /// Holds the `localDataSource` member.
   final AuthLocalDataSource localDataSource;
+
+  /// يخزن العضو `internetConnectionChecker`.
+  /// Holds the `internetConnectionChecker` member.
   final InternetConnectionChecker internetConnectionChecker;
   final BiometricAuthService _biometric = BiometricAuthService();
 
+  /// ينشئ مثيلاً من `AuthRepositoryImpl`.
+  /// Builds an instance of `AuthRepositoryImpl`.
   AuthRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
     required this.internetConnectionChecker,
   });
 
+  /// ينفذ العملية `login`.
+  /// Runs the `login` operation.
   @override
   Future<Either<Failure, AuthResponse>> login({
     required String emailOrPhone,
@@ -124,6 +138,8 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
 //
+  /// ينفذ العملية `portalSocialLogin`.
+  /// Runs the `portalSocialLogin` operation.
   @override
   Future<Either<Failure, AuthResponse>> portalSocialLogin({
     required String provider,
@@ -215,6 +231,8 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// ينفذ العملية `completeOwnerProfile`.
+  /// Runs the `completeOwnerProfile` operation.
   @override
   Future<Either<Failure, AuthResponse>> completeOwnerProfile({
     required String name,
@@ -308,6 +326,8 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// ينفذ العملية `register`.
+  /// Runs the `register` operation.
   @override
   Future<Either<Failure, AuthResponse>> register({
     required String name,
@@ -358,6 +378,8 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// ينفذ العملية `registerOwnerWithProperty`.
+  /// Runs the `registerOwnerWithProperty` operation.
   @override
   Future<Either<Failure, AuthResponse>> registerOwnerWithProperty({
     required String name,
@@ -426,6 +448,8 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// ينفذ العملية `logout`.
+  /// Runs the `logout` operation.
   @override
   Future<Either<Failure, void>> logout() async {
     try {
@@ -467,6 +491,8 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// ينفذ العملية `resetPassword`.
+  /// Runs the `resetPassword` operation.
   @override
   Future<Either<Failure, void>> resetPassword({
     required String emailOrPhone,
@@ -483,6 +509,8 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// ينفذ العملية `refreshToken`.
+  /// Runs the `refreshToken` operation.
   @override
   Future<Either<Failure, AuthResponse>> refreshToken({
     required String refreshToken,
@@ -567,6 +595,8 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// ينفذ العملية `getCurrentUser`.
+  /// Runs the `getCurrentUser` operation.
   @override
   Future<Either<Failure, User>> getCurrentUser() async {
     try {
@@ -600,6 +630,8 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// ينفذ العملية `updateProfile`.
+  /// Runs the `updateProfile` operation.
   @override
   Future<Either<Failure, void>> updateProfile({
     required String name,
@@ -673,6 +705,8 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// ينفذ العملية `changePassword`.
+  /// Runs the `changePassword` operation.
   @override
   Future<Either<Failure, void>> changePassword({
     required String currentPassword,
@@ -699,6 +733,8 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// ينفذ العملية `deleteOwnerAccount`.
+  /// Runs the `deleteOwnerAccount` operation.
   @override
   Future<Either<Failure, void>> deleteOwnerAccount({
     String? password,
@@ -733,6 +769,8 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// ينفذ العملية `checkAuthStatus`.
+  /// Runs the `checkAuthStatus` operation.
   @override
   Future<Either<Failure, bool>> checkAuthStatus() async {
     try {
@@ -862,6 +900,8 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// ينفذ العملية `saveAuthData`.
+  /// Runs the `saveAuthData` operation.
   @override
   Future<void> saveAuthData(AuthResponse authResponse) async {
     await localDataSource.cacheAuthResponse(
@@ -886,6 +926,8 @@ class AuthRepositoryImpl implements AuthRepository {
         authResponse.user.propertyCurrency ?? '');
   }
 
+  /// ينفذ العملية `clearAuthData`.
+  /// Runs the `clearAuthData` operation.
   @override
   Future<void> clearAuthData() async {
     await localDataSource.clearAuthData();
@@ -896,16 +938,22 @@ class AuthRepositoryImpl implements AuthRepository {
     await localStorage.removeData(StorageConstants.userEmail);
   }
 
+  /// ينفذ العملية `getAccessToken`.
+  /// Runs the `getAccessToken` operation.
   @override
   Future<String?> getAccessToken() async {
     return await localDataSource.getCachedAccessToken();
   }
 
+  /// ينفذ العملية `getRefreshToken`.
+  /// Runs the `getRefreshToken` operation.
   @override
   Future<String?> getRefreshToken() async {
     return await localDataSource.getCachedRefreshToken();
   }
 
+  /// ينفذ العملية `uploadProfileImage`.
+  /// Runs the `uploadProfileImage` operation.
   @override
   Future<Either<Failure, User>> uploadProfileImage({
     required String imagePath,
@@ -926,6 +974,8 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   // Email verification
+  /// ينفذ العملية `verifyEmail`.
+  /// Runs the `verifyEmail` operation.
   @override
   Future<Either<Failure, bool>> verifyEmail({
     required String userId,
@@ -945,6 +995,8 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// ينفذ العملية `resendEmailVerification`.
+  /// Runs the `resendEmailVerification` operation.
   @override
   Future<Either<Failure, int?>> resendEmailVerification({
     required String userId,

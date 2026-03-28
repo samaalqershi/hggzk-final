@@ -1,6 +1,8 @@
 import '../../domain/entities/booking_request.dart';
 
+/// العربية: يمثل نموذج البيانات `BookingRequestModel`.
 class BookingRequestModel extends BookingRequest {
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingRequestModel`.
   const BookingRequestModel({
     required super.userId,
     required super.unitId,
@@ -12,6 +14,7 @@ class BookingRequestModel extends BookingRequest {
     super.bookingSource,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingRequestModel.fromEntity`.
   factory BookingRequestModel.fromEntity(BookingRequest entity) {
     return BookingRequestModel(
       userId: entity.userId,
@@ -25,6 +28,7 @@ class BookingRequestModel extends BookingRequest {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'userId': userId,
@@ -41,12 +45,15 @@ class BookingRequestModel extends BookingRequest {
   }
 }
 
+/// العربية: يمثل نموذج البيانات `BookingServiceRequestModel`.
 class BookingServiceRequestModel extends BookingServiceRequest {
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingServiceRequestModel`.
   const BookingServiceRequestModel({
     required super.serviceId,
     required super.quantity,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingServiceRequestModel.fromEntity`.
   factory BookingServiceRequestModel.fromEntity(BookingServiceRequest entity) {
     return BookingServiceRequestModel(
       serviceId: entity.serviceId,
@@ -54,6 +61,7 @@ class BookingServiceRequestModel extends BookingServiceRequest {
     );
   }
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingServiceRequestModel.fromJson`.
   factory BookingServiceRequestModel.fromJson(Map<String, dynamic> json) {
     return BookingServiceRequestModel(
       serviceId: json['serviceId'] ?? '',
@@ -61,6 +69,7 @@ class BookingServiceRequestModel extends BookingServiceRequest {
     );
   }
 
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'serviceId': serviceId,

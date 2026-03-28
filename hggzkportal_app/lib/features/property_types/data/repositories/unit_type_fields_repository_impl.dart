@@ -7,7 +7,9 @@ import '../../domain/repositories/unit_type_fields_repository.dart';
 import '../datasources/unit_type_fields_remote_datasource.dart';
 
 class UnitTypeFieldsRepositoryImpl implements UnitTypeFieldsRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final UnitTypeFieldsRemoteDataSource remoteDataSource;
+
   final NetworkInfo networkInfo;
 
   UnitTypeFieldsRepositoryImpl({

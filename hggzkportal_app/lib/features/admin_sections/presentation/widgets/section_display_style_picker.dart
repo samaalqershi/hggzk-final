@@ -4,16 +4,22 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/enums/section_display_style.dart';
 
+/// يتيح اختيار النمط المرئي الذي سيُعرض به القسم داخل الواجهة العامة.
 class SectionDisplayStylePicker extends StatelessWidget {
+  /// النمط المختار حاليًا.
   final SectionDisplayStyle? selectedStyle;
+
+  /// يستدعى عند تغيير نمط العرض.
   final Function(SectionDisplayStyle) onStyleSelected;
 
+  /// يبني أداة الاختيار مع الحالة الحالية ودالة الإرجاع.
   const SectionDisplayStylePicker({
     super.key,
     required this.selectedStyle,
     required this.onStyleSelected,
   });
 
+  /// يبني بطاقات الأنماط المرئية ويعرض النمط النشط بوضوح.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -42,6 +48,7 @@ class SectionDisplayStylePicker extends StatelessWidget {
     );
   }
 
+  /// يبني بطاقة نمط واحدة مع التمييز بين المختار وغير المختار.
   Widget _buildStyleCard(SectionDisplayStyle style) {
     final isSelected = selectedStyle == style;
     final styleInfo = _getStyleInfo(style);
@@ -92,6 +99,7 @@ class SectionDisplayStylePicker extends StatelessWidget {
     );
   }
 
+  /// يعيد الأيقونة والاسم المناسبين لكل نمط عرض.
   Map<String, dynamic> _getStyleInfo(SectionDisplayStyle style) {
     switch (style) {
       case SectionDisplayStyle.grid:

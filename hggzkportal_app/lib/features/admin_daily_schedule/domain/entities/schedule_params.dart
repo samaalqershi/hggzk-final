@@ -4,6 +4,7 @@ import 'daily_schedule.dart';
 /// معاملات تحديث الإتاحة والتسعير لفترة محددة
 class UpdateScheduleParams extends Equatable {
   /// معرّف الوحدة
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
 
   /// تاريخ البداية
@@ -140,6 +141,7 @@ class UpdateScheduleParams extends Equatable {
 /// معاملات التحديث الجماعي بناءً على أيام الأسبوع
 class BulkUpdateScheduleParams extends Equatable {
   /// معرّف الوحدة
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
 
   /// تاريخ البداية
@@ -215,6 +217,7 @@ class BulkUpdateScheduleParams extends Equatable {
 /// معاملات التحقق من التوفر
 class CheckAvailabilityParams extends Equatable {
   /// معرّف الوحدة
+  /// العربية: يخزن القيمة `unitId`.
   final String unitId;
 
   /// تاريخ تسجيل الدخول
@@ -255,6 +258,7 @@ class CheckAvailabilityParams extends Equatable {
 /// نتيجة التحقق من التوفر
 class CheckAvailabilityResponse extends Equatable {
   /// هل الوحدة متاحة للفترة المطلوبة؟
+  /// العربية: يحدد ما إذا كانت القيمة `isAvailable` مفعلة.
   final bool isAvailable;
 
   /// عدد الليالي
@@ -300,6 +304,7 @@ class CheckAvailabilityResponse extends Equatable {
 /// سعر يوم واحد
 class DailyPrice extends Equatable {
   /// التاريخ
+  /// العربية: يخزن القيمة `date`.
   final DateTime date;
 
   /// السعر

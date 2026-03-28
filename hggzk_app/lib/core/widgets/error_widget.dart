@@ -3,13 +3,31 @@ import '../theme/app_theme.dart';
 import '../theme/app_dimensions.dart';
 import '../theme/app_text_styles.dart';
 
+/// يعرض رسالة خطأ متناسقة مع أيقونة وحل اختياري لإعادة المحاولة.
+/// Displays a consistent error state with an icon and an optional retry action.
 class CustomErrorWidget extends StatelessWidget {
+  /// التفصيل الإضافي الذي يوضح سبب الخطأ أو ما الذي تعطل تحديدًا.
+  /// Additional detail describing what failed or why the screen could not load.
   final String? message;
+
+  /// عنوان مختصر يحدد نوع المشكلة قبل عرض التفاصيل.
+  /// Short headline that frames the error before any supporting message.
   final String? title;
+
+  /// إجراء يعيد تشغيل المسار الذي فشل بدل ترك المستخدم في حالة انسداد.
+  /// Callback that retries the failed flow instead of leaving the user stuck.
   final VoidCallback? onRetry;
+
+  /// أيقونة مخصصة عندما يحتاج السياق إلى رمز مختلف عن الرموز الافتراضية.
+  /// Custom icon for flows that need a more specific visual cue.
   final Widget? icon;
+
+  /// يصنف الخطأ حتى نختار التمثيل البصري والعبارة الأنسب تلقائيًا.
+  /// Error category used to pick the best default icon and title.
   final ErrorType type;
 
+  /// ينشئ حالة الخطأ مع دعم الرسالة الاختيارية وزر إعادة المحاولة.
+  /// Creates the error state with optional detail text and a retry affordance.
   const CustomErrorWidget({
     super.key,
     this.message,
@@ -19,6 +37,8 @@ class CustomErrorWidget extends StatelessWidget {
     this.type = ErrorType.general,
   });
 
+  /// يبني بطاقة الخطأ حتى تبقى كل حالات الفشل ضمن لغة بصرية واحدة.
+  /// Builds the error card so every failure state follows one visual language.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -44,6 +64,8 @@ class CustomErrorWidget extends StatelessWidget {
     );
   }
 
+  /// يختار الأيقونة المناسبة حسب نوع الخطأ أو يستخدم الأيقونة المخصصة.
+  /// Chooses the default icon for the error type or uses the custom override.
   Widget _buildIcon(BuildContext context) {
     if (icon != null) return icon!;
 
@@ -88,6 +110,8 @@ class CustomErrorWidget extends StatelessWidget {
     );
   }
 
+  /// يعرض العنوان الفعلي ويعود إلى عنوان افتراضي إذا لم يمرر المستدعي شيئًا.
+  /// Renders the actual title or falls back to a contextual default.
   Widget _buildTitle(BuildContext context) {
     String displayTitle = title ?? _getDefaultTitle();
 
@@ -100,6 +124,8 @@ class CustomErrorWidget extends StatelessWidget {
     );
   }
 
+  /// يعرض الشرح الإضافي مع حدود تمنع النص الطويل من كسر التخطيط.
+  /// Renders the supporting text while keeping long messages from breaking layout.
   Widget _buildMessage(BuildContext context) {
     return Text(
       message!,
@@ -112,6 +138,8 @@ class CustomErrorWidget extends StatelessWidget {
     );
   }
 
+  /// يظهر زر إعادة المحاولة عندما يكون من المفيد منح المستخدم مسارًا مباشرًا.
+  /// Shows a retry button when the user should be given a direct recovery path.
   Widget _buildRetryButton(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -153,6 +181,8 @@ class CustomErrorWidget extends StatelessWidget {
     );
   }
 
+  /// يعيد عنوانًا افتراضيًا متوافقًا مع نوع الخطأ الحالي.
+  /// Returns the contextual title for the selected error type.
   String _getDefaultTitle() {
     switch (type) {
       case ErrorType.network:
@@ -170,6 +200,8 @@ class CustomErrorWidget extends StatelessWidget {
   }
 }
 
+/// Groups the allowed values for `ErrorType` so the rest of the app stays type-safe.
+/// العربية: يعرّف القيم المتاحة للنوع `ErrorType`.
 enum ErrorType {
   general,
   network,

@@ -6,28 +6,51 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 
+/// يمثل هذا الكلاس FeaturesTagsWidget البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for FeaturesTagsWidget in the admin unit workflow.
 class FeaturesTagsWidget extends StatefulWidget {
+  /// Callback fired when the feature tags string changes in the editor.
+  /// استدعاء يُستخدم عند تعديل قائمة المزايا حتى تبقى البيانات المعروضة والإرسالية متزامنة.
   final Function(String) onFeaturesChanged;
+
+  /// يحتفظ هذا الحقل بقيمة initialFeatures التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the initialFeatures value used by the admin unit workflow.
   final List<String>? initialFeatures;
 
+  /// ينشئ هذا المُنشئ مثيلاً من FeaturesTagsWidget.
+  /// This constructor creates an instance of FeaturesTagsWidget.
   const FeaturesTagsWidget({
     super.key,
     required this.onFeaturesChanged,
     this.initialFeatures,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<FeaturesTagsWidget> createState() => _FeaturesTagsWidgetState();
 }
 
+/// يمثل هذا الكلاس _FeaturesTagsWidgetState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _FeaturesTagsWidgetState in the admin unit workflow.
 class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
     with TickerProviderStateMixin {
   final _textController = TextEditingController();
+
+  /// يحتفظ هذا الحقل بقيمة _features التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _features value used by the admin unit workflow.
   final List<String> _features = [];
-  
+
+  /// يحتفظ هذا الحقل بقيمة _animationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _animationController value used by the admin unit workflow.
   late AnimationController _animationController;
+
+  /// يحتفظ هذا الحقل بقيمة _fadeAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _fadeAnimation value used by the admin unit workflow.
   late Animation<double> _fadeAnimation;
-  
+
+  /// يحتفظ هذا الحقل بقيمة _suggestions التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _suggestions value used by the admin unit workflow.
   final List<String> _suggestions = [
     'واي فاي مجاني',
     'مكيف هواء',
@@ -46,18 +69,20 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
     'جاكوزي',
   ];
 
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
     if (widget.initialFeatures != null) {
       _features.addAll(widget.initialFeatures!);
     }
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -65,10 +90,12 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
       parent: _animationController,
       curve: Curves.easeOut,
     ));
-    
+
     _animationController.forward();
   }
 
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _textController.dispose();
@@ -76,6 +103,8 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
     super.dispose();
   }
 
+  /// ينفذ هذا الأسلوب عملية _addFeature ضمن مسار إدارة الوحدات.
+  /// This method performs the _addFeature operation in the admin unit workflow.
   void _addFeature(String feature) {
     if (feature.isNotEmpty && !_features.contains(feature)) {
       setState(() {
@@ -87,6 +116,8 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _removeFeature ضمن مسار إدارة الوحدات.
+  /// This method performs the _removeFeature operation in the admin unit workflow.
   void _removeFeature(String feature) {
     setState(() {
       _features.remove(feature);
@@ -95,10 +126,14 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
     HapticFeedback.lightImpact();
   }
 
+  /// ينفذ هذا الأسلوب عملية _updateFeatures ضمن مسار إدارة الوحدات.
+  /// This method performs the _updateFeatures operation in the admin unit workflow.
   void _updateFeatures() {
     widget.onFeaturesChanged(_features.join(','));
   }
 
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -109,18 +144,18 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppTheme.primaryPurple.withOpacity(0.1),
-              AppTheme.primaryBlue.withOpacity(0.05),
+              AppTheme.primaryPurple.withValues(alpha: 0.1),
+              AppTheme.primaryBlue.withValues(alpha: 0.05),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppTheme.primaryPurple.withOpacity(0.2),
+            color: AppTheme.primaryPurple.withValues(alpha: 0.2),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryPurple.withOpacity(0.1),
+              color: AppTheme.primaryPurple.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -166,15 +201,15 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   _buildInputField(),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   _buildFeaturesList(),
-                  
+
                   if (_getSuggestionsToShow().isNotEmpty) ...[
                     const SizedBox(height: 20),
                     _buildSuggestions(),
@@ -188,13 +223,15 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildInputField ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildInputField operation in the admin unit workflow.
   Widget _buildInputField() {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.5),
+        color: AppTheme.darkSurface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -209,13 +246,13 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
               decoration: InputDecoration(
                 hintText: 'أضف ميزة جديدة...',
                 hintStyle: AppTextStyles.bodyMedium.copyWith(
-                  color: AppTheme.textMuted.withOpacity(0.5),
+                  color: AppTheme.textMuted.withValues(alpha: 0.5),
                 ),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.all(16),
                 prefixIcon: Icon(
                   Icons.add_circle_outline_rounded,
-                  color: AppTheme.primaryPurple.withOpacity(0.7),
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.7),
                   size: 20,
                 ),
               ),
@@ -248,15 +285,17 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildFeaturesList ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFeaturesList operation in the admin unit workflow.
   Widget _buildFeaturesList() {
     if (_features.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppTheme.darkSurface.withOpacity(0.3),
+          color: AppTheme.darkSurface.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -266,13 +305,13 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
               Icon(
                 Icons.auto_awesome_rounded,
                 size: 32,
-                color: AppTheme.textMuted.withOpacity(0.3),
+                color: AppTheme.textMuted.withValues(alpha: 0.3),
               ),
               const SizedBox(height: 8),
               Text(
                 'لم تتم إضافة أي مميزات بعد',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppTheme.textMuted.withOpacity(0.7),
+                  color: AppTheme.textMuted.withValues(alpha: 0.7),
                 ),
               ),
             ],
@@ -299,13 +338,13 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.primaryBlue.withOpacity(0.2),
-                      AppTheme.primaryPurple.withOpacity(0.1),
+                      AppTheme.primaryBlue.withValues(alpha: 0.2),
+                      AppTheme.primaryPurple.withValues(alpha: 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: AppTheme.primaryBlue.withOpacity(0.3),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -330,7 +369,7 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
                       child: Container(
                         padding: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
-                          color: AppTheme.error.withOpacity(0.2),
+                          color: AppTheme.error.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -350,13 +389,17 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _getSuggestionsToShow ضمن مسار إدارة الوحدات.
+  /// This method performs the _getSuggestionsToShow operation in the admin unit workflow.
   List<String> _getSuggestionsToShow() {
     return _suggestions.where((s) => !_features.contains(s)).take(5).toList();
   }
 
+  /// ينفذ هذا الأسلوب عملية _buildSuggestions ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildSuggestions operation in the admin unit workflow.
   Widget _buildSuggestions() {
     final suggestions = _getSuggestionsToShow();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -365,7 +408,7 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
             Icon(
               Icons.auto_awesome_rounded,
               size: 16,
-              color: AppTheme.primaryPurple.withOpacity(0.7),
+              color: AppTheme.primaryPurple.withValues(alpha: 0.7),
             ),
             const SizedBox(width: 6),
             Text(
@@ -390,10 +433,10 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkSurface.withOpacity(0.3),
+                  color: AppTheme.darkSurface.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: AppTheme.darkBorder.withOpacity(0.3),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -403,7 +446,7 @@ class _FeaturesTagsWidgetState extends State<FeaturesTagsWidget>
                     Icon(
                       Icons.add_rounded,
                       size: 14,
-                      color: AppTheme.primaryPurple.withOpacity(0.7),
+                      color: AppTheme.primaryPurple.withValues(alpha: 0.7),
                     ),
                     const SizedBox(width: 4),
                     Text(

@@ -1,5 +1,3 @@
-// lib/features/admin_audit_logs/presentation/bloc/audit_logs_bloc.dart
-
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,19 +8,51 @@ import '../../domain/repositories/audit_logs_repository.dart';
 import 'audit_logs_event.dart';
 import 'audit_logs_state.dart';
 
+/// Coordinates audit-log loading, incremental pagination, filtering, export, and detail selection.
+/// ينسق تحميل سجلات التدقيق، والتصفح التدريجي، والتصفية، والتصدير، واختيار التفاصيل.
 class AuditLogsBloc extends Bloc<AuditLogsEvent, AuditLogsState> {
+  /// Use case responsible for fetching paginated audit-log data.
+  /// حالة الاستخدام المسؤولة عن جلب بيانات سجلات التدقيق المصفّحة.
   final GetAuditLogsUseCase getAuditLogsUseCase;
+
+  /// Use case responsible for exporting the current audit-log query.
+  /// حالة الاستخدام المسؤولة عن تصدير استعلام سجلات التدقيق الحالي.
   final ExportAuditLogsUseCase exportAuditLogsUseCase;
+
+  /// Optional repository used when the UI needs to fetch a single audit-log detail record.
+  /// مستودع اختياري يُستخدم عندما تحتاج الواجهة لجلب سجل تدقيق واحد بالتفصيل.
   final AuditLogsRepository? auditLogsRepository;
 
+  /// Default page size used when the query does not specify one.
+  /// حجم الصفحة الافتراضي عندما لا يحدد الاستعلام حجمًا صريحًا.
   static const int _pageSize = 20;
+
+  /// Cooldown applied after rate-limited load-more responses.
+  /// مهلة تهدئة تُطبّق بعد استجابات تحميل المزيد المقيدة بالمعدل.
   static const Duration _loadMoreRateLimitCooldown = Duration(seconds: 3);
+
+  /// Small delay used before replaying a queued load-more request.
+  /// تأخير قصير يُستخدم قبل إعادة تنفيذ طلب تحميل المزيد المؤجل.
   static const Duration _queuedLoadMoreDelay = Duration(milliseconds: 400);
+
+  /// Tracks whether a load-more request is already being processed.
+  /// يتتبع ما إذا كان طلب تحميل المزيد قيد التنفيذ بالفعل.
   bool _isLoadingMore = false;
+
+  /// The time until which new load-more requests should be delayed.
+  /// الوقت الذي يجب حتى بعده تأجيل طلبات تحميل المزيد الجديدة.
   DateTime? _loadMoreCooldownUntil;
+
+  /// Prevents multiple queued retries from being scheduled at the same time.
+  /// يمنع جدولة أكثر من إعادة محاولة مؤجلة في الوقت نفسه.
   bool _isLoadMoreRetryScheduled = false;
+
+  /// Remembers whether another load-more request arrived while one was running.
+  /// يتذكر ما إذا وصل طلب تحميل المزيد آخر أثناء تنفيذ طلب سابق.
   bool _hasQueuedLoadMoreRequest = false;
 
+  /// Creates the bloc with the use cases and optional repository needed by the UI.
+  /// ينشئ البلوك مع حالات الاستخدام والمستودع الاختياري الذي تحتاجه الواجهة.
   AuditLogsBloc({
     required this.getAuditLogsUseCase,
     required this.exportAuditLogsUseCase,
@@ -39,6 +69,8 @@ class AuditLogsBloc extends Bloc<AuditLogsEvent, AuditLogsState> {
     on<ClearFiltersEvent>(_onClearFilters);
   }
 
+  /// Loads the first page of audit logs for the supplied query and resets paging flags.
+  /// يحمّل الصفحة الأولى من سجلات التدقيق للاستعلام المعطى ويعيد ضبط أعلام التصفح.
   Future<void> _onLoadAuditLogs(
     LoadAuditLogsEvent event,
     Emitter<AuditLogsState> emit,
@@ -82,6 +114,8 @@ class AuditLogsBloc extends Bloc<AuditLogsEvent, AuditLogsState> {
     );
   }
 
+  /// Appends the next page of audit logs while preserving existing items and selection state.
+  /// يضيف الصفحة التالية من سجلات التدقيق مع الحفاظ على العناصر والحالة المختارة الحالية.
   Future<void> _onLoadMoreAuditLogs(
     LoadMoreAuditLogsEvent event,
     Emitter<AuditLogsState> emit,
@@ -173,6 +207,8 @@ class AuditLogsBloc extends Bloc<AuditLogsEvent, AuditLogsState> {
     }
   }
 
+  /// Replays the current query when the user asks for a fresh refresh from the UI.
+  /// يعيد تنفيذ الاستعلام الحالي عندما يطلب المستخدم تحديثًا جديدًا من الواجهة.
   Future<void> _onRefreshAuditLogs(
     RefreshAuditLogsEvent event,
     Emitter<AuditLogsState> emit,
@@ -185,6 +221,8 @@ class AuditLogsBloc extends Bloc<AuditLogsEvent, AuditLogsState> {
     }
   }
 
+  /// Builds a query from the provided filters and restarts loading from the first page.
+  /// يبني استعلامًا من الفلاتر المعطاة ويعيد التحميل من الصفحة الأولى.
   Future<void> _onFilterAuditLogs(
     FilterAuditLogsEvent event,
     Emitter<AuditLogsState> emit,
@@ -202,6 +240,8 @@ class AuditLogsBloc extends Bloc<AuditLogsEvent, AuditLogsState> {
     add(LoadAuditLogsEvent(query: query));
   }
 
+  /// Exports the current audit-log query and emits either the exported data or an error.
+  /// يصدّر استعلام سجلات التدقيق الحالي ويصدر البيانات المصدّرة أو حالة خطأ.
   Future<void> _onExportAuditLogs(
     ExportAuditLogsEvent event,
     Emitter<AuditLogsState> emit,
@@ -216,6 +256,8 @@ class AuditLogsBloc extends Bloc<AuditLogsEvent, AuditLogsState> {
     );
   }
 
+  /// Stores the chosen audit log so details panels can react to the selection.
+  /// يخزن سجل التدقيق المختار حتى تستجيب لوحات التفاصيل للاختيار.
   void _onSelectAuditLog(
     SelectAuditLogEvent event,
     Emitter<AuditLogsState> emit,
@@ -226,6 +268,8 @@ class AuditLogsBloc extends Bloc<AuditLogsEvent, AuditLogsState> {
     }
   }
 
+  /// Loads full details for one audit log when the repository is available.
+  /// يحمّل التفاصيل الكاملة لسجل تدقيق واحد عندما يكون المستودع متاحًا.
   Future<void> _onLoadAuditLogDetails(
     LoadAuditLogDetailsEvent event,
     Emitter<AuditLogsState> emit,
@@ -243,6 +287,8 @@ class AuditLogsBloc extends Bloc<AuditLogsEvent, AuditLogsState> {
     );
   }
 
+  /// Clears all filters by starting over with a default empty query.
+  /// يمسح جميع الفلاتر عبر البدء من جديد باستعلام افتراضي فارغ.
   void _onClearFilters(
     ClearFiltersEvent event,
     Emitter<AuditLogsState> emit,
@@ -250,12 +296,16 @@ class AuditLogsBloc extends Bloc<AuditLogsEvent, AuditLogsState> {
     add(const LoadAuditLogsEvent(query: AuditLogsQuery()));
   }
 
+  /// Detects rate-limit style failures so load-more retries can be delayed safely.
+  /// يكتشف أخطاء تحديد المعدل حتى يمكن تأخير إعادة محاولة تحميل المزيد بأمان.
   bool _isRateLimitFailure(String message) {
     return message.contains('429') ||
         message.contains('too many requests') ||
         message.contains('rate limit');
   }
 
+  /// Chooses the best page size between the requested value, server echo, and fallback default.
+  /// يختار أفضل حجم للصفحة بين القيمة المطلوبة واستجابة الخادم والقيمة الافتراضية.
   int _resolvePageSize({
     required int? requestedPageSize,
     required int serverPageSize,
@@ -267,6 +317,8 @@ class AuditLogsBloc extends Bloc<AuditLogsEvent, AuditLogsState> {
     return _pageSize;
   }
 
+  /// Determines whether the current set of items has reached the end of the dataset.
+  /// يحدد ما إذا كانت العناصر الحالية وصلت إلى نهاية مجموعة البيانات.
   bool _computeHasReachedMax({
     required int loadedItemsCount,
     required int lastPageItemCount,
@@ -282,6 +334,8 @@ class AuditLogsBloc extends Bloc<AuditLogsEvent, AuditLogsState> {
     return lastPageItemCount < pageSize;
   }
 
+  /// Schedules a queued load-more request after the requested delay if one is still needed.
+  /// يجدول طلب تحميل المزيد المؤجل بعد المهلة المطلوبة إذا كان ما يزال مطلوبًا.
   void _scheduleQueuedLoadMore(Duration delay) {
     if (_isLoadMoreRetryScheduled) return;
 
@@ -299,11 +353,13 @@ class AuditLogsBloc extends Bloc<AuditLogsEvent, AuditLogsState> {
       add(const LoadMoreAuditLogsEvent());
     });
   }
-
-  // Extension method for AuditLogsQuery
 }
 
+/// Convenience extension that copies an audit-log query while overriding only selected fields.
+/// امتداد مساعد ينسخ استعلام سجلات التدقيق مع استبدال الحقول المطلوبة فقط.
 extension on AuditLogsQuery {
+  /// Returns a new query value with any supplied fields replaced.
+  /// يعيد قيمة استعلام جديدة مع استبدال أي حقول معطاة.
   AuditLogsQuery copyWith({
     int? pageNumber,
     int? pageSize,

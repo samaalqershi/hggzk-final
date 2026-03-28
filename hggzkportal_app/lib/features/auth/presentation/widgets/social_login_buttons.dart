@@ -20,19 +20,40 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
+/// يعرّف الكلاس `SocialLoginButtons`.
+/// Describes the `SocialLoginButtons` class.
 class SocialLoginButtons extends StatefulWidget {
+  /// Initializes a new `SocialLoginButtons` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `SocialLoginButtons`.
   const SocialLoginButtons({super.key});
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<SocialLoginButtons> createState() => _SocialLoginButtonsState();
 }
 
+/// يعرّف الكلاس `_SocialLoginButtonsState`.
+/// Describes the `_SocialLoginButtonsState` class.
 class _SocialLoginButtonsState extends State<SocialLoginButtons> {
+  /// Indicates whether `isPickerLoading` is enabled.
+  /// العربية: يحدد ما إذا كانت القيمة `isPickerLoading` مفعلة.
   bool _isPickerLoading = false;
+
+  /// يخزن العضو `_isLoadingOverlayShown`.
+  /// Holds the `_isLoadingOverlayShown` member.
   bool _isLoadingOverlayShown = false;
+
+  /// يخزن العضو `_isSocialAuthInFlight`.
+  /// Holds the `_isSocialAuthInFlight` member.
   bool _isSocialAuthInFlight = false;
+
+  /// يخزن العضو `_loadingOverlayEntry`.
+  /// Holds the `_loadingOverlayEntry` member.
   OverlayEntry? _loadingOverlayEntry;
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
@@ -99,12 +120,16 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
     );
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _hideLoadingOverlay();
     super.dispose();
   }
 
+  /// ينفذ العملية `_showLoadingOverlay`.
+  /// Runs the `_showLoadingOverlay` operation.
   void _showLoadingOverlay() {
     if (!mounted || _isLoadingOverlayShown) return;
     final overlay = Overlay.of(context, rootOverlay: true);
@@ -137,6 +162,8 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
     overlay.insert(_loadingOverlayEntry!);
   }
 
+  /// ينفذ العملية `_hideLoadingOverlay`.
+  /// Runs the `_hideLoadingOverlay` operation.
   void _hideLoadingOverlay() {
     if (!_isLoadingOverlayShown) return;
     _isLoadingOverlayShown = false;
@@ -144,6 +171,8 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
     _loadingOverlayEntry = null;
   }
 
+  /// ينفذ العملية `_handleSocialLogin`.
+  /// Runs the `_handleSocialLogin` operation.
   Future<void> _handleSocialLogin(SocialLoginProvider provider) async {
     if (_isPickerLoading) return;
 
@@ -171,6 +200,8 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
     }
   }
 
+  /// ينفذ العملية `_handleGoogleLogin`.
+  /// Runs the `_handleGoogleLogin` operation.
   Future<void> _handleGoogleLogin(SocialLoginProvider provider) async {
     final GoogleSignIn googleSignIn;
 
@@ -256,6 +287,8 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
         );
   }
 
+  /// ينفذ العملية `_handleFacebookLogin`.
+  /// Runs the `_handleFacebookLogin` operation.
   Future<void> _handleFacebookLogin(SocialLoginProvider provider) async {
     if (!_isFacebookSupportedPlatform()) {
       _showErrorSnackBar(
@@ -335,6 +368,8 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
         );
   }
 
+  /// ينفذ العملية `_handleAppleLogin`.
+  /// Runs the `_handleAppleLogin` operation.
   Future<void> _handleAppleLogin(SocialLoginProvider provider) async {
     if (kIsWeb) {
       _showErrorSnackBar(
@@ -407,6 +442,8 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
         );
   }
 
+  /// ينفذ العملية `_isFacebookSupportedPlatform`.
+  /// Runs the `_isFacebookSupportedPlatform` operation.
   bool _isFacebookSupportedPlatform() {
     if (kIsWeb) return true;
     switch (defaultTargetPlatform) {
@@ -421,6 +458,8 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
     }
   }
 
+  /// ينفذ العملية `_currentPlatformName`.
+  /// Runs the `_currentPlatformName` operation.
   String _currentPlatformName() {
     if (kIsWeb) return 'Web';
     switch (defaultTargetPlatform) {
@@ -439,6 +478,8 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
     }
   }
 
+  /// ينفذ العملية `_showErrorSnackBar`.
+  /// Runs the `_showErrorSnackBar` operation.
   void _showErrorSnackBar(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -449,6 +490,8 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
     );
   }
 
+  /// ينفذ العملية `_generateNonce`.
+  /// Runs the `_generateNonce` operation.
   String _generateNonce([int length = 32]) {
     const charset =
         '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
@@ -460,14 +503,35 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
   }
 }
 
+/// يعرّف الكلاس `_FuturisticSocialButton`.
+/// Describes the `_FuturisticSocialButton` class.
 class _FuturisticSocialButton extends StatefulWidget {
+  /// Holds the `icon` value.
+  /// العربية: يخزن القيمة `icon`.
   final String icon;
+
+  /// يخزن العضو `fallbackIcon`.
+  /// Holds the `fallbackIcon` member.
   final IconData fallbackIcon;
+
+  /// يخزن العضو `label`.
+  /// Holds the `label` member.
   final String label;
+
+  /// يخزن العضو `gradient`.
+  /// Holds the `gradient` member.
   final LinearGradient gradient;
+
+  /// يخزن العضو `borderColor`.
+  /// Holds the `borderColor` member.
   final Color borderColor;
+
+  /// يخزن العضو `onPressed`.
+  /// Holds the `onPressed` member.
   final VoidCallback onPressed;
 
+  /// ينشئ مثيلاً من `_FuturisticSocialButton`.
+  /// Builds an instance of `_FuturisticSocialButton`.
   const _FuturisticSocialButton({
     required this.icon,
     required this.fallbackIcon,
@@ -477,17 +541,31 @@ class _FuturisticSocialButton extends StatefulWidget {
     required this.onPressed,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<_FuturisticSocialButton> createState() =>
       _FuturisticSocialButtonState();
 }
 
+/// يعرّف الكلاس `_FuturisticSocialButtonState`.
+/// Describes the `_FuturisticSocialButtonState` class.
 class _FuturisticSocialButtonState extends State<_FuturisticSocialButton>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_scaleAnimation`.
+  /// Holds the `_scaleAnimation` member.
   late Animation<double> _scaleAnimation;
+
+  /// يخزن العضو `_isHovered`.
+  /// Holds the `_isHovered` member.
   bool _isHovered = false;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -504,12 +582,16 @@ class _FuturisticSocialButtonState extends State<_FuturisticSocialButton>
     ));
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

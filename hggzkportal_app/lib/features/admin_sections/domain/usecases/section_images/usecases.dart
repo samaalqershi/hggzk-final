@@ -8,14 +8,23 @@ import '../../repositories/section_images_repository.dart';
 
 // Upload Section Image
 class UploadSectionImageParams {
+  /// العربية: يخزن القيمة `sectionId`.
   final String? sectionId;
+
   final String? tempKey;
+
   final String filePath;
+
   final String? category;
+
   final String? alt;
+
   final bool isPrimary;
+
   final int? order;
+
   final List<String>? tags;
+
   final ProgressCallback? onSendProgress;
 
   UploadSectionImageParams({
@@ -32,6 +41,7 @@ class UploadSectionImageParams {
 }
 
 class UploadSectionImageUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final SectionImagesRepository repository;
 
   UploadSectionImageUseCase(this.repository);
@@ -53,13 +63,16 @@ class UploadSectionImageUseCase {
 
 // Get Section Images
 class GetSectionImagesParams {
+  /// العربية: يخزن القيمة `sectionId`.
   final String? sectionId;
+
   final String? tempKey;
 
   GetSectionImagesParams({this.sectionId, this.tempKey});
 }
 
 class GetSectionImagesUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final SectionImagesRepository repository;
 
   GetSectionImagesUseCase(this.repository);
@@ -73,7 +86,9 @@ class GetSectionImagesUseCase {
 
 // Update Section Image
 class UpdateSectionImageParams {
+  /// العربية: يخزن القيمة `imageId`.
   final String imageId;
+
   final Map<String, dynamic> data;
 
   UpdateSectionImageParams({
@@ -83,6 +98,7 @@ class UpdateSectionImageParams {
 }
 
 class UpdateSectionImageUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final SectionImagesRepository repository;
 
   UpdateSectionImageUseCase(this.repository);
@@ -94,6 +110,7 @@ class UpdateSectionImageUseCase {
 
 // Delete Section Image
 class DeleteSectionImageUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final SectionImagesRepository repository;
 
   DeleteSectionImageUseCase(this.repository);
@@ -105,6 +122,7 @@ class DeleteSectionImageUseCase {
 
 // Delete Multiple Section Images
 class DeleteMultipleSectionImagesUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final SectionImagesRepository repository;
 
   DeleteMultipleSectionImagesUseCase(this.repository);
@@ -116,8 +134,11 @@ class DeleteMultipleSectionImagesUseCase {
 
 // Reorder Section Images
 class ReorderSectionImagesParams {
+  /// العربية: يخزن القيمة `sectionId`.
   final String? sectionId;
+
   final String? tempKey;
+
   final List<String> imageIds;
 
   ReorderSectionImagesParams({
@@ -128,6 +149,7 @@ class ReorderSectionImagesParams {
 }
 
 class ReorderSectionImagesUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final SectionImagesRepository repository;
 
   ReorderSectionImagesUseCase(this.repository);
@@ -143,8 +165,11 @@ class ReorderSectionImagesUseCase {
 
 // Set Primary Section Image
 class SetPrimarySectionImageParams {
+  /// العربية: يخزن القيمة `sectionId`.
   final String? sectionId;
+
   final String? tempKey;
+
   final String imageId;
 
   SetPrimarySectionImageParams({
@@ -155,6 +180,7 @@ class SetPrimarySectionImageParams {
 }
 
 class SetPrimarySectionImageUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final SectionImagesRepository repository;
 
   SetPrimarySectionImageUseCase(this.repository);
@@ -170,11 +196,17 @@ class SetPrimarySectionImageUseCase {
 
 // Upload Multiple Section Images
 class UploadMultipleSectionImagesParams {
+  /// العربية: يخزن القيمة `sectionId`.
   final String? sectionId;
+
   final String? tempKey;
+
   final List<String> filePaths;
+
   final String? category;
+
   final List<String>? tags;
+
   final void Function(String filePath, int sent, int total)? onProgress;
 
   UploadMultipleSectionImagesParams({
@@ -188,6 +220,7 @@ class UploadMultipleSectionImagesParams {
 }
 
 class UploadMultipleSectionImagesUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final SectionImagesRepository repository;
 
   UploadMultipleSectionImagesUseCase(this.repository);

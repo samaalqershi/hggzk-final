@@ -4,23 +4,33 @@ import 'package:hggzk/core/enums/payment_method_enum.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// العربية: يمثل العنصر `PaymentMethodsWidget`.
 class PaymentMethodsWidget extends StatefulWidget {
+  /// العربية: يخزن القيمة `selectedMethod`.
   final PaymentMethod? selectedMethod;
+
+  /// العربية: يعالج `Function`.
   final Function(PaymentMethod) onMethodSelected;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `PaymentMethodsWidget`.
   const PaymentMethodsWidget({
     super.key,
     this.selectedMethod,
     required this.onMethodSelected,
   });
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<PaymentMethodsWidget> createState() => _PaymentMethodsWidgetState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `PaymentMethodsWidgetState`.
 class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
     with TickerProviderStateMixin {
+  /// العربية: يخزن القيمة `controller`.
   late AnimationController _controller;
+
+  /// العربية: يخزن القيمة `pressedIndex`.
   int? _pressedIndex;
 
   final List<PaymentMethod> _wallets = [
@@ -38,6 +48,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
     PaymentMethod.paypal,
   ];
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -47,12 +58,14 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
     )..forward();
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -91,6 +104,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
   // ═══════════════════════════════════════════════════════════════
   // عنوان القسم
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني section title.
   Widget _buildSectionTitle({
     required IconData icon,
     required String title,
@@ -125,6 +139,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
   // ═══════════════════════════════════════════════════════════════
   // قسم المحافظ - تصميم Wrap مع Chips
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني wallets section.
   Widget _buildWalletsSection() {
     return Wrap(
       spacing: 10,
@@ -144,6 +159,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
     );
   }
 
+  /// العربية: يبني wallet chip.
   Widget _buildWalletChip({
     required PaymentMethod wallet,
     required int index,
@@ -328,6 +344,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
   // ═══════════════════════════════════════════════════════════════
   // قسم طرق الدفع الأخرى - بطاقات أفقية
   // ═══════════════════════════════════════════════════════════════
+  /// العربية: يبني other methods section.
   Widget _buildOtherMethodsSection() {
     return Row(
       children: List.generate(_otherMethods.length, (index) {
@@ -353,6 +370,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
     );
   }
 
+  /// العربية: يبني method card.
   Widget _buildMethodCard({
     required PaymentMethod method,
     required int index,
@@ -542,7 +560,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
   // ═══════════════════════════════════════════════════════════════
   // دوال مساعدة
   // ═══════════════════════════════════════════════════════════════
-
+  /// العربية: يعيد wallet color.
   Color _getWalletColor(PaymentMethod wallet) {
     switch (wallet) {
       case PaymentMethod.jaibWallet:
@@ -562,6 +580,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
     }
   }
 
+  /// العربية: يعيد method color.
   Color _getMethodColor(PaymentMethod method) {
     switch (method) {
       case PaymentMethod.cash:
@@ -575,6 +594,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
     }
   }
 
+  /// العربية: يعيد wallet icon.
   IconData _getWalletIcon(PaymentMethod wallet) {
     switch (wallet) {
       case PaymentMethod.jaibWallet:
@@ -594,6 +614,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
     }
   }
 
+  /// العربية: يعيد method icon.
   IconData _getMethodIcon(PaymentMethod method) {
     switch (method) {
       case PaymentMethod.cash:
@@ -607,6 +628,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
     }
   }
 
+  /// العربية: يعيد wallet name.
   String _getWalletName(PaymentMethod wallet) {
     switch (wallet) {
       case PaymentMethod.jaibWallet:
@@ -626,6 +648,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
     }
   }
 
+  /// العربية: يعيد method description.
   String? _getMethodDescription(PaymentMethod method) {
     switch (method) {
       case PaymentMethod.cash:

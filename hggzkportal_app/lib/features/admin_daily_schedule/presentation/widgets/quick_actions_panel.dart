@@ -31,6 +31,7 @@ enum QuickAction {
 /// - تغذية حسية للتفاعلات
 class QuickActionsPanel extends StatefulWidget {
   /// دالة استدعاء عند النقر على إجراء
+  /// العربية: يعالج `Function`.
   final Function(QuickAction) onActionTap;
 
   /// عرض أفقي؟
@@ -53,6 +54,7 @@ class QuickActionsPanel extends StatefulWidget {
 class _QuickActionsPanelState extends State<QuickActionsPanel>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   late Animation<double> _scaleAnimation;
 
   @override
@@ -93,13 +95,13 @@ class _QuickActionsPanelState extends State<QuickActionsPanel>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.7),
-                  AppTheme.darkCard.withOpacity(0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.7),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 0.5,
               ),
             ),
@@ -200,13 +202,13 @@ class _QuickActionsPanelState extends State<QuickActionsPanel>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              action.color.withOpacity(0.2),
-              action.color.withOpacity(0.1),
+              action.color.withValues(alpha: 0.2),
+              action.color.withValues(alpha: 0.1),
             ],
           ),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: action.color.withOpacity(0.3),
+            color: action.color.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -232,7 +234,7 @@ class _QuickActionsPanelState extends State<QuickActionsPanel>
             if (!isCompact)
               Icon(
                 Icons.arrow_forward_ios_rounded,
-                color: action.color.withOpacity(0.5),
+                color: action.color.withValues(alpha: 0.5),
                 size: 14,
               ),
           ],
@@ -263,6 +265,7 @@ class _QuickActionsPanelState extends State<QuickActionsPanel>
 /// عنصر إجراء سريع واحد
 class QuickActionItem {
   /// نوع الإجراء
+  /// العربية: يخزن القيمة `action`.
   final QuickAction action;
 
   /// أيقونة الإجراء

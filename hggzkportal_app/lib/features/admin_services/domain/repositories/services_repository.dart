@@ -9,6 +9,7 @@ import '../entities/pricing_model.dart';
 /// 📚 Repository Interface للخدمات
 abstract class ServicesRepository {
   /// إنشاء خدمة جديدة
+  /// العربية: ينشئ service.
   Future<Either<Failure, String>> createService({
     required String propertyId,
     required String name,
@@ -32,7 +33,8 @@ abstract class ServicesRepository {
   Future<Either<Failure, bool>> deleteService(String serviceId);
 
   /// جلب خدمات عقار معين
-  Future<Either<Failure, List<Service>>> getServicesByProperty(String propertyId);
+  Future<Either<Failure, List<Service>>> getServicesByProperty(
+      String propertyId);
 
   /// جلب تفاصيل خدمة
   Future<Either<Failure, ServiceDetails>> getServiceDetails(String serviceId);

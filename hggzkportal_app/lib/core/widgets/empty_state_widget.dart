@@ -3,14 +3,31 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
-/// 📭 Empty State Widget
+/// حالة فراغ قابلة لإعادة الاستخدام للشاشات التي لا تملك بيانات بعد أو لا تحتوي نتائج.
+/// Reusable empty state for screens that have no data yet or no results to show.
 class EmptyStateWidget extends StatelessWidget {
+  /// الأيقونة الاختيارية التي تمثل طبيعة الحالة الفارغة.
+  /// Optional icon that represents the type of empty state.
   final IconData? icon;
+
+  /// العنوان الرئيسي الذي يشرح الحالة للمستخدم.
+  /// Main title that explains the state to the user.
   final String title;
+
+  /// وصف إضافي يوضح لماذا لا توجد بيانات أو ما الذي يحدث الآن.
+  /// Additional context describing why there is no data or what is happening.
   final String? subtitle;
+
+  /// نص الإجراء الاختياري مثل "إضافة" أو "إعادة تحميل".
+  /// Optional action label such as "Add" or "Reload".
   final String? actionLabel;
+
+  /// استدعاء اختياري لتنفيذ الإجراء الموجود في الحالة الفارغة.
+  /// Optional callback for the empty-state action.
   final VoidCallback? onAction;
 
+  /// ينشئ حالة فراغ مرنة للصفحات والقوائم ولوحات المعلومات.
+  /// Creates a flexible empty state for pages, lists, and dashboards.
   const EmptyStateWidget({
     super.key,
     this.icon,
@@ -20,6 +37,8 @@ class EmptyStateWidget extends StatelessWidget {
     this.onAction,
   });
 
+  /// يبني الحالة الفارغة ويختار بين الأيقونة أو النص أو الإجراء بحسب المدخلات.
+  /// Builds the empty state and chooses between icon, text, and action based on inputs.
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -34,8 +53,8 @@ class EmptyStateWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppColors.primary.withOpacity(0.1),
-                      AppColors.primary.withOpacity(0.05),
+                      AppColors.primary.withValues(alpha: 0.1),
+                      AppColors.primary.withValues(alpha: 0.05),
                     ],
                   ),
                   shape: BoxShape.circle,
@@ -43,7 +62,7 @@ class EmptyStateWidget extends StatelessWidget {
                 child: Icon(
                   icon,
                   size: 64,
-                  color: AppColors.primary.withOpacity(0.7),
+                  color: AppColors.primary.withValues(alpha: 0.7),
                 ),
               ),
             const SizedBox(height: 24),
@@ -73,13 +92,13 @@ class EmptyStateWidget extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       AppColors.primary,
-                      AppColors.primary.withOpacity(0.8),
+                      AppColors.primary.withValues(alpha: 0.8),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.3),
+                      color: AppColors.primary.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),

@@ -1,19 +1,33 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-/// MessageService provides a global way to display user-facing messages
-/// (errors, warnings, info, success) via a single ScaffoldMessenger.
+/// Presents user-facing snack bars from anywhere in the app, while keeping
+/// duplicate messages from stacking on top of each other.
+/// يعرض رسائل SnackBar من أي مكان في التطبيق مع منع تكدس الرسائل المكررة فوق
+/// بعضها.
 class MessageService {
+  /// Hidden constructor so the service stays static-only.
+  /// مُنشئ مخفي كي تبقى الخدمة ساكنة فقط.
   MessageService._();
 
+  /// Global messenger key used to display snack bars outside the current page.
+  /// مفتاح الرسائل العام المستخدم لإظهار الـ SnackBar خارج الصفحة الحالية.
   static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
 
   static const Duration _defaultDuration = Duration(seconds: 4);
 
+  /// Last message shown so repeated events can be throttled.
+  /// آخر رسالة عُرضت حتى يمكن تقليل التكرار السريع.
   static String? _lastMessage;
+
+  /// Timestamp of the last shown message for duplicate suppression.
+  /// وقت آخر عرض للرسالة لاستخدامه في منع التكرار.
   static DateTime? _lastShownAt;
 
+  /// Suppresses near-duplicate messages that arrive within a very small time
+  /// window.
+  /// يمنع الرسائل شبه المكررة التي تصل خلال نافذة زمنية قصيرة جدًا.
   static bool _shouldSuppress(String message) {
     final now = DateTime.now();
     if (_lastMessage == message && _lastShownAt != null) {
@@ -25,6 +39,10 @@ class MessageService {
     return false;
   }
 
+  /// Builds and shows a SnackBar with adaptive duration so long messages stay
+  /// readable without manually tuning every caller.
+  /// يبني SnackBar ويعرضه بزمن يتكيف مع طول الرسالة حتى تبقى مقروءة دون أن
+  /// يضبط كل مستدعي المدة يدويًا.
   static void _showSnackBar(
     String message, {
     Color? backgroundColor,
@@ -34,14 +52,16 @@ class MessageService {
     EdgeInsetsGeometry margin = const EdgeInsets.all(12),
   }) {
     debugPrint('📱 [MessageService._showSnackBar] Called with: "$message"');
-    
+
     if (message.trim().isEmpty) {
-      debugPrint('⚠️ [MessageService._showSnackBar] Message is empty, returning');
+      debugPrint(
+          '⚠️ [MessageService._showSnackBar] Message is empty, returning');
       return;
     }
-    
+
     if (_shouldSuppress(message)) {
-      debugPrint('⚠️ [MessageService._showSnackBar] Message suppressed (duplicate)');
+      debugPrint(
+          '⚠️ [MessageService._showSnackBar] Message suppressed (duplicate)');
       return;
     }
 
@@ -67,9 +87,10 @@ class MessageService {
     }
 
     messenger.clearSnackBars();
-    
-    debugPrint('✅ [MessageService._showSnackBar] Showing SnackBar with duration: ${calculatedDuration.inSeconds}s');
-    
+
+    debugPrint(
+        '✅ [MessageService._showSnackBar] Showing SnackBar with duration: ${calculatedDuration.inSeconds}s');
+
     messenger.showSnackBar(
       SnackBar(
         content: Container(
@@ -92,10 +113,12 @@ class MessageService {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     );
-    
+
     debugPrint('✅ [MessageService._showSnackBar] SnackBar shown successfully');
   }
 
+  /// Shows an error-colored message to signal something that needs attention.
+  /// يعرض رسالة بلون خطأ للإشارة إلى حالة تحتاج انتباهًا.
   static void showError(String message) {
     debugPrint('🔴 [MessageService.showError] Called with message: "$message"');
     _showSnackBar(
@@ -104,6 +127,8 @@ class MessageService {
     );
   }
 
+  /// Shows a success-colored message after the user completes an action.
+  /// يعرض رسالة نجاح بعد إتمام المستخدم لعملية ما.
   static void showSuccess(String message) {
     _showSnackBar(
       message,
@@ -111,6 +136,8 @@ class MessageService {
     );
   }
 
+  /// Shows a neutral informational message for non-critical feedback.
+  /// يعرض رسالة معلومات محايدة للتغذية الراجعة غير الحرجة.
   static void showInfo(String message) {
     _showSnackBar(
       message,
@@ -118,6 +145,10 @@ class MessageService {
     );
   }
 
+  /// Shows a warning-colored message when the user should slow down or review
+  /// something before continuing.
+  /// يعرض رسالة تحذير عندما يحتاج المستخدم إلى التمهل أو المراجعة قبل
+  /// المتابعة.
   static void showWarning(String message) {
     _showSnackBar(
       message,

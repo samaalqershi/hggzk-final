@@ -8,14 +8,23 @@ import '../../repositories/unit_in_section_images_repository.dart';
 
 // Upload UnitInSection Image
 class UploadUnitInSectionImageParams {
+  /// العربية: يخزن القيمة `unitInSectionId`.
   final String? unitInSectionId;
+
   final String? tempKey;
+
   final String filePath;
+
   final String? category;
+
   final String? alt;
+
   final bool isPrimary;
+
   final int? order;
+
   final List<String>? tags;
+
   final ProgressCallback? onSendProgress;
 
   UploadUnitInSectionImageParams({
@@ -32,6 +41,7 @@ class UploadUnitInSectionImageParams {
 }
 
 class UploadUnitInSectionImageUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final UnitInSectionImagesRepository repository;
 
   UploadUnitInSectionImageUseCase(this.repository);
@@ -54,13 +64,16 @@ class UploadUnitInSectionImageUseCase {
 
 // Get UnitInSection Images
 class GetUnitInSectionImagesParams {
+  /// العربية: يخزن القيمة `unitInSectionId`.
   final String? unitInSectionId;
+
   final String? tempKey;
 
   GetUnitInSectionImagesParams({this.unitInSectionId, this.tempKey});
 }
 
 class GetUnitInSectionImagesUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final UnitInSectionImagesRepository repository;
 
   GetUnitInSectionImagesUseCase(this.repository);
@@ -76,7 +89,9 @@ class GetUnitInSectionImagesUseCase {
 
 // Update UnitInSection Image
 class UpdateUnitInSectionImageParams {
+  /// العربية: يخزن القيمة `imageId`.
   final String imageId;
+
   final Map<String, dynamic> data;
 
   UpdateUnitInSectionImageParams({
@@ -86,6 +101,7 @@ class UpdateUnitInSectionImageParams {
 }
 
 class UpdateUnitInSectionImageUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final UnitInSectionImagesRepository repository;
 
   UpdateUnitInSectionImageUseCase(this.repository);
@@ -97,6 +113,7 @@ class UpdateUnitInSectionImageUseCase {
 
 // Delete UnitInSection Image
 class DeleteUnitInSectionImageUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final UnitInSectionImagesRepository repository;
 
   DeleteUnitInSectionImageUseCase(this.repository);
@@ -108,6 +125,7 @@ class DeleteUnitInSectionImageUseCase {
 
 // Delete Multiple UnitInSection Images
 class DeleteMultipleUnitInSectionImagesUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final UnitInSectionImagesRepository repository;
 
   DeleteMultipleUnitInSectionImagesUseCase(this.repository);
@@ -119,8 +137,11 @@ class DeleteMultipleUnitInSectionImagesUseCase {
 
 // Reorder UnitInSection Images
 class ReorderUnitInSectionImagesParams {
+  /// العربية: يخزن القيمة `unitInSectionId`.
   final String? unitInSectionId;
+
   final String? tempKey;
+
   final List<String> imageIds;
 
   ReorderUnitInSectionImagesParams({
@@ -131,6 +152,7 @@ class ReorderUnitInSectionImagesParams {
 }
 
 class ReorderUnitInSectionImagesUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final UnitInSectionImagesRepository repository;
 
   ReorderUnitInSectionImagesUseCase(this.repository);
@@ -146,8 +168,11 @@ class ReorderUnitInSectionImagesUseCase {
 
 // Set Primary UnitInSection Image
 class SetPrimaryUnitInSectionImageParams {
+  /// العربية: يخزن القيمة `unitInSectionId`.
   final String? unitInSectionId;
+
   final String? tempKey;
+
   final String imageId;
 
   SetPrimaryUnitInSectionImageParams({
@@ -158,6 +183,7 @@ class SetPrimaryUnitInSectionImageParams {
 }
 
 class SetPrimaryUnitInSectionImageUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final UnitInSectionImagesRepository repository;
 
   SetPrimaryUnitInSectionImageUseCase(this.repository);
@@ -174,11 +200,17 @@ class SetPrimaryUnitInSectionImageUseCase {
 
 // Upload Multiple UnitInSection Images
 class UploadMultipleUnitInSectionImagesParams {
+  /// العربية: يخزن القيمة `unitInSectionId`.
   final String? unitInSectionId;
+
   final String? tempKey;
+
   final List<String> filePaths;
+
   final String? category;
+
   final List<String>? tags;
+
   final void Function(String filePath, int sent, int total)? onProgress;
 
   UploadMultipleUnitInSectionImagesParams({
@@ -192,6 +224,7 @@ class UploadMultipleUnitInSectionImagesParams {
 }
 
 class UploadMultipleUnitInSectionImagesUseCase {
+  /// العربية: يخزن القيمة `repository`.
   final UnitInSectionImagesRepository repository;
 
   UploadMultipleUnitInSectionImagesUseCase(this.repository);

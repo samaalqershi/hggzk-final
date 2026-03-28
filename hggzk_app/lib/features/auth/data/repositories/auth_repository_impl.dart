@@ -3,9 +3,9 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/constants/storage_constants.dart';
-import '../../../../services/local_storage_service.dart';
-import '../../../../services/biometric_auth_service.dart';
-import '../../../../injection_container.dart';
+import 'package:hggzk/core/services/local_storage_service.dart';
+import 'package:hggzk/core/services/biometric_auth_service.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import '../../domain/entities/auth_response.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -14,18 +14,36 @@ import '../datasources/auth_remote_datasource.dart';
 import '../models/auth_response_model.dart';
 import '../models/user_model.dart';
 
+/// يربط بين مصادر بيانات المصادقة المحلية والبعيدة ويحوّل الأخطاء
+/// والاستثناءات إلى نتائج مجال قابلة للاستهلاك من الـ blocs.
+/// Bridges local and remote auth data sources while translating exceptions
+/// into domain-friendly results consumable by blocs.
 class AuthRepositoryImpl implements AuthRepository {
+  /// المصدر البعيد المسؤول عن طلبات المصادقة إلى الخادم.
+  /// Remote data source responsible for authentication API calls.
   final AuthRemoteDataSource remoteDataSource;
+
+  /// المصدر المحلي المسؤول عن حفظ الجلسة واستعادتها.
+  /// Local data source responsible for caching and restoring the session.
   final AuthLocalDataSource localDataSource;
+
+  /// فاحص الاتصال المستخدم لاتخاذ قرار بين الشبكة والكاش.
+  /// Connectivity checker used to choose between network and cache flows.
   final InternetConnectionChecker internetConnectionChecker;
+
+  /// خدمة بيومترية تخزن رمز التحديث في مساحة أكثر أمانًا عند توفرها.
+  /// Biometric helper that stores the refresh token more securely when
+  /// supported.
   final BiometricAuthService _biometric = BiometricAuthService();
 
+  /// ينشئ تنفيذ المستودع مع المصادر اللازمة لإدارة الجلسة.
+  /// Creates the repository implementation with the dependencies required to
+  /// manage auth sessions.
   AuthRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
     required this.internetConnectionChecker,
   });
-
   @override
   Future<Either<Failure, AuthResponse>> login({
     required String emailOrPhone,

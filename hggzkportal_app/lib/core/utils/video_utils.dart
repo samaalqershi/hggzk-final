@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:hggzkportal/core/utils/media_file_safety.dart';
-
 class VideoUtils {
   static Future<String?> generateVideoThumbnail(String videoPath) async {
     try {
@@ -38,7 +37,6 @@ class VideoUtils {
       return null;
     }
   }
-
   static Future<int?> getVideoDuration(String videoPath) async {
     try {
       // This would require FFmpeg or similar
@@ -49,7 +47,6 @@ class VideoUtils {
       return null;
     }
   }
-
   static bool isValidVideoFile(String filePath) {
     final normalizedPath = filePath.trim();
     if (normalizedPath.isEmpty) return false;

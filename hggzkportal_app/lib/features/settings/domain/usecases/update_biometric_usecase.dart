@@ -5,10 +5,9 @@ import '../../../../core/usecases/usecase.dart';
 import '../repositories/settings_repository.dart';
 
 class UpdateBiometricUseCase implements UseCase<bool, UpdateBiometricParams> {
+  /// العربية: يخزن القيمة `repository`.
   final SettingsRepository repository;
-
   UpdateBiometricUseCase(this.repository);
-
   @override
   Future<Either<Failure, bool>> call(UpdateBiometricParams params) async {
     return await repository.updateBiometric(params.enabled);
@@ -16,10 +15,9 @@ class UpdateBiometricUseCase implements UseCase<bool, UpdateBiometricParams> {
 }
 
 class UpdateBiometricParams extends Equatable {
+  /// العربية: يخزن القيمة `enabled`.
   final bool enabled;
-
   const UpdateBiometricParams({required this.enabled});
-
   @override
   List<Object> get props => [enabled];
 }

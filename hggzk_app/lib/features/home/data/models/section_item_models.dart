@@ -11,8 +11,7 @@ class SectionImageModel extends Equatable {
   final String? caption;
   final String? altText;
   final DateTime? uploadedAt;
-   final bool is360;
-
+  final bool is360;
   const SectionImageModel({
     required this.id,
     required this.url,
@@ -24,7 +23,6 @@ class SectionImageModel extends Equatable {
     this.uploadedAt,
     this.is360 = false,
   });
-
   factory SectionImageModel.fromJson(Map<String, dynamic> json) {
     return SectionImageModel(
       id: (json['id'] ?? '').toString(),
@@ -42,7 +40,6 @@ class SectionImageModel extends Equatable {
       is360: json['is360'] == true,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -58,7 +55,17 @@ class SectionImageModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, url, isMain, displayOrder, name, caption, altText, uploadedAt, is360];
+  List<Object?> get props => [
+        id,
+        url,
+        isMain,
+        displayOrder,
+        name,
+        caption,
+        altText,
+        uploadedAt,
+        is360
+      ];
 }
 
 class SectionPropertyItemModel extends Equatable {
@@ -87,7 +94,6 @@ class SectionPropertyItemModel extends Equatable {
   final double longitude;
   final DateTime lastUpdated;
   final Map<String, dynamic> dynamicFieldValues;
-
   const SectionPropertyItemModel({
     required this.id,
     required this.propertyInSectionId,
@@ -115,7 +121,6 @@ class SectionPropertyItemModel extends Equatable {
     required this.lastUpdated,
     this.dynamicFieldValues = const {},
   });
-
   factory SectionPropertyItemModel.fromJson(Map<String, dynamic> json) {
     final images = (json['additionalImages'] as List?)
             ?.map((e) => SectionImageModel.fromJson(e as Map<String, dynamic>))
@@ -129,24 +134,25 @@ class SectionPropertyItemModel extends Equatable {
               .toString(),
       name: (json['name'] ?? json['Name'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
-      address:
-          (json['address'] ?? json['Address'] ?? '').toString(),
+      address: (json['address'] ?? json['Address'] ?? '').toString(),
       city: (json['city'] ?? json['City'] ?? '').toString(),
-      starRating: int.tryParse(
-              (json['starRating'] ??
-                      json['StarRating'] ??
-                      json['propertyStarRating'] ??
-                      json['PropertyStarRating'] ??
-                      '0')
-                  .toString()) ??
+      starRating: int.tryParse((json['starRating'] ??
+                  json['StarRating'] ??
+                  json['propertyStarRating'] ??
+                  json['PropertyStarRating'] ??
+                  '0')
+              .toString()) ??
           0,
       averageRating: ((json['averageRating'] ??
-                  json['AverageRating'] ??
-                  json['propertyAverageRating'] ??
-                  json['PropertyAverageRating'] ??
-                  0) as num)
+              json['AverageRating'] ??
+              json['propertyAverageRating'] ??
+              json['PropertyAverageRating'] ??
+              0) as num)
           .toDouble(),
-      reviewsCount: int.tryParse((json['reviewCount'] ?? json['reviewsCount'] ?? '0').toString()) ?? 0,
+      reviewsCount: int.tryParse(
+              (json['reviewCount'] ?? json['reviewsCount'] ?? '0')
+                  .toString()) ??
+          0,
       minPrice: ((json['minPrice'] ?? 0) as num).toDouble(),
       discountedPrice: ((json['discountedPrice'] ?? 0) as num).toDouble(),
       currency: (json['currency'] ?? 'YER').toString(),
@@ -162,15 +168,19 @@ class SectionPropertyItemModel extends Equatable {
           .toString(),
       isFeatured: (json['isFeatured'] ?? false) == true,
       isAvailable: (json['isAvailable'] ?? true) == true,
-      availableUnitsCount: int.tryParse((json['availableUnitsCount'] ?? '0').toString()) ?? 0,
+      availableUnitsCount:
+          int.tryParse((json['availableUnitsCount'] ?? '0').toString()) ?? 0,
       maxCapacity: int.tryParse((json['maxCapacity'] ?? '0').toString()) ?? 0,
       latitude: ((json['latitude'] ?? 0) as num).toDouble(),
       longitude: ((json['longitude'] ?? 0) as num).toDouble(),
-      lastUpdated: DateTime.tryParse((json['lastUpdated'] ?? DateTime.now().toIso8601String()).toString()) ?? DateTime.now(),
-      dynamicFieldValues: Map<String, dynamic>.from(json['dynamicFieldValues'] ?? {}),
+      lastUpdated: DateTime.tryParse(
+              (json['lastUpdated'] ?? DateTime.now().toIso8601String())
+                  .toString()) ??
+          DateTime.now(),
+      dynamicFieldValues:
+          Map<String, dynamic>.from(json['dynamicFieldValues'] ?? {}),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -202,7 +212,8 @@ class SectionPropertyItemModel extends Equatable {
   }
 
   // UI helpers matching previous SearchResultModel getters
-  String? get imageUrl => mainImageUrl ?? (imageUrls.isNotEmpty ? imageUrls.first : null);
+  String? get imageUrl =>
+      mainImageUrl ?? (imageUrls.isNotEmpty ? imageUrls.first : null);
   String? get location => address.isNotEmpty ? address : city;
   double? get price => (discountedPrice > 0 ? discountedPrice : minPrice);
   double? get rating => averageRating;
@@ -213,24 +224,30 @@ class SectionPropertyItemModel extends Equatable {
     }
     return null;
   }
+
   int? get bedrooms {
-    final v = dynamicFieldValues['bedrooms'] ?? dynamicFieldValues['numBedrooms'];
+    final v =
+        dynamicFieldValues['bedrooms'] ?? dynamicFieldValues['numBedrooms'];
     if (v is int) return v;
     if (v is String) return int.tryParse(v);
     return null;
   }
+
   int? get bathrooms {
-    final v = dynamicFieldValues['bathrooms'] ?? dynamicFieldValues['numBathrooms'];
+    final v =
+        dynamicFieldValues['bathrooms'] ?? dynamicFieldValues['numBathrooms'];
     if (v is int) return v;
     if (v is String) return int.tryParse(v);
     return null;
   }
+
   double? get area {
     final v = dynamicFieldValues['area'] ?? dynamicFieldValues['size'];
     if (v is num) return v.toDouble();
     if (v is String) return double.tryParse(v);
     return null;
   }
+
   int get propertiesCount {
     final v = dynamicFieldValues['propertiesCount'];
     if (v is int) return v;
@@ -239,7 +256,33 @@ class SectionPropertyItemModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, propertyInSectionId, name, description, address, city, starRating, averageRating, reviewsCount, minPrice, discountedPrice, currency, mainImageUrl, mainImageId, imageUrls, additionalImages, propertyType, isFeatured, isAvailable, availableUnitsCount, maxCapacity, latitude, longitude, lastUpdated, dynamicFieldValues];
+  List<Object?> get props => [
+        id,
+        propertyInSectionId,
+        name,
+        description,
+        address,
+        city,
+        starRating,
+        averageRating,
+        reviewsCount,
+        minPrice,
+        discountedPrice,
+        currency,
+        mainImageUrl,
+        mainImageId,
+        imageUrls,
+        additionalImages,
+        propertyType,
+        isFeatured,
+        isAvailable,
+        availableUnitsCount,
+        maxCapacity,
+        latitude,
+        longitude,
+        lastUpdated,
+        dynamicFieldValues
+      ];
 }
 
 class SectionUnitItemModel extends Equatable {
@@ -261,7 +304,6 @@ class SectionUnitItemModel extends Equatable {
   final int propertyStarRating;
   final double propertyAverageRating;
   final String? unitTypeName;
-
   const SectionUnitItemModel({
     required this.id,
     required this.unitInSectionId,
@@ -282,7 +324,6 @@ class SectionUnitItemModel extends Equatable {
     this.propertyAverageRating = 0,
     this.unitTypeName,
   });
-
   factory SectionUnitItemModel.fromJson(Map<String, dynamic> json) {
     final images = (json['additionalImages'] as List?)
             ?.map((e) => SectionImageModel.fromJson(e as Map<String, dynamic>))
@@ -292,8 +333,7 @@ class SectionUnitItemModel extends Equatable {
     return SectionUnitItemModel(
       id: (json['id'] ?? json['Id'] ?? '').toString(),
       unitInSectionId:
-          (json['unitInSectionId'] ?? json['UnitInSectionId'] ?? '')
-              .toString(),
+          (json['unitInSectionId'] ?? json['UnitInSectionId'] ?? '').toString(),
       name: (json['name'] ?? json['Name'] ?? '').toString(),
       propertyId: (json['propertyId'] ?? '').toString(),
       unitTypeId: json['unitTypeId']?.toString(),
@@ -318,20 +358,16 @@ class SectionUnitItemModel extends Equatable {
               '')
           .toString(),
       propertyStarRating: int.tryParse(
-              (json['propertyStarRating'] ??
-                      json['PropertyStarRating'] ??
-                      '0')
+              (json['propertyStarRating'] ?? json['PropertyStarRating'] ?? '0')
                   .toString()) ??
           0,
       propertyAverageRating: ((json['propertyAverageRating'] ??
-                  json['PropertyAverageRating'] ??
-                  0) as num)
+              json['PropertyAverageRating'] ??
+              0) as num)
           .toDouble(),
-      unitTypeName:
-          (json['unitTypeName'] ?? json['UnitTypeName'])?.toString(),
+      unitTypeName: (json['unitTypeName'] ?? json['UnitTypeName'])?.toString(),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -356,7 +392,8 @@ class SectionUnitItemModel extends Equatable {
   }
 
   // UI helpers
-  String? get imageUrl => mainImageUrl ?? (imageUrls.isNotEmpty ? imageUrls.first : null);
+  String? get imageUrl =>
+      mainImageUrl ?? (imageUrls.isNotEmpty ? imageUrls.first : null);
   double? get price => (discountedPrice > 0 ? discountedPrice : minPrice);
   int? get discount {
     if (minPrice > 0 && discountedPrice > 0 && discountedPrice < minPrice) {
@@ -368,10 +405,8 @@ class SectionUnitItemModel extends Equatable {
 
   String? get location =>
       address.isNotEmpty ? address : (city.isNotEmpty ? city : null);
-
   double? get rating =>
       propertyAverageRating > 0 ? propertyAverageRating : null;
-
   @override
   List<Object?> get props => [
         id,

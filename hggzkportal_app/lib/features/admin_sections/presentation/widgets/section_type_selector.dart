@@ -5,7 +5,9 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/enums/section_type.dart';
 
 class SectionTypeSelector extends StatelessWidget {
+  /// العربية: يخزن القيمة `selectedType`.
   final SectionTypeEnum? selectedType;
+
   final Function(SectionTypeEnum) onTypeSelected;
 
   const SectionTypeSelector({

@@ -8,12 +8,12 @@ import 'package:hggzkportal/core/theme/app_text_styles.dart';
 
 class UserFiltersWidget extends StatefulWidget {
   final Function(Map<String, dynamic>) onApplyFilters;
-  
+
   const UserFiltersWidget({
     super.key,
     required this.onApplyFilters,
   });
-  
+
   @override
   State<UserFiltersWidget> createState() => _UserFiltersWidgetState();
 }
@@ -21,13 +21,17 @@ class UserFiltersWidget extends StatefulWidget {
 class _UserFiltersWidgetState extends State<UserFiltersWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   late Animation<double> _slideAnimation;
-  
+
   String? _selectedRole;
+
   bool? _isActive;
+
   DateTime? _createdAfter;
+
   DateTime? _createdBefore;
-  
+
   @override
   void initState() {
     super.initState();
@@ -35,21 +39,21 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _slideAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOutCubic,
     );
-    
+
     _animationController.forward();
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return SlideTransition(
@@ -65,13 +69,13 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withOpacity(0.5),
-                AppTheme.darkCard.withOpacity(0.3),
+                AppTheme.darkCard.withValues(alpha: 0.5),
+                AppTheme.darkCard.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -107,16 +111,16 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
       ),
     );
   }
-  
+
   Widget _buildRoleFilter() {
     return Container(
       width: 150,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.3),
+        color: AppTheme.darkSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -131,35 +135,35 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
           ),
           icon: Icon(
             Icons.arrow_drop_down_rounded,
-            color: AppTheme.primaryBlue.withOpacity(0.7),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.7),
             size: 20,
           ),
           dropdownColor: AppTheme.darkCard,
           style: AppTextStyles.bodySmall.copyWith(
             color: AppTheme.textWhite,
           ),
-          items: [
-            DropdownMenuItem(value: null, child: Text('الكل')),
-            DropdownMenuItem(value: 'admin', child: Text('مدير')),
-            DropdownMenuItem(value: 'owner', child: Text('مالك')),
-            DropdownMenuItem(value: 'staff', child: Text('موظف')),
-            DropdownMenuItem(value: 'customer', child: Text('عميل')),
+          items: const [
+            DropdownMenuItem<String>(value: null, child: Text('الكل')),
+            DropdownMenuItem<String>(value: 'admin', child: Text('مدير')),
+            DropdownMenuItem<String>(value: 'owner', child: Text('مالك')),
+            DropdownMenuItem<String>(value: 'staff', child: Text('موظف')),
+            DropdownMenuItem<String>(value: 'customer', child: Text('عميل')),
           ],
           onChanged: (value) => setState(() => _selectedRole = value),
         ),
       ),
     );
   }
-  
+
   Widget _buildStatusFilter() {
     return Container(
       width: 150,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.3),
+        color: AppTheme.darkSurface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -174,7 +178,7 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
           ),
           icon: Icon(
             Icons.arrow_drop_down_rounded,
-            color: AppTheme.primaryBlue.withOpacity(0.7),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.7),
             size: 20,
           ),
           dropdownColor: AppTheme.darkCard,
@@ -182,7 +186,7 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
             color: AppTheme.textWhite,
           ),
           items: [
-            DropdownMenuItem(value: null, child: Text('الكل')),
+            const DropdownMenuItem(value: null, child: Text('الكل')),
             DropdownMenuItem(
               value: true,
               child: Row(
@@ -196,7 +200,7 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text('نشط'),
+                  const Text('نشط'),
                 ],
               ),
             ),
@@ -213,7 +217,7 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text('غير نشط'),
+                  const Text('غير نشط'),
                 ],
               ),
             ),
@@ -223,7 +227,7 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
       ),
     );
   }
-  
+
   Widget _buildDateFilter(
     String label,
     DateTime? date,
@@ -248,7 +252,7 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
             );
           },
         );
-        
+
         if (pickedDate != null) {
           onChanged(pickedDate);
         }
@@ -256,10 +260,10 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: AppTheme.darkSurface.withOpacity(0.3),
+          color: AppTheme.darkSurface.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),
@@ -269,13 +273,11 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
             Icon(
               Icons.calendar_today_rounded,
               size: 14,
-              color: AppTheme.primaryBlue.withOpacity(0.7),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.7),
             ),
             const SizedBox(width: 8),
             Text(
-              date != null
-                  ? '${date.day}/${date.month}/${date.year}'
-                  : label,
+              date != null ? '${date.day}/${date.month}/${date.year}' : label,
               style: AppTextStyles.bodySmall.copyWith(
                 color: date != null ? AppTheme.textWhite : AppTheme.textMuted,
               ),
@@ -296,7 +298,7 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
       ),
     );
   }
-  
+
   Widget _buildActionButtons() {
     return Row(
       children: [
@@ -319,7 +321,7 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.3),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -337,7 +339,7 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
       ],
     );
   }
-  
+
   void _resetFilters() {
     setState(() {
       _selectedRole = null;
@@ -345,10 +347,10 @@ class _UserFiltersWidgetState extends State<UserFiltersWidget>
       _createdAfter = null;
       _createdBefore = null;
     });
-    
+
     widget.onApplyFilters({});
   }
-  
+
   void _applyFilters() {
     HapticFeedback.lightImpact();
     widget.onApplyFilters({

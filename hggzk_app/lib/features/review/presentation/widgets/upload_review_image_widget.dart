@@ -3,12 +3,27 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 
+/// Shows an uploaded review image with optional tap and remove actions.
+/// يعرض صورة مرفوعة للمراجعة مع أفعال اختيارية للفتح والحذف.
 class UploadReviewImageWidget extends StatelessWidget {
+  /// Image URL rendered inside the preview tile.
+  /// رابط الصورة المعروض داخل بطاقة المعاينة.
   final String imageUrl;
+
+  /// Opens the image preview or picker when the tile is tapped.
+  /// يفتح معاينة الصورة أو منتقي الصور عند الضغط على البطاقة.
   final VoidCallback? onTap;
+
+  /// Removes the image from the pending review attachment list.
+  /// يزيل الصورة من قائمة مرفقات المراجعة المعلّقة.
   final VoidCallback? onRemove;
+
+  /// Controls the preview tile's square size.
+  /// يتحكم في حجم البطاقة المربعة للمعاينة.
   final double size;
 
+  /// Builds the preview tile for one review image.
+  /// ينشئ بطاقة المعاينة لصورة مراجعة واحدة.
   const UploadReviewImageWidget({
     super.key,
     required this.imageUrl,
@@ -17,6 +32,8 @@ class UploadReviewImageWidget extends StatelessWidget {
     this.size = 100,
   });
 
+  /// Renders the image preview with its optional remove affordance.
+  /// يرسم معاينة الصورة مع زر الإزالة الاختياري.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -39,8 +56,7 @@ class UploadReviewImageWidget extends StatelessWidget {
           ],
         ),
         child: ClipRRect(
-          borderRadius:
-              BorderRadius.circular(AppDimensions.borderRadiusLg),
+          borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLg),
           child: Stack(
             children: [
               CachedImageWidget(

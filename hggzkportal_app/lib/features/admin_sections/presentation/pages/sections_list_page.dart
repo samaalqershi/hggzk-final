@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'dart:ui';
 import 'package:flutter/services.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -17,7 +16,6 @@ import '../bloc/sections_list/sections_list_state.dart';
 import '../widgets/futuristic_section_card.dart';
 import '../widgets/futuristic_sections_table.dart';
 import '../widgets/section_stats_card.dart';
-import '../widgets/section_preview_widget.dart';
 
 // تعداد لطرق العرض المختلفة
 enum ViewMode {
@@ -28,6 +26,7 @@ enum ViewMode {
 }
 
 class SectionsListPage extends StatefulWidget {
+  /// العربية: ينشئ مثيلًا جديدًا من `SectionsListPage`.
   const SectionsListPage({super.key});
 
   @override
@@ -37,11 +36,13 @@ class SectionsListPage extends StatefulWidget {
 class _SectionsListPageState extends State<SectionsListPage>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
+
   late AnimationController _pulseAnimationController;
   final ScrollController _scrollController = ScrollController();
 
   ViewMode _currentViewMode = ViewMode.table; // الوضع الافتراضي
   bool _showFilters = false;
+
   Map<String, dynamic> _activeFilters = {};
 
   @override
@@ -210,44 +211,37 @@ class _SectionsListPageState extends State<SectionsListPage>
 
     // تحديد الأيقونة والوضع التالي
     IconData icon;
-    String message;
 
     switch (_currentViewMode) {
       case ViewMode.compact:
         icon = CupertinoIcons.square_stack;
-        message = 'تم التبديل للعرض الموسع';
         break;
       case ViewMode.expanded:
         if (isSmallScreen) {
           icon = CupertinoIcons.rectangle_grid_1x2;
-          message = 'تم التبديل للعرض الشبكي المحسن';
         } else {
           icon = CupertinoIcons.square_grid_2x2;
-          message = 'تم التبديل للعرض الشبكي';
         }
         break;
       case ViewMode.grid:
         if (!isSmallScreen && !isMediumScreen) {
           icon = CupertinoIcons.table;
-          message = 'تم التبديل للعرض الجدولي';
         } else {
           icon = CupertinoIcons.rectangle_compress_vertical;
-          message = 'تم التبديل للعرض المضغوط';
         }
         break;
       case ViewMode.table:
         icon = CupertinoIcons.rectangle_compress_vertical;
-        message = 'تم التبديل للعرض المضغوط';
         break;
     }
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -301,117 +295,6 @@ class _SectionsListPageState extends State<SectionsListPage>
         : ViewMode.table;
   }
 
-  void _showSectionPreview(Section section) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.85,
-        decoration: BoxDecoration(
-          color: AppTheme.darkCard,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppTheme.darkBorder.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: SectionPreviewWidget(
-                  section: section,
-                  isExpanded: false,
-                  onExpand: () {
-                    Navigator.pop(context);
-                    _showExpandedSectionPreview(section);
-                  },
-                  onEdit: () {
-                    Navigator.pop(context);
-                    _navigateToEdit(section.id);
-                  },
-                  onManageItems: () {
-                    Navigator.pop(context);
-                    _navigateToManageItems(section);
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showExpandedSectionPreview(Section section) {
-    showDialog(
-      fullscreenDialog: true,
-      context: context,
-      builder: (context) => Dialog(
-        insetPadding: const EdgeInsets.all(10),
-        backgroundColor: Colors.transparent,
-        child: Container(
-          width: MediaQuery.of(context).size.width * 0.9,
-          height: MediaQuery.of(context).size.height * 0.8,
-          decoration: BoxDecoration(
-            color: AppTheme.darkCard,
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'معاينة القسم',
-                      style: AppTextStyles.heading2.copyWith(
-                        color: AppTheme.textWhite,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: Icon(
-                        CupertinoIcons.xmark_circle_fill,
-                        color: AppTheme.textMuted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: SectionPreviewWidget(
-                    section: section,
-                    isExpanded: true,
-                    onEdit: () {
-                      Navigator.pop(context);
-                      _navigateToEdit(section.id);
-                    },
-                    onManageItems: () {
-                      Navigator.pop(context);
-                      _navigateToManageItems(section);
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   void _navigateToManageItems(Section section) {
     context.push('/admin/sections/${section.id}/items', extra: section.target);
   }
@@ -423,10 +306,10 @@ class _SectionsListPageState extends State<SectionsListPage>
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -805,7 +688,7 @@ class _SectionsListPageState extends State<SectionsListPage>
   }
 
   void _navigateToDetails(String sectionId) {
-    context.push('/admin/sections/$sectionId');
+    context.push('/admin/sections/$sectionId/edit');
   }
 
   void _navigateToEdit(String sectionId) {
@@ -877,6 +760,7 @@ class _SectionsListPageState extends State<SectionsListPage>
 }
 
 class _SectionsBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
 
   _SectionsBackgroundPainter({required this.glowIntensity});

@@ -4,14 +4,21 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../injection_container.dart';
-import '../../../../services/local_data_service.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart';
+import 'package:hggzk/core/services/local_data_service.dart';
 
+/// العربية: يمثل العنصر `FilterChipsWidget`.
 class FilterChipsWidget extends StatefulWidget {
+  /// العربية: يخزن القيمة `filters`.
   final Map<String, dynamic> filters;
+
+  /// العربية: يعالج `Function`.
   final Function(String) onRemoveFilter;
+
+  /// العربية: يخزن القيمة `onClearAll`.
   final VoidCallback? onClearAll;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `FilterChipsWidget`.
   const FilterChipsWidget({
     super.key,
     required this.filters,
@@ -19,21 +26,33 @@ class FilterChipsWidget extends StatefulWidget {
     this.onClearAll,
   });
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<FilterChipsWidget> createState() => _FilterChipsWidgetState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `FilterChipsWidgetState`.
 class _FilterChipsWidgetState extends State<FilterChipsWidget>
     with TickerProviderStateMixin {
+  /// العربية: يخزن القيمة `slideController`.
   late AnimationController _slideController;
+
+  /// العربية: يخزن القيمة `fadeController`.
   late AnimationController _fadeController;
+
+  /// العربية: يخزن القيمة `chipAnimations`.
   final Map<String, AnimationController> _chipAnimations = {};
 
   // Local names cache
   late final LocalDataService _localDataService = sl<LocalDataService>();
+
+  /// العربية: يخزن القيمة `propertyTypeIdToName`.
   Map<String, String> _propertyTypeIdToName = {};
+
+  /// العربية: يخزن القيمة `unitTypeIdToName`.
   Map<String, String> _unitTypeIdToName = {};
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -59,6 +78,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     _loadLocalNames();
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _slideController.dispose();
@@ -69,6 +89,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     super.dispose();
   }
 
+  /// العربية: يحمل local names.
   Future<void> _loadLocalNames() async {
     try {
       // Load property types names from local cache (saved on home)
@@ -89,6 +110,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     }
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     final visibleEntries = widget.filters.entries
@@ -141,8 +163,10 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     );
   }
 
+  /// العربية: يعالج `isHiddenFilter`.
   bool _isHiddenFilter(String key) => key == 'preferredCurrency';
 
+  /// العربية: يبني clear all chip.
   Widget _buildClearAllChip() {
     return ScaleTransition(
       scale: CurvedAnimation(
@@ -198,6 +222,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     );
   }
 
+  /// العربية: يبني filter chip.
   Widget _buildFilterChip(String key, dynamic value, VoidCallback onDelete) {
     final String label = _getFilterLabel(key, value);
     final IconData icon = _getFilterIcon(key);
@@ -293,6 +318,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     );
   }
 
+  /// العربية: يزيل filter.
   void _removeFilter(String key) {
     // منع حذف الحقول المطلوبة
     if (_isRequiredField(key, widget.filters)) {
@@ -302,6 +328,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     widget.onRemoveFilter(key);
   }
 
+  /// العربية: يعالج `animateRemoval`.
   void _animateRemoval(String key, VoidCallback onComplete) {
     final controller = _chipAnimations[key];
     if (controller != null) {
@@ -313,6 +340,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     }
   }
 
+  /// العربية: يعيد filter label.
   String _getFilterLabel(String key, dynamic value) {
     switch (key) {
       case 'searchTerm':
@@ -352,6 +380,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     }
   }
 
+  /// العربية: يعيد filter icon.
   IconData _getFilterIcon(String key) {
     switch (key) {
       case 'searchTerm':
@@ -385,6 +414,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     }
   }
 
+  /// العربية: يعيد filter color.
   Color _getFilterColor(String key) {
     switch (key) {
       case 'searchTerm':
@@ -416,6 +446,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     }
   }
 
+  /// العربية: يعيد property type name.
   String _getPropertyTypeName(String typeId) {
     if (_propertyTypeIdToName.isNotEmpty) {
       return _propertyTypeIdToName[typeId] ?? 'نوع العقار';
@@ -423,6 +454,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     return 'نوع العقار';
   }
 
+  /// العربية: يعيد unit type name.
   String _getUnitTypeName(String typeId) {
     if (_unitTypeIdToName.isNotEmpty) {
       return _unitTypeIdToName[typeId] ?? 'نوع الوحدة';
@@ -430,6 +462,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     return 'نوع الوحدة';
   }
 
+  /// العربية: يعيد sort by label.
   String _getSortByLabel(String sortBy) {
     switch (sortBy) {
       case 'price_asc':
@@ -449,6 +482,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     }
   }
 
+  /// العربية: ينسق date.
   String _formatDate(DateTime date) {
     final months = [
       'يناير',
@@ -467,6 +501,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     return '${date.day} ${months[date.month - 1]}';
   }
 
+  /// العربية: ينسق price.
   String _formatPrice(dynamic price) {
     final value = price is int ? price.toDouble() : price as double;
     if (value >= 1000000) {
@@ -477,6 +512,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     return value.toStringAsFixed(0);
   }
 
+  /// العربية: يعالج `isRequiredField`.
   bool _isRequiredField(String key, Map<String, dynamic> filters) {
     // الحقول الأساسية المطلوبة
     if (key == 'propertyTypeId' || key == 'unitTypeId') {
@@ -492,6 +528,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
     return false;
   }
 
+  /// العربية: يعرض required field error.
   void _showRequiredFieldError(String fieldKey) {
     String message = '';
 

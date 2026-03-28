@@ -1,6 +1,10 @@
 import 'package:hggzkportal/features/chat/domain/entities/conversation.dart';
 
+/// يعرّف الكلاس `ChatUserModel`.
+/// Describes the `ChatUserModel` class.
 class ChatUserModel extends ChatUser {
+  /// Initializes a new `ChatUserModel` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `ChatUserModel`.
   const ChatUserModel({
     required super.id,
     required super.name,
@@ -14,6 +18,8 @@ class ChatUserModel extends ChatUser {
     required super.isOnline,
   });
 
+  /// ينشئ مثيلاً من `ChatUserModel`.
+  /// Builds an instance of `ChatUserModel`.
   factory ChatUserModel.fromJson(Map<String, dynamic> json) {
     return ChatUserModel(
       id: json['user_id'] ?? json['userId'] ?? json['id'] ?? '',
@@ -31,6 +37,8 @@ class ChatUserModel extends ChatUser {
     );
   }
 
+  /// ينفذ العملية `toJson`.
+  /// Runs the `toJson` operation.
   Map<String, dynamic> toJson() {
     return {
       'user_id': id,

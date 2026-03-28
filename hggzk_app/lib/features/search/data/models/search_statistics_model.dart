@@ -1,12 +1,23 @@
 import 'package:hggzk/features/search/data/models/search_filter_model.dart';
 
+/// العربية: يمثل نموذج البيانات `SearchStatisticsModel`.
 class SearchStatisticsModel {
+  /// العربية: يخزن القيمة `searchDurationMs`.
   final int searchDurationMs;
+
+  /// العربية: يخزن القيمة `appliedFiltersCount`.
   final int appliedFiltersCount;
+
+  /// العربية: يخزن القيمة `totalResultsBeforePaging`.
   final int totalResultsBeforePaging;
+
+  /// العربية: يخزن القيمة `suggestions`.
   final List<String> suggestions;
+
+  /// العربية: يخزن القيمة `priceRange`.
   final PriceRangeModel? priceRange;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchStatisticsModel`.
   const SearchStatisticsModel({
     required this.searchDurationMs,
     required this.appliedFiltersCount,
@@ -15,6 +26,7 @@ class SearchStatisticsModel {
     this.priceRange,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchStatisticsModel.fromJson`.
   factory SearchStatisticsModel.fromJson(Map<String, dynamic> json) {
     return SearchStatisticsModel(
       searchDurationMs: json['searchDurationMs'] ?? 0,

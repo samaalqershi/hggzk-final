@@ -1,6 +1,14 @@
 import '../../domain/entities/booking_report.dart';
 
+/// Converts report payloads from analytics endpoints into the booking-report
+/// entity consumed by the portal.
+///
+/// يحول حمولة التقارير القادمة من نقاط التحليلات إلى كيان التقرير المستخدم
+/// داخل البوابة.
 class BookingReportModel extends BookingReport {
+  /// Creates the immutable report snapshot shared by charts and exports.
+  ///
+  /// ينشئ لقطة التقرير غير القابلة للتعديل والمستخدمة في الرسوم والتصدير.
   const BookingReportModel({
     required super.items,
     required super.summary,
@@ -8,6 +16,9 @@ class BookingReportModel extends BookingReport {
     required super.endDate,
   });
 
+  /// Parses the overall booking report and its itemized daily breakdown.
+  ///
+  /// يحلل تقرير الحجز الكامل مع تفصيله اليومي.
   factory BookingReportModel.fromJson(Map<String, dynamic> json) {
     return BookingReportModel(
       items: (json['items'] as List? ?? [])
@@ -19,6 +30,9 @@ class BookingReportModel extends BookingReport {
     );
   }
 
+  /// Serializes the report back into the analytics API shape.
+  ///
+  /// يعيد التقرير إلى شكل الـ API الخاص بالتحليلات.
   Map<String, dynamic> toJson() {
     return {
       'items': items
@@ -31,8 +45,13 @@ class BookingReportModel extends BookingReport {
   }
 }
 
-/// 📈 Model لعنصر التقرير اليومي
+/// Represents one daily analytics row inside the booking report.
+///
+/// يمثل صفًا تحليليًا يوميًا داخل تقرير الحجز.
 class BookingReportItemModel extends BookingReportItem {
+  /// Creates a single day summary for booking activity and revenue.
+  ///
+  /// ينشئ ملخص يوم واحد لنشاط الحجز والإيراد.
   const BookingReportItemModel({
     required super.date,
     required super.count,
@@ -43,6 +62,9 @@ class BookingReportItemModel extends BookingReportItem {
     required super.bookingsByStatus,
   });
 
+  /// Parses the daily row exactly as the chart and table need it.
+  ///
+  /// يحلل الصف اليومي بالشكل الذي تحتاجه اللوحة والجدول.
   factory BookingReportItemModel.fromJson(Map<String, dynamic> json) {
     return BookingReportItemModel(
       date: DateTime.parse(json['date']),
@@ -55,6 +77,9 @@ class BookingReportItemModel extends BookingReportItem {
     );
   }
 
+  /// Serializes the row for reporting export or caching.
+  ///
+  /// يعيد الصف لاستخدامه في التصدير أو التخزين المؤقت.
   Map<String, dynamic> toJson() {
     return {
       'date': date.toIso8601String(),
@@ -68,8 +93,13 @@ class BookingReportItemModel extends BookingReportItem {
   }
 }
 
-/// 📊 Model لملخص التقرير
+/// Holds the high-level metrics displayed above the daily report rows.
+///
+/// يحتفظ بالمؤشرات العليا المعروضة فوق الصفوف اليومية في التقرير.
 class BookingReportSummaryModel extends BookingReportSummary {
+  /// Creates the aggregate summary shared by the report dashboard.
+  ///
+  /// ينشئ الملخص التجميعي المشترك في لوحة التقارير.
   const BookingReportSummaryModel({
     required super.totalBookings,
     required super.totalRevenue,
@@ -81,6 +111,9 @@ class BookingReportSummaryModel extends BookingReportSummary {
     required super.revenueByPaymentMethod,
   });
 
+  /// Parses the top-line metrics that drive the summary cards and charts.
+  ///
+  /// يحلل المقاييس العليا التي تغذي بطاقات الملخص والرسوم.
   factory BookingReportSummaryModel.fromJson(Map<String, dynamic> json) {
     return BookingReportSummaryModel(
       totalBookings: json['totalBookings'] ?? 0,
@@ -95,6 +128,9 @@ class BookingReportSummaryModel extends BookingReportSummary {
     );
   }
 
+  /// Serializes the summary to the payload expected by the analytics API.
+  ///
+  /// يعيد الملخص إلى الحمولة المتوقعة من واجهة التحليلات.
   Map<String, dynamic> toJson() {
     return {
       'totalBookings': totalBookings,

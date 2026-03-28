@@ -8,19 +8,50 @@ import 'dart:async';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/app_dimensions.dart';
 
+/// Search field that drives property discovery and suggestion lookup while
+/// keeping focus, debounce, and overlay state local.
+/// حقل بحث يقود اكتشاف العقارات واقتراحاتها مع إبقاء حالة التركيز والتأخير
+/// والطبقة العائمة محليًا.
 class SearchInputWidget extends StatefulWidget {
+  /// Pre-fills the search box when the user returns to an existing query.
+  /// يملأ مربع البحث مسبقًا عندما يعود المستخدم إلى استعلام سابق.
   final String? initialValue;
+
+  /// Hint shown when the field is empty.
+  /// النص الإرشادي الظاهر عندما يكون الحقل فارغًا.
   final String? hintText;
+
+  /// Receives text updates as the user types.
+  /// يستقبل تحديثات النص أثناء الكتابة.
   final Function(String)? onChanged;
+
+  /// Fires when the user submits the query from the keyboard.
+  /// يُستدعى عند إرسال الاستعلام من لوحة المفاتيح.
   final Function(String)? onSubmitted;
+
+  /// Clears the search field from the outside when the host screen requests it.
+  /// يمسح حقل البحث من الخارج عندما تطلب الشاشة المضيفة ذلك.
   final VoidCallback? onClear;
+
+  /// Requests focus immediately when the widget is first shown.
+  /// يطلب التركيز مباشرة عند ظهور العنصر لأول مرة.
   final bool autofocus;
+
+  /// Enables the floating suggestion overlay below the field.
+  /// يفعّل طبقة الاقتراحات العائمة أسفل الحقل.
   final bool showSuggestions;
+
+  /// Optional source list used to populate the suggestion overlay.
+  /// قائمة مصدر اختيارية لملء طبقة الاقتراحات.
   final List<String>? suggestions;
+
+  /// Called when the user taps one of the suggestions.
+  /// يُستدعى عند نقر المستخدم على أحد الاقتراحات.
   final Function(String)? onSuggestionSelected;
 
+  /// Builds the search input used across search and discovery pages.
+  /// ينشئ حقل البحث المستخدم عبر صفحات البحث والاكتشاف.
   const SearchInputWidget({
     super.key,
     this.initialValue,
@@ -34,33 +65,72 @@ class SearchInputWidget extends StatefulWidget {
     this.onSuggestionSelected,
   });
 
+  /// Creates the state that manages the field, focus, and suggestions overlay.
+  /// ينشئ الحالة التي تدير الحقل، والتركيز، وطبقة الاقتراحات.
   @override
   State<SearchInputWidget> createState() => _SearchInputWidgetState();
 }
 
+/// Owns the animated text field and its suggestion plumbing.
+/// يملك حقل النص المتحرك وآلية الاقتراحات التابعة له.
 class _SearchInputWidgetState extends State<SearchInputWidget>
     with TickerProviderStateMixin {
+  /// Holds the live text entered in the search field.
+  /// يحتفظ بالنص الحي المكتوب داخل الحقل.
   late TextEditingController _controller;
+
+  /// Tracks focus so the suggestions overlay appears at the right time.
+  /// يتتبع التركيز حتى تظهر طبقة الاقتراحات في الوقت المناسب.
   late FocusNode _focusNode;
 
   // Ultra Animation Controllers
+  /// Drives the focus glow around the field.
+  /// يقود توهج التركيز حول الحقل.
   late AnimationController _glowController;
+
+  /// Animates the leading search icon.
+  /// يحرك أيقونة البحث الأمامية.
   late AnimationController _iconController;
-  late AnimationController _shimmerController;
+
+  /// Controls the focus ripple behind the field.
+  /// يتحكم في تموج التركيز خلف الحقل.
   late AnimationController _rippleController;
 
   // Ultra Animations
+  /// Softens the focus glow intensity over time.
+  /// يخفف شدة توهج التركيز بمرور الوقت.
   late Animation<double> _glowAnimation;
+
+  /// Rotates the search icon while the field gains focus.
+  /// يدير دوران أيقونة البحث عند اكتساب التركيز.
   late Animation<double> _iconRotation;
-  late Animation<double> _shimmerAnimation;
+
+  /// Expands the ripple ring around the input.
+  /// يوسّع دائرة التموج حول الحقل.
   late Animation<double> _rippleAnimation;
 
   // State
+  /// Shows the clear action whenever a draft exists.
+  /// يعرض فعل المسح عندما توجد مسودة.
   bool _showClearButton = false;
+
+  /// Tracks whether the field currently owns keyboard focus.
+  /// يتتبع ما إذا كان الحقل يملك التركيز حاليًا.
   bool _isFocused = false;
+
+  /// Marks short bursts of typing to show the busy indicator.
+  /// يعلّم فترات الكتابة القصيرة لإظهار مؤشر النشاط.
   bool _isTyping = false;
+
+  /// Holds the suggestion overlay currently attached to the screen.
+  /// يحتفظ بطبقة الاقتراحات المرفقة حاليًا بالشاشة.
   OverlayEntry? _overlayEntry;
+
+  /// Debounces outward search callbacks so typing stays responsive.
+  /// يؤخر استدعاءات البحث الخارجية حتى تبقى الكتابة سريعة.
   Timer? _debounceTimer;
+
+  /// Clears the temporary typing indicator after a short pause.
   Timer? _typingTimer;
 
   // Enhanced suggestions
@@ -76,8 +146,10 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
   ];
 
   // Recent searches
+  /// Recent suggestions shown before the user types a long query.
   final List<String> _recentSearches = [];
 
+  /// Sets up the controller, focus handling, and animated state.
   @override
   void initState() {
     super.initState();
@@ -93,6 +165,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     _focusNode.addListener(_onFocusChanged);
   }
 
+  /// Syncs external query updates and refreshed suggestions into local state.
   @override
   void didUpdateWidget(covariant SearchInputWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -120,6 +193,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     }
   }
 
+  /// Configures the three small animations that make the field feel alive.
   void _initializeUltraAnimations() {
     // Glow animation
     _glowController = AnimationController(
@@ -147,16 +221,6 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
       curve: Curves.easeOutBack,
     ));
 
-    // Shimmer animation
-    _shimmerController = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat();
-    _shimmerAnimation = Tween<double>(
-      begin: -1.0,
-      end: 2.0,
-    ).animate(_shimmerController);
-
     // Ripple animation
     _rippleController = AnimationController(
       duration: const Duration(milliseconds: 600),
@@ -171,6 +235,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     ));
   }
 
+  /// Updates local state and pushes debounced search callbacks.
   void _onTextChanged() {
     setState(() {
       _showClearButton = _controller.text.isNotEmpty;
@@ -198,6 +263,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     }
   }
 
+  /// Opens or closes the suggestion surface as focus changes.
   void _onFocusChanged() {
     setState(() {
       _isFocused = _focusNode.hasFocus;
@@ -216,6 +282,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     }
   }
 
+  /// Releases timers, overlays, controllers, and listeners.
   @override
   void dispose() {
     _debounceTimer?.cancel();
@@ -225,11 +292,11 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     _focusNode.dispose();
     _glowController.dispose();
     _iconController.dispose();
-    _shimmerController.dispose();
     _rippleController.dispose();
     super.dispose();
   }
 
+  /// Shows the filtered suggestions below the search field.
   void _showSuggestions() {
     _hideSuggestions();
 
@@ -240,6 +307,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     Overlay.of(context).insert(_overlayEntry!);
   }
 
+  /// Removes the suggestion overlay from the screen.
   void _hideSuggestions() {
     _overlayEntry?.remove();
     _overlayEntry = null;
@@ -276,6 +344,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
         .toList();
   }
 
+  /// Creates the floating overlay that hosts the suggestion list.
   OverlayEntry _createUltraOverlayEntry(List<String> suggestions) {
     RenderBox renderBox = context.findRenderObject() as RenderBox;
     var size = renderBox.size;
@@ -361,6 +430,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     );
   }
 
+  /// Builds one animated suggestion row.
   Widget _buildUltraSuggestionItem({
     required String suggestion,
     required int index,
@@ -474,6 +544,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     );
   }
 
+  /// Splits the suggestion text so the query can be highlighted inline.
   List<TextSpan> _highlightUltraText(String text, String query) {
     if (query.isEmpty) {
       return [
@@ -526,6 +597,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     return spans;
   }
 
+  /// Commits the selected suggestion and closes the overlay.
   void _selectSuggestion(String suggestion) {
     _controller.text = suggestion;
     _hideSuggestions();
@@ -546,6 +618,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     }
   }
 
+  /// Builds the animated search field and its focus effects.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -653,6 +726,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     );
   }
 
+  /// Builds the leading icon that reflects field focus.
   Widget _buildUltraSearchIcon() {
     return AnimatedBuilder(
       animation: _iconRotation,
@@ -683,6 +757,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     );
   }
 
+  /// Builds the suffix action area for clear and loading states.
   Widget _buildUltraSuffixIcon() {
     if (_showClearButton) {
       return AnimatedScale(
@@ -728,6 +803,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     return const SizedBox.shrink();
   }
 
+  /// Keeps animated opacity values inside the valid range.
   double _clampOpacity(double value) {
     if (value.isNaN || value.isInfinite) {
       return 0.0;

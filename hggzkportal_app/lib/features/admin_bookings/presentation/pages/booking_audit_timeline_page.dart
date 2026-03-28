@@ -15,23 +15,34 @@ import '../../../admin_audit_logs/presentation/bloc/audit_logs_state.dart';
 import '../../../admin_audit_logs/presentation/widgets/audit_log_timeline_widget.dart';
 import '../../../admin_audit_logs/domain/entities/audit_log.dart';
 
+/// Arabic: صفحة تعرض السجل الزمني للتدقيق الخاص بحجز واحد.
+/// English: Page that shows the audit timeline for a single booking.
 class BookingAuditTimelinePage extends StatefulWidget {
+  /// Arabic: معرّف الحجز الذي ستُجلب له سجلات التدقيق المرتبطة.
+  /// English: The booking identifier used to fetch related audit logs.
   final String bookingId;
 
+  /// Arabic: ينشئ صفحة السجل الزمني للحجز المحدد.
+  /// English: Creates the audit timeline page for the given booking.
   const BookingAuditTimelinePage({super.key, required this.bookingId});
-
   @override
   State<BookingAuditTimelinePage> createState() =>
       _BookingAuditTimelinePageState();
 }
 
+/// Arabic: يدير جلب وعرض سجلات التدقيق المرتبطة بالحجز الحالي.
+/// English: Manages loading and rendering audit logs related to the current booking.
 class _BookingAuditTimelinePageState extends State<BookingAuditTimelinePage> {
+  /// Arabic: يطلق طلب تحميل السجلات المرتبطة بالحجز عند بدء الصفحة.
+  /// English: Starts by requesting the audit logs related to the booking.
   @override
   void initState() {
     super.initState();
     _loadAuditLogs();
   }
 
+  /// Arabic: يحمّل سجلات التدقيق ويطلب التجميع حسب معرّف الحجز.
+  /// English: Loads audit logs and asks the backend to aggregate booking-related entries.
   void _loadAuditLogs() {
     final query = AuditLogsQuery(
       pageNumber: 1,
@@ -43,6 +54,9 @@ class _BookingAuditTimelinePageState extends State<BookingAuditTimelinePage> {
   }
 
   @override
+
+  /// Arabic: يبني الصفحة بما في ذلك الرأس والقائمة الزمنية ومؤشرات الحالة.
+  /// English: Builds the page, including the header, timeline, and state indicators.
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
@@ -118,6 +132,8 @@ class _BookingAuditTimelinePageState extends State<BookingAuditTimelinePage> {
     );
   }
 
+  /// Arabic: ينشئ شريط العنوان العلوي مع الرجوع والتحديث ومعرّف الحجز.
+  /// English: Builds the top header with back, refresh, and booking identifier actions.
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -125,7 +141,7 @@ class _BookingAuditTimelinePageState extends State<BookingAuditTimelinePage> {
         color: AppTheme.darkCard,
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
           ),
         ),
       ),
@@ -158,12 +174,14 @@ class _BookingAuditTimelinePageState extends State<BookingAuditTimelinePage> {
     );
   }
 
+  /// Arabic: يبني زر الرجوع إلى الشاشة السابقة.
+  /// English: Builds the back button that returns to the previous screen.
   Widget _buildBackButton() {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.6),
+        color: AppTheme.darkBackground.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppTheme.darkBorder.withOpacity(0.3)),
+        border: Border.all(color: AppTheme.darkBorder.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -180,12 +198,14 @@ class _BookingAuditTimelinePageState extends State<BookingAuditTimelinePage> {
     );
   }
 
+  /// Arabic: يبني زر إعادة تحميل السجل الزمني.
+  /// English: Builds the refresh button for reloading the timeline.
   Widget _buildRefreshButton() {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.6),
+        color: AppTheme.darkBackground.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppTheme.darkBorder.withOpacity(0.3)),
+        border: Border.all(color: AppTheme.darkBorder.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -201,6 +221,8 @@ class _BookingAuditTimelinePageState extends State<BookingAuditTimelinePage> {
     );
   }
 
+  /// Arabic: يفتح لوحة سفلية تعرض تفاصيل السجل المختار بشكل كامل.
+  /// English: Opens a bottom sheet that shows the selected audit log in detail.
   void _showLogDetails(AuditLog log) {
     showModalBottomSheet(
       context: context,
@@ -217,7 +239,8 @@ class _BookingAuditTimelinePageState extends State<BookingAuditTimelinePage> {
                 color: AppTheme.darkCard,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(20)),
-                border: Border.all(color: AppTheme.darkBorder.withOpacity(0.2)),
+                border: Border.all(
+                    color: AppTheme.darkBorder.withValues(alpha: 0.2)),
               ),
               child: ListView(
                 controller: controller,
@@ -264,14 +287,16 @@ class _BookingAuditTimelinePageState extends State<BookingAuditTimelinePage> {
     );
   }
 
+  /// Arabic: يعرض زوج مفتاح/قيمة بتنسيق مناسب سواء كان النص طويلًا أم لا.
+  /// English: Renders a key/value row with optional multiline handling for long text.
   Widget _kv(String k, String v, {bool multiline = false}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.5),
+        color: AppTheme.darkBackground.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.darkBorder.withOpacity(0.2)),
+        border: Border.all(color: AppTheme.darkBorder.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment:

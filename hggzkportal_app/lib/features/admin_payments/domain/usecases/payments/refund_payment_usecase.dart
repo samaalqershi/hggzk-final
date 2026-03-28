@@ -6,10 +6,9 @@ import '../../entities/payment.dart';
 import '../../repositories/payments_repository.dart';
 
 class RefundPaymentUseCase implements UseCase<bool, RefundPaymentParams> {
+  /// العربية: يخزن القيمة `repository`.
   final PaymentsRepository repository;
-
   RefundPaymentUseCase(this.repository);
-
   @override
   Future<Either<Failure, bool>> call(RefundPaymentParams params) async {
     return await repository.refundPayment(
@@ -21,16 +20,15 @@ class RefundPaymentUseCase implements UseCase<bool, RefundPaymentParams> {
 }
 
 class RefundPaymentParams extends Equatable {
+  /// العربية: يخزن القيمة `paymentId`.
   final String paymentId;
   final Money refundAmount;
   final String refundReason;
-
   const RefundPaymentParams({
     required this.paymentId,
     required this.refundAmount,
     required this.refundReason,
   });
-
   @override
   List<Object> get props => [paymentId, refundAmount, refundReason];
 }

@@ -13,13 +13,11 @@ import '../../../../core/widgets/policy_identity_card_tooltip.dart';
 class PropertyPoliciesList extends StatefulWidget {
   final List<domain.Policy> policies;
   final bool isReadOnly;
-
   const PropertyPoliciesList({
     super.key,
     required this.policies,
     this.isReadOnly = true,
   });
-
   @override
   State<PropertyPoliciesList> createState() => _PropertyPoliciesListState();
 }
@@ -31,7 +29,6 @@ class _PropertyPoliciesListState extends State<PropertyPoliciesList>
   int? _hoveredIndex;
   String? _pressedPolicyId;
   final Map<String, GlobalKey> _policyKeys = {};
-
   @override
   void initState() {
     super.initState();
@@ -434,7 +431,6 @@ class _PropertyPoliciesListState extends State<PropertyPoliciesList>
           gradient: [AppTheme.error, AppTheme.warning],
         );
       case PolicyType.other:
-      default:
         return _PolicyConfig(
           icon: CupertinoIcons.doc_text_fill,
           gradient: [AppTheme.primaryBlue, AppTheme.primaryPurple],
@@ -445,9 +441,9 @@ class _PropertyPoliciesListState extends State<PropertyPoliciesList>
 
 // Helper Classes
 class _PolicyConfig {
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
   final List<Color> gradient;
-
   const _PolicyConfig({
     required this.icon,
     required this.gradient,

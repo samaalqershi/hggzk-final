@@ -5,6 +5,7 @@ import '../../../../../core/usecases/usecase.dart';
 import '../../repositories/unit_types_repository.dart';
 
 class UpdateUnitTypeUseCase implements UseCase<bool, UpdateUnitTypeParams> {
+  /// العربية: يخزن القيمة `repository`.
   final UnitTypesRepository repository;
 
   UpdateUnitTypeUseCase(this.repository);
@@ -26,14 +27,23 @@ class UpdateUnitTypeUseCase implements UseCase<bool, UpdateUnitTypeParams> {
 }
 
 class UpdateUnitTypeParams extends Equatable {
+  /// العربية: يخزن القيمة `unitTypeId`.
   final String unitTypeId;
+
   final String name;
+
   final int maxCapacity;
+
   final String icon;
+
   final double? systemCommissionRate;
+
   final bool isHasAdults;
+
   final bool isHasChildren;
+
   final bool isMultiDays;
+
   final bool isRequiredToDetermineTheHour;
 
   const UpdateUnitTypeParams({

@@ -6,8 +6,8 @@ import 'package:hggzkportal/core/usecases/usecase.dart';
 import 'package:hggzkportal/core/models/paginated_result.dart';
 import '../entities/review.dart';
 import '../repositories/reviews_repository.dart';
-
 class GetAllReviewsParams {
+  /// العربية: يخزن القيمة `status`.
   final String? status;
   final double? minRating;
   final double? maxRating;
@@ -20,7 +20,6 @@ class GetAllReviewsParams {
   final int? pageNumber;
   final int? pageSize;
   final bool? includeStats;
-  
   GetAllReviewsParams({
     this.status,
     this.minRating,
@@ -36,14 +35,13 @@ class GetAllReviewsParams {
     this.includeStats,
   });
 }
-
-class GetAllReviewsUseCase implements UseCase<PaginatedResult<Review>, GetAllReviewsParams> {
+class GetAllReviewsUseCase
+    implements UseCase<PaginatedResult<Review>, GetAllReviewsParams> {
   final ReviewsRepository repository;
-  
   GetAllReviewsUseCase(this.repository);
-  
   @override
-  Future<Either<Failure, PaginatedResult<Review>>> call(GetAllReviewsParams params) {
+  Future<Either<Failure, PaginatedResult<Review>>> call(
+      GetAllReviewsParams params) {
     return repository.getAllReviews(
       status: params.status,
       minRating: params.minRating,

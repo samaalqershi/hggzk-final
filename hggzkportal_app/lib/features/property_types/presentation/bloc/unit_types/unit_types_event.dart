@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 abstract class UnitTypesEvent extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitTypesEvent`.
   const UnitTypesEvent();
 
   @override
@@ -8,8 +9,11 @@ abstract class UnitTypesEvent extends Equatable {
 }
 
 class LoadUnitTypesEvent extends UnitTypesEvent {
+  /// العربية: يخزن القيمة `propertyTypeId`.
   final String propertyTypeId;
+
   final int pageNumber;
+
   final int pageSize;
 
   const LoadUnitTypesEvent({
@@ -23,14 +27,23 @@ class LoadUnitTypesEvent extends UnitTypesEvent {
 }
 
 class CreateUnitTypeEvent extends UnitTypesEvent {
+  /// العربية: يخزن القيمة `propertyTypeId`.
   final String propertyTypeId;
+
   final String name;
+
   final int maxCapacity;
+
   final String icon;
+
   final double? systemCommissionRate;
+
   final bool isHasAdults;
+
   final bool isHasChildren;
+
   final bool isMultiDays;
+
   final bool isRequiredToDetermineTheHour;
 
   const CreateUnitTypeEvent({
@@ -60,14 +73,23 @@ class CreateUnitTypeEvent extends UnitTypesEvent {
 }
 
 class UpdateUnitTypeEvent extends UnitTypesEvent {
+  /// العربية: يخزن القيمة `unitTypeId`.
   final String unitTypeId;
+
   final String name;
+
   final int maxCapacity;
+
   final String icon;
+
   final double? systemCommissionRate;
+
   final bool isHasAdults;
+
   final bool isHasChildren;
+
   final bool isMultiDays;
+
   final bool isRequiredToDetermineTheHour;
 
   const UpdateUnitTypeEvent({
@@ -97,6 +119,7 @@ class UpdateUnitTypeEvent extends UnitTypesEvent {
 }
 
 class DeleteUnitTypeEvent extends UnitTypesEvent {
+  /// العربية: يخزن القيمة `unitTypeId`.
   final String unitTypeId;
 
   const DeleteUnitTypeEvent({required this.unitTypeId});
@@ -106,6 +129,7 @@ class DeleteUnitTypeEvent extends UnitTypesEvent {
 }
 
 class SelectUnitTypeEvent extends UnitTypesEvent {
+  /// العربية: يخزن القيمة `unitTypeId`.
   final String? unitTypeId;
 
   const SelectUnitTypeEvent({this.unitTypeId});

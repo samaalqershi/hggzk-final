@@ -9,21 +9,34 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/constants/route_constants.dart';
 
+/// يعرّف الكلاس `LoginForm`.
+/// Describes the `LoginForm` class.
 class LoginForm extends StatefulWidget {
+  /// Receives `Function`.
+  /// العربية: يعالج `Function`.
   final Function(String emailOrPhone, String password, bool rememberMe)
       onSubmit;
+
+  /// يخزن العضو `isLoading`.
+  /// Holds the `isLoading` member.
   final bool isLoading;
 
+  /// ينشئ مثيلاً من `LoginForm`.
+  /// Builds an instance of `LoginForm`.
   const LoginForm({
     super.key,
     required this.onSubmit,
     this.isLoading = false,
   });
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<LoginForm> createState() => _LoginFormState();
 }
 
+/// يعرّف الكلاس `_LoginFormState`.
+/// Describes the `_LoginFormState` class.
 class _LoginFormState extends State<LoginForm>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
@@ -32,13 +45,25 @@ class _LoginFormState extends State<LoginForm>
   final _emailOrPhoneFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
 
+  /// يخزن العضو `_obscurePassword`.
+  /// Holds the `_obscurePassword` member.
   bool _obscurePassword = true;
+
+  /// يخزن العضو `_rememberMe`.
+  /// Holds the `_rememberMe` member.
   bool _rememberMe = false;
 
   // Single animation controller for performance
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -67,6 +92,8 @@ class _LoginFormState extends State<LoginForm>
     // _passwordController.text = "Admin@123";
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _animationController.dispose();
@@ -77,6 +104,8 @@ class _LoginFormState extends State<LoginForm>
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -139,6 +168,8 @@ class _LoginFormState extends State<LoginForm>
     );
   }
 
+  /// ينفذ العملية `_buildOptimizedField`.
+  /// Runs the `_buildOptimizedField` operation.
   Widget _buildOptimizedField({
     required TextEditingController controller,
     required FocusNode focusNode,
@@ -235,6 +266,8 @@ class _LoginFormState extends State<LoginForm>
     );
   }
 
+  /// ينفذ العملية `_buildPasswordToggle`.
+  /// Runs the `_buildPasswordToggle` operation.
   Widget _buildPasswordToggle() {
     return GestureDetector(
       onTap: () {
@@ -266,6 +299,8 @@ class _LoginFormState extends State<LoginForm>
     );
   }
 
+  /// ينفذ العملية `_buildOptions`.
+  /// Runs the `_buildOptions` operation.
   Widget _buildOptions() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -334,6 +369,8 @@ class _LoginFormState extends State<LoginForm>
     );
   }
 
+  /// ينفذ العملية `_buildSubmitButton`.
+  /// Runs the `_buildSubmitButton` operation.
   Widget _buildSubmitButton() {
     return GestureDetector(
       onTap: widget.isLoading ? null : _onSubmit,
@@ -406,6 +443,8 @@ class _LoginFormState extends State<LoginForm>
     );
   }
 
+  /// ينفذ العملية `_onSubmit`.
+  /// Runs the `_onSubmit` operation.
   void _onSubmit() {
     if (_formKey.currentState?.validate() ?? false) {
       FocusScope.of(context).unfocus();

@@ -9,12 +9,15 @@ import '../../../../../core/enums/section_target.dart';
 import '../../../../../core/enums/section_type.dart';
 import '../../../../../core/enums/section_content_type.dart';
 
-class GetAllSectionsUseCase implements UseCase<PaginatedResult<Section>, GetAllSectionsParams> {
+class GetAllSectionsUseCase
+    implements UseCase<PaginatedResult<Section>, GetAllSectionsParams> {
   final SectionsRepository repository;
+
   GetAllSectionsUseCase(this.repository);
 
   @override
-  Future<Either<Failure, PaginatedResult<Section>>> call(GetAllSectionsParams params) {
+  Future<Either<Failure, PaginatedResult<Section>>> call(
+      GetAllSectionsParams params) {
     return repository.getSections(
       pageNumber: params.pageNumber,
       pageSize: params.pageSize,
@@ -26,10 +29,15 @@ class GetAllSectionsUseCase implements UseCase<PaginatedResult<Section>, GetAllS
 }
 
 class GetAllSectionsParams extends Equatable {
+  /// العربية: يخزن القيمة `pageNumber`.
   final int? pageNumber;
+
   final int? pageSize;
+
   final SectionTarget? target;
+
   final SectionTypeEnum? type;
+
   final SectionContentType? contentType;
 
   const GetAllSectionsParams({
@@ -43,4 +51,3 @@ class GetAllSectionsParams extends Equatable {
   @override
   List<Object?> get props => [pageNumber, pageSize, target, type, contentType];
 }
-

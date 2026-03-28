@@ -6,10 +6,9 @@ import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../../repositories/policies_repository.dart';
 
 class DeletePolicyUseCase implements UseCase<bool, String> {
+  /// العربية: يخزن القيمة `repository`.
   final PoliciesRepository repository;
-  
   DeletePolicyUseCase(this.repository);
-  
   @override
   Future<Either<Failure, bool>> call(String policyId) async {
     return await repository.deletePolicy(policyId);

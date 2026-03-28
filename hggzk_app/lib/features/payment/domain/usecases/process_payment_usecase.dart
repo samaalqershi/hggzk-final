@@ -1,5 +1,3 @@
-/// features/payment/domain/usecases/process_payment_usecase.dart
-
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import '../../../../core/error/failures.dart';
@@ -7,11 +5,13 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/transaction.dart';
 import '../repositories/payment_repository.dart';
 
-class ProcessPaymentUseCase implements UseCase<Transaction, ProcessPaymentParams> {
+/// ينسق التحقق الأولي من مدخلات الدفع قبل تمريرها إلى المستودع.
+/// Coordinates initial validation of payment inputs before delegating to the
+/// repository.
+class ProcessPaymentUseCase
+    implements UseCase<Transaction, ProcessPaymentParams> {
   final PaymentRepository repository;
-
   ProcessPaymentUseCase(this.repository);
-
   @override
   Future<Either<Failure, Transaction>> call(ProcessPaymentParams params) async {
     // Validate payment details
@@ -57,7 +57,8 @@ class ProcessPaymentUseCase implements UseCase<Transaction, ProcessPaymentParams
           params.paymentDetails!['otp'].toString().isNotEmpty) {
         final otp = params.paymentDetails!['otp'].toString();
         if (otp.length != 4) {
-          return const Left(ValidationFailure('رمز التحقق يجب أن يتكون من 4 أرقام'));
+          return const Left(
+              ValidationFailure('رمز التحقق يجب أن يتكون من 4 أرقام'));
         }
       }
     } else if (methodLower.contains('flosk')) {
@@ -84,6 +85,8 @@ class ProcessPaymentUseCase implements UseCase<Transaction, ProcessPaymentParams
   }
 }
 
+/// يحمل كل القيم المطلوبة لمحاولة دفع واحدة.
+/// Carries all values required for one payment attempt.
 class ProcessPaymentParams extends Equatable {
   final String bookingId;
   final String userId;
@@ -91,7 +94,6 @@ class ProcessPaymentParams extends Equatable {
   final String paymentMethod;
   final String currency;
   final Map<String, dynamic>? paymentDetails;
-
   const ProcessPaymentParams({
     required this.bookingId,
     required this.userId,
@@ -100,7 +102,6 @@ class ProcessPaymentParams extends Equatable {
     required this.currency,
     this.paymentDetails,
   });
-
   @override
   List<Object?> get props => [
         bookingId,

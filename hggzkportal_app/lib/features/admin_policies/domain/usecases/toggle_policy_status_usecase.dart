@@ -4,6 +4,7 @@ import '../../../../core/usecases/usecase.dart';
 import '../repositories/policies_repository.dart';
 
 class TogglePolicyStatusUseCase implements UseCase<void, String> {
+  /// العربية: يخزن القيمة `repository`.
   final PoliciesRepository repository;
 
   TogglePolicyStatusUseCase(this.repository);

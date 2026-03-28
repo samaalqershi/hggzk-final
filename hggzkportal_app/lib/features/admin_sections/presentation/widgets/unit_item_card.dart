@@ -13,8 +13,11 @@ import 'unit_in_section_image_gallery.dart';
 import 'package:hggzkportal/injection_container.dart' as di;
 
 class UnitItemCard extends StatefulWidget {
+  /// العربية: يخزن القيمة `unit`.
   final UnitInSection unit;
+
   final VoidCallback? onRemove;
+
   final bool isReordering;
 
   const UnitItemCard({
@@ -32,13 +35,18 @@ class _UnitItemCardState extends State<UnitItemCard>
     with SingleTickerProviderStateMixin {
   // Animation controller for media panel
   late AnimationController _animationController;
+
   late Animation<double> _slideAnimation;
+
   late Animation<double> _rotateAnimation;
 
   // Media management
   bool _showMediaPanel = false;
+
   String? _tempKey;
+
   List<SectionImage> _selectedImages = [];
+
   List<String> _selectedLocalImages = [];
   final GlobalKey<UnitInSectionGalleryState> _galleryKey = GlobalKey();
 
@@ -65,7 +73,7 @@ class _UnitItemCardState extends State<UnitItemCard>
     ));
 
     // Initialize images from unit
-    _selectedImages = widget.unit.additionalImages ?? [];
+    _selectedImages = widget.unit.additionalImages;
   }
 
   @override

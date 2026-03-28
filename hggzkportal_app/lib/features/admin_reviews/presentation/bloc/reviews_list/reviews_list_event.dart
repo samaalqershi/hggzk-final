@@ -1,15 +1,14 @@
 // lib/features/admin_reviews/presentation/bloc/reviews_list/reviews_list_event.dart
 
 part of 'reviews_list_bloc.dart';
-
 abstract class ReviewsListEvent extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `ReviewsListEvent`.
   const ReviewsListEvent();
-  
   @override
   List<Object?> get props => [];
 }
-
 class LoadReviewsEvent extends ReviewsListEvent {
+  /// العربية: يخزن القيمة `status`.
   final String? status;
   final double? minRating;
   final double? maxRating;
@@ -20,7 +19,6 @@ class LoadReviewsEvent extends ReviewsListEvent {
   final DateTime? endDate;
   final int? pageNumber;
   final int? pageSize;
-  
   const LoadReviewsEvent({
     this.status,
     this.minRating,
@@ -33,22 +31,27 @@ class LoadReviewsEvent extends ReviewsListEvent {
     this.pageNumber,
     this.pageSize,
   });
-  
   @override
   List<Object?> get props => [
-    status, minRating, maxRating, hasImages,
-    propertyId, userId, startDate, endDate,
-    pageNumber, pageSize,
-  ];
+        status,
+        minRating,
+        maxRating,
+        hasImages,
+        propertyId,
+        userId,
+        startDate,
+        endDate,
+        pageNumber,
+        pageSize,
+      ];
 }
-
 class FilterReviewsEvent extends ReviewsListEvent {
+  /// العربية: يخزن القيمة `searchQuery`.
   final String searchQuery;
   final double? minRating;
   final bool? isPending;
   final bool? hasResponse;
   final String? propertyId;
-  
   const FilterReviewsEvent({
     this.searchQuery = '',
     this.minRating,
@@ -56,36 +59,29 @@ class FilterReviewsEvent extends ReviewsListEvent {
     this.hasResponse,
     this.propertyId,
   });
-  
   @override
-  List<Object?> get props => [searchQuery, minRating, isPending, hasResponse, propertyId];
+  List<Object?> get props =>
+      [searchQuery, minRating, isPending, hasResponse, propertyId];
 }
-
 class ApproveReviewEvent extends ReviewsListEvent {
+  /// العربية: يخزن القيمة `reviewId`.
   final String reviewId;
-  
   const ApproveReviewEvent(this.reviewId);
-  
   @override
   List<Object> get props => [reviewId];
 }
-
 class DeleteReviewEvent extends ReviewsListEvent {
+  /// العربية: يخزن القيمة `reviewId`.
   final String reviewId;
-  
   const DeleteReviewEvent(this.reviewId);
-  
   @override
   List<Object> get props => [reviewId];
 }
-
 class RefreshReviewsEvent extends ReviewsListEvent {}
-
 class DisableReviewEvent extends ReviewsListEvent {
+  /// العربية: يخزن القيمة `reviewId`.
   final String reviewId;
-
   const DisableReviewEvent(this.reviewId);
-
   @override
   List<Object> get props => [reviewId];
 }

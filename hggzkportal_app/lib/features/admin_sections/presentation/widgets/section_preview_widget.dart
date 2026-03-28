@@ -5,21 +5,25 @@ import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/enums/section_display_style.dart';
 import '../../domain/entities/section.dart';
 import '../../../../core/enums/section_content_type.dart';
 import '../../domain/entities/property_in_section.dart';
 import '../../domain/entities/unit_in_section.dart';
-import '../../../../core/enums/section_display_style.dart';
 import '../../../../core/enums/section_target.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 
 class SectionPreviewWidget extends StatefulWidget {
+  /// العربية: يخزن القيمة `section`.
   final Section section;
+
   final List<dynamic>? items; // PropertyInSection or UnitInSection
   final bool isExpanded;
+
   final VoidCallback? onExpand;
+
   final VoidCallback? onEdit;
+
   final VoidCallback? onManageItems;
 
   const SectionPreviewWidget({
@@ -39,12 +43,17 @@ class SectionPreviewWidget extends StatefulWidget {
 class _SectionPreviewWidgetState extends State<SectionPreviewWidget>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
+
   late AnimationController _rotationController;
+
   late Animation<double> _expandAnimation;
+
   late Animation<double> _fadeAnimation;
+
   late Animation<Offset> _slideAnimation;
 
   final ScrollController _scrollController = ScrollController();
+
   bool _isHovered = false;
 
   @override
@@ -875,7 +884,9 @@ class _SectionPreviewWidgetState extends State<SectionPreviewWidget>
 
 // Custom painter for animated background
 class _AnimatedBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `rotation`.
   final double rotation;
+
   final Color color;
 
   _AnimatedBackgroundPainter({

@@ -27,13 +27,21 @@ class CreateUserUseCase implements UseCase<String, CreateUserParams> {
 
 class CreateUserParams extends Equatable {
   final String name;
+
   final String email;
+
   final String password;
+
   final String phone;
+
   final String? profileImage;
+
   final String? roleName;
+
   final bool emailConfirmed;
+
   final bool phoneNumberConfirmed;
+
   final List<Map<String, dynamic>>? walletAccounts;
 
   const CreateUserParams({

@@ -7,11 +7,11 @@ import '../../entities/policy.dart';
 import '../../repositories/policies_repository.dart';
 
 class GetPoliciesParams {
+  /// العربية: يخزن القيمة `propertyId`.
   final String? propertyId;
   final PolicyType? policyType;
   final int? pageNumber;
   final int? pageSize;
-  
   GetPoliciesParams({
     this.propertyId,
     this.policyType,
@@ -21,10 +21,9 @@ class GetPoliciesParams {
 }
 
 class GetPoliciesUseCase implements UseCase<List<Policy>, GetPoliciesParams> {
+  /// العربية: يخزن القيمة `repository`.
   final PoliciesRepository repository;
-  
   GetPoliciesUseCase(this.repository);
-  
   @override
   Future<Either<Failure, List<Policy>>> call(GetPoliciesParams params) async {
     if (params.propertyId != null) {

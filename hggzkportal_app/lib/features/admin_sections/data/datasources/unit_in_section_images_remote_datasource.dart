@@ -9,6 +9,7 @@ import 'package:hggzkportal/core/utils/video_utils.dart';
 import '../models/section_image_model.dart';
 
 abstract class UnitInSectionImagesRemoteDataSource {
+  /// العربية: يعالج `uploadImage`.
   Future<SectionImageModel> uploadImage({
     String? unitInSectionId,
     String? tempKey,
@@ -27,12 +28,15 @@ abstract class UnitInSectionImagesRemoteDataSource {
   });
 
   Future<bool> updateImage(String imageId, Map<String, dynamic> data);
+
   Future<bool> deleteImage(String imageId);
+
   Future<bool> reorderImages(
     String? unitInSectionId,
     String? tempKey,
     List<String> imageIds,
   );
+
   Future<bool> setAsPrimaryImage(
     String? unitInSectionId,
     String? tempKey,
@@ -43,6 +47,7 @@ abstract class UnitInSectionImagesRemoteDataSource {
 class UnitInSectionImagesRemoteDataSourceImpl
     implements UnitInSectionImagesRemoteDataSource {
   final ApiClient apiClient;
+
   static const String _baseEndpoint = '/api/admin/unit-in-section-images';
 
   UnitInSectionImagesRemoteDataSourceImpl({required this.apiClient});
@@ -90,13 +95,6 @@ class UnitInSectionImagesRemoteDataSourceImpl
           : ((tempKey != null && tempKey.trim().isNotEmpty)
               ? tempKey.trim()
               : null);
-      if (const bool.fromEnvironment('DEBUG') || true) {
-        try {
-          print(
-              '🧾 [UnitUpload] unitInSectionId=$normalizedUnitInSectionId tempKey=$normalizedTempKey file=${MediaFileSafety.basename(uploadFile.path)}');
-          print('🎞️ [UnitUpload] isVideo=${posterPath != null}');
-        } catch (_) {}
-      }
       final formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(
           uploadFile.path,
@@ -129,17 +127,6 @@ class UnitInSectionImagesRemoteDataSourceImpl
         ),
         onSendProgress: onSendProgress,
       );
-      if (const bool.fromEnvironment('DEBUG') || true) {
-        try {
-          final dt = response.data;
-          print('⬅️ [UnitUpload] response type: ${dt.runtimeType}');
-          if (dt is Map<String, dynamic>) {
-            print('⬅️ [UnitUpload] response keys: ${dt.keys.toList()}');
-            print(
-                '⬅️ [UnitUpload] success=${dt['success']} hasData=${dt.containsKey('data')}');
-          }
-        } catch (_) {}
-      }
 
       // Accept different response shapes similar to section_images_remote_datasource
       if (response.data is Map<String, dynamic>) {
@@ -149,16 +136,10 @@ class UnitInSectionImagesRemoteDataSourceImpl
 
         // Standard payloads
         if (map['success'] == true && data != null) {
-          if (const bool.fromEnvironment('DEBUG') || true) {
-            print('✅ [UnitUpload] Parsed image from data block');
-          }
           return SectionImageModel.fromJson(data);
         }
         // Image directly on root
         if (map['success'] == true && data == null && map.containsKey('id')) {
-          if (const bool.fromEnvironment('DEBUG') || true) {
-            print('✅ [UnitUpload] Using root image object');
-          }
           return SectionImageModel.fromJson(map);
         }
 
@@ -170,19 +151,11 @@ class UnitInSectionImagesRemoteDataSourceImpl
               imagesBlock['items'] is List &&
               (imagesBlock['items'] as List).isNotEmpty) {
             final List items = imagesBlock['items'] as List;
-            if (const bool.fromEnvironment('DEBUG') || true) {
-              print(
-                  '🧩 [UnitUpload] imagesBlock map with items length: ${items.length}');
-            }
             final dynamic last = items.last;
             if (last is Map<String, dynamic>) {
               return SectionImageModel.fromJson(last);
             }
           } else if (imagesBlock is List && imagesBlock.isNotEmpty) {
-            if (const bool.fromEnvironment('DEBUG') || true) {
-              print(
-                  '🧩 [UnitUpload] imagesBlock list length: ${imagesBlock.length}');
-            }
             final dynamic last = imagesBlock.last;
             if (last is Map<String, dynamic>) {
               return SectionImageModel.fromJson(last);
@@ -191,22 +164,13 @@ class UnitInSectionImagesRemoteDataSourceImpl
 
           // Last resort: short polling to fetch the latest if backend processes asynchronously
           for (var attempt = 0; attempt < 10; attempt++) {
-            if (const bool.fromEnvironment('DEBUG') || true) {
-              print('🔁 [UnitUpload] Poll attempt ${attempt + 1}/10');
-            }
             final latest = await getUnitInSectionImages(
               normalizedUnitInSectionId,
               tempKey: normalizedTempKey,
             );
-            if (const bool.fromEnvironment('DEBUG') || true) {
-              print('🔎 [UnitUpload] Poll fetched ${latest.length} items');
-            }
             if (latest.isNotEmpty) {
               latest.sort((a, b) => a.uploadedAt.compareTo(b.uploadedAt));
-              if (const bool.fromEnvironment('DEBUG') || true) {
-                print('✅ [UnitUpload] Returning latest polled image');
-              }
-              return latest.last as SectionImageModel;
+              return latest.last;
             }
             await Future.delayed(const Duration(milliseconds: 500));
           }
@@ -217,23 +181,13 @@ class UnitInSectionImagesRemoteDataSourceImpl
       final sc = response.statusCode ?? 0;
       if (sc >= 200 && sc < 300) {
         for (var attempt = 0; attempt < 10; attempt++) {
-          if (const bool.fromEnvironment('DEBUG') || true) {
-            print('🔁 [UnitUpload] Fallback poll attempt ${attempt + 1}/10');
-          }
           final latest = await getUnitInSectionImages(
             normalizedUnitInSectionId,
             tempKey: normalizedTempKey,
           );
-          if (const bool.fromEnvironment('DEBUG') || true) {
-            print(
-                '🔎 [UnitUpload] Fallback poll fetched ${latest.length} items');
-          }
           if (latest.isNotEmpty) {
             latest.sort((a, b) => a.uploadedAt.compareTo(b.uploadedAt));
-            if (const bool.fromEnvironment('DEBUG') || true) {
-              print('✅ [UnitUpload] Returning latest fallback polled image');
-            }
-            return latest.last as SectionImageModel;
+            return latest.last;
           }
           await Future.delayed(const Duration(milliseconds: 500));
         }
@@ -264,15 +218,8 @@ class UnitInSectionImagesRemoteDataSourceImpl
       msg ??= e.message;
       if (e.type == DioExceptionType.unknown &&
           (e.error?.toString().contains('SocketException') ?? false)) {
-        if (const bool.fromEnvironment('DEBUG') || true) {
-          print('❌ [UnitUpload] Network error (SocketException)');
-        }
         throw const ServerException(
             'لا يمكن الاتصال بالخادم. تحقق من الاتصال بالإنترنت أو إعدادات الخادم');
-      }
-      if (const bool.fromEnvironment('DEBUG') || true) {
-        print(
-            '❌ [UnitUpload] DioException type=${e.type} msg=${msg ?? e.message}');
       }
       throw ServerException(msg ?? 'Failed to upload image');
     }
@@ -305,11 +252,6 @@ class UnitInSectionImagesRemoteDataSourceImpl
         'sortBy': 'uploadedAt',
         'sortOrder': 'desc',
       };
-
-      if (const bool.fromEnvironment('DEBUG') || true) {
-        print(
-            '🔎 [UnitGet] Query unitInSectionId=$normalizedUnitInSectionId tempKey=$normalizedTempKey sortBy=uploadedAt desc');
-      }
       final response = await apiClient.get(
         _baseEndpoint,
         queryParameters: qp,
@@ -327,17 +269,11 @@ class UnitInSectionImagesRemoteDataSourceImpl
           final dynamic imagesData =
               map['images'] ?? map['items'] ?? map['data'];
           if (imagesData is List) {
-            if (const bool.fromEnvironment('DEBUG') || true) {
-              print('⬅️ [UnitGet] images list length: ${imagesData.length}');
-            }
             return imagesData
                 .map((json) => SectionImageModel.fromJson(json))
                 .toList();
           } else if (imagesData is Map && imagesData['items'] is List) {
             final List<dynamic> items = imagesData['items'];
-            if (const bool.fromEnvironment('DEBUG') || true) {
-              print('⬅️ [UnitGet] images paged items length: ${items.length}');
-            }
             return items
                 .map((json) => SectionImageModel.fromJson(json))
                 .toList();
@@ -345,16 +281,9 @@ class UnitInSectionImagesRemoteDataSourceImpl
         }
         if (map['items'] is List) {
           final List<dynamic> items = map['items'];
-          if (const bool.fromEnvironment('DEBUG') || true) {
-            print('⬅️ [UnitGet] items length: ${items.length}');
-          }
           return items.map((json) => SectionImageModel.fromJson(json)).toList();
         }
       } else if (response.data is List) {
-        if (const bool.fromEnvironment('DEBUG') || true) {
-          print(
-              '⬅️ [UnitGet] raw list length: ${(response.data as List).length}');
-        }
         return (response.data as List)
             .map((json) => SectionImageModel.fromJson(json))
             .toList();

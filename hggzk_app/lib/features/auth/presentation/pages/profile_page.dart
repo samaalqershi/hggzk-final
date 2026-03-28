@@ -15,7 +15,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/route_constants.dart';
-import '../../../../core/bloc/app_bloc.dart';
+import 'package:hggzk/app/bloc/app_bloc.dart';
 import '../../../../core/bloc/theme/theme_bloc.dart';
 import '../../../../core/bloc/theme/theme_event.dart';
 import '../../../../core/bloc/theme/theme_state.dart';
@@ -28,9 +28,14 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/upload_user_image.dart';
 
+/// تعرض ملف المستخدم الحالي مع أدوات تعديل الصورة والبيانات الأساسية
+/// والإجراءات الحساسة المرتبطة بالحساب.
+/// Presents the current user's profile with tools for editing profile media,
+/// core account data, and sensitive account actions.
 class ProfilePage extends StatefulWidget {
+  /// ينشئ شاشة الملف الشخصي.
+  /// Creates the profile page.
   const ProfilePage({super.key});
-
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
@@ -42,7 +47,6 @@ class _ProfilePageState extends State<ProfilePage>
   late AnimationController _themeSwitchController;
   late Animation<double> _themeSwitchRotation;
   late Animation<double> _themeSwitchScale;
-
   @override
   void initState() {
     super.initState();
@@ -539,22 +543,6 @@ class _ProfilePageState extends State<ProfilePage>
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildDivider() {
-    return Container(
-      height: 0.5,
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.transparent,
-            AppTheme.darkBorder.withOpacity(0.1),
-            Colors.transparent,
-          ],
-        ),
       ),
     );
   }
@@ -1479,32 +1467,12 @@ class _ProfilePageState extends State<ProfilePage>
       ),
     );
   }
-
-  String _formatDate(DateTime date) {
-    final months = [
-      'يناير',
-      'فبراير',
-      'مارس',
-      'أبريل',
-      'مايو',
-      'يونيو',
-      'يوليو',
-      'أغسطس',
-      'سبتمبر',
-      'أكتوبر',
-      'نوفمبر',
-      'ديسمبر'
-    ];
-    return '${date.day} ${months[date.month - 1]} ${date.year}';
-  }
 }
 
 // Minimal Background Painter
 class _MinimalBackgroundPainter extends CustomPainter {
   final double animationValue;
-
   _MinimalBackgroundPainter({required this.animationValue});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
@@ -1538,7 +1506,6 @@ class _MinimalBackgroundPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-/// Dialog widget for account deletion with proper lifecycle management
 class _DeleteAccountDialog extends StatefulWidget {
   final void Function({
     String? password,
@@ -1548,12 +1515,10 @@ class _DeleteAccountDialog extends StatefulWidget {
     String? socialNonce,
   }) onConfirm;
   final VoidCallback onSuccess;
-
   const _DeleteAccountDialog({
     required this.onConfirm,
     required this.onSuccess,
   });
-
   @override
   State<_DeleteAccountDialog> createState() => _DeleteAccountDialogState();
 }
@@ -1569,7 +1534,6 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
   String? _socialToken;
   String? _socialNonce;
   String? _lastSocialAuthAttemptProvider;
-
   @override
   void initState() {
     super.initState();

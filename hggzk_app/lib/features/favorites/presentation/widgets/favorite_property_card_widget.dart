@@ -5,13 +5,33 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/favorite.dart';
 
+/// Card that presents one saved property and wires the remove and open
+/// actions used by the favorites screen.
+/// بطاقة تعرض عقارًا محفوظًا واحدًا وتربط أفعال الفتح والإزالة التي تستخدمها
+/// شاشة المفضلة.
 class FavoritePropertyCardWidget extends StatefulWidget {
+  /// Favorite record rendered by this card.
+  /// سجل المفضلة الذي تعرضه هذه البطاقة.
   final Favorite favorite;
+
+  /// Switches between compact grid and wide list presentation.
+  /// يبدّل بين عرض الشبكة المضغوطة وعرض القائمة العريضة.
   final bool isGridView;
+
+  /// Delays the entrance animation so multiple cards feel sequenced.
+  /// يؤخر حركة الظهور كي تبدو البطاقات متتابعة.
   final Duration animationDelay;
+
+  /// Opens the property detail flow for this saved item.
+  /// يفتح مسار تفاصيل العقار لهذا العنصر المحفوظ.
   final VoidCallback onTap;
+
+  /// Removes the item from favorites and lets the page refresh its list.
+  /// يزيل العنصر من المفضلة ويتيح للصفحة تحديث قائمتها.
   final VoidCallback onRemove;
 
+  /// Builds the card in either compact or wide presentation mode.
+  /// ينشئ البطاقة في وضع العرض المضغوط أو العريض.
   const FavoritePropertyCardWidget({
     super.key,
     required this.favorite,
@@ -21,21 +41,44 @@ class FavoritePropertyCardWidget extends StatefulWidget {
     required this.onRemove,
   });
 
+  /// Sets up the animated entry state used by the card.
+  /// يهيئ حالة الظهور المتحرك المستخدمة من البطاقة.
   @override
-  State<FavoritePropertyCardWidget> createState() => 
+  State<FavoritePropertyCardWidget> createState() =>
       _FavoritePropertyCardWidgetState();
 }
 
+/// Manages entrance motion, hover feedback, and remove state for one favorite
+/// card.
+/// يدير حركة الظهور وتغذية التحويم وحالة الإزالة لبطاقة مفضلة واحدة.
 class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     with SingleTickerProviderStateMixin {
+  /// Drives the fade, scale, and slide entrance animations.
+  /// يقود حركات الظهور بالتلاشي والتدرج والانزلاق.
   late AnimationController _animationController;
+
+  /// Fades the card into view.
+  /// يدرج البطاقة تدريجيًا إلى الشاشة.
   late Animation<double> _fadeAnimation;
+
+  /// Slightly scales the card as it appears.
+  /// يغيّر حجم البطاقة قليلًا أثناء الظهور.
   late Animation<double> _scaleAnimation;
+
+  /// Slides the card upward during entrance.
+  /// ينزلق بالبطاقة قليلًا إلى الأعلى عند الظهور.
   late Animation<Offset> _slideAnimation;
-  
+
+  /// Tracks press feedback so the card feels responsive on every platform.
+  /// يتتبع تغذية الضغط كي تبدو البطاقة مستجيبة على كل المنصات.
   bool _isHovered = false;
+
+  /// Marks the card while the remove action is in progress.
+  /// يعلّم البطاقة أثناء تنفيذ عملية الإزالة.
   bool _isRemoving = false;
 
+  /// Starts the entrance animation after the configured delay.
+  /// يبدأ حركة الظهور بعد التأخير المحدد.
   @override
   void initState() {
     super.initState();
@@ -43,7 +86,7 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
       duration: const Duration(milliseconds: 450),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -51,7 +94,7 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
       parent: _animationController,
       curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
     ));
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.92,
       end: 1.0,
@@ -59,7 +102,7 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
       parent: _animationController,
       curve: Curves.easeOutBack,
     ));
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0.0, 0.03),
       end: Offset.zero,
@@ -67,7 +110,7 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
       parent: _animationController,
       curve: Curves.easeOutQuart,
     ));
-    
+
     Future.delayed(widget.animationDelay, () {
       if (mounted) {
         _animationController.forward();
@@ -75,12 +118,16 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     });
   }
 
+  /// Releases the animation controller owned by this card.
+  /// يحرر متحكم الحركة المملوك لهذه البطاقة.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// Builds the favorite card in either grid or list mode.
+  /// يبني بطاقة المفضلة في وضع الشبكة أو القائمة.
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -89,14 +136,14 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
         position: _slideAnimation,
         child: ScaleTransition(
           scale: _scaleAnimation,
-          child: widget.isGridView
-              ? _buildGridCard()
-              : _buildListCard(),
+          child: widget.isGridView ? _buildGridCard() : _buildListCard(),
         ),
       ),
     );
   }
 
+  /// Builds the compact grid presentation of the favorite item.
+  /// يبني العرض الشبكي المختصر لعنصر المفضلة.
   Widget _buildGridCard() {
     return GestureDetector(
       onTapDown: (_) => setState(() => _isHovered = true),
@@ -193,7 +240,8 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
                 Expanded(
                   flex: 2,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -255,6 +303,8 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     );
   }
 
+  /// Builds the wide list presentation of the favorite item.
+  /// يبني العرض القائمي العريض لعنصر المفضلة.
   Widget _buildListCard() {
     return GestureDetector(
       onTapDown: (_) => setState(() => _isHovered = true),
@@ -417,9 +467,11 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     );
   }
 
+  /// Renders the hero image and its fallback gradient.
+  /// يرسم صورة العقار الرئيسية وخلفيتها البديلة.
   Widget _buildPropertyImage() {
     String? imageUrl = widget.favorite.propertyImage;
-    if ((imageUrl.isEmpty || imageUrl == 'null') && 
+    if ((imageUrl.isEmpty || imageUrl == 'null') &&
         widget.favorite.images.isNotEmpty) {
       final mainImage = widget.favorite.images.firstWhere(
         (img) => img.isMain,
@@ -456,6 +508,8 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     }
   }
 
+  /// Builds the small type badge shown over the image.
+  /// يبني شارة النوع الصغيرة الظاهرة فوق الصورة.
   Widget _buildNeuroTypeBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -488,11 +542,13 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     );
   }
 
+  /// Builds the compact specification row for bedrooms, baths, and area.
+  /// يبني صف المواصفات المختصر لغرف النوم والحمامات والمساحة.
   Widget _buildPropertySpecsRow() {
     return Row(
       children: [
         // Add room info if available from the favorite entity
-        // Since the favorite entity might not have these fields, 
+        // Since the favorite entity might not have these fields,
         // we'll show other relevant info
         if (widget.favorite.amenities.isNotEmpty)
           _buildMiniSpec(
@@ -508,6 +564,8 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     );
   }
 
+  /// Builds one of the small numeric spec chips.
+  /// يبني إحدى شرائح المواصفات الرقمية الصغيرة.
   Widget _buildMiniSpec(IconData icon, String value) {
     return Container(
       margin: const EdgeInsets.only(left: 8),
@@ -532,9 +590,11 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     );
   }
 
+  /// Builds the location row that anchors the property context.
+  /// يبني صف الموقع الذي يثبت سياق العقار.
   Widget _buildNeuroLocationRow() {
-    final location = widget.favorite.propertyLocation.isNotEmpty 
-        ? widget.favorite.propertyLocation 
+    final location = widget.favorite.propertyLocation.isNotEmpty
+        ? widget.favorite.propertyLocation
         : '${widget.favorite.city}, ${widget.favorite.address}';
 
     return Row(
@@ -569,6 +629,8 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     );
   }
 
+  /// Builds the price badge with discount-aware formatting.
+  /// يبني شارة السعر مع تنسيق يأخذ الخصم في الحسبان.
   Widget _buildNeuroPriceTag() {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -612,10 +674,12 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     );
   }
 
+  /// Builds the rating strip shown near the price and title.
+  /// يبني شريط التقييم الظاهر قرب السعر والعنوان.
   Widget _buildNeuroRatingBar() {
     final rating = widget.favorite.averageRating;
     final starCount = widget.favorite.starRating;
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -647,6 +711,8 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     );
   }
 
+  /// Builds the remove action used to delete the favorite entry.
+  /// يبني فعل الإزالة المستخدم لحذف عنصر المفضلة.
   Widget _buildRemoveButton({required double size}) {
     return GestureDetector(
       onTap: () {
@@ -694,11 +760,13 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     );
   }
 
+  /// Plays the removal animation before invoking the delete callback.
+  /// يشغّل حركة الإزالة قبل استدعاء فعل الحذف.
   void _animateRemoval() {
     setState(() {
       _isRemoving = true;
     });
-    
+
     _animationController.reverse().then((_) {
       widget.onRemove();
     });

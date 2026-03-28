@@ -1,14 +1,17 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-// removed unused imports after split
 import '../../domain/repositories/notification_channels_repository.dart';
 import 'channels_event.dart';
 import 'channels_state.dart';
 
-
-// Bloc
+/// والإرساليات مرتبطة بمصدر بيانات واحد ومفهومة في التسلسل نفسه.
+/// and sending remain tied to one data source and one clear flow.
 class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
+  /// تمر عبره بدل أن تتشتت داخل الواجهة.
+  /// or write passes through it instead of being scattered through the UI.
   final INotificationChannelsRepository _repository;
 
+  /// متسقة مع ما يحدث فعليًا في الخلفية.
+  /// that keep channel state aligned with real backend activity.
   ChannelsBloc({required INotificationChannelsRepository repository})
       : _repository = repository,
         super(const ChannelsState()) {
@@ -27,6 +30,8 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
     on<UpdateUserSubscriptionsEvent>(_onUpdateUserSubscriptions);
   }
 
+  /// في لوحة الإدارة.
+  /// shown in the admin dashboard.
   Future<void> _onLoadChannels(
     LoadChannelsEvent event,
     Emitter<ChannelsState> emit,
@@ -53,6 +58,7 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
     );
   }
 
+  /// top of the screen.
   Future<void> _onLoadStatistics(
     LoadChannelStatisticsEvent event,
     Emitter<ChannelsState> emit,
@@ -65,6 +71,8 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
     );
   }
 
+  /// تتطابق الواجهة مع العملية المنجزة.
+  /// state so the UI matches the completed action.
   Future<void> _onCreateChannel(
     CreateChannelEvent event,
     Emitter<ChannelsState> emit,
@@ -96,6 +104,8 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
     );
   }
 
+  /// لضمان اتساق العرض.
+  /// the UI consistent.
   Future<void> _onUpdateChannel(
     UpdateChannelEvent event,
     Emitter<ChannelsState> emit,
@@ -130,6 +140,8 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
     );
   }
 
+  /// القائمة فورًا.
+  /// state so it disappears from the list immediately.
   Future<void> _onDeleteChannel(
     DeleteChannelEvent event,
     Emitter<ChannelsState> emit,
@@ -144,9 +156,8 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
         error: failure.message,
       )),
       (_) {
-        final updatedChannels = state.channels
-            .where((c) => c.id != event.channelId)
-            .toList();
+        final updatedChannels =
+            state.channels.where((c) => c.id != event.channelId).toList();
         emit(state.copyWith(
           isDeleting: false,
           channels: updatedChannels,
@@ -156,6 +167,8 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
     );
   }
 
+  /// التفاصيل والاشتراكات.
+  /// subscription views.
   Future<void> _onLoadChannelDetails(
     LoadChannelDetailsEvent event,
     Emitter<ChannelsState> emit,
@@ -183,6 +196,7 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
     );
   }
 
+  /// limit the result to active users only.
   Future<void> _onLoadSubscribers(
     LoadChannelSubscribersEvent event,
     Emitter<ChannelsState> emit,
@@ -206,6 +220,8 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
     );
   }
 
+  /// النتيجة مباشرة بعد الحفظ.
+  /// the result immediately after saving.
   Future<void> _onAddSubscribers(
     AddSubscribersEvent event,
     Emitter<ChannelsState> emit,
@@ -227,12 +243,16 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
           isUpdating: false,
           successMessage: 'تم إضافة $count مشترك بنجاح',
         ));
-        // Reload subscribers
+
+        /// الأعضاء أو ترتيبهم المعروض.
+        /// the visible membership count or ordering.
         add(LoadChannelSubscribersEvent(channelId: event.channelId));
       },
     );
   }
 
+  /// نفس الصفحة فورًا.
+  /// reflected on the same page right away.
   Future<void> _onRemoveSubscribers(
     RemoveSubscribersEvent event,
     Emitter<ChannelsState> emit,
@@ -254,12 +274,16 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
           isUpdating: false,
           successMessage: 'تم إزالة $count مشترك بنجاح',
         ));
-        // Reload subscribers
+
+        /// الواجهة رغم نجاح الإزالة.
+        /// UI after a successful delete.
         add(LoadChannelSubscribersEvent(channelId: event.channelId));
       },
     );
   }
 
+  /// للمشرف.
+  /// history so the admin sees the latest send entry.
   Future<void> _onSendNotification(
     SendChannelNotificationEvent event,
     Emitter<ChannelsState> emit,
@@ -282,14 +306,19 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
       (history) {
         emit(state.copyWith(
           isSending: false,
-          successMessage: 'تم إرسال الإشعار إلى ${history.recipientsCount} مستخدم',
+          successMessage:
+              'تم إرسال الإشعار إلى ${history.recipientsCount} مستخدم',
         ));
-        // Reload history
+
+        /// وتعرض الإرسال الجديد في مكانه الطبيعي.
+        /// places the new send in the expected spot.
         add(LoadChannelHistoryEvent(channelId: event.channelId));
       },
     );
   }
 
+  /// السابق بدون حسابات إضافية.
+  /// activity without extra client-side reconstruction.
   Future<void> _onLoadHistory(
     LoadChannelHistoryEvent event,
     Emitter<ChannelsState> emit,
@@ -314,6 +343,8 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
     );
   }
 
+  /// مراجعة اشتراكاته أو إعادة تنظيمها.
+  /// needs to review or reorganize that user’s subscriptions.
   Future<void> _onLoadUserChannels(
     LoadUserChannelsEvent event,
     Emitter<ChannelsState> emit,
@@ -334,6 +365,8 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
     );
   }
 
+  /// المعروضة مطابقة لما حفظه الخادم.
+  /// list matches what the server persisted.
   Future<void> _onUpdateUserSubscriptions(
     UpdateUserSubscriptionsEvent event,
     Emitter<ChannelsState> emit,
@@ -356,7 +389,9 @@ class ChannelsBloc extends Bloc<ChannelsEvent, ChannelsState> {
           isUpdating: false,
           successMessage: 'تم تحديث اشتراكات المستخدم بنجاح',
         ));
-        // Reload user channels
+
+        /// نسخة قديمة من الاشتراكات.
+        /// subscription snapshot.
         add(LoadUserChannelsEvent(event.userId));
       },
     );

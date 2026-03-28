@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 extension ColorExtensions on Color {
   Color withValues({double? alpha, double? red, double? green, double? blue}) {
     final double baseA = (alpha ?? a).clamp(0.0, 1.0);
@@ -14,6 +13,5 @@ extension ColorExtensions on Color {
 
     return Color.fromARGB(ai, ri, gi, bi);
   }
-
   Color withAlphaFraction(double alpha) => withValues(alpha: alpha);
 }

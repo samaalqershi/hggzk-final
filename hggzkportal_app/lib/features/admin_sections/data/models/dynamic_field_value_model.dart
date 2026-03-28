@@ -1,5 +1,7 @@
 class DynamicFieldValueModel {
+  /// العربية: يخزن القيمة `fieldKey`.
   final String fieldKey;
+
   final dynamic value;
 
   const DynamicFieldValueModel({required this.fieldKey, this.value});
@@ -16,4 +18,3 @@ class DynamicFieldValueModel {
         'value': value,
       };
 }
-

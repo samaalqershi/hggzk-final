@@ -4,23 +4,67 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_colors.dart';
 
-/// 📝 Custom Text Field Widget
+/// حقل إدخال موحّد يحافظ على نفس المظهر والسلوك في شاشات البورتال.
+/// Consistent text field used to keep portal forms visually and behaviorally aligned.
 class CustomTextField extends StatelessWidget {
+  /// المتحكم في النص الحالي داخل الحقل.
+  /// Controller for the current text value.
   final TextEditingController controller;
+
+  /// تسمية الحقل التي تظهر أعلى منطقة الإدخال.
+  /// Visible label shown above the input area.
   final String label;
+
+  /// نص إرشادي يظهر داخل الحقل عندما يكون فارغًا.
+  /// Hint text shown inside the field when it is empty.
   final String? hint;
+
+  /// الأيقونة الظاهرة في بداية الحقل.
+  /// Leading icon shown at the start of the field.
   final IconData? prefixIcon;
+
+  /// الأيقونة الظاهرة في نهاية الحقل مثل إظهار/إخفاء النص.
+  /// Trailing icon shown at the end of the field such as show/hide text.
   final IconData? suffixIcon;
+
+  /// يجعل النص مخفيًا عادةً لحالات كلمات المرور.
+  /// Hides the input text, typically for password fields.
   final bool obscureText;
+
+  /// يحدد ما إذا كان الحقل للقراءة فقط.
+  /// Marks the field as read-only.
   final bool readOnly;
+
+  /// الحد الأقصى لعدد الأسطر المعروضة.
+  /// Maximum number of visible lines.
   final int maxLines;
+
+  /// نوع لوحة المفاتيح المطلوبة لهذا الإدخال.
+  /// Keyboard type requested for this input.
   final TextInputType? keyboardType;
+
+  /// فلاتر الإدخال التي تنظف أو تقيد ما يكتبه المستخدم.
+  /// Input formatters that constrain or sanitize user input.
   final List<TextInputFormatter>? inputFormatters;
+
+  /// دالة التحقق من صحة القيمة عند استخدام الحقل داخل Form.
+  /// Validator used when the field is placed inside a Form.
   final String? Function(String?)? validator;
+
+  /// استدعاء اختياري عند تغيير النص.
+  /// Optional callback invoked when the text changes.
   final void Function(String)? onChanged;
+
+  /// استدعاء اختياري عند الضغط على الأيقونة الجانبية.
+  /// Optional callback when the suffix icon is pressed.
   final void Function()? onSuffixIconPressed;
+
+  /// يفعّل التركيز التلقائي عند بناء الحقل.
+  /// Requests autofocus when the field is built.
   final bool autofocus;
 
+  /// ينشئ حقل إدخال قابلًا لإعادة الاستخدام مع نفس لغة التصميم في البورتال.
+  /// Creates a reusable input field with the portal's shared visual language.
   const CustomTextField({
     super.key,
     required this.controller,
@@ -39,6 +83,8 @@ class CustomTextField extends StatelessWidget {
     this.autofocus = false,
   });
 
+  /// يبني الحقل مع الحدود والأيقونات والتنبيهات المرئية المعتادة في التطبيق.
+  /// Builds the field with the borders, icons, and visual cues used throughout the app.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -58,7 +104,7 @@ class CustomTextField extends StatelessWidget {
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppColors.primary.withOpacity(0.2),
+              color: AppColors.primary.withValues(alpha: 0.2),
               width: 1,
             ),
           ),

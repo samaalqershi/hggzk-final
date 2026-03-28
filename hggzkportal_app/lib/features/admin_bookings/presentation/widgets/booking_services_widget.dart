@@ -9,13 +9,31 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../domain/entities/booking_details.dart';
 
+/// تعرض الخدمات الإضافية المرتبطة بالحجز مع الإجمالي والتقسيم حسب الفئة.
+/// Shows extra booking services with totals and category breakdown.
 class BookingServicesWidget extends StatelessWidget {
+  /// قائمة الخدمات المرتبطة بالحجز الحالي.
+  /// Services attached to the current booking.
   final List<Service> services;
+
+  /// يستدعى عند طلب إضافة خدمة جديدة إلى الحجز.
+  /// Called when the user wants to add a new service.
   final VoidCallback? onAddService;
+
+  /// يستدعى عند إزالة خدمة بواسطة معرّفها.
+  /// Called when a service should be removed by its identifier.
   final Function(String)? onRemoveService;
+
+  /// يستدعى عند تعديل خدمة موجودة.
+  /// Called when an existing service needs editing.
   final VoidCallback? onEditService;
+
+  /// يستدعى لفتح تفاصيل الخدمة المختارة.
+  /// Called to open the selected service details.
   final VoidCallback? onShowServiceDetails;
 
+  /// ينشئ ويدجت الخدمات مع ردود الأفعال الاختيارية.
+  /// Creates the services widget with optional action callbacks.
   const BookingServicesWidget({
     super.key,
     required this.services,
@@ -25,19 +43,22 @@ class BookingServicesWidget extends StatelessWidget {
     this.onShowServiceDetails,
   });
 
+  /// يبني الحاوية الأساسية مع الرأس والملخص والقائمة والتذييل.
+  /// Builds the main container with header, summary, list, and footer.
   @override
   Widget build(BuildContext context) {
     final totalAmount = _calculateTotalAmount();
     final hasServices = services.isNotEmpty;
     final categorizedServices = _categorizeServices();
-    final currency = services.isNotEmpty ? services.first.price.currency : 'YER';
+    final currency =
+        services.isNotEmpty ? services.first.price.currency : 'YER';
 
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.shadowDark.withOpacity(0.1),
+            color: AppTheme.shadowDark.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -53,15 +74,15 @@ class BookingServicesWidget extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.8),
-                  AppTheme.darkCard.withOpacity(0.6),
+                  AppTheme.darkCard.withValues(alpha: 0.8),
+                  AppTheme.darkCard.withValues(alpha: 0.6),
                 ],
               ),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: hasServices
-                    ? AppTheme.primaryBlue.withOpacity(0.3)
-                    : AppTheme.darkBorder.withOpacity(0.3),
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                    : AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1.5,
               ),
             ),
@@ -80,6 +101,8 @@ class BookingServicesWidget extends StatelessWidget {
     );
   }
 
+  /// يبني رأس القسم مع حالة وجود الخدمات وعددها.
+  /// Builds the section header with service presence and count.
   Widget _buildHeader(bool hasServices) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -87,17 +110,17 @@ class BookingServicesWidget extends StatelessWidget {
         gradient: LinearGradient(
           colors: hasServices
               ? [
-                  AppTheme.primaryBlue.withOpacity(0.15),
-                  AppTheme.primaryBlue.withOpacity(0.05),
+                  AppTheme.primaryBlue.withValues(alpha: 0.15),
+                  AppTheme.primaryBlue.withValues(alpha: 0.05),
                 ]
               : [
-                  AppTheme.darkCard.withOpacity(0.15),
-                  AppTheme.darkCard.withOpacity(0.05),
+                  AppTheme.darkCard.withValues(alpha: 0.15),
+                  AppTheme.darkCard.withValues(alpha: 0.05),
                 ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
           ),
         ),
       ),
@@ -110,9 +133,12 @@ class BookingServicesWidget extends StatelessWidget {
                 colors: hasServices
                     ? [
                         AppTheme.primaryBlue,
-                        AppTheme.primaryBlue.withOpacity(0.7)
+                        AppTheme.primaryBlue.withValues(alpha: 0.7)
                       ]
-                    : [AppTheme.textMuted, AppTheme.textMuted.withOpacity(0.7)],
+                    : [
+                        AppTheme.textMuted,
+                        AppTheme.textMuted.withValues(alpha: 0.7)
+                      ],
               ),
               borderRadius: BorderRadius.circular(12),
             ),
@@ -139,8 +165,8 @@ class BookingServicesWidget extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: hasServices
-                      ? AppTheme.primaryBlue.withOpacity(0.1)
-                      : AppTheme.textMuted.withOpacity(0.1),
+                      ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+                      : AppTheme.textMuted.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -161,8 +187,10 @@ class BookingServicesWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildSummary(
-      double totalAmount, Map<String, List<Service>> categorized, String currency) {
+  /// يبني ملخصًا مختصرًا للإجمالي وعدد الفئات والمبلغ النهائي.
+  /// Builds a compact summary for totals, category count, and final amount.
+  Widget _buildSummary(double totalAmount,
+      Map<String, List<Service>> categorized, String currency) {
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -186,13 +214,13 @@ class BookingServicesWidget extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.primaryBlue.withOpacity(0.15),
-                  AppTheme.primaryBlue.withOpacity(0.05),
+                  AppTheme.primaryBlue.withValues(alpha: 0.15),
+                  AppTheme.primaryBlue.withValues(alpha: 0.05),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
@@ -231,6 +259,8 @@ class BookingServicesWidget extends StatelessWidget {
     );
   }
 
+  /// يبني سطرًا واحدًا داخل الملخص يعرض تسمية وقيمة وأيقونة.
+  /// Builds one summary row with label, value, and icon.
   Widget _buildSummaryRow({
     required String label,
     required String value,
@@ -242,7 +272,7 @@ class BookingServicesWidget extends StatelessWidget {
         Icon(
           icon,
           size: 18,
-          color: color.withOpacity(0.7),
+          color: color.withValues(alpha: 0.7),
         ),
         const SizedBox(width: 8),
         Text(
@@ -263,6 +293,8 @@ class BookingServicesWidget extends StatelessWidget {
     );
   }
 
+  /// يعرض قائمة الخدمات الفعلية مع تأثيرات دخول متدرجة.
+  /// Renders the actual services list with staggered entry animation.
   Widget _buildServicesList() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -296,8 +328,10 @@ class BookingServicesWidget extends StatelessWidget {
     );
   }
 
+  /// يبني بطاقة خدمة واحدة مع السعر والحالة والأزرار السياقية.
+  /// Builds one service card with price, status, and contextual actions.
   Widget _buildServiceItem(Service service) {
-    const isActive = true;
+    final activeColor = AppTheme.primaryBlue;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -306,21 +340,18 @@ class BookingServicesWidget extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            (isActive ? AppTheme.primaryBlue : AppTheme.textMuted)
-                .withOpacity(0.05),
-            AppTheme.darkBackground.withOpacity(0.3),
+            activeColor.withValues(alpha: 0.05),
+            AppTheme.darkBackground.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: (isActive ? AppTheme.primaryBlue : AppTheme.textMuted)
-              .withOpacity(0.2),
+          color: activeColor.withValues(alpha: 0.2),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: (isActive ? AppTheme.primaryBlue : AppTheme.textMuted)
-                .withOpacity(0.1),
+            color: activeColor.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -342,17 +373,15 @@ class BookingServicesWidget extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        (isActive ? AppTheme.primaryBlue : AppTheme.textMuted)
-                            .withOpacity(0.2),
-                        (isActive ? AppTheme.primaryBlue : AppTheme.textMuted)
-                            .withOpacity(0.05),
+                        activeColor.withValues(alpha: 0.2),
+                        activeColor.withValues(alpha: 0.05),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     _getServiceIcon(service.category),
-                    color: isActive ? AppTheme.primaryBlue : AppTheme.textMuted,
+                    color: activeColor,
                     size: 24,
                   ),
                 ),
@@ -383,18 +412,13 @@ class BookingServicesWidget extends StatelessWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: (isActive
-                                      ? AppTheme.success
-                                      : AppTheme.textMuted)
-                                  .withOpacity(0.15),
+                              color: AppTheme.success.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              isActive ? 'نشط' : 'غير نشط',
+                              'نشط',
                               style: AppTextStyles.caption.copyWith(
-                                color: isActive
-                                    ? AppTheme.success
-                                    : AppTheme.textMuted,
+                                color: AppTheme.success,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -450,9 +474,7 @@ class BookingServicesWidget extends StatelessWidget {
                     Text(
                       service.totalPrice.formattedAmount,
                       style: AppTextStyles.heading3.copyWith(
-                        color: isActive
-                            ? AppTheme.primaryBlue
-                            : AppTheme.textMuted,
+                        color: activeColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -466,7 +488,8 @@ class BookingServicesWidget extends StatelessWidget {
                             child: Container(
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
-                                color: AppTheme.primaryBlue.withOpacity(0.1),
+                                color:
+                                    AppTheme.primaryBlue.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Icon(
@@ -483,7 +506,7 @@ class BookingServicesWidget extends StatelessWidget {
                             child: Container(
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
-                                color: AppTheme.error.withOpacity(0.1),
+                                color: AppTheme.error.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Icon(
@@ -506,6 +529,8 @@ class BookingServicesWidget extends StatelessWidget {
     );
   }
 
+  /// يعرض حالة فارغة عندما لا توجد خدمات مرتبطة بالحجز.
+  /// Shows the empty state when no services are attached to the booking.
   Widget _buildEmptyState() {
     return Container(
       padding: const EdgeInsets.all(60),
@@ -518,8 +543,8 @@ class BookingServicesWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkCard.withOpacity(0.5),
-                    AppTheme.darkBackground.withOpacity(0.3),
+                    AppTheme.darkCard.withValues(alpha: 0.5),
+                    AppTheme.darkBackground.withValues(alpha: 0.3),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -527,7 +552,7 @@ class BookingServicesWidget extends StatelessWidget {
               child: Icon(
                 CupertinoIcons.square_stack,
                 size: 40,
-                color: AppTheme.textMuted.withOpacity(0.3),
+                color: AppTheme.textMuted.withValues(alpha: 0.3),
               ),
             ),
             const SizedBox(height: 20),
@@ -541,7 +566,7 @@ class BookingServicesWidget extends StatelessWidget {
             Text(
               'يمكنك إضافة خدمات للحجز من خلال الزر أدناه',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.7),
+                color: AppTheme.textMuted.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
             ),
@@ -551,14 +576,16 @@ class BookingServicesWidget extends StatelessWidget {
     );
   }
 
+  /// يبني التذييل الذي يوضح الإجراءات والإجمالي أو دعوة الإضافة.
+  /// Builds the footer with actions and total, or an add-services prompt.
   Widget _buildFooter(bool hasServices, double totalAmount) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.3),
+        color: AppTheme.darkBackground.withValues(alpha: 0.3),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
           ),
         ),
         borderRadius: const BorderRadius.only(
@@ -575,14 +602,14 @@ class BookingServicesWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.primaryBlue.withOpacity(0.8),
+                      AppTheme.primaryBlue.withValues(alpha: 0.8),
                       AppTheme.primaryBlue,
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -623,10 +650,10 @@ class BookingServicesWidget extends StatelessWidget {
               child: Container(
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.5),
+                  color: AppTheme.darkCard.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.darkBorder.withOpacity(0.3),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Material(
@@ -662,7 +689,8 @@ class BookingServicesWidget extends StatelessWidget {
     );
   }
 
-  // Helper Methods
+  /// يجمع قيم الخدمات كلها لإظهار المبلغ الإجمالي.
+  /// Sums all services to produce the total amount.
   double _calculateTotalAmount() {
     return services.fold<double>(
       0,
@@ -670,6 +698,8 @@ class BookingServicesWidget extends StatelessWidget {
     );
   }
 
+  /// يجمع الخدمات في خريطة حسب الفئة لإظهار التوزيع المنظم.
+  /// Groups services by category for a structured breakdown.
   Map<String, List<Service>> _categorizeServices() {
     final Map<String, List<Service>> categorized = {};
     for (final service in services) {
@@ -683,6 +713,8 @@ class BookingServicesWidget extends StatelessWidget {
     return categorized;
   }
 
+  /// يختار أيقونة مناسبة بحسب فئة الخدمة أو نوعها.
+  /// Chooses an appropriate icon based on the service category or type.
   IconData _getServiceIcon(String? category) {
     switch (category?.toLowerCase()) {
       case 'food':

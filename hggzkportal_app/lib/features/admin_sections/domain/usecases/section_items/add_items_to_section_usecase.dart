@@ -5,8 +5,10 @@ import '../../../../../core/models/section_item_dto.dart';
 import '../../../../../core/usecases/usecase.dart';
 import '../../../domain/repositories/sections_repository.dart';
 
-class AddItemsToSectionUseCase implements UseCase<void, AddItemsToSectionParams> {
+class AddItemsToSectionUseCase
+    implements UseCase<void, AddItemsToSectionParams> {
   final SectionsRepository repository;
+
   AddItemsToSectionUseCase(this.repository);
 
   @override
@@ -16,12 +18,14 @@ class AddItemsToSectionUseCase implements UseCase<void, AddItemsToSectionParams>
 }
 
 class AddItemsToSectionParams extends Equatable {
+  /// العربية: يخزن القيمة `sectionId`.
   final String sectionId;
+
   final AddItemsToSectionDto payload;
 
-  const AddItemsToSectionParams({required this.sectionId, required this.payload});
+  const AddItemsToSectionParams(
+      {required this.sectionId, required this.payload});
 
   @override
   List<Object?> get props => [sectionId, payload];
 }
-

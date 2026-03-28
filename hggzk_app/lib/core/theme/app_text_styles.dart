@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:hggzk/core/theme/app_theme.dart';
 import 'app_colors.dart';
 
+/// Represents `AppTextStyles`.
+/// العربية: يمثل `AppTextStyles`.
 class AppTextStyles {
+  /// Builds the `AppTextStyles._` instance used by this layer.
+  /// العربية: ينشئ مثيلًا جديدًا من `AppTextStyles._`.
   AppTextStyles._();
 
   // 🎯 نظام أحجام شامل ومرن
@@ -291,6 +295,8 @@ class AppTextStyles {
   // 🔧 Helper Methods
 
   /// الحصول على نمط نص ديناميكي بناءً على الحجم
+  /// Processes the `dynamicStyle` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `dynamicStyle`.
   static TextStyle dynamicStyle({
     required double fontSize,
     FontWeight? fontWeight,
@@ -322,6 +328,8 @@ class AppTextStyles {
   }
 
   /// تحديد الوزن المناسب للحجم
+  /// Exposes the weight for size so callers can read it without depending on implementation details.
+  /// العربية: يعيد weight for size.
   static FontWeight _getWeightForSize(double size) {
     if (size >= 36) return FontWeight.w700;
     if (size >= 24) return FontWeight.w600;
@@ -330,6 +338,8 @@ class AppTextStyles {
   }
 
   /// تحديد ارتفاع السطر المناسب للحجم
+  /// Exposes the height for size so callers can read it without depending on implementation details.
+  /// العربية: يعيد height for size.
   static double _getHeightForSize(double size) {
     if (size >= 36) return 1.1;
     if (size >= 24) return 1.25;
@@ -338,6 +348,8 @@ class AppTextStyles {
   }
 
   /// تحديد المسافة بين الأحرف
+  /// Exposes the spacing for size so callers can read it without depending on implementation details.
+  /// العربية: يعيد spacing for size.
   static double _getSpacingForSize(double size) {
     if (size >= 36) return -1.0;
     if (size >= 24) return -0.3;
@@ -346,6 +358,8 @@ class AppTextStyles {
   }
 
   /// الحصول على حجم خط متجاوب
+  /// Processes the `responsive` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `responsive`.
   static double responsive(
     BuildContext context,
     double baseSize, {
@@ -366,6 +380,8 @@ class AppTextStyles {
   // ✨ Special Effects
 
   /// نص بتدرج لوني
+  /// Processes the `gradient` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `gradient`.
   static TextStyle gradient({
     required double fontSize,
     FontWeight? fontWeight,
@@ -384,6 +400,8 @@ class AppTextStyles {
   }
 
   /// نص نيون
+  /// Processes the `neon` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `neon`.
   static TextStyle neon({
     required double fontSize,
     required Color color,
@@ -414,6 +432,8 @@ class AppTextStyles {
   }
 
   /// نص زجاجي
+  /// Processes the `glass` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `glass`.
   static TextStyle glass({
     required double fontSize,
     FontWeight? fontWeight,
@@ -437,6 +457,8 @@ class AppTextStyles {
   }
 
   /// نص بظل
+  /// Processes the `elevated` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `elevated`.
   static TextStyle elevated({
     required double fontSize,
     FontWeight? fontWeight,
@@ -481,14 +503,20 @@ class AppTextStyles {
 }
 
 // 🎯 Extension Methods للسهولة
+/// Groups the `TextStyleX` extension so the rest of the app stays type-safe.
+/// العربية: يعرّف الامتداد `TextStyleX`.
 extension TextStyleX on TextStyle {
   /// التأكد من الحد الأدنى للحجم
+  /// Exposes the `safe` value for callers that need it.
+  /// العربية: يعيد القيمة `safe`.
   TextStyle get safe {
     if (fontSize == null || fontSize! >= 12) return this;
     return copyWith(fontSize: 12);
   }
 
   /// تطبيق تدرج
+  /// Processes the `withGradient` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `withGradient`.
   TextStyle withGradient(Gradient gradient) {
     return copyWith(
       foreground: Paint()
@@ -499,6 +527,8 @@ extension TextStyleX on TextStyle {
   }
 
   /// تطبيق نيون
+  /// Processes the `withNeon` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `withNeon`.
   TextStyle withNeon(Color color, [double intensity = 1.0]) {
     return copyWith(
       color: color,
@@ -516,6 +546,8 @@ extension TextStyleX on TextStyle {
   }
 
   /// تطبيق شفافية
+  /// Processes the `withOpacity` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `withOpacity`.
   TextStyle withOpacity(double opacity) {
     return copyWith(
       color: (color ?? Colors.white).withOpacity(opacity),
@@ -549,23 +581,37 @@ extension TextStyleX on TextStyle {
 }
 
 // 🎨 مجموعات أنماط جاهزة للاستخدام
+/// Represents `TextStylePresets`.
+/// العربية: يمثل `TextStylePresets`.
 class TextStylePresets {
   // للعناوين الرئيسية في الصفحات
+  /// Keeps the `pageTitle` value so this type can use it later.
+  /// العربية: يخزن القيمة `pageTitle`.
   static TextStyle pageTitle = AppTextStyles.h1.bold;
 
   // للعناوين الفرعية
+  /// Keeps the `sectionTitle` value so this type can use it later.
+  /// العربية: يخزن القيمة `sectionTitle`.
   static TextStyle sectionTitle = AppTextStyles.h3.semiBold;
 
   // للأسعار الكبيرة
+  /// Keeps the `priceHero` value so this type can use it later.
+  /// العربية: يخزن القيمة `priceHero`.
   static TextStyle priceHero = AppTextStyles.priceXLarge.bold;
 
   // للأزرار الرئيسية
+  /// Keeps the `primaryButton` value so this type can use it later.
+  /// العربية: يخزن القيمة `primaryButton`.
   static TextStyle primaryButton = AppTextStyles.buttonLarge.semiBold;
 
   // للنص الوصفي
+  /// Keeps the `description` value so this type can use it later.
+  /// العربية: يخزن القيمة `description`.
   static TextStyle description = AppTextStyles.bodyMedium;
 
   // للتنبيهات
+  /// Keeps the `alert` value so this type can use it later.
+  /// العربية: يخزن القيمة `alert`.
   static TextStyle alert = AppTextStyles.bodyMedium.semiBold;
 
   // للملاحظات الصغيرة

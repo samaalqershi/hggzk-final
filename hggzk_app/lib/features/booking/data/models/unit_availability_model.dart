@@ -1,6 +1,8 @@
 import '../../domain/entities/unit_availability.dart';
 
+/// العربية: يمثل نموذج البيانات `UnitAvailabilityModel`.
 class UnitAvailabilityModel extends UnitAvailability {
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitAvailabilityModel`.
   const UnitAvailabilityModel({
     required super.isAvailable,
     required super.totalDays,
@@ -13,6 +15,7 @@ class UnitAvailabilityModel extends UnitAvailability {
     super.currency,
   });
 
+  /// العربية: ينشئ مثيلًا جديدًا من `UnitAvailabilityModel.fromJson`.
   factory UnitAvailabilityModel.fromJson(Map<String, dynamic> json) {
     return UnitAvailabilityModel(
       isAvailable: json['isAvailable'] as bool? ?? false,

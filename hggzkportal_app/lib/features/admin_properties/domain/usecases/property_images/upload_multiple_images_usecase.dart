@@ -6,13 +6,13 @@ import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../../entities/property_image.dart';
 import '../../repositories/property_images_repository.dart';
 
-class UploadMultipleImagesUseCase implements UseCase<List<PropertyImage>, UploadMultipleImagesParams> {
+class UploadMultipleImagesUseCase
+    implements UseCase<List<PropertyImage>, UploadMultipleImagesParams> {
   final PropertyImagesRepository repository;
-
   UploadMultipleImagesUseCase(this.repository);
-
   @override
-  Future<Either<Failure, List<PropertyImage>>> call(UploadMultipleImagesParams params) async {
+  Future<Either<Failure, List<PropertyImage>>> call(
+      UploadMultipleImagesParams params) async {
     return await repository.uploadMultipleImages(
       propertyId: params.propertyId,
       tempKey: params.tempKey,
@@ -25,13 +25,13 @@ class UploadMultipleImagesUseCase implements UseCase<List<PropertyImage>, Upload
 }
 
 class UploadMultipleImagesParams {
+  /// العربية: يخزن القيمة `propertyId`.
   final String? propertyId;
   final String? tempKey;
   final List<String> filePaths;
   final String? category;
   final List<String>? tags;
   final void Function(String filePath, int sent, int total)? onProgress;
-
   UploadMultipleImagesParams({
     this.propertyId,
     this.tempKey,

@@ -8,26 +8,48 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/audit_log.dart';
 
+/// مخطط تفاعلي يوضح نشاط السجلات حسب الفترة ونوع العملية.
+/// Interactive chart that visualizes audit-log activity by period and operation type.
 class ActivityChartWidget extends StatefulWidget {
+  /// السجلات المستخدمة في بناء بيانات المخطط.
+  /// Audit logs used to build the chart data.
   final List<AuditLog> auditLogs;
 
+  /// ينشئ المخطط اعتمادًا على قائمة السجلات الممررة.
+  /// Creates the chart from the supplied audit-log list.
   const ActivityChartWidget({
     super.key,
     required this.auditLogs,
   });
 
+  /// ينشئ حالة المخطط المسؤولة عن الحركة وبناء البيانات.
+  /// Creates the chart state that handles motion and data preparation.
   @override
   State<ActivityChartWidget> createState() => _ActivityChartWidgetState();
 }
 
+/// تدير هذه الحالة حركة الظهور والفلاتر وحساب بيانات الأعمدة.
+/// Manages entry animation, filters, and bar-data calculations.
 class _ActivityChartWidgetState extends State<ActivityChartWidget>
     with SingleTickerProviderStateMixin {
+  /// يتحكم في حركة دخول المخطط الأولى.
+  /// Controls the chart's initial entrance animation.
   late AnimationController _animationController;
+
+  /// قيمة التوسع المستخدمة في رسم الأعمدة تدريجيًا.
+  /// Animation value used to grow the chart bars progressively.
   late Animation<double> _chartAnimation;
 
+  /// الفترة الزمنية المختارة حاليًا للمخطط.
+  /// Currently selected time period for the chart.
   String _selectedPeriod = 'week';
+
+  /// نوع العملية المختار لتصفية البيانات.
+  /// Selected operation type used to filter the dataset.
   String _selectedType = 'all';
 
+  /// يجهز الحركة الداخلية عند إنشاء الودجت.
+  /// Prepares the internal animation when the widget is created.
   @override
   void initState() {
     super.initState();
@@ -47,12 +69,15 @@ class _ActivityChartWidgetState extends State<ActivityChartWidget>
     _animationController.forward();
   }
 
+  /// يحرر متحكم الحركة عند إزالة المخطط من الشجرة.
+  /// Disposes the animation controller when the chart is removed from the tree.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// يبني الحاوية الرئيسية مع الرأس وعرض الأعمدة بحسب عرض الشاشة.
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -96,6 +121,7 @@ class _ActivityChartWidgetState extends State<ActivityChartWidget>
     );
   }
 
+  /// يبني رأس المخطط الذي يشرح الغرض ويعرض الفلاتر الأساسية.
   Widget _buildHeader(bool isCompact) {
     return Container(
       padding: EdgeInsets.all(isCompact ? 12 : 16),
@@ -163,6 +189,7 @@ class _ActivityChartWidgetState extends State<ActivityChartWidget>
     );
   }
 
+  /// يبني شريط الفلاتر المختص بالفترة ونوع العملية.
   Widget _buildFilters(bool isCompact) {
     return Row(
       children: [
@@ -177,6 +204,7 @@ class _ActivityChartWidgetState extends State<ActivityChartWidget>
     );
   }
 
+  /// يبني محدد الفترة الزمنية مثل الأسبوع أو الشهر أو السنة.
   Widget _buildPeriodSelector(bool isCompact) {
     return Container(
       height: isCompact ? 32 : 36,
@@ -215,6 +243,7 @@ class _ActivityChartWidgetState extends State<ActivityChartWidget>
     );
   }
 
+  /// يبني محدد نوع العملية مثل الإضافة أو التحديث.
   Widget _buildTypeSelector(bool isCompact) {
     return Container(
       height: isCompact ? 32 : 36,
@@ -253,6 +282,7 @@ class _ActivityChartWidgetState extends State<ActivityChartWidget>
     );
   }
 
+  /// يبني شارة اختيار صغيرة قابلة للنقر داخل مجموعة الفلاتر.
   Widget _buildFilterChip({
     required String label,
     required String value,
@@ -292,6 +322,7 @@ class _ActivityChartWidgetState extends State<ActivityChartWidget>
     );
   }
 
+  /// يبني منطقة الرسم الفعلية للأعمدة والعناوين السفلية.
   Widget _buildChart(bool isCompact) {
     final data = _prepareChartData();
     final maxValue =
@@ -407,6 +438,7 @@ class _ActivityChartWidgetState extends State<ActivityChartWidget>
     );
   }
 
+  /// يحسب بيانات الأعمدة وفقًا للفترة المختارة ونوع العملية.
   List<ChartData> _prepareChartData() {
     // Simulate data preparation based on selected filters
     final now = DateTime.now();
@@ -447,6 +479,7 @@ class _ActivityChartWidgetState extends State<ActivityChartWidget>
     return data;
   }
 
+  /// يعيد عدد السجلات في يوم محدد مع مراعاة الفلتر الحالي.
   int _getCountForDate(DateTime date) {
     return widget.auditLogs.where((log) {
       final logDate = log.timestamp;
@@ -457,6 +490,7 @@ class _ActivityChartWidgetState extends State<ActivityChartWidget>
     }).length;
   }
 
+  /// يعيد عدد السجلات داخل أسبوع واحد يبدأ من اليوم المحدد.
   int _getCountForWeek(DateTime weekStart) {
     final weekEnd = weekStart.add(const Duration(days: 7));
     return widget.auditLogs.where((log) {
@@ -466,6 +500,7 @@ class _ActivityChartWidgetState extends State<ActivityChartWidget>
     }).length;
   }
 
+  /// يعيد عدد السجلات داخل شهر محدد.
   int _getCountForMonth(DateTime month) {
     return widget.auditLogs.where((log) {
       final logDate = log.timestamp;
@@ -475,6 +510,7 @@ class _ActivityChartWidgetState extends State<ActivityChartWidget>
     }).length;
   }
 
+  /// يحول التاريخ إلى تسمية يوم عربية مختصرة للمخطط الأسبوعي.
   String _getDayLabel(DateTime date) {
     const days = [
       'الأحد',
@@ -488,6 +524,7 @@ class _ActivityChartWidgetState extends State<ActivityChartWidget>
     return days[date.weekday % 7];
   }
 
+  /// يحول التاريخ إلى اسم شهر عربي للمخطط الشهري أو السنوي.
   String _getMonthLabel(DateTime date) {
     const months = [
       'يناير',
@@ -506,6 +543,7 @@ class _ActivityChartWidgetState extends State<ActivityChartWidget>
     return months[date.month - 1];
   }
 
+  /// يختار لون العمود حسب قيمته لإبراز النشاط المنخفض أو العالي.
   Color _getColorForValue(int value) {
     if (value == 0) return AppTheme.textMuted.withValues(alpha: 0.3);
     if (value < 5) return AppTheme.primaryBlue;
@@ -515,11 +553,23 @@ class _ActivityChartWidgetState extends State<ActivityChartWidget>
   }
 }
 
+/// يمثل نقطة بيانات واحدة داخل المخطط مع التسمية والقيمة واللون.
+/// Represents one data point in the chart with its label, value, and color.
 class ChartData {
+  /// النص المعروض أسفل العمود أو فوقه.
+  /// Label shown under or near the chart bar.
   final String label;
+
+  /// القيمة العددية التي يمثلها العمود.
+  /// Numeric value represented by the bar.
   final int value;
+
+  /// اللون المستخدم لرسم العمود المرتبط بهذه النقطة.
+  /// Color used to paint the bar for this point.
   final Color color;
 
+  /// ينشئ نقطة البيانات مع عناصرها المرئية والرقمية.
+  /// Creates the chart point with its visual and numeric fields.
   ChartData({
     required this.label,
     required this.value,

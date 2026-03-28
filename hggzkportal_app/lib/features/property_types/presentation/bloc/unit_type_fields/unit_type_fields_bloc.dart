@@ -6,10 +6,14 @@ import '../../../domain/usecases/fields/delete_field_usecase.dart';
 import 'unit_type_fields_event.dart';
 import 'unit_type_fields_state.dart';
 
-class UnitTypeFieldsBloc extends Bloc<UnitTypeFieldsEvent, UnitTypeFieldsState> {
+class UnitTypeFieldsBloc
+    extends Bloc<UnitTypeFieldsEvent, UnitTypeFieldsState> {
   final GetFieldsByUnitTypeUseCase getFieldsByUnitType;
+
   final CreateFieldUseCase createField;
+
   final UpdateFieldUseCase updateField;
+
   final DeleteFieldUseCase deleteField;
 
   String? _currentUnitTypeId;
@@ -21,9 +25,13 @@ class UnitTypeFieldsBloc extends Bloc<UnitTypeFieldsEvent, UnitTypeFieldsState> 
     required this.deleteField,
   }) : super(UnitTypeFieldsInitial()) {
     on<LoadUnitTypeFieldsEvent>(_onLoadFields);
+
     on<SearchFieldsEvent>(_onSearchFields);
+
     on<CreateFieldEvent>(_onCreateField);
+
     on<UpdateFieldEvent>(_onUpdateField);
+
     on<DeleteFieldEvent>(_onDeleteField);
   }
 
@@ -33,11 +41,11 @@ class UnitTypeFieldsBloc extends Bloc<UnitTypeFieldsEvent, UnitTypeFieldsState> 
   ) async {
     emit(UnitTypeFieldsLoading());
     _currentUnitTypeId = event.unitTypeId;
-    
+
     final result = await getFieldsByUnitType(
       GetFieldsByUnitTypeParams(unitTypeId: event.unitTypeId),
     );
-    
+
     result.fold(
       (failure) => emit(UnitTypeFieldsError(message: failure.message)),
       (fields) => emit(UnitTypeFieldsLoaded(
@@ -54,13 +62,13 @@ class UnitTypeFieldsBloc extends Bloc<UnitTypeFieldsEvent, UnitTypeFieldsState> 
     if (state is UnitTypeFieldsLoaded) {
       final loadedState = state as UnitTypeFieldsLoaded;
       final searchTerm = event.searchTerm.toLowerCase();
-      
+
       final filteredFields = loadedState.fields.where((field) {
         return field.displayName.toLowerCase().contains(searchTerm) ||
-               field.fieldName.toLowerCase().contains(searchTerm) ||
-               field.description.toLowerCase().contains(searchTerm);
+            field.fieldName.toLowerCase().contains(searchTerm) ||
+            field.description.toLowerCase().contains(searchTerm);
       }).toList();
-      
+
       emit(loadedState.copyWith(
         filteredFields: filteredFields,
         searchTerm: event.searchTerm,
@@ -73,11 +81,14 @@ class UnitTypeFieldsBloc extends Bloc<UnitTypeFieldsEvent, UnitTypeFieldsState> 
     Emitter<UnitTypeFieldsState> emit,
   ) async {
     final currentState = state;
-    
-    final Map<String, dynamic>? fieldOptions = event.fieldData['fieldOptions'] == null
-        ? null
-        : Map<String, dynamic>.from(event.fieldData['fieldOptions'] as Map);
-    final Map<String, dynamic>? validationRules = event.fieldData['validationRules'] == null
+
+    final Map<String, dynamic>? fieldOptions =
+        event.fieldData['fieldOptions'] == null
+            ? null
+            : Map<String, dynamic>.from(event.fieldData['fieldOptions'] as Map);
+    final Map<String, dynamic>? validationRules = event
+                .fieldData['validationRules'] ==
+            null
         ? null
         : Map<String, dynamic>.from(event.fieldData['validationRules'] as Map);
 
@@ -102,7 +113,7 @@ class UnitTypeFieldsBloc extends Bloc<UnitTypeFieldsEvent, UnitTypeFieldsState> 
         priority: event.fieldData['priority'],
       ),
     );
-    
+
     result.fold(
       (failure) {
         emit(UnitTypeFieldsError(message: failure.message));
@@ -123,14 +134,17 @@ class UnitTypeFieldsBloc extends Bloc<UnitTypeFieldsEvent, UnitTypeFieldsState> 
     Emitter<UnitTypeFieldsState> emit,
   ) async {
     final currentState = state;
-    
-    final Map<String, dynamic>? fieldOptions = event.fieldData['fieldOptions'] == null
-        ? null
-        : Map<String, dynamic>.from(event.fieldData['fieldOptions'] as Map);
-    final Map<String, dynamic>? validationRules = event.fieldData['validationRules'] == null
+
+    final Map<String, dynamic>? fieldOptions =
+        event.fieldData['fieldOptions'] == null
+            ? null
+            : Map<String, dynamic>.from(event.fieldData['fieldOptions'] as Map);
+    final Map<String, dynamic>? validationRules = event
+                .fieldData['validationRules'] ==
+            null
         ? null
         : Map<String, dynamic>.from(event.fieldData['validationRules'] as Map);
-    
+
     final result = await updateField(
       UpdateFieldParams(
         fieldId: event.fieldId,
@@ -152,7 +166,7 @@ class UnitTypeFieldsBloc extends Bloc<UnitTypeFieldsEvent, UnitTypeFieldsState> 
         priority: event.fieldData['priority'],
       ),
     );
-    
+
     result.fold(
       (failure) {
         emit(UnitTypeFieldsError(message: failure.message));
@@ -173,9 +187,9 @@ class UnitTypeFieldsBloc extends Bloc<UnitTypeFieldsEvent, UnitTypeFieldsState> 
     Emitter<UnitTypeFieldsState> emit,
   ) async {
     final currentState = state;
-    
+
     final result = await deleteField(event.fieldId);
-    
+
     result.fold(
       (failure) {
         emit(UnitTypeFieldsError(message: failure.message));

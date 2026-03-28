@@ -11,7 +11,6 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/widgets/error_widget.dart';
@@ -19,17 +18,14 @@ import '../../../../core/utils/formatters.dart';
 import '../bloc/payment_details/payment_details_bloc.dart';
 import '../bloc/payment_details/payment_details_event.dart';
 import '../bloc/payment_details/payment_details_state.dart';
-import '../widgets/refund_dialog.dart';
-import '../widgets/void_payment_dialog.dart';
 
 class PaymentDetailsPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `paymentId`.
   final String paymentId;
-
   const PaymentDetailsPage({
     super.key,
     required this.paymentId,
   });
-
   @override
   State<PaymentDetailsPage> createState() => _PaymentDetailsPageState();
 }
@@ -39,7 +35,6 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
   late AnimationController _animationController;
   late ScrollController _scrollController;
   double _scrollOffset = 0;
-
   @override
   void initState() {
     super.initState();
@@ -53,7 +48,6 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
           _scrollOffset = _scrollController.offset;
         });
       });
-
     _loadPaymentDetails();
     _animationController.forward();
   }
@@ -73,12 +67,12 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
 
   @override
   Widget build(BuildContext context) {
-    // Wrap with WillPopScope for Android back button handling
-    // Note: Use PopScope if Flutter version >= 3.16, WillPopScope for older versions
-    return WillPopScope(
-      onWillPop: () async {
-        _handleBackNavigation(context);
-        return false; // Prevent default pop
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          _handleBackNavigation(context);
+        }
       },
       child: Scaffold(
         backgroundColor: AppTheme.darkBackground,
@@ -189,8 +183,8 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      _getStatusColor(payment.status).withOpacity(0.3),
-                      AppTheme.darkBackground.withOpacity(0.7),
+                      _getStatusColor(payment.status).withValues(alpha: 0.3),
+                      AppTheme.darkBackground.withValues(alpha: 0.7),
                       AppTheme.darkBackground,
                     ],
                     stops: const [0.0, 0.5, 1.0],
@@ -232,7 +226,8 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                                   color: AppTheme.textWhite,
                                   shadows: [
                                     Shadow(
-                                      color: Colors.black.withOpacity(0.3),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.3),
                                       blurRadius: 10,
                                     ),
                                   ],
@@ -264,10 +259,10 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
     return Container(
       margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.8),
+        color: AppTheme.darkCard.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
         ),
       ),
       child: Material(
@@ -351,13 +346,13 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.08),
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.08),
                     blurRadius: 25,
                     offset: const Offset(0, 12),
                     spreadRadius: 2,
                   ),
                   BoxShadow(
-                    color: AppTheme.shadowDark.withOpacity(0.15),
+                    color: AppTheme.shadowDark.withValues(alpha: 0.15),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -373,14 +368,14 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppTheme.darkCard.withOpacity(0.7),
-                          AppTheme.darkCard.withOpacity(0.5),
-                          AppTheme.primaryBlue.withOpacity(0.02),
+                          AppTheme.darkCard.withValues(alpha: 0.7),
+                          AppTheme.darkCard.withValues(alpha: 0.5),
+                          AppTheme.primaryBlue.withValues(alpha: 0.02),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: AppTheme.primaryBlue.withOpacity(0.15),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.15),
                         width: 1.5,
                       ),
                     ),
@@ -394,13 +389,14 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                               colors: [
-                                AppTheme.primaryBlue.withOpacity(0.1),
+                                AppTheme.primaryBlue.withValues(alpha: 0.1),
                                 Colors.transparent,
                               ],
                             ),
                             border: Border(
                               bottom: BorderSide(
-                                color: AppTheme.primaryBlue.withOpacity(0.1),
+                                color:
+                                    AppTheme.primaryBlue.withValues(alpha: 0.1),
                                 width: 1,
                               ),
                             ),
@@ -413,14 +409,15 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                                   gradient: LinearGradient(
                                     colors: [
                                       AppTheme.primaryBlue,
-                                      AppTheme.primaryBlue.withOpacity(0.7),
+                                      AppTheme.primaryBlue
+                                          .withValues(alpha: 0.7),
                                     ],
                                   ),
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
-                                      color:
-                                          AppTheme.primaryBlue.withOpacity(0.3),
+                                      color: AppTheme.primaryBlue
+                                          .withValues(alpha: 0.3),
                                       blurRadius: 8,
                                       offset: const Offset(0, 4),
                                     ),
@@ -473,13 +470,13 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: [
-            AppTheme.primaryBlue.withOpacity(0.03),
+            AppTheme.primaryBlue.withValues(alpha: 0.03),
             Colors.transparent,
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.1),
+          color: AppTheme.darkBorder.withValues(alpha: 0.1),
         ),
       ),
       child: Row(
@@ -489,12 +486,12 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
-              color: AppTheme.primaryBlue.withOpacity(0.7),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.7),
               size: 16,
             ),
           ),
@@ -504,7 +501,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
             child: Text(
               label,
               style: AppTextStyles.caption.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.8),
+                color: AppTheme.textMuted.withValues(alpha: 0.8),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -535,10 +532,10 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1.5,
         ),
       ),
@@ -620,14 +617,14 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                 boxShadow: [
                   BoxShadow(
                     color: isSuccessful
-                        ? AppTheme.success.withOpacity(0.15)
-                        : AppTheme.warning.withOpacity(0.15),
+                        ? AppTheme.success.withValues(alpha: 0.15)
+                        : AppTheme.warning.withValues(alpha: 0.15),
                     blurRadius: 30,
                     offset: const Offset(0, 15),
                     spreadRadius: 5,
                   ),
                   BoxShadow(
-                    color: AppTheme.shadowDark.withOpacity(0.2),
+                    color: AppTheme.shadowDark.withValues(alpha: 0.2),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -643,18 +640,18 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppTheme.darkCard.withOpacity(0.9),
-                          AppTheme.darkCard.withOpacity(0.7),
+                          AppTheme.darkCard.withValues(alpha: 0.9),
+                          AppTheme.darkCard.withValues(alpha: 0.7),
                           isSuccessful
-                              ? AppTheme.success.withOpacity(0.05)
-                              : AppTheme.warning.withOpacity(0.05),
+                              ? AppTheme.success.withValues(alpha: 0.05)
+                              : AppTheme.warning.withValues(alpha: 0.05),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(28),
                       border: Border.all(
                         color: isSuccessful
-                            ? AppTheme.success.withOpacity(0.4)
-                            : AppTheme.warning.withOpacity(0.4),
+                            ? AppTheme.success.withValues(alpha: 0.4)
+                            : AppTheme.warning.withValues(alpha: 0.4),
                         width: 2,
                       ),
                     ),
@@ -682,17 +679,17 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
         gradient: LinearGradient(
           colors: isSuccessful
               ? [
-                  AppTheme.success.withOpacity(0.15),
-                  AppTheme.success.withOpacity(0.05),
+                  AppTheme.success.withValues(alpha: 0.15),
+                  AppTheme.success.withValues(alpha: 0.05),
                 ]
               : [
-                  AppTheme.warning.withOpacity(0.15),
-                  AppTheme.warning.withOpacity(0.05),
+                  AppTheme.warning.withValues(alpha: 0.15),
+                  AppTheme.warning.withValues(alpha: 0.05),
                 ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
+            color: AppTheme.darkBorder.withValues(alpha: 0.1),
           ),
         ),
       ),
@@ -703,8 +700,14 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: isSuccessful
-                    ? [AppTheme.success, AppTheme.success.withOpacity(0.7)]
-                    : [AppTheme.warning, AppTheme.warning.withOpacity(0.7)],
+                    ? [
+                        AppTheme.success,
+                        AppTheme.success.withValues(alpha: 0.7)
+                      ]
+                    : [
+                        AppTheme.warning,
+                        AppTheme.warning.withValues(alpha: 0.7)
+                      ],
               ),
               borderRadius: BorderRadius.circular(12),
             ),
@@ -730,8 +733,8 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: isSuccessful
-                      ? AppTheme.success.withOpacity(0.1)
-                      : AppTheme.warning.withOpacity(0.1),
+                      ? AppTheme.success.withValues(alpha: 0.1)
+                      : AppTheme.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -765,10 +768,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
           const SizedBox(height: 12),
           _buildSummaryRow(
             label: 'طريقة الدفع',
-            value: payment.method.displayNameAr ??
-                payment.method.displayNameEn ??
-                payment.method.name ??
-                '',
+            value: payment.method.displayNameAr,
             icon: CupertinoIcons.creditcard_fill,
             color: AppTheme.primaryBlue,
           ),
@@ -794,7 +794,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
   }) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: color.withOpacity(0.7)),
+        Icon(icon, size: 18, color: color.withValues(alpha: 0.7)),
         const SizedBox(width: 8),
         Text(
           label,
@@ -821,9 +821,9 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.3),
+        color: AppTheme.darkBackground.withValues(alpha: 0.3),
         border: Border(
-          top: BorderSide(color: AppTheme.darkBorder.withOpacity(0.1)),
+          top: BorderSide(color: AppTheme.darkBorder.withValues(alpha: 0.1)),
         ),
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(24),
@@ -953,9 +953,9 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.darkBackground.withOpacity(0.3),
+              color: AppTheme.darkBackground.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: color.withOpacity(0.2)),
+              border: Border.all(color: color.withValues(alpha: 0.2)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -977,7 +977,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.15),
+                        color: color.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -1018,7 +1018,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.shadowDark.withOpacity(0.1),
+            color: AppTheme.shadowDark.withValues(alpha: 0.1),
             blurRadius: 30,
             offset: const Offset(0, 10),
           ),
@@ -1034,13 +1034,13 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.6),
-                  AppTheme.darkCard.withOpacity(0.4),
+                  AppTheme.darkCard.withValues(alpha: 0.6),
+                  AppTheme.darkCard.withValues(alpha: 0.4),
                 ],
               ),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.primaryBlue.withOpacity(0.2),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                 width: 1.5,
               ),
             ),
@@ -1053,13 +1053,13 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.primaryBlue.withOpacity(0.15),
-                        AppTheme.primaryBlue.withOpacity(0.05),
+                        AppTheme.primaryBlue.withValues(alpha: 0.15),
+                        AppTheme.primaryBlue.withValues(alpha: 0.05),
                       ],
                     ),
                     border: Border(
                       bottom: BorderSide(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                       ),
                     ),
                   ),
@@ -1071,13 +1071,14 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                           gradient: LinearGradient(
                             colors: [
                               AppTheme.primaryBlue,
-                              AppTheme.primaryBlue.withOpacity(0.7),
+                              AppTheme.primaryBlue.withValues(alpha: 0.7),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.primaryBlue.withOpacity(0.3),
+                              color:
+                                  AppTheme.primaryBlue.withValues(alpha: 0.3),
                               blurRadius: 10,
                               spreadRadius: 1,
                             ),
@@ -1102,10 +1103,10 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryBlue.withOpacity(0.1),
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppTheme.primaryBlue.withOpacity(0.3),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -1184,8 +1185,8 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        AppTheme.primaryBlue.withOpacity(0.3),
-                        AppTheme.primaryBlue.withOpacity(0.5),
+                        AppTheme.primaryBlue.withValues(alpha: 0.3),
+                        AppTheme.primaryBlue.withValues(alpha: 0.5),
                       ],
                     ),
                   ),
@@ -1206,18 +1207,18 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                         gradient: LinearGradient(
                           colors: [
                             color,
-                            color.withOpacity(0.7),
+                            color.withValues(alpha: 0.7),
                           ],
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: color.withOpacity(0.4),
+                            color: color.withValues(alpha: 0.4),
                             blurRadius: 15,
                             spreadRadius: 2,
                           ),
                         ],
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           width: 2,
                         ),
                       ),
@@ -1242,8 +1243,8 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        AppTheme.primaryBlue.withOpacity(0.5),
-                        AppTheme.primaryBlue.withOpacity(0.3),
+                        AppTheme.primaryBlue.withValues(alpha: 0.5),
+                        AppTheme.primaryBlue.withValues(alpha: 0.3),
                       ],
                     ),
                   ),
@@ -1272,18 +1273,18 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          color.withOpacity(0.1),
-                          color.withOpacity(0.05),
+                          color.withValues(alpha: 0.1),
+                          color.withValues(alpha: 0.05),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: color.withOpacity(0.3),
+                        color: color.withValues(alpha: 0.3),
                         width: 1,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: color.withOpacity(0.1),
+                          color: color.withValues(alpha: 0.1),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -1309,7 +1310,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: color.withOpacity(0.15),
+                                color: color.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -1334,13 +1335,15 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                                 Icon(
                                   CupertinoIcons.clock,
                                   size: 14,
-                                  color: AppTheme.textMuted.withOpacity(0.7),
+                                  color:
+                                      AppTheme.textMuted.withValues(alpha: 0.7),
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
                                   Formatters.formatDateTime(activity.timestamp),
                                   style: AppTextStyles.caption.copyWith(
-                                    color: AppTheme.textMuted.withOpacity(0.7),
+                                    color: AppTheme.textMuted
+                                        .withValues(alpha: 0.7),
                                   ),
                                 ),
                               ],
@@ -1352,14 +1355,16 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage>
                                   Icon(
                                     CupertinoIcons.person_circle,
                                     size: 14,
-                                    color: AppTheme.textMuted.withOpacity(0.7),
+                                    color: AppTheme.textMuted
+                                        .withValues(alpha: 0.7),
                                   ),
                                   const SizedBox(width: 4),
                                   Flexible(
                                     child: Text(
                                       activity.userName!,
                                       style: AppTextStyles.caption.copyWith(
-                                        color: AppTheme.textMuted.withOpacity(0.7),
+                                        color: AppTheme.textMuted
+                                            .withValues(alpha: 0.7),
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     ),

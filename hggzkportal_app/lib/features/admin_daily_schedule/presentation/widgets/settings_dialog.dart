@@ -5,7 +5,9 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class SettingsDialog extends StatefulWidget {
+  /// العربية: يخزن القيمة `currentSettings`.
   final Map<String, dynamic> currentSettings;
+
   final Function(Map<String, dynamic> settings) onSaveSettings;
 
   const SettingsDialog({
@@ -35,7 +37,9 @@ class SettingsDialog extends StatefulWidget {
 class _SettingsDialogState extends State<SettingsDialog>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+
   late Animation<double> _scaleAnimation;
+
   late Animation<double> _fadeAnimation;
 
   late Map<String, dynamic> _settings;
@@ -103,18 +107,18 @@ class _SettingsDialogState extends State<SettingsDialog>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.95),
-                  AppTheme.darkCard.withOpacity(0.85),
+                  AppTheme.darkCard.withValues(alpha: 0.95),
+                  AppTheme.darkCard.withValues(alpha: 0.85),
                 ],
               ),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.primaryPurple.withOpacity(0.3),
+                color: AppTheme.primaryPurple.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryPurple.withOpacity(0.2),
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.2),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -283,22 +287,22 @@ class _SettingsDialogState extends State<SettingsDialog>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.6),
-            AppTheme.darkSurface.withOpacity(0.4),
+            AppTheme.darkSurface.withValues(alpha: 0.6),
+            AppTheme.darkSurface.withValues(alpha: 0.4),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: value
-              ? AppTheme.primaryPurple.withOpacity(0.3)
-              : AppTheme.darkSurface.withOpacity(0.3),
+              ? AppTheme.primaryPurple.withValues(alpha: 0.3)
+              : AppTheme.darkSurface.withValues(alpha: 0.3),
         ),
       ),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.primaryPurple.withOpacity(0.2),
+            color: AppTheme.primaryPurple.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: AppTheme.primaryPurple, size: 20),
@@ -339,13 +343,13 @@ class _SettingsDialogState extends State<SettingsDialog>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.6),
-            AppTheme.darkSurface.withOpacity(0.4),
+            AppTheme.darkSurface.withValues(alpha: 0.6),
+            AppTheme.darkSurface.withValues(alpha: 0.4),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryPurple.withOpacity(0.3),
+          color: AppTheme.primaryPurple.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -400,7 +404,7 @@ class _SettingsDialogState extends State<SettingsDialog>
                     border: Border.all(
                       color: isSelected
                           ? AppTheme.primaryPurple
-                          : AppTheme.textMuted.withOpacity(0.3),
+                          : AppTheme.textMuted.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Text(
@@ -436,13 +440,13 @@ class _SettingsDialogState extends State<SettingsDialog>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.6),
-            AppTheme.darkSurface.withOpacity(0.4),
+            AppTheme.darkSurface.withValues(alpha: 0.6),
+            AppTheme.darkSurface.withValues(alpha: 0.4),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.primaryPurple.withOpacity(0.3),
+          color: AppTheme.primaryPurple.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -484,12 +488,12 @@ class _SettingsDialogState extends State<SettingsDialog>
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppTheme.primaryPurple.withOpacity(0.2)
+                        ? AppTheme.primaryPurple.withValues(alpha: 0.2)
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: isSelected
-                          ? AppTheme.primaryPurple.withOpacity(0.5)
+                          ? AppTheme.primaryPurple.withValues(alpha: 0.5)
                           : Colors.transparent,
                     ),
                   ),

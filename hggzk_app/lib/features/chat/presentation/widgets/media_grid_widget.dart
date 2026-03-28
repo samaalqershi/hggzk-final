@@ -5,16 +5,29 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/message.dart';
 
+/// Grid of visual chat attachments that lets the user open images or videos
+/// from the conversation media gallery.
+/// شبكة لمرفقات الدردشة المرئية تتيح فتح الصور أو الفيديوهات من معرض
+/// وسائط المحادثة.
 class MediaGridWidget extends StatelessWidget {
+  /// Messages that contain image or video attachments to display.
+  /// الرسائل التي تحتوي على مرفقات صور أو فيديو لعرضها.
   final List<Message> messages;
+
+  /// Called when the user taps one of the media tiles.
+  /// يُستدعى عند النقر على إحدى بطاقات الوسائط.
   final Function(Message) onMediaTap;
 
+  /// Builds the compact attachment gallery for a chat thread.
+  /// ينشئ معرض المرفقات المضغوط لسلسلة المحادثة.
   const MediaGridWidget({
     super.key,
     required this.messages,
     required this.onMediaTap,
   });
 
+  /// Renders the 3-column gallery of conversation media.
+  /// يرسم معرض وسائط المحادثة المكوّن من ثلاثة أعمدة.
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
@@ -38,27 +51,53 @@ class MediaGridWidget extends StatelessWidget {
   }
 }
 
+/// Single tile inside the media gallery.
+/// بطاقة منفصلة داخل معرض الوسائط.
 class _MediaItem extends StatefulWidget {
+  /// Message whose attachment is represented by this tile.
+  /// الرسالة التي تمثل مرفقها هذه البطاقة.
   final Message message;
+
+  /// Tile index used to stagger the entrance animation.
+  /// فهرس البطاقة المستخدم لتدرّج حركة الظهور.
   final int index;
+
+  /// Called when the user opens the attachment preview.
+  /// يُستدعى عند فتح معاينة المرفق.
   final VoidCallback onTap;
 
+  /// Builds one animated media thumbnail.
+  /// ينشئ صورة مصغرة متحركة واحدة للوسائط.
   const _MediaItem({
     required this.message,
     required this.index,
     required this.onTap,
   });
 
+  /// Creates the animated tile state.
+  /// ينشئ حالة البطاقة المتحركة.
   @override
   State<_MediaItem> createState() => _MediaItemState();
 }
 
-class _MediaItemState extends State<_MediaItem> 
+/// Animates the tile entrance and press feedback for a media preview.
+/// يدير حركة الظهور وتغذية الضغط لمعاينة الوسائط.
+class _MediaItemState extends State<_MediaItem>
     with SingleTickerProviderStateMixin {
+  /// Animation controller for the tile entrance.
+  /// متحكم الحركة الخاص بظهور البطاقة.
   late AnimationController _controller;
+
+  /// Scale curve used while the tile appears.
+  /// منحنى التكبير المستخدم أثناء ظهور البطاقة.
   late Animation<double> _scaleAnimation;
+
+  /// Tracks whether the tile is currently pressed.
+  /// يتتبع ما إذا كانت البطاقة مضغوطة الآن.
   bool _isPressed = false;
 
+  /// Prepares the entry animation for the tile.
+  /// يهيئ حركة الظهور للبطاقة.
   @override
   void initState() {
     super.initState();
@@ -66,7 +105,7 @@ class _MediaItemState extends State<_MediaItem>
       duration: Duration(milliseconds: 300 + (widget.index * 50)),
       vsync: this,
     );
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -74,26 +113,30 @@ class _MediaItemState extends State<_MediaItem>
       parent: _controller,
       curve: Curves.easeOutBack,
     ));
-    
+
     _controller.forward();
   }
 
+  /// Releases the tile animation controller.
+  /// يحرر متحكم حركة البطاقة.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// Resolves the attachment type and renders the thumbnail or video badge.
+  /// يحدد نوع المرفق ثم يرسم الصورة المصغرة أو علامة الفيديو.
   @override
   Widget build(BuildContext context) {
     String? imageUrl;
     bool isVideo = false;
 
-    if (widget.message.messageType == 'image' && 
+    if (widget.message.messageType == 'image' &&
         widget.message.attachments.isNotEmpty) {
       imageUrl = widget.message.attachments.first.fileUrl;
-    } else if (widget.message.messageType == 'video' && 
-               widget.message.attachments.isNotEmpty) {
+    } else if (widget.message.messageType == 'video' &&
+        widget.message.attachments.isNotEmpty) {
       imageUrl = widget.message.attachments.first.thumbnailUrl;
       isVideo = true;
     }
@@ -133,7 +176,7 @@ class _MediaItemState extends State<_MediaItem>
                     imageUrl: imageUrl,
                     fit: BoxFit.cover,
                   ),
-                  
+
                   // Gradient overlay for video
                   if (isVideo)
                     Container(
@@ -148,7 +191,7 @@ class _MediaItemState extends State<_MediaItem>
                         ),
                       ),
                     ),
-                  
+
                   // Play button for video
                   if (isVideo)
                     Center(
@@ -181,7 +224,7 @@ class _MediaItemState extends State<_MediaItem>
                         ),
                       ),
                     ),
-                  
+
                   // Shimmer effect on load
                   if (_controller.isAnimating)
                     Container(

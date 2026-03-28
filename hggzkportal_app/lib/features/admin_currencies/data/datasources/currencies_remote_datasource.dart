@@ -6,9 +6,13 @@ import '../models/currency_model.dart';
 
 abstract class CurrenciesRemoteDataSource {
   Future<List<CurrencyModel>> getCurrencies();
+
   Future<bool> saveCurrencies(List<CurrencyModel> currencies);
+
   Future<bool> deleteCurrency(String code);
-  Future<Map<String, dynamic>> getCurrencyStats({DateTime? startDate, DateTime? endDate});
+
+  Future<Map<String, dynamic>> getCurrencyStats(
+      {DateTime? startDate, DateTime? endDate});
 }
 
 class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
@@ -73,7 +77,8 @@ class CurrenciesRemoteDataSourceImpl implements CurrenciesRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> getCurrencyStats({DateTime? startDate, DateTime? endDate}) async {
+  Future<Map<String, dynamic>> getCurrencyStats(
+      {DateTime? startDate, DateTime? endDate}) async {
     try {
       final params = <String, dynamic>{};
       if (startDate != null) params['startDate'] = startDate.toIso8601String();

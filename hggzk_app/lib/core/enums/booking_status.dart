@@ -1,3 +1,5 @@
+/// Groups the allowed values for `BookingStatus` so the rest of the app stays type-safe.
+/// العربية: يعرّف القيم المتاحة للنوع `BookingStatus`.
 enum BookingStatus {
   confirmed,
   pending,
@@ -6,7 +8,10 @@ enum BookingStatus {
   checkedIn,
 }
 
+/// العربية: يعرّف الامتداد `BookingStatusExtension`.
 extension BookingStatusExtension on BookingStatus {
+  /// Exposes the `displayName` value for callers that need it.
+  /// العربية: يعيد القيمة `displayName`.
   String get displayName {
     switch (this) {
       case BookingStatus.confirmed:
@@ -22,6 +27,8 @@ extension BookingStatusExtension on BookingStatus {
     }
   }
 
+  /// Exposes the `displayNameEn` value for callers that need it.
+  /// العربية: يعيد القيمة `displayNameEn`.
   String get displayNameEn {
     switch (this) {
       case BookingStatus.confirmed:

@@ -8,18 +8,39 @@ import 'expandable_image_viewer.dart';
 import 'package:hggzkportal/injection_container.dart';
 import '../../data/datasources/chat_local_datasource.dart';
 
+/// يعرّف الكلاس `WhatsAppStyleImageGrid`.
+/// Describes the `WhatsAppStyleImageGrid` class.
 class WhatsAppStyleImageGrid extends StatelessWidget {
+  /// Holds the `images` value.
+  /// العربية: يخزن القيمة `images`.
   final List<Attachment> images;
+
+  /// يخزن العضو `isMe`.
+  /// Holds the `isMe` member.
   final bool isMe;
+
+  /// يخزن العضو `onTap`.
+  /// Holds the `onTap` member.
   final VoidCallback? onTap;
   // Optional callbacks to propagate actions to parent (message-level)
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final Function(String)? onReaction;
+
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final void Function(Attachment)? onReply;
   // Optional: per-attachment reaction state to reflect overlay in viewer
+  /// يخزن العضو `reactionsByAttachment`.
+  /// Holds the `reactionsByAttachment` member.
   final Map<String, String>? reactionsByAttachment;
   // Optional: callback when a reaction is set for a specific attachment
+  /// ينفذ العملية `Function`.
+  /// Runs the `Function` operation.
   final void Function(Attachment, String)? onReactForAttachment;
 
+  /// ينشئ مثيلاً من `WhatsAppStyleImageGrid`.
+  /// Builds an instance of `WhatsAppStyleImageGrid`.
   const WhatsAppStyleImageGrid({
     super.key,
     required this.images,
@@ -31,6 +52,8 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
     this.onReactForAttachment,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     if (images.isEmpty) return const SizedBox.shrink();
@@ -50,6 +73,8 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildGrid`.
+  /// Runs the `_buildGrid` operation.
   Widget _buildGrid(int count) {
     switch (count) {
       case 1:
@@ -65,6 +90,8 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
     }
   }
 
+  /// ينفذ العملية `_buildSingleImage`.
+  /// Runs the `_buildSingleImage` operation.
   Widget _buildSingleImage(Attachment image) {
     // Keep a visually pleasant default ratio and ensure tap opens viewer.
     return AspectRatio(
@@ -91,6 +118,8 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildTwoImages`.
+  /// Runs the `_buildTwoImages` operation.
   Widget _buildTwoImages() {
     return AspectRatio(
       aspectRatio: 4 / 3,
@@ -108,6 +137,8 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildThreeImages`.
+  /// Runs the `_buildThreeImages` operation.
   Widget _buildThreeImages() {
     return AspectRatio(
       aspectRatio: 4 / 3,
@@ -136,6 +167,8 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildFourImages`.
+  /// Runs the `_buildFourImages` operation.
   Widget _buildFourImages() {
     return AspectRatio(
       aspectRatio: 4 / 3,
@@ -173,6 +206,8 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildMoreImages`.
+  /// Runs the `_buildMoreImages` operation.
   Widget _buildMoreImages() {
     final displayImages = images.take(4).toList();
     final remainingCount = images.length - 4;
@@ -239,6 +274,8 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildImageTile`.
+  /// Runs the `_buildImageTile` operation.
   Widget _buildImageTile(Attachment image, int index) {
     return Builder(
       builder: (context) => GestureDetector(
@@ -261,6 +298,8 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildImageSurface`.
+  /// Runs the `_buildImageSurface` operation.
   Widget _buildImageSurface(Attachment image) {
     // 1) Prefer local file (while uploading or recently cached in entity)
     if (image.localFile != null && image.localFile!.existsSync()) {
@@ -282,7 +321,8 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
 
         // 3) Server-provided thumbnailUrl
         if (image.thumbnailUrl != null && image.thumbnailUrl!.isNotEmpty) {
-          return CachedImageWidget(imageUrl: image.thumbnailUrl!, fit: BoxFit.cover);
+          return CachedImageWidget(
+              imageUrl: image.thumbnailUrl!, fit: BoxFit.cover);
         }
 
         // 4) Fallback to full image URL
@@ -291,6 +331,8 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_loadLocalThumb`.
+  /// Runs the `_loadLocalThumb` operation.
   Future<String?> _loadLocalThumb(String attachmentId) async {
     try {
       final ds = sl<ChatLocalDataSource>();
@@ -300,6 +342,8 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
     }
   }
 
+  /// ينفذ العملية `_hasOverlayFor`.
+  /// Runs the `_hasOverlayFor` operation.
   bool _hasOverlayFor(Attachment image) {
     final map = reactionsByAttachment;
     if (map == null) return false;
@@ -307,6 +351,8 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
     return r != null && r.isNotEmpty;
   }
 
+  /// ينفذ العملية `_buildReactionOverlay`.
+  /// Runs the `_buildReactionOverlay` operation.
   Widget _buildReactionOverlay(Attachment image) {
     final type = reactionsByAttachment?[image.id] ?? '';
     final emoji = _emojiFor(type);
@@ -316,15 +362,18 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.45),
+          color: Colors.black.withValues(alpha: 0.45),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.white.withOpacity(0.2), width: 0.5),
+          border: Border.all(
+              color: Colors.white.withValues(alpha: 0.2), width: 0.5),
         ),
         child: Text(emoji, style: const TextStyle(fontSize: 12)),
       ),
     );
   }
 
+  /// ينفذ العملية `_emojiFor`.
+  /// Runs the `_emojiFor` operation.
   String _emojiFor(String type) {
     switch (type) {
       case 'like':
@@ -344,6 +393,8 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
     }
   }
 
+  /// ينفذ العملية `_openImageViewer`.
+  /// Runs the `_openImageViewer` operation.
   void _openImageViewer(BuildContext context, int initialIndex) {
     Navigator.push(
       context,

@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'property.dart';
 
 class PropertySearchResult extends Equatable {
+  /// العربية: يخزن القيمة `properties`.
   final List<Property> properties;
   final int totalCount;
   final int pageNumber;
@@ -13,7 +14,6 @@ class PropertySearchResult extends Equatable {
   final bool hasNextPage;
   final SearchStatistics? statistics;
   final PriceRange? priceRange;
-  
   const PropertySearchResult({
     required this.properties,
     required this.totalCount,
@@ -25,54 +25,51 @@ class PropertySearchResult extends Equatable {
     this.statistics,
     this.priceRange,
   });
-  
   @override
   List<Object?> get props => [
-    properties,
-    totalCount,
-    pageNumber,
-    pageSize,
-    totalPages,
-    hasPreviousPage,
-    hasNextPage,
-    statistics,
-    priceRange,
-  ];
+        properties,
+        totalCount,
+        pageNumber,
+        pageSize,
+        totalPages,
+        hasPreviousPage,
+        hasNextPage,
+        statistics,
+        priceRange,
+      ];
 }
 
 class SearchStatistics extends Equatable {
+  /// العربية: يخزن القيمة `searchDurationMs`.
   final int searchDurationMs;
   final int appliedFiltersCount;
   final int totalResultsBeforePaging;
   final List<String> suggestions;
-  
   const SearchStatistics({
     required this.searchDurationMs,
     required this.appliedFiltersCount,
     required this.totalResultsBeforePaging,
     required this.suggestions,
   });
-  
   @override
   List<Object> get props => [
-    searchDurationMs,
-    appliedFiltersCount,
-    totalResultsBeforePaging,
-    suggestions,
-  ];
+        searchDurationMs,
+        appliedFiltersCount,
+        totalResultsBeforePaging,
+        suggestions,
+      ];
 }
 
 class PriceRange extends Equatable {
+  /// العربية: يخزن القيمة `minPrice`.
   final double minPrice;
   final double maxPrice;
   final double averagePrice;
-  
   const PriceRange({
     required this.minPrice,
     required this.maxPrice,
     required this.averagePrice,
   });
-  
   @override
   List<Object> get props => [minPrice, maxPrice, averagePrice];
 }

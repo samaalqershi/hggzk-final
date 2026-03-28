@@ -5,17 +5,36 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// العربية: يمثل العنصر `DatePickerWidget`.
 class DatePickerWidget extends StatelessWidget {
+  /// العربية: يخزن القيمة `label`.
   final String label;
+
+  /// العربية: يخزن القيمة `selectedDate`.
   final DateTime? selectedDate;
+
+  /// العربية: يخزن القيمة `firstDate`.
   final DateTime firstDate;
+
+  /// العربية: يخزن القيمة `lastDate`.
   final DateTime lastDate;
+
+  /// العربية: يعالج `Function`.
   final Function(DateTime) onDateSelected;
+
+  /// العربية: يخزن القيمة `enabled`.
   final bool enabled;
+
+  /// العربية: يخزن القيمة `icon`.
   final IconData? icon;
+
+  /// العربية: يخزن القيمة `errorText`.
   final String? errorText;
+
+  /// العربية: يخزن القيمة `onTap`.
   final VoidCallback? onTap;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `DatePickerWidget`.
   const DatePickerWidget({
     super.key,
     required this.label,
@@ -29,10 +48,11 @@ class DatePickerWidget extends StatelessWidget {
     this.onTap,
   });
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd MMM yyyy', 'ar');
-    
+
     return InkWell(
       onTap: enabled ? (onTap ?? () => _selectDate(context)) : null,
       borderRadius: BorderRadius.circular(10),
@@ -46,7 +66,7 @@ class DatePickerWidget extends StatelessWidget {
                 height: 32,
                 decoration: BoxDecoration(
                   color: enabled
-                      ? (errorText != null 
+                      ? (errorText != null
                           ? AppTheme.error.withOpacity(0.08)
                           : AppTheme.primaryBlue.withOpacity(0.08))
                       : AppTheme.darkBorder.withOpacity(0.05),
@@ -55,7 +75,7 @@ class DatePickerWidget extends StatelessWidget {
                 child: Icon(
                   icon,
                   color: enabled
-                      ? (errorText != null 
+                      ? (errorText != null
                           ? AppTheme.error.withOpacity(0.8)
                           : AppTheme.primaryBlue.withOpacity(0.8))
                       : AppTheme.darkBorder.withOpacity(0.3),
@@ -72,7 +92,7 @@ class DatePickerWidget extends StatelessWidget {
                     label,
                     style: AppTextStyles.caption.copyWith(
                       color: enabled
-                          ? (errorText != null 
+                          ? (errorText != null
                               ? AppTheme.error.withOpacity(0.8)
                               : AppTheme.textMuted.withOpacity(0.7))
                           : AppTheme.darkBorder.withOpacity(0.3),
@@ -89,7 +109,9 @@ class DatePickerWidget extends StatelessWidget {
                               ? AppTheme.textWhite.withOpacity(0.9)
                               : AppTheme.textMuted.withOpacity(0.5))
                           : AppTheme.darkBorder.withOpacity(0.3),
-                      fontWeight: selectedDate != null ? FontWeight.w600 : FontWeight.normal,
+                      fontWeight: selectedDate != null
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
                   ),
                   if (errorText != null) ...[
@@ -106,7 +128,7 @@ class DatePickerWidget extends StatelessWidget {
             ),
             Icon(
               Icons.calendar_today_outlined,
-              color: enabled 
+              color: enabled
                   ? AppTheme.textMuted.withOpacity(0.5)
                   : AppTheme.darkBorder.withOpacity(0.3),
               size: 14,
@@ -117,16 +139,20 @@ class DatePickerWidget extends StatelessWidget {
     );
   }
 
+  /// العربية: يعالج `dateOnly`.
   DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  /// العربية: يعالج `clampDate`.
   DateTime _clampDate(DateTime d, DateTime min, DateTime max) {
     if (d.isBefore(min)) return min;
     if (d.isAfter(max)) return max;
     return d;
   }
 
+  /// العربية: يختار date.
   Future<void> _selectDate(BuildContext context) async {
     HapticFeedback.selectionClick();
-    
+
     final fd = _dateOnly(firstDate);
     final ld = _dateOnly(lastDate);
     final init = _clampDate(_dateOnly(selectedDate ?? fd), fd, ld);
@@ -222,9 +248,12 @@ class DatePickerWidget extends StatelessWidget {
               }),
               rangePickerBackgroundColor: AppTheme.darkCard,
               rangePickerSurfaceTintColor: Colors.transparent,
-              rangePickerHeaderBackgroundColor: AppTheme.primaryBlue.withOpacity(0.1),
-              rangePickerHeaderForegroundColor: AppTheme.primaryBlue.withOpacity(0.9),
-              rangeSelectionBackgroundColor: AppTheme.primaryBlue.withOpacity(0.1),
+              rangePickerHeaderBackgroundColor:
+                  AppTheme.primaryBlue.withOpacity(0.1),
+              rangePickerHeaderForegroundColor:
+                  AppTheme.primaryBlue.withOpacity(0.9),
+              rangeSelectionBackgroundColor:
+                  AppTheme.primaryBlue.withOpacity(0.1),
               dividerColor: AppTheme.darkBorder.withOpacity(0.1),
             ),
           ),
@@ -232,7 +261,7 @@ class DatePickerWidget extends StatelessWidget {
         );
       },
     );
-    
+
     if (picked != null && picked != selectedDate) {
       HapticFeedback.lightImpact();
       onDateSelected(picked);

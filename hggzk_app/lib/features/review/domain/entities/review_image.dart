@@ -1,58 +1,42 @@
 import 'package:equatable/equatable.dart';
 
-/// <summary>
-/// كيان صورة المراجعة
-/// Review image entity
-/// </summary>
+/// Represents one image attached to a review submission.
+/// يمثل صورة واحدة مرفقة بمراجعة.
 class ReviewImage extends Equatable {
-  /// <summary>
-  /// معرف الصورة
-  /// Image ID
-  /// </summary>
+  /// Unique identifier of the review image.
+  /// المعرّف الفريد لصورة المراجعة.
   final String id;
 
-  /// <summary>
-  /// رابط الصورة
-  /// Image URL
-  /// </summary>
+  /// Public image URL used by the UI.
+  /// رابط الصورة العام الذي تستخدمه الواجهة.
   final String url;
 
-  /// <summary>
-  /// رابط الصورة المصغرة
-  /// Thumbnail URL
-  /// </summary>
+  /// Optional thumbnail URL for compact layouts.
+  /// رابط مصغّر اختياري للتخطيطات المضغوطة.
   final String thumbnailUrl;
 
-  /// <summary>
-  /// التسمية التوضيحية
-  /// Caption
-  /// </summary>
+  /// Optional caption displayed with the image.
+  /// وصف اختياري يظهر مع الصورة.
   final String? caption;
 
-  /// <summary>
-  /// ترتيب العرض
-  /// Display order
-  /// </summary>
+  /// Order used when rendering the review gallery.
+  /// الترتيب المستخدم عند عرض معرض المراجعة.
   final int displayOrder;
 
-  /// <summary>
-  /// حجم الصورة بالبايت
-  /// Image size in bytes
-  /// </summary>
+  /// Optional file size in bytes.
+  /// حجم الملف الاختياري بالبايت.
   final int? sizeBytes;
 
-  /// <summary>
-  /// نوع الصورة
-  /// Image type
-  /// </summary>
+  /// Optional MIME or backend-provided type label.
+  /// نوع اختياري بصيغة MIME أو وسم يعيده الخادم.
   final String? type;
 
-  /// <summary>
-  /// تاريخ الرفع
-  /// Upload date
-  /// </summary>
+  /// Optional upload timestamp returned by the backend.
+  /// وقت رفع اختياري يعيده الخادم.
   final DateTime? uploadedAt;
 
+  /// Builds an immutable review-image record.
+  /// ينشئ سجل صورة مراجعة ثابتًا.
   const ReviewImage({
     required this.id,
     required this.url,
@@ -64,6 +48,8 @@ class ReviewImage extends Equatable {
     this.uploadedAt,
   });
 
+  /// Keeps equality aligned with the image payload.
+  /// يحافظ على ثبات المقارنة مع حمولة الصورة.
   @override
   List<Object?> get props => [
         id,

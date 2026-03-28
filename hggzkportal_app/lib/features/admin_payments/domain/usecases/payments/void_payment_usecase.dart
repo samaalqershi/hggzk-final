@@ -5,10 +5,9 @@ import '../../../../../../core/usecases/usecase.dart';
 import '../../repositories/payments_repository.dart';
 
 class VoidPaymentUseCase implements UseCase<bool, VoidPaymentParams> {
+  /// العربية: يخزن القيمة `repository`.
   final PaymentsRepository repository;
-
   VoidPaymentUseCase(this.repository);
-
   @override
   Future<Either<Failure, bool>> call(VoidPaymentParams params) async {
     return await repository.voidPayment(paymentId: params.paymentId);
@@ -16,10 +15,9 @@ class VoidPaymentUseCase implements UseCase<bool, VoidPaymentParams> {
 }
 
 class VoidPaymentParams extends Equatable {
+  /// العربية: يخزن القيمة `paymentId`.
   final String paymentId;
-
   const VoidPaymentParams({required this.paymentId});
-
   @override
   List<Object> get props => [paymentId];
 }

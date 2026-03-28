@@ -4,10 +4,15 @@ import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 
 class FuturisticStatsCard extends StatelessWidget {
+  /// العربية: يخزن القيمة `title`.
   final String title;
+
   final String value;
+
   final IconData icon;
+
   final Color color;
+
   final Animation<double> glowAnimation;
 
   const FuturisticStatsCard({
@@ -29,18 +34,18 @@ class FuturisticStatsCard extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                color.withOpacity(0.1 * glowAnimation.value),
-                color.withOpacity(0.05 * glowAnimation.value),
+                color.withValues(alpha: 0.1 * glowAnimation.value),
+                color.withValues(alpha: 0.05 * glowAnimation.value),
               ],
             ),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: color.withOpacity(0.3 * glowAnimation.value),
+              color: color.withValues(alpha: 0.3 * glowAnimation.value),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: color.withOpacity(0.2 * glowAnimation.value),
+                color: color.withValues(alpha: 0.2 * glowAnimation.value),
                 blurRadius: 20,
                 offset: const Offset(0, 4),
               ),
@@ -61,13 +66,14 @@ class FuturisticStatsCard extends StatelessWidget {
                         gradient: LinearGradient(
                           colors: [
                             color,
-                            color.withOpacity(0.7),
+                            color.withValues(alpha: 0.7),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: color.withOpacity(0.3 * glowAnimation.value),
+                            color: color.withValues(
+                                alpha: 0.3 * glowAnimation.value),
                             blurRadius: 12,
                           ),
                         ],

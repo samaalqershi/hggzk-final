@@ -7,25 +7,44 @@ import 'package:hggzk/features/property/domain/entities/property_policy.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
+/// Renders the policy groups and supporting notes shown before booking.
+/// يعرض مجموعات السياسات والملاحظات الداعمة التي تظهر قبل الحجز.
 class PoliciesWidget extends StatefulWidget {
+  /// Policies to render in grouped sections.
+  /// السياسات المطلوب عرضها في أقسام مجمعة.
   final List<PropertyPolicy> policies;
 
+  /// Builds the animated policy section.
+  /// ينشئ قسم السياسات المتحرك.
   const PoliciesWidget({
     super.key,
     required this.policies,
   });
 
+  /// Creates the state object that drives the grouped policy layout.
+  /// ينشئ كائن الحالة الذي يقود تخطيط السياسات المجمعة.
   @override
   State<PoliciesWidget> createState() => _PoliciesWidgetState();
 }
 
+/// Controls the fade-in animation and expanded/collapsed policy groups.
+/// يتحكم في حركة التلاشي ومجموعات السياسات الموسعة أو المطوية.
 class _PoliciesWidgetState extends State<PoliciesWidget>
     with SingleTickerProviderStateMixin {
+  /// Controls the initial fade-in animation.
+  /// يتحكم في حركة التلاشي الأولية.
   late AnimationController _fadeController;
+
+  /// Fades the section content into view.
+  /// يدرج محتوى القسم بتلاشي تدريجي.
   late Animation<double> _fadeAnimation;
 
+  /// Tracks which policy groups are currently expanded.
+  /// يتتبع مجموعات السياسات الموسعة حاليًا.
   final Map<String, bool> _expandedPolicies = {};
 
+  /// Prepares the state before the first frame.
+  /// يجهز الحالة قبل الإطار الأول.
   @override
   void initState() {
     super.initState();
@@ -33,6 +52,8 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
     _initializePolicyStates();
   }
 
+  /// Sets up the fade animation used by the policy section.
+  /// يهيئ حركة التلاشي المستخدمة في قسم السياسات.
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 600),
@@ -47,6 +68,8 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
     _fadeController.forward();
   }
 
+  /// Expands every policy group initially so the user sees the full rules.
+  /// يوسع كل مجموعة سياسات مبدئيًا حتى يرى المستخدم القواعد كاملة.
   void _initializePolicyStates() {
     final groupedPolicies = _groupPoliciesByType();
     for (final type in groupedPolicies.keys) {
@@ -54,6 +77,8 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
     }
   }
 
+  /// Groups policies by their backend type so the UI can render sections.
+  /// يجمع السياسات بحسب النوع القادم من الخادم حتى تعرضها الواجهة كأقسام.
   Map<String, List<PropertyPolicy>> _groupPoliciesByType() {
     final groupedPolicies = <String, List<PropertyPolicy>>{};
     for (final policy in widget.policies) {
@@ -66,12 +91,16 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
     return groupedPolicies;
   }
 
+  /// Releases the fade animation controller.
+  /// يحرر متحكم حركة التلاشي.
   @override
   void dispose() {
     _fadeController.dispose();
     super.dispose();
   }
 
+  /// Builds the grouped policy layout shown on the property page.
+  /// يبني تخطيط السياسات المجمعة الظاهر في صفحة العقار.
   @override
   Widget build(BuildContext context) {
     if (widget.policies.isEmpty) {
@@ -94,6 +123,8 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
     );
   }
 
+  /// Builds the ultra minimal policy section.
+  /// العربية: يبني ultra minimal policy section.
   Widget _buildUltraMinimalPolicySection(
       String type, List<PropertyPolicy> policies) {
     final isExpanded = _expandedPolicies[type] ?? false;
@@ -137,6 +168,8 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
     );
   }
 
+  /// Builds the minimal policy header.
+  /// العربية: يبني minimal policy header.
   Widget _buildMinimalPolicyHeader(String type, Color color, int count) {
     final isExpanded = _expandedPolicies[type] ?? false;
 
@@ -214,6 +247,8 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
     );
   }
 
+  /// Builds the minimal policies list.
+  /// العربية: يبني minimal policies list.
   Widget _buildMinimalPoliciesList(
       List<PropertyPolicy> policies, Color typeColor) {
     return Padding(
@@ -226,6 +261,8 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
     );
   }
 
+  /// Builds the ultra minimal policy item.
+  /// العربية: يبني ultra minimal policy item.
   Widget _buildUltraMinimalPolicyItem(PropertyPolicy policy, Color typeColor) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -331,6 +368,8 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
     );
   }
 
+  /// Exposes the policy type icon.
+  /// العربية: يعيد policy type icon.
   IconData _getPolicyTypeIcon(String type) {
     switch (type.toLowerCase()) {
       case 'checkin':
@@ -355,6 +394,8 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
     }
   }
 
+  /// Exposes the policy icon.
+  /// العربية: يعيد policy icon.
   IconData _getPolicyIcon(String content) {
     final lowerContent = content.toLowerCase();
     if (lowerContent.contains('وقت') || lowerContent.contains('time'))
@@ -372,6 +413,8 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
     return Icons.check_circle_outline;
   }
 
+  /// Exposes the policy type color.
+  /// العربية: يعيد policy type color.
   Color _getPolicyTypeColor(String type) {
     switch (type.toLowerCase()) {
       case 'checkin':
@@ -394,6 +437,8 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
     }
   }
 
+  /// Exposes the policy type title.
+  /// العربية: يعيد policy type title.
   String _getPolicyTypeTitle(String type) {
     switch (type.toLowerCase()) {
       case 'checkin':
@@ -418,406 +463,3 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
     }
   }
 }
-
-// import 'package:flutter/material.dart';
-// import 'dart:ui';
-// import 'package:hggzk/features/property/domain/entities/property_policy.dart';
-// import '../../../../core/theme/app_theme.dart';
-// import '../../../../core/theme/app_text_styles.dart';
-
-// class PoliciesWidget extends StatefulWidget {
-//   final List<PropertyPolicy> policies;
-
-//   const PoliciesWidget({
-//     super.key,
-//     required this.policies,
-//   });
-
-//   @override
-//   State<PoliciesWidget> createState() => _PoliciesWidgetState();
-// }
-
-// class _PoliciesWidgetState extends State<PoliciesWidget>
-//     with SingleTickerProviderStateMixin {
-//   final Map<String, bool> _expandedPolicies = {};
-//   late AnimationController _fadeController;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _fadeController = AnimationController(
-//       duration: const Duration(milliseconds: 600),
-//       vsync: this,
-//     )..forward();
-
-//     final groupedPolicies = _groupPoliciesByType();
-//     for (final type in groupedPolicies.keys) {
-//       _expandedPolicies[type] = false;
-//     }
-//   }
-
-//   @override
-//   void dispose() {
-//     _fadeController.dispose();
-//     super.dispose();
-//   }
-
-//   Map<String, List<PropertyPolicy>> _groupPoliciesByType() {
-//     final groupedPolicies = <String, List<PropertyPolicy>>{};
-//     for (final policy in widget.policies) {
-//       final type = policy.policyType;
-//       if (!groupedPolicies.containsKey(type)) {
-//         groupedPolicies[type] = [];
-//       }
-//       groupedPolicies[type]!.add(policy);
-//     }
-//     return groupedPolicies;
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     if (widget.policies.isEmpty) {
-//       return const SizedBox.shrink();
-//     }
-
-//     final groupedPolicies = _groupPoliciesByType();
-
-//     return FadeTransition(
-//       opacity: _fadeController,
-//       child: Container(
-//         padding: const EdgeInsets.all(20),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: groupedPolicies.entries.map((entry) {
-//             return _buildElegantPolicySection(entry.key, entry.value);
-//           }).toList(),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildElegantPolicySection(
-//       String type, List<PropertyPolicy> policies) {
-//     final isExpanded = _expandedPolicies[type] ?? false;
-//     final typeColor = _getPolicyTypeColor(type);
-
-//     return TweenAnimationBuilder<double>(
-//       tween: Tween(begin: 0.0, end: 1.0),
-//       duration: const Duration(milliseconds: 500),
-//       curve: Curves.easeOutCubic,
-//       builder: (context, value, child) {
-//         return Transform.scale(
-//           scale: 0.95 + (0.05 * value),
-//           child: Opacity(
-//             opacity: value,
-//             child: Container(
-//               margin: const EdgeInsets.only(bottom: 16),
-//               decoration: BoxDecoration(
-//                 gradient: LinearGradient(
-//                   begin: Alignment.topLeft,
-//                   end: Alignment.bottomRight,
-//                   colors: [
-//                     typeColor.withOpacity(0.06),
-//                     typeColor.withOpacity(0.02),
-//                   ],
-//                 ),
-//                 borderRadius: BorderRadius.circular(20),
-//                 border: Border.all(
-//                   color: typeColor.withOpacity(0.12),
-//                   width: 1,
-//                 ),
-//               ),
-//               child: ClipRRect(
-//                 borderRadius: BorderRadius.circular(20),
-//                 child: BackdropFilter(
-//                   filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-//                   child: Column(
-//                     children: [
-//                       InkWell(
-//                         onTap: () {
-//                           setState(() {
-//                             _expandedPolicies[type] = !isExpanded;
-//                           });
-//                         },
-//                         borderRadius: const BorderRadius.vertical(
-//                           top: Radius.circular(20),
-//                         ),
-//                         child: Container(
-//                           padding: const EdgeInsets.all(16),
-//                           child: Row(
-//                             children: [
-//                               Container(
-//                                 width: 44,
-//                                 height: 44,
-//                                 decoration: BoxDecoration(
-//                                   gradient: LinearGradient(
-//                                     colors: [
-//                                       typeColor.withOpacity(0.15),
-//                                       typeColor.withOpacity(0.08),
-//                                     ],
-//                                   ),
-//                                   borderRadius: BorderRadius.circular(12),
-//                                 ),
-//                                 child: Icon(
-//                                   _getPolicyTypeIcon(type),
-//                                   size: 22,
-//                                   color: typeColor,
-//                                 ),
-//                               ),
-//                               const SizedBox(width: 14),
-//                               Expanded(
-//                                 child: Column(
-//                                   crossAxisAlignment: CrossAxisAlignment.start,
-//                                   children: [
-//                                     Text(
-//                                       _getPolicyTypeTitle(type),
-//                                       style: AppTextStyles.bodyMedium.copyWith(
-//                                         color: AppTheme.textWhite,
-//                                         fontWeight: FontWeight.w600,
-//                                         fontSize: 15,
-//                                         letterSpacing: -0.2,
-//                                       ),
-//                                     ),
-//                                     const SizedBox(height: 2),
-//                                     Text(
-//                                       '${policies.length} ${policies.length == 1 ? "سياسة" : "سياسات"}',
-//                                       style: AppTextStyles.caption.copyWith(
-//                                         color: AppTheme.textMuted,
-//                                         fontSize: 11,
-//                                       ),
-//                                     ),
-//                                   ],
-//                                 ),
-//                               ),
-//                               AnimatedRotation(
-//                                 turns: isExpanded ? 0.5 : 0,
-//                                 duration: const Duration(milliseconds: 300),
-//                                 child: Container(
-//                                   width: 32,
-//                                   height: 32,
-//                                   decoration: BoxDecoration(
-//                                     color: typeColor.withOpacity(0.08),
-//                                     borderRadius: BorderRadius.circular(8),
-//                                   ),
-//                                   child: Icon(
-//                                     Icons.expand_more_rounded,
-//                                     color: typeColor,
-//                                     size: 20,
-//                                   ),
-//                                 ),
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                       ),
-//                       AnimatedCrossFade(
-//                         firstChild: const SizedBox.shrink(),
-//                         secondChild: Container(
-//                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-//                           child: Column(
-//                             children: policies.map((policy) {
-//                               return _buildElegantPolicyItem(policy, typeColor);
-//                             }).toList(),
-//                           ),
-//                         ),
-//                         crossFadeState: isExpanded
-//                             ? CrossFadeState.showSecond
-//                             : CrossFadeState.showFirst,
-//                         duration: const Duration(milliseconds: 300),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   Widget _buildElegantPolicyItem(PropertyPolicy policy, Color typeColor) {
-//     return Container(
-//       margin: const EdgeInsets.only(bottom: 10),
-//       padding: const EdgeInsets.all(14),
-//       decoration: BoxDecoration(
-//         color: policy.isActive
-//             ? AppTheme.darkCard.withOpacity(0.3)
-//             : AppTheme.darkCard.withOpacity(0.15),
-//         borderRadius: BorderRadius.circular(14),
-//         border: Border.all(
-//           color: policy.isActive
-//               ? typeColor.withOpacity(0.12)
-//               : AppTheme.darkBorder.withOpacity(0.08),
-//           width: 1,
-//         ),
-//       ),
-//       child: Row(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Container(
-//             width: 32,
-//             height: 32,
-//             decoration: BoxDecoration(
-//               gradient: LinearGradient(
-//                 colors: policy.isActive
-//                     ? [typeColor.withOpacity(0.12), typeColor.withOpacity(0.06)]
-//                     : [
-//                         AppTheme.textMuted.withOpacity(0.08),
-//                         AppTheme.textMuted.withOpacity(0.04)
-//                       ],
-//               ),
-//               borderRadius: BorderRadius.circular(8),
-//             ),
-//             child: Icon(
-//               _getPolicyIcon(policy.policyContent),
-//               size: 16,
-//               color: policy.isActive ? typeColor : AppTheme.textMuted,
-//             ),
-//           ),
-//           const SizedBox(width: 12),
-//           Expanded(
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Row(
-//                   children: [
-//                     Expanded(
-//                       child: Text(
-//                         policy.policyContent,
-//                         style: AppTextStyles.bodySmall.copyWith(
-//                           color: AppTheme.textWhite,
-//                           fontWeight: FontWeight.w600,
-//                           fontSize: 13,
-//                         ),
-//                       ),
-//                     ),
-//                     if (policy.isActive)
-//                       Container(
-//                         padding: const EdgeInsets.symmetric(
-//                           horizontal: 8,
-//                           vertical: 3,
-//                         ),
-//                         decoration: BoxDecoration(
-//                           color: AppTheme.error.withOpacity(0.1),
-//                           borderRadius: BorderRadius.circular(6),
-//                           border: Border.all(
-//                             color: AppTheme.error.withOpacity(0.2),
-//                             width: 0.5,
-//                           ),
-//                         ),
-//                         child: Text(
-//                           'إلزامي',
-//                           style: AppTextStyles.caption.copyWith(
-//                             color: AppTheme.error,
-//                             fontSize: 10,
-//                             fontWeight: FontWeight.w600,
-//                           ),
-//                         ),
-//                       ),
-//                   ],
-//                 ),
-//                 const SizedBox(height: 6),
-//                 Text(
-//                   policy.description,
-//                   style: AppTextStyles.caption.copyWith(
-//                     color: AppTheme.textMuted,
-//                     fontSize: 11,
-//                     height: 1.5,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   IconData _getPolicyTypeIcon(String type) {
-//     switch (type.toLowerCase()) {
-//       case 'checkin':
-//       case 'check-in':
-//         return Icons.login_rounded;
-//       case 'checkout':
-//       case 'check-out':
-//         return Icons.logout_rounded;
-//       case 'cancellation':
-//         return Icons.cancel_rounded;
-//       case 'payment':
-//         return Icons.payment_rounded;
-//       case 'house_rules':
-//       case 'rules':
-//         return Icons.rule_rounded;
-//       case 'safety':
-//         return Icons.security_rounded;
-//       case 'health':
-//         return Icons.health_and_safety_rounded;
-//       default:
-//         return Icons.policy_rounded;
-//     }
-//   }
-
-//   IconData _getPolicyIcon(String content) {
-//     final lowerContent = content.toLowerCase();
-//     if (lowerContent.contains('وقت') || lowerContent.contains('time'))
-//       return Icons.access_time_rounded;
-//     if (lowerContent.contains('دفع') || lowerContent.contains('payment'))
-//       return Icons.payment_rounded;
-//     if (lowerContent.contains('إلغاء') || lowerContent.contains('cancel'))
-//       return Icons.cancel_rounded;
-//     if (lowerContent.contains('تدخين') || lowerContent.contains('smoking'))
-//       return Icons.smoke_free_rounded;
-//     if (lowerContent.contains('حيوان') || lowerContent.contains('pet'))
-//       return Icons.pets_rounded;
-//     if (lowerContent.contains('حفلة') || lowerContent.contains('party'))
-//       return Icons.celebration_rounded;
-//     return Icons.check_circle_rounded;
-//   }
-
-//   Color _getPolicyTypeColor(String type) {
-//     switch (type.toLowerCase()) {
-//       case 'checkin':
-//       case 'check-in':
-//       case 'checkout':
-//       case 'check-out':
-//         return AppTheme.info;
-//       case 'cancellation':
-//         return AppTheme.warning;
-//       case 'payment':
-//         return AppTheme.success;
-//       case 'house_rules':
-//       case 'rules':
-//         return AppTheme.primaryBlue;
-//       case 'safety':
-//       case 'health':
-//         return AppTheme.error;
-//       default:
-//         return AppTheme.primaryPurple;
-//     }
-//   }
-
-//   String _getPolicyTypeTitle(String type) {
-//     switch (type.toLowerCase()) {
-//       case 'checkin':
-//       case 'check-in':
-//         return 'تسجيل الدخول';
-//       case 'checkout':
-//       case 'check-out':
-//         return 'تسجيل الخروج';
-//       case 'cancellation':
-//         return 'الإلغاء والاسترداد';
-//       case 'payment':
-//         return 'الدفع والحجز';
-//       case 'house_rules':
-//       case 'rules':
-//         return 'قوانين المكان';
-//       case 'safety':
-//         return 'السلامة والأمان';
-//       case 'health':
-//         return 'الصحة والنظافة';
-//       default:
-//         return 'سياسات أخرى';
-//     }
-//   }
-// }

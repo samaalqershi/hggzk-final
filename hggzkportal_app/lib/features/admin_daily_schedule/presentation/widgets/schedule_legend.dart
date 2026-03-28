@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../domain/entities/daily_schedule.dart';
 
 /// دليل الألوان والرموز للجدول اليومي
 /// Legend for daily schedule colors and symbols
-/// 
+///
 /// ميزات:
 /// - عرض دليل حالات الإتاحة
 /// - عرض دليل فئات التسعير
@@ -17,7 +16,7 @@ import '../../domain/entities/daily_schedule.dart';
 class ScheduleLegend extends StatelessWidget {
   /// نوع الدليل (availability أو pricing)
   final LegendType type;
-  
+
   /// عرض مدمج؟
   final bool isCompact;
 
@@ -34,13 +33,13 @@ class ScheduleLegend extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.7),
-            AppTheme.darkCard.withOpacity(0.5),
+            AppTheme.darkCard.withValues(alpha: 0.7),
+            AppTheme.darkCard.withValues(alpha: 0.5),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -141,15 +140,15 @@ class ScheduleLegend extends StatelessWidget {
           width: isCompact ? 10 : 12,
           height: isCompact ? 10 : 12,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(3),
             border: Border.all(
-              color: color.withOpacity(0.5),
+              color: color.withValues(alpha: 0.5),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: color.withOpacity(0.3),
+                color: color.withValues(alpha: 0.3),
                 blurRadius: 4,
                 spreadRadius: 1,
               ),
@@ -164,8 +163,9 @@ class ScheduleLegend extends StatelessWidget {
         SizedBox(width: isCompact ? 4 : 6),
         Text(
           label,
-          style: (isCompact ? AppTextStyles.caption : AppTextStyles.bodySmall).copyWith(
-            color: AppTheme.textWhite.withOpacity(0.8),
+          style: (isCompact ? AppTextStyles.caption : AppTextStyles.bodySmall)
+              .copyWith(
+            color: AppTheme.textWhite.withValues(alpha: 0.8),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -178,7 +178,7 @@ class ScheduleLegend extends StatelessWidget {
 enum LegendType {
   /// دليل حالات الإتاحة
   availability,
-  
+
   /// دليل فئات التسعير
   pricing,
 }

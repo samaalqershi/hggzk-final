@@ -1,6 +1,7 @@
 import '../../domain/entities/property_type.dart';
 
 class PropertyTypeModel extends PropertyType {
+  /// العربية: ينشئ مثيلًا جديدًا من `PropertyTypeModel`.
   const PropertyTypeModel({
     required String id,
     required String name,
@@ -39,12 +40,10 @@ class PropertyTypeModel extends PropertyType {
           ? List<String>.from(json['unitTypeIds'])
           : [],
       isActive: json['isActive'] ?? true,
-      createdAt: json['createdAt'] != null 
-          ? DateTime.parse(json['createdAt']) 
-          : null,
-      updatedAt: json['updatedAt'] != null 
-          ? DateTime.parse(json['updatedAt']) 
-          : null,
+      createdAt:
+          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      updatedAt:
+          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
     );
   }
 

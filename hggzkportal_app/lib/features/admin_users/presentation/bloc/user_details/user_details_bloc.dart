@@ -14,10 +14,15 @@ part 'user_details_state.dart';
 
 class UserDetailsBloc extends Bloc<UserDetailsEvent, UserDetailsState> {
   final GetUserDetailsUseCase _getUserDetailsUseCase;
+
   final GetUserLifetimeStatsUseCase _getUserLifetimeStatsUseCase;
+
   final UpdateUserUseCase _updateUserUseCase;
+
   final ActivateUserUseCase _activateUserUseCase;
+
   final DeactivateUserUseCase _deactivateUserUseCase;
+
   final AssignRoleUseCase _assignRoleUseCase;
 
   UserDetailsBloc({
@@ -33,6 +38,7 @@ class UserDetailsBloc extends Bloc<UserDetailsEvent, UserDetailsState> {
         _activateUserUseCase = activateUserUseCase,
         _deactivateUserUseCase = deactivateUserUseCase,
         _assignRoleUseCase = assignRoleUseCase,
+
         super(UserDetailsInitial()) {
     on<LoadUserDetailsEvent>(_onLoadUserDetails);
     on<UpdateUserDetailsEvent>(_onUpdateUserDetails);
@@ -121,7 +127,8 @@ class UserDetailsBloc extends Bloc<UserDetailsEvent, UserDetailsState> {
 
     final result = event.activate
         ? await _activateUserUseCase(ActivateUserParams(userId: event.userId))
-        : await _deactivateUserUseCase(DeactivateUserParams(userId: event.userId));
+        : await _deactivateUserUseCase(
+            DeactivateUserParams(userId: event.userId));
 
     result.fold(
       (failure) => emit(currentState.copyWith(
@@ -140,7 +147,8 @@ class UserDetailsBloc extends Bloc<UserDetailsEvent, UserDetailsState> {
             createdAt: currentState.userDetails.createdAt,
             isActive: event.activate,
             bookingsCount: currentState.userDetails.bookingsCount,
-            canceledBookingsCount: currentState.userDetails.canceledBookingsCount,
+            canceledBookingsCount:
+                currentState.userDetails.canceledBookingsCount,
             pendingBookingsCount: currentState.userDetails.pendingBookingsCount,
             firstBookingDate: currentState.userDetails.firstBookingDate,
             lastBookingDate: currentState.userDetails.lastBookingDate,

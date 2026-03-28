@@ -1,37 +1,36 @@
 // lib/features/admin_properties/presentation/pages/property_details_page.dart
 
-import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:get_it/get_it.dart';
-import 'dart:ui';
-import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_text_styles.dart';
-import '../bloc/properties/properties_bloc.dart';
-import '../../domain/entities/property.dart';
-import '../widgets/property_image_gallery.dart';
-import '../widgets/property_map_view.dart';
-import '../widgets/property_info_card.dart';
-import '../widgets/property_amenities_grid.dart';
-import '../widgets/property_policies_list.dart';
-import '../../../../core/widgets/cached_image_widget.dart';
-import '../bloc/property_images/property_images_bloc.dart';
-import '../bloc/property_images/property_images_state.dart';
-import '../bloc/property_images/property_images_event.dart';
+import 'package:hggzkportal/core/theme/app_text_styles.dart';
+import 'package:hggzkportal/core/theme/app_theme.dart';
+import 'package:hggzkportal/core/widgets/cached_image_widget.dart';
+import 'package:hggzkportal/features/admin_properties/domain/entities/property.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/bloc/properties/properties_bloc.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/bloc/property_images/property_images_bloc.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/bloc/property_images/property_images_event.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/bloc/property_images/property_images_state.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/widgets/property_amenities_grid.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/widgets/property_image_gallery.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/widgets/property_info_card.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/widgets/property_map_view.dart';
+import 'package:hggzkportal/features/admin_properties/presentation/widgets/property_policies_list.dart';
 import 'package:hggzkportal/injection_container.dart' as di;
 import 'package:hggzkportal/services/local_storage_service.dart';
 
 class PropertyDetailsPage extends StatefulWidget {
+  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
-
   const PropertyDetailsPage({
     super.key,
     required this.propertyId,
   });
-
   @override
   State<PropertyDetailsPage> createState() => _PropertyDetailsPageState();
 }
@@ -40,12 +39,10 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   final ScrollController _scrollController = ScrollController();
-  double _scrollOffset = 0;
   int _selectedTabIndex = 0;
 
   final _storage = GetIt.I<LocalStorageService>();
   bool _isAdmin = false;
-
   @override
   void initState() {
     super.initState();
@@ -55,10 +52,6 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
     )..forward();
 
     _isAdmin = _storage.getAccountRole().toLowerCase() == 'admin';
-
-    _scrollController.addListener(() {
-      setState(() => _scrollOffset = _scrollController.offset);
-    });
 
     // Load property details
     context.read<PropertiesBloc>().add(
@@ -908,10 +901,10 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
 }
 
 class _TabItem {
+  /// العربية: يخزن القيمة `icon`.
   final IconData icon;
   final String label;
   final int? count;
-
   _TabItem({
     required this.icon,
     required this.label,

@@ -5,6 +5,7 @@ import 'daily_schedule_model.dart';
 /// نموذج MonthlyScheduleModel يمتد من Entity
 /// يحتوي على قائمة من DailyScheduleModel وإحصائيات الشهر
 class MonthlyScheduleModel extends MonthlySchedule {
+  /// العربية: ينشئ مثيلًا جديدًا من `MonthlyScheduleModel`.
   const MonthlyScheduleModel({
     required super.unitId,
     required super.year,
@@ -63,9 +64,8 @@ class MonthlyScheduleModel extends MonthlySchedule {
       year: entity.year,
       month: entity.month,
       schedules: entity.schedules
-          .map((e) => e is DailyScheduleModel
-              ? e
-              : DailyScheduleModel.fromEntity(e))
+          .map((e) =>
+              e is DailyScheduleModel ? e : DailyScheduleModel.fromEntity(e))
           .toList(),
       statistics: entity.statistics,
     );

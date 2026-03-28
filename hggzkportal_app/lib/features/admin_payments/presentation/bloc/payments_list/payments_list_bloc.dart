@@ -10,6 +10,7 @@ import 'payments_list_event.dart';
 import 'payments_list_state.dart';
 
 class PaymentsListBloc extends Bloc<PaymentsListEvent, PaymentsListState> {
+  /// العربية: يخزن القيمة `refundPaymentUseCase`.
   final RefundPaymentUseCase refundPaymentUseCase;
   final VoidPaymentUseCase voidPaymentUseCase;
   final UpdatePaymentStatusUseCase updatePaymentStatusUseCase;
@@ -29,7 +30,6 @@ class PaymentsListBloc extends Bloc<PaymentsListEvent, PaymentsListState> {
   int _currentPageNumber = 1;
   int _currentPageSize = 10;
   bool _isLoadingMore = false; // 🎯 لمنع الطلبات المتكررة
-
   PaymentsListBloc({
     required this.refundPaymentUseCase,
     required this.voidPaymentUseCase,
@@ -51,7 +51,6 @@ class PaymentsListBloc extends Bloc<PaymentsListEvent, PaymentsListState> {
     on<ClearSelectionEvent>(_onClearSelection);
     on<ExportPaymentsEvent>(_onExportPayments);
   }
-
   Future<void> _onLoadPayments(
     LoadPaymentsEvent event,
     Emitter<PaymentsListState> emit,

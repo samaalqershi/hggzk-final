@@ -7,9 +7,19 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/amenity.dart';
 
+/// حوار إسناد المرفق إلى عقار مع التوفر والتكلفة والملاحظات.
+/// Full-screen amenity assignment dialog with availability, cost, and notes controls.
 class AssignAmenityDialog extends StatefulWidget {
+  /// المرفق الذي سيُربط بالعقار.
+  /// Amenity that will be linked to a property.
   final Amenity amenity;
+
+  /// معرف العقار الذي يُفضل تحديده عند فتح الحوار.
+  /// Property ID that should be preselected when the dialog opens.
   final String? preSelectedPropertyId;
+
+  /// دالة تنفيذ الإسناد الفعلية التي تحفظ الربط بين الكيانين.
+  /// Callback that performs the actual assignment between the two entities.
   final Function({
     required String amenityId,
     required String propertyId,
@@ -17,9 +27,17 @@ class AssignAmenityDialog extends StatefulWidget {
     double? extraCost,
     String? description,
   })? onAssign;
+
+  /// يستدعى بعد النجاح لتحديث الحالة أو الواجهة المحيطة.
+  /// Called after success to refresh the surrounding UI or state.
   final VoidCallback? onSuccess;
+
+  /// يستدعى عند الفشل لتمرير رسالة الخطأ إلى الطبقة الأعلى.
+  /// Called on failure so the error message can be forwarded upward.
   final Function(String message)? onError;
 
+  /// ينشئ الحوار مع القيم والردود الممررة من الطبقة المستدعية.
+  /// Creates the dialog with the values and callbacks supplied by the caller.
   const AssignAmenityDialog({
     super.key,
     required this.amenity,
@@ -29,6 +47,8 @@ class AssignAmenityDialog extends StatefulWidget {
     this.onError,
   });
 
+  /// يفتح الحوار كنافذة كاملة الشاشة وغير قابلة للإغلاق بالنقر الخارجي.
+  /// Opens the dialog as a fullscreen modal that cannot be dismissed by outside taps.
   static Future<void> show({
     required BuildContext context,
     required Amenity amenity,
@@ -47,7 +67,7 @@ class AssignAmenityDialog extends StatefulWidget {
       fullscreenDialog: true,
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.7),
+      barrierColor: Colors.black.withValues(alpha: 0.7),
       builder: (dialogContext) => AssignAmenityDialog(
         amenity: amenity,
         preSelectedPropertyId: preSelectedPropertyId,
@@ -58,45 +78,101 @@ class AssignAmenityDialog extends StatefulWidget {
     );
   }
 
+  /// ينشئ الحالة المسؤولة عن الحركة والتحقق وتنفيذ الإسناد.
+  /// Creates the state that manages motion, validation, and assignment flow.
   @override
   State<AssignAmenityDialog> createState() => _AssignAmenityDialogState();
 }
 
+/// تدير هذه الحالة الرسوم المتحركة، النموذج، ومسار الإسناد نفسه.
+/// Manages the animations, form inputs, and the assignment workflow.
 class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     with TickerProviderStateMixin {
-  // Animation Controllers
+  /// متحكم التكبير التدريجي للحوار عند الظهور.
+  /// Controls the dialog scale-in animation.
   late AnimationController _scaleController;
+
+  /// متحكم التلاشي العام للحوار.
+  /// Controls the dialog fade-in effect.
   late AnimationController _fadeController;
+
+  /// متحكم انزلاق المحتوى من الأسفل إلى موضعه.
+  /// Controls the content slide motion into place.
   late AnimationController _slideController;
+
+  /// متحكم اللمعان المتكرر في الخلفية.
+  /// Controls the repeating shimmer in the background.
   late AnimationController _shimmerController;
+
+  /// متحكم النبض البصري للعناصر العلوية.
+  /// Controls the subtle pulsing visual accents.
   late AnimationController _pulseController;
 
-  // Animations
+  /// قيمة التكبير الخاصة بدخول الحوار.
+  /// Scale value used when the dialog enters.
   late Animation<double> _scaleAnimation;
+
+  /// قيمة التلاشي الخاصة بظهور الحوار.
+  /// Fade value used when the dialog appears.
   late Animation<double> _fadeAnimation;
+
+  /// إزاحة الحركة المستخدمة لتحريك محتوى النموذج.
+  /// Slide offset used to move the form content.
   late Animation<Offset> _slideAnimation;
+
+  /// قيمة اللمعان المتكرر المستخدمة في الخلفية.
+  /// Repeating shimmer value used across the background.
   late Animation<double> _shimmerAnimation;
+
+  /// قيمة النبض البصري المستخدمة للأيقونة والزخارف.
+  /// Pulse value used for the icon and decorative accents.
   late Animation<double> _pulseAnimation;
 
-  // Form Controllers
+  /// مفتاح النموذج المستخدم للتحقق من صحة الحقول.
+  /// Form key used to validate the input fields.
   final _formKey = GlobalKey<FormState>();
+
+  /// يتحكم في حقل التكلفة الإضافية.
+  /// Controls the extra-cost text field.
   final _costController = TextEditingController();
+
+  /// يتحكم في حقل الملاحظات أو الوصف الإضافي.
+  /// Controls the notes or extra description field.
   final _descriptionController = TextEditingController();
 
-  // State
+  /// معرف العقار المحدد حاليًا.
+  /// ID of the currently selected property.
   String? _selectedPropertyId;
+
+  /// اسم العقار المحدد لعرضه للمستخدم.
+  /// Display name of the selected property.
   String? _selectedPropertyName;
+
+  /// يحدد ما إذا كان المرفق سيبقى متاحًا بعد الإسناد.
+  /// Indicates whether the amenity remains available after assignment.
   bool _isAvailable = true;
+
+  /// يحدد ما إذا كان الإسناد قيد المعالجة الآن.
+  /// Indicates whether the assignment is currently being processed.
   bool _isLoading = false;
+
+  /// يحدد عرض أو إخفاء الخيارات المتقدمة.
+  /// Toggles whether the advanced options are visible.
   bool _showAdvancedOptions = false;
 
+  /// يهيئ الحركة والبيانات الافتراضية عند إنشاء الحالة.
+  /// Initializes animations and defaults when the state is created.
   @override
   void initState() {
     super.initState();
+
     _initializeAnimations();
+
     _initializeData();
   }
 
+  /// يجهز جميع الرسوم المتحركة المستخدمة داخل الحوار.
+  /// Sets up all animations used inside the dialog.
   void _initializeAnimations() {
     // Scale Animation
     _scaleController = AnimationController(
@@ -169,6 +245,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     _slideController.forward();
   }
 
+  /// يملأ القيم الأولية مثل العقار المحدد والتكلفة الافتراضية.
+  /// Populates initial values such as the selected property and default cost.
   void _initializeData() {
     _selectedPropertyId = widget.preSelectedPropertyId;
     // Set default cost if amenity has average cost
@@ -179,6 +257,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     }
   }
 
+  /// يحرر المتحكمات لتجنب التسريبات عند إغلاق الحوار.
+  /// Disposes controllers to avoid leaks when the dialog is closed.
   @override
   void dispose() {
     _scaleController.dispose();
@@ -191,6 +271,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     super.dispose();
   }
 
+  /// يبني الحوار الكامل مع الخلفية والنموذج وأزرار الإجراءات.
+  /// Builds the full dialog with the background, form, and action buttons.
   @override
   Widget build(BuildContext context) {
     return ScaleTransition(
@@ -214,24 +296,24 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
                 end: Alignment.bottomRight,
                 colors: [
                   AppTheme.darkBackground,
-                  AppTheme.darkBackground2.withOpacity(0.8),
-                  AppTheme.darkBackground3.withOpacity(0.6),
+                  AppTheme.darkBackground2.withValues(alpha: 0.8),
+                  AppTheme.darkBackground3.withValues(alpha: 0.6),
                 ],
               ),
               borderRadius: BorderRadius.circular(24), // زوايا حادة هادئة
               border: Border.all(
-                color: AppTheme.primaryPurple.withOpacity(0.3),
+                color: AppTheme.primaryPurple.withValues(alpha: 0.3),
                 width: 2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryPurple.withOpacity(0.3),
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.3),
                   blurRadius: 40,
                   spreadRadius: 10,
                   offset: const Offset(0, 10),
                 ),
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.5),
                   blurRadius: 30,
                   offset: const Offset(0, 15),
                 ),
@@ -270,6 +352,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     );
   }
 
+  /// يرسم النمط الزخرفي المتحرك في الخلفية.
+  /// Draws the animated decorative pattern in the background.
   Widget _buildBackgroundPattern() {
     return Positioned.fill(
       child: AnimatedBuilder(
@@ -278,7 +362,7 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
           return CustomPaint(
             painter: _DialogPatternPainter(
               animation: _shimmerAnimation.value,
-              color: AppTheme.primaryPurple.withOpacity(0.03),
+              color: AppTheme.primaryPurple.withValues(alpha: 0.03),
             ),
           );
         },
@@ -286,19 +370,21 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     );
   }
 
+  /// يبني رأس الحوار الذي يوضح المهمة والمرفق الحالي.
+  /// Builds the dialog header that presents the action and current amenity.
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.8),
-            AppTheme.darkSurface.withOpacity(0.4),
+            AppTheme.darkSurface.withValues(alpha: 0.8),
+            AppTheme.darkSurface.withValues(alpha: 0.4),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.primaryPurple.withOpacity(0.2),
+            color: AppTheme.primaryPurple.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -324,7 +410,7 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryPurple.withOpacity(0.4),
+                        color: AppTheme.primaryPurple.withValues(alpha: 0.4),
                         blurRadius: 20,
                         offset: const Offset(0, 4),
                       ),
@@ -371,10 +457,10 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryPurple.withOpacity(0.1),
+                        color: AppTheme.primaryPurple.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: AppTheme.primaryPurple.withOpacity(0.3),
+                          color: AppTheme.primaryPurple.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -412,10 +498,10 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: AppTheme.darkSurface.withOpacity(0.5),
+                color: AppTheme.darkSurface.withValues(alpha: 0.5),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -431,6 +517,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     );
   }
 
+  /// يبني المحتوى الرئيسي الذي يحتوي على الحقول وخيارات الإسناد.
+  /// Builds the main content area containing the fields and assignment options.
   Widget _buildContent() {
     return SlideTransition(
       position: _slideAnimation,
@@ -473,6 +561,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     );
   }
 
+  /// يبني عنصر اختيار العقار ويعرض الهوية المختصرة للعقار بعد تحديده.
+  /// Builds the property selector and shows a compact identity summary once a property is selected.
   Widget _buildPropertySelection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -484,8 +574,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withOpacity(0.2),
-                    AppTheme.primaryBlue.withOpacity(0.1),
+                    AppTheme.primaryBlue.withValues(alpha: 0.2),
+                    AppTheme.primaryBlue.withValues(alpha: 0.1),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(8),
@@ -511,7 +601,7 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
                 vertical: 2,
               ),
               decoration: BoxDecoration(
-                color: AppTheme.error.withOpacity(0.1),
+                color: AppTheme.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -534,25 +624,25 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
               gradient: LinearGradient(
                 colors: _selectedPropertyId != null
                     ? [
-                        AppTheme.primaryBlue.withOpacity(0.1),
-                        AppTheme.primaryBlue.withOpacity(0.05),
+                        AppTheme.primaryBlue.withValues(alpha: 0.1),
+                        AppTheme.primaryBlue.withValues(alpha: 0.05),
                       ]
                     : [
-                        AppTheme.darkSurface.withOpacity(0.5),
-                        AppTheme.darkSurface.withOpacity(0.3),
+                        AppTheme.darkSurface.withValues(alpha: 0.5),
+                        AppTheme.darkSurface.withValues(alpha: 0.3),
                       ],
               ),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: _selectedPropertyId != null
-                    ? AppTheme.primaryBlue.withOpacity(0.3)
-                    : AppTheme.darkBorder.withOpacity(0.3),
+                    ? AppTheme.primaryBlue.withValues(alpha: 0.3)
+                    : AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1.5,
               ),
               boxShadow: _selectedPropertyId != null
                   ? [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                         blurRadius: 15,
                         offset: const Offset(0, 4),
                       ),
@@ -568,8 +658,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppTheme.primaryBlue.withOpacity(0.2),
-                          AppTheme.primaryBlue.withOpacity(0.1),
+                          AppTheme.primaryBlue.withValues(alpha: 0.2),
+                          AppTheme.primaryBlue.withValues(alpha: 0.1),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(10),
@@ -608,10 +698,10 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppTheme.darkSurface.withOpacity(0.5),
+                      color: AppTheme.darkSurface.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: AppTheme.darkBorder.withOpacity(0.3),
+                        color: AppTheme.darkBorder.withValues(alpha: 0.3),
                         width: 1,
                       ),
                     ),
@@ -636,7 +726,7 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
                         Text(
                           'حدد العقار المراد إسناد المرفق إليه',
                           style: AppTextStyles.caption.copyWith(
-                            color: AppTheme.textMuted.withOpacity(0.7),
+                            color: AppTheme.textMuted.withValues(alpha: 0.7),
                           ),
                         ),
                       ],
@@ -658,19 +748,21 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     );
   }
 
+  /// يبني مفتاح التوفر الذي يحدد قابلية استخدام المرفق بعد الإسناد.
+  /// Builds the availability toggle that defines whether the amenity remains usable after assignment.
   Widget _buildAvailabilityToggle() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.4),
-            AppTheme.darkSurface.withOpacity(0.2),
+            AppTheme.darkSurface.withValues(alpha: 0.4),
+            AppTheme.darkSurface.withValues(alpha: 0.2),
           ],
         ),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -682,12 +774,12 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
               gradient: LinearGradient(
                 colors: _isAvailable
                     ? [
-                        AppTheme.success.withOpacity(0.2),
-                        AppTheme.neonGreen.withOpacity(0.1),
+                        AppTheme.success.withValues(alpha: 0.2),
+                        AppTheme.neonGreen.withValues(alpha: 0.1),
                       ]
                     : [
-                        AppTheme.textMuted.withOpacity(0.2),
-                        AppTheme.textMuted.withOpacity(0.1),
+                        AppTheme.textMuted.withValues(alpha: 0.2),
+                        AppTheme.textMuted.withValues(alpha: 0.1),
                       ],
               ),
               borderRadius: BorderRadius.circular(8),
@@ -729,9 +821,9 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
                 setState(() => _isAvailable = value);
               },
               activeThumbColor: AppTheme.success,
-              activeTrackColor: AppTheme.success.withOpacity(0.3),
+              activeTrackColor: AppTheme.success.withValues(alpha: 0.3),
               inactiveThumbColor: AppTheme.textMuted,
-              inactiveTrackColor: AppTheme.textMuted.withOpacity(0.3),
+              inactiveTrackColor: AppTheme.textMuted.withValues(alpha: 0.3),
             ),
           ),
         ],
@@ -739,6 +831,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     );
   }
 
+  /// يبني عنصر توسيع الخيارات المتقدمة مثل التكلفة والملاحظات.
+  /// Builds the control that expands advanced options such as cost and notes.
   Widget _buildAdvancedOptionsToggle() {
     return GestureDetector(
       onTap: () {
@@ -750,13 +844,13 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.primaryPurple.withOpacity(0.05),
-              AppTheme.primaryBlue.withOpacity(0.02),
+              AppTheme.primaryPurple.withValues(alpha: 0.05),
+              AppTheme.primaryBlue.withValues(alpha: 0.02),
             ],
           ),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: AppTheme.primaryPurple.withOpacity(0.2),
+            color: AppTheme.primaryPurple.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -791,6 +885,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     );
   }
 
+  /// يبني حقل التكلفة الإضافية الاختياري الخاص بإسناد المرفق للعقار.
+  /// Builds the optional extra-cost field for assigning the amenity to the property.
   Widget _buildCostField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -802,8 +898,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.success.withOpacity(0.2),
-                    AppTheme.neonGreen.withOpacity(0.1),
+                    AppTheme.success.withValues(alpha: 0.2),
+                    AppTheme.neonGreen.withValues(alpha: 0.1),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(8),
@@ -829,7 +925,7 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
                 vertical: 2,
               ),
               decoration: BoxDecoration(
-                color: AppTheme.textMuted.withOpacity(0.1),
+                color: AppTheme.textMuted.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -851,7 +947,7 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
           decoration: InputDecoration(
             hintText: 'أدخل التكلفة الإضافية (بالدولار)',
             hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             prefixIcon: Container(
               margin: const EdgeInsets.all(12),
@@ -864,32 +960,32 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
               ),
             ),
             filled: true,
-            fillColor: AppTheme.darkSurface.withOpacity(0.3),
+            fillColor: AppTheme.darkSurface.withValues(alpha: 0.3),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.success.withOpacity(0.5),
+                color: AppTheme.success.withValues(alpha: 0.5),
                 width: 1.5,
               ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.error.withOpacity(0.5),
+                color: AppTheme.error.withValues(alpha: 0.5),
                 width: 1,
               ),
             ),
@@ -908,6 +1004,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     );
   }
 
+  /// يبني حقل الملاحظات الإضافية لتخزين أي وصف خاص بعملية الإسناد.
+  /// Builds the additional notes field used to store assignment-specific details.
   Widget _buildDescriptionField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -919,8 +1017,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withOpacity(0.2),
-                    AppTheme.primaryBlue.withOpacity(0.1),
+                    AppTheme.primaryBlue.withValues(alpha: 0.2),
+                    AppTheme.primaryBlue.withValues(alpha: 0.1),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(8),
@@ -951,28 +1049,28 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
           decoration: InputDecoration(
             hintText: 'أضف أي ملاحظات أو تفاصيل خاصة بهذا المرفق...',
             hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+              color: AppTheme.textMuted.withValues(alpha: 0.5),
             ),
             filled: true,
-            fillColor: AppTheme.darkSurface.withOpacity(0.3),
+            fillColor: AppTheme.darkSurface.withValues(alpha: 0.3),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppTheme.primaryBlue.withOpacity(0.5),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                 width: 1.5,
               ),
             ),
@@ -982,19 +1080,21 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     );
   }
 
+  /// يبني بطاقة معلومات سريعة تذكّر المستخدم بوصف المرفق الجاري إسناده.
+  /// Builds a quick info card that reminds the user of the amenity being assigned.
   Widget _buildInfoCard() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryBlue.withOpacity(0.05),
-            AppTheme.primaryPurple.withOpacity(0.02),
+            AppTheme.primaryBlue.withValues(alpha: 0.05),
+            AppTheme.primaryPurple.withValues(alpha: 0.02),
           ],
         ),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.2),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -1006,8 +1106,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.primaryBlue.withOpacity(0.2),
-                  AppTheme.primaryBlue.withOpacity(0.1),
+                  AppTheme.primaryBlue.withValues(alpha: 0.2),
+                  AppTheme.primaryBlue.withValues(alpha: 0.1),
                 ],
               ),
               shape: BoxShape.circle,
@@ -1047,19 +1147,21 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     );
   }
 
+  /// يبني تذييل الحوار مع أزرار الإلغاء والتنفيذ وحالة التحميل المرتبطة بهما.
+  /// Builds the dialog footer with cancel/confirm actions and their loading-aware state.
   Widget _buildFooter() {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.6),
-            AppTheme.darkSurface.withOpacity(0.3),
+            AppTheme.darkSurface.withValues(alpha: 0.6),
+            AppTheme.darkSurface.withValues(alpha: 0.3),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.primaryPurple.withOpacity(0.2),
+            color: AppTheme.primaryPurple.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -1078,10 +1180,10 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkSurface.withOpacity(0.5),
+                  color: AppTheme.darkSurface.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.darkBorder.withOpacity(0.3),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -1111,8 +1213,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
                   gradient: LinearGradient(
                     colors: _isLoading
                         ? [
-                            AppTheme.textMuted.withOpacity(0.3),
-                            AppTheme.textMuted.withOpacity(0.2),
+                            AppTheme.textMuted.withValues(alpha: 0.3),
+                            AppTheme.textMuted.withValues(alpha: 0.2),
                           ]
                         : [
                             AppTheme.primaryPurple,
@@ -1123,7 +1225,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
                   boxShadow: !_isLoading
                       ? [
                           BoxShadow(
-                            color: AppTheme.primaryPurple.withOpacity(0.3),
+                            color:
+                                AppTheme.primaryPurple.withValues(alpha: 0.3),
                             blurRadius: 15,
                             offset: const Offset(0, 5),
                           ),
@@ -1141,7 +1244,7 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              AppTheme.textWhite.withOpacity(0.7),
+                              AppTheme.textWhite.withValues(alpha: 0.7),
                             ),
                           ),
                         ),
@@ -1172,11 +1275,13 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     );
   }
 
+  /// يبني طبقة حجب بصرية تمنع التفاعل أثناء تنفيذ الإسناد.
+  /// Builds a visual blocking overlay that prevents interaction while assignment runs.
   Widget _buildLoadingOverlay() {
     return Positioned.fill(
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.5),
+          color: Colors.black.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(24),
         ),
         child: BackdropFilter(
@@ -1185,15 +1290,15 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withOpacity(0.9),
+                color: AppTheme.darkCard.withValues(alpha: 0.9),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: AppTheme.primaryPurple.withOpacity(0.3),
+                  color: AppTheme.primaryPurple.withValues(alpha: 0.3),
                   width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryPurple.withOpacity(0.2),
+                    color: AppTheme.primaryPurple.withValues(alpha: 0.2),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -1229,6 +1334,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     );
   }
 
+  /// يفتح مساعد اختيار العقار ثم يحدّث العقار المختار عند عودة النتيجة.
+  /// Opens the property-selection helper and updates the chosen property when the result returns.
   void _selectProperty() {
     HapticFeedback.lightImpact();
     context.push(
@@ -1245,6 +1352,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     );
   }
 
+  /// يتحقق من الحقول ثم ينفذ إسناد المرفق باستخدام المدخلات الحالية.
+  /// Validates the form and performs the amenity assignment using the current inputs.
   Future<void> _handleAssign() async {
     if (_formKey.currentState?.validate() ?? false) {
       if (_selectedPropertyId == null) {
@@ -1280,6 +1389,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     }
   }
 
+  /// يعالج نجاح الإسناد بإغلاق الحوار وإظهار رسالة نجاح مناسبة.
+  /// Handles successful assignment by closing the dialog and showing a fitting success message.
   void _handleSuccess() {
     HapticFeedback.heavyImpact();
     widget.onSuccess?.call();
@@ -1293,7 +1404,7 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.success.withOpacity(0.2),
+                color: AppTheme.success.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -1316,7 +1427,7 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(
-            color: AppTheme.success.withOpacity(0.3),
+            color: AppTheme.success.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1325,12 +1436,16 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     );
   }
 
+  /// يعالج الفشل بإيقاف التحميل وتمرير الرسالة وعرضها للمستخدم.
+  /// Handles failure by stopping loading, forwarding the message, and surfacing it to the user.
   void _handleError(String message) {
     setState(() => _isLoading = false);
     widget.onError?.call(message);
     _showError(message);
   }
 
+  /// يعرض رسالة خطأ عائمة متوافقة مع هوية الحوار البصرية.
+  /// Displays a floating error message consistent with the dialog's visual language.
   void _showError(String message) {
     HapticFeedback.mediumImpact();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1340,7 +1455,7 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.error.withOpacity(0.2),
+                color: AppTheme.error.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -1365,7 +1480,7 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(
-            color: AppTheme.error.withOpacity(0.3),
+            color: AppTheme.error.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1374,6 +1489,8 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
     );
   }
 
+  /// يحول اسم الأيقونة المخزن إلى رمز مرئي مناسب لعرض المرفق.
+  /// Maps the stored icon name to the visual icon used to represent the amenity.
   IconData _getAmenityIcon(String iconName) {
     final iconMap = {
       'wifi': Icons.wifi_rounded,
@@ -1394,16 +1511,26 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
   }
 }
 
-// Custom Pattern Painter remains the same...
+/// يرسم شبكة زخرفية متحركة وخطوط زوايا خفيفة في خلفية الحوار.
+/// Paints an animated grid with subtle corner lines in the dialog background.
 class _DialogPatternPainter extends CustomPainter {
+  /// قيمة الحركة التي تزحزح النمط الزخرفي مع الزمن.
+  /// Animation progress used to shift the decorative pattern over time.
   final double animation;
+
+  /// اللون الأساسي المستخدم لرسم الخطوط والزخارف.
+  /// Base color used to draw the lines and accents.
   final Color color;
 
+  /// ينشئ الرسام بالقيمة اللونية والحركية المطلوبة للخلفية.
+  /// Creates the painter with the color and animation values required by the background.
   _DialogPatternPainter({
     required this.animation,
     required this.color,
   });
 
+  /// يرسم الشبكة المائلة وزخارف الزوايا التي تعطي الحوار عمقه البصري.
+  /// Paints the angled grid and corner accents that give the dialog visual depth.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1435,7 +1562,7 @@ class _DialogPatternPainter extends CustomPainter {
 
     // Draw corner decorations
     paint.strokeWidth = 1.5;
-    paint.color = color.withOpacity(0.5);
+    paint.color = color.withValues(alpha: 0.5);
 
     // Top-left corner
     canvas.drawArc(
@@ -1456,6 +1583,8 @@ class _DialogPatternPainter extends CustomPainter {
     );
   }
 
+  /// يعيد الرسم باستمرار لأن النمط يعتمد على حركة متغيرة بين الإطارات.
+  /// Repaints continuously because the pattern depends on animation values that change across frames.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

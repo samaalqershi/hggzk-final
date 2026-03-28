@@ -10,11 +10,23 @@ import '../../domain/entities/review.dart';
 import 'response_card_widget.dart';
 import 'upload_review_image_widget.dart';
 
+/// Renders one property review together with ratings, media, and replies.
+/// يعرض مراجعة واحدة للعقار مع التقييمات والوسائط والردود.
 class ReviewCardWidget extends StatefulWidget {
+  /// Review payload rendered by the card.
+  /// حمولة المراجعة المعروضة في البطاقة.
   final Review review;
+
+  /// Optional callback used when the user likes the review.
+  /// استدعاء اختياري يُستخدم عندما يضغط المستخدم إعجابًا على المراجعة.
   final VoidCallback? onLike;
+
+  /// True when the card should expand and show the full review content.
+  /// تكون صحيحة عندما يجب توسيع البطاقة وعرض محتوى المراجعة كاملًا.
   final bool showFullContent;
 
+  /// Builds the review card used in lists and detail screens.
+  /// ينشئ بطاقة المراجعة المستخدمة في القوائم وشاشات التفاصيل.
   const ReviewCardWidget({
     super.key,
     required this.review,
@@ -22,14 +34,25 @@ class ReviewCardWidget extends StatefulWidget {
     this.showFullContent = false,
   });
 
+  /// Creates the state object that controls expansion and image toggling.
+  /// ينشئ كائن الحالة الذي يتحكم في التوسيع وإظهار الصور.
   @override
   State<ReviewCardWidget> createState() => _ReviewCardWidgetState();
 }
 
+/// Tracks whether the review text or gallery is currently expanded.
+/// يتتبع ما إذا كان نص المراجعة أو المعرض موسعًا حاليًا.
 class _ReviewCardWidgetState extends State<ReviewCardWidget> {
+  /// Tracks whether the comment text is expanded.
+  /// يتتبع ما إذا كان نص التعليق موسعًا.
   bool _isExpanded = false;
+
+  /// Tracks whether the full image gallery should be visible.
+  /// يتتبع ما إذا كان يجب إظهار معرض الصور بالكامل.
   bool _showAllImages = false;
 
+  /// Renders the review card with its content, images, and actions.
+  /// يرسم بطاقة المراجعة مع المحتوى والصور والإجراءات.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -90,6 +113,8 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     );
   }
 
+  /// Builds the header.
+  /// العربية: يبني header.
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -149,6 +174,8 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     );
   }
 
+  /// Builds the user avatar.
+  /// العربية: يبني user avatar.
   Widget _buildUserAvatar() {
     if (widget.review.userAvatar != null) {
       return ClipOval(
@@ -182,6 +209,8 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     );
   }
 
+  /// Builds the user badge.
+  /// العربية: يبني user badge.
   Widget _buildUserBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -202,6 +231,8 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     );
   }
 
+  /// Builds the recommendation badge.
+  /// العربية: يبني recommendation badge.
   Widget _buildRecommendationBadge() {
     return Container(
       margin: const EdgeInsets.symmetric(
@@ -236,6 +267,8 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     );
   }
 
+  /// Builds the rating details.
+  /// العربية: يبني rating details.
   Widget _buildRatingDetails() {
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -281,6 +314,8 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     );
   }
 
+  /// Builds the rating detail item.
+  /// العربية: يبني rating detail item.
   Widget _buildRatingDetailItem(String label, int rating) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppDimensions.spacingXs),
@@ -323,6 +358,8 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     );
   }
 
+  /// Builds the comment.
+  /// العربية: يبني comment.
   Widget _buildComment() {
     final bool shouldTruncate =
         !widget.showFullContent && widget.review.comment.length > 200;
@@ -372,6 +409,8 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     );
   }
 
+  /// Builds the images.
+  /// العربية: يبني images.
   Widget _buildImages() {
     final images = widget.review.images;
     final displayImages = _showAllImages ? images : images.take(3).toList();
@@ -465,6 +504,8 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     );
   }
 
+  /// Builds the management reply.
+  /// العربية: يبني management reply.
   Widget _buildManagementReply() {
     return Padding(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -474,6 +515,8 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     );
   }
 
+  /// Builds the footer.
+  /// العربية: يبني footer.
   Widget _buildFooter() {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -523,6 +566,8 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     );
   }
 
+  /// Builds the options menu.
+  /// العربية: يبني options menu.
   Widget _buildOptionsMenu() {
     return PopupMenuButton<String>(
       icon: Icon(
@@ -569,6 +614,8 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     );
   }
 
+  /// Formats the date.
+  /// العربية: ينسق date.
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
@@ -588,6 +635,8 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     }
   }
 
+  /// Exposes the rating color.
+  /// العربية: يعيد rating color.
   Color _getRatingColor(double rating) {
     if (rating >= 4.5) return AppTheme.success;
     if (rating >= 3.5) return AppTheme.warning;
@@ -595,15 +644,21 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     return AppTheme.error;
   }
 
+  /// Shows the image gallery.
+  /// العربية: يعرض image gallery.
   void _showImageGallery(
       BuildContext context, List<dynamic> images, int initialIndex) {
     // TODO: Implement image gallery viewer
   }
 
+  /// Processes `reportReview`.
+  /// العربية: يعالج `reportReview`.
   void _reportReview() {
     // TODO: Implement report review
   }
 
+  /// Shares the review.
+  /// العربية: يشارك review.
   void _shareReview() {
     // TODO: Implement share review
   }

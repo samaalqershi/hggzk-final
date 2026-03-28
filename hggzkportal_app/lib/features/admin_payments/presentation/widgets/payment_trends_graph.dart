@@ -2,18 +2,16 @@ import 'package:hggzkportal/features/admin_payments/presentation/bloc/payment_an
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'dart:ui';
-import 'dart:math' as math;
 import '../../domain/entities/payment_analytics.dart';
 import '../../../../../../core/theme/app_theme.dart';
 import '../../../../../../core/theme/app_text_styles.dart';
 
 class PaymentTrendsGraph extends StatefulWidget {
+  /// العربية: يخزن القيمة `trends`.
   final List<PaymentTrend> trends;
   final ChartType chartType;
   final List<String> selectedMetrics;
   final double height;
-
   const PaymentTrendsGraph({
     super.key,
     required this.trends,
@@ -21,7 +19,6 @@ class PaymentTrendsGraph extends StatefulWidget {
     required this.selectedMetrics,
     this.height = 300,
   });
-
   @override
   State<PaymentTrendsGraph> createState() => _PaymentTrendsGraphState();
 }
@@ -30,8 +27,6 @@ class _PaymentTrendsGraphState extends State<PaymentTrendsGraph>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
-  final int _touchedIndex = -1;
-
   @override
   void initState() {
     super.initState();
@@ -174,7 +169,6 @@ class _PaymentTrendsGraphState extends State<PaymentTrendsGraph>
       final trend = widget.trends[i];
       final bars = <BarChartRodData>[];
 
-      int barIndex = 0;
       for (final metric in widget.selectedMetrics) {
         double value = 0;
 
@@ -200,7 +194,6 @@ class _PaymentTrendsGraphState extends State<PaymentTrendsGraph>
             ),
           ),
         );
-        barIndex++;
       }
 
       barGroups.add(

@@ -10,15 +10,25 @@ import 'package:hggzkportal/features/support/presentation/cubit/support_cubit.da
 import 'package:hggzkportal/features/support/presentation/cubit/support_state.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// يعرّف الكلاس `SupportPage`.
+/// Describes the `SupportPage` class.
 class SupportPage extends StatefulWidget {
+  /// Initializes a new `SupportPage` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `SupportPage`.
   const SupportPage({super.key});
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<SupportPage> createState() => _SupportPageState();
 }
 
+/// يعرّف الكلاس `_SupportPageState`.
+/// Describes the `_SupportPageState` class.
 class _SupportPageState extends State<SupportPage>
     with SingleTickerProviderStateMixin {
+  /// يخزن العضو `_portalSupportNumbers`.
+  /// Holds the `_portalSupportNumbers` member.
   static const List<String> _portalSupportNumbers = <String>[
     '785050953',
     '785050954',
@@ -30,10 +40,20 @@ class _SupportPageState extends State<SupportPage>
   final _subjectController = TextEditingController();
   final _messageController = TextEditingController();
 
+  /// يخزن العضو `_animationController`.
+  /// Holds the `_animationController` member.
   late AnimationController _animationController;
+
+  /// يخزن العضو `_fadeAnimation`.
+  /// Holds the `_fadeAnimation` member.
   late Animation<double> _fadeAnimation;
+
+  /// يخزن العضو `_slideAnimation`.
+  /// Holds the `_slideAnimation` member.
   late Animation<double> _slideAnimation;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
@@ -59,6 +79,8 @@ class _SupportPageState extends State<SupportPage>
     _animationController.forward();
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _animationController.dispose();
@@ -69,6 +91,8 @@ class _SupportPageState extends State<SupportPage>
     super.dispose();
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
@@ -112,10 +136,11 @@ class _SupportPageState extends State<SupportPage>
                         icon: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: AppTheme.darkCard.withOpacity(0.5),
+                            color: AppTheme.darkCard.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: AppTheme.primaryBlue.withOpacity(0.3),
+                              color:
+                                  AppTheme.primaryBlue.withValues(alpha: 0.3),
                             ),
                           ),
                           child: Icon(
@@ -143,7 +168,7 @@ class _SupportPageState extends State<SupportPage>
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                AppTheme.primaryBlue.withOpacity(0.2),
+                                AppTheme.primaryBlue.withValues(alpha: 0.2),
                                 Colors.transparent,
                               ],
                             ),
@@ -189,6 +214,8 @@ class _SupportPageState extends State<SupportPage>
     );
   }
 
+  /// ينفذ العملية `_buildHeaderCard`.
+  /// Runs the `_buildHeaderCard` operation.
   Widget _buildHeaderCard(AppLocalizations? localizations) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
@@ -201,13 +228,13 @@ class _SupportPageState extends State<SupportPage>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppTheme.primaryBlue.withOpacity(0.15),
-                AppTheme.darkCard.withOpacity(0.8),
+                AppTheme.primaryBlue.withValues(alpha: 0.15),
+                AppTheme.darkCard.withValues(alpha: 0.8),
               ],
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: AppTheme.primaryBlue.withOpacity(0.3),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -220,8 +247,8 @@ class _SupportPageState extends State<SupportPage>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppTheme.primaryBlue.withOpacity(0.3),
-                      AppTheme.primaryBlue.withOpacity(0.1),
+                      AppTheme.primaryBlue.withValues(alpha: 0.3),
+                      AppTheme.primaryBlue.withValues(alpha: 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(16),
@@ -265,6 +292,8 @@ class _SupportPageState extends State<SupportPage>
     );
   }
 
+  /// ينفذ العملية `_buildContactFormCard`.
+  /// Runs the `_buildContactFormCard` operation.
   Widget _buildContactFormCard(BuildContext context, SupportState state,
       AppLocalizations? localizations) {
     return ClipRRect(
@@ -274,10 +303,10 @@ class _SupportPageState extends State<SupportPage>
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppTheme.darkCard.withOpacity(0.8),
+            color: AppTheme.darkCard.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               width: 1,
             ),
           ),
@@ -291,7 +320,7 @@ class _SupportPageState extends State<SupportPage>
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -425,6 +454,8 @@ class _SupportPageState extends State<SupportPage>
     );
   }
 
+  /// ينفذ العملية `_buildTextField`.
+  /// Runs the `_buildTextField` operation.
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -443,17 +474,18 @@ class _SupportPageState extends State<SupportPage>
         labelText: label,
         labelStyle: TextStyle(color: AppTheme.textMuted),
         prefixIcon: maxLines == 1
-            ? Icon(icon, color: AppTheme.primaryBlue.withOpacity(0.7))
+            ? Icon(icon, color: AppTheme.primaryBlue.withValues(alpha: 0.7))
             : null,
         filled: true,
-        fillColor: AppTheme.darkSurface.withOpacity(0.5),
+        fillColor: AppTheme.darkSurface.withValues(alpha: 0.5),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppTheme.darkBorder.withOpacity(0.6)),
+          borderSide:
+              BorderSide(color: AppTheme.darkBorder.withValues(alpha: 0.6)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -473,6 +505,8 @@ class _SupportPageState extends State<SupportPage>
     );
   }
 
+  /// ينفذ العملية `_buildContactInfoCard`.
+  /// Runs the `_buildContactInfoCard` operation.
   Widget _buildContactInfoCard(AppLocalizations? localizations) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
@@ -481,9 +515,10 @@ class _SupportPageState extends State<SupportPage>
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppTheme.darkCard.withOpacity(0.8),
+            color: AppTheme.darkCard.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+            border: Border.all(
+                color: Colors.white.withValues(alpha: 0.1), width: 1),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -493,7 +528,7 @@ class _SupportPageState extends State<SupportPage>
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryPurple.withOpacity(0.1),
+                      color: AppTheme.primaryPurple.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
@@ -553,6 +588,8 @@ class _SupportPageState extends State<SupportPage>
     );
   }
 
+  /// ينفذ العملية `_buildContactItem`.
+  /// Runs the `_buildContactItem` operation.
   Widget _buildContactItem({
     required IconData icon,
     required String title,
@@ -563,16 +600,16 @@ class _SupportPageState extends State<SupportPage>
     final child = Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 22),
@@ -616,16 +653,22 @@ class _SupportPageState extends State<SupportPage>
     );
   }
 
+  /// ينفذ العملية `_launchDirectCall`.
+  /// Runs the `_launchDirectCall` operation.
   Future<void> _launchDirectCall(String phoneNumber) async {
     final intlNumber = _toInternationalYemenNumber(phoneNumber);
     await _launchExternalLink(Uri.parse('tel:+$intlNumber'));
   }
 
+  /// ينفذ العملية `_launchWhatsApp`.
+  /// Runs the `_launchWhatsApp` operation.
   Future<void> _launchWhatsApp(String phoneNumber) async {
     final intlNumber = _toInternationalYemenNumber(phoneNumber);
     await _launchExternalLink(Uri.parse('https://wa.me/$intlNumber'));
   }
 
+  /// ينفذ العملية `_launchExternalLink`.
+  /// Runs the `_launchExternalLink` operation.
   Future<void> _launchExternalLink(Uri uri) async {
     final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!opened && mounted) {
@@ -633,6 +676,8 @@ class _SupportPageState extends State<SupportPage>
     }
   }
 
+  /// ينفذ العملية `_toInternationalYemenNumber`.
+  /// Runs the `_toInternationalYemenNumber` operation.
   String _toInternationalYemenNumber(String phoneNumber) {
     final normalized = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
     if (normalized.startsWith('967')) {
@@ -644,6 +689,8 @@ class _SupportPageState extends State<SupportPage>
     return '967$normalized';
   }
 
+  /// ينفذ العملية `_formatPhoneForDisplay`.
+  /// Runs the `_formatPhoneForDisplay` operation.
   String _formatPhoneForDisplay(String phoneNumber) {
     final normalized = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
     if (normalized.length == 9) {
@@ -652,6 +699,8 @@ class _SupportPageState extends State<SupportPage>
     return '+$normalized';
   }
 
+  /// ينفذ العملية `_submitForm`.
+  /// Runs the `_submitForm` operation.
   void _submitForm(BuildContext context) {
     if (_formKey.currentState!.validate()) {
       context.read<SupportCubit>().sendSupportMessage(
@@ -663,6 +712,8 @@ class _SupportPageState extends State<SupportPage>
     }
   }
 
+  /// ينفذ العملية `_clearForm`.
+  /// Runs the `_clearForm` operation.
   void _clearForm() {
     _nameController.clear();
     _emailController.clear();
@@ -670,6 +721,8 @@ class _SupportPageState extends State<SupportPage>
     _messageController.clear();
   }
 
+  /// ينفذ العملية `_showSuccessDialog`.
+  /// Runs the `_showSuccessDialog` operation.
   void _showSuccessDialog(BuildContext context, AppLocalizations? localizations,
       String referenceNumber) {
     showDialog(
@@ -688,13 +741,13 @@ class _SupportPageState extends State<SupportPage>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    AppTheme.darkCard.withOpacity(0.95),
-                    AppTheme.darkSurface.withOpacity(0.9),
+                    AppTheme.darkCard.withValues(alpha: 0.95),
+                    AppTheme.darkSurface.withValues(alpha: 0.9),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: AppTheme.primaryBlue.withOpacity(0.3),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -706,13 +759,13 @@ class _SupportPageState extends State<SupportPage>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppTheme.neonGreen.withOpacity(0.2),
-                          AppTheme.neonGreen.withOpacity(0.1),
+                          AppTheme.neonGreen.withValues(alpha: 0.2),
+                          AppTheme.neonGreen.withValues(alpha: 0.1),
                         ],
                       ),
                       shape: BoxShape.circle,
                       border: Border.all(
-                          color: AppTheme.neonGreen.withOpacity(0.3)),
+                          color: AppTheme.neonGreen.withValues(alpha: 0.3)),
                     ),
                     child: Icon(
                       Icons.check_circle_outline,
@@ -734,10 +787,10 @@ class _SupportPageState extends State<SupportPage>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryBlue.withOpacity(0.1),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                          color: AppTheme.primaryBlue.withOpacity(0.3)),
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.3)),
                     ),
                     child: Text(
                       '${localizations?.get('reference') ?? 'Reference'}: $referenceNumber',
@@ -806,6 +859,8 @@ class _SupportPageState extends State<SupportPage>
     );
   }
 
+  /// ينفذ العملية `_showErrorSnackBar`.
+  /// Runs the `_showErrorSnackBar` operation.
   void _showErrorSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -825,18 +880,26 @@ class _SupportPageState extends State<SupportPage>
   }
 }
 
+/// يعرّف الكلاس `_SupportBackgroundPainter`.
+/// Describes the `_SupportBackgroundPainter` class.
 class _SupportBackgroundPainter extends CustomPainter {
+  /// Holds the `animationValue` value.
+  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
 
+  /// ينشئ مثيلاً من `_SupportBackgroundPainter`.
+  /// Builds an instance of `_SupportBackgroundPainter`.
   _SupportBackgroundPainter({required this.animationValue});
 
+  /// ينفذ العملية `paint`.
+  /// Runs the `paint` operation.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..style = PaintingStyle.fill
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 100);
 
-    paint.color = AppTheme.primaryBlue.withOpacity(0.08);
+    paint.color = AppTheme.primaryBlue.withValues(alpha: 0.08);
     canvas.drawCircle(
       Offset(
         size.width * 0.8 + math.sin(animationValue * math.pi * 2) * 20,
@@ -846,7 +909,7 @@ class _SupportBackgroundPainter extends CustomPainter {
       paint,
     );
 
-    paint.color = AppTheme.primaryPurple.withOpacity(0.06);
+    paint.color = AppTheme.primaryPurple.withValues(alpha: 0.06);
     canvas.drawCircle(
       Offset(
         size.width * 0.2 + math.cos(animationValue * math.pi * 2) * 15,
@@ -856,7 +919,7 @@ class _SupportBackgroundPainter extends CustomPainter {
       paint,
     );
 
-    paint.color = AppTheme.neonBlue.withOpacity(0.04);
+    paint.color = AppTheme.neonBlue.withValues(alpha: 0.04);
     canvas.drawCircle(
       Offset(
         size.width * 0.5,
@@ -867,6 +930,8 @@ class _SupportBackgroundPainter extends CustomPainter {
     );
   }
 
+  /// ينفذ العملية `shouldRepaint`.
+  /// Runs the `shouldRepaint` operation.
   @override
   bool shouldRepaint(covariant _SupportBackgroundPainter oldDelegate) {
     return oldDelegate.animationValue != animationValue;

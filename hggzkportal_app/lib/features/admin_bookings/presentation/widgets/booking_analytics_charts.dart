@@ -4,18 +4,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/booking_report.dart';
 import '../../domain/entities/booking_trends.dart';
 import '../../domain/entities/booking_window_analysis.dart';
 
+/// تعرض مجموعة رسوم تحليلية للحجوزات تشمل الإيراد والاتجاهات والمصادر.
+/// Renders booking analytics charts for revenue, trends, occupancy, and sources.
 class BookingAnalyticsCharts extends StatefulWidget {
+  /// تقرير الحجوزات المجمّع المستخدم في الرسوم البيانية.
+  /// Aggregated booking report used for the charts.
   final BookingReport report;
+
+  /// بيانات الاتجاهات الزمنية للحجوزات والإيرادات.
+  /// Time-series data for bookings and revenue.
   final BookingTrends trends;
+
+  /// تحليل اختيارـي لنافذة الحجز عند توفره.
+  /// Optional booking window analysis when available.
   final BookingWindowAnalysis? windowAnalysis;
 
+  /// ينشئ مجموعة الرسوم مع البيانات التحليلية المطلوبة.
+  /// Creates the chart set with the analytics data it needs.
   const BookingAnalyticsCharts({
     super.key,
     required this.report,
@@ -23,16 +34,30 @@ class BookingAnalyticsCharts extends StatefulWidget {
     this.windowAnalysis,
   });
 
+  /// ينشئ الحالة المسؤولة عن الحركة واللمس في الرسوم.
+  /// Creates the state that handles animation and touch input.
   @override
   State<BookingAnalyticsCharts> createState() => _BookingAnalyticsChartsState();
 }
 
+/// يدير الحركة التدريجية وتفاعل المستخدم مع الرسوم البيانية.
+/// Manages progressive animation and user interaction for the charts.
 class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
     with TickerProviderStateMixin {
+  /// متحكم الحركة الذي يطلق ظهور الرسوم.
+  /// Animation controller that drives chart reveal.
   late AnimationController _animationController;
+
+  /// تقدم الحركة الذي يطبّق على البيانات أثناء الظهور.
+  /// Animation progress applied while the charts appear.
   late Animation<double> _chartAnimation;
+
+  /// فهرس النقطة المتفاعلة حاليًا في الرسم الدائري.
+  /// Index of the currently touched point in circular charts.
   int _touchedIndex = -1;
 
+  /// يهيئ الحركة ويشغّلها عند ظهور اللوحة.
+  /// Initializes and starts the animation when the panel appears.
   @override
   void initState() {
     super.initState();
@@ -47,12 +72,16 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
     _animationController.forward();
   }
 
+  /// يحرر متحكم الحركة عند إزالة الرسم من الشجرة.
+  /// Disposes the animation controller when the chart widget is removed.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
+  /// يبني جميع الرسوم البيانية التحليلية داخل عمود واحد.
+  /// Builds all analytics charts in a single column.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -72,11 +101,16 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
     );
   }
 
+  /// يبني مخطط الإيرادات الزمني مع التدرج وحالات اللمس.
+  /// Builds the revenue line chart with gradient styling and touch handling.
   Widget _buildRevenueChart() {
     return _ChartContainer(
       title: 'الإيرادات',
       icon: CupertinoIcons.money_dollar_circle_fill,
-      gradientColors: [AppTheme.success, AppTheme.success.withOpacity(0.7)],
+      gradientColors: [
+        AppTheme.success,
+        AppTheme.success.withValues(alpha: 0.7)
+      ],
       child: SizedBox(
         height: 250,
         child: AnimatedBuilder(
@@ -90,7 +124,7 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
                   horizontalInterval: 1,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: AppTheme.darkBorder.withOpacity(0.1),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.1),
                       strokeWidth: 1,
                       dashArray: [5, 5],
                     );
@@ -164,7 +198,7 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
                     isCurved: true,
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.success.withOpacity(0.8),
+                        AppTheme.success.withValues(alpha: 0.8),
                         AppTheme.success,
                       ],
                     ),
@@ -185,8 +219,8 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
                       show: true,
                       gradient: LinearGradient(
                         colors: [
-                          AppTheme.success.withOpacity(0.2),
-                          AppTheme.success.withOpacity(0.0),
+                          AppTheme.success.withValues(alpha: 0.2),
+                          AppTheme.success.withValues(alpha: 0.0),
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -218,6 +252,8 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
     );
   }
 
+  /// يبني مخطط أعمدة يوضح تغير أعداد الحجوزات.
+  /// Builds the bar chart that shows booking count trends.
   Widget _buildBookingTrendsChart() {
     return _ChartContainer(
       title: 'اتجاهات الحجوزات',
@@ -299,7 +335,7 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
                   horizontalInterval: 5,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: AppTheme.darkBorder.withOpacity(0.1),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.1),
                       strokeWidth: 1,
                       dashArray: [3, 3],
                     );
@@ -331,6 +367,8 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
     );
   }
 
+  /// يبني مخطط الإشغال الذي يوضح نسبة الامتلاء عبر الزمن.
+  /// Builds the occupancy chart that shows fill rate over time.
   Widget _buildOccupancyChart() {
     final occupancyData = widget.trends.occupancyTrends;
 
@@ -351,7 +389,7 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
                   horizontalInterval: 20,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: AppTheme.darkBorder.withOpacity(0.1),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.1),
                       strokeWidth: 1,
                       dashArray: [5, 5],
                     );
@@ -428,8 +466,8 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
                       show: true,
                       gradient: LinearGradient(
                         colors: [
-                          AppTheme.primaryCyan.withOpacity(0.2),
-                          AppTheme.primaryViolet.withOpacity(0.0),
+                          AppTheme.primaryCyan.withValues(alpha: 0.2),
+                          AppTheme.primaryViolet.withValues(alpha: 0.0),
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -445,13 +483,18 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
     );
   }
 
+  /// يبني المخطط الدائري الذي يشرح توزيع نافذة الحجز.
+  /// Builds the pie chart that explains booking-window distribution.
   Widget _buildBookingWindowChart() {
     final windowData = widget.windowAnalysis!.segments;
 
     return _ChartContainer(
       title: 'نافذة الحجز',
       icon: CupertinoIcons.time,
-      gradientColors: [AppTheme.warning, AppTheme.warning.withOpacity(0.7)],
+      gradientColors: [
+        AppTheme.warning,
+        AppTheme.warning.withValues(alpha: 0.7)
+      ],
       child: SizedBox(
         height: 200,
         child: AnimatedBuilder(
@@ -502,7 +545,8 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppTheme.shadowDark.withOpacity(0.2),
+                                  color: AppTheme.shadowDark
+                                      .withValues(alpha: 0.2),
                                   blurRadius: 10,
                                 ),
                               ],
@@ -538,6 +582,8 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
     );
   }
 
+  /// يعرض مصادر الحجوزات في أشرطة تقدم نسبية.
+  /// Shows booking sources as relative progress bars.
   Widget _buildSourcesChart() {
     final sources = widget.report.summary.bookingsBySource;
     final total = sources.values.reduce((a, b) => a + b);
@@ -545,7 +591,7 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
     return _ChartContainer(
       title: 'مصادر الحجوزات',
       icon: CupertinoIcons.globe,
-      gradientColors: [AppTheme.info, AppTheme.info.withOpacity(0.7)],
+      gradientColors: [AppTheme.info, AppTheme.info.withValues(alpha: 0.7)],
       child: Column(
         children: sources.entries.map((entry) {
           final percentage = (entry.value / total) * 100;
@@ -559,6 +605,8 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
     );
   }
 
+  /// يبني شريطًا واحدًا يمثل مصدر حجز معينًا ونسبته.
+  /// Builds one bar that represents a booking source and its share.
   Widget _buildSourceBar({
     required String source,
     required int count,
@@ -596,7 +644,7 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
                   Container(
                     height: 8,
                     decoration: BoxDecoration(
-                      color: AppTheme.darkBorder.withOpacity(0.1),
+                      color: AppTheme.darkBorder.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -609,7 +657,7 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
                         borderRadius: BorderRadius.circular(4),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.primaryBlue.withOpacity(0.3),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -626,6 +674,8 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
     );
   }
 
+  /// يختار لونًا متكررًا للشريحة أو القطاع حسب موضعه.
+  /// Chooses a repeating color for the segment or slice by index.
   Color _getSegmentColor(int index) {
     final colors = [
       AppTheme.primaryBlue,
@@ -637,6 +687,8 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
     return colors[index % colors.length];
   }
 
+  /// يحول اسم المصدر الخام إلى تسمية عربية أوضح للعرض.
+  /// Converts a raw source name into a clearer Arabic display label.
   String _getSourceLabel(String source) {
     switch (source.toLowerCase()) {
       case 'website':
@@ -651,12 +703,27 @@ class _BookingAnalyticsChartsState extends State<BookingAnalyticsCharts>
   }
 }
 
+/// يغلف كل مخطط داخل بطاقة موحدة بالعنوان والأيقونة والتدرج.
+/// Wraps each chart in a consistent card with a title, icon, and styling.
 class _ChartContainer extends StatelessWidget {
+  /// عنوان المخطط الظاهر في رأس البطاقة.
+  /// Title shown in the chart card header.
   final String title;
+
+  /// الأيقونة التي تمثل نوع التحليل المعروض.
+  /// Icon representing the analysis type.
   final IconData icon;
+
+  /// ألوان التدرج المستخدمة في رأس البطاقة.
+  /// Gradient colors used in the card header.
   final List<Color> gradientColors;
+
+  /// محتوى المخطط الموضوع داخل البطاقة.
+  /// Chart content placed inside the card.
   final Widget child;
 
+  /// ينشئ الحاوية الموحدة للمخططات التحليلية.
+  /// Creates the unified container for analytics charts.
   const _ChartContainer({
     required this.title,
     required this.icon,
@@ -664,6 +731,8 @@ class _ChartContainer extends StatelessWidget {
     required this.child,
   });
 
+  /// يبني بطاقة المخطط مع الرأس والمحتوى والحدود المتناسقة.
+  /// Builds the chart card with its header, content, and consistent border.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -671,7 +740,7 @@ class _ChartContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.shadowDark.withOpacity(0.1),
+            color: AppTheme.shadowDark.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -687,13 +756,13 @@ class _ChartContainer extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.8),
-                  AppTheme.darkCard.withOpacity(0.6),
+                  AppTheme.darkCard.withValues(alpha: 0.8),
+                  AppTheme.darkCard.withValues(alpha: 0.6),
                 ],
               ),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.2),
+                color: AppTheme.darkBorder.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -705,13 +774,13 @@ class _ChartContainer extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        gradientColors[0].withOpacity(0.1),
-                        gradientColors[1].withOpacity(0.05),
+                        gradientColors[0].withValues(alpha: 0.1),
+                        gradientColors[1].withValues(alpha: 0.05),
                       ],
                     ),
                     border: Border(
                       bottom: BorderSide(
-                        color: AppTheme.darkBorder.withOpacity(0.1),
+                        color: AppTheme.darkBorder.withValues(alpha: 0.1),
                       ),
                     ),
                   ),

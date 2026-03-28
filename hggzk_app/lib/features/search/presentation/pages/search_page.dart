@@ -22,48 +22,119 @@ import 'search_results_map_page.dart';
 import '../../domain/entities/search_navigation_params.dart';
 import '../../domain/entities/search_result.dart';
 
+/// Primary property search screen that combines query input, filters, and
+/// result presentation.
+/// شاشة البحث الرئيسية التي تجمع حقل البحث والفلاتر وعرض النتائج.
 class SearchPage extends StatefulWidget {
+  /// Optional navigation payload used to seed the first search.
+  /// حمولة تنقل اختيارية لتهيئة البحث الأول.
   final SearchNavigationParams? initialParams;
+
+  /// Builds the search screen with an optional initial payload.
+  /// ينشئ شاشة البحث مع حمولة ابتدائية اختيارية.
   const SearchPage({super.key, this.initialParams});
 
+  /// Builds the state object for this widget.
+  /// ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<SearchPage> createState() => _SearchPageState();
 }
 
+/// Manages the animated background, current filters, and the active search
+/// result snapshot.
+/// يدير الخلفية المتحركة والفلاتر الحالية ولقطة نتائج البحث النشطة.
 class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
+  /// Last filter payload that was applied to the search bloc.
+  /// آخر حمولة فلاتر طُبقت على bloc البحث.
   Map<String, dynamic> _lastFilters = {};
   final ScrollController _scrollController = ScrollController();
 
   // Enhanced Animation Controllers
+  /// Drives the page entrance fade.
+  /// يقود تلاشي دخول الصفحة.
   late AnimationController _fadeController;
+
+  /// Moves the content into view from below.
+  /// يحرك المحتوى إلى الداخل من الأسفل.
   late AnimationController _slideController;
+
+  /// Adds a subtle scale-in effect to the page shell.
+  /// يضيف تأثير تكبير خفيف لغلاف الصفحة.
   late AnimationController _scaleController;
+
+  /// Animates the soft glow layers.
+  /// يحرك طبقات التوهج الناعم.
   late AnimationController _glowController;
+
+  /// Animates the background particles.
+  /// يحرك جسيمات الخلفية.
   late AnimationController _particleController;
+
+  /// Drives the ripple motion behind filters and cards.
+  /// يقود حركة التموج خلف الفلاتر والبطاقات.
   late AnimationController _rippleController;
+
+  /// Smooths the morphing visual accents.
+  /// ينسّق الزخارف المرنة المتحركة.
   late AnimationController _morphController;
+
+  /// Drives the parallax offset used by layered elements.
+  /// يقود إزاحة المنظر المستخدم للعناصر المتعددة الطبقات.
   late AnimationController _parallaxController;
 
   // Enhanced Animations
+  /// Fade curve applied to the full page.
+  /// منحنى التلاشي المطبق على الصفحة بالكامل.
   late Animation<double> _fadeAnimation;
+
+  /// Slide offset used by the main content column.
+  /// إزاحة الانزلاق المستخدمة لعمود المحتوى الرئيسي.
   late Animation<Offset> _slideAnimation;
+
+  /// Scale curve used by the page shell.
+  /// منحنى التكبير المستخدم لغلاف الصفحة.
   late Animation<double> _scaleAnimation;
+
+  /// Glow intensity used by decorative highlights.
+  /// شدة التوهج المستخدمة في اللمعات الزخرفية.
   late Animation<double> _glowAnimation;
+
+  /// Ripple progress for background waves.
+  /// تقدم التموج لموجات الخلفية.
   late Animation<double> _rippleAnimation;
+
+  /// Morph value used by animated accents.
+  /// قيمة التشكل المستخدمة في الزخارف المتحركة.
   late Animation<double> _morphAnimation;
+
+  /// Parallax value for layered motion.
+  /// قيمة المنظر للحركة الطبقية.
   late Animation<double> _parallaxAnimation;
 
   // Ultra Particles System
+  /// Background particles used for atmosphere.
+  /// جسيمات الخلفية المستخدمة لإضفاء الجو.
   final List<_UltraParticle> _particles = [];
+
+  /// Floating orbs used in the animated background.
+  /// الكرات الطافية المستخدمة في الخلفية المتحركة.
   final List<_FloatingOrb> _orbs = [];
 
   // View State
-  ViewMode _viewMode = ViewMode.list;
-  bool _isSearchExpanded = false;
+  /// Current vertical scroll offset.
+  /// إزاحة التمرير العمودية الحالية.
   double _scrollOffset = 0;
+
+  /// Last successful result snapshot shown to the user.
+  /// آخر لقطة نجاح معروضة للمستخدم.
   SearchSuccess? _lastSuccess;
+
+  /// Visible search text mirrored from the composer.
+  /// نص البحث الظاهر المنعكس من المحرر.
   String _searchInputValue = '';
 
+  /// Initializes the page animation stack and restores the search context.
+  /// يهيئ حزمة الحركة ويستعيد سياق البحث.
   @override
   void initState() {
     super.initState();
@@ -74,6 +145,8 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     _applyInitialParams();
   }
 
+  /// Initializes the page animation stack.
+  /// يهيئ حزمة حركات الصفحة.
   void _initializeUltraAnimations() {
     // Fade Animation with curve
     _fadeController = AnimationController(
@@ -172,6 +245,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     _scaleController.forward();
   }
 
+  /// العربية: ينشئ ultra particles.
   void _generateUltraParticles() {
     // Generate particles
     for (int i = 0; i < 30; i++) {
@@ -184,16 +258,17 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     }
   }
 
+  /// العربية: يضبط up scroll listener.
   void _setupScrollListener() {
     _scrollController.addListener(() {
       setState(() {
         _scrollOffset = _scrollController.offset;
-        _isSearchExpanded = _scrollOffset < 50;
       });
       _onScroll();
     });
   }
 
+  /// العربية: يعالج `applyInitialParams`.
   void _applyInitialParams() {
     if (widget.initialParams != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -222,6 +297,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     }
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _scrollController.dispose();
@@ -236,12 +312,14 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  /// العربية: يعالج `onScroll`.
   void _onScroll() {
     if (_isBottom) {
       context.read<SearchBloc>().add(const LoadMoreSearchResultsEvent());
     }
   }
 
+  /// العربية: يعيد القيمة `isBottom`.
   bool get _isBottom {
     if (!_scrollController.hasClients) return false;
     final maxScroll = _scrollController.position.maxScrollExtent;
@@ -249,6 +327,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     return currentScroll >= (maxScroll * 0.9);
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -291,7 +370,19 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                           return _buildUltraErrorView(nested.message);
                         }
                         if (nested is SearchLoadingMore) {
-                          return _buildUltraLoadingView();
+                          if (_lastSuccess != null) {
+                            return _buildUltraResultsView(
+                              _lastSuccess!,
+                              isLoadingMore: true,
+                            );
+                          }
+                          return _buildUltraResultsView(
+                            SearchSuccess(
+                              searchResults: nested.currentResults,
+                              currentFilters: _lastFilters,
+                            ),
+                            isLoadingMore: true,
+                          );
                         }
                         return const SizedBox.shrink();
                       }
@@ -306,6 +397,20 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                       } else if (state is SearchSuccess) {
                         _lastSuccess = state;
                         return _buildUltraResultsView(state);
+                      } else if (state is SearchLoadingMore) {
+                        if (_lastSuccess != null) {
+                          return _buildUltraResultsView(
+                            _lastSuccess!,
+                            isLoadingMore: true,
+                          );
+                        }
+                        return _buildUltraResultsView(
+                          SearchSuccess(
+                            searchResults: state.currentResults,
+                            currentFilters: _lastFilters,
+                          ),
+                          isLoadingMore: true,
+                        );
                       } else if (state is SearchError) {
                         return _buildUltraErrorView(state.message);
                       }
@@ -321,6 +426,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
+  /// العربية: يبني ultra animated background.
   Widget _buildUltraAnimatedBackground() {
     return AnimatedBuilder(
       animation: Listenable.merge([
@@ -355,6 +461,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
+  /// العربية: يبني ultra particles.
   Widget _buildUltraParticles() {
     return AnimatedBuilder(
       animation: _particleController,
@@ -370,6 +477,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
+  /// العربية: يبني floating orbs.
   Widget _buildFloatingOrbs() {
     return AnimatedBuilder(
       animation: _morphController,
@@ -385,6 +493,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
+  /// العربية: يبني ultra futuristic header.
   Widget _buildUltraFuturisticHeader() {
     final headerOpacity = 1.0 - (_scrollOffset / 150).clamp(0.0, 0.4);
     final headerBlur = (_scrollOffset / 10).clamp(0.0, 20.0);
@@ -433,6 +542,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
+  /// العربية: يبني ultra search bar.
   Widget _buildUltraSearchBar() {
     return BlocSelector<SearchBloc, SearchState, List<String>>(
       selector: (state) {
@@ -571,6 +681,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
+  /// العربية: يبني neon glow button.
   Widget _buildNeonGlowButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -630,6 +741,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
+  /// العربية: يبني ultra filter button.
   Widget _buildUltraFilterButton() {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
@@ -717,6 +829,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
+  /// العربية: يبني ultra active filters.
   Widget _buildUltraActiveFilters() {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
@@ -786,6 +899,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
+  /// العربية: يبني ultra results bar.
   Widget _buildUltraResultsBar() {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
@@ -880,6 +994,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
+  /// العربية: يبني ultra view mode toggle.
   Widget _buildUltraViewModeToggle(ViewMode currentMode) {
     return Container(
       decoration: BoxDecoration(
@@ -928,6 +1043,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
+  /// العربية: يبني view mode button.
   Widget _buildViewModeButton({
     required IconData icon,
     required bool isSelected,
@@ -960,13 +1076,12 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
+  /// العربية: يعالج `changeViewMode`.
   void _changeViewMode(ViewMode mode) {
-    setState(() {
-      _viewMode = mode;
-    });
     context.read<SearchBloc>().add(ToggleViewModeEvent(mode: mode));
   }
 
+  /// العربية: يبني ultra initial view.
   Widget _buildUltraInitialView() {
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -989,229 +1104,26 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildUltraPopularDestinations() {
-    final destinations = [
-      {
-        'name': 'صنعاء',
-        'count': '234',
-        'icon': Icons.location_city,
-        'color': AppTheme.primaryBlue
-      },
-      {
-        'name': 'عدن',
-        'count': '189',
-        'icon': Icons.beach_access,
-        'color': AppTheme.neonBlue
-      },
-      {
-        'name': 'تعز',
-        'count': '156',
-        'icon': Icons.terrain,
-        'color': AppTheme.primaryPurple
-      },
-      {
-        'name': 'المكلا',
-        'count': '98',
-        'icon': Icons.water,
-        'color': AppTheme.neonPurple
-      },
-      {
-        'name': 'سيئون',
-        'count': '67',
-        'icon': Icons.mosque,
-        'color': AppTheme.primaryViolet
-      },
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.primaryBlue.withOpacity(0.2),
-                    AppTheme.primaryPurple.withOpacity(0.1),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.trending_up_rounded,
-                size: 18,
-                color: AppTheme.primaryBlue,
-              ),
-            ),
-            const SizedBox(width: 10),
-            ShaderMask(
-              shaderCallback: (bounds) =>
-                  AppTheme.primaryGradient.createShader(bounds),
-              child: Text(
-                'الوجهات الشائعة',
-                style: AppTextStyles.h3.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textWhite,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 120,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: destinations.length,
-            itemBuilder: (context, index) {
-              final destination = destinations[index];
-              return _buildUltraDestinationCard(destination, index);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildUltraDestinationCard(
-      Map<String, dynamic> destination, int index) {
-    return AnimatedBuilder(
-      animation: _scaleAnimation,
-      builder: (context, child) {
-        return TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0, end: 1),
-          duration: Duration(milliseconds: 400 + (index * 100)),
-          curve: Curves.easeOutBack,
-          builder: (context, value, child) {
-            return Transform.scale(
-              scale: value * _scaleAnimation.value,
-              child: Container(
-                width: 110,
-                margin: const EdgeInsets.only(left: 12),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      context.read<SearchBloc>().add(
-                            SearchPropertiesEvent(city: destination['name']),
-                          );
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            (destination['color'] as Color).withOpacity(0.1),
-                            (destination['color'] as Color).withOpacity(0.05),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color:
-                              (destination['color'] as Color).withOpacity(0.2),
-                          width: 0.5,
-                        ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        destination['color'] as Color,
-                                        (destination['color'] as Color)
-                                            .withOpacity(0.7),
-                                      ],
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: (destination['color'] as Color)
-                                            .withOpacity(0.3),
-                                        blurRadius: 12,
-                                        spreadRadius: 1,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Icon(
-                                    destination['icon'] as IconData,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  destination['name'],
-                                  style: AppTextStyles.bodySmall.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: AppTheme.textWhite,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: (destination['color'] as Color)
-                                        .withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    '${destination['count']}',
-                                    style: AppTextStyles.overline.copyWith(
-                                      color: destination['color'] as Color,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   // ... (Continue with remaining methods)
+  /// العربية: يبني ultra recent searches.
   Widget _buildUltraRecentSearches() {
     // Implementation
     return const SizedBox();
   }
 
+  /// العربية: يبني ultra search categories.
   Widget _buildUltraSearchCategories() {
     // Implementation
     return const SizedBox();
   }
 
+  /// العربية: يبني ultra trending properties.
   Widget _buildUltraTrendingProperties() {
     // Implementation
     return const SizedBox();
   }
 
+  /// العربية: يبني ultra loading view.
   Widget _buildUltraLoadingView() {
     return const Center(
       child: LoadingWidget(
@@ -1221,7 +1133,11 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildUltraResultsView(SearchSuccess state) {
+  /// العربية: يبني ultra results view.
+  Widget _buildUltraResultsView(
+    SearchSuccess state, {
+    bool isLoadingMore = false,
+  }) {
     if (state.viewMode == ViewMode.map) {
       return SearchResultsMapPage(
         results: state.searchResults.items,
@@ -1260,7 +1176,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                 ? SearchResultListWidget(
                     results: state.searchResults.items,
                     scrollController: _scrollController,
-                    isLoadingMore: state is SearchLoadingMore,
+                    isLoadingMore: isLoadingMore,
                     relaxationLevel: state.relaxationInfo?.relaxationLevel,
                     onItemTap: (result) {
                       HapticFeedback.lightImpact();
@@ -1274,7 +1190,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                 : SearchResultCompactWidget(
                     results: state.searchResults.items,
                     scrollController: _scrollController,
-                    isLoadingMore: state is SearchLoadingMore,
+                    isLoadingMore: isLoadingMore,
                     relaxationLevel: state.relaxationInfo?.relaxationLevel,
                     onItemTap: (result) {
                       HapticFeedback.lightImpact();
@@ -1300,6 +1216,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
+  /// العربية: يبني ultra empty results.
   Widget _buildUltraEmptyResults() {
     return CustomErrorWidget(
       type: ErrorType.notFound,
@@ -1311,6 +1228,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
+  /// العربية: يبني property navigation extra.
   Map<String, dynamic> _buildPropertyNavigationExtra(
     SearchResult result,
     Map<String, dynamic> filters,
@@ -1368,6 +1286,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     };
   }
 
+  /// العربية: يبني ultra error view.
   Widget _buildUltraErrorView(String message) {
     return Center(
       child: Column(
@@ -1420,36 +1339,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildFloatingButton({
-    required IconData icon,
-    required Gradient gradient,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          gradient: gradient,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: gradient.colors.first.withOpacity(0.4),
-              blurRadius: 15,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: Icon(
-          icon,
-          color: Colors.white,
-          size: 22,
-        ),
-      ),
-    );
-  }
-
+  /// العربية: يفتح filters.
   void _openFilters() async {
     final filters = await Navigator.push<Map<String, dynamic>>(
       context,
@@ -1474,6 +1364,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     }
   }
 
+  /// العربية: يعالج `performSearchByText`.
   void _performSearchByText(String rawQuery) {
     final normalizedQuery = rawQuery.trim();
     _searchInputValue = normalizedQuery;
@@ -1493,6 +1384,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     context.read<SearchBloc>().add(const ClearSearchSuggestionsEvent());
   }
 
+  /// العربية: يعالج `performSearch`.
   void _performSearch(Map<String, dynamic> filters) {
     final sanitizedFilters = _sanitizeSearchFilters(filters);
     _lastFilters = Map<String, dynamic>.from(sanitizedFilters);
@@ -1571,6 +1463,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
         );
   }
 
+  /// العربية: يعالج `sanitizeSearchFilters`.
   Map<String, dynamic> _sanitizeSearchFilters(Map<String, dynamic> filters) {
     final sanitized = Map<String, dynamic>.from(filters);
 
@@ -1628,6 +1521,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     return sanitized;
   }
 
+  /// العربية: يعالج `isRequiredField`.
   bool _isRequiredField(String key, Map<String, dynamic> filters) {
     // الحقول الأساسية المطلوبة
     if (key == 'propertyTypeId' || key == 'unitTypeId') {
@@ -1636,6 +1530,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     return false;
   }
 
+  /// العربية: يعالج `extractRequiredFields`.
   Map<String, dynamic> _extractRequiredFields(Map<String, dynamic> filters) {
     final required = <String, dynamic>{};
 
@@ -1651,6 +1546,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     return required;
   }
 
+  /// العربية: يعرض required field error.
   void _showRequiredFieldError(String fieldKey) {
     String message = '';
 
@@ -1707,36 +1603,53 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
 
 // Painter Classes
 // Ultra Futuristic Background Painter
+/// العربية: يمثل `UltraFuturisticBackgroundPainter`.
 class _UltraFuturisticBackgroundPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `morph`.
   final double morph;
+
+  /// العربية: يخزن القيمة `parallax`.
   final double parallax;
+
+  /// العربية: يخزن القيمة `ripple`.
   final double ripple;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `UltraFuturisticBackgroundPainter`.
   _UltraFuturisticBackgroundPainter({
     required this.morph,
     required this.parallax,
     required this.ripple,
   });
 
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     // Implementation
   }
 
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 // Ultra Particle Model
+/// العربية: يمثل `UltraParticle`.
 class _UltraParticle {
+  /// العربية: يخزن القيمة `vy`.
   late double x, y, vx, vy;
+
+  /// العربية: يخزن القيمة `glowRadius`.
   late double radius, opacity, glowRadius;
+
+  /// العربية: يخزن القيمة `color`.
   late Color color;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `UltraParticle`.
   _UltraParticle() {
     reset();
   }
 
+  /// العربية: يعالج `reset`.
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -1755,6 +1668,7 @@ class _UltraParticle {
     color = colors[math.Random().nextInt(colors.length)];
   }
 
+  /// العربية: يحدّث العملية المطلوبة لـ `update`.
   void update() {
     x += vx;
     y += vy;
@@ -1764,15 +1678,21 @@ class _UltraParticle {
 }
 
 // Ultra Particle Painter
+/// العربية: يمثل `UltraParticlePainter`.
 class _UltraParticlePainter extends CustomPainter {
+  /// العربية: يخزن القيمة `particles`.
   final List<_UltraParticle> particles;
+
+  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `UltraParticlePainter`.
   _UltraParticlePainter({
     required this.particles,
     required this.animationValue,
   });
 
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
@@ -1794,15 +1714,21 @@ class _UltraParticlePainter extends CustomPainter {
     }
   }
 
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 // Floating Orb Model
+/// العربية: يمثل `FloatingOrb`.
 class _FloatingOrb {
+  /// العربية: يخزن القيمة `radius`.
   late double x, y, radius;
+
+  /// العربية: يخزن القيمة `color`.
   late Color color;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `FloatingOrb`.
   _FloatingOrb() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -1818,15 +1744,21 @@ class _FloatingOrb {
 }
 
 // Floating Orb Painter
+/// العربية: يمثل `FloatingOrbPainter`.
 class _FloatingOrbPainter extends CustomPainter {
+  /// العربية: يخزن القيمة `orbs`.
   final List<_FloatingOrb> orbs;
+
+  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `FloatingOrbPainter`.
   _FloatingOrbPainter({
     required this.orbs,
     required this.animationValue,
   });
 
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     for (var orb in orbs) {
@@ -1849,6 +1781,7 @@ class _FloatingOrbPainter extends CustomPainter {
     }
   }
 
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

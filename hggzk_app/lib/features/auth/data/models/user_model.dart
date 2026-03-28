@@ -1,6 +1,12 @@
 import '../../domain/entities/user.dart';
 
+/// يترجم بيانات المستخدم الخام القادمة من API إلى كيان `User`، مع معالجة
+/// فروق التسمية بين الحقول وحالات التحقق غير المكتملة.
+/// Maps raw user payloads from the API into the `User` entity while handling
+/// field-name variations and incomplete verification data.
 class UserModel extends User {
+  /// ينشئ نموذج المستخدم مع الاعتماد على البنية القياسية لكيان المجال.
+  /// Creates the user model by reusing the standardized domain-entity shape.
   const UserModel({
     required super.userId,
     required super.name,
@@ -14,6 +20,10 @@ class UserModel extends User {
     required super.updatedAt,
   });
 
+  /// يبني النموذج من JSON مع تطبيع الحقول البديلة التي قد تختلف بين
+  /// نقاط النهاية.
+  /// Builds the model from JSON while normalizing alternate field names that
+  /// may vary across endpoints.
   factory UserModel.fromJson(Map<String, dynamic> json) {
     // The app determines verification via `emailVerifiedAt != null`.
     // Some backend responses (notably social-login) may return a boolean
@@ -63,6 +73,8 @@ class UserModel extends User {
     );
   }
 
+  /// يحول النموذج إلى JSON قابل للحفظ المحلي أو التمرير بين الطبقات.
+  /// Converts the model back to JSON for local caching or inter-layer passing.
   Map<String, dynamic> toJson() {
     return {
       'userId': userId,
@@ -78,6 +90,10 @@ class UserModel extends User {
     };
   }
 
+  /// ينشئ النموذج من كيان مجال موجود عندما تحتاج طبقة البيانات لإعادة حفظه
+  /// أو إرساله.
+  /// Creates the model from an existing domain entity when the data layer
+  /// needs to persist or resend it.
   factory UserModel.fromEntity(User user) {
     return UserModel(
       userId: user.userId,

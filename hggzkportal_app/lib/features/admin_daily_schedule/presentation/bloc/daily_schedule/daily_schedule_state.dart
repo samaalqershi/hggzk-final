@@ -15,6 +15,7 @@ sealed class DailyScheduleState extends Equatable {
 
 /// الحالة الأولية قبل أي عملية
 class DailyScheduleInitial extends DailyScheduleState {
+  /// العربية: ينشئ مثيلًا جديدًا من `DailyScheduleInitial`.
   const DailyScheduleInitial();
 }
 
@@ -23,6 +24,7 @@ class DailyScheduleInitial extends DailyScheduleState {
 /// حالة التحميل أثناء جلب البيانات
 class DailyScheduleLoading extends DailyScheduleState {
   /// رسالة التحميل (اختياري)
+  /// العربية: يخزن القيمة `loadingMessage`.
   final String? loadingMessage;
 
   const DailyScheduleLoading({this.loadingMessage});
@@ -36,6 +38,7 @@ class DailyScheduleLoading extends DailyScheduleState {
 /// حالة تحميل الجدول بنجاح
 class DailyScheduleLoaded extends DailyScheduleState {
   /// الجدول الشهري المحمّل
+  /// العربية: يخزن القيمة `monthlySchedule`.
   final MonthlySchedule monthlySchedule;
 
   /// معرّف الوحدة المختارة حاليًا
@@ -90,8 +93,7 @@ class DailyScheduleLoaded extends DailyScheduleState {
       calculatedPrice: clearCalculatedPrice
           ? null
           : (calculatedPrice ?? this.calculatedPrice),
-      currentFilter:
-          clearFilter ? null : (currentFilter ?? this.currentFilter),
+      currentFilter: clearFilter ? null : (currentFilter ?? this.currentFilter),
     );
   }
 
@@ -122,6 +124,7 @@ class DailyScheduleLoaded extends DailyScheduleState {
 /// حالة التحديث أثناء عملية تحديث البيانات
 class DailyScheduleUpdating extends DailyScheduleState {
   /// الجدول الحالي قبل التحديث
+  /// العربية: يخزن القيمة `currentSchedule`.
   final MonthlySchedule currentSchedule;
 
   /// رسالة التحديث
@@ -141,6 +144,7 @@ class DailyScheduleUpdating extends DailyScheduleState {
 /// حالة نجاح عملية التحديث
 class DailyScheduleUpdateSuccess extends DailyScheduleState {
   /// الجدول المحدّث
+  /// العربية: يخزن القيمة `updatedSchedule`.
   final MonthlySchedule updatedSchedule;
 
   /// رسالة النجاح
@@ -164,6 +168,7 @@ class DailyScheduleUpdateSuccess extends DailyScheduleState {
 /// حالة الخطأ عند فشل أي عملية
 class DailyScheduleError extends DailyScheduleState {
   /// رسالة الخطأ
+  /// العربية: يخزن القيمة `errorMessage`.
   final String errorMessage;
 
   /// آخر جدول محمّل (إن وجد)

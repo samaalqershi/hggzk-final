@@ -9,8 +9,11 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../domain/entities/unit_type_field.dart';
 
 class UnitTypeFieldModal extends StatefulWidget {
+  /// العربية: يخزن القيمة `field`.
   final UnitTypeField? field;
+
   final String unitTypeId;
+
   final Function(Map<String, dynamic>) onSave;
 
   const UnitTypeFieldModal({
@@ -27,29 +30,49 @@ class UnitTypeFieldModal extends StatefulWidget {
 class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
+
   late AnimationController _tabAnimationController;
+
   late Animation<double> _scaleAnimation;
+
   late Animation<double> _fadeAnimation;
+
   late Animation<double> _slideAnimation;
 
   final _formKey = GlobalKey<FormState>();
+
   late TextEditingController _fieldNameController;
+
   late TextEditingController _displayNameController;
+
   late TextEditingController _descriptionController;
+
   late TextEditingController _categoryController;
+
   late TextEditingController _sortOrderController;
+
   late TextEditingController _priorityController;
+
   late TextEditingController _optionsController;
+
   late TextEditingController _optionInputController;
+
   final List<String> _optionChips = [];
 
   String _selectedFieldType = 'text';
+
   bool _isRequired = false;
+
   bool _isSearchable = false;
+
   bool _isPublic = true;
+
   bool _isForUnits = true;
+
   bool _showInCards = false;
+
   bool _isPrimaryFilter = false;
+
   final bool _isLoading = false;
 
   // Mobile tab management
@@ -58,6 +81,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 
   // Breakpoints
   static const double _mobileBreakpoint = 600;
+
   static const double _tabletBreakpoint = 1024;
 
   final List<Map<String, dynamic>> _fieldTypes = [
@@ -147,7 +171,6 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
     if (options is List) {
       return options.map((e) => e.toString()).join(', ');
     }
-
 
     // إذا كانت خريطة
     if (options is Map) {
@@ -305,18 +328,21 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.4),
+        color: AppTheme.darkSurface.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.darkBorder.withOpacity(0.3)),
+        border: Border.all(color: AppTheme.darkBorder.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.list_rounded, color: AppTheme.neonPurple.withOpacity(0.7), size: 18),
+              Icon(Icons.list_rounded,
+                  color: AppTheme.neonPurple.withValues(alpha: 0.7), size: 18),
               const SizedBox(width: 8),
-              Text('الخيارات', style: AppTextStyles.bodySmall.copyWith(color: AppTheme.textMuted)),
+              Text('الخيارات',
+                  style: AppTextStyles.bodySmall
+                      .copyWith(color: AppTheme.textMuted)),
             ],
           ),
           const SizedBox(height: 10),
@@ -327,7 +353,9 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
               children: _optionChips
                   .map(
                     (opt) => InputChip(
-                      label: Text(opt, style: AppTextStyles.bodySmall.copyWith(color: Colors.white)),
+                      label: Text(opt,
+                          style: AppTextStyles.bodySmall
+                              .copyWith(color: Colors.white)),
                       backgroundColor: AppTheme.darkCard,
                       onDeleted: () {
                         setState(() {
@@ -336,7 +364,10 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
                         });
                       },
                       deleteIconColor: AppTheme.textMuted,
-                      shape: StadiumBorder(side: BorderSide(color: AppTheme.darkBorder.withOpacity(0.5))),
+                      shape: StadiumBorder(
+                          side: BorderSide(
+                              color:
+                                  AppTheme.darkBorder.withValues(alpha: 0.5))),
                     ),
                   )
                   .toList(),
@@ -348,17 +379,21 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
             style: AppTextStyles.bodySmall.copyWith(color: AppTheme.textWhite),
             decoration: InputDecoration(
               hintText: 'أدخل الخيار ثم اضغط Enter أو ","',
-              hintStyle: AppTextStyles.caption.copyWith(color: AppTheme.textMuted.withOpacity(0.6)),
+              hintStyle: AppTextStyles.caption
+                  .copyWith(color: AppTheme.textMuted.withValues(alpha: 0.6)),
               filled: true,
               fillColor: AppTheme.darkCard,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: AppTheme.darkBorder.withOpacity(0.4)),
+                borderSide: BorderSide(
+                    color: AppTheme.darkBorder.withValues(alpha: 0.4)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.6)),
+                borderSide: BorderSide(
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.6)),
               ),
             ),
             onChanged: (text) {
@@ -431,13 +466,13 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.95),
-            AppTheme.darkCard.withOpacity(0.85),
+            AppTheme.darkCard.withValues(alpha: 0.95),
+            AppTheme.darkCard.withValues(alpha: 0.85),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.neonPurple.withOpacity(0.3),
+            color: AppTheme.neonPurple.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -454,7 +489,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.neonPurple.withOpacity(0.3),
+                  color: AppTheme.neonPurple.withValues(alpha: 0.3),
                   blurRadius: 8,
                 ),
               ],
@@ -491,7 +526,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
             icon: Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: AppTheme.darkSurface.withOpacity(0.5),
+                color: AppTheme.darkSurface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -517,10 +552,10 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
     return Container(
       height: 50,
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -551,16 +586,18 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
                 gradient: isActive
                     ? LinearGradient(
                         colors: [
-                          AppTheme.neonPurple.withOpacity(0.3),
-                          AppTheme.neonGreen.withOpacity(0.2),
+                          AppTheme.neonPurple.withValues(alpha: 0.3),
+                          AppTheme.neonGreen.withValues(alpha: 0.2),
                         ],
                       )
                     : null,
-                color: !isActive ? AppTheme.darkSurface.withOpacity(0.3) : null,
+                color: !isActive
+                    ? AppTheme.darkSurface.withValues(alpha: 0.3)
+                    : null,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: isActive
-                      ? AppTheme.neonPurple.withOpacity(0.5)
+                      ? AppTheme.neonPurple.withValues(alpha: 0.5)
                       : Colors.transparent,
                   width: 1,
                 ),
@@ -710,17 +747,19 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
               gradient: isSelected
                   ? LinearGradient(
                       colors: [
-                        (type['color'] as Color).withOpacity(0.3),
-                        (type['color'] as Color).withOpacity(0.1),
+                        (type['color'] as Color).withValues(alpha: 0.3),
+                        (type['color'] as Color).withValues(alpha: 0.1),
                       ],
                     )
                   : null,
-              color: !isSelected ? AppTheme.darkSurface.withOpacity(0.5) : null,
+              color: !isSelected
+                  ? AppTheme.darkSurface.withValues(alpha: 0.5)
+                  : null,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isSelected
-                    ? (type['color'] as Color).withOpacity(0.5)
-                    : AppTheme.darkBorder.withOpacity(0.3),
+                    ? (type['color'] as Color).withValues(alpha: 0.5)
+                    : AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: isSelected ? 2 : 1,
               ),
             ),
@@ -864,13 +903,13 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.5),
-            AppTheme.darkSurface.withOpacity(0.3),
+            AppTheme.darkSurface.withValues(alpha: 0.5),
+            AppTheme.darkSurface.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -884,8 +923,8 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.neonPurple.withOpacity(0.3),
-                      AppTheme.neonGreen.withOpacity(0.2),
+                      AppTheme.neonPurple.withValues(alpha: 0.3),
+                      AppTheme.neonGreen.withValues(alpha: 0.2),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(8),
@@ -927,7 +966,8 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
       children: [
         Row(
           children: [
-            Icon(icon, size: 14, color: AppTheme.neonPurple.withOpacity(0.7)),
+            Icon(icon,
+                size: 14, color: AppTheme.neonPurple.withValues(alpha: 0.7)),
             const SizedBox(width: 6),
             Text(
               label,
@@ -941,10 +981,10 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: AppTheme.darkCard.withOpacity(0.3),
+            color: AppTheme.darkCard.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -958,7 +998,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.caption.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.all(12),
@@ -989,17 +1029,17 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
           gradient: value
               ? LinearGradient(
                   colors: [
-                    activeColor.withOpacity(0.2),
-                    activeColor.withOpacity(0.1),
+                    activeColor.withValues(alpha: 0.2),
+                    activeColor.withValues(alpha: 0.1),
                   ],
                 )
               : null,
-          color: !value ? AppTheme.darkCard.withOpacity(0.3) : null,
+          color: !value ? AppTheme.darkCard.withValues(alpha: 0.3) : null,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: value
-                ? activeColor.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.3),
+                ? activeColor.withValues(alpha: 0.5)
+                : AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1008,7 +1048,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: activeColor.withOpacity(0.2),
+                color: activeColor.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -1044,9 +1084,9 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
               value: value,
               onChanged: onChanged,
               activeThumbColor: activeColor,
-              activeTrackColor: activeColor.withOpacity(0.3),
+              activeTrackColor: activeColor.withValues(alpha: 0.3),
               inactiveThumbColor: AppTheme.textMuted,
-              inactiveTrackColor: AppTheme.darkBorder.withOpacity(0.3),
+              inactiveTrackColor: AppTheme.darkBorder.withValues(alpha: 0.3),
             ),
           ],
         ),
@@ -1060,19 +1100,19 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.95),
-            AppTheme.darkCard.withOpacity(0.85),
+            AppTheme.darkCard.withValues(alpha: 0.95),
+            AppTheme.darkCard.withValues(alpha: 0.85),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -1089,10 +1129,10 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
               child: Container(
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkSurface.withOpacity(0.5),
+                  color: AppTheme.darkSurface.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.darkBorder.withOpacity(0.3),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -1121,7 +1161,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.neonPurple.withOpacity(0.3),
+                      color: AppTheme.neonPurple.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -1175,18 +1215,18 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppTheme.darkCard.withOpacity(0.95),
-                      AppTheme.darkCard.withOpacity(0.85),
+                      AppTheme.darkCard.withValues(alpha: 0.95),
+                      AppTheme.darkCard.withValues(alpha: 0.85),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: AppTheme.neonPurple.withOpacity(0.3),
+                    color: AppTheme.neonPurple.withValues(alpha: 0.3),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.neonPurple.withOpacity(0.2),
+                      color: AppTheme.neonPurple.withValues(alpha: 0.2),
                       blurRadius: 30,
                       spreadRadius: 5,
                     ),
@@ -1228,13 +1268,13 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.neonPurple.withOpacity(0.1),
-            AppTheme.neonGreen.withOpacity(0.05),
+            AppTheme.neonPurple.withValues(alpha: 0.1),
+            AppTheme.neonGreen.withValues(alpha: 0.05),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1251,7 +1291,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.neonPurple.withOpacity(0.3),
+                  color: AppTheme.neonPurple.withValues(alpha: 0.3),
                   blurRadius: 12,
                   spreadRadius: 2,
                 ),
@@ -1291,7 +1331,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.darkSurface.withOpacity(0.5),
+                color: AppTheme.darkSurface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -1310,10 +1350,10 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
     return Container(
       width: 200,
       decoration: BoxDecoration(
-        color: AppTheme.darkSurface.withOpacity(0.3),
+        color: AppTheme.darkSurface.withValues(alpha: 0.3),
         border: Border(
           right: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.2),
+            color: AppTheme.darkBorder.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -1361,15 +1401,15 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
           gradient: isActive
               ? LinearGradient(
                   colors: [
-                    AppTheme.neonPurple.withOpacity(0.2),
-                    AppTheme.neonGreen.withOpacity(0.1),
+                    AppTheme.neonPurple.withValues(alpha: 0.2),
+                    AppTheme.neonGreen.withValues(alpha: 0.1),
                   ],
                 )
               : null,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isActive
-                ? AppTheme.neonPurple.withOpacity(0.3)
+                ? AppTheme.neonPurple.withValues(alpha: 0.3)
                 : Colors.transparent,
             width: 1,
           ),
@@ -1514,17 +1554,19 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
               gradient: isSelected
                   ? LinearGradient(
                       colors: [
-                        (type['color'] as Color).withOpacity(0.3),
-                        (type['color'] as Color).withOpacity(0.1),
+                        (type['color'] as Color).withValues(alpha: 0.3),
+                        (type['color'] as Color).withValues(alpha: 0.1),
                       ],
                     )
                   : null,
-              color: !isSelected ? AppTheme.darkSurface.withOpacity(0.5) : null,
+              color: !isSelected
+                  ? AppTheme.darkSurface.withValues(alpha: 0.5)
+                  : null,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isSelected
-                    ? (type['color'] as Color).withOpacity(0.5)
-                    : AppTheme.darkBorder.withOpacity(0.3),
+                    ? (type['color'] as Color).withValues(alpha: 0.5)
+                    : AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: isSelected ? 2 : 1,
               ),
             ),
@@ -1605,13 +1647,13 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.3),
-            AppTheme.darkSurface.withOpacity(0.1),
+            AppTheme.darkSurface.withValues(alpha: 0.3),
+            AppTheme.darkSurface.withValues(alpha: 0.1),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1656,18 +1698,18 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.darkCard.withOpacity(0.95),
-            AppTheme.darkCard.withOpacity(0.85),
+            AppTheme.darkCard.withValues(alpha: 0.95),
+            AppTheme.darkCard.withValues(alpha: 0.85),
           ],
         ),
         borderRadius: BorderRadius.circular(AppDimensions.radiusXLarge),
         border: Border.all(
-          color: AppTheme.neonPurple.withOpacity(0.3),
+          color: AppTheme.neonPurple.withValues(alpha: 0.3),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.neonPurple.withOpacity(0.2),
+            color: AppTheme.neonPurple.withValues(alpha: 0.2),
             blurRadius: 30,
             spreadRadius: 5,
           ),
@@ -1699,13 +1741,13 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.neonPurple.withOpacity(0.1),
-            AppTheme.neonGreen.withOpacity(0.05),
+            AppTheme.neonPurple.withValues(alpha: 0.1),
+            AppTheme.neonGreen.withValues(alpha: 0.05),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1722,7 +1764,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.neonPurple.withOpacity(0.3),
+                  color: AppTheme.neonPurple.withValues(alpha: 0.3),
                   blurRadius: 12,
                   spreadRadius: 2,
                 ),
@@ -1762,7 +1804,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.darkSurface.withOpacity(0.5),
+                color: AppTheme.darkSurface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -1913,13 +1955,13 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkSurface.withOpacity(0.5),
-                AppTheme.darkSurface.withOpacity(0.3),
+                AppTheme.darkSurface.withValues(alpha: 0.5),
+                AppTheme.darkSurface.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -1988,13 +2030,13 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkSurface.withOpacity(0.5),
-                AppTheme.darkSurface.withOpacity(0.3),
+                AppTheme.darkSurface.withValues(alpha: 0.5),
+                AppTheme.darkSurface.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
             border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.3),
+              color: AppTheme.darkBorder.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -2008,19 +2050,19 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.caption.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: maxLines == 1
                   ? Icon(
                       icon,
-                      color: AppTheme.neonPurple.withOpacity(0.7),
+                      color: AppTheme.neonPurple.withValues(alpha: 0.7),
                       size: 18,
                     )
                   : Padding(
                       padding: const EdgeInsets.only(top: 10, left: 10),
                       child: Icon(
                         icon,
-                        color: AppTheme.neonPurple.withOpacity(0.7),
+                        color: AppTheme.neonPurple.withValues(alpha: 0.7),
                         size: 18,
                       ),
                     ),
@@ -2044,13 +2086,13 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.3),
-            AppTheme.darkSurface.withOpacity(0.1),
+            AppTheme.darkSurface.withValues(alpha: 0.3),
+            AppTheme.darkSurface.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -2111,12 +2153,12 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: value ? color.withOpacity(0.1) : Colors.transparent,
+          color: value ? color.withValues(alpha: 0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: value
-                ? color.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.3),
+                ? color.withValues(alpha: 0.5)
+                : AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2162,13 +2204,13 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkSurface.withOpacity(0.3),
-            AppTheme.darkSurface.withOpacity(0.1),
+            AppTheme.darkSurface.withValues(alpha: 0.3),
+            AppTheme.darkSurface.withValues(alpha: 0.1),
           ],
         ),
         border: Border(
           top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2198,13 +2240,13 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.5),
-              AppTheme.darkCard.withOpacity(0.3),
+              AppTheme.darkCard.withValues(alpha: 0.5),
+              AppTheme.darkCard.withValues(alpha: 0.3),
             ],
           ),
           borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -2232,7 +2274,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
           borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.neonPurple.withOpacity(0.3),
+              color: AppTheme.neonPurple.withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -2371,7 +2413,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //     _isPrimaryFilter = widget.field?.isPrimaryFilter ?? false;
 //     _sortOrder = widget.field?.sortOrder ?? 0;
 //     _priority = widget.field?.priority ?? 0;
-    
+
 //     if (widget.field?.fieldOptions != null && widget.field.fieldOptions['options'] != null) {
 //       _options = List<String>.from(widget.field.fieldOptions['options']);
 //     }
@@ -2397,7 +2439,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //     final double maxHeight = isSmall ? (screenSize.height * 0.95) : (screenSize.height * 0.9);
 
 //     return Dialog(
-      // insetPadding: const EdgeInsets.all(10),
+// insetPadding: const EdgeInsets.all(10),
 //       backgroundColor: Colors.transparent,
 //       insetPadding: inset,
 //       child: Container(
@@ -2408,13 +2450,13 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //         decoration: BoxDecoration(
 //           gradient: LinearGradient(
 //             colors: [
-//               AppTheme.darkCard.withOpacity(0.95),
-//               AppTheme.darkCard.withOpacity(0.85),
+//               AppTheme.darkCard.withValues(alpha: 0.95),
+//               AppTheme.darkCard.withValues(alpha: 0.85),
 //             ],
 //           ),
 //           borderRadius: BorderRadius.circular(20),
 //           border: Border.all(
-//             color: AppTheme.primaryPurple.withOpacity(0.3),
+//             color: AppTheme.primaryPurple.withValues(alpha: 0.3),
 //             width: 1,
 //           ),
 //         ),
@@ -2486,13 +2528,13 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //       decoration: BoxDecoration(
 //         gradient: LinearGradient(
 //           colors: [
-//             AppTheme.primaryPurple.withOpacity(0.1),
-//             AppTheme.primaryBlue.withOpacity(0.05),
+//             AppTheme.primaryPurple.withValues(alpha: 0.1),
+//             AppTheme.primaryBlue.withValues(alpha: 0.05),
 //           ],
 //         ),
 //         border: Border(
 //           bottom: BorderSide(
-//             color: AppTheme.darkBorder.withOpacity(0.3),
+//             color: AppTheme.darkBorder.withValues(alpha: 0.3),
 //             width: 1,
 //           ),
 //         ),
@@ -2504,7 +2546,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //             height: 40,
 //             decoration: BoxDecoration(
 //               gradient: LinearGradient(
-//                 colors: [AppTheme.primaryPurple, AppTheme.primaryPurple.withOpacity(0.7)],
+//                 colors: [AppTheme.primaryPurple, AppTheme.primaryPurple.withValues(alpha: 0.7)],
 //               ),
 //               borderRadius: BorderRadius.circular(10),
 //             ),
@@ -2555,10 +2597,10 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //         Container(
 //           padding: const EdgeInsets.symmetric(horizontal: 12),
 //           decoration: BoxDecoration(
-//             color: AppTheme.darkSurface.withOpacity(0.5),
+//             color: AppTheme.darkSurface.withValues(alpha: 0.5),
 //             borderRadius: BorderRadius.circular(12),
 //             border: Border.all(
-//               color: AppTheme.darkBorder.withOpacity(0.3),
+//               color: AppTheme.darkBorder.withValues(alpha: 0.3),
 //             ),
 //           ),
 //           child: DropdownButtonHideUnderline(
@@ -2712,10 +2754,10 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //         const SizedBox(height: 8),
 //         Container(
 //           decoration: BoxDecoration(
-//             color: AppTheme.darkSurface.withOpacity(0.5),
+//             color: AppTheme.darkSurface.withValues(alpha: 0.5),
 //             borderRadius: BorderRadius.circular(12),
 //             border: Border.all(
-//               color: AppTheme.darkBorder.withOpacity(0.3),
+//               color: AppTheme.darkBorder.withValues(alpha: 0.3),
 //             ),
 //           ),
 //           child: Row(
@@ -2765,10 +2807,10 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //         const SizedBox(height: 8),
 //         Container(
 //           decoration: BoxDecoration(
-//             color: AppTheme.darkSurface.withOpacity(0.5),
+//             color: AppTheme.darkSurface.withValues(alpha: 0.5),
 //             borderRadius: BorderRadius.circular(12),
 //             border: Border.all(
-//               color: AppTheme.darkBorder.withOpacity(0.3),
+//               color: AppTheme.darkBorder.withValues(alpha: 0.3),
 //             ),
 //           ),
 //           child: Row(
@@ -2807,7 +2849,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 
 //   Widget _buildOptionsField() {
 //     final optionController = TextEditingController();
-    
+
 //     return Column(
 //       crossAxisAlignment: CrossAxisAlignment.start,
 //       children: [
@@ -2822,10 +2864,10 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //         Container(
 //           padding: const EdgeInsets.all(12),
 //           decoration: BoxDecoration(
-//             color: AppTheme.darkSurface.withOpacity(0.5),
+//             color: AppTheme.darkSurface.withValues(alpha: 0.5),
 //             borderRadius: BorderRadius.circular(12),
 //             border: Border.all(
-//               color: AppTheme.darkBorder.withOpacity(0.3),
+//               color: AppTheme.darkBorder.withValues(alpha: 0.3),
 //             ),
 //           ),
 //           child: Column(
@@ -2839,7 +2881,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //                       decoration: InputDecoration(
 //                         hintText: 'أضف خيار',
 //                         hintStyle: AppTextStyles.bodyMedium.copyWith(
-//                           color: AppTheme.textMuted.withOpacity(0.5),
+//                           color: AppTheme.textMuted.withValues(alpha: 0.5),
 //                         ),
 //                         border: InputBorder.none,
 //                       ),
@@ -2883,13 +2925,13 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //                           decoration: BoxDecoration(
 //                             gradient: LinearGradient(
 //                               colors: [
-//                                 AppTheme.primaryPurple.withOpacity(0.2),
-//                                 AppTheme.primaryBlue.withOpacity(0.1),
+//                                 AppTheme.primaryPurple.withValues(alpha: 0.2),
+//                                 AppTheme.primaryBlue.withValues(alpha: 0.1),
 //                               ],
 //                             ),
 //                             borderRadius: BorderRadius.circular(8),
 //                             border: Border.all(
-//                               color: AppTheme.primaryPurple.withOpacity(0.3),
+//                               color: AppTheme.primaryPurple.withValues(alpha: 0.3),
 //                               width: 1,
 //                             ),
 //                           ),
@@ -2945,10 +2987,10 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //         Container(
 //           padding: const EdgeInsets.all(16),
 //           decoration: BoxDecoration(
-//             color: AppTheme.darkSurface.withOpacity(0.3),
+//             color: AppTheme.darkSurface.withValues(alpha: 0.3),
 //             borderRadius: BorderRadius.circular(12),
 //             border: Border.all(
-//               color: AppTheme.darkBorder.withOpacity(0.2),
+//               color: AppTheme.darkBorder.withValues(alpha: 0.2),
 //             ),
 //           ),
 //           child: Column(
@@ -3044,15 +3086,15 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //         gradient: value
 //             ? LinearGradient(
 //                 colors: [
-//                   color.withOpacity(0.1),
-//                   color.withOpacity(0.05),
+//                   color.withValues(alpha: 0.1),
+//                   color.withValues(alpha: 0.05),
 //                 ],
 //               )
 //             : null,
-//         color: value ? null : AppTheme.darkSurface.withOpacity(0.2),
+//         color: value ? null : AppTheme.darkSurface.withValues(alpha: 0.2),
 //         borderRadius: BorderRadius.circular(8),
 //         border: Border.all(
-//           color: value ? color.withOpacity(0.3) : AppTheme.darkBorder.withOpacity(0.1),
+//           color: value ? color.withValues(alpha: 0.3) : AppTheme.darkBorder.withValues(alpha: 0.1),
 //           width: 0.5,
 //         ),
 //       ),
@@ -3079,7 +3121,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //               value: value,
 //               onChanged: onChanged,
 //               activeColor: color,
-//               activeTrackColor: color.withOpacity(0.3),
+//               activeTrackColor: color.withValues(alpha: 0.3),
 //               inactiveThumbColor: AppTheme.textMuted,
 //               inactiveTrackColor: AppTheme.darkSurface,
 //             ),
@@ -3095,13 +3137,13 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //       decoration: BoxDecoration(
 //         gradient: LinearGradient(
 //           colors: [
-//             AppTheme.darkSurface.withOpacity(0.7),
-//             AppTheme.darkSurface.withOpacity(0.5),
+//             AppTheme.darkSurface.withValues(alpha: 0.7),
+//             AppTheme.darkSurface.withValues(alpha: 0.5),
 //           ],
 //         ),
 //         border: Border(
 //           top: BorderSide(
-//             color: AppTheme.darkBorder.withOpacity(0.3),
+//             color: AppTheme.darkBorder.withValues(alpha: 0.3),
 //             width: 1,
 //           ),
 //         ),
@@ -3114,10 +3156,10 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //               child: Container(
 //                 padding: const EdgeInsets.symmetric(vertical: 12),
 //                 decoration: BoxDecoration(
-//                   color: AppTheme.darkSurface.withOpacity(0.5),
+//                   color: AppTheme.darkSurface.withValues(alpha: 0.5),
 //                   borderRadius: BorderRadius.circular(12),
 //                   border: Border.all(
-//                     color: AppTheme.darkBorder.withOpacity(0.3),
+//                     color: AppTheme.darkBorder.withValues(alpha: 0.3),
 //                     width: 1,
 //                   ),
 //                 ),
@@ -3140,12 +3182,12 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //                 padding: const EdgeInsets.symmetric(vertical: 12),
 //                 decoration: BoxDecoration(
 //                   gradient: LinearGradient(
-//                     colors: [AppTheme.primaryPurple, AppTheme.primaryPurple.withOpacity(0.7)],
+//                     colors: [AppTheme.primaryPurple, AppTheme.primaryPurple.withValues(alpha: 0.7)],
 //                   ),
 //                   borderRadius: BorderRadius.circular(12),
 //                   boxShadow: [
 //                     BoxShadow(
-//                       color: AppTheme.primaryPurple.withOpacity(0.3),
+//                       color: AppTheme.primaryPurple.withValues(alpha: 0.3),
 //                       blurRadius: 12,
 //                       offset: const Offset(0, 4),
 //                     ),
@@ -3172,38 +3214,38 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //     return InputDecoration(
 //       hintText: hintText,
 //       hintStyle: AppTextStyles.bodyMedium.copyWith(
-//         color: AppTheme.textMuted.withOpacity(0.5),
+//         color: AppTheme.textMuted.withValues(alpha: 0.5),
 //       ),
 //       filled: true,
-//       fillColor: AppTheme.darkSurface.withOpacity(0.5),
+//       fillColor: AppTheme.darkSurface.withValues(alpha: 0.5),
 //       border: OutlineInputBorder(
 //         borderRadius: BorderRadius.circular(12),
 //         borderSide: BorderSide(
-//           color: AppTheme.darkBorder.withOpacity(0.3),
+//           color: AppTheme.darkBorder.withValues(alpha: 0.3),
 //         ),
 //       ),
 //       enabledBorder: OutlineInputBorder(
 //         borderRadius: BorderRadius.circular(12),
 //         borderSide: BorderSide(
-//           color: AppTheme.darkBorder.withOpacity(0.3),
+//           color: AppTheme.darkBorder.withValues(alpha: 0.3),
 //         ),
 //       ),
 //       focusedBorder: OutlineInputBorder(
 //         borderRadius: BorderRadius.circular(12),
 //         borderSide: BorderSide(
-//           color: AppTheme.primaryPurple.withOpacity(0.5),
+//           color: AppTheme.primaryPurple.withValues(alpha: 0.5),
 //         ),
 //       ),
 //       errorBorder: OutlineInputBorder(
 //         borderRadius: BorderRadius.circular(12),
 //         borderSide: BorderSide(
-//           color: AppTheme.error.withOpacity(0.5),
+//           color: AppTheme.error.withValues(alpha: 0.5),
 //         ),
 //       ),
 //       focusedErrorBorder: OutlineInputBorder(
 //         borderRadius: BorderRadius.circular(12),
 //         borderSide: BorderSide(
-//           color: AppTheme.error.withOpacity(0.5),
+//           color: AppTheme.error.withValues(alpha: 0.5),
 //         ),
 //       ),
 //     );
@@ -3216,8 +3258,8 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //         'fieldName': _fieldNameController.text,
 //         'displayName': _displayNameController.text,
 //         'description': _descriptionController.text,
-//         'fieldOptions': (_fieldTypeId == 'select' || _fieldTypeId == 'multiselect') 
-//             ? {'options': _options} 
+//         'fieldOptions': (_fieldTypeId == 'select' || _fieldTypeId == 'multiselect')
+//             ? {'options': _options}
 //             : {},
 //         'validationRules': {},
 //         'isRequired': _isRequired,
@@ -3230,7 +3272,7 @@ class _UnitTypeFieldModalState extends State<UnitTypeFieldModal>
 //         'isPrimaryFilter': _isPrimaryFilter,
 //         'priority': _priority,
 //       };
-      
+
 //       widget.onSave(fieldData);
 //       Navigator.pop(context);
 //     }

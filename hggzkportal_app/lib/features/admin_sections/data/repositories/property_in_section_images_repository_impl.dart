@@ -13,6 +13,7 @@ import '../models/section_image_model.dart';
 class PropertyInSectionImagesRepositoryImpl
     implements PropertyInSectionImagesRepository {
   final PropertyInSectionImagesRemoteDataSource remoteDataSource;
+
   final NetworkInfo networkInfo;
 
   PropertyInSectionImagesRepositoryImpl({

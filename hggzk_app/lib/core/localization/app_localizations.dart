@@ -4,11 +4,19 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+/// Represents `AppLocalizations`.
+/// العربية: يمثل `AppLocalizations`.
 class AppLocalizations {
+  /// Builds the `AppLocalizations` instance used by this layer.
+  /// العربية: ينشئ مثيلًا جديدًا من `AppLocalizations`.
   AppLocalizations(this.locale);
 
+  /// Keeps the `locale` value so this type can use it later.
+  /// العربية: يخزن القيمة `locale`.
   final Locale locale;
 
+  /// Processes the `of` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `of`.
   static AppLocalizations? of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
@@ -163,32 +171,48 @@ class AppLocalizations {
     },
   };
 
+  /// Exposes the required operation for `get` so callers can read it without depending on implementation details.
+  /// العربية: يعيد العملية المطلوبة لـ `get`.
   String get(String key) {
     return _localizedValues[locale.languageCode]?[key] ?? key;
   }
 
   // Date formatting utility using intl
+  /// Formats the date.
+  /// العربية: ينسق date.
   String formatDate(DateTime date) {
     return intl.DateFormat.yMd(locale.languageCode).format(date);
   }
 
+  /// Formats the time.
+  /// العربية: ينسق time.
   String formatTime(DateTime time) {
     return intl.DateFormat.Hm(locale.languageCode).format(time);
   }
 }
 
+/// Represents `AppLocalizationsDelegate`.
+/// العربية: يمثل `AppLocalizationsDelegate`.
 class _AppLocalizationsDelegate
     extends LocalizationsDelegate<AppLocalizations> {
+  /// Builds the `AppLocalizationsDelegate` instance used by this layer.
+  /// العربية: ينشئ مثيلًا جديدًا من `AppLocalizationsDelegate`.
   const _AppLocalizationsDelegate();
 
+  /// Loads the required operation for `load`.
+  /// العربية: يحمل العملية المطلوبة لـ `load`.
   @override
   Future<AppLocalizations> load(Locale locale) {
     return SynchronousFuture<AppLocalizations>(AppLocalizations(locale));
   }
 
+  /// Processes the `isSupported` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `isSupported`.
   @override
   bool isSupported(Locale locale) => ['ar', 'en'].contains(locale.languageCode);
 
+  /// Processes the `shouldReload` flow and maps it into the app-level behavior.
+  /// العربية: يعالج `shouldReload`.
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }

@@ -3,21 +3,19 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/review_model.dart';
-
 abstract class ReviewsLocalDataSource {
+  /// العربية: يعيد cached reviews.
   Future<List<ReviewModel>> getCachedReviews();
   Future<void> cacheReviews(List<ReviewModel> reviews);
   Future<void> deleteReview(String reviewId);
   Future<void> clearCache();
   Future<void> upsertReview(ReviewModel review);
 }
-
 class ReviewsLocalDataSourceImpl implements ReviewsLocalDataSource {
+  /// العربية: يخزن القيمة `sharedPreferences`.
   final SharedPreferences sharedPreferences;
   static const String CACHED_REVIEWS_KEY = 'CACHED_REVIEWS';
-  
   ReviewsLocalDataSourceImpl({required this.sharedPreferences});
-  
   @override
   Future<List<ReviewModel>> getCachedReviews() async {
     final jsonString = sharedPreferences.getString(CACHED_REVIEWS_KEY);
@@ -27,7 +25,6 @@ class ReviewsLocalDataSourceImpl implements ReviewsLocalDataSource {
     }
     return [];
   }
-  
   @override
   Future<void> cacheReviews(List<ReviewModel> reviews) async {
     final jsonList = reviews.map((review) => review.toJson()).toList();
@@ -36,19 +33,16 @@ class ReviewsLocalDataSourceImpl implements ReviewsLocalDataSource {
       json.encode(jsonList),
     );
   }
-  
   @override
   Future<void> deleteReview(String reviewId) async {
     final reviews = await getCachedReviews();
     final updatedReviews = reviews.where((r) => r.id != reviewId).toList();
     await cacheReviews(updatedReviews);
   }
-  
   @override
   Future<void> clearCache() async {
     await sharedPreferences.remove(CACHED_REVIEWS_KEY);
   }
-
   @override
   Future<void> upsertReview(ReviewModel review) async {
     final reviews = await getCachedReviews();

@@ -6,8 +6,6 @@ import '../models/service_model.dart';
 import '../models/service_details_model.dart';
 import '../../domain/entities/money.dart';
 import '../../domain/entities/pricing_model.dart';
-
-/// 🌐 Remote Data Source للخدمات
 abstract class ServicesRemoteDataSource {
   Future<String> createService({
     required String propertyId,
@@ -17,7 +15,6 @@ abstract class ServicesRemoteDataSource {
     required String icon,
     String? description,
   });
-
   Future<bool> updateService({
     required String serviceId,
     String? name,
@@ -26,7 +23,6 @@ abstract class ServicesRemoteDataSource {
     String? icon,
     String? description,
   });
-
   Future<bool> deleteService(String serviceId);
   Future<List<ServiceModel>> getServicesByProperty(String propertyId);
   Future<ServiceDetailsModel> getServiceDetails(String serviceId);
@@ -36,13 +32,11 @@ abstract class ServicesRemoteDataSource {
     int? pageSize,
   });
 }
-
 class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
+  /// العربية: يخزن القيمة `apiClient`.
   final ApiClient apiClient;
   static const String _adminBasePath = '/api/admin/property-services';
-
   ServicesRemoteDataSourceImpl({required this.apiClient});
-
   @override
   Future<String> createService({
     required String propertyId,
@@ -68,16 +62,16 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
           if (description != null) 'description': description,
         },
       );
-      
+
       if (response.data['success'] == true) {
         return response.data['data'] ?? '';
       }
-      throw ApiException(message: response.data['message'] ?? 'Failed to create service');
+      throw ApiException(
+          message: response.data['message'] ?? 'Failed to create service');
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
-
   @override
   Future<bool> updateService({
     required String serviceId,
@@ -91,7 +85,7 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
       final data = <String, dynamic>{
         'serviceId': serviceId,
       };
-      
+
       if (name != null) data['name'] = name;
       if (price != null) {
         data['price'] = {
@@ -99,7 +93,8 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
           'currency': price.currency,
         };
       }
-      if (pricingModel != null) data['pricingModel'] = _toServerPricingModel(pricingModel);
+      if (pricingModel != null)
+        data['pricingModel'] = _toServerPricingModel(pricingModel);
       if (icon != null) data['icon'] = icon;
       if (description != null) data['description'] = description;
 
@@ -107,13 +102,12 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
         '$_adminBasePath/$serviceId',
         data: data,
       );
-      
+
       return response.data['success'] == true;
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
   }
-
   @override
   Future<bool> deleteService(String serviceId) async {
     try {
@@ -122,7 +116,8 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
         final map = response.data as Map<String, dynamic>;
         if (map['success'] == true || map['isSuccess'] == true) return true;
         // surface backend reason on conflict
-        if (response.statusCode == 409 || map['errorCode'] == 'SERVICE_DELETE_CONFLICT') {
+        if (response.statusCode == 409 ||
+            map['errorCode'] == 'SERVICE_DELETE_CONFLICT') {
           throw ApiException(message: map['message'] ?? 'Deletion conflict');
         }
       }
@@ -131,12 +126,12 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
       throw ApiException.fromDioError(e);
     }
   }
-
   @override
   Future<List<ServiceModel>> getServicesByProperty(String propertyId) async {
     try {
-      final response = await apiClient.get('$_adminBasePath/property/$propertyId');
-      
+      final response =
+          await apiClient.get('$_adminBasePath/property/$propertyId');
+
       if (response.data['success'] == true) {
         final List<dynamic> data = response.data['data'] ?? [];
         return data.map((json) => ServiceModel.fromJson(json)).toList();
@@ -146,12 +141,11 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
       throw ApiException.fromDioError(e);
     }
   }
-
   @override
   Future<ServiceDetailsModel> getServiceDetails(String serviceId) async {
     try {
       final response = await apiClient.get('$_adminBasePath/$serviceId');
-      
+
       if (response.data['success'] == true) {
         return ServiceDetailsModel.fromJson(response.data['data']);
       }
@@ -160,7 +154,6 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
       throw ApiException.fromDioError(e);
     }
   }
-
   @override
   Future<PaginatedResult<ServiceModel>> getServicesByType({
     required String serviceType,
@@ -175,7 +168,7 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
           if (pageSize != null) 'pageSize': pageSize,
         },
       );
-      
+
       return PaginatedResult<ServiceModel>.fromJson(
         response.data,
         (json) => ServiceModel.fromJson(json),
@@ -184,7 +177,6 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
       throw ApiException.fromDioError(e);
     }
   }
-
   String _toServerPricingModel(PricingModel model) {
     // Backend enum YemenBooking.Core.Enums.PricingModel supports: Fixed, PerPerson, PerNight
     switch (model) {

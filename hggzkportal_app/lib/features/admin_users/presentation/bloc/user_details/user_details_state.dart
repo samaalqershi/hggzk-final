@@ -13,8 +13,11 @@ class UserDetailsLoading extends UserDetailsState {}
 
 class UserDetailsLoaded extends UserDetailsState {
   final UserDetails userDetails;
+
   final UserLifetimeStats? lifetimeStats;
+
   final bool isUpdating;
+
   final String? updateError;
 
   const UserDetailsLoaded({
@@ -39,7 +42,8 @@ class UserDetailsLoaded extends UserDetailsState {
   }
 
   @override
-  List<Object?> get props => [userDetails, lifetimeStats, isUpdating, updateError];
+  List<Object?> get props =>
+      [userDetails, lifetimeStats, isUpdating, updateError];
 }
 
 class UserDetailsError extends UserDetailsState {

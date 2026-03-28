@@ -12,7 +12,6 @@ class AdminNotificationEntity {
   final bool isRead;
   final DateTime createdAt;
   final DateTime? readAt;
-
   AdminNotificationEntity({
     required this.id,
     required this.type,
@@ -29,4 +28,3 @@ class AdminNotificationEntity {
     this.readAt,
   });
 }
-

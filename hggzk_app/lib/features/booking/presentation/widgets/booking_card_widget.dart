@@ -11,14 +11,27 @@ import '../../domain/entities/booking.dart';
 import '../../domain/entities/payment.dart';
 import 'booking_status_widget.dart';
 
+/// العربية: يمثل العنصر `BookingCardWidget`.
 class BookingCardWidget extends StatefulWidget {
+  /// العربية: يخزن القيمة `booking`.
   final Booking booking;
+
+  /// العربية: يخزن القيمة `onTap`.
   final VoidCallback onTap;
+
+  /// العربية: يخزن القيمة `onCancel`.
   final VoidCallback? onCancel;
+
+  /// العربية: يخزن القيمة `onReview`.
   final VoidCallback? onReview;
+
+  /// العربية: يخزن القيمة `showActions`.
   final bool showActions;
+
+  /// العربية: يخزن القيمة `onEdit`.
   final VoidCallback? onEdit;
 
+  /// العربية: ينشئ مثيلًا جديدًا من `BookingCardWidget`.
   const BookingCardWidget({
     super.key,
     required this.booking,
@@ -29,16 +42,24 @@ class BookingCardWidget extends StatefulWidget {
     this.onEdit,
   });
 
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<BookingCardWidget> createState() => _BookingCardWidgetState();
 }
 
+/// العربية: يمثل الحالة الخاصة بـ `BookingCardWidgetState`.
 class _BookingCardWidgetState extends State<BookingCardWidget>
     with SingleTickerProviderStateMixin {
+  /// العربية: يخزن القيمة `shimmerController`.
   late AnimationController _shimmerController;
+
+  /// العربية: يخزن القيمة `shimmerAnimation`.
   late Animation<double> _shimmerAnimation;
+
+  /// العربية: يحدد ما إذا كانت القيمة `isPressed` مفعلة.
   bool _isPressed = false;
 
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -46,7 +67,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
       duration: const Duration(seconds: 4),
       vsync: this,
     )..repeat();
-    
+
     _shimmerAnimation = Tween<double>(
       begin: -1.0,
       end: 2.0,
@@ -56,16 +77,18 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     ));
   }
 
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _shimmerController.dispose();
     super.dispose();
   }
 
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd MMM', 'ar');
-    
+
     return GestureDetector(
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) => setState(() => _isPressed = false),
@@ -120,7 +143,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
                       );
                     },
                   ),
-                  
+
                   // Content
                   Column(
                     children: [
@@ -139,6 +162,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     );
   }
 
+  /// العربية: يبني minimal header.
   Widget _buildMinimalHeader() {
     final bool isMissed = _hasStarted() && !_isCancelledOrDone();
     final bool isPartiallyPaid = _isPartiallyPaid();
@@ -182,7 +206,8 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
                   ],
                   if (widget.booking.isPaid)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: AppTheme.success.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(6),
@@ -202,7 +227,8 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
                   else ...[
                     if (isPartiallyPaid)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: AppTheme.info.withOpacity(0.06),
                           borderRadius: BorderRadius.circular(6),
@@ -246,7 +272,8 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
                       Padding(
                         padding: const EdgeInsetsDirectional.only(start: 6),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: AppTheme.error.withOpacity(0.06),
                             borderRadius: BorderRadius.circular(6),
@@ -294,6 +321,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     );
   }
 
+  /// العربية: يبني compact property info.
   Widget _buildCompactPropertyInfo() {
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -354,6 +382,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     );
   }
 
+  /// العربية: يبني minimal property image.
   Widget _buildMinimalPropertyImage() {
     return Container(
       width: 56,
@@ -388,6 +417,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     );
   }
 
+  /// العربية: يبني compact booking details.
   Widget _buildCompactBookingDetails(DateFormat dateFormat) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -432,6 +462,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     );
   }
 
+  /// العربية: يبني compact detail item.
   Widget _buildCompactDetailItem({
     required IconData icon,
     required Color iconColor,
@@ -470,6 +501,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     );
   }
 
+  /// العربية: يبني minimal divider.
   Widget _buildMinimalDivider() {
     return Container(
       height: 28,
@@ -478,6 +510,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     );
   }
 
+  /// العربية: يبني minimal actions.
   Widget _buildMinimalActions() {
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -530,6 +563,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     );
   }
 
+  /// العربية: يعالج `hasStarted`.
   bool _hasStarted() {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -541,17 +575,21 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     return today.isAfter(checkInDate);
   }
 
+  /// العربية: يعالج `isCancelledOrDone`.
   bool _isCancelledOrDone() {
     return widget.booking.status == BookingStatus.cancelled ||
         widget.booking.status == BookingStatus.completed ||
         widget.booking.status == BookingStatus.checkedIn;
   }
 
+  /// العربية: يعرض awaiting payment.
   bool _showAwaitingPayment() {
     // يظهر "في انتظار الدفع" فقط إذا كان الحجز مؤكد وغير مدفوع
-    return widget.booking.status == BookingStatus.confirmed && !widget.booking.isPaid;
+    return widget.booking.status == BookingStatus.confirmed &&
+        !widget.booking.isPaid;
   }
 
+  /// العربية: يعالج `calculatePaidAmount`.
   double _calculatePaidAmount() {
     double paid = 0.0;
     for (final payment in widget.booking.payments) {
@@ -564,6 +602,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     return paid;
   }
 
+  /// العربية: يعالج `calculateRemainingAmount`.
   double _calculateRemainingAmount() {
     final total = widget.booking.totalAmount;
     final paid = _calculatePaidAmount();
@@ -571,6 +610,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     return remaining > 0 ? remaining : 0.0;
   }
 
+  /// العربية: يعالج `isPartiallyPaid`.
   bool _isPartiallyPaid() {
     if (widget.booking.isPaid) {
       return false;
@@ -580,6 +620,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     return paid > 0.0 && remaining > 0.0;
   }
 
+  /// العربية: يبني minimal action button.
   Widget _buildMinimalActionButton({
     required String label,
     required VoidCallback onPressed,
@@ -643,6 +684,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     );
   }
 
+  /// العربية: يعيد status color.
   Color _getStatusColor() {
     switch (widget.booking.status) {
       case BookingStatus.confirmed:
@@ -658,6 +700,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     }
   }
 
+  /// العربية: يعيد status icon.
   IconData _getStatusIcon() {
     switch (widget.booking.status) {
       case BookingStatus.confirmed:

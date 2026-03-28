@@ -1,5 +1,3 @@
-/// features/payment/presentation/bloc/payment_bloc.dart
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hggzk/core/error/failures.dart';
 import '../../../../core/enums/payment_method_enum.dart';
@@ -8,10 +6,13 @@ import '../../domain/usecases/get_payment_history_usecase.dart';
 import 'payment_event.dart';
 import 'payment_state.dart';
 
+/// يدير تدفق واجهة الدفع، من تنفيذ العملية إلى جلب سجل المعاملات والتحقق من
+/// تفاصيل وسيلة الدفع.
+/// Manages the payment UI flow, from processing a payment to loading history
+/// and validating method-specific details.
 class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   final ProcessPaymentUseCase processPaymentUseCase;
   final GetPaymentHistoryUseCase getPaymentHistoryUseCase;
-
   PaymentBloc({
     required this.processPaymentUseCase,
     required this.getPaymentHistoryUseCase,
@@ -24,7 +25,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<RefundPaymentEvent>(_onRefundPayment);
     on<LoadMorePaymentHistoryEvent>(_onLoadMorePaymentHistory);
   }
-
   Future<void> _onProcessPayment(
     ProcessPaymentEvent event,
     Emitter<PaymentState> emit,

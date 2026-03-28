@@ -10,15 +10,31 @@ import '../../domain/repositories/city_images_repository.dart';
 import '../datasources/city_images_remote_datasource.dart';
 import '../models/city_image_model.dart';
 
+/// Repository that mediates city image operations between the UI and the API.
+///
+/// مستودع يتوسط عمليات صور المدن بين الواجهة والـ API.
 class CityImagesRepositoryImpl implements CityImagesRepository {
+  /// Remote data source used for uploads and gallery mutations.
+  ///
+  /// مصدر البيانات البعيد المستخدم للرفع وتعديلات المعرض.
   final CityImagesRemoteDataSource remoteDataSource;
+
+  /// Network checker used to avoid remote calls when offline.
+  ///
+  /// فاحص الشبكة المستخدم لتجنب الاستدعاءات البعيدة عند انقطاع الاتصال.
   final NetworkInfo networkInfo;
 
+  /// Creates the repository around the gallery remote source and connectivity gate.
+  ///
+  /// ينشئ المستودع حول المصدر البعيد للمعرض وبوابة الاتصال.
   CityImagesRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
 
+  /// يرفع وسيطًا واحدًا للمدينة ويعيد النتيجة ككيان نطاقي.
+  /// Uploads a single city media item and returns the result as a domain
+  /// entity.
   @override
   Future<Either<Failure, CityImage>> uploadImage({
     String? cityId,
@@ -56,6 +72,8 @@ class CityImagesRepositoryImpl implements CityImagesRepository {
     }
   }
 
+  /// يجلب الوسائط المرتبطة بمدينة أو بمسودة مؤقتة من الخادم.
+  /// Fetches the media linked to a city or temporary draft from the backend.
   @override
   Future<Either<Failure, List<CityImage>>> getCityImages(String? cityId,
       {String? tempKey}) async {
@@ -75,6 +93,8 @@ class CityImagesRepositoryImpl implements CityImagesRepository {
     }
   }
 
+  /// يحدّث بيانات وسيط واحد مثل الوسم أو النص البديل أو الترتيب.
+  /// Updates a single media item such as its tag, alt text, or order.
   @override
   Future<Either<Failure, bool>> updateImage(
     String imageId,
@@ -95,6 +115,8 @@ class CityImagesRepositoryImpl implements CityImagesRepository {
     }
   }
 
+  /// يحذف وسيطًا واحدًا من المعرض البعيد.
+  /// Deletes a single media item from the remote gallery.
   @override
   Future<Either<Failure, bool>> deleteImage(String imageId) async {
     if (await networkInfo.isConnected) {
@@ -112,6 +134,8 @@ class CityImagesRepositoryImpl implements CityImagesRepository {
     }
   }
 
+  /// يعيد ترتيب الوسائط في المعرض وفق الترتيب الجديد المطلوب.
+  /// Reorders the gallery media according to the requested new sequence.
   @override
   Future<Either<Failure, bool>> reorderImages(
     String? cityId,
@@ -134,6 +158,8 @@ class CityImagesRepositoryImpl implements CityImagesRepository {
     }
   }
 
+  /// يعيّن صورةً معينة كصورة الغلاف الأساسية للمدينة.
+  /// Marks a specific image as the city's primary cover image.
   @override
   Future<Either<Failure, bool>> setAsPrimaryImage(
     String? cityId,
@@ -156,6 +182,8 @@ class CityImagesRepositoryImpl implements CityImagesRepository {
     }
   }
 
+  /// يحذف مجموعة من الصور الواحدة تلو الأخرى ويعيد نتيجة جماعية موحدة.
+  /// Deletes multiple images one by one and returns a unified batch result.
   @override
   Future<Either<Failure, bool>> deleteMultipleImages(
       List<String> imageIds) async {
@@ -181,6 +209,8 @@ class CityImagesRepositoryImpl implements CityImagesRepository {
     }
   }
 
+  /// يرفع مجموعة صور مع الاحتفاظ بكل صورة نجحت فيها العملية.
+  /// Uploads a batch of images while keeping every successfully uploaded item.
   @override
   Future<Either<Failure, List<CityImage>>> uploadMultipleImages({
     String? cityId,

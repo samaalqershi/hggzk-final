@@ -22,7 +22,6 @@ import '../bloc/accounts/accounts_bloc.dart';
 
 class ChartOfAccountsPage extends StatefulWidget {
   const ChartOfAccountsPage({super.key});
-
   @override
   State<ChartOfAccountsPage> createState() => _ChartOfAccountsPageState();
 }
@@ -47,7 +46,6 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
   bool _showBalances = true;
   AccountType? _selectedType;
   ChartOfAccount? _selectedAccount;
-
   @override
   void initState() {
     super.initState();
@@ -141,9 +139,9 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppTheme.primaryPurple.withOpacity(0.05),
-                AppTheme.primaryBlue.withOpacity(0.03),
-                AppTheme.primaryCyan.withOpacity(0.05),
+                AppTheme.primaryPurple.withValues(alpha: 0.05),
+                AppTheme.primaryBlue.withValues(alpha: 0.03),
+                AppTheme.primaryCyan.withValues(alpha: 0.05),
                 AppTheme.darkBackground,
               ],
             ),
@@ -176,7 +174,7 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
                           AppTheme.primaryPurple,
                           AppTheme.primaryBlue
                         ][index]
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                         Colors.transparent,
                       ],
                     ),
@@ -207,7 +205,7 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppTheme.primaryPurple.withOpacity(0.15),
+                    AppTheme.primaryPurple.withValues(alpha: 0.15),
                     AppTheme.darkBackground,
                   ],
                 ),
@@ -250,7 +248,7 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
                       color: AppTheme.textWhite,
                       shadows: [
                         Shadow(
-                          color: AppTheme.primaryPurple.withOpacity(0.3),
+                          color: AppTheme.primaryPurple.withValues(alpha: 0.3),
                           blurRadius: 10,
                         ),
                       ],
@@ -295,10 +293,10 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
       margin: const EdgeInsets.symmetric(horizontal: 4),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -364,21 +362,21 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
             ? AppTheme.primaryGradient
             : LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkCard.withValues(alpha: 0.5),
+                  AppTheme.darkCard.withValues(alpha: 0.3),
                 ],
               ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isPrimary
-              ? AppTheme.primaryCyan.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.3),
+              ? AppTheme.primaryCyan.withValues(alpha: 0.3)
+              : AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
         boxShadow: isPrimary
             ? [
                 BoxShadow(
-                  color: AppTheme.primaryCyan.withOpacity(0.2),
+                  color: AppTheme.primaryCyan.withValues(alpha: 0.2),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -452,7 +450,10 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
                   icon: CupertinoIcons.creditcard,
                   isSelected: _selectedType == AccountType.liabilities,
                   onTap: () => _filterByType(AccountType.liabilities),
-                  gradient: [AppTheme.error, AppTheme.error.withOpacity(0.7)],
+                  gradient: [
+                    AppTheme.error,
+                    AppTheme.error.withValues(alpha: 0.7)
+                  ],
                 ),
                 _buildFilterChip(
                   label: AccountType.equity.nameAr,
@@ -489,13 +490,13 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.2),
+          color: AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
       ),
       child: ClipRRect(
@@ -510,7 +511,7 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
             decoration: InputDecoration(
               hintText: 'ابحث في الحسابات...',
               hintStyle: AppTextStyles.bodyMedium.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.5),
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
               ),
               prefixIcon: Icon(
                 CupertinoIcons.search,
@@ -560,17 +561,17 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             gradient: isSelected ? LinearGradient(colors: gradient) : null,
-            color: isSelected ? null : AppTheme.darkCard.withOpacity(0.5),
+            color: isSelected ? null : AppTheme.darkCard.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isSelected
-                  ? gradient.first.withOpacity(0.5)
-                  : AppTheme.darkBorder.withOpacity(0.3),
+                  ? gradient.first.withValues(alpha: 0.5)
+                  : AppTheme.darkBorder.withValues(alpha: 0.3),
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: gradient.first.withOpacity(0.3),
+                      color: gradient.first.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -737,18 +738,18 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppTheme.darkCard.withOpacity(0.8),
-              AppTheme.darkCard.withOpacity(0.6),
+              AppTheme.darkCard.withValues(alpha: 0.8),
+              AppTheme.darkCard.withValues(alpha: 0.6),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -774,7 +775,7 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
                         height: 40,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [color, color.withOpacity(0.7)],
+                            colors: [color, color.withValues(alpha: 0.7)],
                           ),
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -836,10 +837,11 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryCyan.withOpacity(0.1),
+                            color: AppTheme.primaryCyan.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: AppTheme.primaryCyan.withOpacity(0.3),
+                              color:
+                                  AppTheme.primaryCyan.withValues(alpha: 0.3),
                             ),
                           ),
                           child: Text(
@@ -882,13 +884,13 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.5),
-              AppTheme.darkCard.withOpacity(0.3),
+              AppTheme.darkCard.withValues(alpha: 0.5),
+              AppTheme.darkCard.withValues(alpha: 0.3),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -899,7 +901,7 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
               height: 40,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [color, color.withOpacity(0.7)],
+                  colors: [color, color.withValues(alpha: 0.7)],
                 ),
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -929,7 +931,7 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryCyan.withOpacity(0.1),
+                          color: AppTheme.primaryCyan.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -998,8 +1000,8 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryCyan.withOpacity(
-                      0.3 + (_fabAnimationController.value * 0.1),
+                    color: AppTheme.primaryCyan.withValues(
+                      alpha: 0.3 + (_fabAnimationController.value * 0.1),
                     ),
                     blurRadius: 20 + (_fabAnimationController.value * 5),
                     offset: const Offset(0, 10),
@@ -1149,7 +1151,7 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppTheme.darkBorder.withOpacity(0.3),
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -1199,13 +1201,13 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            color.withOpacity(0.05),
-            color.withOpacity(0.02),
+            color.withValues(alpha: 0.05),
+            color.withValues(alpha: 0.02),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
         ),
       ),
       child: Material(
@@ -1225,7 +1227,7 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
                   height: 48,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [color, color.withOpacity(0.7)],
+                      colors: [color, color.withValues(alpha: 0.7)],
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -1302,13 +1304,11 @@ class _ChartOfAccountsPageState extends State<ChartOfAccountsPage>
 
 class _AccountPatternPainter extends CustomPainter {
   final double progress;
-
   _AccountPatternPainter({required this.progress});
-
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppTheme.primaryPurple.withOpacity(0.03)
+      ..color = AppTheme.primaryPurple.withValues(alpha: 0.03)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
 

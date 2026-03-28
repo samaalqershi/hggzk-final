@@ -1,39 +1,55 @@
 import 'dart:async';
-import 'package:hggzkportal/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/constants/route_constants.dart';
-import '../../presentation/bloc/auth_bloc.dart';
-import '../../presentation/bloc/auth_state.dart';
-import '../../../../injection_container.dart';
-import '../bloc/email_verification/email_verification_bloc.dart';
-import '../bloc/email_verification/email_verification_event.dart';
-import '../bloc/email_verification/email_verification_state.dart';
+import 'package:hggzkportal/core/constants/route_constants.dart';
+import 'package:hggzkportal/core/theme/app_text_styles.dart';
+import 'package:hggzkportal/core/theme/app_theme.dart';
+import 'package:hggzkportal/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:hggzkportal/features/auth/presentation/bloc/auth_event.dart';
+import 'package:hggzkportal/features/auth/presentation/bloc/auth_state.dart';
+import 'package:hggzkportal/features/auth/presentation/bloc/email_verification_bloc.dart';
+import 'package:hggzkportal/features/auth/presentation/bloc/email_verification_event.dart';
+import 'package:hggzkportal/features/auth/presentation/bloc/email_verification_state.dart';
+import 'package:hggzkportal/injection_container.dart';
 
-/// Arabic: شاشة إدخال رمز تفعيل البريد الإلكتروني وإعادة إرساله.
-/// English: UI page for submitting and resending the email verification code.
+/// شاشة إدخال رمز تفعيل البريد الإلكتروني وإعادة إرساله.
+/// UI page for submitting and resending the email verification code.
 class VerifyEmailPage extends StatefulWidget {
+  /// Initializes a new `VerifyEmailPage` instance.
+  /// العربية: ينشئ مثيلًا جديدًا من `VerifyEmailPage`.
   const VerifyEmailPage({super.key});
 
+  /// ينفذ العملية `createState`.
+  /// Runs the `createState` operation.
   @override
   State<VerifyEmailPage> createState() => _VerifyEmailPageState();
 }
 
+/// يعرّف الكلاس `_VerifyEmailPageState`.
+/// Describes the `_VerifyEmailPageState` class.
 class _VerifyEmailPageState extends State<VerifyEmailPage> {
   final _codeController = TextEditingController();
+
+  /// يخزن العضو `_timer`.
+  /// Holds the `_timer` member.
   Timer? _timer;
+
+  /// يخزن العضو `_seconds`.
+  /// Holds the `_seconds` member.
   int _seconds = 0;
 
+  /// ينفذ العملية `initState`.
+  /// Runs the `initState` operation.
   @override
   void initState() {
     super.initState();
     _startTimer(0);
   }
 
+  /// ينفذ العملية `dispose`.
+  /// Runs the `dispose` operation.
   @override
   void dispose() {
     _timer?.cancel();
@@ -41,6 +57,8 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
     super.dispose();
   }
 
+  /// يبدأ أو يعيد ضبط مؤقت إعادة إرسال الرمز.
+  /// Starts or resets the resend-code countdown timer.
   void _startTimer(int seconds) {
     _timer?.cancel();
     setState(() => _seconds = seconds);
@@ -54,6 +72,8 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
     });
   }
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return BlocProvider<EmailVerificationBloc>(
@@ -96,9 +116,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                       listener: (context, state) {
                         if (state is EmailVerificationSuccess) {
                           HapticFeedback.mediumImpact();
-                          context
-                              .read<AuthBloc>()
-                              .add(const LogoutEvent());
+                          context.read<AuthBloc>().add(const LogoutEvent());
                           if (!mounted) {
                             return;
                           }
@@ -114,24 +132,20 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                         final email = authState is AuthAuthenticated
                             ? authState.user.email
                             : '';
-                        final isLoading =
-                            state is EmailVerificationLoading;
+                        final isLoading = state is EmailVerificationLoading;
                         return Container(
-                          constraints:
-                              const BoxConstraints(maxWidth: 420),
+                          constraints: const BoxConstraints(maxWidth: 420),
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: AppTheme.darkCard
-                                .withValues(alpha: 0.6),
+                            color: AppTheme.darkCard.withValues(alpha: 0.6),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: AppTheme.darkBorder
-                                  .withValues(alpha: 0.3),
+                              color: AppTheme.darkBorder.withValues(alpha: 0.3),
                               width: 1,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.5),
+                                color: Colors.black.withValues(alpha: 0.5),
                                 blurRadius: 30,
                                 offset: const Offset(0, 18),
                               ),
@@ -139,8 +153,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                           ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment:
-                                CrossAxisAlignment.stretch,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Center(
                                 child: Container(
@@ -159,13 +172,12 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                               const SizedBox(height: 16),
                               Center(
                                 child: ShaderMask(
-                                  shaderCallback: (bounds) =>
-                                      AppTheme.primaryGradient
-                                          .createShader(bounds),
+                                  shaderCallback: (bounds) => AppTheme
+                                      .primaryGradient
+                                      .createShader(bounds),
                                   child: Text(
                                     'تأكيد البريد الإلكتروني',
-                                    style: AppTextStyles.heading2
-                                        .copyWith(
+                                    style: AppTextStyles.heading2.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -198,28 +210,24 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                                 decoration: InputDecoration(
                                   labelText: 'رمز التحقق',
                                   hintText: '######',
-                                  labelStyle: AppTextStyles.bodySmall
-                                      .copyWith(
+                                  labelStyle: AppTextStyles.bodySmall.copyWith(
                                     color: AppTheme.textMuted,
                                   ),
                                   filled: true,
-                                  fillColor: Colors.black
-                                      .withOpacity(0.25),
+                                  fillColor:
+                                      Colors.black.withValues(alpha: 0.25),
                                   border: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(16),
+                                    borderRadius: BorderRadius.circular(16),
                                   ),
                                   enabledBorder: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(16),
+                                    borderRadius: BorderRadius.circular(16),
                                     borderSide: BorderSide(
                                       color: AppTheme.darkBorder
                                           .withValues(alpha: 0.5),
                                     ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(16),
+                                    borderRadius: BorderRadius.circular(16),
                                     borderSide: BorderSide(
                                       color: AppTheme.primaryBlue
                                           .withValues(alpha: 0.9),
@@ -236,9 +244,8 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                                       ? null
                                       : () {
                                           final user = (context
-                                                      .read<AuthBloc>()
-                                                      .state
-                                                  as AuthAuthenticated)
+                                                  .read<AuthBloc>()
+                                                  .state as AuthAuthenticated)
                                               .user;
                                           context
                                               .read<EmailVerificationBloc>()
@@ -254,35 +261,29 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                                   style: ElevatedButton.styleFrom(
                                     padding: EdgeInsets.zero,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
                                   ),
                                   child: Ink(
                                     decoration: BoxDecoration(
-                                      gradient:
-                                          AppTheme.primaryGradient,
-                                      borderRadius:
-                                          BorderRadius.circular(16),
+                                      gradient: AppTheme.primaryGradient,
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: Center(
                                       child: isLoading
                                           ? const SizedBox(
                                               width: 18,
                                               height: 18,
-                                              child:
-                                                  CircularProgressIndicator(
+                                              child: CircularProgressIndicator(
                                                 strokeWidth: 2,
                                               ),
                                             )
                                           : Text(
                                               'تأكيد',
-                                              style: AppTextStyles
-                                                  .bodyMedium
+                                              style: AppTextStyles.bodyMedium
                                                   .copyWith(
                                                 color: Colors.white,
-                                                fontWeight:
-                                                    FontWeight.w600,
+                                                fontWeight: FontWeight.w600,
                                               ),
                                             ),
                                     ),
@@ -295,9 +296,8 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                                     ? null
                                     : () {
                                         final user = (context
-                                                    .read<AuthBloc>()
-                                                    .state
-                                                as AuthAuthenticated)
+                                                .read<AuthBloc>()
+                                                .state as AuthAuthenticated)
                                             .user;
                                         context
                                             .read<EmailVerificationBloc>()
@@ -334,9 +334,20 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
     );
   }
 
+  /// يعرض رسالة الخطأ النهائية للمستخدم بطريقة موحدة.
+  /// Shows the resolved error message to the user consistently.
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
   }
 }

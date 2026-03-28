@@ -4,6 +4,7 @@ import '../../../../../core/usecases/usecase.dart';
 import '../../repositories/property_types_repository.dart';
 
 class DeletePropertyTypeUseCase implements UseCase<bool, String> {
+  /// العربية: يخزن القيمة `repository`.
   final PropertyTypesRepository repository;
 
   DeletePropertyTypeUseCase(this.repository);

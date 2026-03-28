@@ -7,17 +7,31 @@ import '../../../domain/usecases/delete_unit_usecase.dart';
 part 'units_list_event.dart';
 part 'units_list_state.dart';
 
+/// يمثل هذا الكلاس UnitsListBloc البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitsListBloc in the admin unit workflow.
 class UnitsListBloc extends Bloc<UnitsListEvent, UnitsListState> {
+  /// This field keeps the getUnitsUseCase value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة getUnitsUseCase التي يعتمد عليها مسار إدارة الوحدات.
   final GetUnitsUseCase getUnitsUseCase;
+
+  /// يحتفظ هذا الحقل بقيمة deleteUnitUseCase التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the deleteUnitUseCase value used by the admin unit workflow.
   final DeleteUnitUseCase deleteUnitUseCase;
+
+  /// يحتفظ هذا الحقل بقيمة _isLoadingMore التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isLoadingMore value used by the admin unit workflow.
   bool _isLoadingMore = false;
 
+  /// ينفذ هذا الأسلوب عملية _asDouble ضمن مسار إدارة الوحدات.
+  /// This method performs the _asDouble operation in the admin unit workflow.
   double? _asDouble(dynamic value) {
     if (value == null) return null;
     if (value is num) return value.toDouble();
     return double.tryParse(value.toString());
   }
 
+  /// ينشئ هذا المُنشئ مثيلاً من UnitsListBloc.
+  /// This constructor creates an instance of UnitsListBloc.
   UnitsListBloc({
     required this.getUnitsUseCase,
     required this.deleteUnitUseCase,
@@ -30,6 +44,8 @@ class UnitsListBloc extends Bloc<UnitsListEvent, UnitsListState> {
     on<LoadMoreUnitsEvent>(_onLoadMoreUnits);
   }
 
+  /// ينفذ هذا الأسلوب عملية _onLoadUnits ضمن مسار إدارة الوحدات.
+  /// This method performs the _onLoadUnits operation in the admin unit workflow.
   Future<void> _onLoadUnits(
     LoadUnitsEvent event,
     Emitter<UnitsListState> emit,
@@ -56,6 +72,8 @@ class UnitsListBloc extends Bloc<UnitsListEvent, UnitsListState> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _onSearchUnits ضمن مسار إدارة الوحدات.
+  /// This method performs the _onSearchUnits operation in the admin unit workflow.
   Future<void> _onSearchUnits(
     SearchUnitsEvent event,
     Emitter<UnitsListState> emit,
@@ -93,6 +111,8 @@ class UnitsListBloc extends Bloc<UnitsListEvent, UnitsListState> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _onFilterUnits ضمن مسار إدارة الوحدات.
+  /// This method performs the _onFilterUnits operation in the admin unit workflow.
   Future<void> _onFilterUnits(
     FilterUnitsEvent event,
     Emitter<UnitsListState> emit,
@@ -147,6 +167,8 @@ class UnitsListBloc extends Bloc<UnitsListEvent, UnitsListState> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _onDeleteUnit ضمن مسار إدارة الوحدات.
+  /// This method performs the _onDeleteUnit operation in the admin unit workflow.
   Future<void> _onDeleteUnit(
     DeleteUnitEvent event,
     Emitter<UnitsListState> emit,
@@ -180,6 +202,8 @@ class UnitsListBloc extends Bloc<UnitsListEvent, UnitsListState> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _onRefreshUnits ضمن مسار إدارة الوحدات.
+  /// This method performs the _onRefreshUnits operation in the admin unit workflow.
   Future<void> _onRefreshUnits(
     RefreshUnitsEvent event,
     Emitter<UnitsListState> emit,
@@ -232,6 +256,8 @@ class UnitsListBloc extends Bloc<UnitsListEvent, UnitsListState> {
     );
   }
 
+  /// ينفذ هذا الأسلوب عملية _onLoadMoreUnits ضمن مسار إدارة الوحدات.
+  /// This method performs the _onLoadMoreUnits operation in the admin unit workflow.
   Future<void> _onLoadMoreUnits(
     LoadMoreUnitsEvent event,
     Emitter<UnitsListState> emit,
@@ -290,6 +316,8 @@ class UnitsListBloc extends Bloc<UnitsListEvent, UnitsListState> {
     }
   }
 
+  /// ينفذ هذا الأسلوب عملية _extractStats ضمن مسار إدارة الوحدات.
+  /// This method performs the _extractStats operation in the admin unit workflow.
   Map<String, dynamic>? _extractStats(Object? metadata) {
     if (metadata == null) return null;
     if (metadata is Map<String, dynamic>) return metadata;

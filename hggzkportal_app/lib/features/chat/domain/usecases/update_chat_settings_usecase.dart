@@ -5,13 +5,23 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/attachment.dart';
 import '../repositories/chat_repository.dart';
 
-class UpdateChatSettingsUseCase implements UseCase<ChatSettings, UpdateChatSettingsParams> {
+/// يعرّف الكلاس `UpdateChatSettingsUseCase`.
+/// Describes the `UpdateChatSettingsUseCase` class.
+class UpdateChatSettingsUseCase
+    implements UseCase<ChatSettings, UpdateChatSettingsParams> {
+  /// يخزن العضو `repository`.
+  /// Holds the `repository` member.
   final ChatRepository repository;
 
+  /// ينشئ مثيلاً من `UpdateChatSettingsUseCase`.
+  /// Builds an instance of `UpdateChatSettingsUseCase`.
   UpdateChatSettingsUseCase(this.repository);
 
+  /// ينفذ العملية `call`.
+  /// Runs the `call` operation.
   @override
-  Future<Either<Failure, ChatSettings>> call(UpdateChatSettingsParams params) async {
+  Future<Either<Failure, ChatSettings>> call(
+      UpdateChatSettingsParams params) async {
     return await repository.updateChatSettings(
       notificationsEnabled: params.notificationsEnabled,
       soundEnabled: params.soundEnabled,
@@ -25,16 +35,43 @@ class UpdateChatSettingsUseCase implements UseCase<ChatSettings, UpdateChatSetti
   }
 }
 
+/// يعرّف الكلاس `UpdateChatSettingsParams`.
+/// Describes the `UpdateChatSettingsParams` class.
 class UpdateChatSettingsParams extends Equatable {
+  /// Holds the `notificationsEnabled` value.
+  /// العربية: يخزن القيمة `notificationsEnabled`.
   final bool? notificationsEnabled;
+
+  /// يخزن العضو `soundEnabled`.
+  /// Holds the `soundEnabled` member.
   final bool? soundEnabled;
+
+  /// يخزن العضو `showReadReceipts`.
+  /// Holds the `showReadReceipts` member.
   final bool? showReadReceipts;
+
+  /// يخزن العضو `showTypingIndicator`.
+  /// Holds the `showTypingIndicator` member.
   final bool? showTypingIndicator;
+
+  /// يخزن العضو `theme`.
+  /// Holds the `theme` member.
   final String? theme;
+
+  /// يخزن العضو `fontSize`.
+  /// Holds the `fontSize` member.
   final String? fontSize;
+
+  /// يخزن العضو `autoDownloadMedia`.
+  /// Holds the `autoDownloadMedia` member.
   final bool? autoDownloadMedia;
+
+  /// يخزن العضو `backupMessages`.
+  /// Holds the `backupMessages` member.
   final bool? backupMessages;
 
+  /// ينشئ مثيلاً من `UpdateChatSettingsParams`.
+  /// Builds an instance of `UpdateChatSettingsParams`.
   const UpdateChatSettingsParams({
     this.notificationsEnabled,
     this.soundEnabled,
@@ -46,15 +83,17 @@ class UpdateChatSettingsParams extends Equatable {
     this.backupMessages,
   });
 
+  /// يعيد قيمة `props`.
+  /// Exposes the `props` value.
   @override
   List<Object?> get props => [
-    notificationsEnabled,
-    soundEnabled,
-    showReadReceipts,
-    showTypingIndicator,
-    theme,
-    fontSize,
-    autoDownloadMedia,
-    backupMessages,
-  ];
+        notificationsEnabled,
+        soundEnabled,
+        showReadReceipts,
+        showTypingIndicator,
+        theme,
+        fontSize,
+        autoDownloadMedia,
+        backupMessages,
+      ];
 }

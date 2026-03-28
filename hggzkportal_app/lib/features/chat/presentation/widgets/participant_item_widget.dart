@@ -7,13 +7,31 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/conversation.dart';
 
+/// يعرّف الكلاس `ParticipantItemWidget`.
+/// Describes the `ParticipantItemWidget` class.
 class ParticipantItemWidget extends StatelessWidget {
+  /// Holds the `participant` value.
+  /// العربية: يخزن القيمة `participant`.
   final ChatUser participant;
+
+  /// يخزن العضو `isAdmin`.
+  /// Holds the `isAdmin` member.
   final bool isAdmin;
+
+  /// يخزن العضو `isCurrentUser`.
+  /// Holds the `isCurrentUser` member.
   final bool isCurrentUser;
+
+  /// يخزن العضو `onTap`.
+  /// Holds the `onTap` member.
   final VoidCallback? onTap;
+
+  /// يخزن العضو `onRemove`.
+  /// Holds the `onRemove` member.
   final VoidCallback? onRemove;
 
+  /// ينشئ مثيلاً من `ParticipantItemWidget`.
+  /// Builds an instance of `ParticipantItemWidget`.
   const ParticipantItemWidget({
     super.key,
     required this.participant,
@@ -23,15 +41,19 @@ class ParticipantItemWidget extends StatelessWidget {
     this.onRemove,
   });
 
+  /// ينفذ العملية `build`.
+  /// Runs the `build` operation.
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap != null ? () {
-          HapticFeedback.selectionClick();
-          onTap!();
-        } : null,
+        onTap: onTap != null
+            ? () {
+                HapticFeedback.selectionClick();
+                onTap!();
+              }
+            : null,
         borderRadius: BorderRadius.circular(10),
         child: Container(
           padding: const EdgeInsets.symmetric(
@@ -52,8 +74,7 @@ class ParticipantItemWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              if (onRemove != null)
-                _buildRemoveButton(),
+              if (onRemove != null) _buildRemoveButton(),
             ],
           ),
         ),
@@ -61,6 +82,8 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildCompactAvatar`.
+  /// Runs the `_buildCompactAvatar` operation.
   Widget _buildCompactAvatar() {
     return Stack(
       children: [
@@ -116,6 +139,8 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildNameRow`.
+  /// Runs the `_buildNameRow` operation.
   Widget _buildNameRow() {
     return Row(
       children: [
@@ -153,6 +178,8 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildMinimalBadge`.
+  /// Runs the `_buildMinimalBadge` operation.
   Widget _buildMinimalBadge({
     required String label,
     required List<Color> gradient,
@@ -182,10 +209,12 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildStatusText`.
+  /// Runs the `_buildStatusText` operation.
   Widget _buildStatusText() {
     String statusText;
     Color statusColor;
-    
+
     if (participant.isOnline) {
       statusText = 'متصل الآن';
       statusColor = AppTheme.success;
@@ -195,7 +224,7 @@ class ParticipantItemWidget extends StatelessWidget {
     } else {
       return const SizedBox.shrink();
     }
-    
+
     return Padding(
       padding: const EdgeInsets.only(top: 2),
       child: Text(
@@ -208,6 +237,8 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_buildRemoveButton`.
+  /// Runs the `_buildRemoveButton` operation.
   Widget _buildRemoveButton() {
     return GestureDetector(
       onTap: () {
@@ -235,6 +266,8 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
+  /// ينفذ العملية `_getInitials`.
+  /// Runs the `_getInitials` operation.
   String _getInitials(String name) {
     final parts = name.trim().split(' ');
     if (parts.isEmpty) return '';
@@ -242,10 +275,12 @@ class ParticipantItemWidget extends StatelessWidget {
     return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
   }
 
+  /// ينفذ العملية `_formatLastSeen`.
+  /// Runs the `_formatLastSeen` operation.
   String _formatLastSeen(DateTime lastSeen) {
     final now = DateTime.now();
     final difference = now.difference(lastSeen);
-    
+
     if (difference.inMinutes < 1) {
       return 'الآن';
     } else if (difference.inMinutes < 60) {

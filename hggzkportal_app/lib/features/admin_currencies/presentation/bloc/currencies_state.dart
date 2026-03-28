@@ -14,9 +14,13 @@ class CurrenciesLoading extends CurrenciesState {}
 
 class CurrenciesLoaded extends CurrenciesState {
   final List<Currency> currencies;
+
   final List<Currency> filteredCurrencies;
+
   final String searchQuery;
+
   final bool isSaving;
+
   final Map<String, dynamic>? stats;
 
   const CurrenciesLoaded({
@@ -44,7 +48,8 @@ class CurrenciesLoaded extends CurrenciesState {
   }
 
   @override
-  List<Object?> get props => [currencies, filteredCurrencies, searchQuery, isSaving, stats];
+  List<Object?> get props =>
+      [currencies, filteredCurrencies, searchQuery, isSaving, stats];
 }
 
 class CurrenciesError extends CurrenciesState {

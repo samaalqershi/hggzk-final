@@ -12,10 +12,9 @@ import '../datasources/services_remote_datasource.dart';
 
 /// 📦 Repository Implementation للخدمات
 class ServicesRepositoryImpl implements ServicesRepository {
+  /// العربية: يخزن القيمة `remoteDataSource`.
   final ServicesRemoteDataSource remoteDataSource;
-
   ServicesRepositoryImpl({required this.remoteDataSource});
-
   @override
   Future<Either<Failure, String>> createService({
     required String propertyId,
@@ -41,7 +40,6 @@ class ServicesRepositoryImpl implements ServicesRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
-
   @override
   Future<Either<Failure, bool>> updateService({
     required String serviceId,
@@ -67,7 +65,6 @@ class ServicesRepositoryImpl implements ServicesRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
-
   @override
   Future<Either<Failure, bool>> deleteService(String serviceId) async {
     try {
@@ -79,7 +76,6 @@ class ServicesRepositoryImpl implements ServicesRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
-
   @override
   Future<Either<Failure, List<Service>>> getServicesByProperty(
       String propertyId) async {
@@ -93,7 +89,6 @@ class ServicesRepositoryImpl implements ServicesRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
-
   @override
   Future<Either<Failure, ServiceDetails>> getServiceDetails(
       String serviceId) async {
@@ -106,7 +101,6 @@ class ServicesRepositoryImpl implements ServicesRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
-
   @override
   Future<Either<Failure, PaginatedResult<Service>>> getServicesByType({
     required String serviceType,
@@ -119,9 +113,9 @@ class ServicesRepositoryImpl implements ServicesRepository {
         pageNumber: pageNumber,
         pageSize: pageSize,
       );
-      
+
       final services = result.items.map((model) => model.toEntity()).toList();
-      
+
       return Right(PaginatedResult<Service>(
         items: services,
         totalCount: result.totalCount,

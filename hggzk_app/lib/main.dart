@@ -4,13 +4,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hggzk/core/utils/timezone_helper.dart';
-import 'app.dart';
-import 'injection_container.dart' as di;
-import 'core/bloc/app_bloc.dart';
+import 'package:hggzk/app/app.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart' as di;
+import 'package:hggzk/app/bloc/app_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'services/connectivity_service.dart';
-import 'services/notification_service.dart';
+import 'package:hggzk/core/services/connectivity_service.dart';
+import 'package:hggzk/core/services/notification_service.dart';
 
+/// نقطة تشغيل التطبيق وتهيئة الخدمات العامة قبل بناء الواجهة.
+/// Application entry point that initializes shared services before UI startup.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (Firebase.apps.isEmpty) {
@@ -36,13 +38,9 @@ void main() async {
   AppBloc.initialize();
   AppBloc.initializeEvents();
 
-  // Services are initialized via dependency injection
-  // await LocalStorageService.init();
-  // await NotificationService.init();
-  // await CrashReportingService.init();
-
   // Set system UI overlay style
-  final platformBrightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
+  final platformBrightness =
+      WidgetsBinding.instance.platformDispatcher.platformBrightness;
   final isDark = platformBrightness == Brightness.dark;
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
@@ -67,6 +65,11 @@ void main() async {
 
 // Top-level background message handler (required by firebase_messaging)
 @pragma('vm:entry-point')
+
+/// يعالج رسائل Firebase الخلفية بعد تهيئة التطبيق في وضع منفذ
+/// entry-point حتى تظل الإشعارات تعمل عندما لا تكون الواجهة مفتوحة.
+/// Processes the Firebase background messages from the app's entry-point
+/// isolate so notifications still work when the UI is not visible flow and keeps the behavior aligned with the surrounding feature.
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp();

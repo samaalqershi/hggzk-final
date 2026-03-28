@@ -18,69 +18,139 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
+/// يمثل هذا الكلاس UnitGalleryPage البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for UnitGalleryPage in the admin unit workflow.
 class UnitGalleryPage extends StatefulWidget {
+  /// This field keeps the unitId value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة unitId التي يعتمد عليها مسار إدارة الوحدات.
   final String unitId;
+
+  /// يحتفظ هذا الحقل بقيمة unit التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the unit value used by the admin unit workflow.
   final Unit? unit;
-  
+
+  /// ينشئ هذا المُنشئ مثيلاً من UnitGalleryPage.
+  /// This constructor creates an instance of UnitGalleryPage.
   const UnitGalleryPage({
     super.key,
     required this.unitId,
     this.unit,
   });
 
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<UnitGalleryPage> createState() => _UnitGalleryPageState();
 }
 
+/// يمثل هذا الكلاس _UnitGalleryPageState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _UnitGalleryPageState in the admin unit workflow.
 class _UnitGalleryPageState extends State<UnitGalleryPage>
     with TickerProviderStateMixin {
   // Animation Controllers
+  /// يحتفظ هذا الحقل بقيمة _backgroundAnimationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _backgroundAnimationController value used by the admin unit workflow.
   late AnimationController _backgroundAnimationController;
+
+  /// يحتفظ هذا الحقل بقيمة _contentAnimationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _contentAnimationController value used by the admin unit workflow.
   late AnimationController _contentAnimationController;
+
+  /// يحتفظ هذا الحقل بقيمة _floatingUIController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _floatingUIController value used by the admin unit workflow.
   late AnimationController _floatingUIController;
+
+  /// يحتفظ هذا الحقل بقيمة _pulseController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _pulseController value used by the admin unit workflow.
   late AnimationController _pulseController;
+
+  /// يحتفظ هذا الحقل بقيمة _gridAnimationController التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _gridAnimationController value used by the admin unit workflow.
   late AnimationController _gridAnimationController;
-  
+
   // Animations
+  /// يحتفظ هذا الحقل بقيمة _fadeAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _fadeAnimation value used by the admin unit workflow.
   late Animation<double> _fadeAnimation;
+
+  /// يحتفظ هذا الحقل بقيمة _slideAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _slideAnimation value used by the admin unit workflow.
   late Animation<Offset> _slideAnimation;
+
+  /// يحتفظ هذا الحقل بقيمة _scaleAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _scaleAnimation value used by the admin unit workflow.
   late Animation<double> _scaleAnimation;
+
+  /// يحتفظ هذا الحقل بقيمة _pulseAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _pulseAnimation value used by the admin unit workflow.
   late Animation<double> _pulseAnimation;
+
+  /// يحتفظ هذا الحقل بقيمة _floatingUIAnimation التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _floatingUIAnimation value used by the admin unit workflow.
   late Animation<double> _floatingUIAnimation;
-  
+
   // Gallery State
   final PageController _pageController = PageController();
+
+  /// يحتفظ هذا الحقل بقيمة _currentIndex التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _currentIndex value used by the admin unit workflow.
   int _currentIndex = 0;
+
+  /// يحتفظ هذا الحقل بقيمة _viewMode التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _viewMode value used by the admin unit workflow.
   String _viewMode = 'grid'; // grid, carousel, fullscreen
+  /// يحتفظ هذا الحقل بقيمة _showInfo التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _showInfo value used by the admin unit workflow.
   bool _showInfo = true;
+
+  /// يحتفظ هذا الحقل بقيمة _isZoomed التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _isZoomed value used by the admin unit workflow.
   bool _isZoomed = false;
+
+  /// يحتفظ هذا الحقل بقيمة _images التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _images value used by the admin unit workflow.
   List<UnitImage> _images = [];
-  
+
   // Grid Settings
+  /// يحتفظ هذا الحقل بقيمة _gridColumns التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _gridColumns value used by the admin unit workflow.
   int _gridColumns = 3;
   final ScrollController _scrollController = ScrollController();
-  
+
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
+
+    /// ينفذ هذا الأسلوب عملية _initializeAnimations ضمن مسار إدارة الوحدات.
+    /// This method performs the _initializeAnimations operation in the admin unit workflow.
     _initializeAnimations();
+
+    /// ينفذ هذا الأسلوب عملية _loadImages ضمن مسار إدارة الوحدات.
+    /// This method performs the _loadImages operation in the admin unit workflow.
     _loadImages();
+
+    /// ينفذ هذا الأسلوب عملية _setupScrollListener ضمن مسار إدارة الوحدات.
+    /// This method performs the _setupScrollListener operation in the admin unit workflow.
     _setupScrollListener();
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _initializeAnimations ضمن مسار إدارة الوحدات.
+  /// This method performs the _initializeAnimations operation in the admin unit workflow.
   void _initializeAnimations() {
     // Background Animation
     _backgroundAnimationController = AnimationController(
       duration: const Duration(seconds: 20),
       vsync: this,
     )..repeat();
-    
+
     // Content Animation
     _contentAnimationController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -88,7 +158,7 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       parent: _contentAnimationController,
       curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
     ));
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.05),
       end: Offset.zero,
@@ -96,7 +166,7 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       parent: _contentAnimationController,
       curve: const Interval(0.2, 0.7, curve: Curves.easeOutCubic),
     ));
-    
+
     _scaleAnimation = Tween<double>(
       begin: 0.95,
       end: 1.0,
@@ -104,24 +174,24 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       parent: _contentAnimationController,
       curve: const Interval(0.3, 1.0, curve: Curves.elasticOut),
     ));
-    
+
     // Floating UI Animation
     _floatingUIController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _floatingUIAnimation = CurvedAnimation(
       parent: _floatingUIController,
       curve: Curves.easeOutBack,
     );
-    
+
     // Pulse Animation
     _pulseController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _pulseAnimation = Tween<double>(
       begin: 0.8,
       end: 1.0,
@@ -129,13 +199,13 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       parent: _pulseController,
       curve: Curves.easeInOut,
     ));
-    
+
     // Grid Animation
     _gridAnimationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     // Start animations
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
@@ -145,17 +215,25 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       }
     });
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _setupScrollListener ضمن مسار إدارة الوحدات.
+  /// This method performs the _setupScrollListener operation in the admin unit workflow.
   void _setupScrollListener() {
     _scrollController.addListener(() {
       // Add any scroll-based animations here
     });
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _loadImages ضمن مسار إدارة الوحدات.
+  /// This method performs the _loadImages operation in the admin unit workflow.
   void _loadImages() {
-    context.read<UnitImagesBloc>().add(LoadUnitImagesEvent(unitId: widget.unitId));
+    context
+        .read<UnitImagesBloc>()
+        .add(LoadUnitImagesEvent(unitId: widget.unitId));
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _backgroundAnimationController.dispose();
@@ -167,7 +245,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
     _scrollController.dispose();
     super.dispose();
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<UnitImagesBloc, UnitImagesState>(
@@ -187,20 +267,20 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
             children: [
               // Animated Background
               _buildAnimatedBackground(),
-              
+
               // Main Content
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 500),
                 child: _buildContent(state),
               ),
-              
+
               // Floating Header
               _buildFloatingHeader(),
-              
+
               // View Mode Selector
               if (_images.isNotEmpty && _viewMode != 'fullscreen')
                 _buildViewModeSelector(),
-              
+
               // Floating Info Panel (for carousel/fullscreen)
               if (_viewMode != 'grid' && _showInfo && _images.isNotEmpty)
                 _buildFloatingInfoPanel(),
@@ -210,7 +290,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       },
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildAnimatedBackground ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildAnimatedBackground operation in the admin unit workflow.
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: _backgroundAnimationController,
@@ -222,8 +304,8 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
               end: Alignment.bottomRight,
               colors: [
                 AppTheme.darkBackground,
-                AppTheme.darkBackground2.withOpacity(0.9),
-                AppTheme.darkBackground3.withOpacity(0.7),
+                AppTheme.darkBackground2.withValues(alpha: 0.9),
+                AppTheme.darkBackground3.withValues(alpha: 0.7),
               ],
             ),
           ),
@@ -237,20 +319,22 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       },
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildContent ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildContent operation in the admin unit workflow.
   Widget _buildContent(UnitImagesState state) {
     if (state is UnitImagesLoading) {
       return _buildLoadingState();
     }
-    
+
     if (state is UnitImagesError) {
       return _buildErrorState(state.message);
     }
-    
+
     if (_images.isEmpty) {
       return _buildEmptyState();
     }
-    
+
     switch (_viewMode) {
       case 'carousel':
         return _buildCarouselView();
@@ -260,7 +344,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
         return _buildGridView();
     }
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildFloatingHeader ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFloatingHeader operation in the admin unit workflow.
   Widget _buildFloatingHeader() {
     return Positioned(
       top: 0,
@@ -274,9 +360,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.darkCard.withOpacity(0.9),
-                AppTheme.darkCard.withOpacity(0.7),
-                AppTheme.darkCard.withOpacity(0.0),
+                AppTheme.darkCard.withValues(alpha: 0.9),
+                AppTheme.darkCard.withValues(alpha: 0.7),
+                AppTheme.darkCard.withValues(alpha: 0.0),
               ],
             ),
           ),
@@ -293,17 +379,17 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
                         icon: Icons.arrow_back_rounded,
                         onTap: () => context.pop(),
                       ),
-                      
+
                       const SizedBox(width: 16),
-                      
+
                       // Title
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ShaderMask(
-                              shaderCallback: (bounds) => 
-                                AppTheme.primaryGradient.createShader(bounds),
+                              shaderCallback: (bounds) =>
+                                  AppTheme.primaryGradient.createShader(bounds),
                               child: Text(
                                 'معرض الصور',
                                 style: AppTextStyles.heading2.copyWith(
@@ -322,13 +408,13 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
                           ],
                         ),
                       ),
-                      
+
                       // Grid Size Selector (only in grid mode)
                       if (_viewMode == 'grid' && _images.isNotEmpty)
                         _buildGridSizeSelector(),
-                      
+
                       const SizedBox(width: 12),
-                      
+
                       // Download All Button
                       if (_images.isNotEmpty)
                         _buildIconButton(
@@ -345,7 +431,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildViewModeSelector ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildViewModeSelector operation in the admin unit workflow.
   Widget _buildViewModeSelector() {
     return Positioned(
       bottom: 24,
@@ -359,18 +447,18 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.9),
-                  AppTheme.darkCard.withOpacity(0.8),
+                  AppTheme.darkCard.withValues(alpha: 0.9),
+                  AppTheme.darkCard.withValues(alpha: 0.8),
                 ],
               ),
               borderRadius: BorderRadius.circular(30),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.3),
+                color: AppTheme.darkBorder.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.2),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.2),
                   blurRadius: 20,
                   offset: const Offset(0, 4),
                 ),
@@ -407,14 +495,16 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildViewModeButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildViewModeButton operation in the admin unit workflow.
   Widget _buildViewModeButton({
     required IconData icon,
     required String label,
     required String mode,
   }) {
     final isActive = _viewMode == mode;
-    
+
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -455,7 +545,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildGridView ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildGridView operation in the admin unit workflow.
   Widget _buildGridView() {
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -498,7 +590,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildGridItem ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildGridItem operation in the admin unit workflow.
   Widget _buildGridItem(UnitImage image, int index) {
     return GestureDetector(
       onTap: () {
@@ -514,7 +608,7 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.1),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -532,10 +626,10 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
                     placeholder: (context, url) => _buildImagePlaceholder(),
                     errorWidget: (context, url, error) => _buildImageError(),
                   ),
-                  
+
                   // Gradient Overlay
                   _buildImageOverlay(image, index),
-                  
+
                   // Image Info
                   _buildImageInfo(image, index),
                 ],
@@ -546,14 +640,16 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildImagePlaceholder ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildImagePlaceholder operation in the admin unit workflow.
   Widget _buildImagePlaceholder() {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            AppTheme.darkCard.withValues(alpha: 0.5),
+            AppTheme.darkCard.withValues(alpha: 0.3),
           ],
         ),
       ),
@@ -567,14 +663,14 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue.withOpacity(0.1),
+                  color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      AppTheme.primaryBlue.withOpacity(0.5),
+                      AppTheme.primaryBlue.withValues(alpha: 0.5),
                     ),
                   ),
                 ),
@@ -585,20 +681,24 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildImageError ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildImageError operation in the admin unit workflow.
   Widget _buildImageError() {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
       ),
       child: Icon(
         Icons.broken_image_outlined,
-        color: AppTheme.textMuted.withOpacity(0.3),
+        color: AppTheme.textMuted.withValues(alpha: 0.3),
         size: 32,
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildImageOverlay ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildImageOverlay operation in the admin unit workflow.
   Widget _buildImageOverlay(UnitImage image, int index) {
     return Container(
       decoration: BoxDecoration(
@@ -607,13 +707,15 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
           end: Alignment.bottomCenter,
           colors: [
             Colors.transparent,
-            Colors.black.withOpacity(0.4),
+            Colors.black.withValues(alpha: 0.4),
           ],
         ),
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildImageInfo ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildImageInfo operation in the admin unit workflow.
   Widget _buildImageInfo(UnitImage image, int index) {
     return Positioned(
       bottom: 8,
@@ -632,7 +734,7 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
                 gradient: LinearGradient(
                   colors: [
                     AppTheme.warning,
-                    AppTheme.warning.withOpacity(0.8),
+                    AppTheme.warning.withValues(alpha: 0.8),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
@@ -657,7 +759,7 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
                 ],
               ),
             ),
-          
+
           // Image Number
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -665,30 +767,30 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.8),
+                  color: AppTheme.darkCard.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   '${index + 1}/${_images.length}',
                   style: AppTextStyles.caption.copyWith(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-              
+
               // Image Size
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.8),
+                  color: AppTheme.darkCard.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   image.sizeInMB + ' MB',
                   style: AppTextStyles.caption.copyWith(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 10,
                   ),
                 ),
@@ -699,7 +801,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildCarouselView ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildCarouselView operation in the admin unit workflow.
   Widget _buildCarouselView() {
     return Stack(
       children: [
@@ -716,7 +820,7 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
             return _buildCarouselItem(_images[index], index);
           },
         ),
-        
+
         // Thumbnail Strip
         Positioned(
           bottom: 100,
@@ -724,7 +828,7 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
           right: 0,
           child: _buildThumbnailStrip(),
         ),
-        
+
         // Page Indicator
         Positioned(
           bottom: 160,
@@ -735,7 +839,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ],
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildCarouselItem ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildCarouselItem operation in the admin unit workflow.
   Widget _buildCarouselItem(UnitImage image, int index) {
     return GestureDetector(
       onTap: () => _openImageViewer(index),
@@ -766,7 +872,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildThumbnailStrip ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildThumbnailStrip operation in the admin unit workflow.
   Widget _buildThumbnailStrip() {
     return SizedBox(
       height: 60,
@@ -776,7 +884,7 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
         itemCount: _images.length,
         itemBuilder: (context, index) {
           final isActive = index == _currentIndex;
-          
+
           return GestureDetector(
             onTap: () {
               HapticFeedback.lightImpact();
@@ -796,13 +904,13 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
                 border: Border.all(
                   color: isActive
                       ? AppTheme.primaryBlue
-                      : AppTheme.darkBorder.withOpacity(0.3),
+                      : AppTheme.darkBorder.withValues(alpha: 0.3),
                   width: isActive ? 2 : 1,
                 ),
                 boxShadow: isActive
                     ? [
                         BoxShadow(
-                          color: AppTheme.primaryBlue.withOpacity(0.3),
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                           blurRadius: 10,
                         ),
                       ]
@@ -819,7 +927,7 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
                     ),
                     if (!isActive)
                       Container(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                       ),
                   ],
                 ),
@@ -830,13 +938,15 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildPageIndicator ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildPageIndicator operation in the admin unit workflow.
   Widget _buildPageIndicator() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(_images.length, (index) {
         final isActive = index == _currentIndex;
-        
+
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           width: isActive ? 24 : 6,
@@ -845,14 +955,16 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
           decoration: BoxDecoration(
             color: isActive
                 ? AppTheme.primaryBlue
-                : AppTheme.darkBorder.withOpacity(0.3),
+                : AppTheme.darkBorder.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(3),
           ),
         );
       }),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildFullscreenView ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFullscreenView operation in the admin unit workflow.
   Widget _buildFullscreenView() {
     return PhotoViewGallery.builder(
       pageController: _pageController,
@@ -877,18 +989,22 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
       loadingBuilder: (context, event) => Center(
         child: CircularProgressIndicator(
-          value: event == null ? 0 : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+          value: event == null
+              ? 0
+              : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
           valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
         ),
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildFloatingInfoPanel ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildFloatingInfoPanel operation in the admin unit workflow.
   Widget _buildFloatingInfoPanel() {
     if (_images.isEmpty) return const SizedBox.shrink();
-    
+
     final currentImage = _images[_currentIndex];
-    
+
     return Positioned(
       bottom: 100,
       left: 16,
@@ -911,13 +1027,13 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.darkCard.withOpacity(0.8),
-                      AppTheme.darkCard.withOpacity(0.6),
+                      AppTheme.darkCard.withValues(alpha: 0.8),
+                      AppTheme.darkCard.withValues(alpha: 0.6),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: AppTheme.darkBorder.withOpacity(0.3),
+                    color: AppTheme.darkBorder.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -945,7 +1061,7 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
                             ),
                           ),
                         ),
-                        
+
                         // Primary Badge
                         if (currentImage.isPrimary)
                           Container(
@@ -954,10 +1070,10 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: AppTheme.warning.withOpacity(0.2),
+                              color: AppTheme.warning.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: AppTheme.warning.withOpacity(0.5),
+                                color: AppTheme.warning.withValues(alpha: 0.5),
                                 width: 1,
                               ),
                             ),
@@ -982,9 +1098,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
                           ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 12),
-                    
+
                     // Image Details
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -992,7 +1108,8 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
                         _buildInfoItem(
                           icon: Icons.aspect_ratio_rounded,
                           label: 'الأبعاد',
-                          value: '${currentImage.width} × ${currentImage.height}',
+                          value:
+                              '${currentImage.width} × ${currentImage.height}',
                         ),
                         _buildInfoItem(
                           icon: Icons.storage_rounded,
@@ -1002,11 +1119,14 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
                         _buildInfoItem(
                           icon: Icons.image_rounded,
                           label: 'النوع',
-                          value: currentImage.mimeType.split('/').last.toUpperCase(),
+                          value: currentImage.mimeType
+                              .split('/')
+                              .last
+                              .toUpperCase(),
                         ),
                       ],
                     ),
-                    
+
                     // Alt Text (if available)
                     if (currentImage.alt != null) ...[
                       const SizedBox(height: 12),
@@ -1030,7 +1150,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildInfoItem ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildInfoItem operation in the admin unit workflow.
   Widget _buildInfoItem({
     required IconData icon,
     required String label,
@@ -1041,7 +1163,7 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
         Icon(
           icon,
           size: 18,
-          color: AppTheme.primaryBlue.withOpacity(0.7),
+          color: AppTheme.primaryBlue.withValues(alpha: 0.7),
         ),
         const SizedBox(height: 4),
         Text(
@@ -1061,15 +1183,17 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ],
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildGridSizeSelector ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildGridSizeSelector operation in the admin unit workflow.
   Widget _buildGridSizeSelector() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
+        color: AppTheme.darkCard.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.3),
+          color: AppTheme.darkBorder.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -1083,10 +1207,12 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildGridSizeOption ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildGridSizeOption operation in the admin unit workflow.
   Widget _buildGridSizeOption(int columns) {
     final isActive = _gridColumns == columns;
-    
+
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -1100,7 +1226,7 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
         margin: const EdgeInsets.symmetric(horizontal: 2),
         decoration: BoxDecoration(
           color: isActive
-              ? AppTheme.primaryBlue.withOpacity(0.2)
+              ? AppTheme.primaryBlue.withValues(alpha: 0.2)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
@@ -1116,7 +1242,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildIconButton ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildIconButton operation in the admin unit workflow.
   Widget _buildIconButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -1130,10 +1258,10 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withOpacity(0.5),
+          color: AppTheme.darkCard.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.3),
+            color: AppTheme.darkBorder.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1145,7 +1273,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildLoadingState ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildLoadingState operation in the admin unit workflow.
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -1176,7 +1306,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildErrorState ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildErrorState operation in the admin unit workflow.
   Widget _buildErrorState(String message) {
     return Center(
       child: Column(
@@ -1185,7 +1317,7 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
           Icon(
             Icons.error_outline_rounded,
             size: 80,
-            color: AppTheme.error.withOpacity(0.7),
+            color: AppTheme.error.withValues(alpha: 0.7),
           ),
           const SizedBox(height: 24),
           Text(
@@ -1216,7 +1348,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _buildEmptyState ضمن مسار إدارة الوحدات.
+  /// This method performs the _buildEmptyState operation in the admin unit workflow.
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -1229,15 +1363,15 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
               shape: BoxShape.circle,
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.primaryBlue.withOpacity(0.1),
-                  AppTheme.primaryPurple.withOpacity(0.05),
+                  AppTheme.primaryBlue.withValues(alpha: 0.1),
+                  AppTheme.primaryPurple.withValues(alpha: 0.05),
                 ],
               ),
             ),
             child: Icon(
               Icons.photo_library_outlined,
               size: 60,
-              color: AppTheme.primaryBlue.withOpacity(0.5),
+              color: AppTheme.primaryBlue.withValues(alpha: 0.5),
             ),
           ),
           const SizedBox(height: 24),
@@ -1259,8 +1393,10 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
   // Helper Methods
+  /// ينفذ هذا الأسلوب عملية _openImageViewer ضمن مسار إدارة الوحدات.
+  /// This method performs the _openImageViewer operation in the admin unit workflow.
   void _openImageViewer(int index) {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -1280,12 +1416,16 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _downloadAllImages ضمن مسار إدارة الوحدات.
+  /// This method performs the _downloadAllImages operation in the admin unit workflow.
   void _downloadAllImages() {
     // Implement download functionality
     _showSuccessMessage('جاري تحميل الصور...');
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _showSuccessMessage ضمن مسار إدارة الوحدات.
+  /// This method performs the _showSuccessMessage operation in the admin unit workflow.
   void _showSuccessMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1309,7 +1449,9 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
       ),
     );
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية _showErrorMessage ضمن مسار إدارة الوحدات.
+  /// This method performs the _showErrorMessage operation in the admin unit workflow.
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1336,24 +1478,47 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
 }
 
 // Image Viewer Overlay
+/// يمثل هذا الكلاس _ImageViewerOverlay البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _ImageViewerOverlay in the admin unit workflow.
 class _ImageViewerOverlay extends StatefulWidget {
+  /// This field keeps the images value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة images التي يعتمد عليها مسار إدارة الوحدات.
   final List<UnitImage> images;
+
+  /// يحتفظ هذا الحقل بقيمة initialIndex التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the initialIndex value used by the admin unit workflow.
   final int initialIndex;
-  
+
+  /// ينشئ هذا المُنشئ مثيلاً من _ImageViewerOverlay.
+  /// This constructor creates an instance of _ImageViewerOverlay.
   const _ImageViewerOverlay({
     required this.images,
     required this.initialIndex,
   });
-  
+
+  /// ينشئ هذا الأسلوب كائن الحالة الخاص بهذه الصفحة.
+  /// This method performs the createState operation in the admin unit workflow.
   @override
   State<_ImageViewerOverlay> createState() => _ImageViewerOverlayState();
 }
 
+/// يمثل هذا الكلاس _ImageViewerOverlayState البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _ImageViewerOverlayState in the admin unit workflow.
 class _ImageViewerOverlayState extends State<_ImageViewerOverlay> {
+  /// This field keeps the pageController value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة pageController التي يعتمد عليها مسار إدارة الوحدات.
   late PageController _pageController;
+
+  /// يحتفظ هذا الحقل بقيمة _currentIndex التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _currentIndex value used by the admin unit workflow.
   late int _currentIndex;
+
+  /// يحتفظ هذا الحقل بقيمة _showControls التي يعتمد عليها مسار إدارة الوحدات.
+  /// This field keeps the _showControls value used by the admin unit workflow.
   bool _showControls = true;
-  
+
+  /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
+  /// This method performs the initState operation in the admin unit workflow.
   @override
   void initState() {
     super.initState();
@@ -1361,14 +1526,18 @@ class _ImageViewerOverlayState extends State<_ImageViewerOverlay> {
     _pageController = PageController(initialPage: widget.initialIndex);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية dispose ضمن مسار إدارة الوحدات.
+  /// This method performs the dispose operation in the admin unit workflow.
   @override
   void dispose() {
     _pageController.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية build ضمن مسار إدارة الوحدات.
+  /// This method performs the build operation in the admin unit workflow.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1406,7 +1575,7 @@ class _ImageViewerOverlayState extends State<_ImageViewerOverlay> {
                 color: Colors.black,
               ),
             ),
-            
+
             // Controls
             if (_showControls) ...[
               // Top Bar
@@ -1420,7 +1589,7 @@ class _ImageViewerOverlayState extends State<_ImageViewerOverlay> {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withOpacity(0.7),
+                        Colors.black.withValues(alpha: 0.7),
                         Colors.transparent,
                       ],
                     ),
@@ -1438,7 +1607,7 @@ class _ImageViewerOverlayState extends State<_ImageViewerOverlay> {
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.5),
+                                color: Colors.black.withValues(alpha: 0.5),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -1448,7 +1617,7 @@ class _ImageViewerOverlayState extends State<_ImageViewerOverlay> {
                               ),
                             ),
                           ),
-                          
+
                           // Counter
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -1456,7 +1625,7 @@ class _ImageViewerOverlayState extends State<_ImageViewerOverlay> {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.5),
+                              color: Colors.black.withValues(alpha: 0.5),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -1466,7 +1635,7 @@ class _ImageViewerOverlayState extends State<_ImageViewerOverlay> {
                               ),
                             ),
                           ),
-                          
+
                           // Download Button
                           GestureDetector(
                             onTap: () {
@@ -1476,7 +1645,7 @@ class _ImageViewerOverlayState extends State<_ImageViewerOverlay> {
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.5),
+                                color: Colors.black.withValues(alpha: 0.5),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -1501,42 +1670,50 @@ class _ImageViewerOverlayState extends State<_ImageViewerOverlay> {
 }
 
 // Gallery Background Painter
+/// يمثل هذا الكلاس _GalleryBackgroundPainter البيانات والسلوك المستخدمين في إدارة الوحدات.
+/// This class models the data and behavior for _GalleryBackgroundPainter in the admin unit workflow.
 class _GalleryBackgroundPainter extends CustomPainter {
+  /// This field keeps the animation value used by the admin unit workflow.
+  /// يحتفظ هذا الحقل بقيمة animation التي يعتمد عليها مسار إدارة الوحدات.
   final double animation;
-  
+
+  /// ينشئ هذا المُنشئ مثيلاً من _GalleryBackgroundPainter.
+  /// This constructor creates an instance of _GalleryBackgroundPainter.
   _GalleryBackgroundPainter({required this.animation});
-  
+
+  /// ينفذ هذا الأسلوب عملية paint ضمن مسار إدارة الوحدات.
+  /// This method performs the paint operation in the admin unit workflow.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
-    
+
     // Draw floating particles
     for (int i = 0; i < 20; i++) {
       final progress = (animation + i * 0.05) % 1.0;
       final y = size.height * progress;
-      final x = size.width * 0.5 + 
-                 math.sin(progress * math.pi * 2 + i) * size.width * 0.3;
+      final x = size.width * 0.5 +
+          math.sin(progress * math.pi * 2 + i) * size.width * 0.3;
       final opacity = math.sin(progress * math.pi).clamp(0.0, 1.0);
-      
+
       paint.shader = RadialGradient(
         colors: [
-          AppTheme.primaryBlue.withOpacity(0.05 * opacity),
+          AppTheme.primaryBlue.withValues(alpha: 0.05 * opacity),
           Colors.transparent,
         ],
       ).createShader(Rect.fromCircle(
         center: Offset(x, y),
         radius: 30,
       ));
-      
+
       canvas.drawCircle(Offset(x, y), 30, paint);
     }
-    
+
     // Draw grid lines
     paint.shader = null;
-    paint.color = AppTheme.primaryBlue.withOpacity(0.02);
+    paint.color = AppTheme.primaryBlue.withValues(alpha: 0.02);
     paint.strokeWidth = 0.5;
     paint.style = PaintingStyle.stroke;
-    
+
     const spacing = 40.0;
     for (double x = 0; x < size.width; x += spacing) {
       final offset = math.sin(animation * math.pi * 2) * 5;
@@ -1546,7 +1723,7 @@ class _GalleryBackgroundPainter extends CustomPainter {
         paint,
       );
     }
-    
+
     for (double y = 0; y < size.height; y += spacing) {
       final offset = math.cos(animation * math.pi * 2) * 5;
       canvas.drawLine(
@@ -1556,7 +1733,9 @@ class _GalleryBackgroundPainter extends CustomPainter {
       );
     }
   }
-  
+
+  /// ينفذ هذا الأسلوب عملية shouldRepaint ضمن مسار إدارة الوحدات.
+  /// This method performs the shouldRepaint operation in the admin unit workflow.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import '../../../domain/entities/section_image.dart';
 
 abstract class SectionImagesState extends Equatable {
+  /// العربية: ينشئ مثيلًا جديدًا من `SectionImagesState`.
   const SectionImagesState();
 
   @override
@@ -11,10 +12,12 @@ abstract class SectionImagesState extends Equatable {
 }
 
 class SectionImagesInitial extends SectionImagesState {
+  /// العربية: ينشئ مثيلًا جديدًا من `SectionImagesInitial`.
   const SectionImagesInitial();
 }
 
 class SectionImagesLoading extends SectionImagesState {
+  /// العربية: يخزن القيمة `message`.
   final String? message;
 
   const SectionImagesLoading({this.message});
@@ -24,9 +27,13 @@ class SectionImagesLoading extends SectionImagesState {
 }
 
 class SectionImagesLoaded extends SectionImagesState {
+  /// العربية: يخزن القيمة `images`.
   final List<SectionImage> images;
+
   final Set<String> selectedImageIds;
+
   final String? currentSectionId;
+
   final bool isSelectionMode;
 
   const SectionImagesLoaded({
@@ -56,7 +63,9 @@ class SectionImagesLoaded extends SectionImagesState {
 }
 
 class SectionImagesError extends SectionImagesState {
+  /// العربية: يخزن القيمة `message`.
   final String message;
+
   final List<SectionImage>? previousImages;
 
   const SectionImagesError({
@@ -69,10 +78,15 @@ class SectionImagesError extends SectionImagesState {
 }
 
 class SectionImageUploading extends SectionImagesState {
+  /// العربية: يخزن القيمة `currentImages`.
   final List<SectionImage> currentImages;
+
   final double? uploadProgress;
+
   final String? uploadingFileName;
+
   final int? currentFileIndex;
+
   final int? totalFiles;
 
   const SectionImageUploading({
@@ -94,8 +108,11 @@ class SectionImageUploading extends SectionImagesState {
 }
 
 class SectionImageUploaded extends SectionImagesState {
+  /// العربية: يخزن القيمة `uploadedImage`.
   final SectionImage uploadedImage;
+
   final List<SectionImage> allImages;
+
   final String successMessage;
 
   const SectionImageUploaded({
@@ -109,10 +126,15 @@ class SectionImageUploaded extends SectionImagesState {
 }
 
 class MultipleSectionImagesUploaded extends SectionImagesState {
+  /// العربية: يخزن القيمة `uploadedImages`.
   final List<SectionImage> uploadedImages;
+
   final List<SectionImage> allImages;
+
   final int successCount;
+
   final int failedCount;
+
   final String successMessage;
 
   const MultipleSectionImagesUploaded({
@@ -134,7 +156,9 @@ class MultipleSectionImagesUploaded extends SectionImagesState {
 }
 
 class SectionImageDeleting extends SectionImagesState {
+  /// العربية: يخزن القيمة `currentImages`.
   final List<SectionImage> currentImages;
+
   final String imageId;
 
   const SectionImageDeleting({
@@ -147,7 +171,9 @@ class SectionImageDeleting extends SectionImagesState {
 }
 
 class SectionImageDeleted extends SectionImagesState {
+  /// العربية: يخزن القيمة `remainingImages`.
   final List<SectionImage> remainingImages;
+
   final String successMessage;
 
   const SectionImageDeleted({
@@ -160,8 +186,11 @@ class SectionImageDeleted extends SectionImagesState {
 }
 
 class MultipleSectionImagesDeleted extends SectionImagesState {
+  /// العربية: يخزن القيمة `remainingImages`.
   final List<SectionImage> remainingImages;
+
   final int deletedCount;
+
   final String successMessage;
 
   const MultipleSectionImagesDeleted({
@@ -175,7 +204,9 @@ class MultipleSectionImagesDeleted extends SectionImagesState {
 }
 
 class SectionImageUpdating extends SectionImagesState {
+  /// العربية: يخزن القيمة `currentImages`.
   final List<SectionImage> currentImages;
+
   final String imageId;
 
   const SectionImageUpdating({
@@ -188,7 +219,9 @@ class SectionImageUpdating extends SectionImagesState {
 }
 
 class SectionImageUpdated extends SectionImagesState {
+  /// العربية: يخزن القيمة `updatedImages`.
   final List<SectionImage> updatedImages;
+
   final String successMessage;
 
   const SectionImageUpdated({
@@ -201,6 +234,7 @@ class SectionImageUpdated extends SectionImagesState {
 }
 
 class SectionImagesReordering extends SectionImagesState {
+  /// العربية: يخزن القيمة `currentImages`.
   final List<SectionImage> currentImages;
 
   const SectionImagesReordering({required this.currentImages});
@@ -210,7 +244,9 @@ class SectionImagesReordering extends SectionImagesState {
 }
 
 class SectionImagesReordered extends SectionImagesState {
+  /// العربية: يخزن القيمة `reorderedImages`.
   final List<SectionImage> reorderedImages;
+
   final String successMessage;
 
   const SectionImagesReordered({
@@ -223,8 +259,11 @@ class SectionImagesReordered extends SectionImagesState {
 }
 
 class PrimarySectionImageSet extends SectionImagesState {
+  /// العربية: يخزن القيمة `updatedImages`.
   final List<SectionImage> updatedImages;
+
   final String primaryImageId;
+
   final String successMessage;
 
   const PrimarySectionImageSet({

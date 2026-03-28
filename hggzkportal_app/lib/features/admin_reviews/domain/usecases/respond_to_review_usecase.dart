@@ -5,24 +5,21 @@ import 'package:hggzkportal/core/error/failures.dart';
 import 'package:hggzkportal/core/usecases/usecase.dart';
 import '../entities/review_response.dart';
 import '../repositories/reviews_repository.dart';
-
 class RespondToReviewParams {
+  /// العربية: يخزن القيمة `reviewId`.
   final String reviewId;
   final String responseText;
   final String respondedBy;
-  
   RespondToReviewParams({
     required this.reviewId,
     required this.responseText,
     required this.respondedBy,
   });
 }
-
-class RespondToReviewUseCase implements UseCase<ReviewResponse, RespondToReviewParams> {
+class RespondToReviewUseCase
+    implements UseCase<ReviewResponse, RespondToReviewParams> {
   final ReviewsRepository repository;
-  
   RespondToReviewUseCase(this.repository);
-  
   @override
   Future<Either<Failure, ReviewResponse>> call(RespondToReviewParams params) {
     return repository.respondToReview(

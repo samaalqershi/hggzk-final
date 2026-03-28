@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/enums/section_target.dart';
 import '../../domain/entities/property_in_section.dart';
 import '../../domain/entities/unit_in_section.dart';
+import '../../../../core/enums/section_target.dart';
 import 'property_item_card.dart';
 import 'unit_item_card.dart';
 import 'item_order_drag_handle.dart';
 
 class SectionItemsList extends StatefulWidget {
+  /// العربية: يخزن القيمة `items`.
   final List<dynamic> items;
+
   final SectionTarget target;
+
   final bool isReordering;
+
   final Function(int, int)? onReorder;
+
   final Function(String)? onRemove;
 
   const SectionItemsList({
@@ -31,6 +34,7 @@ class SectionItemsList extends StatefulWidget {
 }
 
 class _SectionItemsListState extends State<SectionItemsList> {
+  /// العربية: يخزن القيمة `items`.
   late List<dynamic> _items;
 
   @override
@@ -93,9 +97,8 @@ class _SectionItemsListState extends State<SectionItemsList> {
         item is PropertyInSection) {
       return PropertyItemCard(
         property: item,
-        onRemove: widget.onRemove != null
-            ? () => widget.onRemove!(item.id)
-            : null,
+        onRemove:
+            widget.onRemove != null ? () => widget.onRemove!(item.id) : null,
         isReordering: widget.isReordering,
       );
     } else if (widget.target == SectionTarget.units && item is UnitInSection) {
@@ -103,9 +106,8 @@ class _SectionItemsListState extends State<SectionItemsList> {
         unit: item,
         // Backend returns UnitInSectionId separately; our model maps id from JSON['id'].
         // If ever needed, adjust here by preferring a UnitInSectionId field on the model.
-        onRemove: widget.onRemove != null
-            ? () => widget.onRemove!(item.id)
-            : null,
+        onRemove:
+            widget.onRemove != null ? () => widget.onRemove!(item.id) : null,
         isReordering: widget.isReordering,
       );
     }

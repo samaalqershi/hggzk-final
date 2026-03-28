@@ -17,9 +17,14 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
+/// يعرض أزرار المصادقة الاجتماعية ويدير تدفق اختيار المزود وإظهار حالة
+/// التحميل المشتركة.
+/// Renders the social-auth buttons and manages provider selection plus shared
+/// loading feedback.
 class SocialLoginButtons extends StatefulWidget {
+  /// ينشئ مجموعة أزرار تسجيل الدخول الاجتماعي.
+  /// Creates the social-login buttons group.
   const SocialLoginButtons({super.key});
-
   @override
   State<SocialLoginButtons> createState() => _SocialLoginButtonsState();
 }
@@ -29,7 +34,6 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
   bool _isLoadingDialogShown = false;
   bool _isSocialAuthInFlight = false;
   OverlayEntry? _loadingOverlayEntry;
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
@@ -413,7 +417,10 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
           final appleFullName = [
             credential.givenName,
             credential.familyName,
-          ].where((e) => (e ?? '').trim().isNotEmpty).map((e) => e!.trim()).join(' ');
+          ]
+              .where((e) => (e ?? '').trim().isNotEmpty)
+              .map((e) => e!.trim())
+              .join(' ');
 
           // ignore: use_build_context_synchronously
           context.read<AuthBloc>().add(
@@ -442,7 +449,6 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
     }
   }
 
-  /// الحصول على Google Client ID المناسب للمنصة الحالية
   String? _getGoogleClientIdForPlatform() {
     if (kIsWeb) {
       return AppConstants.googleWebClientId;
@@ -462,7 +468,6 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
     }
   }
 
-  /// الحصول على اسم المنصة الحالية للـ logging
   String _getCurrentPlatformName() {
     if (kIsWeb) return 'Web';
 
@@ -508,12 +513,13 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
   }
 
   String _generateNonce([int length = 32]) {
-    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+    const charset =
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
     final random = Random.secure();
-    return List.generate(length, (_) => charset[random.nextInt(charset.length)]).join();
+    return List.generate(length, (_) => charset[random.nextInt(charset.length)])
+        .join();
   }
 
-  /// اختصار Client ID للـ logging بشكل آمن
   String _truncateId(String id) {
     if (id.isEmpty) return '(فارغ)';
     if (id.length <= 30) return id;
@@ -528,7 +534,6 @@ class _FuturisticSocialButton extends StatefulWidget {
   final LinearGradient gradient;
   final Color borderColor;
   final VoidCallback onPressed;
-
   const _FuturisticSocialButton({
     required this.icon,
     required this.fallbackIcon,
@@ -537,7 +542,6 @@ class _FuturisticSocialButton extends StatefulWidget {
     required this.borderColor,
     required this.onPressed,
   });
-
   @override
   State<_FuturisticSocialButton> createState() =>
       _FuturisticSocialButtonState();
@@ -548,7 +552,6 @@ class _FuturisticSocialButtonState extends State<_FuturisticSocialButton>
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   bool _isHovered = false;
-
   @override
   void initState() {
     super.initState();
