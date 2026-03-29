@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -226,7 +227,9 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     return Column(
       children: [
         Text(
-          'تم الحجز بنجاح!',
+          context.tr(
+            'booking.confirmation.successBanner',
+          ),
           style: AppTextStyles.h2.copyWith(
             fontWeight: FontWeight.w600,
             color: AppTheme.textWhite,
@@ -234,7 +237,10 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
         ),
         const SizedBox(height: 8),
         Text(
-          'رقم الحجز: ${widget.booking.bookingNumber}',
+          context.tr(
+            'booking.confirmation.bookingNumberValue',
+            params: {'id': widget.booking.bookingNumber},
+          ),
           style: AppTextStyles.bodySmall.copyWith(
             color: AppTheme.textMuted,
           ),
@@ -283,7 +289,9 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
             children: [
               Expanded(
                 child: _buildDateInfo(
-                  title: 'دخول',
+                  title: context.tr(
+                    'booking.confirmation.checkIn',
+                  ),
                   date: dateFormat.format(widget.booking.checkInDate),
                   icon: Icons.login_rounded,
                 ),
@@ -303,7 +311,9 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
               ),
               Expanded(
                 child: _buildDateInfo(
-                  title: 'خروج',
+                  title: context.tr(
+                    'booking.confirmation.checkOut',
+                  ),
                   date: dateFormat.format(widget.booking.checkOutDate),
                   icon: Icons.logout_rounded,
                   isEnd: true,
@@ -322,7 +332,10 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
             children: [
               _buildInfoChip(
                 icon: Icons.people_outline,
-                label: '${widget.booking.totalGuests} ضيف',
+                label: context.tr(
+                  'booking.confirmation.guests',
+                  params: {'count': widget.booking.totalGuests},
+                ),
               ),
               _buildPriceChip(
                 amount: widget.booking.totalAmount,
@@ -488,7 +501,9 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
       children: [
         // Primary Action - View Details
         _buildMinimalButton(
-          label: 'عرض التفاصيل',
+          label: context.tr(
+            'booking.confirmation.viewDetails',
+          ),
           icon: Icons.description_outlined,
           onPressed: () => context.push('/booking/${widget.booking.id}'),
           isPrimary: true,
@@ -501,7 +516,9 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
           children: [
             Expanded(
               child: _buildMinimalButton(
-                label: 'مشاركة',
+                label: context.tr(
+                  'booking.confirmation.share',
+                ),
                 icon: Icons.share_outlined,
                 onPressed: _shareBooking,
                 isCompact: true,
@@ -510,7 +527,9 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
             const SizedBox(width: 12),
             Expanded(
               child: _buildMinimalButton(
-                label: 'حفظ PDF',
+                label: context.tr(
+                  'booking.confirmation.savePdf',
+                ),
                 icon: Icons.download_outlined,
                 onPressed: _downloadPDF,
                 isCompact: true,
@@ -525,7 +544,9 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
         TextButton(
           onPressed: () => context.go('/home'),
           child: Text(
-            'العودة للرئيسية',
+            context.tr(
+              'booking.confirmation.backHome',
+            ),
             style: AppTextStyles.bodySmall.copyWith(
               color: AppTheme.textMuted,
               decoration: TextDecoration.underline,
@@ -611,12 +632,20 @@ class _BookingConfirmationPageState extends State<BookingConfirmationPage>
     ''';
 
     Clipboard.setData(ClipboardData(text: shareText));
-    _showMinimalSnackBar('تم نسخ التفاصيل');
+    _showMinimalSnackBar(
+      context.tr(
+        'booking.confirmation.copiedDetails',
+      ),
+    );
   }
 
   /// العربية: يعالج `downloadPDF`.
   void _downloadPDF() {
-    _showMinimalSnackBar('جاري تحميل PDF...');
+    _showMinimalSnackBar(
+      context.tr(
+        'booking.confirmation.loadingPdf',
+      ),
+    );
   }
 
   /// العربية: يعرض minimal snack bar.

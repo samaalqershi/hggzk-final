@@ -1,3 +1,4 @@
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/features/search/data/models/search_result_model.dart';
 import 'package:hggzk/features/search/data/models/search_filter_model.dart';
 import 'package:hggzk/features/search/data/models/search_statistics_model.dart';
@@ -86,7 +87,7 @@ class SearchPropertiesResponseModel {
     required this.statistics,
     this.relaxationLevel = SearchRelaxationLevel.exact,
     this.relaxedFilters = const [],
-    this.searchStrategy = 'تطابق دقيق',
+    required this.searchStrategy,
     this.originalCriteria = const {},
     this.actualCriteria = const {},
     this.userMessage,
@@ -136,7 +137,8 @@ class SearchPropertiesResponseModel {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      searchStrategy: json['searchStrategy'] as String? ?? 'تطابق دقيق',
+      searchStrategy: json['searchStrategy'] as String? ??
+          AppLocalizations.translateSync('core.searchRelaxation.exact'),
       originalCriteria:
           (json['originalCriteria'] as Map<String, dynamic>?) ?? const {},
       actualCriteria:

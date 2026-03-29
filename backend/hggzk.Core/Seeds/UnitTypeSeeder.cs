@@ -87,7 +87,7 @@ namespace YemenBooking.Core.Seeds
         /// </summary>
         public IEnumerable<UnitType> SeedData()
         {
-            return new List<UnitType>
+            var unitTypes = new List<UnitType>
             {
                 new UnitType
                 {
@@ -306,6 +306,13 @@ namespace YemenBooking.Core.Seeds
                     IsDeleted = false
                 }
             };
+
+            foreach (var unitType in unitTypes)
+            {
+                SeedLocalizationHelper.ApplyUnitTypeEnglish(unitType);
+            }
+
+            return unitTypes;
         }
     }
 }

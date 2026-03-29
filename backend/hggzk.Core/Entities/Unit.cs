@@ -33,6 +33,13 @@ public class Unit : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "اسم الوحدة")]
     public string Name { get; set; }
+
+    /// <summary>
+    /// اسم الوحدة باللغة الإنجليزية.
+    /// English unit name.
+    /// </summary>
+    [Display(Name = "اسم الوحدة بالإنجليزية")]
+    public string? NameEn { get; set; }
     
     /// <summary>
     /// السعة القصوى للوحدة.
@@ -53,6 +60,13 @@ public class Unit : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "الميزات المخصصة للوحدة")]
     public string CustomFeatures { get; set; } = "{}";
+
+    /// <summary>
+    /// الميزات المخصصة للوحدة باللغة الإنجليزية بصيغة JSON.
+    /// English custom features stored as JSON.
+    /// </summary>
+    [Display(Name = "الميزات المخصصة للوحدة بالإنجليزية")]
+    public string? CustomFeaturesEn { get; set; }
 
     /// <summary>
     /// عدد مرات المشاهدة.

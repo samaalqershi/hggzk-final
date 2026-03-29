@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_dimensions.dart';
 import '../theme/app_text_styles.dart';
@@ -113,7 +114,7 @@ class CustomErrorWidget extends StatelessWidget {
   /// يعرض العنوان الفعلي ويعود إلى عنوان افتراضي إذا لم يمرر المستدعي شيئًا.
   /// Renders the actual title or falls back to a contextual default.
   Widget _buildTitle(BuildContext context) {
-    String displayTitle = title ?? _getDefaultTitle();
+    String displayTitle = title ?? _getDefaultTitle(context);
 
     return Text(
       displayTitle,
@@ -168,7 +169,7 @@ class CustomErrorWidget extends StatelessWidget {
                     color: Colors.white, size: 16),
                 const SizedBox(width: 6),
                 Text(
-                  'إعادة المحاولة',
+                  context.tr('common.retry'),
                   style: AppTextStyles.caption.copyWith(
                     color: Colors.white,
                   ),
@@ -183,19 +184,19 @@ class CustomErrorWidget extends StatelessWidget {
 
   /// يعيد عنوانًا افتراضيًا متوافقًا مع نوع الخطأ الحالي.
   /// Returns the contextual title for the selected error type.
-  String _getDefaultTitle() {
+  String _getDefaultTitle(BuildContext context) {
     switch (type) {
       case ErrorType.network:
-        return 'لا يوجد اتصال بالإنترنت';
+        return context.tr('common.noInternet');
       case ErrorType.server:
-        return 'خطأ في الخادم';
+        return context.tr('common.serverError');
       case ErrorType.notFound:
-        return 'لم يتم العثور على النتائج';
+        return context.tr('common.notFound');
       case ErrorType.permission:
-        return 'ليس لديك صلاحية';
+        return context.tr('common.permissionDenied');
       case ErrorType.general:
       default:
-        return 'حدث خطأ ما';
+        return context.tr('common.somethingWentWrong');
     }
   }
 }

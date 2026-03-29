@@ -106,6 +106,29 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
   /// null = الكل، true = مدفوع، false = مجاني.
   bool? _paidFilter;
 
+  Widget _buildSecondaryText(
+    String? value, {
+    int maxLines = 1,
+    TextStyle? style,
+  }) {
+    if (value == null || value.trim().isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Text(
+        value,
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+        style: style ??
+            AppTextStyles.caption.copyWith(
+              color: AppTheme.textMuted.withValues(alpha: 0.85),
+            ),
+      ),
+    );
+  }
+
   /// قائمة المرافق بعد تطبيق الفلاتر الحالية.
   late List<Amenity> _filteredAmenities;
 
@@ -177,8 +200,12 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
       context: context,
       targetKey: targetKey,
       amenityId: amenity.id,
-      name: amenity.name,
-      description: amenity.description,
+      name: amenity.nameEn?.trim().isNotEmpty == true
+          ? '${amenity.name} / ${amenity.nameEn}'
+          : amenity.name,
+      description: amenity.descriptionEn?.trim().isNotEmpty == true
+          ? '${amenity.description}\n${amenity.descriptionEn}'
+          : amenity.description,
       icon: amenity.icon,
       isAvailable: amenity.isActive ?? true,
       extraCost: amenity.averageExtraCost,
@@ -537,6 +564,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
+                          _buildSecondaryText(amenity.nameEn),
                           Text(
                             amenity.description,
                             style: AppTextStyles.caption.copyWith(
@@ -545,6 +573,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
+                          _buildSecondaryText(amenity.descriptionEn),
                         ],
                       ),
                     ),
@@ -806,6 +835,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
+                            _buildSecondaryText(amenity.nameEn),
                             const SizedBox(height: 2),
                             Text(
                               amenity.description,
@@ -815,6 +845,7 @@ class _FuturisticAmenitiesTableState extends State<FuturisticAmenitiesTable>
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
+                            _buildSecondaryText(amenity.descriptionEn),
                           ],
                         ),
                       ),

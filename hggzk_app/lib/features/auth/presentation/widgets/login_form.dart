@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:math' as math;
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/validators.dart';
@@ -134,8 +135,12 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
             _buildOptimizedField(
               controller: _emailOrPhoneController,
               focusNode: _emailOrPhoneFocusNode,
-              label: 'البريد الإلكتروني أو رقم الهاتف',
-              hint: 'أدخل بريدك أو رقمك',
+              label: context.tr(
+                'auth.login.emailOrPhone',
+              ),
+              hint: context.tr(
+                'auth.login.emailOrPhoneHint',
+              ),
               icon: Icons.person_outline_rounded,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
@@ -144,11 +149,15 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'هذا الحقل مطلوب';
+                  return context.tr(
+                    'auth.validation.required',
+                  );
                 }
                 if (!Validators.isValidEmail(value) &&
                     !Validators.isValidPhoneNumber(value)) {
-                  return 'يرجى إدخال بريد إلكتروني أو رقم هاتف صحيح';
+                  return context.tr(
+                    'auth.validation.validEmailOrPhone',
+                  );
                 }
                 return null;
               },
@@ -157,8 +166,10 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
             _buildOptimizedField(
               controller: _passwordController,
               focusNode: _passwordFocusNode,
-              label: 'كلمة المرور',
-              hint: '••••••••',
+              label: context.tr('common.password'),
+              hint: context.tr(
+                'auth.login.passwordHint',
+              ),
               icon: Icons.lock_outline_rounded,
               obscureText: _obscurePassword,
               textInputAction: TextInputAction.done,
@@ -166,10 +177,14 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
               suffixIcon: _buildPasswordToggle(),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'هذا الحقل مطلوب';
+                  return context.tr(
+                    'auth.validation.required',
+                  );
                 }
                 if (value.length < 8) {
-                  return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
+                  return context.tr(
+                    'auth.validation.passwordMin8',
+                  );
                 }
                 return null;
               },
@@ -321,7 +336,7 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
               ),
               const SizedBox(width: 8),
               Text(
-                'تذكرني',
+                context.tr('auth.login.rememberMe'),
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppTheme.textMuted,
                 ),
@@ -337,7 +352,9 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                   context.push(RouteConstants.forgotPassword);
                 },
           child: Text(
-            'نسيت كلمة المرور؟',
+            context.tr(
+              'auth.login.forgotPassword',
+            ),
             style: AppTextStyles.bodySmall.copyWith(
               color: AppTheme.primaryBlue,
               fontWeight: FontWeight.w600,
@@ -390,7 +407,9 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      'جاري التحقق...',
+                      context.tr(
+                        'common.loading',
+                      ),
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: Colors.white.withValues(alpha: 0.8),
                       ),
@@ -407,7 +426,7 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      'تسجيل الدخول',
+                      context.tr('common.login'),
                       style: AppTextStyles.buttonMedium.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -668,7 +687,7 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
               ),
               const SizedBox(width: 8),
               Text(
-                'تذكرني',
+                context.tr('auth.login.rememberMe'),
                 style: AppTextStyles.caption.copyWith(
                   color: AppTheme.textMuted.withOpacity(0.8),
                 ),
@@ -691,7 +710,9 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           child: Text(
-            'نسيت كلمة المرور؟',
+            context.tr(
+              'auth.login.forgotPassword',
+            ),
             style: AppTextStyles.caption.copyWith(
               color: AppTheme.primaryBlue.withOpacity(0.9),
               fontWeight: FontWeight.w500,
@@ -727,7 +748,7 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : Text(
-                    'تسجيل الدخول',
+                    context.tr('common.login'),
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
@@ -758,7 +779,7 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
         ),
         const SizedBox(width: 10),
         Text(
-          'تسجيل الدخول',
+          context.tr('common.login'),
           style: AppTextStyles.buttonMedium.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.w600,
@@ -785,7 +806,7 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
         ),
         const SizedBox(width: 10),
         Text(
-          'جاري التحقق...',
+          context.tr('common.loading'),
           style: AppTextStyles.bodySmall.copyWith(
             color: Colors.white.withOpacity(0.8),
           ),

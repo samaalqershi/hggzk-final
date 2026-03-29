@@ -182,6 +182,15 @@ class UpdateUnitNameEvent extends UnitFormEvent {
   List<Object?> get props => [name];
 }
 
+class UpdateUnitNameEnEvent extends UnitFormEvent {
+  final String nameEn;
+
+  const UpdateUnitNameEnEvent({required this.nameEn});
+
+  @override
+  List<Object?> get props => [nameEn];
+}
+
 /// يمثل هذا الكلاس UpdateDescriptionEvent البيانات والسلوك المستخدمين في إدارة الوحدات.
 /// This class models the data and behavior for UpdateDescriptionEvent in the admin unit workflow.
 class UpdateDescriptionEvent extends UnitFormEvent {
@@ -197,6 +206,15 @@ class UpdateDescriptionEvent extends UnitFormEvent {
   /// This getter returns the properties used for equality comparisons.
   @override
   List<Object?> get props => [description];
+}
+
+class UpdateDescriptionEnEvent extends UnitFormEvent {
+  final String descriptionEn;
+
+  const UpdateDescriptionEnEvent({required this.descriptionEn});
+
+  @override
+  List<Object?> get props => [descriptionEn];
 }
 
 /// يمثل هذا الكلاس SubmitFormEvent البيانات والسلوك المستخدمين في إدارة الوحدات.

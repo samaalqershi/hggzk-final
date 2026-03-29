@@ -6,6 +6,7 @@ using YemenBooking.Core.Interfaces.Repositories;
 using YemenBooking.Core.Helpers;
 using YemenBooking.Application.Features.Policies;
 using YemenBooking.Application.Features.Amenities.DTOs;
+using YemenBooking.Application.Common.Helpers;
 using YemenBooking.Application.Features.Properties.DTOs;
 using YemenBooking.Application.Features.PropertyServices.DTOs;
 using YemenBooking.Application.Features;
@@ -101,15 +102,20 @@ public class ClientGetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyD
         {
             Id = property.Id,
             Name = property.Name,
+            NameEn = property.NameEn,
             TypeId = property.TypeId,
             PropertyType = await GetPropertyTypeDto(property.TypeId),
             Address = property.Address,
+            AddressEn = property.AddressEn,
             City = property.City,
+            CityEn = property.CityEn,
             Latitude = property.Latitude,
             Longitude = property.Longitude,
             StarRating = property.StarRating,
             Description = property.Description,
+            DescriptionEn = property.DescriptionEn,
             ShortDescription = property.ShortDescription,
+            ShortDescriptionEn = property.ShortDescriptionEn,
             AverageRating = property.AverageRating,
             ReviewsCount = await GetReviewsCount(property.Id),
             ViewCount = property.ViewCount,
@@ -138,12 +144,16 @@ public class ClientGetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyD
                         Id = u.Id,
                         PropertyId = u.PropertyId,
                         PropertyName = property.Name ?? string.Empty,
+                        PropertyNameEn = property.NameEn,
                         Name = u.Name ?? string.Empty,
+                        NameEn = u.NameEn,
                         UnitTypeId = u.UnitTypeId,
-                        UnitTypeName = string.Empty,
+                        UnitTypeName = u.UnitType?.Name ?? string.Empty,
+                        UnitTypeNameEn = u.UnitType?.NameEn,
                         MaxCapacity = u.MaxCapacity,
                         PricingMethod = u.PricingMethod.ToString(),
-                        CustomFeatures = u.CustomFeatures ?? string.Empty
+                        CustomFeatures = u.CustomFeatures ?? string.Empty,
+                        CustomFeaturesEn = u.CustomFeaturesEn
                     })
                     .ToList();
 
@@ -168,17 +178,20 @@ public class ClientGetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyD
             {
                 return new PropertyTypeDto
                 {
-                    Id = Guid.Empty,
-                    Name = "غير محدد",
-                    Description = "نوع غير محدد"
-                };
+                Id = Guid.Empty,
+                Name = LocalizedText.Choose("غير محدد", "Unspecified"),
+                NameEn = "Unspecified",
+                Description = LocalizedText.Choose("نوع غير محدد", "Unspecified type")
+            };
             }
 
             return new PropertyTypeDto
             {
                 Id = propertyType.Id,
                 Name = propertyType.Name,
-                Description = propertyType.Description ?? string.Empty
+                NameEn = propertyType.NameEn,
+                Description = propertyType.Description ?? string.Empty,
+                DescriptionEn = propertyType.DescriptionEn
             };
         }
         catch (Exception ex)
@@ -187,8 +200,9 @@ public class ClientGetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyD
             return new PropertyTypeDto
             {
                 Id = Guid.Empty,
-                Name = "غير محدد",
-                Description = "خطأ في جلب البيانات"
+                Name = LocalizedText.Choose("غير محدد", "Unspecified"),
+                NameEn = "Unspecified",
+                Description = LocalizedText.Choose("خطأ في جلب البيانات", "Error loading data")
             };
         }
     }
@@ -292,7 +306,9 @@ public class ClientGetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyD
                 Id = amenity.Id,
                 AmenityId = amenity.PropertyTypeAmenity.Amenity.Id,
                 Name = amenity.PropertyTypeAmenity.Amenity.Name ?? string.Empty,
+                NameEn = amenity.PropertyTypeAmenity.Amenity.NameEn,
                 Description = amenity.PropertyTypeAmenity.Amenity.Description ?? string.Empty,
+                CategoryEn = amenity.PropertyTypeAmenity.Amenity.NameEn,
                 IconUrl = string.Empty,
                 Category = amenity.PropertyTypeAmenity.Amenity.Name ?? string.Empty,
                 Icon = amenity.PropertyTypeAmenity.Amenity.Icon,
@@ -321,10 +337,12 @@ public class ClientGetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyD
             {
                 Id = service.Id,
                 Name = service.Name ?? string.Empty,
+                NameEn = service.NameEn,
                 Price = service.Price,
                 Currency = service.Price.Currency ?? "YER",
                 PricingModel = service.PricingModel.ToString() ?? string.Empty,
                 Description = service.Description ?? string.Empty,
+                DescriptionEn = service.DescriptionEn,
                 Icon = service.Icon ?? string.Empty
             }).ToList() ?? new List<PropertyServiceDto>();
 
@@ -353,6 +371,9 @@ public class ClientGetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyD
                 IsActive = policy.IsActive,
                 Type = policy.Type.ToString(),
                 Description = policy.Description ?? string.Empty,
+                DescriptionEn = policy.DescriptionEn,
+                RulesEn = policy.RulesEn,
+                RulesJson = policy.Rules,
                 Rules = PolicyRulesMapper.BuildRulesDictionary(policy)
             }).ToList();
         }

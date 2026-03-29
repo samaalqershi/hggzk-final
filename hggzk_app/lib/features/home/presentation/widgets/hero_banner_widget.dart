@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'dart:math' as math;
 import 'dart:async';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
@@ -37,41 +38,52 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
 
   // Arabic: عناصر افتراضية جاهزة إذا لم يرسل الخادم أي بيانات.
   // English: Default fallback items used when the backend provides none.
-  late final List<BannerItem> _bannerItems;
+  late List<BannerItem> _bannerItems;
+  bool _bannerItemsInitialized = false;
   @override
   void initState() {
     super.initState();
-    _initializeBannerItems();
     _initializeControllers();
     _generateParticles();
     _startAutoScroll();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_bannerItemsInitialized) {
+      return;
+    }
+
+    _initializeBannerItems(context);
+    _bannerItemsInitialized = true;
   }
 
   /// يجهز محتوى الشرائح مع مجموعة افتراضية تحافظ على استقرار الواجهة عندما
   /// لا تصل بيانات من الخادم بعد.
   /// Prepares slide content with a fallback set that keeps the widget stable
   /// when backend data has not arrived yet.
-  void _initializeBannerItems() {
+  void _initializeBannerItems(BuildContext context) {
     _bannerItems = widget.items ??
         [
           BannerItem(
             id: '1',
-            title: 'اكتشف وجهتك المثالية',
-            subtitle: 'أفضل العروض والأماكن بانتظارك',
+            title: context.tr('home.banner.discoverTitle'),
+            subtitle: context.tr('home.banner.discoverSubtitle'),
             imageUrl: 'https://via.placeholder.com/800x400',
             gradient: [AppTheme.primaryBlue, AppTheme.primaryPurple],
           ),
           BannerItem(
             id: '2',
-            title: 'عروض حصرية',
-            subtitle: 'خصومات تصل إلى 50%',
+            title: context.tr('home.banner.exclusiveTitle'),
+            subtitle: context.tr('home.banner.exclusiveSubtitle'),
             imageUrl: 'https://via.placeholder.com/800x400',
             gradient: [AppTheme.success, AppTheme.primaryCyan],
           ),
           BannerItem(
             id: '3',
-            title: 'حجز سريع وآمن',
-            subtitle: 'احجز الآن بكل ثقة',
+            title: context.tr('home.banner.fastTitle'),
+            subtitle: context.tr('home.banner.fastSubtitle'),
             imageUrl: 'https://via.placeholder.com/800x400',
             gradient: [AppTheme.warning, Colors.orange],
           ),
@@ -397,7 +409,7 @@ class _HeroBannerState extends State<HeroBanner> with TickerProviderStateMixin {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            item.ctaText ?? 'استكشف الآن',
+            item.ctaText ?? context.tr('home.banner.exploreNow'),
             style: AppTextStyles.buttonMedium.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,

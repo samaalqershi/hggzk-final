@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -196,27 +197,37 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
             runSpacing: 8,
             children: [
               _FuturisticRequirementChip(
-                label: '8+ أحرف',
+                label: context.tr(
+                  'auth.passwordStrength.requirementLength',
+                ),
                 isMet: widget.password.length >= 8,
                 icon: Icons.text_fields,
               ),
               _FuturisticRequirementChip(
-                label: 'حرف كبير',
+                label: context.tr(
+                  'auth.passwordStrength.requirementUppercase',
+                ),
                 isMet: widget.password.contains(RegExp(r'[A-Z]')),
                 icon: Icons.text_increase,
               ),
               _FuturisticRequirementChip(
-                label: 'حرف صغير',
+                label: context.tr(
+                  'auth.passwordStrength.requirementLowercase',
+                ),
                 isMet: widget.password.contains(RegExp(r'[a-z]')),
                 icon: Icons.text_decrease,
               ),
               _FuturisticRequirementChip(
-                label: 'رقم',
+                label: context.tr(
+                  'auth.passwordStrength.requirementNumber',
+                ),
                 isMet: widget.password.contains(RegExp(r'[0-9]')),
                 icon: Icons.numbers,
               ),
               _FuturisticRequirementChip(
-                label: 'رمز خاص',
+                label: context.tr(
+                  'auth.passwordStrength.requirementSpecial',
+                ),
                 isMet:
                     widget.password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]')),
                 icon: Icons.star,
@@ -250,25 +261,25 @@ class _PasswordStrengthIndicatorState extends State<PasswordStrengthIndicator>
       return PasswordStrength(
         value: 0.25,
         gradientColors: [AppTheme.error, AppTheme.error.withOpacity(0.7)],
-        text: 'ضعيفة',
+        text: context.tr('auth.passwordStrength.weak'),
       );
     } else if (score <= 4) {
       return PasswordStrength(
         value: 0.5,
         gradientColors: [AppTheme.warning, AppTheme.warning.withOpacity(0.7)],
-        text: 'متوسطة',
+        text: context.tr('auth.passwordStrength.medium'),
       );
     } else if (score <= 5) {
       return PasswordStrength(
         value: 0.75,
         gradientColors: [AppTheme.primaryBlue, AppTheme.primaryCyan],
-        text: 'جيدة',
+        text: context.tr('auth.passwordStrength.good'),
       );
     } else {
       return PasswordStrength(
         value: 1.0,
         gradientColors: [AppTheme.success, AppTheme.neonGreen],
-        text: 'قوية جداً',
+        text: context.tr('auth.passwordStrength.strong'),
       );
     }
   }

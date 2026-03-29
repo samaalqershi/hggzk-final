@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../../../../core/network/network_info.dart';
 import '../../domain/entities/review.dart';
@@ -56,7 +57,9 @@ class ReviewRepositoryImpl implements ReviewRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
   }
 
@@ -100,7 +103,9 @@ class ReviewRepositoryImpl implements ReviewRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
   }
 
@@ -120,7 +125,9 @@ class ReviewRepositoryImpl implements ReviewRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
   }
 
@@ -142,7 +149,9 @@ class ReviewRepositoryImpl implements ReviewRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
   }
 }

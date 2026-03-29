@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
@@ -59,6 +60,31 @@ namespace YemenBooking.Infrastructure.Services.Common
                 }
 
                 return string.Equals(User?.FindFirst("skipAudit")?.Value, "true", StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        /// <summary>
+        /// Current request language normalized to a supported UI culture.
+        /// لغة الطلب الحالية بعد التطبيع إلى لغة واجهة مدعومة.
+        /// </summary>
+        public string Language
+        {
+            get
+            {
+                var currentCulture = CultureInfo.CurrentUICulture?.TwoLetterISOLanguageName;
+                if (string.Equals(currentCulture, "en", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "en";
+                }
+
+                var acceptLanguage = _httpContextAccessor.HttpContext?.Request?.Headers["Accept-Language"].ToString();
+                if (!string.IsNullOrWhiteSpace(acceptLanguage) &&
+                    acceptLanguage.StartsWith("en", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "en";
+                }
+
+                return "ar";
             }
         }
 

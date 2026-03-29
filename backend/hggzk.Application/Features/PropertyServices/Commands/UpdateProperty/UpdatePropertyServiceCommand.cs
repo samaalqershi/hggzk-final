@@ -21,6 +21,11 @@ public class UpdatePropertyServiceCommand : IRequest<ResultDto<bool>>
     /// </summary>
     public string? Name { get; set; }
     /// <summary>
+    /// الاسم بالإنجليزية.
+    /// English name.
+    /// </summary>
+    public string? NameEn { get; set; }
+    /// <summary>
     /// الأيقونة.
     /// icon.
     /// </summary>
@@ -40,4 +45,9 @@ public class UpdatePropertyServiceCommand : IRequest<ResultDto<bool>>
     /// description.
     /// </summary>
     public string? Description { get; set; }
+    /// <summary>
+    /// الوصف بالإنجليزية.
+    /// English description.
+    /// </summary>
+    public string? DescriptionEn { get; set; }
 }

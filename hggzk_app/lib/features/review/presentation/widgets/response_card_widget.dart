@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -48,9 +49,9 @@ class ResponseCardWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
+          _buildHeader(context),
           const SizedBox(height: AppDimensions.spacingMd),
-          _buildContent(),
+          _buildContent(context),
         ],
       ),
     );
@@ -58,7 +59,7 @@ class ResponseCardWidget extends StatelessWidget {
 
   /// Builds the author header and response meta row.
   /// يبني ترويسة الكاتب وصف بيانات الرد.
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
         Container(
@@ -100,7 +101,7 @@ class ResponseCardWidget extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'الإدارة',
+                      context.tr('reviews.response.admin'),
                       style: AppTextStyles.caption.copyWith(
                         color: AppTheme.primaryBlue,
                         fontWeight: FontWeight.bold,
@@ -111,7 +112,7 @@ class ResponseCardWidget extends StatelessWidget {
               ),
               const SizedBox(height: AppDimensions.spacingXs),
               Text(
-                '${reply.replierPosition} • ${_formatDate(reply.createdAt)}',
+                '${reply.replierPosition} • ${_formatDate(context, reply.createdAt)}',
                 style: AppTextStyles.caption.copyWith(
                   color: AppTheme.textMuted,
                 ),
@@ -125,7 +126,7 @@ class ResponseCardWidget extends StatelessWidget {
 
   /// Renders the response body using the shared review typography.
   /// يرسم نص الرد باستخدام أنماط الخط المشتركة للمراجعات.
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
     return Text(
       reply.content,
       style: AppTextStyles.bodyMedium.copyWith(
@@ -136,18 +137,24 @@ class ResponseCardWidget extends StatelessWidget {
 
   /// Formats the response timestamp for the current locale.
   /// ينسق طابع زمن الرد وفق اللغة الحالية.
-  String _formatDate(DateTime date) {
+  String _formatDate(BuildContext context, DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
 
     if (difference.inDays == 0) {
-      return 'اليوم';
+      return context.tr('reviews.today');
     } else if (difference.inDays == 1) {
-      return 'أمس';
+      return context.tr('reviews.yesterday');
     } else if (difference.inDays < 7) {
-      return 'منذ ${difference.inDays} أيام';
+      return context.tr(
+        'reviews.agoDays',
+        params: {'count': difference.inDays},
+      );
     } else if (difference.inDays < 30) {
-      return 'منذ ${(difference.inDays / 7).floor()} أسابيع';
+      return context.tr(
+        'reviews.agoWeeks',
+        params: {'count': (difference.inDays / 7).floor()},
+      );
     } else {
       return DateFormat('d MMMM yyyy', 'ar').format(date);
     }

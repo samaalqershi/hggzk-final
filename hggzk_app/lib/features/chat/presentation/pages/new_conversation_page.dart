@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hggzk/features/chat/presentation/pages/chat_page.dart';
 import 'package:hggzk/features/chat/presentation/widgets/pinned_admins_widget.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../domain/entities/conversation.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -354,8 +355,12 @@ class _NewConversationPageState extends State<NewConversationPage>
                           ).createShader(bounds),
                           child: Text(
                             _isCreatingGroup
-                                ? 'إنشاء المجموعة...'
-                                : 'بدء المحادثة...',
+                                ? context.tr(
+                                    'chat.newConversation.creatingGroup',
+                                  )
+                                : context.tr(
+                                    'chat.newConversation.startingDirect',
+                                  ),
                             style: AppTextStyles.bodyMedium.copyWith(
                               color: Colors.white,
                               fontSize: 15,
@@ -365,7 +370,9 @@ class _NewConversationPageState extends State<NewConversationPage>
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'الرجاء الانتظار لحظات',
+                          context.tr(
+                            'chat.newConversation.pleaseWait',
+                          ),
                           style: AppTextStyles.caption.copyWith(
                             color: AppTheme.textMuted.withOpacity(0.6),
                             fontSize: 11,
@@ -402,22 +409,38 @@ class _NewConversationPageState extends State<NewConversationPage>
   /// العربية: يتحقق من صحة group creation.
   bool _validateGroupCreation() {
     if (_groupNameController.text.trim().isEmpty) {
-      _showValidationError('الرجاء إدخال اسم المجموعة');
+      _showValidationError(
+        context.tr(
+          'chat.newConversation.groupNameRequired',
+        ),
+      );
       return false;
     }
 
     if (_groupNameController.text.trim().length < 3) {
-      _showValidationError('اسم المجموعة يجب أن يكون 3 أحرف على الأقل');
+      _showValidationError(
+        context.tr(
+          'chat.newConversation.groupNameMin',
+        ),
+      );
       return false;
     }
 
     if (_selectedUsers.length < 2) {
-      _showValidationError('يجب اختيار شخصين على الأقل للمجموعة');
+      _showValidationError(
+        context.tr(
+          'chat.newConversation.groupMembersMin',
+        ),
+      );
       return false;
     }
 
     if (_selectedUsers.length > 100) {
-      _showValidationError('الحد الأقصى للمجموعة هو 100 عضو');
+      _showValidationError(
+        context.tr(
+          'chat.newConversation.groupMembersMax',
+        ),
+      );
       return false;
     }
 
@@ -457,7 +480,7 @@ class _NewConversationPageState extends State<NewConversationPage>
         ),
         duration: const Duration(seconds: 3),
         action: SnackBarAction(
-          label: 'حسناً',
+          label: context.tr('common.ok'),
           textColor: Colors.white,
           onPressed: () {},
         ),
@@ -481,7 +504,10 @@ class _NewConversationPageState extends State<NewConversationPage>
             participantIds: _selectedUsers.map((u) => u.id).toList(),
             conversationType: 'group',
             title: cleanGroupName,
-            description: 'مجموعة تضم ${_selectedUsers.length} أعضاء',
+            description: context.tr(
+              'chat.newConversation.groupDescription',
+              params: {'count': _selectedUsers.length},
+            ),
           ),
         );
   }
@@ -553,7 +579,13 @@ class _NewConversationPageState extends State<NewConversationPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _isCreatingGroup ? 'إنشاء مجموعة' : 'محادثة جديدة',
+                      _isCreatingGroup
+                          ? context.tr(
+                              'chat.newConversation.createGroupTitle',
+                            )
+                          : context.tr(
+                              'chat.newConversation.newConversationTitle',
+                            ),
                       style: AppTextStyles.bodyMedium.copyWith(
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
@@ -561,7 +593,10 @@ class _NewConversationPageState extends State<NewConversationPage>
                     ),
                     if (_selectedUsers.isNotEmpty && !_isCreatingGroup)
                       Text(
-                        '${_selectedUsers.length} محدد',
+                        context.tr(
+                          'chat.newConversation.selectedCount',
+                          params: {'count': _selectedUsers.length},
+                        ),
                         style: AppTextStyles.caption.copyWith(
                           color: AppTheme.primaryBlue.withOpacity(0.8),
                           fontSize: 11,
@@ -591,7 +626,7 @@ class _NewConversationPageState extends State<NewConversationPage>
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      'التالي',
+                      context.tr('chat.newConversation.next'),
                       style: AppTextStyles.bodySmall.copyWith(
                         color: Colors.white,
                         fontSize: 12,
@@ -797,7 +832,9 @@ class _NewConversationPageState extends State<NewConversationPage>
                       fontSize: 14,
                     ),
                     decoration: InputDecoration(
-                      hintText: 'اسم المجموعة',
+                      hintText: context.tr(
+                        'chat.newConversation.groupNameHint',
+                      ),
                       hintStyle: AppTextStyles.bodySmall.copyWith(
                         color: AppTheme.textMuted.withOpacity(0.4),
                         fontSize: 13,
@@ -842,7 +879,10 @@ class _NewConversationPageState extends State<NewConversationPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'الأعضاء (${_selectedUsers.length})',
+                    context.tr(
+                      'chat.newConversation.membersCount',
+                      params: {'count': _selectedUsers.length},
+                    ),
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppTheme.textMuted.withOpacity(0.6),
                       fontSize: 12,
@@ -902,7 +942,9 @@ class _NewConversationPageState extends State<NewConversationPage>
             fontSize: 13,
           ),
           decoration: InputDecoration(
-            hintText: 'البحث عن جهات الاتصال...',
+            hintText: context.tr(
+              'chat.newConversation.searchHint',
+            ),
             hintStyle: AppTextStyles.bodySmall.copyWith(
               color: AppTheme.textMuted.withOpacity(0.4),
               fontSize: 13,
@@ -1181,7 +1223,9 @@ class _NewConversationPageState extends State<NewConversationPage>
           ),
           const SizedBox(width: 4),
           Text(
-            'متصل الآن',
+            context.tr(
+              'chat.newConversation.onlineNow',
+            ),
             style: AppTextStyles.caption.copyWith(
               color: AppTheme.success.withOpacity(0.8),
               fontSize: 11,
@@ -1192,7 +1236,10 @@ class _NewConversationPageState extends State<NewConversationPage>
     }
     if (user.lastSeen != null) {
       return Text(
-        'آخر ظهور ${_formatLastSeen(user.lastSeen!)}',
+        context.tr(
+          'chat.newConversation.lastSeen',
+          params: {'value': _formatLastSeen(user.lastSeen!)},
+        ),
         style: AppTextStyles.caption.copyWith(
           color: AppTheme.textMuted.withOpacity(0.5),
           fontSize: 11,
@@ -1220,7 +1267,9 @@ class _NewConversationPageState extends State<NewConversationPage>
           ),
           const SizedBox(height: 16),
           Text(
-            'جاري تحميل جهات الاتصال...',
+            context.tr(
+              'chat.newConversation.loadingContacts',
+            ),
             style: AppTextStyles.bodySmall.copyWith(
               color: AppTheme.textMuted.withOpacity(0.6),
               fontSize: 13,
@@ -1273,14 +1322,18 @@ class _NewConversationPageState extends State<NewConversationPage>
             ),
             const SizedBox(height: 16),
             Text(
-              'لا توجد جهات اتصال',
+              context.tr(
+                'chat.newConversation.noContactsTitle',
+              ),
               style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 15,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'لم يتم العثور على جهات اتصال متاحة',
+              context.tr(
+                'chat.newConversation.noContactsSubtitle',
+              ),
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted.withOpacity(0.6),
                 fontSize: 12,
@@ -1344,10 +1397,25 @@ class _NewConversationPageState extends State<NewConversationPage>
   String _formatLastSeen(DateTime dt) {
     final now = DateTime.now();
     final diff = now.difference(dt);
-    if (diff.inMinutes < 1) return 'الآن';
-    if (diff.inMinutes < 60) return '${diff.inMinutes} دقيقة';
-    if (diff.inHours < 24) return '${diff.inHours} ساعة';
-    return '${diff.inDays} يوم';
+    if (diff.inMinutes < 1) {
+      return context.tr('chat.thread.now');
+    }
+    if (diff.inMinutes < 60) {
+      return context.tr(
+        'chat.thread.minuteAgo',
+        params: {'value': diff.inMinutes},
+      );
+    }
+    if (diff.inHours < 24) {
+      return context.tr(
+        'chat.thread.hourAgo',
+        params: {'value': diff.inHours},
+      );
+    }
+    return context.tr(
+      'chat.thread.dayAgo',
+      params: {'value': diff.inDays},
+    );
   }
 
   /// العربية: يعيد initials.

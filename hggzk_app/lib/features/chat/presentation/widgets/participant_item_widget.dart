@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hggzk/features/chat/presentation/widgets/online_status_indicator.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -61,9 +62,9 @@ class ParticipantItemWidget extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildNameRow(),
+                    _buildNameRow(context),
                     if (participant.isOnline || participant.lastSeen != null)
-                      _buildStatusText(),
+                      _buildStatusText(context),
                   ],
                 ),
               ),
@@ -132,7 +133,7 @@ class ParticipantItemWidget extends StatelessWidget {
   }
 
   /// Builds the name row and role badges.
-  Widget _buildNameRow() {
+  Widget _buildNameRow(BuildContext context) {
     return Row(
       children: [
         Expanded(
@@ -146,7 +147,7 @@ class ParticipantItemWidget extends StatelessWidget {
         ),
         if (isCurrentUser)
           _buildMinimalBadge(
-            label: 'أنت',
+            label: context.tr('chat.participant.me'),
             gradient: [
               AppTheme.primaryBlue.withOpacity(0.1),
               AppTheme.primaryPurple.withOpacity(0.05),
@@ -157,7 +158,7 @@ class ParticipantItemWidget extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 4),
             child: _buildMinimalBadge(
-              label: 'مشرف',
+              label: context.tr('chat.participant.admin'),
               gradient: [
                 AppTheme.warning.withOpacity(0.1),
                 const Color(0xFFF97316).withOpacity(0.05),
@@ -200,15 +201,21 @@ class ParticipantItemWidget extends StatelessWidget {
   }
 
   /// Builds the online or last-seen status line.
-  Widget _buildStatusText() {
+  Widget _buildStatusText(BuildContext context) {
     String statusText;
     Color statusColor;
 
     if (participant.isOnline) {
-      statusText = 'متصل الآن';
+      statusText = context.tr(
+        'chat.participant.onlineNow',
+      );
       statusColor = AppTheme.success;
     } else if (participant.lastSeen != null) {
-      statusText = 'آخر ظهور ${_formatLastSeen(participant.lastSeen!)}';
+      final lastSeen = _formatLastSeen(context, participant.lastSeen!);
+      statusText = context.tr(
+        'chat.participant.lastSeen',
+        params: {'value': lastSeen},
+      );
       statusColor = AppTheme.textMuted.withOpacity(0.6);
     } else {
       return const SizedBox.shrink();
@@ -263,20 +270,29 @@ class ParticipantItemWidget extends StatelessWidget {
   }
 
   /// العربية: ينسق last seen.
-  String _formatLastSeen(DateTime lastSeen) {
+  String _formatLastSeen(BuildContext context, DateTime lastSeen) {
     final now = DateTime.now();
     final difference = now.difference(lastSeen);
 
     if (difference.inMinutes < 1) {
-      return 'الآن';
+      return context.tr('chat.participant.now');
     } else if (difference.inMinutes < 60) {
-      return 'منذ ${difference.inMinutes}د';
+      return context.tr(
+        'chat.participant.minuteAgo',
+        params: {'value': difference.inMinutes},
+      );
     } else if (difference.inHours < 24) {
-      return 'منذ ${difference.inHours}س';
+      return context.tr(
+        'chat.participant.hourAgo',
+        params: {'value': difference.inHours},
+      );
     } else if (difference.inDays == 1) {
-      return 'أمس';
+      return context.tr('chat.thread.yesterday');
     } else {
-      return 'منذ ${difference.inDays}ي';
+      return context.tr(
+        'chat.participant.dayAgo',
+        params: {'value': difference.inDays},
+      );
     }
   }
 }

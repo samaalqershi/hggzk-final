@@ -20,12 +20,22 @@ public class UpdateAmenityCommand : IRequest<ResultDto<bool>>
     /// Updated amenity name
     /// </summary>
     public string? Name { get; set; }
+    /// <summary>
+    /// اسم المرفق المحدث بالإنجليزية
+    /// Updated amenity name in English
+    /// </summary>
+    public string? NameEn { get; set; }
 
     /// <summary>
     /// وصف المرفق المحدث
     /// Updated amenity description
     /// </summary>
     public string? Description { get; set; }
+    /// <summary>
+    /// وصف المرفق المحدث بالإنجليزية
+    /// Updated amenity description in English
+    /// </summary>
+    public string? DescriptionEn { get; set; }
 
     /// <summary>
     /// أيقونة المرفق

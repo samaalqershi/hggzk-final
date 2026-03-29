@@ -39,6 +39,7 @@ namespace YemenBooking.Application.Features.Properties.DTOs
         /// Amenity name
         /// </summary>
         public string? Name { get; set; }
+        public string? NameEn { get; set; }
 
         /// <summary>
         /// رابط أيقونة المرفق
@@ -51,6 +52,7 @@ namespace YemenBooking.Application.Features.Properties.DTOs
         /// Amenity category (Service, Safety, Entertainment, ...)
         /// </summary>
         public string? Category { get; set; }
+        public string? CategoryEn { get; set; }
 
         /// <summary>
         /// خاصية Icon.

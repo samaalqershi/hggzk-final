@@ -14,12 +14,14 @@ namespace YemenBooking.Application.Common.Models
         /// Unique city name.
         /// </summary>
         public string Name { get; set; } = string.Empty;
+        public string? NameEn { get; set; }
 
         /// <summary>
         /// اسم الدولة التابعة لها المدينة.
         /// Country name.
         /// </summary>
         public string Country { get; set; } = string.Empty;
+        public string? CountryEn { get; set; }
 
         /// <summary>
         /// روابط الصور المرتبطة بالمدينة.

@@ -1,4 +1,5 @@
 import 'package:hggzk/features/property/domain/entities/property_policy.dart';
+import 'package:hggzk/core/localization/localized_api_value.dart';
 
 import '../../domain/entities/property_detail.dart';
 import 'amenity_model.dart';
@@ -43,20 +44,51 @@ class PropertyDetailModel extends PropertyDetail {
   /// Constructs the PropertyDetailModel.fromJson value used by this feature.
   /// العربية: ينشئ مثيلًا جديدًا من `PropertyDetailModel.fromJson`.
   factory PropertyDetailModel.fromJson(Map<String, dynamic> json) {
+    final propertyType = Map<String, dynamic>.from(
+      json['propertyType'] as Map? ?? const <String, dynamic>{},
+    );
+    final resolvedTypeName = LocalizedApiValue.text(
+      json,
+      arabicKey: 'typeName',
+      englishKey: 'typeNameEn',
+    );
+
     return PropertyDetailModel(
       id: json['id'] ?? '',
-      name: json['name'] ?? '',
+      name: LocalizedApiValue.text(
+        json,
+        arabicKey: 'name',
+        englishKey: 'nameEn',
+      ),
       ownerId: json['ownerId'] ?? '',
       // propertyType is nested object: fallback to its id and name
-      typeId: json['typeId'] ?? json['propertyType']?['id']?.toString() ?? '',
-      typeName: json['typeName'] ?? json['propertyType']?['name'] ?? '',
+      typeId: json['typeId'] ?? propertyType['id']?.toString() ?? '',
+      typeName: resolvedTypeName.isNotEmpty
+          ? resolvedTypeName
+          : LocalizedApiValue.text(
+              propertyType,
+              arabicKey: 'name',
+              englishKey: 'nameEn',
+            ),
       ownerName: json['ownerName'] ?? '',
-      address: json['address'] ?? '',
-      city: json['city'] ?? '',
+      address: LocalizedApiValue.text(
+        json,
+        arabicKey: 'address',
+        englishKey: 'addressEn',
+      ),
+      city: LocalizedApiValue.text(
+        json,
+        arabicKey: 'city',
+        englishKey: 'cityEn',
+      ),
       latitude: (json['latitude'] ?? 0).toDouble(),
       longitude: (json['longitude'] ?? 0).toDouble(),
       starRating: json['starRating'] ?? 0,
-      description: json['description'] ?? '',
+      description: LocalizedApiValue.text(
+        json,
+        arabicKey: 'description',
+        englishKey: 'descriptionEn',
+      ),
       averageRating: (json['averageRating'] ?? 0).toDouble(),
       reviewsCount: json['reviewsCount'] ?? 0,
       viewCount: json['viewCount'] ?? 0,
@@ -230,12 +262,20 @@ class PropertyServiceModel extends PropertyService {
   factory PropertyServiceModel.fromJson(Map<String, dynamic> json) {
     return PropertyServiceModel(
       id: json['id'] ?? '',
-      name: json['name'] ?? '',
+      name: LocalizedApiValue.text(
+        json,
+        arabicKey: 'name',
+        englishKey: 'nameEn',
+      ),
       price: (json['price'] ?? 0).toDouble(),
       currency: json['currency'] ?? 'YER',
       pricingModel: json['pricingModel'] ?? '',
       icon: json['icon'] ?? '',
-      description: json['description'] as String?,
+      description: LocalizedApiValue.text(
+        json,
+        arabicKey: 'description',
+        englishKey: 'descriptionEn',
+      ),
     );
   }
 
@@ -275,11 +315,23 @@ class PropertyPolicyModel extends PropertyPolicy {
     return PropertyPolicyModel(
       id: json['id'] ?? '',
       policyType: json['policyType'] ?? '',
-      policyContent: json['policyContent'] ?? '',
+      policyContent: LocalizedApiValue.text(
+        json,
+        arabicKey: 'policyContent',
+        englishKey: 'policyContentEn',
+      ),
       isActive: json['isActive'] ?? true,
       type: json['type'] ?? '',
-      description: json['description'] ?? '',
-      rules: Map<String, dynamic>.from(json['rules'] ?? {}),
+      description: LocalizedApiValue.text(
+        json,
+        arabicKey: 'description',
+        englishKey: 'descriptionEn',
+      ),
+      rules: LocalizedApiValue.map(
+        json,
+        arabicKey: 'rules',
+        englishKey: 'rulesEn',
+      ),
     );
   }
 

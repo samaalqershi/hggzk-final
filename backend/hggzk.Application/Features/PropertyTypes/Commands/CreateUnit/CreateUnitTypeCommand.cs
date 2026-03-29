@@ -23,6 +23,24 @@ namespace YemenBooking.Application.Features.PropertyTypes.Commands.CreateUnit
         public string Name { get; set; }
 
         /// <summary>
+        /// الاسم بالإنجليزية.
+        /// Name in English.
+        /// </summary>
+        public string? NameEn { get; set; }
+
+        /// <summary>
+        /// الوصف.
+        /// Description.
+        /// </summary>
+        public string? Description { get; set; }
+
+        /// <summary>
+        /// الوصف بالإنجليزية.
+        /// Description in English.
+        /// </summary>
+        public string? DescriptionEn { get; set; }
+
+        /// <summary>
         /// السعة القصوى.
         /// Maximum capacity.
         /// </summary>

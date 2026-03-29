@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../domain/entities/user.dart';
 
 /// يمثل اللقطات المختلفة لحالة المصادقة كما تراها الواجهة.
@@ -115,10 +116,9 @@ class AuthProfileImageUploadSuccess extends AuthState {
 /// تؤكد نجاح تغيير كلمة المرور.
 /// Confirms a successful password change.
 class AuthPasswordChangeSuccess extends AuthState {
-  final String message;
-  const AuthPasswordChangeSuccess({
-    this.message = 'تم تغيير كلمة المرور بنجاح',
-  });
+  const AuthPasswordChangeSuccess();
+  String get message =>
+      AppLocalizations.translateSync('auth.changePassword.successMessage');
   @override
   List<Object?> get props => [message];
 }
@@ -126,10 +126,9 @@ class AuthPasswordChangeSuccess extends AuthState {
 /// تؤكد نجاح حذف الحساب.
 /// Confirms that account deletion completed successfully.
 class AuthAccountDeleteSuccess extends AuthState {
-  final String message;
-  const AuthAccountDeleteSuccess({
-    this.message = 'تم حذف الحساب بنجاح',
-  });
+  const AuthAccountDeleteSuccess();
+  String get message =>
+      AppLocalizations.translateSync('auth.accountDelete.successMessage');
   @override
   List<Object?> get props => [message];
 }

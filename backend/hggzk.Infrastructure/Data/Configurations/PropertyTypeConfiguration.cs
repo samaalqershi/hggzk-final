@@ -29,7 +29,9 @@ public class PropertyTypeConfiguration : IEntityTypeConfiguration<PropertyType>
         
         // Configure the remaining scalar properties. تهيئة الخصائص البسيطة المتبقية.
         builder.Property(pt => pt.Name).IsRequired().HasMaxLength(50);
+        builder.Property(pt => pt.NameEn).HasMaxLength(50);
         builder.Property(pt => pt.Description).HasMaxLength(500);
+        builder.Property(pt => pt.DescriptionEn).HasMaxLength(500);
         builder.Property(pt => pt.DefaultAmenities).HasColumnType("text");
         
         // Configure the unique index. تهيئة الفهرس الفريد.

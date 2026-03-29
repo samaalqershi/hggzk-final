@@ -35,10 +35,19 @@ public class FieldGroupConfiguration : IEntityTypeConfiguration<FieldGroup>
             .IsRequired()
             .HasMaxLength(100);
 
+        builder.Property(fg => fg.GroupNameEn)
+            .HasMaxLength(100);
+
         builder.Property(fg => fg.DisplayName)
             .HasMaxLength(100);
 
+        builder.Property(fg => fg.DisplayNameEn)
+            .HasMaxLength(100);
+
         builder.Property(fg => fg.Description)
+            .HasMaxLength(500);
+
+        builder.Property(fg => fg.DescriptionEn)
             .HasMaxLength(500);
 
         builder.Property(fg => fg.SortOrder)

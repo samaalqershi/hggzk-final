@@ -1,3 +1,5 @@
+import 'package:hggzk/core/localization/localized_api_value.dart';
+
 import '../../domain/entities/city.dart' as domain;
 
 /// Describes the data model `CityModel`.
@@ -27,8 +29,16 @@ class CityModel {
   /// العربية: ينشئ مثيلًا جديدًا من `CityModel.fromJson`.
   factory CityModel.fromJson(Map<String, dynamic> json) {
     return CityModel(
-      name: json['name'] ?? '',
-      country: json['country'] ?? '',
+      name: LocalizedApiValue.text(
+        json,
+        arabicKey: 'name',
+        englishKey: 'nameEn',
+      ),
+      country: LocalizedApiValue.text(
+        json,
+        arabicKey: 'country',
+        englishKey: 'countryEn',
+      ),
       images: (json['images'] as List?)?.map((e) => e.toString()).toList() ??
           const <String>[],
     );

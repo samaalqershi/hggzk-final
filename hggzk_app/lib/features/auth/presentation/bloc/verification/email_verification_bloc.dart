@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 
 import '../../../../../core/error/failures.dart';
 import '../../../domain/usecases/resend_email_verification_usecase.dart';
@@ -42,7 +43,9 @@ class EmailVerificationBloc
       (ok) => emit(
         ok
             ? const EmailVerificationSuccess()
-            : const EmailVerificationError('رمز التحقق غير صحيح'),
+            : EmailVerificationError(
+                AppLocalizations.translateSync('auth.verify.invalidCode'),
+              ),
       ),
     );
   }
@@ -66,7 +69,7 @@ class EmailVerificationBloc
   String _mapFailureToMessage(Failure failure) {
     final rawMessage = failure.message.trim();
     if (_isExpiredVerificationCodeMessage(rawMessage)) {
-      return 'انتهت صلاحية رمز التحقق. يرجى الضغط على "إعادة إرسال الرمز" للحصول على رمز جديد.';
+      return AppLocalizations.translateSync('auth.verify.expired');
     }
 
     if (rawMessage.isNotEmpty &&
@@ -78,20 +81,22 @@ class EmailVerificationBloc
 
     switch (failure.runtimeType) {
       case NetworkFailure:
-        return 'يرجى التحقق من اتصالك بالإنترنت';
+        return AppLocalizations.translateSync('auth.verify.network');
       case ServerFailure:
         if (rawMessage.isNotEmpty && rawMessage != 'Server failure') {
           return rawMessage;
         }
-        return 'حدث خطأ في الخادم. يرجى المحاولة لاحقاً';
+        return AppLocalizations.translateSync('auth.verify.server');
       case ValidationFailure:
         final validationMessage = (failure as ValidationFailure).message.trim();
         if (_isExpiredVerificationCodeMessage(validationMessage)) {
-          return 'انتهت صلاحية رمز التحقق. يرجى الضغط على "إعادة إرسال الرمز" للحصول على رمز جديد.';
+          return AppLocalizations.translateSync('auth.verify.expired');
         }
         return validationMessage;
       default:
-        return rawMessage.isNotEmpty ? rawMessage : 'حدث خطأ غير متوقع';
+        return rawMessage.isNotEmpty
+            ? rawMessage
+            : AppLocalizations.translateSync('auth.verify.unexpected');
     }
   }
 

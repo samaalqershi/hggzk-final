@@ -14,10 +14,12 @@ class UnitType extends Equatable {
   /// يحتفظ هذا الحقل بقيمة name التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the name value used by the admin unit workflow.
   final String name;
+  final String? nameEn;
 
   /// يحتفظ هذا الحقل بقيمة description التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the description value used by the admin unit workflow.
   final String description;
+  final String? descriptionEn;
 
   /// يحتفظ هذا الحقل بقيمة icon التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the icon value used by the admin unit workflow.
@@ -57,7 +59,9 @@ class UnitType extends Equatable {
     required this.id,
     required this.propertyTypeId,
     required this.name,
+    this.nameEn,
     required this.description,
+    this.descriptionEn,
     required this.icon,
     this.systemCommissionRate,
     required this.isHasAdults,
@@ -75,7 +79,9 @@ class UnitType extends Equatable {
         id,
         propertyTypeId,
         name,
+        nameEn,
         description,
+        descriptionEn,
         icon,
         systemCommissionRate,
         isHasAdults,
@@ -109,14 +115,17 @@ class UnitTypeField extends Equatable {
   /// يحتفظ هذا الحقل بقيمة displayName التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the displayName value used by the admin unit workflow.
   final String displayName;
+  final String? displayNameEn;
 
   /// يحتفظ هذا الحقل بقيمة description التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the description value used by the admin unit workflow.
   final String description;
+  final String? descriptionEn;
 
   /// يحتفظ هذا الحقل بقيمة fieldOptions التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the fieldOptions value used by the admin unit workflow.
   final Map<String, dynamic> fieldOptions;
+  final Map<String, dynamic>? fieldOptionsEn;
 
   /// يحتفظ هذا الحقل بقيمة validationRules التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the validationRules value used by the admin unit workflow.
@@ -141,6 +150,7 @@ class UnitTypeField extends Equatable {
   /// يحتفظ هذا الحقل بقيمة category التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the category value used by the admin unit workflow.
   final String category;
+  final String? categoryEn;
 
   /// يحتفظ هذا الحقل بقيمة isForUnits التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the isForUnits value used by the admin unit workflow.
@@ -170,14 +180,18 @@ class UnitTypeField extends Equatable {
     required this.fieldTypeId,
     required this.fieldName,
     required this.displayName,
+    this.displayNameEn,
     required this.description,
+    this.descriptionEn,
     required this.fieldOptions,
+    this.fieldOptionsEn,
     required this.validationRules,
     required this.isRequired,
     required this.isSearchable,
     required this.isPublic,
     required this.sortOrder,
     required this.category,
+    this.categoryEn,
     required this.isForUnits,
     required this.showInCards,
     required this.isPrimaryFilter,
@@ -194,14 +208,18 @@ class UnitTypeField extends Equatable {
         fieldTypeId,
         fieldName,
         displayName,
+        displayNameEn,
         description,
+        descriptionEn,
         fieldOptions,
+        fieldOptionsEn,
         validationRules,
         isRequired,
         isSearchable,
         isPublic,
         sortOrder,
         category,
+        categoryEn,
         isForUnits,
         showInCards,
         isPrimaryFilter,

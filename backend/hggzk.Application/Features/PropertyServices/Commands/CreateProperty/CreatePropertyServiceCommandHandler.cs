@@ -95,9 +95,11 @@ namespace YemenBooking.Application.Features.PropertyServices.Commands.CreateProp
             {
                 PropertyId = request.PropertyId,
                 Name = request.Name.Trim(),
+                NameEn = string.IsNullOrWhiteSpace(request.NameEn) ? null : request.NameEn.Trim(),
                 Price = new Money(request.Price.Amount, request.Price.Currency),
                 PricingModel = request.PricingModel,
                 Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description!.Trim(),
+                DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn!.Trim(),
                 Icon = (request.Icon ?? string.Empty).Trim(),
                 CreatedBy = _currentUserService.UserId,
                 CreatedAt = DateTime.UtcNow
@@ -112,7 +114,7 @@ namespace YemenBooking.Application.Features.PropertyServices.Commands.CreateProp
                 entityId: created.Id,
                 action: AuditAction.CREATE,
                 oldValues: null,
-                newValues: System.Text.Json.JsonSerializer.Serialize(new { created.Id, created.PropertyId, created.Name, created.Price, created.Description }),
+                newValues: System.Text.Json.JsonSerializer.Serialize(new { created.Id, created.PropertyId, created.Name, created.NameEn, created.Price, created.Description, created.DescriptionEn }),
                 performedBy: _currentUserService.UserId,
                 notes: notes,
                 cancellationToken: cancellationToken);

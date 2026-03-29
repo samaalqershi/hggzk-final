@@ -56,9 +56,13 @@ class UnitFormReady extends UnitFormState {
   /// This field keeps the unitName value used by the admin unit workflow.
   final String? unitName;
 
+  final String? unitNameEn;
+
   /// يحتفظ هذا الحقل بقيمة description التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the description value used by the admin unit workflow.
   final String? description;
+
+  final String? descriptionEn;
 
   /// يحتفظ هذا الحقل بقيمة pricingMethod التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the pricingMethod value used by the admin unit workflow.
@@ -111,7 +115,9 @@ class UnitFormReady extends UnitFormState {
     this.selectedUnitType,
     this.unitTypeFields = const [],
     this.unitName,
+    this.unitNameEn,
     this.description,
+    this.descriptionEn,
     this.pricingMethod,
     this.customFeatures,
     this.dynamicFieldValues = const {},
@@ -135,7 +141,9 @@ class UnitFormReady extends UnitFormState {
     UnitType? selectedUnitType,
     List<UnitTypeField>? unitTypeFields,
     String? unitName,
+    String? unitNameEn,
     String? description,
+    String? descriptionEn,
     PricingMethod? pricingMethod,
     String? customFeatures,
     Map<String, dynamic>? dynamicFieldValues,
@@ -156,7 +164,9 @@ class UnitFormReady extends UnitFormState {
       selectedUnitType: selectedUnitType ?? this.selectedUnitType,
       unitTypeFields: unitTypeFields ?? this.unitTypeFields,
       unitName: unitName ?? this.unitName,
+      unitNameEn: unitNameEn ?? this.unitNameEn,
       description: description ?? this.description,
+      descriptionEn: descriptionEn ?? this.descriptionEn,
       pricingMethod: pricingMethod ?? this.pricingMethod,
       customFeatures: customFeatures ?? this.customFeatures,
       dynamicFieldValues: dynamicFieldValues ?? this.dynamicFieldValues,
@@ -183,7 +193,9 @@ class UnitFormReady extends UnitFormState {
         selectedUnitType,
         unitTypeFields,
         unitName,
+        unitNameEn,
         description,
+        descriptionEn,
         pricingMethod,
         customFeatures,
         dynamicFieldValues,

@@ -90,7 +90,9 @@ public class GetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyDetails
             {
                 Id = propertyType.Id,
                 Name = propertyType.Name ?? string.Empty,
-                Description = propertyType.Description ?? string.Empty
+                NameEn = propertyType.NameEn,
+                Description = propertyType.Description ?? string.Empty,
+                DescriptionEn = propertyType.DescriptionEn
             } : new PropertyTypeDto();
 
             // الحصول على صور العقار
@@ -111,9 +113,11 @@ public class GetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyDetails
                 Id = amenity.Id,
                 AmenityId = amenity.PropertyTypeAmenity.Amenity.Id,
                 Name = amenity.PropertyTypeAmenity.Amenity.Name ?? string.Empty,
+                NameEn = amenity.PropertyTypeAmenity.Amenity.NameEn,
                 Description = amenity.PropertyTypeAmenity.Amenity.Description ?? string.Empty,
                 IconUrl = string.Empty,
                 Category = amenity.PropertyTypeAmenity.Amenity.Name ?? string.Empty,
+                CategoryEn = amenity.PropertyTypeAmenity.Amenity.NameEn,
                 Icon = amenity.PropertyTypeAmenity.Amenity.Icon,
                 IsAvailable = amenity.IsAvailable,
                 ExtraCost = amenity.ExtraCost
@@ -127,10 +131,12 @@ public class GetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyDetails
             {
                 Id = service.Id,
                 Name = service.Name ?? string.Empty,
+                NameEn = service.NameEn,
                 Price = service.Price,
                 Currency = service.Price.Currency ?? "YER",
                 PricingModel = service.PricingModel.ToString() ?? string.Empty,
                 Description = service.Description ?? string.Empty,
+                DescriptionEn = service.DescriptionEn,
                 Icon = service.Icon ?? string.Empty
             }).ToList() ?? new List<PropertyServiceDto>();
             
@@ -146,7 +152,10 @@ public class GetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyDetails
             {
                 Id = policy.Id,
                 Type = policy.Type.ToString(),
-                Description = policy.Description ?? string.Empty
+                Description = policy.Description ?? string.Empty,
+                DescriptionEn = policy.DescriptionEn,
+                RulesEn = policy.RulesEn,
+                RulesJson = policy.Rules
             }).ToList() ?? new List<PropertyPolicyDto>();
 
             // الحصول على إحصائيات العقار
@@ -208,16 +217,21 @@ public class GetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyDetails
             {
                 Id = property.Id,
                 Name = property.Name ?? string.Empty,
+                NameEn = property.NameEn,
                 IsApproved = property.IsApproved,
                 TypeId = property.TypeId,
                 PropertyType = propertyTypeDto,
                 Address = property.Address ?? string.Empty,
+                AddressEn = property.AddressEn,
                 City = property.City ?? string.Empty,
+                CityEn = property.CityEn,
                 Latitude = property.Latitude,
                 Longitude = property.Longitude,
                 StarRating = property.StarRating,
                 Description = property.Description ?? string.Empty,
+                DescriptionEn = property.DescriptionEn,
                 ShortDescription = property.ShortDescription,
+                ShortDescriptionEn = property.ShortDescriptionEn,
                 AverageRating = (decimal)averageRating,
                 ReviewsCount = reviewsCount,
                 ViewCount = currentViewCount,

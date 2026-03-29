@@ -27,18 +27,21 @@ namespace YemenBooking.Application.Features.DynamicFields.DTOs {
         /// Group name
         /// </summary>
         public string GroupName { get; set; }
+        public string? GroupNameEn { get; set; }
 
         /// <summary>
         /// الاسم المعروض للمجموعة
         /// Display name of the group
         /// </summary>
         public string DisplayName { get; set; }
+        public string? DisplayNameEn { get; set; }
 
         /// <summary>
         /// وصف المجموعة
         /// Description of the group
         /// </summary>
         public string Description { get; set; }
+        public string? DescriptionEn { get; set; }
         
         /// <summary>
         /// ترتيب المجموعة

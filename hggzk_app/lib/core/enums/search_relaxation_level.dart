@@ -1,3 +1,7 @@
+import 'dart:ui';
+
+import 'package:hggzk/core/localization/app_localizations.dart';
+
 /// مستويات تخفيف معايير البحث
 /// Search Relaxation Levels
 ///
@@ -103,34 +107,66 @@ extension SearchRelaxationLevelExtension on SearchRelaxationLevel {
   /// الاسم بالعربية
   /// Arabic name
   String get displayNameAr {
+    const locale = Locale('ar');
     switch (this) {
       case SearchRelaxationLevel.exact:
-        return 'تطابق دقيق';
+        return AppLocalizations.translateSync(
+          'core.searchRelaxation.exact',
+          locale: locale,
+        );
       case SearchRelaxationLevel.minorRelaxation:
-        return 'تخفيف بسيط';
+        return AppLocalizations.translateSync(
+          'core.searchRelaxation.minorRelaxation',
+          locale: locale,
+        );
       case SearchRelaxationLevel.moderateRelaxation:
-        return 'تخفيف متوسط';
+        return AppLocalizations.translateSync(
+          'core.searchRelaxation.moderateRelaxation',
+          locale: locale,
+        );
       case SearchRelaxationLevel.majorRelaxation:
-        return 'تخفيف كبير';
+        return AppLocalizations.translateSync(
+          'core.searchRelaxation.majorRelaxation',
+          locale: locale,
+        );
       case SearchRelaxationLevel.alternativeSuggestions:
-        return 'اقتراحات بديلة';
+        return AppLocalizations.translateSync(
+          'core.searchRelaxation.alternativeSuggestions',
+          locale: locale,
+        );
     }
   }
 
   /// الاسم بالإنجليزية
   /// English name
   String get displayNameEn {
+    const locale = Locale('en');
     switch (this) {
       case SearchRelaxationLevel.exact:
-        return 'Exact Match';
+        return AppLocalizations.translateSync(
+          'core.searchRelaxation.exact',
+          locale: locale,
+        );
       case SearchRelaxationLevel.minorRelaxation:
-        return 'Minor Relaxation';
+        return AppLocalizations.translateSync(
+          'core.searchRelaxation.minorRelaxation',
+          locale: locale,
+        );
       case SearchRelaxationLevel.moderateRelaxation:
-        return 'Moderate Relaxation';
+        return AppLocalizations.translateSync(
+          'core.searchRelaxation.moderateRelaxation',
+          locale: locale,
+        );
       case SearchRelaxationLevel.majorRelaxation:
-        return 'Major Relaxation';
+        return AppLocalizations.translateSync(
+          'core.searchRelaxation.majorRelaxation',
+          locale: locale,
+        );
       case SearchRelaxationLevel.alternativeSuggestions:
-        return 'Alternative Suggestions';
+        return AppLocalizations.translateSync(
+          'core.searchRelaxation.alternativeSuggestions',
+          locale: locale,
+        );
     }
   }
 

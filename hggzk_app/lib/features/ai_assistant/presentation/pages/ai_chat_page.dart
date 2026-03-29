@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:hggzk/core/network/api_client.dart';
 import 'package:hggzk/core/network/api_exceptions.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/theme/app_text_styles.dart';
 import 'package:hggzk/core/theme/app_theme.dart';
 import 'package:hggzk/features/ai_assistant/data/models/ai_assistant_models.dart';
@@ -43,15 +44,15 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
   /// العربية: يخزن القيمة `assistantService`.
   late final AiAssistantRemoteService _assistantService;
 
-  final ChatUser _currentUser = const ChatUser(
-    id: 'current_user',
-    firstName: 'أنا',
-  );
+  ChatUser get _currentUser => ChatUser(
+        id: 'current_user',
+        firstName: context.tr('ai_chat.currentUserName'),
+      );
 
-  final ChatUser _aiUser = const ChatUser(
-    id: 'ai_assistant',
-    firstName: 'المساعد الذكي',
-  );
+  ChatUser get _aiUser => ChatUser(
+        id: 'ai_assistant',
+        firstName: context.tr('ai_chat.assistantName'),
+      );
 
   /// Keeps the `messages` value.
   /// العربية: يخزن القيمة `messages`.
@@ -116,8 +117,7 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
 
       if (_messages.isEmpty) {
         final welcomeMessage = ChatMessage(
-          text: 'مرحباً! أنا مساعدك الذكي داخل التطبيق.\n\n'
-              'أستطيع مساعدتك في البحث، الفلترة، التوصيات، وفهم خيارات الحجز.',
+          text: context.tr('ai_chat.initialWelcomeMessage'),
           user: _aiUser,
           createdAt: DateTime.now(),
         );
@@ -134,7 +134,7 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _error = 'فشل في تهيئة المساعد الذكي: $e';
+        _error = context.tr('ai_chat.initFailed');
       });
     }
   }
@@ -199,7 +199,7 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
 
       final reply = response.reply.trim().isNotEmpty
           ? response.reply.trim()
-          : 'تمت معالجة طلبك.';
+          : context.tr('ai_chat.requestHandled');
 
       final aiMessage = _buildAssistantMessage(
         reply: reply,
@@ -210,8 +210,8 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
       final fallback = e is ApiException
           ? (e.message.isNotEmpty
               ? e.message
-              : 'تعذر التواصل مع المساعد الذكي حالياً.')
-          : 'حدث خطأ غير متوقع أثناء معالجة رسالتك.';
+              : context.tr('ai_chat.assistantUnavailable'))
+          : context.tr('ai_chat.messageProcessingError');
 
       final errorMessage = ChatMessage(
         text: fallback,
@@ -271,7 +271,9 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('تم نسخ رسالة المساعد'),
+        content: Text(
+          context.tr('ai_chat.copySuccess'),
+        ),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
         backgroundColor: AppTheme.success,
@@ -427,7 +429,9 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            card.city.isEmpty ? 'غير محدد' : card.city,
+                            card.city.isEmpty
+                                ? context.tr('ai_chat.cityUnknown')
+                                : card.city,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.labelSmall.copyWith(
@@ -439,7 +443,7 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      _formatCardPrice(card),
+                      _formatCardPrice(context, card),
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppTheme.success,
                         fontWeight: FontWeight.w700,
@@ -540,9 +544,13 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
               runSpacing: 6,
               children: <Widget>[
                 if (recommendedCount != null)
-                  _buildReviewChip('موصى بها $recommendedCount'),
+                  _buildReviewChip(context
+                      .tr('ai_chat.recommendedCount')
+                      .replaceFirst('{count}', '$recommendedCount')),
                 if (reviewsWithImages != null)
-                  _buildReviewChip('بصور $reviewsWithImages'),
+                  _buildReviewChip(context
+                      .tr('ai_chat.withImages')
+                      .replaceFirst('{count}', '$reviewsWithImages')),
                 if (createdAt != null && createdAt.isNotEmpty)
                   _buildReviewChip(createdAt),
               ],
@@ -664,9 +672,9 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
 
   /// Formats the card price.
   /// العربية: ينسق card price.
-  String _formatCardPrice(AiAssistantResultCard card) {
+  String _formatCardPrice(BuildContext context, AiAssistantResultCard card) {
     if (card.price == null) {
-      return 'السعر عند الطلب';
+      return context.tr('ai_chat.priceOnRequest');
     }
 
     final currency = (card.currency ?? '').trim();
@@ -719,8 +727,7 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
       if (!mounted) return false;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text(
-              'بدأت محادثة جديدة. لن يتابع المساعد سياق الجلسة السابقة.'),
+          content: Text(context.tr('ai_chat.newConversationStarted')),
           backgroundColor: AppTheme.success,
         ),
       );
@@ -729,8 +736,10 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
       if (!mounted) return false;
 
       final message = e is ApiException
-          ? (e.message.isNotEmpty ? e.message : 'تعذر بدء محادثة جديدة حالياً.')
-          : 'تعذر بدء محادثة جديدة حالياً.';
+          ? (e.message.isNotEmpty
+              ? e.message
+              : context.tr('ai_chat.newConversationFailed'))
+          : context.tr('ai_chat.newConversationFailed');
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -838,7 +847,7 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    'المساعد الذكي',
+                    context.tr('ai_chat.title'),
                     style: AppTextStyles.h5.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppTheme.textWhite,
@@ -864,7 +873,7 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'اتصال آمن',
+                        context.tr('ai_chat.headerConnection'),
                         style: AppTextStyles.labelSmall.copyWith(
                           color: AppTheme.success,
                           fontWeight: FontWeight.w600,
@@ -888,7 +897,7 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
                     )
                   : const Icon(Icons.restart_alt_rounded),
               color: AppTheme.error,
-              tooltip: 'بدء محادثة جديدة',
+              tooltip: context.tr('ai_chat.startNew'),
               onPressed: (_isResetting || _isTyping || _isLoading)
                   ? null
                   : _showClearConfirmation,
@@ -924,7 +933,7 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
           ),
           const SizedBox(height: 24),
           Text(
-            'جاري تهيئة المساعد الذكي...',
+            context.tr('ai_chat.loading'),
             style: AppTextStyles.bodyLarge.copyWith(
               color: AppTheme.textLight,
               fontWeight: FontWeight.w500,
@@ -958,7 +967,7 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
             ),
             const SizedBox(height: 24),
             Text(
-              'حدث خطأ',
+              context.tr('ai_chat.errorTitle'),
               style: AppTextStyles.h4.copyWith(
                 fontWeight: FontWeight.bold,
                 color: AppTheme.error,
@@ -976,7 +985,7 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
             ElevatedButton.icon(
               onPressed: _initializeChat,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('إعادة المحاولة'),
+              label: Text(context.tr('ai_chat.retry')),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryBlue,
                 foregroundColor: Colors.white,
@@ -1009,24 +1018,22 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
           showCenteredIndicator: false,
         ),
         inputOptions: InputOptions.minimal(
-          hintText: 'اكتب رسالتك هنا...',
+          hintText: context.tr('ai_chat.inputHint'),
           textColor: AppTheme.textWhite,
           hintColor: AppTheme.textMuted,
           backgroundColor: AppTheme.darkCard,
           borderRadius: 24,
           autofocus: false,
         ),
-        welcomeMessageConfig: const WelcomeMessageConfig(
-          title: 'مرحباً بك في المساعد الذكي',
-          questionsSectionTitle: 'يمكنني مساعدتك في:',
+        welcomeMessageConfig: WelcomeMessageConfig(
+          title: context.tr('ai_chat.welcomeTitle'),
+          questionsSectionTitle: context.tr('ai_chat.welcomeSubtitle'),
         ),
-        exampleQuestions: const <ExampleQuestion>[
-          ExampleQuestion(question: 'ابحث عن فنادق مناسبة في صنعاء لليلتين'),
-          ExampleQuestion(
-              question: 'أريد أفضل الخيارات الاقتصادية المتاحة اليوم'),
-          ExampleQuestion(question: 'ما هي أفضل الوجهات المقترحة حالياً؟'),
-          ExampleQuestion(
-              question: 'اعرض لي طريقة فلترة النتائج حسب السعر والتقييم'),
+        exampleQuestions: <ExampleQuestion>[
+          ExampleQuestion(question: context.tr('ai_chat.example1')),
+          ExampleQuestion(question: context.tr('ai_chat.example2')),
+          ExampleQuestion(question: context.tr('ai_chat.example3')),
+          ExampleQuestion(question: context.tr('ai_chat.example4')),
         ],
         persistentExampleQuestions: false,
         enableAnimation: true,
@@ -1071,17 +1078,16 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
             children: <Widget>[
               Icon(Icons.warning_rounded, color: AppTheme.warning),
               const SizedBox(width: 12),
-              const Text('تأكيد المسح'),
+              Text(context.tr('ai_chat.clearTitle')),
             ],
           ),
-          content: const Text(
-            'سيبدأ المساعد محادثة جديدة ولن يكمل استفسارات الجلسة الحالية.\n'
-            'ستبقى تفضيلاتك العامة محفوظة لتحسين الخدمة.',
+          content: Text(
+            context.tr('ai_chat.clearMessage'),
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('إلغاء'),
+              child: Text(context.tr('ai_chat.cancel')),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -1095,7 +1101,7 @@ class _AiChatPageState extends State<AiChatPage> with TickerProviderStateMixin {
                 backgroundColor: AppTheme.error,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('بدء جديد'),
+              child: Text(context.tr('ai_chat.startNew')),
             ),
           ],
         );

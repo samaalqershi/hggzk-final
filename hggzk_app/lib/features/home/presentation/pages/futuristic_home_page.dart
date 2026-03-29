@@ -10,6 +10,8 @@ import 'package:hggzk/features/home/presentation/widgets/elegant_unit_types_sect
 import 'package:hggzk/features/home/presentation/widgets/refresh_indicator_widget.dart';
 import 'package:hggzk/features/home/presentation/widgets/section_loading_widget.dart';
 import 'package:hggzk/features/home/presentation/widgets/section_visibility_detector.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
+import 'package:hggzk/core/localization/locale_manager.dart';
 import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
@@ -23,6 +25,8 @@ import '../../../reference/presentation/widgets/city_selector_dialog.dart';
 import 'package:hggzk/core/services/local_storage_service.dart';
 import 'package:hggzk/core/services/filter_storage_service.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hggzk/features/settings/presentation/bloc/settings_bloc.dart';
+import 'package:hggzk/features/settings/presentation/bloc/settings_state.dart';
 import '../widgets/sections/base_section_widget.dart';
 import 'package:hggzk/app/navigation/switch_main_tab_notification.dart';
 import '../../../booking/presentation/widgets/date_picker_widget.dart';
@@ -67,6 +71,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   double _scrollOffset = 0;
   double _scrollVelocity = 0;
   DateTime _lastScrollTime = DateTime.now();
+  late String _activeLanguageCode;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -82,6 +87,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _generateAdvancedParticles();
     _setupScrollListener();
     _startAnimations();
+    _activeLanguageCode = LocaleManager.getCurrentLocale().languageCode;
 
     // Arabic: نؤخر التحميل قليلًا حتى لا يقطع ظهور الحركات الافتتاحية.
     // English: Delay loading slightly so the entrance animation remains smooth.
@@ -96,7 +102,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   /// إلى أن يختار تواريخ جديدة.
   /// Builds a warning that explains when stored dates have gone stale and were
   /// ignored until the user chooses new ones.
-  Widget _buildExpiredDatesWarning() {
+  Widget _buildExpiredDatesWarning(BuildContext context) {
     try {
       final selections =
           GetIt.instance<FilterStorageService>().getHomeSelections();
@@ -152,7 +158,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'تاريخ الوصول المحفوظ أقدم من اليوم',
+                  context.tr('home.savedDatesWarningTitle'),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppTheme.textWhite,
                     fontWeight: FontWeight.w600,
@@ -160,7 +166,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'تم تجاهل التواريخ القديمة. يرجى اختيار تواريخ جديدة قبل البدء في البحث للحصول على نتائج دقيقة.',
+                  context.tr('home.savedDatesWarningBody'),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.textMuted.withOpacity(0.9),
                   ),
@@ -315,26 +321,44 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   /// content, and floating search affordance.
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.darkBackground,
-      body: Stack(
-        children: [
-          // Arabic: الخلفية المتقدمة المتحركة.
-          // English: Advanced animated background.
-          _buildAdvancedBackground(),
+    return BlocListener<SettingsBloc, SettingsState>(
+      listener: (context, state) {
+        String? nextLanguageCode;
+        if (state is SettingsLoaded) {
+          nextLanguageCode = state.settings.preferredLanguage;
+        } else if (state is SettingsUpdated) {
+          nextLanguageCode = state.settings.preferredLanguage;
+        }
 
-          // Arabic: جسيمات عائمة مع parallax.
-          // English: Floating particles with parallax.
-          _buildAdvancedParticles(),
+        if (nextLanguageCode != null &&
+            nextLanguageCode != _activeLanguageCode) {
+          _activeLanguageCode = nextLanguageCode;
+          context
+              .read<HomeBloc>()
+              .add(const LoadHomeDataEvent(forceRefresh: true));
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppTheme.darkBackground,
+        body: Stack(
+          children: [
+            // Arabic: الخلفية المتقدمة المتحركة.
+            // English: Advanced animated background.
+            _buildAdvancedBackground(),
 
-          // Arabic: المحتوى الرئيسي.
-          // English: Main content.
-          _buildMainContent(),
+            // Arabic: جسيمات عائمة مع parallax.
+            // English: Floating particles with parallax.
+            _buildAdvancedParticles(),
 
-          // Arabic: شريط البحث العائم.
-          // English: Floating search bar.
-          _buildFloatingSearchBar(),
-        ],
+            // Arabic: المحتوى الرئيسي.
+            // English: Main content.
+            _buildMainContent(),
+
+            // Arabic: شريط البحث العائم.
+            // English: Floating search bar.
+            _buildFloatingSearchBar(),
+          ],
+        ),
       ),
     );
   }
@@ -579,7 +603,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
               // Arabic: تنبيه عند وجود تواريخ محفوظة أصبحت قديمة.
               // English: Warning when saved dates are now stale.
-              _buildExpiredDatesWarning(),
+              _buildExpiredDatesWarning(context),
             ],
           ),
         ),
@@ -786,7 +810,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ],
                           ),
                           Text(
-                            'أرما سوفت للبرمجة والتطوير',
+                            context.tr('home.copyrightCompany'),
                             style: AppTextStyles.caption.copyWith(
                               color: isDark
                                   ? AppTheme.textWhite
@@ -799,7 +823,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'جميع الحقوق محفوظة',
+                        context.tr('home.copyrightAllRightsReserved'),
                         style: AppTextStyles.caption.copyWith(
                           color: isDark
                               ? AppTheme.textLight
@@ -1046,7 +1070,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'استكشف',
+                  context.tr('home.explore'),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: isEnabled
                         ? Colors.white
@@ -1100,7 +1124,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               child: Column(
                 children: [
                   DatePickerWidget(
-                    label: 'تاريخ الوصول',
+                    label: context.tr('home.checkIn'),
                     selectedDate: checkIn,
                     firstDate: now,
                     lastDate: now.add(const Duration(days: 365)),
@@ -1124,7 +1148,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     color: AppTheme.darkBorder.withOpacity(0.1),
                   ),
                   DatePickerWidget(
-                    label: 'تاريخ المغادرة',
+                    label: context.tr('home.checkOut'),
                     selectedDate: checkOut,
                     firstDate: checkIn?.add(const Duration(days: 1)) ??
                         now.add(const Duration(days: 1)),
@@ -1169,7 +1193,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   children: [
                     if (selectedUnit.isHasAdults)
                       GuestSelectorWidget(
-                        label: 'البالغين',
+                        label: context.tr('home.adults'),
                         count: adults,
                         minCount: 1,
                         maxCount: adultsMax,
@@ -1189,8 +1213,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       const SizedBox(height: 10),
                     if (selectedUnit.isHasChildren)
                       GuestSelectorWidget(
-                        label: 'الأطفال',
-                        subtitle: '(أقل من 12 سنة)',
+                        label: context.tr('home.children'),
+                        subtitle: context.tr('home.childrenUnder12'),
                         count: children,
                         minCount: 0,
                         maxCount: childrenMax,
@@ -1299,7 +1323,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'كل شيء جاهز!',
+                  context.tr('home.allReadyTitle'),
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: AppTheme.textWhite,
                     fontWeight: FontWeight.w600,
@@ -1307,7 +1331,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'ابدأ البحث عن العقار المثالي',
+                  context.tr('home.allReadySubtitle'),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.textMuted.withOpacity(0.7),
                   ),
@@ -1353,7 +1377,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'تخصيص البحث',
+                context.tr('home.customizeSearch'),
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppTheme.textWhite,
                   fontWeight: FontWeight.w600,
@@ -1361,7 +1385,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
               const SizedBox(height: 2),
               Text(
-                'حدد تفضيلاتك للعثور على ${selectedUnit.name} المثالي',
+                context.tr(
+                  'home.idealPropertyHint',
+                  params: {'unitName': selectedUnit.name},
+                ),
                 style: AppTextStyles.caption.copyWith(
                   color: AppTheme.textMuted.withOpacity(0.7),
                 ),
@@ -1532,7 +1559,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'يرجى ملء جميع الحقول المطلوبة للمتابعة',
+                context.tr('home.fillRequiredFields'),
                 style: AppTextStyles.caption.copyWith(
                   color: AppTheme.warning.withOpacity(0.9),
                 ),
@@ -1656,7 +1683,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           color: Colors.white, size: 16),
                       const SizedBox(width: 6),
                       Text(
-                        'إعادة المحاولة',
+                        context.tr('home.retry'),
                         style: AppTextStyles.caption.copyWith(
                           color: Colors.white,
                         ),

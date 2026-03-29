@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/models/paginated_result.dart';
@@ -115,7 +116,12 @@ class SearchRepositoryImpl implements SearchRepository {
         );
         return Right(paginatedResult);
       } else {
-        return Left(ServerFailure(result.message ?? 'Search failed'));
+        return Left(
+          ServerFailure(
+            result.message ??
+                AppLocalizations.translateSync('core.search.failedSearch'),
+          ),
+        );
       }
     } catch (error) {
       return ErrorHandler.handle(error);
@@ -132,7 +138,11 @@ class SearchRepositoryImpl implements SearchRepository {
         return Right(result.data! as SearchFilters);
       } else {
         return Left(
-            ServerFailure(result.message ?? 'Failed to get search filters'));
+          ServerFailure(
+            result.message ??
+                AppLocalizations.translateSync('core.search.failedFilters'),
+          ),
+        );
       }
     } catch (error) {
       return ErrorHandler.handle(error);
@@ -155,7 +165,11 @@ class SearchRepositoryImpl implements SearchRepository {
         return Right(result.data!);
       } else {
         return Left(
-            ServerFailure(result.message ?? 'Failed to get suggestions'));
+          ServerFailure(
+            result.message ??
+                AppLocalizations.translateSync('core.search.failedSuggestions'),
+          ),
+        );
       }
     } catch (error) {
       return ErrorHandler.handle(error);
@@ -180,7 +194,13 @@ class SearchRepositoryImpl implements SearchRepository {
         return Right(recommendations);
       } else {
         return Left(
-            ServerFailure(result.message ?? 'Failed to get recommendations'));
+          ServerFailure(
+            result.message ??
+                AppLocalizations.translateSync(
+                  'core.search.failedRecommendations',
+                ),
+          ),
+        );
       }
     } catch (error) {
       return ErrorHandler.handle(error);
@@ -200,8 +220,14 @@ class SearchRepositoryImpl implements SearchRepository {
       if (result.isSuccess && result.data != null) {
         return Right(result.data!);
       } else {
-        return Left(ServerFailure(
-            result.message ?? 'Failed to get popular destinations'));
+        return Left(
+          ServerFailure(
+            result.message ??
+                AppLocalizations.translateSync(
+                  'core.search.failedPopularDestinations',
+                ),
+          ),
+        );
       }
     } catch (error) {
       return ErrorHandler.handle(error);

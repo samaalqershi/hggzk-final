@@ -1,0 +1,639 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="common.badRequest" xml:space="preserve">
+    <value>طلب غير صحيح</value>
+  </data>
+  <data name="common.unauthorized" xml:space="preserve">
+    <value>غير مصرح بالوصول</value>
+  </data>
+  <data name="common.permissionDenied" xml:space="preserve">
+    <value>ليس لديك صلاحية</value>
+  </data>
+  <data name="common.notFound" xml:space="preserve">
+    <value>لم يتم العثور على البيانات</value>
+  </data>
+  <data name="common.invalidData" xml:space="preserve">
+    <value>البيانات المدخلة غير صحيحة</value>
+  </data>
+  <data name="common.operationFailed" xml:space="preserve">
+    <value>تعذر إكمال العملية</value>
+  </data>
+  <data name="common.unexpectedError" xml:space="preserve">
+    <value>حدث خطأ غير متوقع</value>
+  </data>
+  <data name="common.serverError" xml:space="preserve">
+    <value>خطأ في الخادم</value>
+  </data>
+  <data name="common.sessionExpired" xml:space="preserve">
+    <value>انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى</value>
+  </data>
+  <data name="common.accountDisabled" xml:space="preserve">
+    <value>الحساب معطل أو غير متاح</value>
+  </data>
+  <data name="common.requestCancelled" xml:space="preserve">
+    <value>تم إلغاء الطلب</value>
+  </data>
+  <data name="common.requestTimeout" xml:space="preserve">
+    <value>انتهت مهلة الاتصال</value>
+  </data>
+  <data name="Unauthorized" xml:space="preserve">
+    <value>غير مصرح بالوصول</value>
+  </data>
+  <data name="Token expired" xml:space="preserve">
+    <value>انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى</value>
+  </data>
+  <data name="Account disabled" xml:space="preserve">
+    <value>الحساب معطل أو غير متاح</value>
+  </data>
+  <data name="file is required" xml:space="preserve">
+    <value>الملف مطلوب</value>
+  </data>
+  <data name="Failed to read uploaded file" xml:space="preserve">
+    <value>تعذر قراءة الملف المرفوع</value>
+  </data>
+  <data name="Either propertyInSectionId (GUID) or tempKey is required" xml:space="preserve">
+    <value>يجب توفير معرف ربط الكيان بالقسم أو المفتاح المؤقت</value>
+  </data>
+  <data name="Either unitInSectionId (GUID) or tempKey is required" xml:space="preserve">
+    <value>يجب توفير معرف ربط الوحدة بالقسم أو المفتاح المؤقت</value>
+  </data>
+  <data name="sectionId is required" xml:space="preserve">
+    <value>معرف القسم مطلوب</value>
+  </data>
+  <data name="sectionId and interactionType are required" xml:space="preserve">
+    <value>معرف القسم ونوع التفاعل مطلوبان</value>
+  </data>
+  <data name="Invalid request payload." xml:space="preserve">
+    <value>بيانات الطلب غير صالحة</value>
+  </data>
+  <data name="Message is required." xml:space="preserve">
+    <value>الرسالة مطلوبة</value>
+  </data>
+  <data name="AI service is not configured yet." xml:space="preserve">
+    <value>خدمة الذكاء الاصطناعي غير مهيأة حالياً</value>
+  </data>
+  <data name="User is not authenticated." xml:space="preserve">
+    <value>يجب تسجيل الدخول أولاً</value>
+  </data>
+  <data name="Request was canceled." xml:space="preserve">
+    <value>تم إلغاء الطلب</value>
+  </data>
+  <data name="Failed to process AI request." xml:space="preserve">
+    <value>تعذر معالجة طلب الذكاء الاصطناعي</value>
+  </data>
+  <data name="TempKey is required" xml:space="preserve">
+    <value>المفتاح المؤقت مطلوب</value>
+  </data>
+  <data name="ReviewId and Text are required" xml:space="preserve">
+    <value>معرف التقييم والنص مطلوبان</value>
+  </data>
+  <data name="Redis connection failed" xml:space="preserve">
+    <value>فشل الاتصال بـ Redis</value>
+  </data>
+  <data name="Redis read/write test failed" xml:space="preserve">
+    <value>فشل اختبار القراءة والكتابة في Redis</value>
+  </data>
+  <data name="Redis is healthy" xml:space="preserve">
+    <value>Redis يعمل بشكل سليم</value>
+  </data>
+  <data name="المستخدم غير موجود" xml:space="preserve">
+    <value>المستخدم غير موجود</value>
+  </data>
+  <data name="المستخدم غير موجود أو غير نشط" xml:space="preserve">
+    <value>المستخدم غير موجود أو غير نشط</value>
+  </data>
+  <data name="الحجز غير موجود" xml:space="preserve">
+    <value>الحجز غير موجود</value>
+  </data>
+  <data name="الوحدة غير موجودة" xml:space="preserve">
+    <value>الوحدة غير موجودة</value>
+  </data>
+  <data name="الوحدة غير موجودة أو غير نشطة" xml:space="preserve">
+    <value>الوحدة غير موجودة أو غير نشطة</value>
+  </data>
+  <data name="العقار غير موجود" xml:space="preserve">
+    <value>العقار غير موجود</value>
+  </data>
+  <data name="غير مصرح لك" xml:space="preserve">
+    <value>غير مصرح لك</value>
+  </data>
+  <data name="ليس لديك صلاحية" xml:space="preserve">
+    <value>ليس لديك صلاحية</value>
+  </data>
+  <data name="البيانات غير صحيحة" xml:space="preserve">
+    <value>البيانات غير صحيحة</value>
+  </data>
+  <data name="حدث خطأ أثناء البحث" xml:space="preserve">
+    <value>حدث خطأ أثناء البحث</value>
+  </data>
+  <data name="حدث خطأ أثناء البحث. يرجى المحاولة مرة أخرى." xml:space="preserve">
+    <value>حدث خطأ أثناء البحث. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="حدث خطأ غير متوقع. يرجى المحاولة لاحقاً" xml:space="preserve">
+    <value>حدث خطأ غير متوقع. يرجى المحاولة لاحقاً</value>
+  </data>
+  <data name="حدث خطأ أثناء إنشاء الحجز" xml:space="preserve">
+    <value>حدث خطأ أثناء إنشاء الحجز</value>
+  </data>
+  <data name="تم إنشاء الحجز بنجاح" xml:space="preserve">
+    <value>تم إنشاء الحجز بنجاح</value>
+  </data>
+  <data name="تم تحديث اللغة بنجاح" xml:space="preserve">
+    <value>تم تحديث اللغة بنجاح</value>
+  </data>
+  <data name="تم إرسال رسالتك بنجاح. سنتواصل معك قريباً." xml:space="preserve">
+    <value>تم إرسال رسالتك بنجاح. سنتواصل معك قريباً.</value>
+  </data>
+  <data name="تم استلام تعليقك، شكرًا لك!" xml:space="preserve">
+    <value>تم استلام تعليقك، شكرًا لك!</value>
+  </data>
+  <data name="تم إرسال المراجعة بنجاح. سيتم نشرها بعد مراجعتها من قبل فريق الإدارة" xml:space="preserve">
+    <value>تم إرسال المراجعة بنجاح. سيتم نشرها بعد مراجعتها من قبل فريق الإدارة</value>
+  </data>
+  <data name="تم إرسال الإشعار بنجاح" xml:space="preserve">
+    <value>تم إرسال الإشعار بنجاح</value>
+  </data>
+  <data name="تم الإخفاء بنجاح" xml:space="preserve">
+    <value>تم الإخفاء بنجاح</value>
+  </data>
+  <data name="تم التحديث بنجاح" xml:space="preserve">
+    <value>تم التحديث بنجاح</value>
+  </data>
+  <data name="تمت الإضافة بنجاح" xml:space="preserve">
+    <value>تمت الإضافة بنجاح</value>
+  </data>
+  <data name="تمت الإزالة بنجاح" xml:space="preserve">
+    <value>تمت الإزالة بنجاح</value>
+  </data>
+  <data name="لا توجد صورة مرفوعة" xml:space="preserve">
+    <value>لا توجد صورة مرفوعة</value>
+  </data>
+  <data name="الإشعار غير موجود" xml:space="preserve">
+    <value>الإشعار غير موجود</value>
+  </data>
+  <data name="البريد الإلكتروني أو رقم الهاتف مطلوب" xml:space="preserve">
+    <value>البريد الإلكتروني أو رقم الهاتف مطلوب</value>
+  </data>
+  <data name="البريد الإلكتروني مطلوب" xml:space="preserve">
+    <value>البريد الإلكتروني مطلوب</value>
+  </data>
+  <data name="كلمة المرور مطلوبة" xml:space="preserve">
+    <value>كلمة المرور مطلوبة</value>
+  </data>
+  <data name="معرف المستخدم مطلوب" xml:space="preserve">
+    <value>معرف المستخدم مطلوب</value>
+  </data>
+  <data name="معرف الوحدة مطلوب" xml:space="preserve">
+    <value>معرف الوحدة مطلوب</value>
+  </data>
+  <data name="تاريخ الوصول يجب أن يكون قبل تاريخ المغادرة" xml:space="preserve">
+    <value>تاريخ الوصول يجب أن يكون قبل تاريخ المغادرة</value>
+  </data>
+  <data name="تاريخ الوصول لا يمكن أن يكون في الماضي" xml:space="preserve">
+    <value>تاريخ الوصول لا يمكن أن يكون في الماضي</value>
+  </data>
+  <data name="عدد الضيوف يجب أن يكون أكبر من صفر" xml:space="preserve">
+    <value>عدد الضيوف يجب أن يكون أكبر من صفر</value>
+  </data>
+  <data name="الوحدة غير متاحة في التواريخ المطلوبة" xml:space="preserve">
+    <value>الوحدة غير متاحة في التواريخ المطلوبة</value>
+  </data>
+  <data name="ليس لديك الصلاحية لإنشاء حجز لمستخدم آخر" xml:space="preserve">
+    <value>ليس لديك الصلاحية لإنشاء حجز لمستخدم آخر</value>
+  </data>
+  <data name="لست موظفًا في هذا الكيان" xml:space="preserve">
+    <value>لست موظفًا في هذا الكيان</value>
+  </data>
+  <data name="لديك حجز آخر في نفس الفترة الزمنية" xml:space="preserve">
+    <value>لديك حجز آخر في نفس الفترة الزمنية</value>
+  </data>
+  <data name="لا توجد تغييرات للحفظ" xml:space="preserve">
+    <value>لا توجد تغييرات للحفظ</value>
+  </data>
+  <data name="تم تسجيل الخروج بنجاح" xml:space="preserve">
+    <value>تم تسجيل الخروج بنجاح</value>
+  </data>
+  <data name="تم تسجيل المستخدم بنجاح" xml:space="preserve">
+    <value>تم تسجيل المستخدم بنجاح</value>
+  </data>
+  <data name="تم تسجيل المستخدم بنجاح. يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب" xml:space="preserve">
+    <value>تم تسجيل المستخدم بنجاح. يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب</value>
+  </data>
+  <data name="تم تغيير كلمة المرور بنجاح" xml:space="preserve">
+    <value>تم تغيير كلمة المرور بنجاح</value>
+  </data>
+  <data name="تم حذف الحساب بنجاح" xml:space="preserve">
+    <value>تم حذف الحساب بنجاح</value>
+  </data>
+  <data name="تم حذف الحساب بنجاح. نأسف لرؤيتك تغادر" xml:space="preserve">
+    <value>تم حذف الحساب بنجاح. نأسف لرؤيتك تغادر</value>
+  </data>
+  <data name="تم تحديث الملف الشخصي بنجاح" xml:space="preserve">
+    <value>تم تحديث الملف الشخصي بنجاح</value>
+  </data>
+  <data name="تم تأكيد البريد الإلكتروني بنجاح. يمكنك الآن الاستفادة من جميع ميزات التطبيق" xml:space="preserve">
+    <value>تم تأكيد البريد الإلكتروني بنجاح. يمكنك الآن الاستفادة من جميع ميزات التطبيق</value>
+  </data>
+  <data name="انتهت صلاحية العملية. يرجى إعادة المحاولة" xml:space="preserve">
+    <value>انتهت صلاحية العملية. يرجى إعادة المحاولة</value>
+  </data>
+  <data name="انتهت صلاحية رمز التحقق. يرجى طلب رمز جديد" xml:space="preserve">
+    <value>انتهت صلاحية رمز التحقق. يرجى طلب رمز جديد</value>
+  </data>
+  <data name="رمز التحقق غير صحيح" xml:space="preserve">
+    <value>رمز التحقق غير صحيح</value>
+  </data>
+  <data name="رمز التحقق يجب أن يتكون من 6 أرقام" xml:space="preserve">
+    <value>رمز التحقق يجب أن يتكون من 6 أرقام</value>
+  </data>
+  <data name="تم تجاوز الحد الأقصى لمحاولات إعادة الإرسال. يرجى المحاولة بعد 15 دقيقة" xml:space="preserve">
+    <value>تم تجاوز الحد الأقصى لمحاولات إعادة الإرسال. يرجى المحاولة بعد 15 دقيقة</value>
+  </data>
+  <data name="صنعاء" xml:space="preserve">
+    <value>صنعاء</value>
+  </data>
+  <data name="عدن" xml:space="preserve">
+    <value>عدن</value>
+  </data>
+  <data name="تعز" xml:space="preserve">
+    <value>تعز</value>
+  </data>
+  <data name="الحديدة" xml:space="preserve">
+    <value>الحديدة</value>
+  </data>
+  <data name="إب" xml:space="preserve">
+    <value>إب</value>
+  </data>
+  <data name="المكلا" xml:space="preserve">
+    <value>المكلا</value>
+  </data>
+  <data name="سيئون" xml:space="preserve">
+    <value>سيئون</value>
+  </data>
+  <data name="العاصمة التاريخية والثقافية لليمن" xml:space="preserve">
+    <value>العاصمة التاريخية والثقافية لليمن</value>
+  </data>
+  <data name="العاصمة الاقتصادية والميناء الرئيسي" xml:space="preserve">
+    <value>العاصمة الاقتصادية والميناء الرئيسي</value>
+  </data>
+  <data name="المدينة الثقافية والتعليمية" xml:space="preserve">
+    <value>المدينة الثقافية والتعليمية</value>
+  </data>
+  <data name="الميناء الغربي الرئيسي على البحر الأحمر" xml:space="preserve">
+    <value>الميناء الغربي الرئيسي على البحر الأحمر</value>
+  </data>
+  <data name="مدينة الخضرة والجمال الطبيعي" xml:space="preserve">
+    <value>مدينة الخضرة والجمال الطبيعي</value>
+  </data>
+  <data name="عاصمة حضرموت الساحلية" xml:space="preserve">
+    <value>عاصمة حضرموت الساحلية</value>
+  </data>
+  <data name="مدينة التراث والتاريخ في وادي حضرموت" xml:space="preserve">
+    <value>مدينة التراث والتاريخ في وادي حضرموت</value>
+  </data>
+  <data name="فندق" xml:space="preserve">
+    <value>فندق</value>
+  </data>
+  <data name="شاليه" xml:space="preserve">
+    <value>شاليه</value>
+  </data>
+  <data name="استراحة" xml:space="preserve">
+    <value>استراحة</value>
+  </data>
+  <data name="فيلا" xml:space="preserve">
+    <value>فيلا</value>
+  </data>
+  <data name="شقة" xml:space="preserve">
+    <value>شقة</value>
+  </data>
+  <data name="منشأة فندقية تقدم خدمات الإقامة" xml:space="preserve">
+    <value>منشأة فندقية تقدم خدمات الإقامة</value>
+  </data>
+  <data name="شاليه أو منتجع" xml:space="preserve">
+    <value>شاليه أو منتجع</value>
+  </data>
+  <data name="استراحة عائلية" xml:space="preserve">
+    <value>استراحة عائلية</value>
+  </data>
+  <data name="فيلا أو منزل مستقل" xml:space="preserve">
+    <value>فيلا أو منزل مستقل</value>
+  </data>
+  <data name="شقة مفروشة" xml:space="preserve">
+    <value>شقة مفروشة</value>
+  </data>
+  <data name="Wi-Fi مجاني" xml:space="preserve">
+    <value>Wi-Fi مجاني</value>
+  </data>
+  <data name="تكييف هواء" xml:space="preserve">
+    <value>تكييف هواء</value>
+  </data>
+  <data name="تلفزيون" xml:space="preserve">
+    <value>تلفزيون</value>
+  </data>
+  <data name="مطبخ مجهز" xml:space="preserve">
+    <value>مطبخ مجهز</value>
+  </data>
+  <data name="غسالة ملابس" xml:space="preserve">
+    <value>غسالة ملابس</value>
+  </data>
+  <data name="موقف سيارات مجاني" xml:space="preserve">
+    <value>موقف سيارات مجاني</value>
+  </data>
+  <data name="مسبح" xml:space="preserve">
+    <value>مسبح</value>
+  </data>
+  <data name="حراسة أمنية" xml:space="preserve">
+    <value>حراسة أمنية</value>
+  </data>
+  <data name="خدمة تنظيف يومية" xml:space="preserve">
+    <value>خدمة تنظيف يومية</value>
+  </data>
+  <data name="إفطار مجاني" xml:space="preserve">
+    <value>إفطار مجاني</value>
+  </data>
+  <data name="حديقة" xml:space="preserve">
+    <value>حديقة</value>
+  </data>
+  <data name="منطقة شواء" xml:space="preserve">
+    <value>منطقة شواء</value>
+  </data>
+  <data name="منطقة ألعاب أطفال" xml:space="preserve">
+    <value>منطقة ألعاب أطفال</value>
+  </data>
+  <data name="صالة رياضية" xml:space="preserve">
+    <value>صالة رياضية</value>
+  </data>
+  <data name="إطلالة بحرية" xml:space="preserve">
+    <value>إطلالة بحرية</value>
+  </data>
+  <data name="حمام خاص" xml:space="preserve">
+    <value>حمام خاص</value>
+  </data>
+  <data name="شرفة" xml:space="preserve">
+    <value>شرفة</value>
+  </data>
+  <data name="مصعد" xml:space="preserve">
+    <value>مصعد</value>
+  </data>
+  <data name="مناسب لذوي الاحتياجات الخاصة" xml:space="preserve">
+    <value>مناسب لذوي الاحتياجات الخاصة</value>
+  </data>
+  <data name="يسمح بالحيوانات الأليفة" xml:space="preserve">
+    <value>يسمح بالحيوانات الأليفة</value>
+  </data>
+  <data name="إنترنت لاسلكي مجاني" xml:space="preserve">
+    <value>إنترنت لاسلكي مجاني</value>
+  </data>
+  <data name="مكيف هواء في جميع الغرف" xml:space="preserve">
+    <value>مكيف هواء في جميع الغرف</value>
+  </data>
+  <data name="شاشة تلفزيون في الغرفة" xml:space="preserve">
+    <value>شاشة تلفزيون في الغرفة</value>
+  </data>
+  <data name="مطبخ كامل مع الأجهزة" xml:space="preserve">
+    <value>مطبخ كامل مع الأجهزة</value>
+  </data>
+  <data name="غسالة ملابس متاحة" xml:space="preserve">
+    <value>غسالة ملابس متاحة</value>
+  </data>
+  <data name="موقف سيارات مجاني في الموقع" xml:space="preserve">
+    <value>موقف سيارات مجاني في الموقع</value>
+  </data>
+  <data name="مسبح خاص أو مشترك" xml:space="preserve">
+    <value>مسبح خاص أو مشترك</value>
+  </data>
+  <data name="حراسة أمنية على مدار 24 ساعة" xml:space="preserve">
+    <value>حراسة أمنية على مدار 24 ساعة</value>
+  </data>
+  <data name="تنظيف يومي للغرف" xml:space="preserve">
+    <value>تنظيف يومي للغرف</value>
+  </data>
+  <data name="وجبة إفطار مجانية" xml:space="preserve">
+    <value>وجبة إفطار مجانية</value>
+  </data>
+  <data name="حديقة خارجية" xml:space="preserve">
+    <value>حديقة خارجية</value>
+  </data>
+  <data name="منطقة شواء خارجية" xml:space="preserve">
+    <value>منطقة شواء خارجية</value>
+  </data>
+  <data name="منطقة ألعاب للأطفال" xml:space="preserve">
+    <value>منطقة ألعاب للأطفال</value>
+  </data>
+  <data name="صالة رياضية مجهزة" xml:space="preserve">
+    <value>صالة رياضية مجهزة</value>
+  </data>
+  <data name="إطلالة على البحر" xml:space="preserve">
+    <value>إطلالة على البحر</value>
+  </data>
+  <data name="حمام خاص في الغرفة" xml:space="preserve">
+    <value>حمام خاص في الغرفة</value>
+  </data>
+  <data name="شرفة خاصة" xml:space="preserve">
+    <value>شرفة خاصة</value>
+  </data>
+  <data name="مصعد كهربائي" xml:space="preserve">
+    <value>مصعد كهربائي</value>
+  </data>
+  <data name="مرافق مخصصة لذوي الاحتياجات الخاصة" xml:space="preserve">
+    <value>مرافق مخصصة لذوي الاحتياجات الخاصة</value>
+  </data>
+  <data name="مسموح إحضار الحيوانات الأليفة" xml:space="preserve">
+    <value>مسموح إحضار الحيوانات الأليفة</value>
+  </data>
+  <data name="مساحة الغرفة بالمتر المربع" xml:space="preserve">
+    <value>مساحة الغرفة بالمتر المربع</value>
+  </data>
+  <data name="هل الغرفة لها إطلالة على البحر" xml:space="preserve">
+    <value>هل الغرفة لها إطلالة على البحر</value>
+  </data>
+  <data name="نوع السرير المتوفر" xml:space="preserve">
+    <value>نوع السرير المتوفر</value>
+  </data>
+  <data name="عدد الأسرة في الغرفة" xml:space="preserve">
+    <value>عدد الأسرة في الغرفة</value>
+  </data>
+  <data name="عدد غرف النوم" xml:space="preserve">
+    <value>عدد غرف النوم</value>
+  </data>
+  <data name="عدد الحمامات" xml:space="preserve">
+    <value>عدد الحمامات</value>
+  </data>
+  <data name="حقل إضافي" xml:space="preserve">
+    <value>حقل إضافي</value>
+  </data>
+  <data name="مساحة الغرفة (م²)" xml:space="preserve">
+    <value>مساحة الغرفة (م²)</value>
+  </data>
+  <data name="نوع السرير" xml:space="preserve">
+    <value>نوع السرير</value>
+  </data>
+  <data name="عدد الأسرة" xml:space="preserve">
+    <value>عدد الأسرة</value>
+  </data>
+  <data name="يحتوي على شرفة" xml:space="preserve">
+    <value>يحتوي على شرفة</value>
+  </data>
+  <data name="مساحة الجناح (م²)" xml:space="preserve">
+    <value>مساحة الجناح (م²)</value>
+  </data>
+  <data name="يحتوي على صالة معيشة" xml:space="preserve">
+    <value>يحتوي على صالة معيشة</value>
+  </data>
+  <data name="مساحة الشاليه (م²)" xml:space="preserve">
+    <value>مساحة الشاليه (م²)</value>
+  </data>
+  <data name="يحتوي على مسبح خاص" xml:space="preserve">
+    <value>يحتوي على مسبح خاص</value>
+  </data>
+  <data name="يحتوي على حديقة" xml:space="preserve">
+    <value>يحتوي على حديقة</value>
+  </data>
+  <data name="مساحة الاستراحة (م²)" xml:space="preserve">
+    <value>مساحة الاستراحة (م²)</value>
+  </data>
+  <data name="مساحة الاستوديو (م²)" xml:space="preserve">
+    <value>مساحة الاستوديو (م²)</value>
+  </data>
+  <data name="مساحة الفيلا (م²)" xml:space="preserve">
+    <value>مساحة الفيلا (م²)</value>
+  </data>
+  <data name="مساحة الشقة (م²)" xml:space="preserve">
+    <value>مساحة الشقة (م²)</value>
+  </data>
+  <data name="يحتوي على مطبخ كامل" xml:space="preserve">
+    <value>يحتوي على مطبخ كامل</value>
+  </data>
+  <data name="يحتوي على مطبخ" xml:space="preserve">
+    <value>يحتوي على مطبخ</value>
+  </data>
+  <data name="عدد دورات المياه" xml:space="preserve">
+    <value>عدد دورات المياه</value>
+  </data>
+  <data name="Admin" xml:space="preserve">
+    <value>Admin</value>
+  </data>
+  <data name="Owner" xml:space="preserve">
+    <value>Owner</value>
+  </data>
+  <data name="Staff" xml:space="preserve">
+    <value>Staff</value>
+  </data>
+  <data name="Client" xml:space="preserve">
+    <value>Client</value>
+  </data>
+  <data name="Review Owner" xml:space="preserve">
+    <value>Review Owner</value>
+  </data>
+  <data name="Review Client" xml:space="preserve">
+    <value>Review Client</value>
+  </data>
+  <data name="حجز جديد" xml:space="preserve">
+    <value>حجز جديد</value>
+  </data>
+  <data name="إلغاء حجز" xml:space="preserve">
+    <value>إلغاء حجز</value>
+  </data>
+  <data name="تحديث الدفع" xml:space="preserve">
+    <value>تحديث الدفع</value>
+  </data>
+  <data name="فشل عملية الدفع" xml:space="preserve">
+    <value>فشل عملية الدفع</value>
+  </data>
+  <data name="عرض ترويجي جديد" xml:space="preserve">
+    <value>عرض ترويجي جديد</value>
+  </data>
+  <data name="تحديث النظام" xml:space="preserve">
+    <value>تحديث النظام</value>
+  </data>
+  <data name="تنبيه أمني" xml:space="preserve">
+    <value>تنبيه أمني</value>
+  </data>
+  <data name="تم إنشاء حجز جديد برقم HBK-2025-001" xml:space="preserve">
+    <value>تم إنشاء حجز جديد برقم HBK-2025-001</value>
+  </data>
+  <data name="تم إلغاء الحجز رقم HBK-2025-002" xml:space="preserve">
+    <value>تم إلغاء الحجز رقم HBK-2025-002</value>
+  </data>
+  <data name="تم اعتماد دفعة بمبلغ 120,000 ريال يمني" xml:space="preserve">
+    <value>تم اعتماد دفعة بمبلغ 120,000 ريال يمني</value>
+  </data>
+  <data name="تعذر معالجة الدفعة الأخيرة، يرجى المحاولة لاحقاً" xml:space="preserve">
+    <value>تعذر معالجة الدفعة الأخيرة، يرجى المحاولة لاحقاً</value>
+  </data>
+  <data name="خصم 20% على الحجوزات لمدة محدودة" xml:space="preserve">
+    <value>خصم 20% على الحجوزات لمدة محدودة</value>
+  </data>
+  <data name="تم تحديث النظام لتحسين الأداء والاستقرار" xml:space="preserve">
+    <value>تم تحديث النظام لتحسين الأداء والاستقرار</value>
+  </data>
+  <data name="تم اكتشاف محاولة تسجيل دخول غير معتادة وتم حظرها" xml:space="preserve">
+    <value>تم اكتشاف محاولة تسجيل دخول غير معتادة وتم حظرها</value>
+  </data>
+  <data name="يتطلب الدفع الكامل عند التأكيد" xml:space="preserve">
+    <value>يتطلب الدفع الكامل عند التأكيد</value>
+  </data>
+  <data name="مقدمة 10%، الباقي عند الوصول" xml:space="preserve">
+    <value>مقدمة 10%، الباقي عند الوصول</value>
+  </data>
+  <data name="مقدمة 30% عند الحجز" xml:space="preserve">
+    <value>مقدمة 30% عند الحجز</value>
+  </data>
+  <data name="استرداد 50% إذا تم الإلغاء قبل 7 أيام" xml:space="preserve">
+    <value>استرداد 50% إذا تم الإلغاء قبل 7 أيام</value>
+  </data>
+  <data name="إلغاء مجاني حتى 24 ساعة قبل الوصول" xml:space="preserve">
+    <value>إلغاء مجاني حتى 24 ساعة قبل الوصول</value>
+  </data>
+  <data name="إلغاء مجاني قبل 5 أيام" xml:space="preserve">
+    <value>إلغاء مجاني قبل 5 أيام</value>
+  </data>
+  <data name="تسجيل الوصول من 3 عصراً، المغادرة حتى 11 صباحاً" xml:space="preserve">
+    <value>تسجيل الوصول من 3 عصراً، المغادرة حتى 11 صباحاً</value>
+  </data>
+  <data name="تسجيل وصول مرن من 12 ظهراً" xml:space="preserve">
+    <value>تسجيل وصول مرن من 12 ظهراً</value>
+  </data>
+  <data name="تسجيل الوصول من 2 ظهراً، المغادرة حتى 12 ظهراً" xml:space="preserve">
+    <value>تسجيل الوصول من 2 ظهراً، المغادرة حتى 12 ظهراً</value>
+  </data>
+  <data name="الأطفال أقل من 3 سنوات مجاناً" xml:space="preserve">
+    <value>الأطفال أقل من 3 سنوات مجاناً</value>
+  </data>
+  <data name="مرحب بالأطفال حتى 8 سنوات مجاناً" xml:space="preserve">
+    <value>مرحب بالأطفال حتى 8 سنوات مجاناً</value>
+  </data>
+  <data name="الأطفال أقل من 6 سنوات مجاناً" xml:space="preserve">
+    <value>الأطفال أقل من 6 سنوات مجاناً</value>
+  </data>
+  <data name="لا يُسمح بالحيوانات الأليفة" xml:space="preserve">
+    <value>لا يُسمح بالحيوانات الأليفة</value>
+  </data>
+  <data name="يُسمح بالحيوانات الأليفة بدون رسوم" xml:space="preserve">
+    <value>يُسمح بالحيوانات الأليفة بدون رسوم</value>
+  </data>
+  <data name="يُسمح بالحيوانات الأليفة مقابل رسوم" xml:space="preserve">
+    <value>يُسمح بالحيوانات الأليفة مقابل رسوم</value>
+  </data>
+  <data name="لا يمكن تعديل الحجز بعد التأكيد" xml:space="preserve">
+    <value>لا يمكن تعديل الحجز بعد التأكيد</value>
+  </data>
+  <data name="تعديل مجاني حتى 12 ساعة قبل الوصول" xml:space="preserve">
+    <value>تعديل مجاني حتى 12 ساعة قبل الوصول</value>
+  </data>
+  <data name="تعديل مجاني حتى 24 ساعة قبل الوصول" xml:space="preserve">
+    <value>تعديل مجاني حتى 24 ساعة قبل الوصول</value>
+  </data>
+</root>

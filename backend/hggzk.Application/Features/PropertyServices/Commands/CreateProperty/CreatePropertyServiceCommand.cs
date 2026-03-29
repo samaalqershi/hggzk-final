@@ -21,6 +21,11 @@ public class CreatePropertyServiceCommand : IRequest<ResultDto<Guid>>
     /// </summary>
     public string Name { get; set; } = string.Empty;
     /// <summary>
+    /// الاسم بالإنجليزية.
+    /// English name.
+    /// </summary>
+    public string? NameEn { get; set; }
+    /// <summary>
     /// السعر.
     /// price.
     /// </summary>
@@ -40,4 +45,9 @@ public class CreatePropertyServiceCommand : IRequest<ResultDto<Guid>>
     /// description.
     /// </summary>
     public string? Description { get; set; }
+    /// <summary>
+    /// الوصف بالإنجليزية.
+    /// English description.
+    /// </summary>
+    public string? DescriptionEn { get; set; }
 } 

@@ -31,20 +31,40 @@ class Property extends Equatable {
   /// اسم العرض الظاهر للإدارة وفي القوائم.
   final String name;
 
+  /// English display name stored for bilingual catalogs and client apps.
+  ///
+  /// اسم العرض الإنجليزي المخزن لدعم الكتالوجات الثنائية اللغة.
+  final String? nameEn;
+
   /// Short marketing copy that appears in compact cards.
   ///
   /// وصف تسويقي قصير يظهر في البطاقات المختصرة.
   final String? shortDescription;
+
+  /// English short marketing copy used in English experiences.
+  ///
+  /// وصف تسويقي قصير بالإنجليزية يستخدم في التجارب الإنجليزية.
+  final String? shortDescriptionEn;
 
   /// Street address used by staff and mapping tools.
   ///
   /// العنوان البريدي المستخدم من قبل الفريق وأدوات الخرائط.
   final String address;
 
+  /// English address variant displayed when the viewer uses English.
+  ///
+  /// نسخة إنجليزية من العنوان تظهر عند استخدام الإنجليزية.
+  final String? addressEn;
+
   /// City or locality used for search and grouping.
   ///
   /// المدينة أو المنطقة المستخدمة في البحث والتجميع.
   final String city;
+
+  /// English city/locality label used by bilingual cards and details.
+  ///
+  /// الاسم الإنجليزي للمدينة أو المنطقة لاستخدامه في العرض الثنائي اللغة.
+  final String? cityEn;
 
   /// Optional latitude for map rendering and proximity search.
   ///
@@ -65,6 +85,11 @@ class Property extends Equatable {
   ///
   /// النص الوصفي الكامل المعروض في صفحة التفاصيل.
   final String description;
+
+  /// English descriptive text shown in English detail pages.
+  ///
+  /// النص الوصفي الإنجليزي الذي يظهر في صفحات التفاصيل الإنجليزية.
+  final String? descriptionEn;
 
   /// Indicates whether the property has passed review and can be shown live.
   ///
@@ -116,6 +141,11 @@ class Property extends Equatable {
   /// التسمية المقروءة بشريًا لنوع العقار.
   final String typeName;
 
+  /// English property type label used when bilingual content is available.
+  ///
+  /// تسمية نوع العقار بالإنجليزية عند توفر المحتوى الثنائي اللغة.
+  final String? typeNameEn;
+
   /// Optional distance value used by map and search experiences.
   ///
   /// المسافة الاختيارية المستخدمة في تجارب الخرائط والبحث.
@@ -150,13 +180,18 @@ class Property extends Equatable {
     required this.ownerId,
     required this.typeId,
     required this.name,
+    this.nameEn,
     this.shortDescription,
+    this.shortDescriptionEn,
     required this.address,
+    this.addressEn,
     required this.city,
+    this.cityEn,
     this.latitude,
     this.longitude,
     required this.starRating,
     required this.description,
+    this.descriptionEn,
     required this.isApproved,
     required this.createdAt,
     this.viewCount = 0,
@@ -167,6 +202,7 @@ class Property extends Equatable {
     this.systemCommissionRate,
     required this.ownerName,
     required this.typeName,
+    this.typeNameEn,
     this.distanceKm,
     this.images = const [],
     this.amenities = const [],
@@ -189,6 +225,18 @@ class Property extends Equatable {
   /// يعيد عنوانًا مختصرًا مجمعًا للبطاقات والرؤوس.
   String get formattedAddress => '$address, $city';
 
+  /// Returns the English combined address when English variants are available.
+  ///
+  /// يعيد العنوان المجمع بالإنجليزية عند توفر النسخ الإنجليزية.
+  String get formattedAddressEn {
+    final parts = <String>[
+      (addressEn ?? address).trim(),
+      (cityEn ?? city).trim(),
+    ].where((value) => value.isNotEmpty).toList();
+
+    return parts.join(', ');
+  }
+
   /// Keeps equality aligned with the visible property snapshot.
   ///
   /// يربط المقارنة بلقطة العقار الظاهرة.
@@ -198,13 +246,18 @@ class Property extends Equatable {
         ownerId,
         typeId,
         name,
+        nameEn,
         shortDescription,
+        shortDescriptionEn,
         address,
+        addressEn,
         city,
+        cityEn,
         latitude,
         longitude,
         starRating,
         description,
+        descriptionEn,
         isApproved,
         createdAt,
         viewCount,
@@ -215,6 +268,7 @@ class Property extends Equatable {
         systemCommissionRate,
         ownerName,
         typeName,
+        typeNameEn,
         distanceKm,
         images,
         amenities,

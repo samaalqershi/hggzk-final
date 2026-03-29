@@ -19,6 +19,13 @@ public class UnitType : BaseEntity<Guid>
     public string Description { get; set; }
 
     /// <summary>
+    /// وصف نوع الوحدة باللغة الإنجليزية.
+    /// English unit type description.
+    /// </summary>
+    [Display(Name = "وصف نوع الوحدة بالإنجليزية")]
+    public string? DescriptionEn { get; set; }
+
+    /// <summary>
     /// قواعد التسعير الافتراضية بصيغة JSON.
     /// Default pricing rules stored as JSON.
     /// </summary>
@@ -38,6 +45,13 @@ public class UnitType : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "اسم نوع الوحدة")]
     public string Name { get; set; }
+
+    /// <summary>
+    /// اسم نوع الوحدة باللغة الإنجليزية.
+    /// English unit type name.
+    /// </summary>
+    [Display(Name = "اسم نوع الوحدة بالإنجليزية")]
+    public string? NameEn { get; set; }
 
     /// <summary>
     /// الحد الأقصى للسعة.

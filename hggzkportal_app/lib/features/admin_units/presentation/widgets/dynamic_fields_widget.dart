@@ -352,6 +352,9 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
   /// ينفذ هذا الأسلوب عملية _buildField ضمن مسار إدارة الوحدات.
   /// This method performs the _buildField operation in the admin unit workflow.
   Widget _buildField(UnitTypeField field) {
+    final secondaryDescription =
+        _normalizedSecondary(field.descriptionEn, field.description);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       child: Column(
@@ -362,7 +365,10 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
           _buildFieldInput(field),
           if (field.description.isNotEmpty) ...[
             const SizedBox(height: 4),
-            _buildFieldDescription(field.description),
+            _buildFieldDescription(
+              field.description,
+              secondaryDescription: secondaryDescription,
+            ),
           ],
         ],
       ),
@@ -372,20 +378,40 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
   /// ينفذ هذا الأسلوب عملية _buildFieldLabel ضمن مسار إدارة الوحدات.
   /// This method performs the _buildFieldLabel operation in the admin unit workflow.
   Widget _buildFieldLabel(UnitTypeField field) {
-    return Row(
+    final secondaryLabel =
+        _normalizedSecondary(field.displayNameEn, field.displayName);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          field.displayName,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textWhite,
-            fontWeight: FontWeight.w600,
-          ),
+        Row(
+          children: [
+            Flexible(
+              child: Text(
+                field.displayName,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppTheme.textWhite,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            if (field.isRequired)
+              Text(
+                ' *',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppTheme.error,
+                ),
+              ),
+          ],
         ),
-        if (field.isRequired)
-          Text(
-            ' *',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.error,
+        if (secondaryLabel != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              secondaryLabel,
+              style: AppTextStyles.caption.copyWith(
+                color: AppTheme.textMuted,
+              ),
             ),
           ),
       ],
@@ -394,16 +420,40 @@ class _DynamicFieldsWidgetState extends State<DynamicFieldsWidget> {
 
   /// ينفذ هذا الأسلوب عملية _buildFieldDescription ضمن مسار إدارة الوحدات.
   /// This method performs the _buildFieldDescription operation in the admin unit workflow.
-  Widget _buildFieldDescription(String description) {
+  Widget _buildFieldDescription(String description,
+      {String? secondaryDescription}) {
     return Padding(
       padding: const EdgeInsets.only(left: 12),
-      child: Text(
-        description,
-        style: AppTextStyles.caption.copyWith(
-          color: AppTheme.textMuted.withValues(alpha: 0.7),
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            description,
+            style: AppTextStyles.caption.copyWith(
+              color: AppTheme.textMuted.withValues(alpha: 0.7),
+            ),
+          ),
+          if (secondaryDescription != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                secondaryDescription,
+                style: AppTextStyles.caption.copyWith(
+                  color: AppTheme.textMuted.withValues(alpha: 0.55),
+                ),
+              ),
+            ),
+        ],
       ),
     );
+  }
+
+  String? _normalizedSecondary(String? secondary, String primary) {
+    final trimmed = secondary?.trim();
+    if (trimmed == null || trimmed.isEmpty || trimmed == primary.trim()) {
+      return null;
+    }
+    return trimmed;
   }
 
   /// ينفذ هذا الأسلوب عملية _buildFieldInput ضمن مسار إدارة الوحدات.

@@ -40,7 +40,9 @@ namespace YemenBooking.Application.Features.Amenities.Queries.GetAmenityById
             {
                 Id = a.Id,
                 Name = a.Name,
+                NameEn = a.NameEn,
                 Description = a.Description,
+                DescriptionEn = a.DescriptionEn,
                 Icon = a.Icon,
                 IsActive = a.IsActive,
                 CreatedAt = a.CreatedAt,

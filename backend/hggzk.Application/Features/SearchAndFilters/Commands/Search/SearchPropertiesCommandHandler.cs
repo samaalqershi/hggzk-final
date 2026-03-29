@@ -367,11 +367,16 @@ public class SearchPropertiesCommandHandler : IRequestHandler<SearchPropertiesCo
             {
                 Id = property.Id,
                 Name = property.Name,
+                NameEn = property.NameEn ?? property.Name,
                 Description = property.Description,
+                DescriptionEn = property.DescriptionEn ?? property.Description,
                 City = property.City,
+                CityEn = property.CityEn ?? property.City,
                 Address = property.Address,
+                AddressEn = property.AddressEn ?? property.Address,
                 StarRating = property.StarRating,
                 PropertyType = property.PropertyType?.Name ?? "",
+                PropertyTypeEn = property.PropertyType?.NameEn ?? property.PropertyType?.Name ?? "",
                 MinPrice = 0,
                 Currency = property.Currency ?? "YER",
                 MaxCapacity = property.Units.Any() ? property.Units.Max(u => u.MaxCapacity) : 0,
@@ -400,6 +405,9 @@ public class SearchPropertiesCommandHandler : IRequestHandler<SearchPropertiesCo
             // المرافق.
             item.MainAmenities = property.Amenities.Where(a => a.IsAvailable)
                 .Select(a => a.PropertyTypeAmenity.Amenity.Name).ToList();
+            item.MainAmenitiesEn = property.Amenities.Where(a => a.IsAvailable)
+                .Select(a => a.PropertyTypeAmenity.Amenity.NameEn ?? a.PropertyTypeAmenity.Amenity.Name)
+                .ToList();
 
             // Availability.
             // Availability.

@@ -44,10 +44,13 @@ class LoadPropertyDetailsEvent extends PropertiesEvent {
 class CreatePropertyEvent extends PropertiesEvent {
   /// العربية: يخزن القيمة `name`.
   final String name;
+  final String? nameEn;
   final String address;
+  final String? addressEn;
   final String propertyTypeId;
   final String ownerId;
   final String description;
+  final String? descriptionEn;
   final double latitude;
   final double longitude;
   final String city;
@@ -56,15 +59,19 @@ class CreatePropertyEvent extends PropertiesEvent {
   final List<String>? amenityIds;
   final String? tempKey;
   final String shortDescription;
+  final String? shortDescriptionEn;
   final String currency;
   final bool isFeatured;
   final double? systemCommissionRate;
   const CreatePropertyEvent({
     required this.name,
+    this.nameEn,
     required this.address,
+    this.addressEn,
     required this.propertyTypeId,
     required this.ownerId,
     required this.description,
+    this.descriptionEn,
     required this.latitude,
     required this.longitude,
     required this.city,
@@ -73,6 +80,7 @@ class CreatePropertyEvent extends PropertiesEvent {
     this.amenityIds,
     this.tempKey,
     required this.shortDescription,
+    this.shortDescriptionEn,
     required this.currency,
     required this.isFeatured,
     this.systemCommissionRate,
@@ -80,10 +88,13 @@ class CreatePropertyEvent extends PropertiesEvent {
   @override
   List<Object?> get props => [
         name,
+        nameEn,
         address,
+        addressEn,
         propertyTypeId,
         ownerId,
         description,
+        descriptionEn,
         latitude,
         longitude,
         city,
@@ -92,6 +103,7 @@ class CreatePropertyEvent extends PropertiesEvent {
         amenityIds,
         tempKey,
         shortDescription,
+        shortDescriptionEn,
         currency,
         isFeatured,
         systemCommissionRate,
@@ -102,14 +114,18 @@ class UpdatePropertyEvent extends PropertiesEvent {
   /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
   final String? name;
+  final String? nameEn;
   final String? address;
+  final String? addressEn;
   final String? description;
+  final String? descriptionEn;
   final double? latitude;
   final double? longitude;
   final String? city;
   final int? starRating;
   final List<String>? images;
   final String? shortDescription;
+  final String? shortDescriptionEn;
   final String? currency;
   final bool? isFeatured;
   final double? systemCommissionRate;
@@ -118,14 +134,18 @@ class UpdatePropertyEvent extends PropertiesEvent {
   const UpdatePropertyEvent({
     required this.propertyId,
     this.name,
+    this.nameEn,
     this.address,
+    this.addressEn,
     this.description,
+    this.descriptionEn,
     this.latitude,
     this.longitude,
     this.city,
     this.starRating,
     this.images,
     this.shortDescription,
+    this.shortDescriptionEn,
     this.currency,
     this.isFeatured,
     this.systemCommissionRate,
@@ -136,14 +156,18 @@ class UpdatePropertyEvent extends PropertiesEvent {
   List<Object?> get props => [
         propertyId,
         name,
+        nameEn,
         address,
+        addressEn,
         description,
+        descriptionEn,
         latitude,
         longitude,
         city,
         starRating,
         images,
         shortDescription,
+        shortDescriptionEn,
         currency,
         isFeatured,
         systemCommissionRate,

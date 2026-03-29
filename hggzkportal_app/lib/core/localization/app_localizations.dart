@@ -179,10 +179,79 @@ class AppLocalizations {
     },
   };
 
+  static const Map<String, String> _legacyKeyAliases = {
+    'app.appName': 'appName',
+    'common.welcome': 'welcome',
+    'common.login': 'login',
+    'common.register': 'register',
+    'common.email': 'email',
+    'common.phone': 'phone',
+    'common.password': 'password',
+    'common.forgotPassword': 'forgotPassword',
+    'common.search': 'search',
+    'common.home': 'home',
+    'common.favorites': 'favorites',
+    'common.bookings': 'bookings',
+    'common.profile': 'profile',
+    'common.settings': 'settings',
+    'common.language': 'language',
+    'common.theme': 'theme',
+    'common.notifications': 'notifications',
+    'common.logout': 'logout',
+    'common.cancel': 'cancel',
+    'common.confirm': 'confirm',
+    'common.save': 'save',
+    'common.delete': 'delete',
+    'common.edit': 'edit',
+    'common.add': 'add',
+    'common.remove': 'remove',
+    'common.yes': 'yes',
+    'common.no': 'no',
+    'common.ok': 'ok',
+    'common.close': 'close',
+    'common.back': 'back',
+    'common.next': 'next',
+    'common.done': 'done',
+    'common.skip': 'skip',
+    'common.retry': 'retry',
+    'common.loading': 'loading',
+    'common.error': 'error',
+    'common.success': 'success',
+    'common.warning': 'warning',
+    'common.info': 'info',
+    'common.noData': 'noData',
+    'common.noInternet': 'noInternet',
+    'common.somethingWentWrong': 'somethingWentWrong',
+    'common.tryAgain': 'tryAgain',
+    'common.pullToRefresh': 'pullToRefresh',
+    'common.releaseToRefresh': 'releaseToRefresh',
+    'common.refreshing': 'refreshing',
+    'support.help_support': 'help_support',
+    'support.need_help': 'need_help',
+    'support.support_description': 'support_description',
+    'support.send_message': 'send_message',
+    'support.your_name': 'your_name',
+    'support.subject': 'subject',
+    'support.your_message': 'your_message',
+    'support.send': 'send',
+    'support.contact_info': 'contact_info',
+    'support.working_hours': 'working_hours',
+    'support.message_sent': 'message_sent',
+    'support.support_success_message': 'support_success_message',
+    'support.name_required': 'name_required',
+    'support.email_required': 'email_required',
+    'support.subject_required': 'subject_required',
+    'support.message_required': 'message_required',
+    'support.reference': 'reference',
+  };
+
   /// يعيد النص المترجم أو المفتاح نفسه عندما لا توجد ترجمة مقابلة.
   /// Returns the localized string or the key itself when no translation exists.
   String get(String key) {
-    return _localizedValues[locale.languageCode]?[key] ?? key;
+    final normalizedKey = _legacyKeyAliases[key] ?? key;
+    return _localizedValues[locale.languageCode]?[key] ??
+        _localizedValues[locale.languageCode]?[normalizedKey] ??
+        key;
   }
 
   /// ينسق التاريخ وفق ترتيب مناسب للغة النشطة.

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:math' as math;
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../bloc/settings_bloc.dart';
@@ -253,7 +254,9 @@ class _FuturisticThemeToggleState extends State<FuturisticThemeToggle>
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  isDark ? 'تم تفعيل الوضع الليلي' : 'تم تفعيل الوضع النهاري',
+                  isDark
+                      ? context.tr('settings.theme.darkEnabled')
+                      : context.tr('settings.theme.lightEnabled'),
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: Colors.white,
                   ),
@@ -365,7 +368,7 @@ class _FuturisticThemeSelectorState extends State<FuturisticThemeSelector>
         children: [
           _buildThemeOption(
             icon: Icons.wb_sunny,
-            label: 'نهاري',
+            label: context.tr('settings.item.themeLight'),
             isSelected: !widget.isDarkMode,
             gradient: const LinearGradient(
               colors: [Colors.orange, Colors.yellow],
@@ -375,7 +378,7 @@ class _FuturisticThemeSelectorState extends State<FuturisticThemeSelector>
           const SizedBox(width: 8),
           _buildThemeOption(
             icon: Icons.nightlight_round,
-            label: 'ليلي',
+            label: context.tr('settings.item.themeDark'),
             isSelected: widget.isDarkMode,
             gradient: LinearGradient(
               colors: [AppTheme.primaryBlue, AppTheme.primaryPurple],

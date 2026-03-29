@@ -93,6 +93,7 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       emit(ServicesError(e.toString()));
     }
   }
+
   Future<void> _onLoadMoreServices(
     LoadMoreServicesEvent event,
     Emitter<ServicesState> emit,
@@ -144,6 +145,7 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       },
     );
   }
+
   Future<void> _onCreateService(
     CreateServiceEvent event,
     Emitter<ServicesState> emit,
@@ -154,10 +156,12 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       CreateServiceParams(
         propertyId: event.propertyId,
         name: event.name,
+        nameEn: event.nameEn,
         price: event.price,
         pricingModel: event.pricingModel,
         icon: event.icon,
         description: event.description,
+        descriptionEn: event.descriptionEn,
       ),
     );
 
@@ -170,6 +174,7 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       },
     );
   }
+
   Future<void> _onUpdateService(
     UpdateServiceEvent event,
     Emitter<ServicesState> emit,
@@ -180,10 +185,12 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       UpdateServiceParams(
         serviceId: event.serviceId,
         name: event.name,
+        nameEn: event.nameEn,
         price: event.price,
         pricingModel: event.pricingModel,
         icon: event.icon,
         description: event.description,
+        descriptionEn: event.descriptionEn,
       ),
     );
 
@@ -198,6 +205,7 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       },
     );
   }
+
   Future<void> _onDeleteService(
     DeleteServiceEvent event,
     Emitter<ServicesState> emit,
@@ -217,6 +225,7 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       },
     );
   }
+
   Future<void> _onLoadServiceDetails(
     LoadServiceDetailsEvent event,
     Emitter<ServicesState> emit,
@@ -230,6 +239,7 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
       (serviceDetails) => emit(ServiceDetailsLoaded(serviceDetails)),
     );
   }
+
   Future<void> _onSelectProperty(
     SelectPropertyEvent event,
     Emitter<ServicesState> emit,
@@ -243,6 +253,7 @@ class ServicesBloc extends Bloc<ServicesEvent, ServicesState> {
           serviceType: 'all', pageNumber: 1, pageSize: 20));
     }
   }
+
   Future<void> _onSearchServices(
     SearchServicesEvent event,
     Emitter<ServicesState> emit,

@@ -103,8 +103,8 @@ class _FuturisticPolicyCardState extends State<FuturisticPolicyCard> {
       targetKey: _cardKey,
       policyId: policy.id,
       policyType: _mapPolicyType(policy.type),
-      description: policy.description,
-      rules: policy.rules ?? '',
+      description: _combineBilingual(policy.description, policy.descriptionEn),
+      rules: _combineBilingual(policy.rules ?? '', policy.rulesEn),
       isActive: policy.isActive ?? true,
       propertyName: policy.propertyName,
       effectiveDate: policy.createdAt,
@@ -192,19 +192,42 @@ class _FuturisticPolicyCardState extends State<FuturisticPolicyCard> {
   }
 
   Widget _buildContent(Policy policy) {
+    final secondaryDescription =
+        _normalizedSecondary(policy.descriptionEn, policy.description);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          policy.description.length > 80
-              ? '${policy.description.substring(0, 80)}...'
-              : policy.description,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: AppTheme.textMuted,
-            height: 1.5,
-          ),
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              policy.description.length > 80
+                  ? '${policy.description.substring(0, 80)}...'
+                  : policy.description,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppTheme.textMuted,
+                height: 1.5,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+            if (secondaryDescription != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                  secondaryDescription.length > 90
+                      ? '${secondaryDescription.substring(0, 90)}...'
+                      : secondaryDescription,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppTheme.textMuted.withValues(alpha: 0.78),
+                    height: 1.4,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+          ],
         ),
         const SizedBox(height: 8),
         if (policy.type == PolicyType.cancellation)
@@ -319,5 +342,31 @@ class _FuturisticPolicyCardState extends State<FuturisticPolicyCard> {
       case PolicyType.modification:
         return CupertinoIcons.pencil_circle;
     }
+  }
+
+  String _combineBilingual(String primary, String? secondary) {
+    final normalizedSecondary = _normalizedSecondary(secondary, primary);
+    if (normalizedSecondary == null) {
+      return primary;
+    }
+
+    if (primary.trim().isEmpty) {
+      return normalizedSecondary;
+    }
+
+    return '$primary\n$normalizedSecondary';
+  }
+
+  String? _normalizedSecondary(String? secondary, String primary) {
+    final normalized = secondary?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      return null;
+    }
+
+    if (normalized == primary.trim()) {
+      return null;
+    }
+
+    return normalized;
   }
 }

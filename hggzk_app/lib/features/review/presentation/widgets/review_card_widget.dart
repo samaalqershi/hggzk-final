@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -222,7 +223,9 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
         borderRadius: BorderRadius.circular(AppDimensions.borderRadiusXs),
       ),
       child: Text(
-        'تقييمك',
+        context.tr(
+          'reviews.yourReview',
+        ),
         style: AppTextStyles.caption.copyWith(
           color: AppTheme.primaryBlue,
           fontWeight: FontWeight.bold,
@@ -256,7 +259,9 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
           ),
           const SizedBox(width: AppDimensions.spacingXs),
           Text(
-            'يوصي بهذا المكان',
+            context.tr(
+              'reviews.recommendPlace',
+            ),
             style: AppTextStyles.bodySmall.copyWith(
               color: AppTheme.success,
               fontWeight: FontWeight.bold,
@@ -287,7 +292,9 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
               Row(
                 children: [
                   Text(
-                    'التفاصيل',
+                    context.tr(
+                      'reviews.details',
+                    ),
                     style: AppTextStyles.caption.copyWith(
                       color: AppTheme.primaryBlue,
                     ),
@@ -302,10 +309,22 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
               ),
               if (_isExpanded) ...[
                 const SizedBox(height: AppDimensions.spacingSm),
-                _buildRatingDetailItem('النظافة', widget.review.cleanliness),
-                _buildRatingDetailItem('الخدمة', widget.review.service),
-                _buildRatingDetailItem('الموقع', widget.review.location),
-                _buildRatingDetailItem('القيمة', widget.review.value),
+                _buildRatingDetailItem(
+                  context.tr('reviews.cleanliness'),
+                  widget.review.cleanliness,
+                ),
+                _buildRatingDetailItem(
+                  context.tr('reviews.service'),
+                  widget.review.service,
+                ),
+                _buildRatingDetailItem(
+                  context.tr('reviews.location'),
+                  widget.review.location,
+                ),
+                _buildRatingDetailItem(
+                  context.tr('reviews.value'),
+                  widget.review.value,
+                ),
               ],
             ],
           ),
@@ -396,7 +415,13 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
                 });
               },
               child: Text(
-                _isExpanded ? 'عرض أقل' : 'عرض المزيد',
+                _isExpanded
+                    ? context.tr(
+                        'reviews.showLess',
+                      )
+                    : context.tr(
+                        'reviews.showMore',
+                      ),
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppTheme.primaryBlue,
                   fontWeight: FontWeight.bold,
@@ -491,7 +516,9 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
                 });
               },
               child: Text(
-                'عرض أقل',
+                context.tr(
+                  'reviews.showLess',
+                ),
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppTheme.primaryBlue,
                   fontWeight: FontWeight.bold,
@@ -552,7 +579,9 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
                   ),
                   const SizedBox(width: AppDimensions.spacingXs),
                   Text(
-                    'حجز مؤكد',
+                    context.tr(
+                      'reviews.confirmedBooking',
+                    ),
                     style: AppTextStyles.caption.copyWith(
                       color: AppTheme.info,
                       fontWeight: FontWeight.bold,
@@ -590,23 +619,31 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
       },
       itemBuilder: (context) => [
         if (!widget.review.isUserReview)
-          const PopupMenuItem(
+          PopupMenuItem(
             value: 'report',
             child: Row(
               children: [
-                Icon(Icons.flag_outlined, size: 20),
-                SizedBox(width: 12),
-                Text('الإبلاغ عن المراجعة'),
+                const Icon(Icons.flag_outlined, size: 20),
+                const SizedBox(width: 12),
+                Text(
+                  context.tr(
+                    'reviews.reportReview',
+                  ),
+                ),
               ],
             ),
           ),
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'share',
           child: Row(
             children: [
-              Icon(Icons.share_outlined, size: 20),
-              SizedBox(width: 12),
-              Text('مشاركة'),
+              const Icon(Icons.share_outlined, size: 20),
+              const SizedBox(width: 12),
+              Text(
+                context.tr(
+                  'reviews.share',
+                ),
+              ),
             ],
           ),
         ),
@@ -621,17 +658,26 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
     final difference = now.difference(date);
 
     if (difference.inDays == 0) {
-      return 'اليوم';
+      return context.tr('reviews.today');
     } else if (difference.inDays == 1) {
-      return 'أمس';
+      return context.tr('reviews.yesterday');
     } else if (difference.inDays < 7) {
-      return 'منذ ${difference.inDays} أيام';
+      return context.tr(
+        'reviews.agoDays',
+        params: {'count': '${difference.inDays}'},
+      );
     } else if (difference.inDays < 30) {
-      return 'منذ ${(difference.inDays / 7).floor()} أسابيع';
+      return context.tr(
+        'reviews.agoWeeks',
+        params: {'count': '${(difference.inDays / 7).floor()}'},
+      );
     } else if (difference.inDays < 365) {
-      return DateFormat('d MMMM', 'ar').format(date);
+      return DateFormat('d MMMM', Localizations.localeOf(context).toString())
+          .format(date);
     } else {
-      return DateFormat('d MMMM yyyy', 'ar').format(date);
+      return DateFormat(
+              'd MMMM yyyy', Localizations.localeOf(context).toString())
+          .format(date);
     }
   }
 

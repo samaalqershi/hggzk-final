@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../../domain/entities/transaction.dart';
 import '../../domain/repositories/payment_repository.dart';
@@ -28,7 +29,9 @@ class PaymentRepositoryImpl implements PaymentRepository {
     Map<String, dynamic>? paymentDetails,
   }) async {
     if (!(await internetConnectionChecker.hasConnection)) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -63,7 +66,10 @@ class PaymentRepositoryImpl implements PaymentRepository {
       if (result.success && result.data != null) {
         return Right(result.data!);
       } else {
-        return Left(ServerFailure(result.message ?? 'فشل في معالجة الدفع'));
+        return Left(ServerFailure(
+          result.message ??
+              AppLocalizations.translateSync('common.unexpectedError'),
+        ));
       }
     } catch (error) {
       return ErrorHandler.handle(error);
@@ -83,7 +89,9 @@ class PaymentRepositoryImpl implements PaymentRepository {
     double? maxAmount,
   }) async {
     if (!(await internetConnectionChecker.hasConnection)) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -109,8 +117,10 @@ class PaymentRepositoryImpl implements PaymentRepository {
         );
         return Right(paginatedTransactions);
       } else {
-        return Left(
-            ServerFailure(result.message ?? 'فشل في جلب سجل المدفوعات'));
+        return Left(ServerFailure(
+          result.message ??
+              AppLocalizations.translateSync('common.unexpectedError'),
+        ));
       }
     } catch (error) {
       return ErrorHandler.handle(error);

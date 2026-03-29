@@ -41,7 +41,9 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     on<PropertySelectedEvent>(_onPropertySelected);
     on<UnitTypeSelectedEvent>(_onUnitTypeSelected);
     on<UpdateUnitNameEvent>(_onUpdateUnitName);
+    on<UpdateUnitNameEnEvent>(_onUpdateUnitNameEn);
     on<UpdateDescriptionEvent>(_onUpdateDescription);
+    on<UpdateDescriptionEnEvent>(_onUpdateDescriptionEn);
     on<UpdateCapacityEvent>(_onUpdateCapacity);
     on<UpdateUnitImageEvent>(_onUpdateUnitImage);
     on<UpdatePricingEvent>(_onUpdatePricing);
@@ -82,6 +84,18 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
     }
   }
 
+  Future<void> _onUpdateUnitNameEn(
+    UpdateUnitNameEnEvent event,
+    Emitter<UnitFormState> emit,
+  ) async {
+    if (state is UnitFormReady) {
+      final currentState = state as UnitFormReady;
+      emit(currentState.copyWith(
+        unitNameEn: event.nameEn,
+      ));
+    }
+  }
+
   /// ينفذ هذا الأسلوب عملية _onUpdateDescription ضمن مسار إدارة الوحدات.
   /// This method performs the _onUpdateDescription operation in the admin unit workflow.
   Future<void> _onUpdateDescription(
@@ -92,6 +106,19 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
       final currentState = state as UnitFormReady;
       emit(currentState.copyWith(
         description: event.description,
+        customFeatures: event.description,
+      ));
+    }
+  }
+
+  Future<void> _onUpdateDescriptionEn(
+    UpdateDescriptionEnEvent event,
+    Emitter<UnitFormState> emit,
+  ) async {
+    if (state is UnitFormReady) {
+      final currentState = state as UnitFormReady;
+      emit(currentState.copyWith(
+        descriptionEn: event.descriptionEn,
       ));
     }
   }
@@ -268,8 +295,11 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
         final result = await updateUnitUseCase(UpdateUnitParams(
           unitId: currentState.unitId!,
           name: currentState.unitName,
+          nameEn: currentState.unitNameEn,
           description: currentState.description ?? '',
-          customFeatures: currentState.customFeatures,
+          customFeatures:
+              currentState.description ?? currentState.customFeatures,
+          customFeaturesEn: currentState.descriptionEn,
           pricingMethod: currentState.pricingMethod?.value,
           fieldValues:
               _convertDynamicFieldsToList(currentState.dynamicFieldValues),
@@ -291,8 +321,11 @@ class UnitFormBloc extends Bloc<UnitFormEvent, UnitFormState> {
           propertyId: currentState.selectedPropertyId!,
           unitTypeId: currentState.selectedUnitType!.id,
           name: currentState.unitName!,
+          nameEn: currentState.unitNameEn,
           description: currentState.description ?? '',
-          customFeatures: currentState.customFeatures ?? '',
+          customFeatures:
+              currentState.description ?? currentState.customFeatures ?? '',
+          customFeaturesEn: currentState.descriptionEn,
           pricingMethod: currentState.pricingMethod!.value,
           fieldValues:
               _convertDynamicFieldsToList(currentState.dynamicFieldValues),

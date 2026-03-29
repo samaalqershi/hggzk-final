@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:hggzk/core/error/error_handler.dart';
 import 'package:hggzk/core/error/failures.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/network/network_info.dart';
 import 'package:hggzk/core/network/api_client.dart';
 import 'package:hggzk/core/utils/request_logger.dart';
@@ -45,7 +46,11 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
         final uid =
             (localStorage.getData(StorageConstants.userId) ?? '').toString();
         if (uid.isEmpty) {
-          return const Left(AuthenticationFailure('يجب تسجيل الدخول'));
+          return Left(
+            AuthenticationFailure(
+              AppLocalizations.translateSync('common.loginRequired'),
+            ),
+          );
         }
         final response = await apiClient.get(
           '/api/client/favorites',
@@ -87,7 +92,9 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
         return ErrorHandler.handle(e);
       }
     }
-    return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+    return Left(
+      NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+    );
   }
 
   /// Processes `addToFavorites`.
@@ -124,7 +131,9 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
         return ErrorHandler.handle(e);
       }
     }
-    return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+    return Left(
+      NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+    );
   }
 
   /// Removes the from favorites.
@@ -157,7 +166,9 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
         return ErrorHandler.handle(e);
       }
     }
-    return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+    return Left(
+      NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+    );
   }
 
   /// Checks the favorite status.
@@ -194,7 +205,9 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
         return ErrorHandler.handle(e);
       }
     }
-    return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+    return Left(
+      NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+    );
   }
 
   /// Maps the favorite.
@@ -275,12 +288,18 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
       id: (json['favoriteId'] ?? json['id'] ?? '').toString(),
       userId: (json['userId'] ?? '').toString(),
       propertyId: (json['propertyId'] ?? '').toString(),
-      propertyName: (json['propertyName'] ?? 'عقار').toString(),
+      propertyName: (json['propertyName'] ??
+              AppLocalizations.translateSync('common.propertyPlaceholder'))
+          .toString(),
       propertyImage: (json['propertyImage'] ?? '').toString(),
       propertyLocation: (json['propertyLocation'] ?? '').toString(),
       typeId: (json['typeId'] ?? '').toString(),
-      typeName: (json['typeName'] ?? 'نوع').toString(),
-      ownerName: (json['ownerName'] ?? 'المالك').toString(),
+      typeName: (json['typeName'] ??
+              AppLocalizations.translateSync('common.typePlaceholder'))
+          .toString(),
+      ownerName: (json['ownerName'] ??
+              AppLocalizations.translateSync('common.ownerPlaceholder'))
+          .toString(),
       address: (json['address'] ?? '').toString(),
       city: (json['city'] ?? '').toString(),
       latitude: toDouble(json['latitude']),

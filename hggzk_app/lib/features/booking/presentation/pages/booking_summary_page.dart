@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:hggzk/features/booking/presentation/widgets/policies_dialog.dart';
 import 'dart:ui';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/price_widget.dart';
@@ -105,9 +106,11 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
         listener: _handleBookingState,
         builder: (context, state) {
           if (state is BookingLoading) {
-            return const LoadingWidget(
+            return LoadingWidget(
               type: LoadingType.futuristic,
-              message: 'جاري إنشاء الحجز...',
+              message: context.tr(
+                'booking.summary.createLoading',
+              ),
             );
           }
 
@@ -156,14 +159,18 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'ملخص الحجز',
+            context.tr(
+              'booking.summary.title',
+            ),
             style: AppTextStyles.h3.copyWith(
               color: AppTheme.textWhite,
               fontWeight: FontWeight.w700,
             ),
           ),
           Text(
-            'الخطوة 2 من 3',
+            context.tr(
+              'booking.summary.step2',
+            ),
             style: AppTextStyles.caption.copyWith(
               color: AppTheme.textMuted,
             ),
@@ -349,7 +356,13 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    '${pricePerNight.toStringAsFixed(0)} $currency / ليلة',
+                    context.tr(
+                      'booking.summary.pricePerNight',
+                      params: {
+                        'price': pricePerNight.toStringAsFixed(0),
+                        'currency': currency,
+                      },
+                    ),
                     style: AppTextStyles.caption.copyWith(
                       color: AppTheme.primaryBlue,
                       fontWeight: FontWeight.w600,
@@ -379,28 +392,39 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
         children: [
           _buildCardHeader(
             icon: Icons.calendar_month_rounded,
-            title: 'تفاصيل الإقامة',
+            title: context.tr(
+              'booking.summary.propertyInfo',
+            ),
             color: AppTheme.primaryBlue,
           ),
           const SizedBox(height: 16),
           _buildInfoRow(
             icon: Icons.login_rounded,
-            label: 'تاريخ الوصول',
+            label: context.tr(
+              'booking.summary.checkIn',
+            ),
             value: dateFormat.format(checkIn),
             color: AppTheme.primaryBlue,
           ),
           _buildDivider(),
           _buildInfoRow(
             icon: Icons.logout_rounded,
-            label: 'تاريخ المغادرة',
+            label: context.tr(
+              'booking.summary.checkOut',
+            ),
             value: dateFormat.format(checkOut),
             color: AppTheme.primaryPurple,
           ),
           _buildDivider(),
           _buildInfoRow(
             icon: Icons.nights_stay_rounded,
-            label: 'عدد الليالي',
-            value: '$nights ${nights == 1 ? 'ليلة' : 'ليالي'}',
+            label: context.tr(
+              'booking.summary.nightsLabel',
+            ),
+            value: context.tr(
+              'booking.summary.nights',
+              params: {'count': nights},
+            ),
             color: AppTheme.primaryCyan,
           ),
         ],
@@ -423,7 +447,9 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
         children: [
           _buildCardHeader(
             icon: Icons.people_rounded,
-            title: 'معلومات الضيوف',
+            title: context.tr(
+              'booking.summary.guestsInfo',
+            ),
             color: AppTheme.success,
           ),
           const SizedBox(height: 16),
@@ -431,7 +457,9 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
             children: [
               _buildGuestBadge(
                 icon: Icons.person_rounded,
-                label: 'بالغين',
+                label: context.tr(
+                  'booking.summary.guestAdults',
+                ),
                 count: adultsCount,
                 color: AppTheme.success,
               ),
@@ -439,7 +467,9 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
               if (childrenCount > 0)
                 _buildGuestBadge(
                   icon: Icons.child_care_rounded,
-                  label: 'أطفال',
+                  label: context.tr(
+                    'booking.summary.guestChildren',
+                  ),
                   count: childrenCount,
                   color: AppTheme.info,
                 ),
@@ -460,7 +490,10 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      '$totalGuests ضيف',
+                      context.tr(
+                        'booking.summary.totalGuests',
+                        params: {'count': totalGuests},
+                      ),
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppTheme.success,
                         fontWeight: FontWeight.w600,
@@ -520,7 +553,9 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
         children: [
           _buildCardHeader(
             icon: Icons.room_service_rounded,
-            title: 'الخدمات الإضافية',
+            title: context.tr(
+              'booking.summary.additionalServices',
+            ),
             color: AppTheme.primaryViolet,
           ),
           const SizedBox(height: 14),
@@ -606,7 +641,9 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'طلبات خاصة',
+                  context.tr(
+                    'booking.summary.specialRequests',
+                  ),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppTheme.info,
                     fontWeight: FontWeight.w600,
@@ -696,7 +733,9 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'سياسات وقوانين الحجز',
+                    context.tr(
+                      'booking.summary.policyCardTitle',
+                    ),
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppTheme.textWhite,
                       fontWeight: FontWeight.w600,
@@ -704,7 +743,9 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'بتأكيدك للحجز، فإنك توافق على جميع السياسات',
+                    context.tr(
+                      'booking.summary.policyCardBody',
+                    ),
                     style: AppTextStyles.caption.copyWith(
                       color: AppTheme.textMuted,
                     ),
@@ -736,7 +777,9 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'عرض السياسات',
+                          context.tr(
+                            'booking.summary.viewPolicies',
+                          ),
                           style: AppTextStyles.caption.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -792,14 +835,19 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'المجموع الكلي',
+                        context.tr(
+                          'booking.summary.totalLabel',
+                        ),
                         style: AppTextStyles.caption.copyWith(
                           color: AppTheme.textMuted,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '$nights ليالي + الخدمات',
+                        context.tr(
+                          'booking.summary.nightsAndServices',
+                          params: {'nights': nights},
+                        ),
                         style: AppTextStyles.caption.copyWith(
                           color: AppTheme.textMuted,
                           fontSize: 10,
@@ -863,7 +911,9 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'المتابعة إلى الدفع',
+                        context.tr(
+                          'booking.summary.continueToPayment',
+                        ),
                         style: AppTextStyles.bodyLarge.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
@@ -1000,10 +1050,20 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
 
     final parts = <String>[];
     if (adultsCapacity != null && adultsCapacity > 0) {
-      parts.add('$adultsCapacity بالغ');
+      parts.add(
+        context.tr(
+          'booking.summary.capacityAdults',
+          params: {'count': adultsCapacity},
+        ),
+      );
     }
     if (childrenCapacity != null && childrenCapacity > 0) {
-      parts.add('$childrenCapacity طفل');
+      parts.add(
+        context.tr(
+          'booking.summary.capacityChildren',
+          params: {'count': childrenCapacity},
+        ),
+      );
     }
     return parts.isEmpty ? '' : parts.join('، ');
   }

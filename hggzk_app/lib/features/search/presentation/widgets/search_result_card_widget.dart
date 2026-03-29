@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/image_utils.dart';
 import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
@@ -135,15 +136,15 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     final level = widget.relaxationLevel ?? SearchRelaxationLevel.exact;
     switch (level) {
       case SearchRelaxationLevel.exact:
-        return 'تطابق دقيق';
+        return context.tr('search.relaxation.exact');
       case SearchRelaxationLevel.minorRelaxation:
-        return 'تخفيف بسيط';
+        return context.tr('search.relaxation.minor');
       case SearchRelaxationLevel.moderateRelaxation:
-        return 'تخفيف متوسط';
+        return context.tr('search.relaxation.moderate');
       case SearchRelaxationLevel.majorRelaxation:
-        return 'تخفيف كبير';
+        return context.tr('search.relaxation.major');
       case SearchRelaxationLevel.alternativeSuggestions:
-        return 'اقتراحات بديلة';
+        return context.tr('search.relaxation.alternative');
     }
   }
 
@@ -177,7 +178,11 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
               .toString();
       if (uid.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('يجب تسجيل الدخول لإضافة إلى المفضلة')),
+          SnackBar(
+            content: Text(
+              context.tr('search.result.loginRequiredFavorite'),
+            ),
+          ),
         );
         return;
       }
@@ -665,7 +670,9 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        'مميز',
+                        context.tr(
+                          'search.result.featured',
+                        ),
                         style: AppTextStyles.bodySmall.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
@@ -691,7 +698,13 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    '${((1 - widget.result.discountedPrice / widget.result.minPrice) * 100).toStringAsFixed(0)}% خصم',
+                    context.tr(
+                      'search.result.discount',
+                      params: {
+                        'value':
+                            '${((1 - widget.result.discountedPrice / widget.result.minPrice) * 100).toStringAsFixed(0)}',
+                      },
+                    ),
                     style: AppTextStyles.bodySmall.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
@@ -859,7 +872,12 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                 ),
                 const SizedBox(width: 3),
                 Text(
-                  '${widget.result.distanceKm!.toStringAsFixed(1)} كم',
+                  context.tr(
+                    'search.result.distanceKm',
+                    params: {
+                      'value': widget.result.distanceKm!.toStringAsFixed(1),
+                    },
+                  ),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppTheme.textMuted,
                   ),
@@ -976,7 +994,9 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  '/ الليلة',
+                  context.tr(
+                    'search.result.perNight',
+                  ),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.textMuted.withOpacity(0.6),
                   ),
@@ -1005,7 +1025,9 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'عرض',
+                  context.tr(
+                    'search.result.view',
+                  ),
                   style: AppTextStyles.caption.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
@@ -1099,7 +1121,9 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          'مقارنة مع طلبك',
+                          context.tr(
+                            'search.result.compareWithRequest',
+                          ),
                           style:
                               Theme.of(context).textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
@@ -1152,7 +1176,9 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'هذا العقار يطابق معظم معاييرك مع بعض الاختلافات البسيطة',
+                              context.tr(
+                                'search.result.mismatchSummary',
+                              ),
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -1183,7 +1209,9 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                           ),
                         ),
                         child: Text(
-                          'فهمت',
+                          context.tr(
+                            'search.result.understood',
+                          ),
                           style: AppTextStyles.bodySmall.copyWith(
                             fontWeight: FontWeight.bold,
                           ),

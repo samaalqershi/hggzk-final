@@ -26,7 +26,9 @@ class AmenitiesRepositoryImpl implements AmenitiesRepository {
   /// an `Either`.
   Future<Either<Failure, String>> createAmenity({
     required String name,
+    String? nameEn,
     required String description,
+    String? descriptionEn,
     required String icon,
     String? propertyTypeId,
     bool isDefaultForType = false,
@@ -34,7 +36,9 @@ class AmenitiesRepositoryImpl implements AmenitiesRepository {
     try {
       final result = await remoteDataSource.createAmenity(
         name: name,
+        nameEn: nameEn,
         description: description,
+        descriptionEn: descriptionEn,
         icon: icon,
         propertyTypeId: propertyTypeId,
         isDefaultForType: isDefaultForType,
@@ -56,14 +60,18 @@ class AmenitiesRepositoryImpl implements AmenitiesRepository {
   Future<Either<Failure, bool>> updateAmenity({
     required String amenityId,
     String? name,
+    String? nameEn,
     String? description,
+    String? descriptionEn,
     String? icon,
   }) async {
     try {
       final result = await remoteDataSource.updateAmenity(
         amenityId: amenityId,
         name: name,
+        nameEn: nameEn,
         description: description,
+        descriptionEn: descriptionEn,
         icon: icon,
       );
       return Right(result);

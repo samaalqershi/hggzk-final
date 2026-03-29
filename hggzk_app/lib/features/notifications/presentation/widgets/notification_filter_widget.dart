@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:ui';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -56,11 +57,11 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
   /// Available filter choices shown to the user.
   /// خيارات الفلاتر المتاحة للمستخدم.
   final List<FilterOption> _filterOptions = [
-    FilterOption('all', 'الكل', CupertinoIcons.square_grid_2x2),
-    FilterOption('booking', 'الحجوزات', CupertinoIcons.calendar),
-    FilterOption('payment', 'المدفوعات', CupertinoIcons.creditcard_fill),
-    FilterOption('promotion', 'العروض', CupertinoIcons.gift_fill),
-    FilterOption('system', 'النظام', CupertinoIcons.gear_solid),
+    FilterOption('all', 'all', CupertinoIcons.square_grid_2x2),
+    FilterOption('booking', 'booking', CupertinoIcons.calendar),
+    FilterOption('payment', 'payment', CupertinoIcons.creditcard_fill),
+    FilterOption('promotion', 'promotion', CupertinoIcons.gift_fill),
+    FilterOption('system', 'system', CupertinoIcons.gear_solid),
   ];
 
   /// Seeds the local state from the widget inputs.
@@ -132,7 +133,9 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
           ),
           SizedBox(width: isCompact ? 8 : 12),
           Text(
-            'الفلاتر',
+            context.tr(
+              'notifications.page.filterAll',
+            ),
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppTheme.textWhite,
               fontWeight: FontWeight.w600,
@@ -231,6 +234,7 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
   Widget _buildFilterChip(FilterOption option) {
     final isSelected = _selectedType == option.value ||
         (option.value == 'all' && _selectedType == null);
+    final label = _labelForOption(context, option.value);
 
     return Container(
       margin: const EdgeInsets.only(right: 8),
@@ -267,7 +271,7 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  option.label,
+                  label,
                   style: AppTextStyles.caption.copyWith(
                     color: isSelected ? Colors.white : AppTheme.textMuted,
                     fontWeight: isSelected ? FontWeight.w600 : null,
@@ -327,7 +331,9 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
             ),
             const SizedBox(width: 6),
             Text(
-              'غير مقروء فقط',
+              context.tr(
+                'notifications.page.filterUnread',
+              ),
               style: AppTextStyles.caption.copyWith(
                 color: _showUnreadOnly ? Colors.white : AppTheme.textMuted,
                 fontWeight: _showUnreadOnly ? FontWeight.w600 : null,
@@ -346,6 +352,31 @@ class _NotificationFilterWidgetState extends State<NotificationFilterWidget> {
     if (_selectedType != null) count++;
     if (_showUnreadOnly) count++;
     return count;
+  }
+
+  String _labelForOption(BuildContext context, String value) {
+    switch (value) {
+      case 'all':
+        return context.tr('notifications.page.filterAll');
+      case 'booking':
+        return context.tr(
+          'notifications.page.filterBooking',
+        );
+      case 'payment':
+        return context.tr(
+          'notifications.page.filterPayment',
+        );
+      case 'promotion':
+        return context.tr(
+          'notifications.page.filterPromotion',
+        );
+      case 'system':
+        return context.tr(
+          'notifications.page.filterSystem',
+        );
+      default:
+        return value;
+    }
   }
 }
 

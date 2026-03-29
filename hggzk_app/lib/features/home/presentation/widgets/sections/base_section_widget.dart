@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
+import '../../../../../core/localization/app_localizations.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/enums/section_type_enum.dart';
@@ -204,7 +205,7 @@ class _ElegantSectionContainer extends StatelessWidget {
         children: [
           // Arabic: رأس القسم.
           // English: Section header.
-          _buildHeader(),
+          _buildHeader(context),
 
           const SizedBox(height: 16),
 
@@ -214,14 +215,15 @@ class _ElegantSectionContainer extends StatelessWidget {
 
           // Arabic: مؤشر تحميل المزيد.
           // English: Load-more indicator.
-          if (isLoadingMore) _buildLoadingMoreIndicator(),
+          if (isLoadingMore) _buildLoadingMoreIndicator(context),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
-    final title = section.title ?? section.name ?? 'القسم';
+  Widget _buildHeader(BuildContext context) {
+    final title =
+        section.title ?? section.name ?? context.tr('home.sections.section');
     final subtitle = section.subtitle;
 
     switch (section.uiType) {
@@ -261,7 +263,7 @@ class _ElegantSectionContainer extends StatelessWidget {
     }
   }
 
-  Widget _buildLoadingMoreIndicator() {
+  Widget _buildLoadingMoreIndicator(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       alignment: Alignment.center,
@@ -280,7 +282,7 @@ class _ElegantSectionContainer extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Text(
-            'جارِ تحميل المزيد...',
+            context.tr('home.sections.loadingMore'),
             style: AppTextStyles.caption.copyWith(
               color: AppTheme.textMuted,
             ),
@@ -355,7 +357,7 @@ class _ElegantSectionHeader extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'عرض الكل',
+                      context.tr('home.sections.viewAll'),
                       style: AppTextStyles.caption.copyWith(
                         color: AppTheme.primaryBlue,
                         fontWeight: FontWeight.w600,

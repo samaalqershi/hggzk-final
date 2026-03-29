@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import 'package:hggzk/app/dependency_injection/injection_container.dart';
@@ -317,7 +318,7 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
                 colors: [AppTheme.warning, AppTheme.warning.withOpacity(0.7)],
               ).createShader(bounds),
               child: Text(
-                'لا توجد تقييمات بعد',
+                context.tr('reviews.noneYet'),
                 style: AppTextStyles.bodyLarge.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -326,7 +327,7 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
             ),
             const SizedBox(height: 8),
             Text(
-              'كن أول من يقيم هذا العقار',
+              context.tr('reviews.beFirst'),
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted,
               ),
@@ -345,7 +346,7 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
                   const Icon(Icons.edit, size: 16, color: Colors.white),
                   const SizedBox(width: 6),
                   Text(
-                    'اكتب أول تقييم',
+                    context.tr('reviews.writeFirst'),
                     style: AppTextStyles.buttonMedium.copyWith(
                       color: Colors.white,
                     ),
@@ -473,7 +474,10 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
               ),
               const SizedBox(height: 2),
               Text(
-                '${summary.totalReviews} تقييم',
+                context.tr(
+                  'reviews.count',
+                  params: {'count': summary.totalReviews},
+                ),
                 style: AppTextStyles.caption.copyWith(
                   color: Colors.white.withOpacity(0.9),
                   fontWeight: FontWeight.w600,
@@ -506,22 +510,22 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
 
     final categories = [
       {
-        'label': 'النظافة',
+        'label': context.tr('reviews.cleanliness'),
         'rating': cleanlinessAvg,
         'icon': Icons.cleaning_services,
       },
       {
-        'label': 'الخدمة',
+        'label': context.tr('reviews.service'),
         'rating': serviceAvg,
         'icon': Icons.room_service,
       },
       {
-        'label': 'الموقع',
+        'label': context.tr('reviews.location'),
         'rating': locationAvg,
         'icon': Icons.location_on,
       },
       {
-        'label': 'القيمة',
+        'label': context.tr('reviews.value'),
         'rating': valueAvg,
         'icon': Icons.attach_money,
       },
@@ -663,7 +667,7 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
               ),
               const SizedBox(width: 8),
               Text(
-                'توزيع التقييمات',
+                context.tr('reviews.distribution'),
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppTheme.textWhite,
                   fontWeight: FontWeight.bold,
@@ -801,7 +805,7 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
             ),
             const SizedBox(width: 8),
             Text(
-              'أحدث التقييمات',
+              context.tr('reviews.latest'),
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppTheme.textWhite,
                 fontWeight: FontWeight.bold,
@@ -945,7 +949,7 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'عرض جميع التقييمات',
+              context.tr('reviews.showAll'),
               style: AppTextStyles.buttonMedium.copyWith(
                 color: Colors.white,
               ),
@@ -1067,15 +1071,24 @@ class _ReviewsSummaryWidgetState extends State<ReviewsSummaryWidget>
     final diff = now.difference(local);
 
     if (diff.inDays >= 1 && diff.inDays <= 7) {
-      return 'قبل ${diff.inDays} يوم';
+      return context.tr(
+        'reviews.agoDays',
+        params: {'count': diff.inDays},
+      );
     }
 
     if (diff.inHours >= 1 && diff.inDays < 1) {
-      return 'قبل ${diff.inHours} ساعة';
+      return context.tr(
+        'reviews.agoHours',
+        params: {'count': diff.inHours},
+      );
     }
 
     if (diff.inMinutes >= 1 && diff.inHours < 1) {
-      return 'قبل ${diff.inMinutes} دقيقة';
+      return context.tr(
+        'reviews.agoMinutes',
+        params: {'count': diff.inMinutes},
+      );
     }
 
     final month = local.month.toString().padLeft(2, '0');

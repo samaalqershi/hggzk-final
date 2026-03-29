@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/error/exceptions.dart';
 import '../models/auth_response_model.dart';
 import '../models/user_model.dart';
@@ -89,7 +90,9 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
         await sharedPreferences.setStringList(key, value);
       }
     } catch (e) {
-      throw const CacheException('فشل حفظ البيانات');
+      throw CacheException(
+        AppLocalizations.translateSync('common.localStorageError'),
+      );
     }
   }
 
@@ -113,7 +116,9 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       await localStorage.saveData(
           StorageConstants.userEmail, authResponse.user.email);
     } catch (e) {
-      throw const CacheException('فشل حفظ بيانات المصادقة');
+      throw CacheException(
+        AppLocalizations.translateSync('common.localStorageError'),
+      );
     }
   }
 
@@ -127,7 +132,9 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       }
       return null;
     } catch (e) {
-      throw const CacheException('فشل قراءة بيانات المصادقة');
+      throw CacheException(
+        AppLocalizations.translateSync('common.localStorageError'),
+      );
     }
   }
 
@@ -139,7 +146,9 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       final localStorage = sl<LocalStorageService>();
       await localStorage.saveData(StorageConstants.accessToken, token);
     } catch (e) {
-      throw const CacheException('فشل حفظ رمز الوصول');
+      throw CacheException(
+        AppLocalizations.translateSync('common.localStorageError'),
+      );
     }
   }
 
@@ -148,7 +157,9 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     try {
       return sharedPreferences.getString(_accessTokenKey);
     } catch (e) {
-      throw const CacheException('فشل قراءة رمز الوصول');
+      throw CacheException(
+        AppLocalizations.translateSync('common.localStorageError'),
+      );
     }
   }
 
@@ -160,7 +171,9 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       final localStorage = sl<LocalStorageService>();
       await localStorage.saveData(StorageConstants.refreshToken, token);
     } catch (e) {
-      throw const CacheException('فشل حفظ رمز التحديث');
+      throw CacheException(
+        AppLocalizations.translateSync('common.localStorageError'),
+      );
     }
   }
 
@@ -169,7 +182,9 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     try {
       return sharedPreferences.getString(_refreshTokenKey);
     } catch (e) {
-      throw const CacheException('فشل قراءة رمز التحديث');
+      throw CacheException(
+        AppLocalizations.translateSync('common.localStorageError'),
+      );
     }
   }
 
@@ -183,7 +198,9 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       await localStorage.saveData(StorageConstants.userId, user.userId);
       await localStorage.saveData(StorageConstants.userEmail, user.email);
     } catch (e) {
-      throw const CacheException('فشل حفظ بيانات المستخدم');
+      throw CacheException(
+        AppLocalizations.translateSync('common.localStorageError'),
+      );
     }
   }
 
@@ -197,7 +214,9 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       }
       return null;
     } catch (e) {
-      throw const CacheException('فشل قراءة بيانات المستخدم');
+      throw CacheException(
+        AppLocalizations.translateSync('common.localStorageError'),
+      );
     }
   }
 
@@ -217,7 +236,9 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       await localStorage.removeData(StorageConstants.userId);
       await localStorage.removeData(StorageConstants.userEmail);
     } catch (e) {
-      throw const CacheException('فشل مسح بيانات المصادقة');
+      throw CacheException(
+        AppLocalizations.translateSync('common.localStorageError'),
+      );
     }
   }
 

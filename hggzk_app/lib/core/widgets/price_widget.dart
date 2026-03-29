@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_dimensions.dart';
@@ -196,7 +197,10 @@ class PriceWidget extends StatelessWidget {
                     BorderRadius.circular(AppDimensions.borderRadiusXs),
               ),
               child: Text(
-                '${discountPercentage.toStringAsFixed(0)}% خصم',
+                context.tr(
+                  'core.price.discountBadge',
+                  params: {'percent': discountPercentage.toStringAsFixed(0)},
+                ),
                 style: AppTextStyles.caption.copyWith(
                   color: AppTheme.success,
                   fontWeight: FontWeight.bold,
@@ -291,7 +295,7 @@ class PriceWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'السعر الأصلي:',
+                  context.tr('core.price.original'),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.textMuted,
                   ),
@@ -311,7 +315,12 @@ class PriceWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                period != null ? 'السعر / $period:' : 'السعر:',
+                period != null
+                    ? context.tr(
+                        'core.price.perPeriod',
+                        params: {'period': period},
+                      )
+                    : context.tr('core.price.current'),
                 style: AppTextStyles.bodyMedium.copyWith(
                   fontWeight: FontWeight.bold,
                 ),

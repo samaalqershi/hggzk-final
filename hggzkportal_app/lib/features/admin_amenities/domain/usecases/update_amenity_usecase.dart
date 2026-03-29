@@ -25,7 +25,9 @@ class UpdateAmenityUseCase implements UseCase<bool, UpdateAmenityParams> {
     return await repository.updateAmenity(
       amenityId: params.amenityId,
       name: params.name,
+      nameEn: params.nameEn,
       description: params.description,
+      descriptionEn: params.descriptionEn,
       icon: params.icon,
     );
   }
@@ -44,9 +46,17 @@ class UpdateAmenityParams extends Equatable {
   /// The new amenity name when a rename is requested.
   final String? name;
 
+  /// الاسم الإنجليزي الجديد للمرفق عندما يلزم تحديثه.
+  /// The new English amenity name when needed.
+  final String? nameEn;
+
   /// الوصف الجديد للمرفق عندما يحتاج النص إلى تحديث.
   /// The new description when the text needs to be refreshed.
   final String? description;
+
+  /// الوصف الإنجليزي الجديد للمرفق عند الحاجة.
+  /// The new English description when needed.
+  final String? descriptionEn;
 
   /// الأيقونة الجديدة التي تمثل المرفق بصريًا.
   /// The new icon that represents the amenity visually.
@@ -56,7 +66,9 @@ class UpdateAmenityParams extends Equatable {
   const UpdateAmenityParams({
     required this.amenityId,
     this.name,
+    this.nameEn,
     this.description,
+    this.descriptionEn,
     this.icon,
   });
 
@@ -65,5 +77,6 @@ class UpdateAmenityParams extends Equatable {
   /// تعتمد المساواة على جميع قيم التحديث لأن كل حقل قد يغيّر النتيجة.
   /// Equality depends on every update field because each one can change the
   /// result.
-  List<Object?> get props => [amenityId, name, description, icon];
+  List<Object?> get props =>
+      [amenityId, name, nameEn, description, descriptionEn, icon];
 }

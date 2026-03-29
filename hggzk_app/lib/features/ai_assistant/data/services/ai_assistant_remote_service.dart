@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/localization/locale_manager.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exceptions.dart';
@@ -37,7 +38,10 @@ class AiAssistantRemoteService {
 
       final raw = response.data;
       if (raw is! Map) {
-        throw ApiException(message: 'استجابة غير متوقعة من الخادم.');
+        throw ApiException(
+          message:
+              AppLocalizations.translateSync('ai_chat.messageProcessingError'),
+        );
       }
 
       final body = raw.map((key, value) => MapEntry(key.toString(), value));
@@ -47,8 +51,11 @@ class AiAssistantRemoteService {
           false;
 
       if (!success) {
-        final serverMessage =
-            (body['message'] ?? 'تعذر بدء محادثة جديدة.').toString();
+        final serverMessage = (body['message'] ??
+                AppLocalizations.translateSync(
+                  'ai_chat.newConversationFailed',
+                ))
+            .toString();
         throw ApiException(
           message: serverMessage,
           statusCode: response.statusCode,
@@ -57,7 +64,10 @@ class AiAssistantRemoteService {
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException(message: 'تعذر إعادة تعيين المحادثة: $e');
+      throw ApiException(
+        message:
+            AppLocalizations.translateSync('ai_chat.newConversationFailed'),
+      );
     }
   }
 
@@ -71,7 +81,9 @@ class AiAssistantRemoteService {
   }) async {
     final text = message.trim();
     if (text.isEmpty) {
-      throw ApiException(message: 'الرسالة فارغة.');
+      throw ApiException(
+        message: AppLocalizations.translateSync('common.required'),
+      );
     }
 
     String? timeZone;
@@ -102,7 +114,10 @@ class AiAssistantRemoteService {
 
       final raw = response.data;
       if (raw is! Map) {
-        throw ApiException(message: 'استجابة غير متوقعة من الخادم.');
+        throw ApiException(
+          message:
+              AppLocalizations.translateSync('ai_chat.messageProcessingError'),
+        );
       }
 
       final body = raw.map((key, value) => MapEntry(key.toString(), value));
@@ -111,8 +126,11 @@ class AiAssistantRemoteService {
           (body['Success'] as bool?) ??
           false;
       if (!success) {
-        final serverMessage =
-            (body['message'] ?? 'فشل تنفيذ الطلب.').toString();
+        final serverMessage = (body['message'] ??
+                AppLocalizations.translateSync(
+                  'ai_chat.messageProcessingError',
+                ))
+            .toString();
         throw ApiException(
             message: serverMessage, statusCode: response.statusCode);
       }
@@ -120,7 +138,10 @@ class AiAssistantRemoteService {
       final dynamic data = body['data'];
       final dynamic effectiveData = data ?? body['Data'];
       if (effectiveData is! Map) {
-        throw ApiException(message: 'لم يتم استلام بيانات صالحة من الخادم.');
+        throw ApiException(
+          message:
+              AppLocalizations.translateSync('ai_chat.messageProcessingError'),
+        );
       }
 
       final mappedData =
@@ -129,7 +150,9 @@ class AiAssistantRemoteService {
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException(message: 'تعذر الاتصال بالمساعد الذكي: $e');
+      throw ApiException(
+        message: AppLocalizations.translateSync('ai_chat.assistantUnavailable'),
+      );
     }
   }
 }

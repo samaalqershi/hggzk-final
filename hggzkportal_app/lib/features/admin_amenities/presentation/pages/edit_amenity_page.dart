@@ -81,9 +81,18 @@ class _EditAmenityPageState extends State<EditAmenityPage>
   /// English: Controls the amenity name shown in the form.
   final TextEditingController _nameController = TextEditingController();
 
+  /// Arabic: يتحكم في الاسم الإنجليزي للمرفق داخل النموذج.
+  /// English: Controls the English amenity name shown in the form.
+  final TextEditingController _nameEnController = TextEditingController();
+
   /// Arabic: يتحكم في وصف المرفق القابل للتعديل.
   /// English: Controls the editable amenity description.
   final TextEditingController _descriptionController = TextEditingController();
+
+  /// Arabic: يتحكم في الوصف الإنجليزي للمرفق داخل النموذج.
+  /// English: Controls the English amenity description shown in the form.
+  final TextEditingController _descriptionEnController =
+      TextEditingController();
 
   /// Arabic: الأيقونة المختارة حاليًا للمرفق بعد التعديل.
   /// English: Currently selected icon for the amenity after editing.
@@ -194,7 +203,9 @@ class _EditAmenityPageState extends State<EditAmenityPage>
 
       // Populate controllers
       _nameController.text = amenity.name;
+      _nameEnController.text = amenity.nameEn ?? '';
       _descriptionController.text = amenity.description;
+      _descriptionEnController.text = amenity.descriptionEn ?? '';
       _selectedIcon = amenity.icon;
       // Note: propertyTypeId is not directly available in Amenity entity
       // You might need to load this from a separate relationship
@@ -216,7 +227,9 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     _glowController.dispose();
     _loadingAnimationController.dispose();
     _nameController.dispose();
+    _nameEnController.dispose();
     _descriptionController.dispose();
+    _descriptionEnController.dispose();
     super.dispose();
   }
 
@@ -689,6 +702,25 @@ class _EditAmenityPageState extends State<EditAmenityPage>
 
           const SizedBox(height: 20),
 
+          if (_originalAmenity != null &&
+              _nameEnController.text != (_originalAmenity!.nameEn ?? ''))
+            _buildOriginalValueIndicator(
+              'الاسم الإنجليزي الأصلي',
+              (_originalAmenity!.nameEn ?? '').isEmpty
+                  ? 'لا يوجد'
+                  : _originalAmenity!.nameEn!,
+              true,
+            ),
+
+          _buildInputField(
+            controller: _nameEnController,
+            label: 'اسم المرفق بالإنجليزية',
+            hint: 'Enter amenity name in English',
+            icon: Icons.translate_rounded,
+          ),
+
+          const SizedBox(height: 20),
+
           // Description
           if (_originalAmenity != null &&
               _descriptionController.text != _originalAmenity!.description)
@@ -705,6 +737,27 @@ class _EditAmenityPageState extends State<EditAmenityPage>
             label: 'الوصف',
             hint: 'وصف مختصر للمرفق (اختياري)',
             icon: Icons.description_rounded,
+            maxLines: 5,
+          ),
+
+          const SizedBox(height: 20),
+
+          if (_originalAmenity != null &&
+              _descriptionEnController.text !=
+                  (_originalAmenity!.descriptionEn ?? ''))
+            _buildOriginalValueIndicator(
+              'الوصف الإنجليزي الأصلي',
+              (_originalAmenity!.descriptionEn ?? '').isEmpty
+                  ? 'لا يوجد'
+                  : _originalAmenity!.descriptionEn!,
+              true,
+            ),
+
+          _buildInputField(
+            controller: _descriptionEnController,
+            label: 'الوصف بالإنجليزية',
+            hint: 'Enter amenity description in English',
+            icon: Icons.translate_rounded,
             maxLines: 5,
           ),
 
@@ -1705,7 +1758,10 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     if (_originalAmenity == null) return false;
 
     return _nameController.text != _originalAmenity!.name ||
+        _nameEnController.text != (_originalAmenity!.nameEn ?? '') ||
         _descriptionController.text != _originalAmenity!.description ||
+        _descriptionEnController.text !=
+            (_originalAmenity!.descriptionEn ?? '') ||
         _selectedIcon != _originalAmenity!.icon;
   }
 
@@ -1717,7 +1773,10 @@ class _EditAmenityPageState extends State<EditAmenityPage>
     switch (step) {
       case 0: // Basic Info
         return _nameController.text != _originalAmenity!.name ||
+            _nameEnController.text != (_originalAmenity!.nameEn ?? '') ||
             _descriptionController.text != _originalAmenity!.description ||
+            _descriptionEnController.text !=
+                (_originalAmenity!.descriptionEn ?? '') ||
             _selectedIcon != _originalAmenity!.icon;
       case 1: // Settings
         return false; // Settings are optional assignments
@@ -1752,6 +1811,30 @@ class _EditAmenityPageState extends State<EditAmenityPage>
       });
     }
 
+    if (_nameEnController.text != (_originalAmenity!.nameEn ?? '')) {
+      changes.add({
+        'field': 'الاسم الإنجليزي',
+        'oldValue': (_originalAmenity!.nameEn ?? '').isEmpty
+            ? 'لا يوجد'
+            : _originalAmenity!.nameEn!,
+        'newValue':
+            _nameEnController.text.isEmpty ? 'لا يوجد' : _nameEnController.text,
+      });
+    }
+
+    if (_descriptionEnController.text !=
+        (_originalAmenity!.descriptionEn ?? '')) {
+      changes.add({
+        'field': 'الوصف الإنجليزي',
+        'oldValue': (_originalAmenity!.descriptionEn ?? '').isEmpty
+            ? 'لا يوجد'
+            : _originalAmenity!.descriptionEn!,
+        'newValue': _descriptionEnController.text.isEmpty
+            ? 'لا يوجد'
+            : _descriptionEnController.text,
+      });
+    }
+
     if (_selectedIcon != _originalAmenity!.icon) {
       changes.add({
         'field': 'الأيقونة',
@@ -1776,7 +1859,10 @@ class _EditAmenityPageState extends State<EditAmenityPage>
 
           setState(() {
             _nameController.text = _originalAmenity!.name;
+            _nameEnController.text = _originalAmenity!.nameEn ?? '';
             _descriptionController.text = _originalAmenity!.description;
+            _descriptionEnController.text =
+                _originalAmenity!.descriptionEn ?? '';
             _selectedIcon = _originalAmenity!.icon;
             _hasChanges = false;
           });
@@ -1908,7 +1994,13 @@ class _EditAmenityPageState extends State<EditAmenityPage>
             UpdateAmenityEvent(
               amenityId: widget.amenityId,
               name: _nameController.text,
+              nameEn: _nameEnController.text.trim().isEmpty
+                  ? null
+                  : _nameEnController.text.trim(),
               description: _descriptionController.text,
+              descriptionEn: _descriptionEnController.text.trim().isEmpty
+                  ? null
+                  : _descriptionEnController.text.trim(),
               icon: _selectedIcon,
             ),
           );

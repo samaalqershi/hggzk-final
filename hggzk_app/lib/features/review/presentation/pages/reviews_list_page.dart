@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -281,7 +282,9 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
             shaderCallback: (bounds) =>
                 AppTheme.primaryGradient.createShader(bounds),
             child: Text(
-              'التقييمات',
+              context.tr(
+                'reviews.pageTitle',
+              ),
               style: AppTextStyles.h2.copyWith(
                 color: AppTheme.textWhite,
                 fontWeight: FontWeight.bold,
@@ -335,7 +338,9 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
                   child: Row(
                     children: [
                       _buildFilterChip(
-                        label: 'الكل',
+                        label: context.tr(
+                          'reviews.filter.all',
+                        ),
                         isSelected: _selectedRating == null,
                         onSelected: (selected) {
                           setState(() {
@@ -372,7 +377,9 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
                   children: [
                     Expanded(
                       child: _buildFilterChip(
-                        label: 'مع صور فقط',
+                        label: context.tr(
+                          'reviews.filter.withImages',
+                        ),
                         icon: Icons.photo_library_outlined,
                         isSelected: _withImagesOnly,
                         onSelected: (selected) {
@@ -401,14 +408,18 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
                         ),
                       ),
                       color: AppTheme.darkCard,
-                      itemBuilder: (context) => const [
+                      itemBuilder: (context) => [
                         PopupMenuItem(
                           value: 'CreatedAt-Desc',
                           child: Row(
                             children: [
-                              Icon(Icons.schedule, size: 18),
-                              SizedBox(width: 12),
-                              Text('الأحدث'),
+                              const Icon(Icons.schedule, size: 18),
+                              const SizedBox(width: 12),
+                              Text(
+                                context.tr(
+                                  'reviews.sort.newest',
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -416,9 +427,13 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
                           value: 'CreatedAt-Asc',
                           child: Row(
                             children: [
-                              Icon(Icons.history, size: 18),
-                              SizedBox(width: 12),
-                              Text('الأقدم'),
+                              const Icon(Icons.history, size: 18),
+                              const SizedBox(width: 12),
+                              Text(
+                                context.tr(
+                                  'reviews.sort.oldest',
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -426,9 +441,13 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
                           value: 'Rating-Desc',
                           child: Row(
                             children: [
-                              Icon(Icons.trending_up, size: 18),
-                              SizedBox(width: 12),
-                              Text('الأعلى تقييماً'),
+                              const Icon(Icons.trending_up, size: 18),
+                              const SizedBox(width: 12),
+                              Text(
+                                context.tr(
+                                  'reviews.sort.highestRated',
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -436,9 +455,13 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
                           value: 'Rating-Asc',
                           child: Row(
                             children: [
-                              Icon(Icons.trending_down, size: 18),
-                              SizedBox(width: 12),
-                              Text('الأقل تقييماً'),
+                              const Icon(Icons.trending_down, size: 18),
+                              const SizedBox(width: 12),
+                              Text(
+                                context.tr(
+                                  'reviews.sort.lowestRated',
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -623,7 +646,9 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
               shaderCallback: (bounds) =>
                   AppTheme.primaryGradient.createShader(bounds),
               child: Text(
-                'لا توجد تقييمات',
+                context.tr(
+                  'reviews.noneYet',
+                ),
                 style: AppTextStyles.h3.copyWith(
                   color: AppTheme.textWhite,
                   fontWeight: FontWeight.bold,
@@ -632,7 +657,9 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
             ),
             const SizedBox(height: AppDimensions.spacingSm),
             Text(
-              'كن أول من يقيم هذا العقار',
+              context.tr(
+                'reviews.beFirst',
+              ),
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppTheme.textMuted,
               ),
@@ -648,15 +675,25 @@ class _ReviewsListPageState extends State<ReviewsListPage> {
   /// العربية: يعيد sort label.
   String _getSortLabel() {
     if (_sortBy == 'CreatedAt' && _sortDirection == 'Desc') {
-      return 'الأحدث';
+      return context.tr(
+        'reviews.sort.newest',
+      );
     } else if (_sortBy == 'CreatedAt' && _sortDirection == 'Asc') {
-      return 'الأقدم';
+      return context.tr(
+        'reviews.sort.oldest',
+      );
     } else if (_sortBy == 'Rating' && _sortDirection == 'Desc') {
-      return 'الأعلى تقييماً';
+      return context.tr(
+        'reviews.sort.highestRated',
+      );
     } else if (_sortBy == 'Rating' && _sortDirection == 'Asc') {
-      return 'الأقل تقييماً';
+      return context.tr(
+        'reviews.sort.lowestRated',
+      );
     }
-    return 'ترتيب';
+    return context.tr(
+      'reviews.sort.default',
+    );
   }
 
   /// Processes `applyFilters`.

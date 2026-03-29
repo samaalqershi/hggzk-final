@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/enums/payment_method_enum.dart';
@@ -213,14 +214,18 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'إتمام الدفع',
+              context.tr(
+                'payment.page.title',
+              ),
               style: AppTextStyles.h3.copyWith(
                 fontWeight: FontWeight.w700,
                 color: AppTheme.textWhite,
               ),
             ),
             Text(
-              'خطوة أخيرة لتأكيد حجزك',
+              context.tr(
+                'payment.page.subtitle',
+              ),
               style: AppTextStyles.caption.copyWith(
                 color: AppTheme.textMuted,
               ),
@@ -322,7 +327,9 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'ملخص الحجز',
+                    context.tr(
+                      'payment.summary.title',
+                    ),
                     style: AppTextStyles.bodyLarge.copyWith(
                       color: AppTheme.textWhite,
                       fontWeight: FontWeight.w600,
@@ -348,7 +355,10 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '$_nights ليالي',
+                        context.tr(
+                          'payment.summary.nights',
+                          params: {'count': _nights},
+                        ),
                         style: AppTextStyles.caption.copyWith(
                           color: AppTheme.primaryPurple,
                           fontWeight: FontWeight.w600,
@@ -368,9 +378,16 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
               children: [
                 _buildPriceItem(
                   icon: Icons.hotel_rounded,
-                  label: 'الإقامة',
-                  sublabel:
-                      '$_nights ليالي × ${_pricePerNight.toStringAsFixed(0)}',
+                  label: context.tr(
+                    'payment.summary.stay',
+                  ),
+                  sublabel: context.tr(
+                    'payment.summary.nightsAndPrice',
+                    params: {
+                      'nights': _nights,
+                      'price': _pricePerNight.toStringAsFixed(0),
+                    },
+                  ),
                   amount: _nights * _pricePerNight,
                   color: AppTheme.primaryBlue,
                 ),
@@ -378,7 +395,9 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
                   const SizedBox(height: 12),
                   _buildPriceItem(
                     icon: Icons.room_service_rounded,
-                    label: 'الخدمات الإضافية',
+                    label: context.tr(
+                      'payment.summary.services',
+                    ),
                     amount: _servicesTotal,
                     color: AppTheme.success,
                   ),
@@ -407,7 +426,9 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'الإجمالي',
+                      context.tr(
+                        'payment.summary.total',
+                      ),
                       style: AppTextStyles.bodyLarge.copyWith(
                         color: AppTheme.textWhite,
                         fontWeight: FontWeight.w600,
@@ -430,7 +451,15 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
                         ],
                       ),
                       child: Text(
-                        '${_payableTotal.toStringAsFixed(0)} ريال',
+                        context.tr(
+                          'payment.summary.amountSuffix',
+                          params: {
+                            'amount': _payableTotal.toStringAsFixed(0),
+                            'currency':
+                                widget.bookingData['currency']?.toString() ??
+                                    '',
+                          },
+                        ),
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
@@ -442,7 +471,9 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
                 if (_hasServerTotalMismatch) ...[
                   const SizedBox(height: 8),
                   Text(
-                    'تم تحديث المبلغ النهائي حسب التسعير اليومي الحالي.',
+                    context.tr(
+                      'payment.summary.priceMismatch',
+                    ),
                     style: AppTextStyles.caption.copyWith(
                       color: AppTheme.warning,
                     ),
@@ -497,7 +528,13 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
           ),
         ),
         Text(
-          '${amount.toStringAsFixed(0)} ريال',
+          context.tr(
+            'payment.summary.amountSuffix',
+            params: {
+              'amount': amount.toStringAsFixed(0),
+              'currency': widget.bookingData['currency']?.toString() ?? '',
+            },
+          ),
           style: AppTextStyles.bodyMedium.copyWith(
             color: AppTheme.textLight,
             fontWeight: FontWeight.w600,
@@ -539,14 +576,18 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'طريقة الدفع',
+                  context.tr(
+                    'payment.method.title',
+                  ),
                   style: AppTextStyles.bodyLarge.copyWith(
                     color: AppTheme.textWhite,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
-                  'اختر الطريقة المناسبة لك',
+                  context.tr(
+                    'payment.method.subtitle',
+                  ),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.textMuted,
                   ),
@@ -647,7 +688,9 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'أوافق على الشروط والأحكام',
+                    context.tr(
+                      'payment.terms.title',
+                    ),
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppTheme.textWhite,
                       fontWeight: FontWeight.w600,
@@ -663,7 +706,9 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'إلغاء مجاني قبل 24 ساعة من الوصول',
+                        context.tr(
+                          'payment.terms.subtitle',
+                        ),
                         style: AppTextStyles.caption.copyWith(
                           color: AppTheme.textMuted,
                         ),
@@ -718,7 +763,9 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
             ),
             const SizedBox(width: 10),
             Text(
-              'تأكيد الدفع',
+              context.tr(
+                'payment.pay',
+              ),
               style: AppTextStyles.buttonLarge.copyWith(
                 color: isValid ? Colors.white : AppTheme.textMuted,
                 fontWeight: FontWeight.w700,
@@ -726,7 +773,10 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
             ),
             const SizedBox(width: 8),
             Text(
-              '(${_payableTotal.toStringAsFixed(0)} ريال)',
+              context.tr(
+                'payment.summary.amountSuffix',
+                params: {'amount': _payableTotal.toStringAsFixed(0)},
+              ),
               style: AppTextStyles.bodyMedium.copyWith(
                 color: isValid
                     ? Colors.white.withOpacity(0.85)
@@ -775,14 +825,18 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
           ),
           const SizedBox(height: 24),
           Text(
-            'جاري معالجة الدفع...',
+            context.tr(
+              'payment.processing',
+            ),
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppTheme.textLight,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'يرجى الانتظار',
+            context.tr(
+              'payment.waiting',
+            ),
             style: AppTextStyles.caption.copyWith(
               color: AppTheme.textMuted,
             ),
@@ -812,9 +866,12 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
       final phone = authState.user.phone.trim();
       if (phone.isEmpty) {
         _showPaymentErrorDialog(
-          title: 'رقم الهاتف مطلوب',
-          message:
-              'لا يمكن إتمام الدفع عبر هذه المحفظة لأن رقم هاتفك غير محفوظ. يرجى إضافة رقم الهاتف في الملف الشخصي ثم إعادة المحاولة.',
+          title: context.tr(
+            'payment.phoneRequiredTitle',
+          ),
+          message: context.tr(
+            'payment.phoneRequiredMessage',
+          ),
         );
         return;
       }
@@ -899,18 +956,27 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
             ),
           ),
         ),
-        primaryButtonText: 'تأكيد الدفع',
+        primaryButtonText: context.tr(
+          'payment.confirmPayment',
+        ),
         primaryButtonColor: color,
         onPrimaryPressed: () {
           final code = _walletCodeController.text.trim();
           if (code.isEmpty) {
-            _showSnackBar('يرجى إدخال الكود', isError: true);
+            _showSnackBar(
+              context.tr(
+                'payment.enterCode',
+              ),
+              isError: true,
+            );
             return;
           }
           Navigator.pop(ctx);
           onConfirm(code);
         },
-        secondaryButtonText: 'إلغاء',
+        secondaryButtonText: context.tr(
+          'payment.cancel',
+        ),
         onSecondaryPressed: () => Navigator.pop(ctx),
       ),
     );
@@ -927,9 +993,15 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
       builder: (ctx) => _buildDialog(
         icon: Icons.check_circle_rounded,
         iconColor: AppTheme.success,
-        title: 'تم الدفع بنجاح! 🎉',
-        message: 'تهانينا! تم تأكيد حجزك بنجاح.',
-        primaryButtonText: 'عرض الحجز',
+        title: context.tr(
+          'payment.successTitle',
+        ),
+        message: context.tr(
+          'payment.successMessage',
+        ),
+        primaryButtonText: context.tr(
+          'payment.viewBooking',
+        ),
         primaryButtonColor: AppTheme.success,
         onPrimaryPressed: () {
           Navigator.pop(ctx);
@@ -952,7 +1024,9 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
             });
           }
         },
-        secondaryButtonText: 'إغلاق',
+        secondaryButtonText: context.tr(
+          'payment.close',
+        ),
         onSecondaryPressed: () {
           Navigator.pop(ctx);
           if (_returnToPrevious) {
@@ -986,7 +1060,9 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
         iconColor: AppTheme.error,
         title: title,
         message: message,
-        primaryButtonText: 'حسناً',
+        primaryButtonText: context.tr(
+          'payment.ok',
+        ),
         primaryButtonColor: AppTheme.error,
         onPrimaryPressed: () => Navigator.pop(ctx),
       ),
@@ -996,8 +1072,12 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
   /// العربية: يعرض unit unavailable dialog.
   void _showUnitUnavailableDialog() {
     _showPaymentErrorDialog(
-      title: 'غير متاح',
-      message: 'عذراً، الوحدة غير متاحة في التواريخ المحددة.',
+      title: context.tr(
+        'payment.unavailableTitle',
+      ),
+      message: context.tr(
+        'payment.unavailableMessage',
+      ),
     );
   }
 
@@ -1011,9 +1091,15 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
       builder: (ctx) => _buildDialog(
         icon: Icons.schedule_rounded,
         iconColor: AppTheme.warning,
-        title: 'في انتظار الدفع',
-        message: 'حجزك محفوظ مؤقتاً. أكمل الدفع لتأكيده قبل أن يحجزه شخص آخر.',
-        primaryButtonText: 'فهمت',
+        title: context.tr(
+          'payment.pendingTitle',
+        ),
+        message: context.tr(
+          'payment.pendingMessage',
+        ),
+        primaryButtonText: context.tr(
+          'payment.understood',
+        ),
         primaryButtonColor: AppTheme.warning,
         onPrimaryPressed: () => Navigator.pop(ctx),
       ),
@@ -1174,7 +1260,7 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
       final msg = state.message;
       if (state.showAsDialog) {
         _showPaymentErrorDialog(
-          title: state.code ?? 'خطأ في الدفع',
+          title: state.code ?? context.tr('payment.errorTitle'),
           message: msg,
         );
         return;
@@ -1183,18 +1269,30 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
         _showUnitUnavailableDialog();
       } else if (msg.contains('BOOKING_MISSED')) {
         _showPaymentErrorDialog(
-          title: 'انتهى الوقت',
-          message: 'لا يمكن إتمام الدفع لأن وقت الوصول قد انقضى.',
+          title: context.tr(
+            'payment.timeoutTitle',
+          ),
+          message: context.tr(
+            'payment.timeoutMessage',
+          ),
         );
       } else if (msg.contains('AMOUNT_MISMATCH')) {
         _showPaymentErrorDialog(
-          title: 'خطأ في المبلغ',
-          message: 'مبلغ الدفع لا يطابق مبلغ الحجز.',
+          title: context.tr(
+            'payment.amountMismatchTitle',
+          ),
+          message: context.tr(
+            'payment.amountMismatchMessage',
+          ),
         );
       } else if (msg.contains('ALREADY_PAID')) {
         _showPaymentErrorDialog(
-          title: 'مدفوع مسبقاً',
-          message: 'هذا الحجز مدفوع بالفعل.',
+          title: context.tr(
+            'payment.alreadyPaidTitle',
+          ),
+          message: context.tr(
+            'payment.alreadyPaidMessage',
+          ),
         );
       } else {
         _showSnackBar(msg, isError: true);
@@ -1326,19 +1424,33 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
   String _getWalletDialogTitle(PaymentMethod method) {
     switch (method) {
       case PaymentMethod.jaibWallet:
-        return 'إدخال كود شراء جيب';
+        return context.tr(
+          'payment.wallet.title.jaib',
+        );
       case PaymentMethod.jwaliWallet:
-        return 'إدخال كود شراء جوالي';
+        return context.tr(
+          'payment.wallet.title.jwali',
+        );
       case PaymentMethod.cashWallet:
-        return 'إدخال كود شراء كاش';
+        return context.tr(
+          'payment.wallet.title.cash',
+        );
       case PaymentMethod.oneCashWallet:
-        return 'إدخال كود محفظة ون كاش';
+        return context.tr(
+          'payment.wallet.title.oneCash',
+        );
       case PaymentMethod.floskWallet:
-        return 'إدخال رمز التحقق (OTP) لمحفظة فلوسك';
+        return context.tr(
+          'payment.wallet.title.flosk',
+        );
       case PaymentMethod.sabaCashWallet:
-        return 'إدخال رمز التحقق (OTP) لمحفظة سبأ كاش';
+        return context.tr(
+          'payment.wallet.title.sabaCash',
+        );
       default:
-        return 'إدخال كود المحفظة';
+        return context.tr(
+          'payment.wallet.title.default',
+        );
     }
   }
 
@@ -1346,19 +1458,33 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
   String _getWalletDialogDescription(PaymentMethod method) {
     switch (method) {
       case PaymentMethod.jaibWallet:
-        return 'قم بإدخال كود الشراء المنشأ في تطبيق جيب (من شراء أونلاين ثم كود) في محفظة جيب.';
+        return context.tr(
+          'payment.wallet.description.jaib',
+        );
       case PaymentMethod.jwaliWallet:
-        return 'يرجى إدخال كود الشراء الذي تم توليده من تطبيق جوالي.';
+        return context.tr(
+          'payment.wallet.description.jwali',
+        );
       case PaymentMethod.cashWallet:
-        return 'يرجى إدخال كود شراء أونلاين (يمكنك الحصول عليه من تطبيق كاش).';
+        return context.tr(
+          'payment.wallet.description.cash',
+        );
       case PaymentMethod.oneCashWallet:
-        return 'يرجى إدخال كود الشراء الذي تم توليده من تطبيق ون كاش.';
+        return context.tr(
+          'payment.wallet.description.oneCash',
+        );
       case PaymentMethod.floskWallet:
-        return 'تم إرسال رمز تحقق (OTP) إلى رقم هاتفك المرتبط بمحفظة فلوسك. يرجى إدخال الرمز المكون من 6 أرقام لتأكيد العملية.';
+        return context.tr(
+          'payment.wallet.description.flosk',
+        );
       case PaymentMethod.sabaCashWallet:
-        return 'تم إرسال رمز تحقق (OTP) إلى رقم هاتفك المرتبط بمحفظة سبأ كاش. يرجى إدخال الرمز المكون من 4 أرقام لتأكيد العملية.';
+        return context.tr(
+          'payment.wallet.description.sabaCash',
+        );
       default:
-        return 'يرجى إدخال كود الشراء المرتبط بهذه المحفظة.';
+        return context.tr(
+          'payment.wallet.description.default',
+        );
     }
   }
 
@@ -1366,19 +1492,33 @@ class _BookingPaymentPageState extends State<BookingPaymentPage>
   String _getWalletHintText(PaymentMethod method) {
     switch (method) {
       case PaymentMethod.jaibWallet:
-        return 'أدخل كود شراء جيب';
+        return context.tr(
+          'payment.wallet.hint.jaib',
+        );
       case PaymentMethod.jwaliWallet:
-        return 'أدخل كود شراء جوالي';
+        return context.tr(
+          'payment.wallet.hint.jwali',
+        );
       case PaymentMethod.cashWallet:
-        return 'أدخل كود شراء أونلاين من كاش';
+        return context.tr(
+          'payment.wallet.hint.cash',
+        );
       case PaymentMethod.oneCashWallet:
-        return 'أدخل كود ون كاش';
+        return context.tr(
+          'payment.wallet.hint.oneCash',
+        );
       case PaymentMethod.floskWallet:
-        return 'أدخل رمز التحقق المكون من 6 أرقام';
+        return context.tr(
+          'payment.wallet.hint.flosk',
+        );
       case PaymentMethod.sabaCashWallet:
-        return 'أدخل رمز التحقق المكون من 4 أرقام';
+        return context.tr(
+          'payment.wallet.hint.sabaCash',
+        );
       default:
-        return 'أدخل كود المحفظة';
+        return context.tr(
+          'payment.wallet.hint.default',
+        );
     }
   }
 

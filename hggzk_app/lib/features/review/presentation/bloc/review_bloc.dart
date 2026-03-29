@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hggzk/core/error/failure_localizer.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../../domain/entities/review.dart';
 import '../../domain/usecases/create_review_usecase.dart';
@@ -85,7 +86,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     );
 
     result.fold(
-      (failure) => emit(ReviewCreateError(message: failure.message)),
+      (failure) =>
+          emit(ReviewCreateError(message: FailureLocalizer.localize(failure))),
       (review) => emit(ReviewCreated(review: review)),
     );
   }
@@ -117,7 +119,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     );
 
     result.fold(
-      (failure) => emit(ReviewError(message: failure.message)),
+      (failure) =>
+          emit(ReviewError(message: FailureLocalizer.localize(failure))),
       (paginatedResult) {
         _allReviews = paginatedResult.items;
         _hasReachedMax = !paginatedResult.hasNextPage;
@@ -184,7 +187,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     );
 
     result.fold(
-      (failure) => emit(ReviewError(message: failure.message)),
+      (failure) =>
+          emit(ReviewError(message: FailureLocalizer.localize(failure))),
       (summary) => emit(ReviewsSummaryLoaded(summary: summary)),
     );
   }
@@ -205,7 +209,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     );
 
     result.fold(
-      (failure) => emit(ReviewError(message: failure.message)),
+      (failure) =>
+          emit(ReviewError(message: FailureLocalizer.localize(failure))),
       (images) => emit(ReviewImagesUploaded(images: images)),
     );
   }

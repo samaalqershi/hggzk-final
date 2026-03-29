@@ -1,0 +1,15 @@
+{
+  "favorites.title": "Favorites",
+  "favorites.searchHint": "Search favorites...",
+  "favorites.emptyTitle": "No favorites yet",
+  "favorites.emptySubtitle": "Start adding your favorite properties",
+  "favorites.browseProperties": "Browse properties",
+  "favorites.noResultsTitle": "No results",
+  "favorites.noResultsSubtitle": "Try searching with different words",
+  "favorites.errors.server": "Server error. Please try again later",
+  "favorites.errors.localStorage": "Local storage error",
+  "favorites.errors.network": "Please check your internet connection",
+  "favorites.errors.loginRequired": "You must sign in to add favorites",
+  "favorites.errors.unauthorized": "You are not allowed to perform this action",
+  "favorites.errors.unexpected": "An unexpected error occurred. Please try again"
+}

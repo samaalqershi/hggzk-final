@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/enums/booking_status.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -137,7 +138,7 @@ class _BookingStatusWidgetState extends State<BookingStatusWidget>
                   const SizedBox(width: 4),
                 ],
                 Text(
-                  _getStatusText(),
+                  _getStatusText(context),
                   style: (widget.style ?? AppTextStyles.caption).copyWith(
                     color: _getStatusColor(),
                     fontWeight: FontWeight.w600,
@@ -186,23 +187,37 @@ class _BookingStatusWidgetState extends State<BookingStatusWidget>
   }
 
   /// يعيد النص المحلي المعروض داخل الشارة.
-  String _getStatusText() {
+  String _getStatusText(BuildContext context) {
     switch (widget.status) {
       case BookingStatus.confirmed:
-        return 'مؤكد';
+        return context.tr(
+          'booking.status.confirmed',
+        );
       case BookingStatus.pending:
         // [ISSUE 1011] تعديل حالة الحجز لتكون في انتظار الدفع وليس في انتظار التأكيد في حال كان الحجز غير مدفوع
         // تم تعطيل كود الإصلاح أدناه لإرجاع السلوك القديم (إظهار "في انتظار التأكيد" حتى وإن كان الحجز غير مدفوع)
         // if (widget.isPaid == false) {
         //   return 'في انتظار الدفع';
         // }
-        return 'في انتظار التأكيد';
+        return widget.isPaid == false
+            ? context.tr(
+                'booking.status.waitingPayment',
+              )
+            : context.tr(
+                'booking.status.pending',
+              );
       case BookingStatus.cancelled:
-        return 'ملغى';
+        return context.tr(
+          'booking.status.cancelled',
+        );
       case BookingStatus.completed:
-        return 'مكتمل';
+        return context.tr(
+          'booking.status.completed',
+        );
       case BookingStatus.checkedIn:
-        return 'تم تسجيل الوصول';
+        return context.tr(
+          'booking.status.checkedIn',
+        );
     }
   }
 }

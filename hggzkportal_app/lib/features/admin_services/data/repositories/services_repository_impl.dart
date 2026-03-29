@@ -19,19 +19,23 @@ class ServicesRepositoryImpl implements ServicesRepository {
   Future<Either<Failure, String>> createService({
     required String propertyId,
     required String name,
+    String? nameEn,
     required Money price,
     required PricingModel pricingModel,
     required String icon,
     String? description,
+    String? descriptionEn,
   }) async {
     try {
       final result = await remoteDataSource.createService(
         propertyId: propertyId,
         name: name,
+        nameEn: nameEn,
         price: price,
         pricingModel: pricingModel,
         icon: icon,
         description: description,
+        descriptionEn: descriptionEn,
       );
       return Right(result);
     } on ServerException catch (e) {
@@ -40,23 +44,28 @@ class ServicesRepositoryImpl implements ServicesRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
   @override
   Future<Either<Failure, bool>> updateService({
     required String serviceId,
     String? name,
+    String? nameEn,
     Money? price,
     PricingModel? pricingModel,
     String? icon,
     String? description,
+    String? descriptionEn,
   }) async {
     try {
       final result = await remoteDataSource.updateService(
         serviceId: serviceId,
         name: name,
+        nameEn: nameEn,
         price: price,
         pricingModel: pricingModel,
         icon: icon,
         description: description,
+        descriptionEn: descriptionEn,
       );
       return Right(result);
     } on ServerException catch (e) {
@@ -65,6 +74,7 @@ class ServicesRepositoryImpl implements ServicesRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
   @override
   Future<Either<Failure, bool>> deleteService(String serviceId) async {
     try {
@@ -76,6 +86,7 @@ class ServicesRepositoryImpl implements ServicesRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
   @override
   Future<Either<Failure, List<Service>>> getServicesByProperty(
       String propertyId) async {
@@ -89,6 +100,7 @@ class ServicesRepositoryImpl implements ServicesRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
   @override
   Future<Either<Failure, ServiceDetails>> getServiceDetails(
       String serviceId) async {
@@ -101,6 +113,7 @@ class ServicesRepositoryImpl implements ServicesRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
   @override
   Future<Either<Failure, PaginatedResult<Service>>> getServicesByType({
     required String serviceType,

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
+import 'package:intl/intl.dart' as intl;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/localization/locale_manager.dart';
 import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import 'package:hggzk/core/services/local_data_service.dart';
 
@@ -143,13 +146,14 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
             ),
             children: [
               if (visibleEntries.length > 1 && widget.onClearAll != null) ...[
-                _buildClearAllChip(),
+                _buildClearAllChip(context),
                 const SizedBox(width: AppDimensions.spacingSm),
               ],
               ...visibleEntries.map((entry) {
                 return Padding(
                   padding: const EdgeInsets.only(left: AppDimensions.spacingSm),
                   child: _buildFilterChip(
+                    context,
                     entry.key,
                     entry.value,
                     () => _removeFilter(entry.key),
@@ -167,7 +171,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
   bool _isHiddenFilter(String key) => key == 'preferredCurrency';
 
   /// العربية: يبني clear all chip.
-  Widget _buildClearAllChip() {
+  Widget _buildClearAllChip(BuildContext context) {
     return ScaleTransition(
       scale: CurvedAnimation(
         parent: _fadeController,
@@ -207,7 +211,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'مسح الكل',
+                    context.tr('search.filters.clearAll'),
                     style: AppTextStyles.caption.copyWith(
                       color: AppTheme.error,
                       fontWeight: FontWeight.bold,
@@ -223,8 +227,13 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
   }
 
   /// العربية: يبني filter chip.
-  Widget _buildFilterChip(String key, dynamic value, VoidCallback onDelete) {
-    final String label = _getFilterLabel(key, value);
+  Widget _buildFilterChip(
+    BuildContext context,
+    String key,
+    dynamic value,
+    VoidCallback onDelete,
+  ) {
+    final String label = _getFilterLabel(context, key, value);
     final IconData icon = _getFilterIcon(key);
     final Color color = _getFilterColor(key);
 
@@ -341,40 +350,67 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
   }
 
   /// العربية: يعيد filter label.
-  String _getFilterLabel(String key, dynamic value) {
+  String _getFilterLabel(BuildContext context, String key, dynamic value) {
     switch (key) {
       case 'searchTerm':
         return value.toString();
       case 'city':
         return value.toString();
       case 'propertyTypeId':
-        return _getPropertyTypeName(value);
+        return _getPropertyTypeName(context, value);
       case 'unitTypeId':
-        return _getUnitTypeName(value);
+        return _getUnitTypeName(context, value);
       case 'minPrice':
-        return 'من ${_formatPrice(value)}';
+        return context.tr(
+          'search.filters.priceFrom',
+          params: {'price': _formatPrice(value)},
+        );
       case 'maxPrice':
-        return 'إلى ${_formatPrice(value)}';
+        return context.tr(
+          'search.filters.priceTo',
+          params: {'price': _formatPrice(value)},
+        );
       case 'minStarRating':
-        return '$value نجوم+';
+        return context.tr(
+          'search.filters.starsPlus',
+          params: {'value': value},
+        );
       case 'checkIn':
-        return 'دخول: ${_formatDate(value as DateTime)}';
+        return context.tr(
+          'search.filters.checkIn',
+          params: {'date': _formatDate(context, value as DateTime)},
+        );
       case 'checkOut':
-        return 'خروج: ${_formatDate(value as DateTime)}';
+        return context.tr(
+          'search.filters.checkOut',
+          params: {'date': _formatDate(context, value as DateTime)},
+        );
       case 'guestsCount':
-        return '$value ${value == 1 ? "ضيف" : "ضيوف"}';
+        return context.tr(
+          value == 1 ? 'search.filters.guestsOne' : 'search.filters.guestsMany',
+          params: {'value': value},
+        );
       case 'requiredAmenities':
         final List<String> amenities = value as List<String>;
-        return '${amenities.length} مرافق';
+        return context.tr(
+          'search.filters.amenitiesCount',
+          params: {'count': amenities.length},
+        );
       case 'serviceIds':
         final List<String> services = value as List<String>;
-        return '${services.length} خدمات';
+        return context.tr(
+          'search.filters.servicesCount',
+          params: {'count': services.length},
+        );
       case 'dynamicFieldFilters':
         final Map<dynamic, dynamic> dynamicFilters =
             Map<dynamic, dynamic>.from(value as Map);
-        return '${dynamicFilters.length} خصائص';
+        return context.tr(
+          'search.filters.dynamicCount',
+          params: {'count': dynamicFilters.length},
+        );
       case 'sortBy':
-        return _getSortByLabel(value);
+        return _getSortByLabel(context, value);
       default:
         return value.toString();
     }
@@ -447,58 +483,46 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
   }
 
   /// العربية: يعيد property type name.
-  String _getPropertyTypeName(String typeId) {
+  String _getPropertyTypeName(BuildContext context, String typeId) {
     if (_propertyTypeIdToName.isNotEmpty) {
-      return _propertyTypeIdToName[typeId] ?? 'نوع العقار';
+      return _propertyTypeIdToName[typeId] ??
+          context.tr('search.filters.propertyType');
     }
-    return 'نوع العقار';
+    return context.tr('search.filters.propertyType');
   }
 
   /// العربية: يعيد unit type name.
-  String _getUnitTypeName(String typeId) {
+  String _getUnitTypeName(BuildContext context, String typeId) {
     if (_unitTypeIdToName.isNotEmpty) {
-      return _unitTypeIdToName[typeId] ?? 'نوع الوحدة';
+      return _unitTypeIdToName[typeId] ?? context.tr('search.filters.unitType');
     }
-    return 'نوع الوحدة';
+    return context.tr('search.filters.unitType');
   }
 
   /// العربية: يعيد sort by label.
-  String _getSortByLabel(String sortBy) {
+  String _getSortByLabel(BuildContext context, String sortBy) {
     switch (sortBy) {
       case 'price_asc':
-        return 'السعر ↑';
+        return context.tr('search.filters.sort.priceAsc');
       case 'price_desc':
-        return 'السعر ↓';
+        return context.tr('search.filters.sort.priceDesc');
       case 'rating':
-        return 'التقييم';
+        return context.tr('search.filters.sort.rating');
       case 'popularity':
-        return 'الأكثر شعبية';
+        return context.tr('search.filters.sort.popularity');
       case 'newest':
-        return 'الأحدث';
+        return context.tr('search.filters.sort.newest');
       case 'distance':
-        return 'المسافة';
+        return context.tr('search.filters.sort.distance');
       default:
-        return 'ترتيب';
+        return context.tr('search.filters.sort.default');
     }
   }
 
   /// العربية: ينسق date.
-  String _formatDate(DateTime date) {
-    final months = [
-      'يناير',
-      'فبراير',
-      'مارس',
-      'أبريل',
-      'مايو',
-      'يونيو',
-      'يوليو',
-      'أغسطس',
-      'سبتمبر',
-      'أكتوبر',
-      'نوفمبر',
-      'ديسمبر'
-    ];
-    return '${date.day} ${months[date.month - 1]}';
+  String _formatDate(BuildContext context, DateTime date) {
+    final locale = LocaleManager.getCurrentLocale(context);
+    return intl.DateFormat('d MMMM', locale.languageCode).format(date);
   }
 
   /// العربية: ينسق price.
@@ -534,19 +558,19 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget>
 
     switch (fieldKey) {
       case 'propertyTypeId':
-        message = 'نوع العقار مطلوب ولا يمكن إلغاؤه';
+        message = context.tr('search.filters.requiredPropertyType');
         break;
       case 'unitTypeId':
-        message = 'نوع الوحدة مطلوب ولا يمكن إلغاؤه';
+        message = context.tr('search.filters.requiredUnitType');
         break;
       case 'checkIn':
-        message = 'تاريخ الوصول مطلوب ولا يمكن إلغاؤه';
+        message = context.tr('search.filters.requiredCheckIn');
         break;
       case 'checkOut':
-        message = 'تاريخ المغادرة مطلوب ولا يمكن إلغاؤه';
+        message = context.tr('search.filters.requiredCheckOut');
         break;
       default:
-        message = 'هذا الحقل مطلوب';
+        message = context.tr('common.required');
     }
 
     HapticFeedback.lightImpact();

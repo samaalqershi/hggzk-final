@@ -18,6 +18,7 @@ import 'package:hggzkportal/features/admin_currencies/domain/usecases/get_curren
 import 'package:hggzkportal/core/usecases/usecase.dart';
 import 'package:hggzkportal/services/local_storage_service.dart';
 import 'package:hggzkportal/core/constants/storage_constants.dart';
+
 class CreateServicePage extends StatefulWidget {
   /// العربية: يخزن القيمة `initialPropertyId`.
   final String? initialPropertyId;
@@ -25,6 +26,7 @@ class CreateServicePage extends StatefulWidget {
   @override
   State<CreateServicePage> createState() => _CreateServicePageState();
 }
+
 class _CreateServicePageState extends State<CreateServicePage>
     with TickerProviderStateMixin {
   // Controllers
@@ -36,7 +38,10 @@ class _CreateServicePageState extends State<CreateServicePage>
   // Form Controllers
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _nameEnController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _descriptionEnController =
+      TextEditingController();
   final TextEditingController _amountController = TextEditingController();
 
   // Free toggle
@@ -57,6 +62,7 @@ class _CreateServicePageState extends State<CreateServicePage>
     _selectedPropertyId = widget.initialPropertyId;
     _prefillOwnerContextIfNeeded();
   }
+
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -91,6 +97,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       }
     });
   }
+
   void _prefillOwnerContextIfNeeded() {
     try {
       final storage = di.sl<LocalStorageService>();
@@ -123,15 +130,19 @@ class _CreateServicePageState extends State<CreateServicePage>
     } catch (_) {}
     if (mounted) setState(() {});
   }
+
   @override
   void dispose() {
     _animationController.dispose();
     _glowController.dispose();
     _nameController.dispose();
+    _nameEnController.dispose();
     _descriptionController.dispose();
+    _descriptionEnController.dispose();
     _amountController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<ServicesBloc, ServicesState>(
@@ -188,6 +199,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
+
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: _glowController,
@@ -214,6 +226,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       },
     );
   }
+
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -292,6 +305,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
+
   Widget _buildProgressIndicator() {
     final steps = ['المعلومات الأساسية', 'التسعير', 'المراجعة'];
 
@@ -373,6 +387,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
+
   Widget _buildFormContent() {
     return Form(
       key: _formKey,
@@ -386,6 +401,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
+
   Widget _buildBasicInfoStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -404,6 +420,15 @@ class _CreateServicePageState extends State<CreateServicePage>
               }
               return null;
             },
+          ),
+
+          const SizedBox(height: 20),
+
+          _buildInputField(
+            controller: _nameEnController,
+            label: 'اسم الخدمة بالإنجليزية',
+            hint: 'Enter service name in English',
+            icon: Icons.translate_rounded,
           ),
 
           const SizedBox(height: 20),
@@ -432,10 +457,21 @@ class _CreateServicePageState extends State<CreateServicePage>
               return null;
             },
           ),
+
+          const SizedBox(height: 20),
+
+          _buildInputField(
+            controller: _descriptionEnController,
+            label: 'الوصف بالإنجليزية',
+            hint: 'Enter English service description',
+            icon: Icons.language_rounded,
+            maxLines: 5,
+          ),
         ],
       ),
     );
   }
+
   Widget _buildPricingStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -524,6 +560,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
+
   Widget _buildReviewStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -562,6 +599,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
+
   Widget _buildPropertySelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -632,6 +670,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       ],
     );
   }
+
   Widget _buildIconSelector() {
     return GestureDetector(
       onTap: _showIconPicker,
@@ -695,6 +734,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
+
   void _showIconPicker() {
     showDialog(
       fullscreenDialog: true,
@@ -707,6 +747,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
+
   Widget _buildPricingModelSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -820,6 +861,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       ],
     );
   }
+
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
@@ -886,6 +928,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       ],
     );
   }
+
   Widget _buildReviewCard({
     required String title,
     required List<Map<String, String>> items,
@@ -968,6 +1011,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
+
   Widget _buildActionButtons() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1080,6 +1124,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       context.pop();
     }
   }
+
   void _previousStep() {
     if (_currentStep > 0) {
       setState(() {
@@ -1087,6 +1132,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       });
     }
   }
+
   void _nextStep() {
     if (_currentStep < 2) {
       bool isValid = true;
@@ -1104,6 +1150,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       }
     }
   }
+
   bool _validateBasicInfo() {
     if (_nameController.text.isEmpty ||
         _selectedPropertyId == null ||
@@ -1113,6 +1160,7 @@ class _CreateServicePageState extends State<CreateServicePage>
     }
     return true;
   }
+
   bool _validatePricing() {
     if (_isFree) return true;
     if (_amountController.text.isEmpty) {
@@ -1126,6 +1174,7 @@ class _CreateServicePageState extends State<CreateServicePage>
     }
     return true;
   }
+
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       if (_selectedPropertyId == null) {
@@ -1142,16 +1191,23 @@ class _CreateServicePageState extends State<CreateServicePage>
             CreateServiceEvent(
               propertyId: _selectedPropertyId!,
               name: _nameController.text,
+              nameEn: _nameEnController.text.trim().isEmpty
+                  ? null
+                  : _nameEnController.text.trim(),
               price: price,
               pricingModel: _selectedPricingModel,
               icon: _selectedIcon,
               description: _descriptionController.text.trim().isEmpty
                   ? null
                   : _descriptionController.text.trim(),
+              descriptionEn: _descriptionEnController.text.trim().isEmpty
+                  ? null
+                  : _descriptionEnController.text.trim(),
             ),
           );
     }
   }
+
   IconData _getIconData(String iconName) {
     // Convert string icon name to IconData
     // This is simplified - you might want to use a more comprehensive mapping
@@ -1166,6 +1222,7 @@ class _CreateServicePageState extends State<CreateServicePage>
         return Icons.miscellaneous_services;
     }
   }
+
   void _showSuccessMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1189,6 +1246,7 @@ class _CreateServicePageState extends State<CreateServicePage>
       ),
     );
   }
+
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1258,6 +1316,7 @@ class _CreateServiceBackgroundPainter extends CustomPainter {
       paint,
     );
   }
+
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
@@ -1271,6 +1330,7 @@ class _CurrencyDropdown extends StatefulWidget {
   @override
   State<_CurrencyDropdown> createState() => _CurrencyDropdownState();
 }
+
 class _CurrencyDropdownState extends State<_CurrencyDropdown> {
   /// العربية: يخزن القيمة `codes`.
   List<String> _codes = const [];
@@ -1281,6 +1341,7 @@ class _CurrencyDropdownState extends State<_CurrencyDropdown> {
     super.initState();
     _load();
   }
+
   Future<void> _load() async {
     try {
       final usecase = di.sl<GetCurrenciesUseCase>();
@@ -1305,6 +1366,7 @@ class _CurrencyDropdownState extends State<_CurrencyDropdown> {
       });
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final decoration = InputDecoration(

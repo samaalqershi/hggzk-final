@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -175,14 +176,16 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'كيف كانت تجربتك بشكل عام؟',
+                          context.tr(
+                            'reviews.overallExperience',
+                          ),
                           style: AppTextStyles.h2.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: AppDimensions.spacingXs),
                         Text(
-                          'اختر التقييم العام للتجربة، ثم قيّم التفاصيل بالأسفل.',
+                          context.tr('reviews.overallHint'),
                           style: AppTextStyles.bodySmall.copyWith(
                             color: AppTheme.textMuted,
                           ),
@@ -222,32 +225,34 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'قيّم الجوانب المختلفة',
+            context.tr(
+              'reviews.rateAspects',
+            ),
             style: AppTextStyles.h2.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: AppDimensions.spacingMd),
           _buildRatingItem(
-            'النظافة',
+            context.tr('reviews.cleanliness'),
             'cleanliness',
             Icons.cleaning_services_outlined,
           ),
           const SizedBox(height: AppDimensions.spacingSm),
           _buildRatingItem(
-            'الخدمة',
+            context.tr('reviews.service'),
             'service',
             Icons.room_service_outlined,
           ),
           const SizedBox(height: AppDimensions.spacingSm),
           _buildRatingItem(
-            'الموقع',
+            context.tr('reviews.location'),
             'location',
             Icons.location_on_outlined,
           ),
           const SizedBox(height: AppDimensions.spacingSm),
           _buildRatingItem(
-            'القيمة مقابل السعر',
+            context.tr('reviews.value'),
             'value',
             Icons.attach_money_outlined,
           ),
@@ -380,7 +385,9 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'شاركنا تفاصيل تجربتك',
+            context.tr(
+              'reviews.commentSectionTitle',
+            ),
             style: AppTextStyles.h2.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -391,7 +398,9 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
             maxLines: 5,
             maxLength: 500,
             decoration: InputDecoration(
-              hintText: 'اكتب تقييمك هنا...',
+              hintText: context.tr(
+                'reviews.commentHint',
+              ),
               filled: true,
               fillColor: AppTheme.inputBackground,
               border: OutlineInputBorder(
@@ -412,10 +421,14 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'من فضلك اكتب تقييمك';
+                return context.tr(
+                  'reviews.commentRequired',
+                );
               }
               if (value.length < 10) {
-                return 'التقييم يجب أن يكون 10 أحرف على الأقل';
+                return context.tr(
+                  'reviews.commentMinLength',
+                );
               }
               return null;
             },
@@ -434,7 +447,9 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
         children: [
           Expanded(
             child: Text(
-              'هل توصي بهذا المكان؟',
+              context.tr(
+                'reviews.recommendThisPlace',
+              ),
               style: AppTextStyles.h2.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -509,7 +524,9 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
                         ),
                         const SizedBox(width: AppDimensions.spacingSm),
                         Text(
-                          'إرسال التقييم',
+                          context.tr(
+                            'reviews.submitReview',
+                          ),
                           style: AppTextStyles.buttonLarge.copyWith(
                             color: Colors.white,
                           ),

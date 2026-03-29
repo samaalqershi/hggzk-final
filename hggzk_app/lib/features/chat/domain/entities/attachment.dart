@@ -16,6 +16,7 @@ class Attachment extends Equatable {
   /// Original file name shown in previews and download prompts.
   /// اسم الملف الأصلي المعروض في المعاينات ومطالبات التنزيل.
   final String fileName;
+
   /// MIME type that tells the UI how to render the attachment.
   /// نوع MIME الذي يحدد كيفية عرض المرفق في الواجهة.
   final String contentType;
@@ -153,6 +154,7 @@ class ChatSettings extends Equatable {
   /// Whether the UI should expose typing indicators.
   /// يحدد ما إذا كانت الواجهة تعرض مؤشرات الكتابة.
   final bool showTypingIndicator;
+
   /// Chat theme preference such as `light`, `dark`, or `auto`.
   /// تفضيل سمة الدردشة مثل `light` أو `dark` أو `auto`.
   final String theme;

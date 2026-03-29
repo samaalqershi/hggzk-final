@@ -166,8 +166,7 @@ class _SupportPageState extends State<SupportPage>
                       flexibleSpace: FlexibleSpaceBar(
                         centerTitle: true,
                         title: Text(
-                          localizations?.get('help_support') ??
-                              'Help & Support',
+                          context.tr('support.title'),
                           style: TextStyle(
                             color: AppTheme.textWhite,
                             fontSize: 18,
@@ -280,7 +279,7 @@ class _SupportPageState extends State<SupportPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      localizations?.get('need_help') ?? 'Need Help?',
+                      context.tr('support.need_help'),
                       style: TextStyle(
                         color: AppTheme.textWhite,
                         fontSize: 20,
@@ -289,8 +288,7 @@ class _SupportPageState extends State<SupportPage>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      localizations?.get('support_description') ??
-                          'We are here to help you 24/7.',
+                      context.tr('support.support_description'),
                       style: TextStyle(
                         color: AppTheme.textMuted,
                         fontSize: 14,
@@ -349,7 +347,7 @@ class _SupportPageState extends State<SupportPage>
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      localizations?.get('send_message') ?? 'Send Message',
+                      context.tr('support.send_message'),
                       style: TextStyle(
                         color: AppTheme.textWhite,
                         fontSize: 18,
@@ -361,11 +359,11 @@ class _SupportPageState extends State<SupportPage>
                 const SizedBox(height: 24),
                 _buildTextField(
                   controller: _nameController,
-                  label: localizations?.get('your_name') ?? 'Your Name',
+                  label: context.tr('support.your_name'),
                   icon: Icons.person_outline,
                   validator: (value) {
                     if (value == null || value.isEmpty)
-                      return localizations?.get('name_required') ??
+                      return localizations?.get('support.name_required') ??
                           'Name is required';
                     return null;
                   },
@@ -373,12 +371,12 @@ class _SupportPageState extends State<SupportPage>
                 const SizedBox(height: 16),
                 _buildTextField(
                   controller: _emailController,
-                  label: localizations?.get('email') ?? 'Your Email',
+                  label: context.tr('support.contact.email'),
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty)
-                      return localizations?.get('email_required') ??
+                      return localizations?.get('support.email_required') ??
                           'Email is required';
                     return null;
                   },
@@ -386,11 +384,11 @@ class _SupportPageState extends State<SupportPage>
                 const SizedBox(height: 16),
                 _buildTextField(
                   controller: _subjectController,
-                  label: localizations?.get('subject') ?? 'Subject',
+                  label: context.tr('support.subject'),
                   icon: Icons.subject,
                   validator: (value) {
                     if (value == null || value.isEmpty)
-                      return localizations?.get('subject_required') ??
+                      return localizations?.get('support.subject_required') ??
                           'Subject is required';
                     return null;
                   },
@@ -398,12 +396,12 @@ class _SupportPageState extends State<SupportPage>
                 const SizedBox(height: 16),
                 _buildTextField(
                   controller: _messageController,
-                  label: localizations?.get('your_message') ?? 'Your Message',
+                  label: context.tr('support.your_message'),
                   icon: Icons.message_outlined,
                   maxLines: 5,
                   validator: (value) {
                     if (value == null || value.isEmpty)
-                      return localizations?.get('message_required') ??
+                      return localizations?.get('support.message_required') ??
                           'Message is required';
                     return null;
                   },
@@ -451,7 +449,7 @@ class _SupportPageState extends State<SupportPage>
                                   Icon(Icons.send, color: AppTheme.textWhite),
                                   const SizedBox(width: 8),
                                   Text(
-                                    localizations?.get('send') ?? 'Send',
+                                    context.tr('support.send'),
                                     style: TextStyle(
                                       color: AppTheme.textWhite,
                                       fontSize: 16,
@@ -560,7 +558,8 @@ class _SupportPageState extends State<SupportPage>
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    localizations?.get('contact_info') ?? 'Contact Information',
+                    localizations?.get('support.contact_info') ??
+                        'Contact Information',
                     style: TextStyle(
                       color: AppTheme.textWhite,
                       fontSize: 18,
@@ -572,7 +571,7 @@ class _SupportPageState extends State<SupportPage>
               const SizedBox(height: 20),
               _buildContactItem(
                 icon: Icons.email_outlined,
-                title: localizations?.get('email') ?? 'Email',
+                title: context.tr('support.contact.email'),
                 value: 'support@hggzk.com',
                 color: AppTheme.primaryBlue,
               ),
@@ -580,7 +579,7 @@ class _SupportPageState extends State<SupportPage>
               ..._clientSupportNumbers.expand((number) => <Widget>[
                     _buildContactItem(
                       icon: Icons.call_outlined,
-                      title: 'خدمة العملاء - تطبيق العميل (اتصال مباشر)',
+                      title: context.tr('support.client_direct_call'),
                       value: _formatPhoneForDisplay(number),
                       color: AppTheme.primaryPurple,
                       onTap: () => _launchDirectCall(number),
@@ -588,7 +587,7 @@ class _SupportPageState extends State<SupportPage>
                     const SizedBox(height: 12),
                     _buildContactItem(
                       icon: Icons.chat_rounded,
-                      title: 'خدمة العملاء - تطبيق العميل (واتساب)',
+                      title: context.tr('support.client_whatsapp'),
                       value: _formatPhoneForDisplay(number),
                       color: const Color(0xFF25D366),
                       onTap: () => _launchWhatsApp(number),
@@ -598,8 +597,8 @@ class _SupportPageState extends State<SupportPage>
               const SizedBox(height: 16),
               _buildContactItem(
                 icon: Icons.access_time,
-                title: localizations?.get('working_hours') ?? 'Working Hours',
-                value: 'Sun - Thu: 9:00 AM - 6:00 PM',
+                title: context.tr('support.working_hours'),
+                value: context.tr('support.working_hours_value'),
                 color: AppTheme.neonGreen,
               ),
             ],
@@ -700,7 +699,10 @@ class _SupportPageState extends State<SupportPage>
   Future<void> _launchExternalLink(Uri uri) async {
     final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!opened && mounted) {
-      _showErrorSnackBar(context, 'تعذر فتح الرابط');
+      _showErrorSnackBar(
+        context,
+        context.tr('support.link_open_failed'),
+      );
     }
   }
 
@@ -812,7 +814,8 @@ class _SupportPageState extends State<SupportPage>
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    localizations?.get('message_sent') ?? 'Message Sent!',
+                    localizations?.get('support.message_sent') ??
+                        'Message Sent!',
                     style: TextStyle(
                       color: AppTheme.textWhite,
                       fontSize: 22,
@@ -830,7 +833,7 @@ class _SupportPageState extends State<SupportPage>
                           color: AppTheme.primaryBlue.withOpacity(0.3)),
                     ),
                     child: Text(
-                      '${localizations?.get('reference') ?? 'Reference'}: $referenceNumber',
+                      '${localizations?.get('support.reference') ?? 'Reference'}: $referenceNumber',
                       style: TextStyle(
                         color: AppTheme.primaryBlue,
                         fontSize: 14,
@@ -840,7 +843,7 @@ class _SupportPageState extends State<SupportPage>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    localizations?.get('support_success_message') ??
+                    localizations?.get('support.support_success_message') ??
                         'Thank you for contacting us.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -876,7 +879,7 @@ class _SupportPageState extends State<SupportPage>
                         child: Container(
                           alignment: Alignment.center,
                           child: Text(
-                            localizations?.get('ok') ?? 'OK',
+                            localizations?.get('common.ok') ?? 'OK',
                             style: TextStyle(
                               color: AppTheme.textWhite,
                               fontSize: 16,

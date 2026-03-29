@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'dart:ui';
 import 'dart:math' as math;
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/enums/booking_status.dart';
@@ -492,7 +493,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     final double iconSize = 24 + (24 * progress);
     final double iconContainerSize = 32 + (16 * progress);
     final double spacing = 4 + (8 * progress);
-    final double textSize = 14 + (6 * progress);
     final double horizontalPadding =
         56 + (40 * (1 - progress)); // للمحاذاة مع الأزرار
 
@@ -544,7 +544,11 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                     color:
                         AppTheme.textWhite.withOpacity(0.9 + (0.05 * progress)),
                   ),
-                  child: const Text('حجوزاتي'),
+                  child: Text(
+                    context.tr(
+                      'booking.myBookings.title',
+                    ),
+                  ),
                 ),
 
                 // Subtitle that fades in/out
@@ -555,7 +559,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                     duration: const Duration(milliseconds: 200),
                     height: progress * 14,
                     child: Text(
-                      'إدارة جميع حجوزاتك',
+                      context.tr(
+                        'booking.myBookings.subtitle',
+                      ),
                       style: AppTextStyles.caption.copyWith(
                         color: AppTheme.textMuted.withOpacity(0.6),
                       ),
@@ -641,14 +647,26 @@ class _MyBookingsPageState extends State<MyBookingsPage>
               fontWeight: FontWeight.w600,
             ),
             tabs: [
-              _buildCompactTab('الكل',
+              _buildCompactTab(context.tr('booking.myBookings.all'),
                   _statusCounts.values.fold(0, (a, b) => a + b), progress),
-              _buildCompactTab('مؤكدة',
-                  _statusCounts[BookingStatus.confirmed] ?? 0, progress),
-              _buildCompactTab('في انتظار التأكيد',
-                  _statusCounts[BookingStatus.pending] ?? 0, progress),
-              _buildCompactTab('مكتملة',
-                  _statusCounts[BookingStatus.completed] ?? 0, progress),
+              _buildCompactTab(
+                  context.tr(
+                    'booking.myBookings.confirmed',
+                  ),
+                  _statusCounts[BookingStatus.confirmed] ?? 0,
+                  progress),
+              _buildCompactTab(
+                  context.tr(
+                    'booking.status.pending',
+                  ),
+                  _statusCounts[BookingStatus.pending] ?? 0,
+                  progress),
+              _buildCompactTab(
+                  context.tr(
+                    'booking.myBookings.completed',
+                  ),
+                  _statusCounts[BookingStatus.completed] ?? 0,
+                  progress),
             ],
           ),
         ),
@@ -775,28 +793,36 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                         children: [
                           _buildMinimalStatCard(
                             icon: Icons.check_circle_rounded,
-                            title: 'مؤكدة',
+                            title: context.tr(
+                              'booking.myBookings.confirmed',
+                            ),
                             count: _statusCounts[BookingStatus.confirmed] ?? 0,
                             color: AppTheme.success.withOpacity(0.8),
                           ),
                           const SizedBox(width: 10),
                           _buildMinimalStatCard(
                             icon: Icons.hourglass_empty_rounded,
-                            title: 'في انتظار التأكيد',
+                            title: context.tr(
+                              'booking.status.pending',
+                            ),
                             count: _statusCounts[BookingStatus.pending] ?? 0,
                             color: AppTheme.warning.withOpacity(0.8),
                           ),
                           const SizedBox(width: 10),
                           _buildMinimalStatCard(
                             icon: Icons.done_all_rounded,
-                            title: 'مكتملة',
+                            title: context.tr(
+                              'booking.myBookings.completed',
+                            ),
                             count: _statusCounts[BookingStatus.completed] ?? 0,
                             color: AppTheme.info.withOpacity(0.8),
                           ),
                           const SizedBox(width: 10),
                           _buildMinimalStatCard(
                             icon: Icons.cancel_rounded,
-                            title: 'ملغاة',
+                            title: context.tr(
+                              'booking.myBookings.cancelled',
+                            ),
                             count: _statusCounts[BookingStatus.cancelled] ?? 0,
                             color: AppTheme.error.withOpacity(0.8),
                           ),
@@ -929,9 +955,11 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                   if (index == bookings.length && isLoadingMore) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: const LoadingWidget(
+                      child: LoadingWidget(
                         type: LoadingType.futuristic,
-                        message: 'جاري تحميل المزيد...',
+                        message: context.tr(
+                          'booking.myBookings.loadingMore',
+                        ),
                       ),
                     );
                   }
@@ -992,9 +1020,11 @@ class _MyBookingsPageState extends State<MyBookingsPage>
 
   /// العربية: يبني minimal loader.
   Widget _buildMinimalLoader() {
-    return const LoadingWidget(
+    return LoadingWidget(
       type: LoadingType.futuristic,
-      message: 'جاري تحميل الحجوزات...',
+      message: context.tr(
+        'booking.myBookings.loading',
+      ),
     );
   }
 
@@ -1031,7 +1061,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
             ),
             const SizedBox(height: 16),
             Text(
-              'حدث خطأ',
+              context.tr(
+                'booking.myBookings.errorTitle',
+              ),
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppTheme.textWhite.withOpacity(0.9),
                 fontWeight: FontWeight.w600,
@@ -1082,7 +1114,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                     color: Colors.white, size: 16),
                 const SizedBox(width: 6),
                 Text(
-                  'إعادة المحاولة',
+                  context.tr(
+                    'booking.myBookings.retry',
+                  ),
                   style: AppTextStyles.caption.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -1191,7 +1225,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'تأكيد إلغاء الحجز',
+                          context.tr(
+                            'booking.details.cancelConfirmTitle',
+                          ),
                           style: AppTextStyles.h3.copyWith(
                             color: AppTheme.textWhite,
                             fontWeight: FontWeight.w700,
@@ -1202,7 +1238,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'هل تريد إلغاء هذا الحجز؟',
+                    context.tr(
+                      'booking.details.cancelConfirmMessage',
+                    ),
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppTheme.textMuted,
                       height: 1.4,
@@ -1216,7 +1254,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                     style: AppTextStyles.bodySmall
                         .copyWith(color: AppTheme.textWhite),
                     decoration: InputDecoration(
-                      hintText: 'سبب الإلغاء (اختياري)',
+                      hintText: context.tr(
+                        'booking.details.cancelReasonHint',
+                      ),
                       hintStyle: AppTextStyles.bodySmall
                           .copyWith(color: AppTheme.textMuted),
                       filled: true,
@@ -1250,7 +1290,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                             ),
                           ),
                           child: Text(
-                            'رجوع',
+                            context.tr(
+                              'booking.details.back',
+                            ),
                             style: AppTextStyles.buttonMedium
                                 .copyWith(color: AppTheme.textWhite),
                           ),
@@ -1281,7 +1323,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                             ),
                           ),
                           child: Text(
-                            'إلغاء الحجز',
+                            context.tr(
+                              'booking.details.cancelBooking',
+                            ),
                             style: AppTextStyles.buttonMedium
                                 .copyWith(color: Colors.white),
                           ),
@@ -1303,7 +1347,11 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     if (state is BookingCancelled) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('تم إلغاء الحجز بنجاح'),
+          content: Text(
+            context.tr(
+              'booking.details.cancelledSuccess',
+            ),
+          ),
           backgroundColor: AppTheme.success,
         ),
       );
@@ -1330,24 +1378,36 @@ class _MyBookingsPageState extends State<MyBookingsPage>
 
       if (code == 'CANCELLATION_AFTER_CHECKIN') {
         _showPolicyDialog(
-          title: 'لا يمكن إلغاء الحجز',
-          description: 'لا يمكن إلغاء الحجز بعد وقت تسجيل الوصول.',
+          title: context.tr(
+            'booking.details.cancellationAfterCheckInTitle',
+          ),
+          description: context.tr(
+            'booking.details.cancellationAfterCheckInMessage',
+          ),
         );
         return;
       }
 
       if (code == 'CANCELLATION_NOT_ALLOWED') {
         _showPolicyDialog(
-          title: 'غير مسموح بالإلغاء',
-          description: 'سياسة العقار لا تسمح بإلغاء الحجز بعد التأكيد.',
+          title: context.tr(
+            'booking.details.cancellationNotAllowedTitle',
+          ),
+          description: context.tr(
+            'booking.details.cancellationNotAllowedMessage',
+          ),
         );
         return;
       }
 
       if (code == 'CANCELLATION_WINDOW_EXCEEDED') {
         _showPolicyDialog(
-          title: 'غير مسموح بالإلغاء',
-          description: 'لا يمكن إلغاء الحجز خلال نافذة الإلغاء المحددة.',
+          title: context.tr(
+            'booking.details.cancellationWindowExceededTitle',
+          ),
+          description: context.tr(
+            'booking.details.cancellationWindowExceededMessage',
+          ),
         );
         return;
       }
@@ -1412,7 +1472,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                         ),
                       ),
                       child: Text(
-                        'حسناً',
+                        context.tr(
+                          'booking.details.ok',
+                        ),
                         style: AppTextStyles.buttonMedium
                             .copyWith(color: Colors.white),
                       ),
@@ -1442,8 +1504,11 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     if (bookingId == null || bookingId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text(
-              'تعذر إعادة محاولة الإلغاء، الرجاء المحاولة مرة أخرى.'),
+          content: Text(
+            context.tr(
+              'booking.details.cancellationRetryFailed',
+            ),
+          ),
           backgroundColor: AppTheme.error,
         ),
       );
@@ -1475,7 +1540,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'تأكيد الاسترداد والإلغاء',
+                          context.tr(
+                            'booking.details.refundCancelTitle',
+                          ),
                           style: AppTextStyles.h3.copyWith(
                             color: AppTheme.textWhite,
                             fontWeight: FontWeight.w700,
@@ -1486,7 +1553,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'هذا الحجز يحتوي على مدفوعات. هل تريد استرداد المدفوعات ثم إلغاء الحجز؟',
+                    context.tr(
+                      'booking.details.refundCancelMessage',
+                    ),
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppTheme.textMuted,
                       height: 1.4,
@@ -1508,7 +1577,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                             ),
                           ),
                           child: Text(
-                            'رجوع',
+                            context.tr(
+                              'booking.details.back',
+                            ),
                             style: AppTextStyles.buttonMedium
                                 .copyWith(color: AppTheme.textWhite),
                           ),
@@ -1536,7 +1607,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                             ),
                           ),
                           child: Text(
-                            'استرداد ثم إلغاء',
+                            context.tr(
+                              'booking.details.refundCancelAction',
+                            ),
                             style: AppTextStyles.buttonMedium
                                 .copyWith(color: Colors.white),
                           ),
@@ -1598,7 +1671,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'حجوزاتي',
+                  context.tr(
+                    'booking.myBookings.title',
+                  ),
                   style: AppTextStyles.h2.copyWith(
                     color: AppTheme.textWhite,
                     fontWeight: FontWeight.bold,
@@ -1606,7 +1681,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'يجب تسجيل الدخول لعرض حجوزاتك',
+                  context.tr(
+                    'booking.myBookings.signInRequired',
+                  ),
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: AppTheme.textMuted,
                   ),
@@ -1631,7 +1708,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                       elevation: 0,
                     ),
                     child: Text(
-                      'تسجيل الدخول',
+                      context.tr(
+                        'booking.myBookings.signIn',
+                      ),
                       style: AppTextStyles.buttonLarge.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -1660,7 +1739,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                       ),
                     ),
                     child: Text(
-                      'إنشاء حساب جديد',
+                      context.tr(
+                        'booking.myBookings.createAccount',
+                      ),
                       style: AppTextStyles.buttonLarge.copyWith(
                         color: AppTheme.primaryBlue,
                         fontWeight: FontWeight.w600,

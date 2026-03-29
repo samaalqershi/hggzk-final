@@ -20,6 +20,11 @@ class LocaleManager {
   /// Keeps the `supportedLocalesShort` value so this type can use it later.
   /// العربية: يخزن القيمة `supportedLocalesShort`.
   static const List<String> supportedLocalesShort = ['en', 'ar'];
+  static const List<String> _languageStorageKeys = [
+    StorageConstants.language,
+    'preferred_language',
+    'app_language',
+  ];
 
   // Default locale if none is set or supported
   static const Locale defaultLocale = Locale('ar', ''); // Default to Arabic
@@ -28,7 +33,7 @@ class LocaleManager {
   /// العربية: يعيد initial locale.
   static Future<Locale> getInitialLocale() async {
     final prefs = sl<SharedPreferences>();
-    final savedLocale = prefs.getString(StorageConstants.language);
+    final savedLocale = _readSavedLocale(prefs);
 
     if (savedLocale != null && supportedLocalesShort.contains(savedLocale)) {
       return Locale(savedLocale, '');
@@ -47,7 +52,9 @@ class LocaleManager {
   /// العربية: يضبط locale.
   static Future<void> setLocale(Locale locale) async {
     final prefs = sl<SharedPreferences>();
-    await prefs.setString(StorageConstants.language, locale.languageCode);
+    for (final key in _languageStorageKeys) {
+      await prefs.setString(key, locale.languageCode);
+    }
     // Note: Flutter doesn't automatically rebuild widgets when locale changes.
     // The MaterialApp.router should rebuild when the locale state changes (e.g., via Bloc).
   }
@@ -59,6 +66,31 @@ class LocaleManager {
       // Retrieve locale from MaterialApp's locale setting
       return Localizations.localeOf(context);
     }
+
+    try {
+      final prefs = sl<SharedPreferences>();
+      final savedLocale = _readSavedLocale(prefs);
+      if (savedLocale != null && supportedLocalesShort.contains(savedLocale)) {
+        return Locale(savedLocale, '');
+      }
+    } catch (_) {}
+
+    final systemLocale = PlatformDispatcher.instance.locale.languageCode;
+    if (supportedLocalesShort.contains(systemLocale)) {
+      return Locale(systemLocale, '');
+    }
+
     return defaultLocale;
+  }
+
+  static String? _readSavedLocale(SharedPreferences prefs) {
+    for (final key in _languageStorageKeys) {
+      final value = prefs.getString(key);
+      if (value != null && supportedLocalesShort.contains(value)) {
+        return value;
+      }
+    }
+
+    return null;
   }
 }

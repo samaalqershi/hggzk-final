@@ -76,6 +76,9 @@ namespace YemenBooking.Application.Features.PropertyTypes.Commands.UpdateUnit
 
             // تنفيذ التحديث
             unitType.Name = request.Name.Trim();
+            unitType.NameEn = string.IsNullOrWhiteSpace(request.NameEn) ? null : request.NameEn.Trim();
+            unitType.Description = request.Description?.Trim() ?? string.Empty;
+            unitType.DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn.Trim();
             unitType.MaxCapacity = request.MaxCapacity;
             unitType.Icon = request.Icon.Trim();
             unitType.IsHasAdults = request.IsHasAdults;

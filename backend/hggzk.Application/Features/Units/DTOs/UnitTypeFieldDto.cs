@@ -37,18 +37,21 @@ public class UnitTypeFieldDto
     /// DisplayName
     /// </summary>
     public string DisplayName { get; set; }
+    public string? DisplayNameEn { get; set; }
 
     /// <summary>
     /// وصف الحقل
     /// Description
     /// </summary>
     public string Description { get; set; }
+    public string? DescriptionEn { get; set; }
 
     /// <summary>
     /// خيارات الحقل (JSON)
     /// FieldOptions
     /// </summary>
     public Dictionary<string, object> FieldOptions { get; set; }
+    public Dictionary<string, object>? FieldOptionsEn { get; set; }
 
     /// <summary>
     /// قواعد التحقق المخصصة (JSON)
@@ -85,6 +88,7 @@ public class UnitTypeFieldDto
     /// Category
     /// </summary>
     public string Category { get; set; }
+    public string? CategoryEn { get; set; }
 
     /// <summary>
     /// معرف المجموعة المرتبطة (إن وجدت)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -23,6 +24,8 @@ public class NotificationService : INotificationService
 
     private readonly IUserRepository _userRepository;
 
+    private readonly IUserSettingsRepository _userSettingsRepository;
+
     private readonly ILogger<NotificationService> _logger;
 
     /// <summary>
@@ -34,12 +37,14 @@ public class NotificationService : INotificationService
         ISmsService smsService,
         IFirebaseService firebaseService,
         IUserRepository userRepository,
+        IUserSettingsRepository userSettingsRepository,
         ILogger<NotificationService> logger)
     {
         _emailService = emailService;
         _smsService = smsService;
         _firebaseService = firebaseService;
         _userRepository = userRepository;
+        _userSettingsRepository = userSettingsRepository;
         _logger = logger;
     }
 
@@ -50,25 +55,29 @@ public class NotificationService : INotificationService
     public async Task SendAsync(NotificationRequest request, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("إرسال إشعار عام: {@Request}", request);
-        await NotifyByIdsAsync(request.UserId, request.Title, request.Message, cancellationToken);
+        await NotifyByIdsAsync(request, cancellationToken);
     }
 
     /// <summary>
     /// يوزع الإشعار على قنوات البريد والرسائل والنشر الفوري للمستخدم المحدد.
     /// Delivers the notification through email, SMS, and push channels for the specified user.
     /// </summary>
-    private async Task NotifyByIdsAsync(Guid userId, string title, string content, CancellationToken cancellationToken)
+    private async Task NotifyByIdsAsync(NotificationRequest request, CancellationToken cancellationToken)
     {
-        if (userId == Guid.Empty)
+        if (request.UserId == Guid.Empty)
         {
             return;
         }
 
-        var user = await _userRepository.GetUserByIdAsync(userId, cancellationToken);
+        var user = await _userRepository.GetUserByIdAsync(request.UserId, cancellationToken);
         if (user == null)
         {
             return;
         }
+
+        var language = await ResolvePreferredLanguageAsync(request.UserId, cancellationToken);
+        var title = ResolveLocalizedContent(request.Title, request.TitleAr, request.TitleEn, language);
+        var content = ResolveLocalizedContent(request.Message, request.MessageAr, request.MessageEn, language);
 
         await _emailService.SendEmailAsync(user.Email, title, content, false, cancellationToken);
 
@@ -78,15 +87,15 @@ public class NotificationService : INotificationService
         }
 
         var priority = "info";
-        if (title.Contains("إلغاء") || title.Contains("خطأ") || content.Contains("فشل"))
+        if (ContainsAny(title, content, "إلغاء", "خطأ", "فشل", "cancel", "void", "failed", "error"))
         {
             priority = "high";
         }
-        else if (title.Contains("تأكيد") || title.Contains("نجاح") || content.Contains("تم"))
+        else if (ContainsAny(title, content, "تأكيد", "نجاح", "تم", "confirmed", "success", "processed", "completed"))
         {
             priority = "success";
         }
-        else if (title.Contains("تذكير") || title.Contains("تغير"))
+        else if (ContainsAny(title, content, "تذكير", "تغير", "reminder", "updated", "changed"))
         {
             priority = "medium";
         }
@@ -97,6 +106,91 @@ public class NotificationService : INotificationService
             { "priority", priority }
         };
 
-        await _firebaseService.SendNotificationAsync($"user_{userId}", title, content, data, cancellationToken);
+        await _firebaseService.SendNotificationAsync($"user_{request.UserId}", title, content, data, cancellationToken);
+    }
+
+    private async Task<string> ResolvePreferredLanguageAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var settings = await _userSettingsRepository.GetByUserIdAsync(userId, cancellationToken);
+        var preferredLanguage = settings?.PreferredLanguage;
+
+        if (!string.IsNullOrWhiteSpace(preferredLanguage)
+            && preferredLanguage.StartsWith("en", StringComparison.OrdinalIgnoreCase))
+        {
+            return "en";
+        }
+
+        return string.Equals(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName, "en", StringComparison.OrdinalIgnoreCase)
+            ? "en"
+            : "ar";
+    }
+
+    private static string ResolveLocalizedContent(
+        string fallback,
+        string? arabic,
+        string? english,
+        string language)
+    {
+        if (!string.IsNullOrWhiteSpace(arabic) || !string.IsNullOrWhiteSpace(english))
+        {
+            if (language.StartsWith("en", StringComparison.OrdinalIgnoreCase))
+            {
+                return !string.IsNullOrWhiteSpace(english) ? english! : fallback;
+            }
+
+            return !string.IsNullOrWhiteSpace(arabic) ? arabic! : fallback;
+        }
+
+        if (string.IsNullOrWhiteSpace(fallback))
+        {
+            return fallback;
+        }
+
+        const string separator = " / ";
+        var separatorIndex = fallback.IndexOf(separator, StringComparison.Ordinal);
+        if (separatorIndex < 0)
+        {
+            return fallback;
+        }
+
+        var left = fallback[..separatorIndex].Trim();
+        var right = fallback[(separatorIndex + separator.Length)..].Trim();
+        var leftIsArabic = ContainsArabic(left);
+
+        if (language.StartsWith("en", StringComparison.OrdinalIgnoreCase))
+        {
+            return leftIsArabic ? right : left;
+        }
+
+        return leftIsArabic ? left : right;
+    }
+
+    private static bool ContainsAny(string title, string content, params string[] tokens)
+    {
+        foreach (var token in tokens)
+        {
+            if (title.Contains(token, StringComparison.OrdinalIgnoreCase)
+                || content.Contains(token, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool ContainsArabic(string value)
+    {
+        foreach (var ch in value)
+        {
+            if ((ch >= '\u0600' && ch <= '\u06FF')
+                || (ch >= '\u0750' && ch <= '\u077F')
+                || (ch >= '\u08A0' && ch <= '\u08FF'))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

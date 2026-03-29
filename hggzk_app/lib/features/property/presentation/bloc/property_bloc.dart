@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../domain/usecases/get_property_details_usecase.dart';
 import '../../domain/usecases/get_property_units_usecase.dart';
 import '../../domain/usecases/get_property_reviews_usecase.dart';
@@ -328,9 +329,9 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
                 propertyId: event.propertyId, userId: event.userId));
           }
         }
-        emit(const PropertyFavoriteUpdated(
+        emit(PropertyFavoriteUpdated(
           isFavorite: true,
-          message: 'تمت الإضافة إلى المفضلة',
+          message: AppLocalizations.translateSync('property.favorites.added'),
         ));
       },
     );
@@ -419,9 +420,9 @@ class PropertyBloc extends Bloc<PropertyEvent, PropertyState> {
                 propertyId: event.propertyId, userId: event.userId));
           }
         }
-        emit(const PropertyFavoriteUpdated(
+        emit(PropertyFavoriteUpdated(
           isFavorite: false,
-          message: 'تمت الإزالة من المفضلة',
+          message: AppLocalizations.translateSync('property.favorites.removed'),
         ));
       },
     );

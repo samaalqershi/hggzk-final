@@ -59,7 +59,9 @@ class _CreateUnitPageState extends State<CreateUnitPage>
   // Form Controllers
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _nameEnController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _descriptionEnController = TextEditingController();
   final _priceController = TextEditingController();
   final _featuresController = TextEditingController();
 
@@ -236,7 +238,9 @@ class _CreateUnitPageState extends State<CreateUnitPage>
     _animationController.dispose();
     _glowController.dispose();
     _nameController.dispose();
+    _nameEnController.dispose();
     _descriptionController.dispose();
+    _descriptionEnController.dispose();
     _priceController.dispose();
     _featuresController.dispose();
     _cancellationDaysController.dispose();
@@ -556,6 +560,16 @@ class _CreateUnitPageState extends State<CreateUnitPage>
 
           const SizedBox(height: 20),
 
+          _buildInputField(
+            controller: _nameEnController,
+            label: 'اسم الوحدة بالإنجليزية',
+            hint: 'Enter the unit name in English',
+            icon: Icons.translate_rounded,
+            onChanged: (value) => _updateUnitNameEn(),
+          ),
+
+          const SizedBox(height: 20),
+
           // Property Selector (hidden for owners)
           if (!_isOwner) _buildPropertySelector(state),
 
@@ -580,6 +594,17 @@ class _CreateUnitPageState extends State<CreateUnitPage>
               return null;
             },
             onChanged: (value) => _updateDescription(), // أضف هذا
+          ),
+
+          const SizedBox(height: 20),
+
+          _buildInputField(
+            controller: _descriptionEnController,
+            label: 'الوصف بالإنجليزية',
+            hint: 'Enter the unit description in English',
+            icon: Icons.translate_rounded,
+            maxLines: 5,
+            onChanged: (value) => _updateDescriptionEn(),
           ),
         ],
       ),
@@ -809,6 +834,12 @@ class _CreateUnitPageState extends State<CreateUnitPage>
             title: 'المعلومات الأساسية',
             items: [
               {'label': 'الاسم', 'value': _nameController.text},
+              {
+                'label': 'الاسم بالإنجليزية',
+                'value': _nameEnController.text.isEmpty
+                    ? 'غير مدخل'
+                    : _nameEnController.text,
+              },
               {'label': 'العقار', 'value': _getPropertyName(state)},
               {'label': 'النوع', 'value': _getUnitTypeName(state)},
             ],
@@ -863,6 +894,12 @@ class _CreateUnitPageState extends State<CreateUnitPage>
             title: 'الوصف',
             items: [
               {'label': 'الوصف', 'value': _descriptionController.text},
+              {
+                'label': 'الوصف بالإنجليزية',
+                'value': _descriptionEnController.text.isEmpty
+                    ? 'غير مدخل'
+                    : _descriptionEnController.text,
+              },
             ],
           ),
 
@@ -961,7 +998,10 @@ class _CreateUnitPageState extends State<CreateUnitPage>
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            field.displayName,
+                            _bilingualFieldLabel(
+                              field.displayName,
+                              field.displayNameEn,
+                            ),
                             style: AppTextStyles.bodySmall.copyWith(
                               color: AppTheme.textMuted,
                             ),
@@ -1979,6 +2019,17 @@ class _CreateUnitPageState extends State<CreateUnitPage>
     _childrenCapacity = 0;
   }
 
+  String _bilingualFieldLabel(String primary, String? secondary) {
+    final normalized = secondary?.trim();
+    if (normalized == null ||
+        normalized.isEmpty ||
+        normalized == primary.trim()) {
+      return primary;
+    }
+
+    return '$primary\n$normalized';
+  }
+
   // Helper Methods
   /// ينفذ هذا الأسلوب عملية _updateUnitImage ضمن مسار إدارة الوحدات.
   /// This method performs the _updateUnitImage operation in the admin unit workflow.
@@ -2001,9 +2052,12 @@ class _CreateUnitPageState extends State<CreateUnitPage>
   /// ينفذ هذا الأسلوب عملية _updateFeatures ضمن مسار إدارة الوحدات.
   /// This method performs the _updateFeatures operation in the admin unit workflow.
   void _updateFeatures() {
-    if (_featuresController.text.isNotEmpty) {
+    final featuresValue = _featuresController.text.isNotEmpty
+        ? _featuresController.text
+        : _descriptionController.text;
+    if (featuresValue.isNotEmpty) {
       context.read<UnitFormBloc>().add(
-            UpdateFeaturesEvent(features: _featuresController.text),
+            UpdateFeaturesEvent(features: featuresValue),
           );
     }
   }
@@ -2018,6 +2072,12 @@ class _CreateUnitPageState extends State<CreateUnitPage>
     // }
   }
 
+  void _updateUnitNameEn() {
+    context.read<UnitFormBloc>().add(
+          UpdateUnitNameEnEvent(nameEn: _nameEnController.text),
+        );
+  }
+
   /// ينفذ هذا الأسلوب عملية _updateDescription ضمن مسار إدارة الوحدات.
   /// This method performs the _updateDescription operation in the admin unit workflow.
   void _updateDescription() {
@@ -2026,6 +2086,13 @@ class _CreateUnitPageState extends State<CreateUnitPage>
           UpdateDescriptionEvent(description: _descriptionController.text),
         );
     // }
+  }
+
+  void _updateDescriptionEn() {
+    context.read<UnitFormBloc>().add(
+          UpdateDescriptionEnEvent(
+              descriptionEn: _descriptionEnController.text),
+        );
   }
 
   /// ينفذ هذا الأسلوب عملية _updateDynamicFields ضمن مسار إدارة الوحدات.
@@ -2204,7 +2271,9 @@ class _CreateUnitPageState extends State<CreateUnitPage>
     if (_formKey.currentState!.validate() && _validateDynamicFields()) {
       // تأكد من تحديث جميع البيانات قبل الإرسال
       _updateUnitName();
+      _updateUnitNameEn();
       _updateDescription();
+      _updateDescriptionEn();
       _updatePricing();
       _updateFeatures();
       _updateCapacity();

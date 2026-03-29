@@ -109,6 +109,15 @@ class PropertyInfoCard extends StatelessWidget {
     );
   }
 
+  bool _hasSecondary(String? secondary, String primary) {
+    if (secondary == null) {
+      return false;
+    }
+
+    final trimmed = secondary.trim();
+    return trimmed.isNotEmpty && trimmed != primary.trim();
+  }
+
   Widget _buildStatusBadge() {
     final isApproved = property.isApproved;
     return Container(
@@ -152,12 +161,27 @@ class PropertyInfoCard extends StatelessWidget {
         gradient: AppTheme.primaryGradient,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(
-        property.typeName,
-        style: AppTextStyles.caption.copyWith(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            property.typeName,
+            style: AppTextStyles.caption.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          if (_hasSecondary(property.typeNameEn, property.typeName))
+            Text(
+              property.typeNameEn!,
+              style: AppTextStyles.caption.copyWith(
+                color: Colors.white.withValues(alpha: 0.9),
+                fontSize: 10,
+              ),
+              textAlign: TextAlign.center,
+            ),
+        ],
       ),
     );
   }

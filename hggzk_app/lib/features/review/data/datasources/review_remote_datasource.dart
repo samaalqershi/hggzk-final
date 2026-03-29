@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../../../../core/models/result_dto.dart';
 import '../../../../core/network/api_client.dart';
@@ -122,7 +123,7 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
         return ReviewModel.fromJson({
           'id': (payload['reviewId'] ?? '').toString(),
           'userId': '',
-          'userName': 'أنت',
+          'userName': AppLocalizations.translateSync('chat.message.you'),
           'bookingId': bookingId,
           'propertyId': propertyId,
           'cleanliness': cleanliness,
@@ -140,12 +141,17 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
           'isRecommended': averageRating >= 4,
         });
       } else {
-        throw ServerException(resultDto.message ?? 'Failed to create review');
+        throw ServerException(
+          resultDto.message ??
+              AppLocalizations.translateSync('common.unexpectedError'),
+        );
       }
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw ServerException(
+        AppLocalizations.translateSync('common.unexpectedError'),
+      );
     }
   }
 
@@ -231,8 +237,7 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
 
       // في حال كان الشكل غير متوقع نرمي استثناء مع بعض التفاصيل للمطور
       throw ServerException(
-        'Failed to parse property reviews response. Body type: '
-        '${body.runtimeType}',
+        AppLocalizations.translateSync('common.unexpectedError'),
       );
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -245,7 +250,9 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
       }
 
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw ServerException(
+        AppLocalizations.translateSync('common.unexpectedError'),
+      );
     }
   }
 
@@ -276,12 +283,16 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
         return ReviewsSummaryModel.fromJson(resultDto.data!);
       } else {
         throw ServerException(
-            resultDto.message ?? 'Failed to get reviews summary');
+          resultDto.message ??
+              AppLocalizations.translateSync('common.unexpectedError'),
+        );
       }
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw ServerException(
+        AppLocalizations.translateSync('common.unexpectedError'),
+      );
     }
   }
 
@@ -334,12 +345,16 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
             .toList();
       } else {
         throw ServerException(
-            resultDto.message ?? 'Failed to upload review images');
+          resultDto.message ??
+              AppLocalizations.translateSync('common.operationFailed'),
+        );
       }
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw ServerException(
+        AppLocalizations.translateSync('common.unexpectedError'),
+      );
     }
   }
 }

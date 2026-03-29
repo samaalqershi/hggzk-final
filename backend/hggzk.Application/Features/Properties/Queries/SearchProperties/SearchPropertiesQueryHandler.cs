@@ -26,6 +26,8 @@ namespace YemenBooking.Application.Features.Properties.Queries.SearchProperties
         private readonly ICurrentUserService _currentUserService;
         private readonly ILogger<SearchPropertiesQueryHandler> _logger;
         private readonly IUnitRepository _unitRepository;
+        private readonly IPropertyRepository _propertyRepository;
+        private readonly IPropertyTypeRepository _propertyTypeRepository;
         private readonly IAvailabilityService _availabilityService;
         private readonly IDailyUnitScheduleRepository _scheduleRepository;
         private readonly ICurrencyExchangeRepository _currencyExchangeRepository;
@@ -40,6 +42,8 @@ namespace YemenBooking.Application.Features.Properties.Queries.SearchProperties
             ICurrentUserService currentUserService,
             ILogger<SearchPropertiesQueryHandler> logger,
             IUnitRepository unitRepository,
+            IPropertyRepository propertyRepository,
+            IPropertyTypeRepository propertyTypeRepository,
             IAvailabilityService availabilityService,
             IDailyUnitScheduleRepository scheduleRepository,
             ICurrencyExchangeRepository currencyExchangeRepository,
@@ -49,6 +53,8 @@ namespace YemenBooking.Application.Features.Properties.Queries.SearchProperties
             _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _unitRepository = unitRepository ?? throw new ArgumentNullException(nameof(unitRepository));
+            _propertyRepository = propertyRepository ?? throw new ArgumentNullException(nameof(propertyRepository));
+            _propertyTypeRepository = propertyTypeRepository ?? throw new ArgumentNullException(nameof(propertyTypeRepository));
             _availabilityService = availabilityService ?? throw new ArgumentNullException(nameof(availabilityService));
             _scheduleRepository = scheduleRepository ?? throw new ArgumentNullException(nameof(scheduleRepository));
             _currencyExchangeRepository = currencyExchangeRepository ?? throw new ArgumentNullException(nameof(currencyExchangeRepository));
@@ -478,16 +484,25 @@ namespace YemenBooking.Application.Features.Properties.Queries.SearchProperties
             CancellationToken cancellationToken)
         {
             var propertyId = item.PropertyId;
+            var property = await _propertyRepository.GetByIdAsync(propertyId, cancellationToken);
+            var propertyType = property != null && property.TypeId != Guid.Empty
+                ? await _propertyTypeRepository.GetByIdAsync(property.TypeId, cancellationToken)
+                : null;
 
             // ━━━ Build the base DTO / بناء DTO أساسي ━━━
             var dto = new PropertySearchResultDto
             {
                 Id = propertyId,
                 Name = item.PropertyName,
-                Description = string.Empty,
+                NameEn = property?.NameEn ?? item.PropertyName,
+                Description = property?.Description ?? string.Empty,
+                DescriptionEn = property?.DescriptionEn ?? property?.Description ?? string.Empty,
                 PropertyType = item.PropertyTypeName ?? string.Empty,
+                PropertyTypeEn = propertyType?.NameEn ?? item.PropertyTypeName ?? string.Empty,
                 Address = item.Address,
+                AddressEn = property?.AddressEn ?? item.Address,
                 City = item.City,
+                CityEn = property?.CityEn ?? item.City,
                 MinPrice = item.PriceRange?.Min ?? 0,
                 DiscountedPrice = item.PriceRange?.Min ?? 0,
                 Currency = NormalizeCurrency(item.Currency),
@@ -505,6 +520,10 @@ namespace YemenBooking.Application.Features.Properties.Queries.SearchProperties
                 AvailableUnitsCount = item.MatchedUnitsCount,
                 DynamicFieldValues = new Dictionary<string, object>(),
                 MainAmenities = item.AvailableAmenities ?? new List<string>(),
+                MainAmenitiesEn = property?.Amenities?
+                    .Select(a => a.PropertyTypeAmenity.Amenity.NameEn ?? a.PropertyTypeAmenity.Amenity.Name)
+                    .Take(5)
+                    .ToList() ?? new List<string>(),
                 LastUpdated = await _currentUserService.ConvertFromUtcToUserLocalAsync(DateTime.UtcNow)
             };
 
@@ -574,12 +593,13 @@ namespace YemenBooking.Application.Features.Properties.Queries.SearchProperties
                     dto.DiscountedPrice = 0;
                     dto.UnitId = null;
                     dto.UnitName = null;
+                    dto.UnitNameEn = null;
                     dto.MaxCapacity = 0;
                     _logger.LogDebug("⚠️ لا توجد وحدات متاحة للعقار {PropertyId}", dto.Id);
                     return;
                 }
 
-                var pricedCandidates = new List<(Guid UnitId, string UnitName, int MaxCapacity, decimal PerNight)>();
+                var pricedCandidates = new List<(Guid UnitId, string UnitName, string UnitNameEn, int MaxCapacity, decimal PerNight)>();
                 foreach (var unitId in filteredAvailable)
                 {
                     var pricedCandidate = await GetPricedUnitCandidate(
@@ -600,6 +620,7 @@ namespace YemenBooking.Application.Features.Properties.Queries.SearchProperties
                     dto.DiscountedPrice = 0;
                     dto.UnitId = null;
                     dto.UnitName = null;
+                    dto.UnitNameEn = null;
                     dto.MaxCapacity = 0;
                     return;
                 }
@@ -613,6 +634,7 @@ namespace YemenBooking.Application.Features.Properties.Queries.SearchProperties
 
                 dto.UnitId = selectedPricedCandidate.UnitId;
                 dto.UnitName = selectedPricedCandidate.UnitName;
+                dto.UnitNameEn = selectedPricedCandidate.UnitNameEn;
                 dto.MaxCapacity = selectedPricedCandidate.MaxCapacity;
                 dto.MinPrice = selectedPricedCandidate.PerNight;
                 dto.DiscountedPrice = selectedPricedCandidate.PerNight;
@@ -649,7 +671,7 @@ namespace YemenBooking.Application.Features.Properties.Queries.SearchProperties
             return availableUnitIds.FirstOrDefault();
         }
 
-        private async Task<(Guid UnitId, string UnitName, int MaxCapacity, decimal PerNight)?> GetPricedUnitCandidate(
+        private async Task<(Guid UnitId, string UnitName, string UnitNameEn, int MaxCapacity, decimal PerNight)?> GetPricedUnitCandidate(
             Guid unitId,
             DateTime checkIn,
             DateTime checkOut,
@@ -695,7 +717,7 @@ namespace YemenBooking.Application.Features.Properties.Queries.SearchProperties
 
             totalPrice = decimal.Round(totalPrice, 2);
             var perNight = nights > 0 ? decimal.Round(totalPrice / nights, 2) : 0m;
-            return (unitId, unit.Name, unit.MaxCapacity, perNight);
+            return (unitId, unit.Name, unit.NameEn ?? unit.Name, unit.MaxCapacity, perNight);
         }
 
         private static bool IsBookableStatus(string? status)
@@ -756,6 +778,7 @@ namespace YemenBooking.Application.Features.Properties.Queries.SearchProperties
 
                 dto.UnitId = chosenUnitWithPrice.Unit.Id;
                 dto.UnitName = chosenUnitWithPrice.Unit.Name;
+                dto.UnitNameEn = chosenUnitWithPrice.Unit.NameEn ?? chosenUnitWithPrice.Unit.Name;
                 dto.MinPrice = chosenUnitWithPrice.Price;
                 dto.DiscountedPrice = chosenUnitWithPrice.Price;
                 dto.Currency = chosenUnitWithPrice.Currency;

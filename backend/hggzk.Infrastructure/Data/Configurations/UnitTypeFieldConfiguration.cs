@@ -41,10 +41,19 @@ public class UnitTypeFieldConfiguration : IEntityTypeConfiguration<UnitTypeField
         builder.Property(ptf => ptf.DisplayName)
             .HasMaxLength(100);
 
+        builder.Property(ptf => ptf.DisplayNameEn)
+            .HasMaxLength(100);
+
         builder.Property(ptf => ptf.Description)
             .HasMaxLength(500);
 
+        builder.Property(ptf => ptf.DescriptionEn)
+            .HasMaxLength(500);
+
         builder.Property(ptf => ptf.FieldOptions)
+            .HasColumnType("text");
+
+        builder.Property(ptf => ptf.FieldOptionsEn)
             .HasColumnType("text");
 
         builder.Property(ptf => ptf.ValidationRules)
@@ -63,6 +72,9 @@ public class UnitTypeFieldConfiguration : IEntityTypeConfiguration<UnitTypeField
             .HasDefaultValue(0);
 
         builder.Property(ptf => ptf.Category)
+            .HasMaxLength(50);
+
+        builder.Property(ptf => ptf.CategoryEn)
             .HasMaxLength(50);
 
         builder.Property(ptf => ptf.IsForUnits)

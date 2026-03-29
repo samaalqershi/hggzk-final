@@ -9,7 +9,9 @@ abstract class AmenitiesRepository {
   /// العربية: ينشئ amenity.
   Future<Either<Failure, String>> createAmenity({
     required String name,
+    String? nameEn,
     required String description,
+    String? descriptionEn,
     required String icon,
     String? propertyTypeId,
     bool isDefaultForType,
@@ -19,7 +21,9 @@ abstract class AmenitiesRepository {
   Future<Either<Failure, bool>> updateAmenity({
     required String amenityId,
     String? name,
+    String? nameEn,
     String? description,
+    String? descriptionEn,
     String? icon,
   });
 

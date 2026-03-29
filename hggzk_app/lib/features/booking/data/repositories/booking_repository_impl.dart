@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../../domain/entities/booking.dart';
 import '../../domain/entities/booking_request.dart';
@@ -29,7 +30,9 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<Either<Failure, Booking>> createBooking(BookingRequest request) async {
     if (!(await internetConnectionChecker.hasConnection)) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -39,7 +42,10 @@ class BookingRepositoryImpl implements BookingRepository {
       if (result.success && result.data != null) {
         return Right(result.data!);
       } else {
-        return Left(ServerFailure(result.message ?? 'فشل إنشاء الحجز'));
+        return Left(ServerFailure(
+          result.message ??
+              AppLocalizations.translateSync('common.unexpectedError'),
+        ));
       }
     } catch (error) {
       return ErrorHandler.handle(error);
@@ -53,7 +59,9 @@ class BookingRepositoryImpl implements BookingRepository {
     required String userId,
   }) async {
     if (!(await internetConnectionChecker.hasConnection)) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -65,8 +73,10 @@ class BookingRepositoryImpl implements BookingRepository {
       if (result.success && result.data != null) {
         return Right(result.data!);
       } else {
-        return Left(
-            ServerFailure(result.message ?? 'فشل الحصول على تفاصيل الحجز'));
+        return Left(ServerFailure(
+          result.message ??
+              AppLocalizations.translateSync('common.unexpectedError'),
+        ));
       }
     } catch (error) {
       return ErrorHandler.handle(error);
@@ -82,7 +92,9 @@ class BookingRepositoryImpl implements BookingRepository {
     bool refundPayments = false,
   }) async {
     if (!(await internetConnectionChecker.hasConnection)) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -97,7 +109,8 @@ class BookingRepositoryImpl implements BookingRepository {
         return Right(result.data ?? false);
       } else {
         return Left(ServerFailure.meta(
-          message: result.message ?? 'فشل إلغاء الحجز',
+          message: result.message ??
+              AppLocalizations.translateSync('common.unexpectedError'),
           code: result.errorCode ?? result.code,
           showAsDialog: result.showAsDialog,
         ));
@@ -116,7 +129,9 @@ class BookingRepositoryImpl implements BookingRepository {
     int pageSize = 10,
   }) async {
     if (!(await internetConnectionChecker.hasConnection)) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -137,7 +152,10 @@ class BookingRepositoryImpl implements BookingRepository {
         );
         return Right(paginatedBookings);
       } else {
-        return Left(ServerFailure(result.message ?? 'فشل الحصول على الحجوزات'));
+        return Left(ServerFailure(
+          result.message ??
+              AppLocalizations.translateSync('common.unexpectedError'),
+        ));
       }
     } catch (error) {
       return ErrorHandler.handle(error);
@@ -151,7 +169,9 @@ class BookingRepositoryImpl implements BookingRepository {
     int? year,
   }) async {
     if (!(await internetConnectionChecker.hasConnection)) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -163,8 +183,10 @@ class BookingRepositoryImpl implements BookingRepository {
       if (result.success && result.data != null) {
         return Right(result.data!);
       } else {
-        return Left(
-            ServerFailure(result.message ?? 'فشل الحصول على ملخص الحجوزات'));
+        return Left(ServerFailure(
+          result.message ??
+              AppLocalizations.translateSync('common.unexpectedError'),
+        ));
       }
     } catch (error) {
       return ErrorHandler.handle(error);
@@ -179,7 +201,9 @@ class BookingRepositoryImpl implements BookingRepository {
     required int quantity,
   }) async {
     if (!(await internetConnectionChecker.hasConnection)) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -192,7 +216,10 @@ class BookingRepositoryImpl implements BookingRepository {
       if (result.success && result.data != null) {
         return Right(result.data!);
       } else {
-        return Left(ServerFailure(result.message ?? 'فشل إضافة الخدمة'));
+        return Left(ServerFailure(
+          result.message ??
+              AppLocalizations.translateSync('common.unexpectedError'),
+        ));
       }
     } catch (error) {
       return ErrorHandler.handle(error);
@@ -211,7 +238,9 @@ class BookingRepositoryImpl implements BookingRepository {
     String? excludeBookingId,
   }) async {
     if (!(await internetConnectionChecker.hasConnection)) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -228,7 +257,10 @@ class BookingRepositoryImpl implements BookingRepository {
       if (result.success && result.data != null) {
         return Right(result.data!);
       } else {
-        return Left(ServerFailure(result.message ?? 'فشل التحقق من التوفر'));
+        return Left(ServerFailure(
+          result.message ??
+              AppLocalizations.translateSync('common.unexpectedError'),
+        ));
       }
     } catch (error) {
       return ErrorHandler.handle(error);
@@ -243,7 +275,9 @@ class BookingRepositoryImpl implements BookingRepository {
     String? excludeBookingId,
   }) async {
     if (!(await internetConnectionChecker.hasConnection)) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -257,7 +291,10 @@ class BookingRepositoryImpl implements BookingRepository {
         return Right(result.data!);
       }
 
-      return Left(ServerFailure(result.message ?? 'فشل جلب الأيام المتاحة'));
+      return Left(ServerFailure(
+        result.message ??
+            AppLocalizations.translateSync('common.unexpectedError'),
+      ));
     } catch (error) {
       return ErrorHandler.handle(error);
     }
@@ -273,7 +310,9 @@ class BookingRepositoryImpl implements BookingRepository {
     List<Map<String, dynamic>>? services,
   }) async {
     if (!(await internetConnectionChecker.hasConnection)) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -289,7 +328,8 @@ class BookingRepositoryImpl implements BookingRepository {
         return Right(result.data ?? true);
       } else {
         return Left(ServerFailure.meta(
-          message: result.message ?? 'فشل تعديل الحجز',
+          message: result.message ??
+              AppLocalizations.translateSync('common.unexpectedError'),
           code: result.errorCode ?? result.code,
           showAsDialog: result.showAsDialog,
         ));

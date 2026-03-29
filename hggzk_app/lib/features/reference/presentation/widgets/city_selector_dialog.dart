@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/city.dart';
 import '../bloc/reference_bloc.dart';
 import '../bloc/reference_event.dart';
@@ -216,7 +217,9 @@ class _DialogContentState extends State<_DialogContent>
               shaderCallback: (bounds) =>
                   AppTheme.primaryGradient.createShader(bounds),
               child: Text(
-                'اختر مدينتك',
+                context.tr(
+                  'reference.selectCityTitle',
+                ),
                 style: AppTextStyles.h3.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -224,7 +227,9 @@ class _DialogContentState extends State<_DialogContent>
               ),
             ),
             Text(
-              'حدد المدينة للحصول على أفضل النتائج',
+              context.tr(
+                'reference.selectCitySubtitle',
+              ),
               style: AppTextStyles.caption.copyWith(
                 color: AppTheme.textMuted,
               ),
@@ -283,7 +288,9 @@ class _DialogContentState extends State<_DialogContent>
           color: AppTheme.textWhite,
         ),
         decoration: InputDecoration(
-          hintText: 'ابحث عن مدينة...',
+          hintText: context.tr(
+            'reference.searchHint',
+          ),
           hintStyle: AppTextStyles.bodyMedium.copyWith(
             color: AppTheme.textMuted.withOpacity(0.5),
           ),
@@ -371,7 +378,9 @@ class _DialogContentState extends State<_DialogContent>
           ),
           const SizedBox(height: 16),
           Text(
-            'جاري تحميل المدن...',
+            context.tr(
+              'reference.loadingCities',
+            ),
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppTheme.textMuted,
             ),
@@ -395,14 +404,18 @@ class _DialogContentState extends State<_DialogContent>
           ),
           const SizedBox(height: 16),
           Text(
-            'لا توجد نتائج',
+            context.tr(
+              'reference.noResultsTitle',
+            ),
             style: AppTextStyles.h3.copyWith(
               color: AppTheme.textMuted,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'جرب البحث بكلمات أخرى',
+            context.tr(
+              'reference.noResultsSubtitle',
+            ),
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppTheme.textMuted.withOpacity(0.7),
             ),
@@ -426,7 +439,9 @@ class _DialogContentState extends State<_DialogContent>
           ),
           const SizedBox(height: 16),
           Text(
-            'حدث خطأ',
+            context.tr(
+              'reference.errorTitle',
+            ),
             style: AppTextStyles.h3.copyWith(
               color: AppTheme.error,
             ),
@@ -445,7 +460,9 @@ class _DialogContentState extends State<_DialogContent>
               context.read<ReferenceBloc>().add(const LoadCitiesEvent());
             },
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('إعادة المحاولة'),
+            label: Text(
+              context.tr('common.retry'),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryBlue,
               foregroundColor: Colors.white,

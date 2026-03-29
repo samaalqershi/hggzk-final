@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
+import '../../../../../core/localization/app_localizations.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/cached_image_widget.dart';
@@ -232,7 +233,7 @@ class _BigCardState extends State<_BigCard>
                       children: [
                         _buildHeader(item),
                         const SizedBox(height: 6),
-                        _buildFooter(item),
+                        _buildFooter(context, item),
                       ],
                     ),
                   ),
@@ -418,7 +419,7 @@ class _BigCardState extends State<_BigCard>
     return item.bedrooms != null || item.bathrooms != null;
   }
 
-  Widget _buildFeatures(SectionDisplayItem item) {
+  Widget _buildFeatures(BuildContext context, SectionDisplayItem item) {
     return Wrap(
       spacing: 8,
       runSpacing: 6,
@@ -426,20 +427,26 @@ class _BigCardState extends State<_BigCard>
         if (item.bedrooms != null)
           _FeatureTag(
             icon: Icons.bed_outlined,
-            label: '${item.bedrooms} غرف',
+            label: context.tr(
+              'home.bigCards.bedrooms',
+              params: {'count': item.bedrooms},
+            ),
             color: AppTheme.primaryBlue,
           ),
         if (item.bathrooms != null)
           _FeatureTag(
             icon: Icons.shower_outlined,
-            label: '${item.bathrooms} حمام',
+            label: context.tr(
+              'home.bigCards.bathrooms',
+              params: {'count': item.bathrooms},
+            ),
             color: AppTheme.primaryPurple,
           ),
       ],
     );
   }
 
-  Widget _buildFooter(SectionDisplayItem item) {
+  Widget _buildFooter(BuildContext context, SectionDisplayItem item) {
     return Align(
       alignment: Alignment.centerRight,
       child: Container(
@@ -464,7 +471,7 @@ class _BigCardState extends State<_BigCard>
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'احجز الآن',
+              context.tr('home.bigCards.bookNow'),
               style: AppTextStyles.buttonSmall.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
@@ -520,7 +527,10 @@ class _LuxuryDiscountBadge extends StatelessWidget {
               ),
               const SizedBox(width: 5),
               Text(
-                'خصم $discount%',
+                context.tr(
+                  'home.bigCards.discount',
+                  params: {'discount': discount},
+                ),
                 style: AppTextStyles.caption.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,

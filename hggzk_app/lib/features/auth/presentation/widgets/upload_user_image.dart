@@ -8,6 +8,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:ui';
 import 'dart:math' as math;
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
@@ -274,7 +275,7 @@ class _UploadUserImageState extends State<UploadUserImage>
         }
       }
     } catch (e) {
-      _showMinimalErrorSnackBar('فشل في اختيار الصورة');
+      _showMinimalErrorSnackBar(context.tr('auth.upload.pickError'));
     } finally {
       setState(() {
         _isLoading = false;
@@ -308,7 +309,7 @@ class _UploadUserImageState extends State<UploadUserImage>
       compressQuality: 85,
       uiSettings: [
         AndroidUiSettings(
-          toolbarTitle: 'قص الصورة',
+          toolbarTitle: context.tr('auth.upload.cropTitle'),
           toolbarColor: AppTheme.darkBackground,
           toolbarWidgetColor: AppTheme.textWhite,
           activeControlsWidgetColor: AppTheme.primaryBlue,
@@ -324,13 +325,13 @@ class _UploadUserImageState extends State<UploadUserImage>
           initAspectRatio: CropAspectRatioPreset.square,
         ),
         IOSUiSettings(
-          title: 'قص الصورة',
+          title: context.tr('auth.upload.cropTitle'),
           minimumAspectRatio: 1.0,
           aspectRatioLockEnabled: true,
           resetButtonHidden: false,
           rotateButtonsHidden: true,
-          doneButtonTitle: 'تم',
-          cancelButtonTitle: 'إلغاء',
+          doneButtonTitle: context.tr('common.done'),
+          cancelButtonTitle: context.tr('common.cancel'),
         ),
       ],
     );
@@ -344,9 +345,9 @@ class _UploadUserImageState extends State<UploadUserImage>
       builder: (context) => _UltraMinimalDialog(
         icon: Icons.camera_alt_outlined,
         iconColor: AppTheme.warning,
-        title: 'الصلاحية مطلوبة',
-        message: 'نحتاج صلاحية الوصول للكاميرا أو المعرض',
-        confirmText: 'الإعدادات',
+        title: context.tr('auth.upload.permissionTitle'),
+        message: context.tr('auth.upload.permissionMessage'),
+        confirmText: context.tr('common.settings'),
         onConfirm: () {
           Navigator.pop(context);
           openAppSettings();
@@ -423,7 +424,7 @@ class _UltraMinimalImageSourceSheet extends StatelessWidget {
 
                   // Title
                   Text(
-                    'اختر صورة',
+                    context.tr('auth.upload.chooseImage'),
                     style: AppTextStyles.bodyMedium.copyWith(
                       fontWeight: FontWeight.w600,
                       color: AppTheme.textWhite.withOpacity(0.9),
@@ -435,16 +436,16 @@ class _UltraMinimalImageSourceSheet extends StatelessWidget {
                   // Camera option
                   _buildMinimalOption(
                     icon: Icons.camera_alt_outlined,
-                    title: 'الكاميرا',
-                    subtitle: 'التقط صورة جديدة',
+                    title: context.tr('auth.upload.camera'),
+                    subtitle: context.tr('auth.upload.cameraSubtitle'),
                     onTap: onCameraPressed,
                   ),
 
                   // Gallery option
                   _buildMinimalOption(
                     icon: Icons.photo_library_outlined,
-                    title: 'المعرض',
-                    subtitle: 'اختر من الصور',
+                    title: context.tr('auth.upload.gallery'),
+                    subtitle: context.tr('auth.upload.gallerySubtitle'),
                     onTap: onGalleryPressed,
                   ),
 
@@ -452,8 +453,8 @@ class _UltraMinimalImageSourceSheet extends StatelessWidget {
                   if (hasCurrentImage)
                     _buildMinimalOption(
                       icon: Icons.delete_outline,
-                      title: 'إزالة',
-                      subtitle: 'حذف الصورة الحالية',
+                      title: context.tr('auth.upload.remove'),
+                      subtitle: context.tr('auth.upload.removeSubtitle'),
                       onTap: onRemovePressed,
                       isDestructive: true,
                     ),
@@ -630,7 +631,7 @@ class _UltraMinimalDialog extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              'إلغاء',
+                              context.tr('common.cancel'),
                               style: AppTextStyles.caption.copyWith(),
                               textAlign: TextAlign.center,
                             ),

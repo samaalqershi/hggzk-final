@@ -53,7 +53,7 @@ namespace YemenBooking.Core.Seeds
                 foreach (var t in selected)
                 {
                     var amount = t.YerPrice;
-                    list.Add(new PropertyService
+                    var service = new PropertyService
                     {
                         Id = Guid.NewGuid(),
                         PropertyId = p.Id,
@@ -66,7 +66,10 @@ namespace YemenBooking.Core.Seeds
                         UpdatedAt = DateTime.UtcNow,
                         IsActive = true,
                         IsDeleted = false
-                    });
+                    };
+
+                    SeedLocalizationHelper.ApplyServiceEnglish(service);
+                    list.Add(service);
                 }
             }
 

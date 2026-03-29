@@ -25,6 +25,7 @@ public class PropertyDetailsDto
     /// يحصل أو يعيّن اسم العقار.
     /// </summary>
     public string Name { get; set; } = string.Empty;
+    public string? NameEn { get; set; }
     
     /// <summary>
     /// Gets or sets the property type.
@@ -37,12 +38,14 @@ public class PropertyDetailsDto
     /// يحصل أو يعيّن العنوان.
     /// </summary>
     public string Address { get; set; } = string.Empty;
+    public string? AddressEn { get; set; }
     
     /// <summary>
     /// Gets or sets the city.
     /// يحصل أو يعيّن المدينة.
     /// </summary>
     public string City { get; set; } = string.Empty;
+    public string? CityEn { get; set; }
     
     /// <summary>
     /// Gets or sets the latitude.
@@ -67,12 +70,14 @@ public class PropertyDetailsDto
     /// يحصل أو يعيّن الوصف.
     /// </summary>
     public string Description { get; set; } = string.Empty;
+    public string? DescriptionEn { get; set; }
 
     /// <summary>
     /// Gets or sets the short description.
     /// يحصل أو يعيّن الوصف المختصر.
     /// </summary>
     public string? ShortDescription { get; set; }
+    public string? ShortDescriptionEn { get; set; }
     
     /// <summary>
     /// Gets or sets the average rating.
@@ -187,6 +192,7 @@ public class PropertyDetailsDto
     /// يحصل أو يعيّن اسم نوع العقار.
     /// </summary>
     public string TypeName { get; set; } = string.Empty;
+    public string? TypeNameEn { get; set; }
 
     /// <summary>
     /// Gets or sets the count of units attached to the property.
@@ -234,6 +240,7 @@ public class PropertyServiceDto
     /// يحصل أو يعيّن اسم الخدمة.
     /// </summary>
     public string Name { get; set; } = string.Empty;
+    public string? NameEn { get; set; }
     
     /// <summary>
     /// Gets or sets the service price.
@@ -258,6 +265,7 @@ public class PropertyServiceDto
     /// يحصل أو يعيّن الوصف الاختياري.
     /// </summary>
     public string? Description { get; set; }
+    public string? DescriptionEn { get; set; }
 
     /// <summary>
     /// Gets or sets the optional icon reference.

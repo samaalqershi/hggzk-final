@@ -1,11 +1,16 @@
 import 'package:hggzk/features/search/data/models/search_filter_model.dart';
+import 'package:hggzk/core/localization/localized_api_value.dart';
 import '../../domain/entities/unit_type.dart' as domain;
 
 class UnitTypeModel {
   final String id;
   final String propertyTypeId;
   final String name;
+  final String nameAr;
+  final String nameEn;
   final String description;
+  final String descriptionAr;
+  final String descriptionEn;
   final int maxCapacity;
   final String icon;
   final bool isHasAdults;
@@ -17,7 +22,11 @@ class UnitTypeModel {
     required this.id,
     required this.propertyTypeId,
     required this.name,
+    required this.nameAr,
+    required this.nameEn,
     required this.description,
+    required this.descriptionAr,
+    required this.descriptionEn,
     required this.maxCapacity,
     required this.icon,
     required this.isHasAdults,
@@ -30,8 +39,20 @@ class UnitTypeModel {
     return UnitTypeModel(
       id: json['id'] ?? '',
       propertyTypeId: json['propertyTypeId'] ?? '',
-      name: json['name'] ?? '',
-      description: json['description'] ?? '',
+      name: LocalizedApiValue.text(
+        json,
+        arabicKey: 'name',
+        englishKey: 'nameEn',
+      ),
+      nameAr: (json['name'] ?? '').toString(),
+      nameEn: (json['nameEn'] ?? '').toString(),
+      description: LocalizedApiValue.text(
+        json,
+        arabicKey: 'description',
+        englishKey: 'descriptionEn',
+      ),
+      descriptionAr: (json['description'] ?? '').toString(),
+      descriptionEn: (json['descriptionEn'] ?? '').toString(),
       maxCapacity: json['maxCapacity'] ?? 0,
       icon: json['icon'] ?? "",
       isHasAdults: json['isHasAdults'] ?? false,
@@ -49,8 +70,10 @@ class UnitTypeModel {
     return {
       'id': id,
       'propertyTypeId': propertyTypeId,
-      'name': name,
-      'description': description,
+      'name': nameAr.isNotEmpty ? nameAr : name,
+      'nameEn': nameEn,
+      'description': descriptionAr.isNotEmpty ? descriptionAr : description,
+      'descriptionEn': descriptionEn,
       'maxCapacity': maxCapacity,
       'icon': icon,
       'isHasAdults': isHasAdults,

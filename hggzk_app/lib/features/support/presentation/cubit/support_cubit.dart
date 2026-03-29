@@ -2,6 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'dart:io';
+import 'package:hggzk/core/error/failure_localizer.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../domain/entities/support_message.dart';
 import '../../domain/repositories/support_repository.dart';
 import 'support_state.dart';
@@ -71,10 +73,12 @@ class SupportCubit extends Cubit<SupportState> {
       final result = await repository.sendSupportMessage(supportMessage);
 
       result.fold(
-        (failure) => emit(SupportError(message: failure.message)),
+        (failure) =>
+            emit(SupportError(message: FailureLocalizer.localize(failure))),
         (data) {
           final referenceNumber = data['referenceNumber'] ?? '';
-          final responseMessage = data['message'] ?? 'تم إرسال رسالتك بنجاح';
+          final responseMessage = data['message'] ??
+              AppLocalizations.translateSync('support.messageSent');
           emit(SupportSuccess(
             message: responseMessage,
             referenceNumber: referenceNumber,
@@ -82,7 +86,9 @@ class SupportCubit extends Cubit<SupportState> {
         },
       );
     } catch (e) {
-      emit(SupportError(message: 'حدث خطأ: ${e.toString()}'));
+      emit(SupportError(
+        message: AppLocalizations.translateSync('support.error'),
+      ));
     }
   }
 }

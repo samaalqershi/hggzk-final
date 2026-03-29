@@ -20,18 +20,21 @@ public class FieldGroupWithValuesDto
     /// GroupName
     /// </summary>
     public string GroupName { get; set; }
+    public string? GroupNameEn { get; set; }
 
     /// <summary>
     /// الاسم المعروض للمجموعة
     /// DisplayName
     /// </summary>
     public string DisplayName { get; set; }
+    public string? DisplayNameEn { get; set; }
 
     /// <summary>
     /// وصف المجموعة
     /// Description
     /// </summary>
     public string Description { get; set; }
+    public string? DescriptionEn { get; set; }
 
     /// <summary>
     /// قائمة قيم الحقول

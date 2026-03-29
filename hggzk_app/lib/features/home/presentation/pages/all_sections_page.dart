@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../bloc/home_bloc.dart';
@@ -131,7 +132,7 @@ class _AllSectionsPageState extends State<AllSectionsPage>
                 shaderCallback: (bounds) =>
                     AppTheme.primaryGradient.createShader(bounds),
                 child: Text(
-                  'جميع الأقسام',
+                  context.tr('home.sections.title'),
                   style: AppTextStyles.h2.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -148,12 +149,12 @@ class _AllSectionsPageState extends State<AllSectionsPage>
 
   Widget _buildFilterChips() {
     final filters = [
-      'الكل',
-      'عروض',
-      'إعلانات',
-      'عقارات',
-      'وجهات',
-      'مميز',
+      context.tr('home.sections.filter.all'),
+      context.tr('home.sections.filter.offers'),
+      context.tr('home.sections.filter.ads'),
+      context.tr('home.sections.filter.properties'),
+      context.tr('home.sections.filter.destinations'),
+      context.tr('home.sections.filter.featured'),
     ];
 
     return Container(
@@ -166,12 +167,16 @@ class _AllSectionsPageState extends State<AllSectionsPage>
         itemBuilder: (context, index) {
           final filter = filters[index];
           final isSelected = _selectedFilter == filter ||
-              (_selectedFilter == null && filter == 'الكل');
+              (_selectedFilter == null &&
+                  filter == context.tr('home.sections.filter.all'));
 
           return GestureDetector(
             onTap: () {
               setState(() {
-                _selectedFilter = filter == 'الكل' ? null : filter;
+                _selectedFilter =
+                    filter == context.tr('home.sections.filter.all')
+                        ? null
+                        : filter;
               });
               HapticFeedback.lightImpact();
             },

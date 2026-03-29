@@ -27,12 +27,14 @@ public class UnitDetailsDto
     /// يحصل أو يعيّن اسم العقار.
     /// </summary>
     public string PropertyName { get; set; } = string.Empty;
+    public string? PropertyNameEn { get; set; }
     
     /// <summary>
     /// Gets or sets the unit name.
     /// يحصل أو يعيّن اسم الوحدة.
     /// </summary>
     public string Name { get; set; } = string.Empty;
+    public string? NameEn { get; set; }
     
     /// <summary>
     /// Gets or sets the unit type.
@@ -51,6 +53,7 @@ public class UnitDetailsDto
     /// يحصل أو يعيّن اسم نوع الوحدة.
     /// </summary>
     public string UnitTypeName { get; set; } = string.Empty;
+    public string? UnitTypeNameEn { get; set; }
     
     /// <summary>
     /// Gets or sets the currency code when needed by the client.
@@ -93,6 +96,7 @@ public class UnitDetailsDto
     /// يحصل أو يعيّن حمولة JSON للميزات المخصصة.
     /// </summary>
     public string CustomFeatures { get; set; } = string.Empty;
+    public string? CustomFeaturesEn { get; set; }
     
     /// <summary>
     /// Gets or sets the dynamic field values.

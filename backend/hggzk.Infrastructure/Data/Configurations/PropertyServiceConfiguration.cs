@@ -33,10 +33,19 @@ public class PropertyServiceConfiguration : IEntityTypeConfiguration<PropertySer
             .HasMaxLength(200)
             .HasComment("اسم الخدمة");
 
+        builder.Property(ps => ps.NameEn)
+            .HasMaxLength(200)
+            .HasComment("اسم الخدمة بالإنجليزية");
+
         builder.Property(ps => ps.Description)
             .HasMaxLength(1000)
             .IsRequired(false)
             .HasComment("وصف الخدمة");
+
+        builder.Property(ps => ps.DescriptionEn)
+            .HasMaxLength(1000)
+            .IsRequired(false)
+            .HasComment("وصف الخدمة بالإنجليزية");
 
         // Configure the embedded money value object. تهيئة الكائن القيمي المالي المضمن.
         builder.OwnsOne(ps => ps.Price, moneyBuilder =>
@@ -75,6 +84,9 @@ public class PropertyServiceConfiguration : IEntityTypeConfiguration<PropertySer
 
         builder.HasIndex(ps => ps.Name)
             .HasDatabaseName("IX_PropertyServices_Name");
+
+        builder.HasIndex(ps => ps.NameEn)
+            .HasDatabaseName("IX_PropertyServices_NameEn");
 
         builder.HasIndex(ps => ps.IsDeleted)
             .HasDatabaseName("IX_PropertyServices_IsDeleted");

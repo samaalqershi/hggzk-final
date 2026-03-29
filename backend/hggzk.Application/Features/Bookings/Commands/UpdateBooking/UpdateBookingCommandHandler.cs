@@ -404,7 +404,7 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
                 UserId = property.OwnerId,
                 Type = NotificationType.BookingUpdated,
                 Title = "تم تعديل حجز في عقارك / A booking in your property has been updated",
-                Message = $"تم تعديل حجز رقم {bookingNumber} في عقارك {property.Name} للفترة من {booking.CheckIn:yyyy-MM-dd} إلى {booking.CheckOut:yyyy-MM-dd} بعدد ضيوف {booking.GuestsCount} وبسعر إجمالي {booking.TotalPrice}.",
+                Message = $"تم تعديل حجز رقم {bookingNumber} في عقارك {property.Name} للفترة من {booking.CheckIn:yyyy-MM-dd} إلى {booking.CheckOut:yyyy-MM-dd} بعدد ضيوف {booking.GuestsCount} وبسعر إجمالي {booking.TotalPrice}. / Booking {bookingNumber} in your property {property.Name} has been updated for the period from {booking.CheckIn:yyyy-MM-dd} to {booking.CheckOut:yyyy-MM-dd} for {booking.GuestsCount} guests with a total price of {booking.TotalPrice}.",
                 Data = new
                 {
                     BookingId = booking.Id,

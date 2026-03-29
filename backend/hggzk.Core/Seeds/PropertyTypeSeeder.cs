@@ -47,7 +47,7 @@ namespace YemenBooking.Core.Seeds
             // Fixed: Use static date instead of DateTime.UtcNow for PostgreSQL compatibility
             var seedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             
-            return new List<PropertyType>
+            var propertyTypes = new List<PropertyType>
             {
                 new PropertyType
                 {
@@ -100,6 +100,13 @@ namespace YemenBooking.Core.Seeds
                     IsDeleted = false
                 }
             };
+
+            foreach (var propertyType in propertyTypes)
+            {
+                SeedLocalizationHelper.ApplyPropertyTypeEnglish(propertyType);
+            }
+
+            return propertyTypes;
         }
     }
 } 

@@ -65,7 +65,9 @@ namespace YemenBooking.Application.Features.PropertyTypes.Commands.CreatePropert
             var type = new PropertyType
             {
                 Name = request.Name.Trim(),
+                NameEn = string.IsNullOrWhiteSpace(request.NameEn) ? null : request.NameEn.Trim(),
                 Description = request.Description?.Trim(),
+                DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn.Trim(),
                 DefaultAmenities = request.DefaultAmenities,
                 Icon = request.Icon.Trim(),
                 CreatedBy = _currentUserService.UserId,
@@ -81,7 +83,7 @@ namespace YemenBooking.Application.Features.PropertyTypes.Commands.CreatePropert
                 entityId: created.Id,
                 action: AuditAction.CREATE,
                 oldValues: null,
-                newValues: System.Text.Json.JsonSerializer.Serialize(new { created.Id, created.Name }),
+                newValues: System.Text.Json.JsonSerializer.Serialize(new { created.Id, created.Name, created.NameEn, created.Description, created.DescriptionEn }),
                 performedBy: _currentUserService.UserId,
                 notes: notes,
                 cancellationToken: cancellationToken);

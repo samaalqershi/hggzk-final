@@ -11,7 +11,9 @@ abstract class PoliciesRemoteDataSource {
     required String propertyId,
     required PolicyType type,
     required String description,
+    String? descriptionEn,
     String? rules,
+    String? rulesEn,
     int cancellationWindowDays = 0,
     bool requireFullPaymentBeforeConfirmation = false,
     double minimumDepositPercentage = 0.0,
@@ -40,6 +42,7 @@ abstract class PoliciesRemoteDataSource {
     bool? checkInRequiresCoordination,
     bool? checkInContactOwner,
     String? checkInEarlyCheckInNote,
+    String? checkInEarlyCheckInNoteEn,
     String? checkInLateCheckOutNote,
     String? checkInLateCheckOutFee,
     bool? childrenAllowed,
@@ -48,10 +51,12 @@ abstract class PoliciesRemoteDataSource {
     int? childrenMaxChildrenPerRoom,
     int? childrenMaxChildren,
     String? childrenCribsNote,
+    String? childrenCribsNoteEn,
     bool? childrenPlaygroundAvailable,
     bool? childrenKidsMenuAvailable,
     bool? petsAllowed,
     String? petsReason,
+    String? petsReasonEn,
     double? petsFeeAmount,
     String? petsMaxWeight,
     bool? petsRequiresApproval,
@@ -64,13 +69,16 @@ abstract class PoliciesRemoteDataSource {
     String? modificationFeesAfter,
     bool? modificationFlexible,
     String? modificationReason,
+    String? modificationReasonEn,
   });
 
   Future<void> updatePolicy({
     required String policyId,
     required PolicyType type,
     required String description,
+    String? descriptionEn,
     String? rules,
+    String? rulesEn,
     int? cancellationWindowDays,
     bool? requireFullPaymentBeforeConfirmation,
     double? minimumDepositPercentage,
@@ -99,6 +107,7 @@ abstract class PoliciesRemoteDataSource {
     bool? checkInRequiresCoordination,
     bool? checkInContactOwner,
     String? checkInEarlyCheckInNote,
+    String? checkInEarlyCheckInNoteEn,
     String? checkInLateCheckOutNote,
     String? checkInLateCheckOutFee,
     bool? childrenAllowed,
@@ -107,10 +116,12 @@ abstract class PoliciesRemoteDataSource {
     int? childrenMaxChildrenPerRoom,
     int? childrenMaxChildren,
     String? childrenCribsNote,
+    String? childrenCribsNoteEn,
     bool? childrenPlaygroundAvailable,
     bool? childrenKidsMenuAvailable,
     bool? petsAllowed,
     String? petsReason,
+    String? petsReasonEn,
     double? petsFeeAmount,
     String? petsMaxWeight,
     bool? petsRequiresApproval,
@@ -123,6 +134,7 @@ abstract class PoliciesRemoteDataSource {
     String? modificationFeesAfter,
     bool? modificationFlexible,
     String? modificationReason,
+    String? modificationReasonEn,
   });
 
   Future<void> deletePolicy(String policyId);
@@ -163,7 +175,9 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     required String propertyId,
     required PolicyType type,
     required String description,
+    String? descriptionEn,
     String? rules,
+    String? rulesEn,
     int cancellationWindowDays = 0,
     bool requireFullPaymentBeforeConfirmation = false,
     double minimumDepositPercentage = 0.0,
@@ -192,6 +206,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     bool? checkInRequiresCoordination,
     bool? checkInContactOwner,
     String? checkInEarlyCheckInNote,
+    String? checkInEarlyCheckInNoteEn,
     String? checkInLateCheckOutNote,
     String? checkInLateCheckOutFee,
     bool? childrenAllowed,
@@ -200,10 +215,12 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     int? childrenMaxChildrenPerRoom,
     int? childrenMaxChildren,
     String? childrenCribsNote,
+    String? childrenCribsNoteEn,
     bool? childrenPlaygroundAvailable,
     bool? childrenKidsMenuAvailable,
     bool? petsAllowed,
     String? petsReason,
+    String? petsReasonEn,
     double? petsFeeAmount,
     String? petsMaxWeight,
     bool? petsRequiresApproval,
@@ -216,6 +233,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     String? modificationFeesAfter,
     bool? modificationFlexible,
     String? modificationReason,
+    String? modificationReasonEn,
   }) async {
     try {
       final data = <String, dynamic>{
@@ -229,7 +247,11 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
         'minHoursBeforeCheckIn': minHoursBeforeCheckIn,
       };
 
+      if (descriptionEn != null && descriptionEn.isNotEmpty) {
+        data['descriptionEn'] = descriptionEn;
+      }
       if (rules != null && rules.isNotEmpty) data['rules'] = rules;
+      if (rulesEn != null && rulesEn.isNotEmpty) data['rulesEn'] = rulesEn;
 
       _addIfNotNull(data, 'cancellationFreeCancel', cancellationFreeCancel);
       _addIfNotNull(data, 'cancellationFullRefund', cancellationFullRefund);
@@ -264,6 +286,8 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
           data, 'checkInRequiresCoordination', checkInRequiresCoordination);
       _addIfNotNull(data, 'checkInContactOwner', checkInContactOwner);
       _addIfNotNull(data, 'checkInEarlyCheckInNote', checkInEarlyCheckInNote);
+      _addIfNotNull(
+          data, 'checkInEarlyCheckInNoteEn', checkInEarlyCheckInNoteEn);
       _addIfNotNull(data, 'checkInLateCheckOutNote', checkInLateCheckOutNote);
       _addIfNotNull(data, 'checkInLateCheckOutFee', checkInLateCheckOutFee);
 
@@ -275,6 +299,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
           data, 'childrenMaxChildrenPerRoom', childrenMaxChildrenPerRoom);
       _addIfNotNull(data, 'childrenMaxChildren', childrenMaxChildren);
       _addIfNotNull(data, 'childrenCribsNote', childrenCribsNote);
+      _addIfNotNull(data, 'childrenCribsNoteEn', childrenCribsNoteEn);
       _addIfNotNull(
           data, 'childrenPlaygroundAvailable', childrenPlaygroundAvailable);
       _addIfNotNull(
@@ -282,6 +307,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
 
       _addIfNotNull(data, 'petsAllowed', petsAllowed);
       _addIfNotNull(data, 'petsReason', petsReason);
+      _addIfNotNull(data, 'petsReasonEn', petsReasonEn);
       _addIfNotNull(data, 'petsFeeAmount', petsFeeAmount);
       _addIfNotNull(data, 'petsMaxWeight', petsMaxWeight);
       _addIfNotNull(data, 'petsRequiresApproval', petsRequiresApproval);
@@ -296,6 +322,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
       _addIfNotNull(data, 'modificationFeesAfter', modificationFeesAfter);
       _addIfNotNull(data, 'modificationFlexible', modificationFlexible);
       _addIfNotNull(data, 'modificationReason', modificationReason);
+      _addIfNotNull(data, 'modificationReasonEn', modificationReasonEn);
 
       final response = await apiClient.post(
         _baseUrl,
@@ -317,7 +344,9 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     required String policyId,
     required PolicyType type,
     required String description,
+    String? descriptionEn,
     String? rules,
+    String? rulesEn,
     int? cancellationWindowDays,
     bool? requireFullPaymentBeforeConfirmation,
     double? minimumDepositPercentage,
@@ -346,6 +375,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     bool? checkInRequiresCoordination,
     bool? checkInContactOwner,
     String? checkInEarlyCheckInNote,
+    String? checkInEarlyCheckInNoteEn,
     String? checkInLateCheckOutNote,
     String? checkInLateCheckOutFee,
     bool? childrenAllowed,
@@ -354,10 +384,12 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     int? childrenMaxChildrenPerRoom,
     int? childrenMaxChildren,
     String? childrenCribsNote,
+    String? childrenCribsNoteEn,
     bool? childrenPlaygroundAvailable,
     bool? childrenKidsMenuAvailable,
     bool? petsAllowed,
     String? petsReason,
+    String? petsReasonEn,
     double? petsFeeAmount,
     String? petsMaxWeight,
     bool? petsRequiresApproval,
@@ -370,6 +402,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
     String? modificationFeesAfter,
     bool? modificationFlexible,
     String? modificationReason,
+    String? modificationReasonEn,
   }) async {
     try {
       final data = <String, dynamic>{
@@ -378,7 +411,9 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
         'description': description,
       };
 
+      if (descriptionEn != null) data['descriptionEn'] = descriptionEn;
       if (rules != null && rules.isNotEmpty) data['rules'] = rules;
+      if (rulesEn != null && rulesEn.isNotEmpty) data['rulesEn'] = rulesEn;
 
       if (cancellationWindowDays != null)
         data['cancellationWindowDays'] = cancellationWindowDays;
@@ -423,6 +458,8 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
           data, 'checkInRequiresCoordination', checkInRequiresCoordination);
       _addIfNotNull(data, 'checkInContactOwner', checkInContactOwner);
       _addIfNotNull(data, 'checkInEarlyCheckInNote', checkInEarlyCheckInNote);
+      _addIfNotNull(
+          data, 'checkInEarlyCheckInNoteEn', checkInEarlyCheckInNoteEn);
       _addIfNotNull(data, 'checkInLateCheckOutNote', checkInLateCheckOutNote);
       _addIfNotNull(data, 'checkInLateCheckOutFee', checkInLateCheckOutFee);
 
@@ -434,6 +471,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
           data, 'childrenMaxChildrenPerRoom', childrenMaxChildrenPerRoom);
       _addIfNotNull(data, 'childrenMaxChildren', childrenMaxChildren);
       _addIfNotNull(data, 'childrenCribsNote', childrenCribsNote);
+      _addIfNotNull(data, 'childrenCribsNoteEn', childrenCribsNoteEn);
       _addIfNotNull(
           data, 'childrenPlaygroundAvailable', childrenPlaygroundAvailable);
       _addIfNotNull(
@@ -441,6 +479,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
 
       _addIfNotNull(data, 'petsAllowed', petsAllowed);
       _addIfNotNull(data, 'petsReason', petsReason);
+      _addIfNotNull(data, 'petsReasonEn', petsReasonEn);
       _addIfNotNull(data, 'petsFeeAmount', petsFeeAmount);
       _addIfNotNull(data, 'petsMaxWeight', petsMaxWeight);
       _addIfNotNull(data, 'petsRequiresApproval', petsRequiresApproval);
@@ -455,6 +494,7 @@ class PoliciesRemoteDataSourceImpl implements PoliciesRemoteDataSource {
       _addIfNotNull(data, 'modificationFeesAfter', modificationFeesAfter);
       _addIfNotNull(data, 'modificationFlexible', modificationFlexible);
       _addIfNotNull(data, 'modificationReason', modificationReason);
+      _addIfNotNull(data, 'modificationReasonEn', modificationReasonEn);
 
       final response = await apiClient.put(
         '$_baseUrl/$policyId',

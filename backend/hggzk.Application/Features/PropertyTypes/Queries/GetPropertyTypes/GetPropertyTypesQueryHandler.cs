@@ -69,7 +69,9 @@ public class GetPropertyTypesQueryHandler : IRequestHandler<GetPropertyTypesQuer
                 {
                     Id = propertyType.Id,
                     Name = propertyType.Name ?? string.Empty,
+                    NameEn = propertyType.NameEn,
                     Description = propertyType.Description ?? string.Empty,
+                    DescriptionEn = propertyType.DescriptionEn,
                     PropertiesCount = propertiesCount,
                     Icon = propertyType.Icon ?? string.Empty,
                     UnitTypeIds = propertyType.UnitTypes?.Select(ut => ut.Id).ToList() ?? new List<Guid>()

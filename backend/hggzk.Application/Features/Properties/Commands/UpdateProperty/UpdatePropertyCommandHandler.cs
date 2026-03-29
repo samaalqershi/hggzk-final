@@ -121,14 +121,24 @@ namespace YemenBooking.Application.Features.Properties.Commands.UpdateProperty
             // تنفيذ التحديث
             if (!string.IsNullOrWhiteSpace(request.Name))
                 property.Name = request.Name;
+            if (request.NameEn != null)
+                property.NameEn = string.IsNullOrWhiteSpace(request.NameEn) ? null : request.NameEn.Trim();
             if (!string.IsNullOrWhiteSpace(request.Address))
                 property.Address = request.Address;
+            if (request.AddressEn != null)
+                property.AddressEn = string.IsNullOrWhiteSpace(request.AddressEn) ? null : request.AddressEn.Trim();
             if (!string.IsNullOrWhiteSpace(request.Description))
                 property.Description = request.Description;
+            if (request.DescriptionEn != null)
+                property.DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn.Trim();
             if (!string.IsNullOrWhiteSpace(request.ShortDescription))
                 property.ShortDescription = request.ShortDescription;
+            if (request.ShortDescriptionEn != null)
+                property.ShortDescriptionEn = string.IsNullOrWhiteSpace(request.ShortDescriptionEn) ? null : request.ShortDescriptionEn.Trim();
             if (!string.IsNullOrWhiteSpace(request.City))
                 property.City = request.City;
+            if (request.CityEn != null)
+                property.CityEn = string.IsNullOrWhiteSpace(request.CityEn) ? null : request.CityEn.Trim();
             if (request.StarRating.HasValue)
                 property.StarRating = request.StarRating.Value;
             if (!string.IsNullOrWhiteSpace(request.Currency))
@@ -151,9 +161,15 @@ namespace YemenBooking.Application.Features.Properties.Commands.UpdateProperty
             {
                 property.Id,
                 property.Name,
+                property.NameEn,
                 property.Address,
+                property.AddressEn,
                 property.Description,
+                property.DescriptionEn,
+                property.ShortDescription,
+                property.ShortDescriptionEn,
                 property.City,
+                property.CityEn,
                 property.StarRating,
                 property.Currency,
                 property.IsFeatured,
@@ -214,9 +230,15 @@ namespace YemenBooking.Application.Features.Properties.Commands.UpdateProperty
             {
                 property.Id,
                 property.Name,
+                property.NameEn,
                 property.Address,
+                property.AddressEn,
                 property.Description,
+                property.DescriptionEn,
+                property.ShortDescription,
+                property.ShortDescriptionEn,
                 property.City,
+                property.CityEn,
                 property.StarRating,
                 property.Currency,
                 property.IsFeatured,

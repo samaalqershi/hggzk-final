@@ -1,3 +1,7 @@
+import 'dart:ui';
+
+import 'package:hggzk/core/localization/app_localizations.dart';
+
 /// تعداد طرق الدفع
 /// Payment Methods enumeration
 enum PaymentMethod {
@@ -48,25 +52,53 @@ extension PaymentMethodExtension on PaymentMethod {
   /// Exposes the `displayNameAr` value for callers that need it.
   /// العربية: يعيد القيمة `displayNameAr`.
   String get displayNameAr {
+    const locale = Locale('ar');
     switch (this) {
       case PaymentMethod.jwaliWallet:
-        return 'محفظة جوالي';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.jwaliWallet',
+          locale: locale,
+        );
       case PaymentMethod.cashWallet:
-        return 'كاش محفظة';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.cashWallet',
+          locale: locale,
+        );
       case PaymentMethod.oneCashWallet:
-        return 'محفظة ون كاش';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.oneCashWallet',
+          locale: locale,
+        );
       case PaymentMethod.floskWallet:
-        return 'محفظة فلوس';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.floskWallet',
+          locale: locale,
+        );
       case PaymentMethod.jaibWallet:
-        return 'محفظة جيب';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.jaibWallet',
+          locale: locale,
+        );
       case PaymentMethod.cash:
-        return 'نقداً';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.cash',
+          locale: locale,
+        );
       case PaymentMethod.paypal:
-        return 'باي بال';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.paypal',
+          locale: locale,
+        );
       case PaymentMethod.creditCard:
-        return 'بطاقة ائتمان';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.creditCard',
+          locale: locale,
+        );
       case PaymentMethod.sabaCashWallet:
-        return 'محفظة سبأ كاش';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.sabaCashWallet',
+          locale: locale,
+        );
     }
   }
 
@@ -74,25 +106,53 @@ extension PaymentMethodExtension on PaymentMethod {
   /// Exposes the `displayNameEn` value for callers that need it.
   /// العربية: يعيد القيمة `displayNameEn`.
   String get displayNameEn {
+    const locale = Locale('en');
     switch (this) {
       case PaymentMethod.jwaliWallet:
-        return 'Jwali Wallet';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.jwaliWallet',
+          locale: locale,
+        );
       case PaymentMethod.cashWallet:
-        return 'Cash Wallet';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.cashWallet',
+          locale: locale,
+        );
       case PaymentMethod.oneCashWallet:
-        return 'OneCash Wallet';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.oneCashWallet',
+          locale: locale,
+        );
       case PaymentMethod.floskWallet:
-        return 'Flosk Wallet';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.floskWallet',
+          locale: locale,
+        );
       case PaymentMethod.jaibWallet:
-        return 'Jaib Wallet';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.jaibWallet',
+          locale: locale,
+        );
       case PaymentMethod.cash:
-        return 'Cash';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.cash',
+          locale: locale,
+        );
       case PaymentMethod.paypal:
-        return 'PayPal';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.paypal',
+          locale: locale,
+        );
       case PaymentMethod.creditCard:
-        return 'Credit Card';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.creditCard',
+          locale: locale,
+        );
       case PaymentMethod.sabaCashWallet:
-        return 'SabaCash Wallet';
+        return AppLocalizations.translateSync(
+          'core.paymentMethod.sabaCashWallet',
+          locale: locale,
+        );
     }
   }
 
@@ -233,19 +293,38 @@ extension PaymentStatusExtension on PaymentStatus {
   /// Exposes the `displayNameAr` value for callers that need it.
   /// العربية: يعيد القيمة `displayNameAr`.
   String get displayNameAr {
+    const locale = Locale('ar');
     switch (this) {
       case PaymentStatus.successful:
-        return 'ناجح';
+        return AppLocalizations.translateSync(
+          'core.paymentStatus.successful',
+          locale: locale,
+        );
       case PaymentStatus.failed:
-        return 'فاشل';
+        return AppLocalizations.translateSync(
+          'core.paymentStatus.failed',
+          locale: locale,
+        );
       case PaymentStatus.pending:
-        return 'معلق';
+        return AppLocalizations.translateSync(
+          'core.paymentStatus.pending',
+          locale: locale,
+        );
       case PaymentStatus.refunded:
-        return 'مسترد';
+        return AppLocalizations.translateSync(
+          'core.paymentStatus.refunded',
+          locale: locale,
+        );
       case PaymentStatus.voided:
-        return 'ملغي';
+        return AppLocalizations.translateSync(
+          'core.paymentStatus.voided',
+          locale: locale,
+        );
       case PaymentStatus.partiallyRefunded:
-        return 'مسترد جزئياً';
+        return AppLocalizations.translateSync(
+          'core.paymentStatus.partiallyRefunded',
+          locale: locale,
+        );
     }
   }
 
@@ -253,19 +332,38 @@ extension PaymentStatusExtension on PaymentStatus {
   /// Exposes the `displayNameEn` value for callers that need it.
   /// العربية: يعيد القيمة `displayNameEn`.
   String get displayNameEn {
+    const locale = Locale('en');
     switch (this) {
       case PaymentStatus.successful:
-        return 'Successful';
+        return AppLocalizations.translateSync(
+          'core.paymentStatus.successful',
+          locale: locale,
+        );
       case PaymentStatus.failed:
-        return 'Failed';
+        return AppLocalizations.translateSync(
+          'core.paymentStatus.failed',
+          locale: locale,
+        );
       case PaymentStatus.pending:
-        return 'Pending';
+        return AppLocalizations.translateSync(
+          'core.paymentStatus.pending',
+          locale: locale,
+        );
       case PaymentStatus.refunded:
-        return 'Refunded';
+        return AppLocalizations.translateSync(
+          'core.paymentStatus.refunded',
+          locale: locale,
+        );
       case PaymentStatus.voided:
-        return 'Voided';
+        return AppLocalizations.translateSync(
+          'core.paymentStatus.voided',
+          locale: locale,
+        );
       case PaymentStatus.partiallyRefunded:
-        return 'Partially Refunded';
+        return AppLocalizations.translateSync(
+          'core.paymentStatus.partiallyRefunded',
+          locale: locale,
+        );
     }
   }
 

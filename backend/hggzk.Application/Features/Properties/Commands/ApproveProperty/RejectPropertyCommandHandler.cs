@@ -109,8 +109,8 @@ namespace YemenBooking.Application.Features.Properties.Commands.ApproveProperty
             {
                 UserId = property.OwnerId,
                 Type = NotificationType.BookingCancelled,
-                Title = "تم رفض الكيان",
-                Message = $"عذراً، تم رفض كيانك '{property.Name}' بسبب: {request.Reason}"
+                Title = "تم رفض الكيان / Property rejected",
+                Message = $"عذراً، تم رفض كيانك '{property.Name}' بسبب: {request.Reason} / Your property '{property.Name}' has been rejected. Reason: {request.Reason}"
             }, cancellationToken);
 
             _logger.LogInformation("اكتمل رفض الكيان: PropertyId={PropertyId}", request.PropertyId);

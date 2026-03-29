@@ -21,6 +21,21 @@ public class UpdateUnitTypeCommand : IRequest<ResultDto<bool>>
     /// Name.
     /// </summary>
     public string Name { get; set; } = string.Empty;
+    /// <summary>
+    /// الاسم بالإنجليزية.
+    /// Name in English.
+    /// </summary>
+    public string? NameEn { get; set; }
+    /// <summary>
+    /// الوصف.
+    /// Description.
+    /// </summary>
+    public string? Description { get; set; }
+    /// <summary>
+    /// الوصف بالإنجليزية.
+    /// Description in English.
+    /// </summary>
+    public string? DescriptionEn { get; set; }
 
     /// <summary>
     /// السعة القصوى.

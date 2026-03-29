@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -101,7 +102,7 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
         .where((p) => widget.typingUserIds.contains(p.id))
         .toList();
 
-    final typingText = _getTypingText(typingUsers);
+    final typingText = _getTypingText(context, typingUsers);
 
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -209,15 +210,26 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
 
   /// Builds the localized label shown beneath the typing dots.
   /// ينشئ النص المحلي الظاهر أسفل نقاط الكتابة.
-  String _getTypingText(List<ChatUser> typingUsers) {
+  String _getTypingText(BuildContext context, List<ChatUser> typingUsers) {
     if (typingUsers.isEmpty) return '';
 
     if (typingUsers.length == 1) {
-      return '${typingUsers.first.name} يكتب';
+      return context.tr(
+        'chat.thread.typingSingle',
+        params: {'name': typingUsers.first.name},
+      );
     } else if (typingUsers.length == 2) {
-      return '${typingUsers.first.name} و${typingUsers.last.name} يكتبان';
+      return context.tr(
+        'chat.thread.typingDual',
+        params: {
+          'first': typingUsers.first.name,
+          'second': typingUsers.last.name,
+        },
+      );
     } else {
-      return 'عدة أشخاص يكتبون';
+      return context.tr(
+        'chat.thread.typingMultiple',
+      );
     }
   }
 }

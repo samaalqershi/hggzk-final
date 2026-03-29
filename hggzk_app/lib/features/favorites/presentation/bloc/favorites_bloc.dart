@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../domain/entities/favorite.dart';
@@ -174,19 +175,19 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
       case ServerFailure:
-        return 'حدث خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً';
+        return AppLocalizations.translateSync('favorites.errors.server');
       case CacheFailure:
-        return 'حدث خطأ في التخزين المحلي';
+        return AppLocalizations.translateSync('favorites.errors.localStorage');
       case NetworkFailure:
-        return 'يرجى التحقق من اتصالك بالإنترنت';
+        return AppLocalizations.translateSync('favorites.errors.network');
       case ValidationFailure:
         return (failure as ValidationFailure).message;
       case AuthenticationFailure:
-        return 'يجب تسجيل الدخول لإضافة المفضلة';
+        return AppLocalizations.translateSync('favorites.errors.loginRequired');
       case UnauthorizedFailure:
-        return 'غير مصرح لك بالقيام بهذا الإجراء';
+        return AppLocalizations.translateSync('favorites.errors.unauthorized');
       default:
-        return 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى';
+        return AppLocalizations.translateSync('favorites.errors.unexpected');
     }
   }
 }

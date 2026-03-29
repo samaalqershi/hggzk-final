@@ -25,7 +25,9 @@ public class AmenityConfiguration : IEntityTypeConfiguration<Amenity>
         builder.Property(b => b.DeletedAt).HasColumnType("timestamp with time zone");
 
         builder.Property(a => a.Name).IsRequired().HasMaxLength(50);
+        builder.Property(a => a.NameEn).HasMaxLength(50);
         builder.Property(a => a.Description).HasMaxLength(200);
+        builder.Property(a => a.DescriptionEn).HasMaxLength(200);
 
         builder.HasIndex(a => a.Name).IsUnique();
 

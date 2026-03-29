@@ -6,6 +6,7 @@ using System;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
+using YemenBooking.Api.Infrastructure.Localization;
 using YemenBooking.Infrastructure.Data.Context;
 
 namespace YemenBooking.Api.Middlewares
@@ -67,7 +68,13 @@ namespace YemenBooking.Api.Middlewares
                     {
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         context.Response.ContentType = "application/json";
-                        var payload = JsonSerializer.Serialize(new { success = false, message = "Account disabled" });
+                        var localizer = context.RequestServices.GetRequiredService<IBackendTextLocalizer>();
+                        var payload = JsonSerializer.Serialize(new
+                        {
+                            success = false,
+                            message = localizer.Translate("common.accountDisabled"),
+                            errorCode = "ACCOUNT_DISABLED"
+                        });
                         await context.Response.WriteAsync(payload);
                         return;
                     }

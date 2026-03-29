@@ -44,7 +44,9 @@ namespace YemenBooking.Application.Features.Amenities.Queries.GetPopularAmenitie
                 {
                     Id = g.Key.Id,
                     Name = g.Key.Name,
+                    NameEn = g.Key.NameEn,
                     Description = g.Key.Description,
+                    DescriptionEn = g.Key.DescriptionEn,
                     Icon = g.Key.Icon,
                     IsActive = g.Key.IsActive,
                     CreatedAt = g.Key.CreatedAt,

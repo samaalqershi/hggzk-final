@@ -14,12 +14,22 @@ public class CreateAmenityCommand : IRequest<ResultDto<Guid>>
     /// Amenity name
     /// </summary>
     public string Name { get; set; } = string.Empty;
+    /// <summary>
+    /// اسم المرفق بالإنجليزية
+    /// Amenity name in English
+    /// </summary>
+    public string? NameEn { get; set; }
 
     /// <summary>
     /// وصف المرفق
     /// Amenity description
     /// </summary>
     public string Description { get; set; } = string.Empty;
+    /// <summary>
+    /// وصف المرفق بالإنجليزية
+    /// Amenity description in English
+    /// </summary>
+    public string? DescriptionEn { get; set; }
 
     /// <summary>
     /// أيقونة المرفق

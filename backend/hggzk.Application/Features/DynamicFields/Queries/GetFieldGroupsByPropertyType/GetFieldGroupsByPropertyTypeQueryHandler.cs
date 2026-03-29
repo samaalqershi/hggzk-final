@@ -54,8 +54,11 @@ namespace YemenBooking.Application.Features.DynamicFields.Queries.GetFieldGroups
                     GroupId = g.Id.ToString(),
                     UnitTypeId = g.UnitTypeId.ToString(),
                     GroupName = g.GroupName,
+                    GroupNameEn = g.GroupNameEn,
                     DisplayName = g.DisplayName,
+                    DisplayNameEn = g.DisplayNameEn,
                     Description = g.Description,
+                    DescriptionEn = g.DescriptionEn,
                     SortOrder = g.SortOrder,
                     IsCollapsible = g.IsCollapsible,
                     IsExpandedByDefault = g.IsExpandedByDefault

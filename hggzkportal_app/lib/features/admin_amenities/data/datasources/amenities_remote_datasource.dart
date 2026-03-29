@@ -15,7 +15,9 @@ abstract class AmenitiesRemoteDataSource {
   /// classification data.
   Future<String> createAmenity({
     required String name,
+    String? nameEn,
     required String description,
+    String? descriptionEn,
     required String icon,
     String? propertyTypeId,
     bool isDefaultForType = false,
@@ -28,7 +30,9 @@ abstract class AmenitiesRemoteDataSource {
   Future<bool> updateAmenity({
     required String amenityId,
     String? name,
+    String? nameEn,
     String? description,
+    String? descriptionEn,
     String? icon,
   });
 
@@ -117,7 +121,9 @@ class AmenitiesRemoteDataSourceImpl implements AmenitiesRemoteDataSource {
   /// accepted after persistence.
   Future<String> createAmenity({
     required String name,
+    String? nameEn,
     required String description,
+    String? descriptionEn,
     required String icon,
     String? propertyTypeId,
     bool isDefaultForType = false,
@@ -127,7 +133,9 @@ class AmenitiesRemoteDataSourceImpl implements AmenitiesRemoteDataSource {
         _baseEndpoint,
         data: {
           'name': name,
+          if (nameEn != null) 'nameEn': nameEn,
           'description': description,
+          if (descriptionEn != null) 'descriptionEn': descriptionEn,
           'icon': icon,
           if (propertyTypeId != null) 'propertyTypeId': propertyTypeId,
           if (propertyTypeId != null) 'isDefaultForType': isDefaultForType,
@@ -154,7 +162,9 @@ class AmenitiesRemoteDataSourceImpl implements AmenitiesRemoteDataSource {
   Future<bool> updateAmenity({
     required String amenityId,
     String? name,
+    String? nameEn,
     String? description,
+    String? descriptionEn,
     String? icon,
   }) async {
     try {
@@ -162,7 +172,9 @@ class AmenitiesRemoteDataSourceImpl implements AmenitiesRemoteDataSource {
         '$_baseEndpoint/$amenityId',
         data: {
           if (name != null) 'name': name,
+          if (nameEn != null) 'nameEn': nameEn,
           if (description != null) 'description': description,
+          if (descriptionEn != null) 'descriptionEn': descriptionEn,
           if (icon != null) 'icon': icon,
         },
       );

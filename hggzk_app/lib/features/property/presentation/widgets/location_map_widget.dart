@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -183,7 +184,7 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'الموقع',
+                  context.tr('property.map.location'),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.primaryBlue,
                     fontWeight: FontWeight.w600,
@@ -215,7 +216,7 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
           Expanded(
             child: _buildActionButton(
               icon: Icons.map,
-              label: 'ملء الشاشة',
+              label: context.tr('property.map.fullscreen'),
               gradient: LinearGradient(
                 colors: [AppTheme.success, AppTheme.neonGreen],
               ),

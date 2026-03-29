@@ -10,6 +10,7 @@ class UnitFieldValueModel extends UnitFieldValue {
     required super.fieldValue,
     super.fieldName,
     super.displayName,
+    super.displayNameEn,
     super.fieldTypeId,
     super.isPrimaryFilter,
   });
@@ -51,6 +52,8 @@ class UnitFieldValueModel extends UnitFieldValue {
           (json['fieldName'] as String?) ?? fieldObj?['fieldName'] as String?,
       displayName: (json['displayName'] as String?) ??
           fieldObj?['displayName'] as String?,
+      displayNameEn: (json['displayNameEn'] as String?) ??
+          fieldObj?['displayNameEn'] as String?,
       fieldTypeId: (json['fieldTypeId'] as String?) ??
           (json['fieldType'] as String?) ??
           fieldObj?['fieldTypeId'] as String? ??
@@ -67,6 +70,7 @@ class UnitFieldValueModel extends UnitFieldValue {
       'fieldValue': fieldValue,
       if (fieldName != null) 'fieldName': fieldName,
       if (displayName != null) 'displayName': displayName,
+      if (displayNameEn != null) 'displayNameEn': displayNameEn,
       if (fieldTypeId != null) 'fieldTypeId': fieldTypeId,
       if (isPrimaryFilter != null) 'isPrimaryFilter': isPrimaryFilter,
     };
@@ -80,6 +84,7 @@ class UnitFieldValueModel extends UnitFieldValue {
       fieldValue: entity.fieldValue,
       fieldName: entity.fieldName,
       displayName: entity.displayName,
+      displayNameEn: entity.displayNameEn,
       fieldTypeId: entity.fieldTypeId,
       isPrimaryFilter: entity.isPrimaryFilter,
     );
@@ -94,8 +99,11 @@ class FieldGroupWithValuesModel extends FieldGroupWithValues {
   const FieldGroupWithValuesModel({
     required super.groupId,
     required super.groupName,
+    super.groupNameEn,
     required super.displayName,
+    super.displayNameEn,
     required super.description,
+    super.descriptionEn,
     required super.fieldValues,
   });
 
@@ -105,8 +113,11 @@ class FieldGroupWithValuesModel extends FieldGroupWithValues {
     return FieldGroupWithValuesModel(
       groupId: json['groupId'] as String,
       groupName: json['groupName'] as String,
+      groupNameEn: json['groupNameEn'] as String?,
       displayName: json['displayName'] as String,
+      displayNameEn: json['displayNameEn'] as String?,
       description: json['description'] as String,
+      descriptionEn: json['descriptionEn'] as String?,
       fieldValues: (json['fieldValues'] as List)
           .map((e) => UnitFieldValueModel.fromJson(e))
           .toList(),
@@ -119,8 +130,11 @@ class FieldGroupWithValuesModel extends FieldGroupWithValues {
     return {
       'groupId': groupId,
       'groupName': groupName,
+      if (groupNameEn != null) 'groupNameEn': groupNameEn,
       'displayName': displayName,
+      if (displayNameEn != null) 'displayNameEn': displayNameEn,
       'description': description,
+      if (descriptionEn != null) 'descriptionEn': descriptionEn,
       'fieldValues': fieldValues
           .map((e) => UnitFieldValueModel.fromEntity(e).toJson())
           .toList(),
@@ -133,8 +147,11 @@ class FieldGroupWithValuesModel extends FieldGroupWithValues {
     return FieldGroupWithValuesModel(
       groupId: entity.groupId,
       groupName: entity.groupName,
+      groupNameEn: entity.groupNameEn,
       displayName: entity.displayName,
+      displayNameEn: entity.displayNameEn,
       description: entity.description,
+      descriptionEn: entity.descriptionEn,
       fieldValues: entity.fieldValues,
     );
   }

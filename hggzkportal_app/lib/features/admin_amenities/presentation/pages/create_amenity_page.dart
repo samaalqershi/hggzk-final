@@ -58,9 +58,18 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
   /// English: Controls the amenity name input value.
   final TextEditingController _nameController = TextEditingController();
 
+  /// Arabic: يتحكم في قيمة حقل اسم المرفق بالإنجليزية.
+  /// English: Controls the English amenity name input value.
+  final TextEditingController _nameEnController = TextEditingController();
+
   /// Arabic: يتحكم في قيمة حقل الوصف.
   /// English: Controls the description input value.
   final TextEditingController _descriptionController = TextEditingController();
+
+  /// Arabic: يتحكم في قيمة حقل الوصف الإنجليزي.
+  /// English: Controls the English description input value.
+  final TextEditingController _descriptionEnController =
+      TextEditingController();
 
   /// Arabic: الأيقونة المختارة حاليًا للمرفق الجديد.
   /// English: Currently selected icon for the new amenity.
@@ -128,7 +137,9 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
     _animationController.dispose();
     _glowController.dispose();
     _nameController.dispose();
+    _nameEnController.dispose();
     _descriptionController.dispose();
+    _descriptionEnController.dispose();
     super.dispose();
   }
 
@@ -420,12 +431,31 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
 
           const SizedBox(height: 20),
 
+          _buildInputField(
+            controller: _nameEnController,
+            label: 'اسم المرفق بالإنجليزية',
+            hint: 'Enter amenity name in English',
+            icon: Icons.translate_rounded,
+          ),
+
+          const SizedBox(height: 20),
+
           // Description Field
           _buildInputField(
             controller: _descriptionController,
             label: 'الوصف',
             hint: 'وصف مختصر للمرفق (اختياري)',
             icon: Icons.description_rounded,
+            maxLines: 5,
+          ),
+
+          const SizedBox(height: 20),
+
+          _buildInputField(
+            controller: _descriptionEnController,
+            label: 'الوصف بالإنجليزية',
+            hint: 'Short English description (optional)',
+            icon: Icons.language_rounded,
             maxLines: 5,
           ),
 
@@ -1161,7 +1191,13 @@ class _CreateAmenityPageState extends State<CreateAmenityPage>
       context.read<AmenitiesBloc>().add(
             CreateAmenityEvent(
               name: _nameController.text,
+              nameEn: _nameEnController.text.trim().isEmpty
+                  ? null
+                  : _nameEnController.text.trim(),
               description: _descriptionController.text,
+              descriptionEn: _descriptionEnController.text.trim().isEmpty
+                  ? null
+                  : _descriptionEnController.text.trim(),
               icon: _selectedIcon,
               propertyTypeId: _selectedPropertyTypeId,
               isDefaultForType: _isDefaultForType,

@@ -1,6 +1,5 @@
 // lib/features/admin_services/presentation/pages/edit_service_page.dart
 
-import 'dart:ui';
 import 'dart:math' as math;
 import 'package:hggzkportal/core/theme/app_text_styles.dart';
 import 'package:hggzkportal/core/theme/app_theme.dart';
@@ -9,8 +8,6 @@ import 'package:hggzkportal/features/admin_currencies/domain/usecases/get_curren
 import 'package:hggzkportal/features/admin_services/domain/entities/money.dart';
 import 'package:hggzkportal/features/admin_services/domain/entities/pricing_model.dart';
 import 'package:hggzkportal/features/admin_services/domain/entities/service.dart'
-    as svc_entity;
-import 'package:hggzkportal/features/admin_services/domain/entities/service_details.dart'
     as svc_entity;
 import 'package:hggzkportal/features/admin_services/presentation/bloc/services_bloc.dart';
 import 'package:hggzkportal/features/admin_services/presentation/bloc/services_event.dart';
@@ -21,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 class EditServicePage extends StatefulWidget {
   /// العربية: يخزن القيمة `serviceId`.
   final String serviceId;
@@ -33,6 +31,7 @@ class EditServicePage extends StatefulWidget {
   @override
   State<EditServicePage> createState() => _EditServicePageState();
 }
+
 class _EditServicePageState extends State<EditServicePage>
     with TickerProviderStateMixin {
   // Controllers
@@ -46,8 +45,11 @@ class _EditServicePageState extends State<EditServicePage>
   // Form Controllers
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _nameEnController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _descriptionEnController =
+      TextEditingController();
 
   // State
   String? _propertyName;
@@ -67,6 +69,7 @@ class _EditServicePageState extends State<EditServicePage>
     _initializeAnimations();
     _prefillOrLoad();
   }
+
   void _initializeAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -107,6 +110,7 @@ class _EditServicePageState extends State<EditServicePage>
       curve: Curves.linear,
     ));
   }
+
   void _prefillOrLoad() {
     final initial = widget.initialService;
     if (initial != null) {
@@ -117,6 +121,7 @@ class _EditServicePageState extends State<EditServicePage>
           .add(LoadServiceDetailsEvent(widget.serviceId));
     }
   }
+
   void _populateFormWithServiceData(svc_entity.Service service) {
     if (_isDataLoaded) return;
 
@@ -126,14 +131,14 @@ class _EditServicePageState extends State<EditServicePage>
 
       // Populate controllers
       _nameController.text = service.name;
+      _nameEnController.text = service.nameEn ?? '';
       _amountController.text = service.price.amount.toString();
       _propertyName = service.propertyName;
       _selectedIcon = service.icon;
       _selectedCurrency = service.price.currency;
       _selectedPricingModel = service.pricingModel;
-      if (service is svc_entity.ServiceDetails) {
-        _descriptionController.text = service.description ?? '';
-      }
+      _descriptionController.text = service.description ?? '';
+      _descriptionEnController.text = service.descriptionEn ?? '';
       _isFree = (double.tryParse(_amountController.text) ?? 0) == 0;
     });
 
@@ -144,15 +149,20 @@ class _EditServicePageState extends State<EditServicePage>
       }
     });
   }
+
   @override
   void dispose() {
     _animationController.dispose();
     _glowController.dispose();
     _loadingAnimationController.dispose();
     _nameController.dispose();
+    _nameEnController.dispose();
     _amountController.dispose();
+    _descriptionController.dispose();
+    _descriptionEnController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -219,6 +229,7 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
+
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: _glowController,
@@ -245,6 +256,7 @@ class _EditServicePageState extends State<EditServicePage>
       },
     );
   }
+
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -321,6 +333,7 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
+
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -447,6 +460,7 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
+
   Widget _buildProgressIndicator() {
     final steps = [
       'المعلومات الأساسية',
@@ -545,6 +559,7 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
+
   Widget _buildFormContent() {
     return Form(
       key: _formKey,
@@ -563,6 +578,7 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
+
   Widget _buildBasicInfoStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -593,6 +609,25 @@ class _EditServicePageState extends State<EditServicePage>
 
           const SizedBox(height: 20),
 
+          if (_originalService != null &&
+              _nameEnController.text != (_originalService!.nameEn ?? ''))
+            _buildOriginalValueIndicator(
+              'الاسم الإنجليزي الأصلي',
+              (_originalService!.nameEn ?? '').isEmpty
+                  ? 'لا يوجد'
+                  : _originalService!.nameEn!,
+              true,
+            ),
+
+          _buildInputField(
+            controller: _nameEnController,
+            label: 'اسم الخدمة بالإنجليزية',
+            hint: 'Enter service name in English',
+            icon: Icons.translate_rounded,
+          ),
+
+          const SizedBox(height: 20),
+
           // Property (Read-only)
           _buildReadOnlyField(
             label: 'العقار',
@@ -618,10 +653,32 @@ class _EditServicePageState extends State<EditServicePage>
               return null;
             },
           ),
+
+          const SizedBox(height: 20),
+
+          if (_originalService != null &&
+              _descriptionEnController.text.trim() !=
+                  ((_originalService!.descriptionEn ?? '').trim()))
+            _buildOriginalValueIndicator(
+              'الوصف الإنجليزي الأصلي',
+              ((_originalService!.descriptionEn ?? '').trim()).isEmpty
+                  ? 'لا يوجد'
+                  : _originalService!.descriptionEn!,
+              true,
+            ),
+
+          _buildInputField(
+            controller: _descriptionEnController,
+            label: 'الوصف بالإنجليزية',
+            hint: 'Enter service description in English',
+            icon: Icons.translate_rounded,
+            maxLines: 5,
+          ),
         ],
       ),
     );
   }
+
   Widget _buildPricingStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -709,6 +766,7 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
+
   Widget _buildReviewStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -800,6 +858,7 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
+
   Widget _buildIconSelector() {
     return GestureDetector(
       onTap: _showIconPicker,
@@ -900,6 +959,7 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
+
   Widget _buildPricingModelSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -971,6 +1031,7 @@ class _EditServicePageState extends State<EditServicePage>
       ],
     );
   }
+
   Widget _buildOriginalValueIndicator(
       String label, String value, bool isChanged) {
     if (!isChanged) return const SizedBox.shrink();
@@ -1021,6 +1082,7 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
+
   Widget _buildReadOnlyField({
     required String label,
     required String value,
@@ -1079,6 +1141,7 @@ class _EditServicePageState extends State<EditServicePage>
       ],
     );
   }
+
   Widget _buildChangesSummary() {
     final changes = _getChangedFields();
 
@@ -1187,6 +1250,7 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
+
   Widget _buildReviewCard({
     required String title,
     required List<Map<String, dynamic>> items,
@@ -1355,6 +1419,7 @@ class _EditServicePageState extends State<EditServicePage>
       ],
     );
   }
+
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
@@ -1419,6 +1484,7 @@ class _EditServicePageState extends State<EditServicePage>
       ],
     );
   }
+
   Widget _buildActionButtons() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1550,31 +1616,30 @@ class _EditServicePageState extends State<EditServicePage>
     if (_originalService == null) return false;
 
     return _nameController.text != _originalService!.name ||
+        _nameEnController.text != (_originalService!.nameEn ?? '') ||
         double.tryParse(_amountController.text) !=
             _originalService!.price.amount ||
         _selectedCurrency != _originalService!.price.currency ||
         _selectedPricingModel != _originalService!.pricingModel ||
         _selectedIcon != _originalService!.icon ||
-        (_originalService is svc_entity.ServiceDetails &&
-            _descriptionController.text.trim() !=
-                ((_originalService as svc_entity.ServiceDetails)
-                        .description
-                        ?.trim() ??
-                    ''));
+        _descriptionController.text.trim() !=
+            ((_originalService!.description ?? '').trim()) ||
+        _descriptionEnController.text.trim() !=
+            ((_originalService!.descriptionEn ?? '').trim());
   }
+
   bool _hasChangesInStep(int step) {
     if (_originalService == null) return false;
 
     switch (step) {
       case 0: // Basic Info
         return _nameController.text != _originalService!.name ||
+            _nameEnController.text != (_originalService!.nameEn ?? '') ||
             _selectedIcon != _originalService!.icon ||
-            (_originalService is svc_entity.ServiceDetails &&
-                _descriptionController.text.trim() !=
-                    ((_originalService as svc_entity.ServiceDetails)
-                            .description
-                            ?.trim() ??
-                        ''));
+            _descriptionController.text.trim() !=
+                ((_originalService!.description ?? '').trim()) ||
+            _descriptionEnController.text.trim() !=
+                ((_originalService!.descriptionEn ?? '').trim());
       case 1: // Pricing
         return double.tryParse(_amountController.text) !=
                 _originalService!.price.amount ||
@@ -1584,6 +1649,7 @@ class _EditServicePageState extends State<EditServicePage>
         return _checkForChanges();
     }
   }
+
   List<Map<String, String>> _getChangedFields() {
     final changes = <Map<String, String>>[];
     if (_originalService == null) return changes;
@@ -1593,6 +1659,17 @@ class _EditServicePageState extends State<EditServicePage>
         'field': 'اسم الخدمة',
         'oldValue': _originalService!.name,
         'newValue': _nameController.text,
+      });
+    }
+
+    if (_nameEnController.text != (_originalService!.nameEn ?? '')) {
+      changes.add({
+        'field': 'الاسم الإنجليزي',
+        'oldValue': (_originalService!.nameEn ?? '').isEmpty
+            ? 'لا يوجد'
+            : _originalService!.nameEn!,
+        'newValue':
+            _nameEnController.text.isEmpty ? 'لا يوجد' : _nameEnController.text,
       });
     }
 
@@ -1630,20 +1707,31 @@ class _EditServicePageState extends State<EditServicePage>
       });
     }
 
-    if (_originalService is svc_entity.ServiceDetails) {
-      final oldDesc =
-          (_originalService as svc_entity.ServiceDetails).description ?? '';
-      if (_descriptionController.text.trim() != oldDesc.trim()) {
-        changes.add({
-          'field': 'الوصف',
-          'oldValue': oldDesc,
-          'newValue': _descriptionController.text.trim(),
-        });
-      }
+    final oldDesc = _originalService!.description ?? '';
+    if (_descriptionController.text.trim() != oldDesc.trim()) {
+      changes.add({
+        'field': 'الوصف',
+        'oldValue': oldDesc.isEmpty ? 'لا يوجد' : oldDesc,
+        'newValue': _descriptionController.text.trim().isEmpty
+            ? 'لا يوجد'
+            : _descriptionController.text.trim(),
+      });
+    }
+
+    final oldDescEn = _originalService!.descriptionEn ?? '';
+    if (_descriptionEnController.text.trim() != oldDescEn.trim()) {
+      changes.add({
+        'field': 'الوصف الإنجليزي',
+        'oldValue': oldDescEn.isEmpty ? 'لا يوجد' : oldDescEn,
+        'newValue': _descriptionEnController.text.trim().isEmpty
+            ? 'لا يوجد'
+            : _descriptionEnController.text.trim(),
+      });
     }
 
     return changes;
   }
+
   void _resetChanges() {
     if (_originalService == null) return;
 
@@ -1655,10 +1743,14 @@ class _EditServicePageState extends State<EditServicePage>
 
           setState(() {
             _nameController.text = _originalService!.name;
+            _nameEnController.text = _originalService!.nameEn ?? '';
             _amountController.text = _originalService!.price.amount.toString();
             _selectedCurrency = _originalService!.price.currency;
             _selectedPricingModel = _originalService!.pricingModel;
             _selectedIcon = _originalService!.icon;
+            _descriptionController.text = _originalService!.description ?? '';
+            _descriptionEnController.text =
+                _originalService!.descriptionEn ?? '';
             _hasChanges = false;
           });
 
@@ -1667,6 +1759,7 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
+
   Future<bool> _onWillPop() async {
     if (!_hasChanges) return true;
 
@@ -1677,6 +1770,7 @@ class _EditServicePageState extends State<EditServicePage>
 
     return result ?? false;
   }
+
   void _handleBack() {
     if (_currentStep > 0) {
       setState(() {
@@ -1694,6 +1788,7 @@ class _EditServicePageState extends State<EditServicePage>
       }
     }
   }
+
   void _previousStep() {
     if (_currentStep > 0) {
       setState(() {
@@ -1701,6 +1796,7 @@ class _EditServicePageState extends State<EditServicePage>
       });
     }
   }
+
   void _nextStep() {
     if (_currentStep < 2) {
       bool isValid = true;
@@ -1718,6 +1814,7 @@ class _EditServicePageState extends State<EditServicePage>
       }
     }
   }
+
   bool _validateBasicInfo() {
     if (_nameController.text.isEmpty) {
       _showErrorMessage('الرجاء إدخال اسم الخدمة');
@@ -1725,6 +1822,7 @@ class _EditServicePageState extends State<EditServicePage>
     }
     return true;
   }
+
   bool _validatePricing() {
     if (_isFree) return true;
     if (_amountController.text.isEmpty) {
@@ -1738,6 +1836,7 @@ class _EditServicePageState extends State<EditServicePage>
     }
     return true;
   }
+
   void _submitForm() {
     if (!_hasChanges) {
       _showInfoMessage('لا توجد تغييرات للحفظ');
@@ -1754,16 +1853,23 @@ class _EditServicePageState extends State<EditServicePage>
             UpdateServiceEvent(
               serviceId: widget.serviceId,
               name: _nameController.text,
+              nameEn: _nameEnController.text.trim().isEmpty
+                  ? null
+                  : _nameEnController.text.trim(),
               price: price,
               pricingModel: _selectedPricingModel,
               icon: _selectedIcon,
               description: _descriptionController.text.trim().isEmpty
                   ? null
                   : _descriptionController.text.trim(),
+              descriptionEn: _descriptionEnController.text.trim().isEmpty
+                  ? null
+                  : _descriptionEnController.text.trim(),
             ),
           );
     }
   }
+
   void _showIconPicker() {
     showDialog(
       context: context,
@@ -1778,6 +1884,7 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
+
   IconData _getIconFromString(String icon) {
     // This should map string to IconData
     // You might want to implement a proper icon mapping
@@ -1792,6 +1899,7 @@ class _EditServicePageState extends State<EditServicePage>
         return Icons.miscellaneous_services;
     }
   }
+
   void _showSuccessMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1813,6 +1921,7 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
+
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1834,6 +1943,7 @@ class _EditServicePageState extends State<EditServicePage>
       ),
     );
   }
+
   void _showInfoMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1983,6 +2093,7 @@ class _ResetConfirmationDialog extends StatelessWidget {
     );
   }
 }
+
 class _UnsavedChangesDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -2101,6 +2212,7 @@ class _UnsavedChangesDialog extends StatelessWidget {
     );
   }
 }
+
 class _EditServiceBackgroundPainter extends CustomPainter {
   /// العربية: يخزن القيمة `glowIntensity`.
   final double glowIntensity;
@@ -2144,9 +2256,11 @@ class _EditServiceBackgroundPainter extends CustomPainter {
       paint,
     );
   }
+
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
+
 class _CurrencyDropdown extends StatefulWidget {
   /// العربية: يخزن القيمة `value`.
   final String value;
@@ -2155,6 +2269,7 @@ class _CurrencyDropdown extends StatefulWidget {
   @override
   State<_CurrencyDropdown> createState() => _CurrencyDropdownState();
 }
+
 class _CurrencyDropdownState extends State<_CurrencyDropdown> {
   /// العربية: يخزن القيمة `codes`.
   List<String> _codes = const [];
@@ -2165,6 +2280,7 @@ class _CurrencyDropdownState extends State<_CurrencyDropdown> {
     super.initState();
     _load();
   }
+
   Future<void> _load() async {
     try {
       final usecase = di.sl<GetCurrenciesUseCase>();
@@ -2189,6 +2305,7 @@ class _CurrencyDropdownState extends State<_CurrencyDropdown> {
       });
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final decoration = InputDecoration(

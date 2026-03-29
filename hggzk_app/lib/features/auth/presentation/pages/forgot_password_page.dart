@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/validators.dart';
@@ -199,7 +200,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
             colors: [AppTheme.success, AppTheme.neonGreen],
           ).createShader(bounds),
           child: Text(
-            'تم الإرسال بنجاح',
+            context.tr(
+              'auth.forgot.successTitle',
+            ),
             style: AppTextStyles.h1.copyWith(
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -210,7 +213,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Text(
-            'تم إرسال تعليمات إعادة تعيين كلمة المرور إلى بريدك الإلكتروني أو رقم هاتفك',
+            context.tr('auth.forgot.successBody'),
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppTheme.textMuted,
             ),
@@ -230,7 +233,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
               ),
               const SizedBox(width: 8),
               Text(
-                'العودة لتسجيل الدخول',
+                context.tr(
+                  'auth.forgot.backToLogin',
+                ),
                 style: AppTextStyles.buttonLarge.copyWith(
                   color: Colors.white,
                 ),
@@ -321,7 +326,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
           shaderCallback: (bounds) =>
               AppTheme.primaryGradient.createShader(bounds),
           child: Text(
-            'نسيت كلمة المرور؟',
+            context.tr('auth.forgot.title'),
             style: AppTextStyles.h2.copyWith(
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -330,7 +335,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
         ),
         const SizedBox(height: 12),
         Text(
-          'أدخل بريدك الإلكتروني أو رقم هاتفك وسنرسل لك تعليمات إعادة تعيين كلمة المرور',
+          context.tr('auth.forgot.subtitle'),
           style: AppTextStyles.bodySmall.copyWith(
             color: AppTheme.textMuted,
           ),
@@ -419,8 +424,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
           color: AppTheme.textWhite,
         ),
         decoration: InputDecoration(
-          labelText: 'البريد الإلكتروني أو رقم الهاتف',
-          hintText: 'أدخل بريدك الإلكتروني أو رقم هاتفك',
+          labelText: context.tr(
+            'auth.login.emailOrPhone',
+          ),
+          hintText: context.tr(
+            'auth.forgot.inputHint',
+          ),
           labelStyle: AppTextStyles.bodySmall.copyWith(
             color: isFocused ? AppTheme.primaryBlue : AppTheme.textMuted,
           ),
@@ -440,11 +449,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'هذا الحقل مطلوب';
+            return context.tr(
+              'auth.validation.required',
+            );
           }
           if (!Validators.isValidEmail(value) &&
               !Validators.isValidPhoneNumber(value)) {
-            return 'يرجى إدخال بريد إلكتروني أو رقم هاتف صحيح';
+            return context.tr(
+              'auth.validation.validEmailOrPhone',
+            );
           }
           return null;
         },
@@ -476,7 +489,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'جاري الإرسال...',
+                      context.tr('common.loading'),
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: Colors.white.withOpacity(0.9),
                       ),
@@ -493,7 +506,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage>
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'إرسال تعليمات إعادة التعيين',
+                      context.tr(
+                        'auth.forgot.submit',
+                      ),
                       style: AppTextStyles.buttonLarge.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

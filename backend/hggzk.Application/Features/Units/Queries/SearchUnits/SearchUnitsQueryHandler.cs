@@ -26,6 +26,7 @@ namespace YemenBooking.Application.Features.Units.Queries.SearchUnits
     {
         private readonly IUnitSearchEngine _unitSearchEngine;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IUnitRepository _unitRepository;
         private readonly ILogger<SearchUnitsQueryHandler> _logger;
         private readonly ISearchLogRepository _searchLogRepository;
 
@@ -40,11 +41,13 @@ namespace YemenBooking.Application.Features.Units.Queries.SearchUnits
         public SearchUnitsQueryHandler(
             IUnitSearchEngine unitSearchEngine,
             ICurrentUserService currentUserService,
+            IUnitRepository unitRepository,
             ILogger<SearchUnitsQueryHandler> logger,
             ISearchLogRepository searchLogRepository)
         {
             _unitSearchEngine = unitSearchEngine ?? throw new ArgumentNullException(nameof(unitSearchEngine));
             _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
+            _unitRepository = unitRepository ?? throw new ArgumentNullException(nameof(unitRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _searchLogRepository = searchLogRepository ?? throw new ArgumentNullException(nameof(searchLogRepository));
         }
@@ -87,7 +90,7 @@ namespace YemenBooking.Application.Features.Units.Queries.SearchUnits
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                 // المرحلة 4: تحويل النتائج إلى DTOs
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                var dtos = ConvertToUnitDtos(filteredUnits);
+                var dtos = await ConvertToUnitDtosAsync(filteredUnits, cancellationToken);
                 
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                 // المرحلة 5: إعادة حساب التصفح بعد فلاتر الأمان
@@ -358,25 +361,37 @@ namespace YemenBooking.Application.Features.Units.Queries.SearchUnits
         
         #region === تحويل إلى DTOs ===
         
-        private List<UnitDto> ConvertToUnitDtos(List<UnitSearchItem> items)
+        private async Task<List<UnitDto>> ConvertToUnitDtosAsync(
+            List<UnitSearchItem> items,
+            CancellationToken cancellationToken)
         {
-            return items.Select(item => new UnitDto
+            var dtos = new List<UnitDto>(items.Count);
+
+            foreach (var item in items)
             {
+                var unit = await _unitRepository.GetUnitByIdAsync(item.UnitId, cancellationToken);
+
+                dtos.Add(new UnitDto
+                {
                 // Basic info.
                 // البيانات الأساسية.
                 Id = item.UnitId,
                 PropertyId = item.PropertyId,
-                UnitTypeId = Guid.Empty, // غير متوفر في UnitSearchItem
+                UnitTypeId = unit?.UnitTypeId ?? Guid.Empty,
                 Name = item.UnitName,
+                NameEn = unit?.NameEn ?? item.UnitName,
                 
                 // Capacity and availability.
                 // السعة والتوفر.
-                CustomFeatures = string.Empty,
+                CustomFeatures = unit?.CustomFeatures ?? string.Empty,
+                CustomFeaturesEn = unit?.CustomFeaturesEn ?? unit?.CustomFeatures,
                 
                 // Property info.
                 // معلومات العقار.
                 PropertyName = item.PropertyName,
+                PropertyNameEn = unit?.Property?.NameEn ?? item.PropertyName,
                 UnitTypeName = item.UnitTypeName,
+                UnitTypeNameEn = unit?.UnitType?.NameEn ?? item.UnitTypeName,
                 
                 // Pricing method.
                 // طريقة التسعير.
@@ -394,7 +409,10 @@ namespace YemenBooking.Application.Features.Units.Queries.SearchUnits
                 // المسافة.
                 DistanceKm = item.DistanceKm,
                 
-            }).ToList();
+                });
+            }
+
+            return dtos;
         }
         
         private Core.Enums.PricingMethod ParsePricingMethod(string? pricingMethod)
@@ -464,6 +482,7 @@ namespace YemenBooking.Application.Features.Units.Queries.SearchUnits
                     FieldId = Guid.Empty,
                     FieldName = field.Key,
                     DisplayName = field.Key,
+                    DisplayNameEn = field.Key,
                     FieldType = "text",
                     FieldValue = field.Value,
                     IsPrimaryFilter = false,

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme.dart';
 
@@ -28,37 +29,37 @@ class LegalDocumentsPage extends StatelessWidget {
   List<_LegalItem> _items() {
     return [
       _LegalItem(
-        title: 'سياسة الخصوصية',
+        title: 'settings.legal.privacy',
         path: '/privacy',
         icon: Icons.privacy_tip_rounded,
         color: AppTheme.primaryCyan,
       ),
       _LegalItem(
-        title: 'كيف نعمل',
+        title: 'settings.legal.howWeWork',
         path: '/how-we-work',
         icon: Icons.lightbulb_outline_rounded,
         color: AppTheme.primaryBlue,
       ),
       _LegalItem(
-        title: 'شروط الشركاء',
+        title: 'settings.legal.partnerTerms',
         path: '/terms-partners',
         icon: Icons.handshake_rounded,
         color: AppTheme.success,
       ),
       _LegalItem(
-        title: 'شروط العملاء',
+        title: 'settings.legal.customerTerms',
         path: '/terms-customers',
         icon: Icons.receipt_long_rounded,
         color: AppTheme.warning,
       ),
       _LegalItem(
-        title: 'الدعم والمساعدة',
+        title: 'settings.legal.support',
         path: '/support',
         icon: Icons.support_agent_rounded,
         color: AppTheme.primaryCyan,
       ),
       _LegalItem(
-        title: 'حذف الحساب',
+        title: 'settings.legal.deleteAccount',
         path: '/delete-account',
         icon: Icons.delete_forever_rounded,
         color: AppTheme.error,
@@ -83,7 +84,7 @@ class LegalDocumentsPage extends StatelessWidget {
             child: Column(
               children: [
                 _LegalHeader(
-                  title: 'السياسات والشروط',
+                  title: context.tr('settings.legal.title'),
                   onBack: () => context.pop(),
                 ),
                 Expanded(
@@ -121,7 +122,8 @@ class LegalDocumentsPage extends StatelessWidget {
                                   if (item.path == '/support') {
                                     context.push('/legal/webview',
                                         extra: <String, dynamic>{
-                                          'title': "المساعدة والدعم",
+                                          'title': context
+                                              .tr('settings.legal.support'),
                                           'url':
                                               'https://www.hggzk.com/support',
                                         });
@@ -131,7 +133,7 @@ class LegalDocumentsPage extends StatelessWidget {
                                   context.push(
                                     '/legal/webview',
                                     extra: <String, dynamic>{
-                                      'title': item.title,
+                                      'title': context.tr(item.title),
                                       'url': url,
                                     },
                                   );

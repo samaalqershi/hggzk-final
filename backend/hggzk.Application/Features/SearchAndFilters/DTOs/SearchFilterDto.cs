@@ -34,12 +34,14 @@ public class SearchFilterDto
     /// DisplayName
     /// </summary>
     public string DisplayName { get; set; }
+    public string? DisplayNameEn { get; set; }
 
     /// <summary>
     /// خيارات الفلتر (JSON)
     /// FilterOptions
     /// </summary>
     public Dictionary<string, object> FilterOptions { get; set; }
+    public Dictionary<string, object>? FilterOptionsEn { get; set; }
 
     /// <summary>
     /// حالة التفعيل

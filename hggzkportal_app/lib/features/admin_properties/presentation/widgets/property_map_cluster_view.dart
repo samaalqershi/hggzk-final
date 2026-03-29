@@ -14,6 +14,42 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/property.dart';
 
+String _combineInlineBilingual(String primary, String? secondary) {
+  final normalizedSecondary = secondary?.trim();
+  if (normalizedSecondary == null ||
+      normalizedSecondary.isEmpty ||
+      normalizedSecondary == primary) {
+    return primary;
+  }
+  return '$primary / $normalizedSecondary';
+}
+
+String _combineMultilineBilingual(String primary, String? secondary) {
+  final normalizedSecondary = secondary?.trim();
+  if (normalizedSecondary == null ||
+      normalizedSecondary.isEmpty ||
+      normalizedSecondary == primary) {
+    return primary;
+  }
+  return '$primary\n$normalizedSecondary';
+}
+
+String? _formatAddress(String? address, String? city) {
+  final normalizedAddress = address?.trim();
+  final normalizedCity = city?.trim();
+  if ((normalizedAddress == null || normalizedAddress.isEmpty) &&
+      (normalizedCity == null || normalizedCity.isEmpty)) {
+    return null;
+  }
+  if (normalizedAddress == null || normalizedAddress.isEmpty) {
+    return normalizedCity;
+  }
+  if (normalizedCity == null || normalizedCity.isEmpty) {
+    return normalizedAddress;
+  }
+  return '$normalizedAddress, $normalizedCity';
+}
+
 class PropertyMapClusterView extends StatefulWidget {
   /// العربية: يخزن القيمة `properties`.
   final List<Property> properties;
@@ -380,7 +416,7 @@ class _PropertyMapClusterViewState extends State<PropertyMapClusterView>
     // Details
     final markerTitlePainter = TextPainter(
       text: TextSpan(
-        text: property.typeName,
+        text: _combineInlineBilingual(property.typeName, property.typeNameEn),
         style: const TextStyle(
           color: Colors.white,
           fontSize: 12,
@@ -1503,12 +1539,15 @@ class _PropertyDetailsCard extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                property.name,
+                                _combineMultilineBilingual(
+                                  property.name,
+                                  property.nameEn,
+                                ),
                                 style: AppTextStyles.heading3.copyWith(
                                   color: AppTheme.textWhite,
                                   fontSize: isCompact ? 14 : 16,
                                 ),
-                                maxLines: 1,
+                                maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 4),
@@ -1522,12 +1561,18 @@ class _PropertyDetailsCard extends StatelessWidget {
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
-                                      property.formattedAddress,
+                                      _combineMultilineBilingual(
+                                        property.formattedAddress,
+                                        _formatAddress(
+                                          property.addressEn,
+                                          property.cityEn,
+                                        ),
+                                      ),
                                       style: AppTextStyles.caption.copyWith(
                                         color: AppTheme.textMuted,
                                         fontSize: isCompact ? 10 : 11,
                                       ),
-                                      maxLines: 1,
+                                      maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
@@ -1806,11 +1851,14 @@ class _ClusterPropertiesSheet extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                property.name,
+                                _combineMultilineBilingual(
+                                  property.name,
+                                  property.nameEn,
+                                ),
                                 style: AppTextStyles.bodyMedium.copyWith(
                                   color: AppTheme.textWhite,
                                 ),
-                                maxLines: 1,
+                                maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 4),
@@ -1824,11 +1872,14 @@ class _ClusterPropertiesSheet extends StatelessWidget {
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
-                                      property.city,
+                                      _combineMultilineBilingual(
+                                        property.city,
+                                        property.cityEn,
+                                      ),
                                       style: AppTextStyles.caption.copyWith(
                                         color: AppTheme.textMuted,
                                       ),
-                                      maxLines: 1,
+                                      maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),

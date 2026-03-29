@@ -23,8 +23,10 @@ class CreateUnitUseCase implements UseCase<String, CreateUnitParams> {
       propertyId: params.propertyId,
       unitTypeId: params.unitTypeId,
       name: params.name,
+      nameEn: params.nameEn,
       description: params.description,
       customFeatures: params.customFeatures,
+      customFeaturesEn: params.customFeaturesEn,
       pricingMethod: params.pricingMethod,
       fieldValues: params.fieldValues,
       images: params.images,
@@ -52,6 +54,8 @@ class CreateUnitParams extends Equatable {
   /// This field keeps the name value used by the admin unit workflow.
   final String name;
 
+  final String? nameEn;
+
   /// يحتفظ هذا الحقل بقيمة description التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the description value used by the admin unit workflow.
   final String description;
@@ -59,6 +63,8 @@ class CreateUnitParams extends Equatable {
   /// يحتفظ هذا الحقل بقيمة customFeatures التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the customFeatures value used by the admin unit workflow.
   final String customFeatures;
+
+  final String? customFeaturesEn;
 
   /// يحتفظ هذا الحقل بقيمة pricingMethod التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the pricingMethod value used by the admin unit workflow.
@@ -98,8 +104,10 @@ class CreateUnitParams extends Equatable {
     required this.propertyId,
     required this.unitTypeId,
     required this.name,
+    this.nameEn,
     required this.description,
     required this.customFeatures,
+    this.customFeaturesEn,
     required this.pricingMethod,
     this.fieldValues,
     this.images,
@@ -116,8 +124,10 @@ class CreateUnitParams extends Equatable {
         'propertyId': propertyId,
         'unitTypeId': unitTypeId,
         'name': name,
+        'nameEn': nameEn,
         'description': description,
         'customFeatures': customFeatures,
+        'customFeaturesEn': customFeaturesEn,
         'pricingMethod': pricingMethod,
         'fieldValues': fieldValues,
         'images': images,
@@ -135,8 +145,10 @@ class CreateUnitParams extends Equatable {
         propertyId,
         unitTypeId,
         name,
+        nameEn,
         description,
         customFeatures,
+        customFeaturesEn,
         pricingMethod,
         fieldValues,
         images,

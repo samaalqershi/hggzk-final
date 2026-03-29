@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 
 /// يطبع أخطاء الشبكة بصيغة موحدة يمكن عرضها أو تسجيلها مباشرة.
 /// Normalizes transport and API failures into a single app-level exception.
@@ -39,7 +40,7 @@ class ApiException implements Exception {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        message = 'انتهت مهلة الاتصال';
+        message = AppLocalizations.translateSync('common.requestTimeout');
         break;
       case DioExceptionType.badResponse:
         statusCode = dioError.response?.statusCode;
@@ -59,17 +60,18 @@ class ApiException implements Exception {
         }
         break;
       case DioExceptionType.cancel:
-        message = 'تم إلغاء الطلب';
+        message = AppLocalizations.translateSync('common.requestCancelled');
         break;
       case DioExceptionType.connectionError:
-        message = 'لا يوجد اتصال بالإنترنت';
+        message = AppLocalizations.translateSync('common.noInternet');
         break;
       case DioExceptionType.badCertificate:
-        message = 'خطأ في شهادة الأمان';
+        message = AppLocalizations.translateSync('common.badCertificate');
         break;
       case DioExceptionType.unknown:
       default:
-        message = dioError.message ?? 'حدث خطأ غير متوقع';
+        message = dioError.message ??
+            AppLocalizations.translateSync('common.unexpectedError');
         break;
     }
 
@@ -90,27 +92,37 @@ class ApiException implements Exception {
 
     switch (statusCode) {
       case 400:
-        return errorMessage.isNotEmpty ? errorMessage : 'طلب غير صحيح';
+        return errorMessage.isNotEmpty
+            ? errorMessage
+            : AppLocalizations.translateSync('common.badRequest');
       case 401:
-        return errorMessage.isNotEmpty ? errorMessage : 'غير مصرح بالوصول';
+        return errorMessage.isNotEmpty
+            ? errorMessage
+            : AppLocalizations.translateSync('common.unauthorized');
       case 403:
-        return errorMessage.isNotEmpty ? errorMessage : 'ليس لديك صلاحية';
+        return errorMessage.isNotEmpty
+            ? errorMessage
+            : AppLocalizations.translateSync('common.permissionDenied');
       case 404:
         return errorMessage.isNotEmpty
             ? errorMessage
-            : 'لم يتم العثور على البيانات';
+            : AppLocalizations.translateSync('common.notFound');
       case 422:
         return errorMessage.isNotEmpty
             ? errorMessage
-            : 'البيانات المدخلة غير صحيحة';
+            : AppLocalizations.translateSync('common.invalidData');
       case 500:
-        return errorMessage.isNotEmpty ? errorMessage : 'خطأ في الخادم';
+        return errorMessage.isNotEmpty
+            ? errorMessage
+            : AppLocalizations.translateSync('common.serverError');
       case 503:
         return errorMessage.isNotEmpty
             ? errorMessage
-            : 'الخدمة غير متاحة حالياً';
+            : AppLocalizations.translateSync('common.serviceUnavailable');
       default:
-        return errorMessage.isNotEmpty ? errorMessage : 'حدث خطأ غير متوقع';
+        return errorMessage.isNotEmpty
+            ? errorMessage
+            : AppLocalizations.translateSync('common.unexpectedError');
     }
   }
 

@@ -14,12 +14,22 @@ public class CreatePropertyTypeCommand : IRequest<ResultDto<Guid>>
     /// name.
     /// </summary>
     public string Name { get; set; } = string.Empty;
+    /// <summary>
+    /// الاسم بالإنجليزية.
+    /// English name.
+    /// </summary>
+    public string? NameEn { get; set; }
 
     /// <summary>
     /// الوصف.
     /// description.
     /// </summary>
     public string Description { get; set; } = string.Empty;
+    /// <summary>
+    /// الوصف بالإنجليزية.
+    /// English description.
+    /// </summary>
+    public string? DescriptionEn { get; set; }
 
     /// <summary>
     /// المزايا الافتراضية.

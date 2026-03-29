@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hggzk/core/widgets/error_widget.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
@@ -968,7 +969,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'نتيجة',
+                            context.tr('search.resultsLabel'),
                             style: AppTextStyles.overline.copyWith(
                               color: AppTheme.textMuted.withOpacity(0.7),
                             ),
@@ -1125,10 +1126,10 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
 
   /// العربية: يبني ultra loading view.
   Widget _buildUltraLoadingView() {
-    return const Center(
+    return Center(
       child: LoadingWidget(
         type: LoadingType.futuristic,
-        message: 'جاري التحميل...',
+        message: context.tr('search.loading'),
       ),
     );
   }
@@ -1220,7 +1221,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
   Widget _buildUltraEmptyResults() {
     return CustomErrorWidget(
       type: ErrorType.notFound,
-      message: 'جرب تغيير معايير البحث',
+      message: context.tr('search.tryDifferentCriteria'),
       onRetry: () {
         HapticFeedback.mediumImpact();
         context.read<SearchBloc>().add(const ClearSearchEvent());
@@ -1311,7 +1312,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
           ),
           const SizedBox(height: 20),
           Text(
-            'حدث خطأ',
+            context.tr('search.errorTitle'),
             style: AppTextStyles.h3.copyWith(
               color: AppTheme.error,
               fontWeight: FontWeight.bold,
@@ -1332,7 +1333,9 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
               context.read<SearchBloc>().add(const SearchPropertiesEvent());
             },
             icon: const Icon(Icons.refresh_rounded, size: 18),
-            label: const Text('إعادة المحاولة'),
+            label: Text(
+              context.tr('search.retry'),
+            ),
           ),
         ],
       ),
@@ -1552,19 +1555,19 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
 
     switch (fieldKey) {
       case 'propertyTypeId':
-        message = 'نوع العقار مطلوب ولا يمكن إلغاؤه';
+        message = context.tr('search.filters.propertyTypeRequired');
         break;
       case 'unitTypeId':
-        message = 'نوع الوحدة مطلوب ولا يمكن إلغاؤه';
+        message = context.tr('search.filters.unitTypeRequired');
         break;
       case 'checkIn':
-        message = 'تاريخ الوصول مطلوب ولا يمكن إلغاؤه';
+        message = context.tr('search.filters.checkInRequired');
         break;
       case 'checkOut':
-        message = 'تاريخ المغادرة مطلوب ولا يمكن إلغاؤه';
+        message = context.tr('search.filters.checkOutRequired');
         break;
       default:
-        message = 'هذا الحقل مطلوب';
+        message = context.tr('search.filters.requiredField');
     }
 
     HapticFeedback.mediumImpact();

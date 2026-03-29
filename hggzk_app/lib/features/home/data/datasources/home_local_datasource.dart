@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:hggzk/core/error/exceptions.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/models/paginated_result.dart' as core;
 import 'package:hggzk/features/home/data/models/section_item_models.dart';
 import 'package:hggzk/core/services/local_storage_service.dart';
@@ -81,6 +82,13 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
   static const String _sectionImpressionsKey = 'section_impressions';
   static const String _sectionInteractionsKey = 'section_interactions';
   HomeLocalDataSourceImpl({required this.localStorage});
+
+  CacheException _cacheException() {
+    return CacheException(
+      AppLocalizations.translateSync('home.error.cache'),
+    );
+  }
+
   @override
   Future<void> recordSectionImpression({required String sectionId}) async {
     try {
@@ -97,7 +105,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
       await localStorage.saveData(
           _sectionImpressionsKey, jsonEncode(impressions));
     } catch (e) {
-      throw CacheException('Failed to record section impression: $e');
+      throw _cacheException();
     }
   }
 
@@ -133,7 +141,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
       await localStorage.saveData(
           _sectionInteractionsKey, jsonEncode(interactions));
     } catch (e) {
-      throw CacheException('Failed to record section interaction: $e');
+      throw _cacheException();
     }
   }
 
@@ -147,7 +155,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
       }
       return {};
     } catch (e) {
-      throw CacheException('Failed to get section impressions: $e');
+      throw _cacheException();
     }
   }
 
@@ -161,7 +169,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
       }
       return [];
     } catch (e) {
-      throw CacheException('Failed to get section interactions: $e');
+      throw _cacheException();
     }
   }
 
@@ -171,7 +179,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
       await localStorage.removeData(_sectionImpressionsKey);
       await localStorage.removeData(_sectionInteractionsKey);
     } catch (e) {
-      throw CacheException('Failed to clear analytics data: $e');
+      throw _cacheException();
     }
   }
 
@@ -183,7 +191,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
       await localStorage.saveData(
           _sectionsTimestampKey, DateTime.now().millisecondsSinceEpoch);
     } catch (e) {
-      throw CacheException('Failed to cache sections: $e');
+      throw _cacheException();
     }
   }
 
@@ -196,12 +204,12 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
   }) async {
     try {
       if (await isCacheExpired(key: _sectionsTimestampKey)) {
-        throw const CacheException('Sections cache expired');
+        throw _cacheException();
       }
 
       final sectionsJson = localStorage.getData(_sectionsKey);
       if (sectionsJson == null || sectionsJson is! String) {
-        throw const CacheException('No cached sections found');
+        throw _cacheException();
       }
 
       final decoded = jsonDecode(sectionsJson) as List<dynamic>;
@@ -234,7 +242,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         totalCount: sections.length,
       );
     } catch (e) {
-      throw CacheException('Failed to get cached sections: $e');
+      throw _cacheException();
     }
   }
 
@@ -244,7 +252,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
       await localStorage.removeData(_sectionsKey);
       await localStorage.removeData(_sectionsTimestampKey);
     } catch (e) {
-      throw CacheException('Failed to clear sections cache: $e');
+      throw _cacheException();
     }
   }
 
@@ -260,7 +268,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
       await localStorage.saveData('$_sectionItemsTimestampPrefix$sectionId',
           DateTime.now().millisecondsSinceEpoch);
     } catch (e) {
-      throw CacheException('Failed to cache section property items: $e');
+      throw _cacheException();
     }
   }
 
@@ -274,12 +282,12 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
     try {
       if (await isCacheExpired(
           key: '$_sectionItemsTimestampPrefix$sectionId')) {
-        throw const CacheException('Section property items cache expired');
+        throw _cacheException();
       }
 
       final itemsJson = localStorage.getData('$_sectionItemsPrefix$sectionId');
       if (itemsJson == null || itemsJson is! String) {
-        throw const CacheException('No cached section property items found');
+        throw _cacheException();
       }
 
       final decoded = jsonDecode(itemsJson) as List<dynamic>;
@@ -299,7 +307,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         totalCount: items.length,
       );
     } catch (e) {
-      throw CacheException('Failed to get cached section property items: $e');
+      throw _cacheException();
     }
   }
 
@@ -315,7 +323,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         // Consider maintaining an index of keys if needed later
       }
     } catch (e) {
-      throw CacheException('Failed to clear section property items cache: $e');
+      throw _cacheException();
     }
   }
 
@@ -327,7 +335,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
       await localStorage.saveData(
           _propertyTypesTimestampKey, DateTime.now().millisecondsSinceEpoch);
     } catch (e) {
-      throw CacheException('Failed to cache property types: $e');
+      throw _cacheException();
     }
   }
 
@@ -336,18 +344,18 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
     try {
       if (await isCacheExpired(
           key: _propertyTypesTimestampKey, maxAgeMinutes: 60)) {
-        throw const CacheException('Property types cache expired');
+        throw _cacheException();
       }
 
       final typesJson = localStorage.getData(_propertyTypesKey);
       if (typesJson == null || typesJson is! String) {
-        throw const CacheException('No cached property types found');
+        throw _cacheException();
       }
 
       final decoded = jsonDecode(typesJson) as List<dynamic>;
       return decoded.map((json) => PropertyTypeModel.fromJson(json)).toList();
     } catch (e) {
-      throw CacheException('Failed to get cached property types: $e');
+      throw _cacheException();
     }
   }
 
@@ -357,7 +365,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
       await localStorage.removeData(_propertyTypesKey);
       await localStorage.removeData(_propertyTypesTimestampKey);
     } catch (e) {
-      throw CacheException('Failed to clear property types cache: $e');
+      throw _cacheException();
     }
   }
 
@@ -373,7 +381,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
       await localStorage.saveData('$_unitTypesTimestampPrefix$propertyTypeId',
           DateTime.now().millisecondsSinceEpoch);
     } catch (e) {
-      throw CacheException('Failed to cache unit types: $e');
+      throw _cacheException();
     }
   }
 
@@ -384,19 +392,19 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
       if (await isCacheExpired(
           key: '$_unitTypesTimestampPrefix$propertyTypeId',
           maxAgeMinutes: 60)) {
-        throw const CacheException('Unit types cache expired');
+        throw _cacheException();
       }
 
       final typesJson =
           localStorage.getData('$_unitTypesPrefix$propertyTypeId');
       if (typesJson == null || typesJson is! String) {
-        throw const CacheException('No cached unit types found');
+        throw _cacheException();
       }
 
       final decoded = jsonDecode(typesJson) as List<dynamic>;
       return decoded.map((json) => UnitTypeModel.fromJson(json)).toList();
     } catch (e) {
-      throw CacheException('Failed to get cached unit types: $e');
+      throw _cacheException();
     }
   }
 
@@ -411,7 +419,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
         // Bulk remove not supported without key iteration; skip
       }
     } catch (e) {
-      throw CacheException('Failed to clear unit types cache: $e');
+      throw _cacheException();
     }
   }
 
@@ -424,7 +432,7 @@ class HomeLocalDataSourceImpl implements HomeLocalDataSource {
       await clearUnitTypesCache();
       await clearAnalyticsData();
     } catch (e) {
-      throw CacheException('Failed to clear all cache: $e');
+      throw _cacheException();
     }
   }
 

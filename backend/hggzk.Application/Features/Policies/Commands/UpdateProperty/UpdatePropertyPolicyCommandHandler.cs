@@ -74,11 +74,18 @@ namespace YemenBooking.Application.Features.Policies.Commands.UpdateProperty
             // تنفيذ التحديث
             policy.Type = request.Type;
             policy.Description = request.Description;
+            if (request.DescriptionEn != null)
+                policy.DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn.Trim();
 
             if (!string.IsNullOrWhiteSpace(request.Rules))
             {
                 policy.Rules = request.Rules;
+                policy.RulesEn = string.IsNullOrWhiteSpace(request.RulesEn) ? null : request.RulesEn;
                 PolicyRulesMapper.PopulatePolicyFromRulesJson(policy, request.Rules);
+            }
+            else if (request.RulesEn != null)
+            {
+                policy.RulesEn = string.IsNullOrWhiteSpace(request.RulesEn) ? null : request.RulesEn;
             }
             
             if (request.CancellationWindowDays.HasValue)
@@ -104,6 +111,8 @@ namespace YemenBooking.Application.Features.Policies.Commands.UpdateProperty
                 policy.CancellationNonRefundable = request.CancellationNonRefundable;
             if (request.CancellationPenaltyAfterDeadline != null)
                 policy.CancellationPenaltyAfterDeadline = request.CancellationPenaltyAfterDeadline;
+            if (request.CancellationPenaltyAfterDeadlineEn != null)
+                policy.CancellationPenaltyAfterDeadlineEn = string.IsNullOrWhiteSpace(request.CancellationPenaltyAfterDeadlineEn) ? null : request.CancellationPenaltyAfterDeadlineEn;
 
             if (request.PaymentDepositRequired.HasValue)
                 policy.PaymentDepositRequired = request.PaymentDepositRequired;
@@ -140,10 +149,16 @@ namespace YemenBooking.Application.Features.Policies.Commands.UpdateProperty
                 policy.CheckInContactOwner = request.CheckInContactOwner;
             if (request.CheckInEarlyCheckInNote != null)
                 policy.CheckInEarlyCheckInNote = request.CheckInEarlyCheckInNote;
+            if (request.CheckInEarlyCheckInNoteEn != null)
+                policy.CheckInEarlyCheckInNoteEn = string.IsNullOrWhiteSpace(request.CheckInEarlyCheckInNoteEn) ? null : request.CheckInEarlyCheckInNoteEn;
             if (request.CheckInLateCheckOutNote != null)
                 policy.CheckInLateCheckOutNote = request.CheckInLateCheckOutNote;
+            if (request.CheckInLateCheckOutNoteEn != null)
+                policy.CheckInLateCheckOutNoteEn = string.IsNullOrWhiteSpace(request.CheckInLateCheckOutNoteEn) ? null : request.CheckInLateCheckOutNoteEn;
             if (request.CheckInLateCheckOutFee != null)
                 policy.CheckInLateCheckOutFee = request.CheckInLateCheckOutFee;
+            if (request.CheckInLateCheckOutFeeEn != null)
+                policy.CheckInLateCheckOutFeeEn = string.IsNullOrWhiteSpace(request.CheckInLateCheckOutFeeEn) ? null : request.CheckInLateCheckOutFeeEn;
 
             if (request.ChildrenAllowed.HasValue)
                 policy.ChildrenAllowed = request.ChildrenAllowed;
@@ -157,6 +172,8 @@ namespace YemenBooking.Application.Features.Policies.Commands.UpdateProperty
                 policy.ChildrenMaxChildren = request.ChildrenMaxChildren;
             if (request.ChildrenCribsNote != null)
                 policy.ChildrenCribsNote = request.ChildrenCribsNote;
+            if (request.ChildrenCribsNoteEn != null)
+                policy.ChildrenCribsNoteEn = string.IsNullOrWhiteSpace(request.ChildrenCribsNoteEn) ? null : request.ChildrenCribsNoteEn;
             if (request.ChildrenPlaygroundAvailable.HasValue)
                 policy.ChildrenPlaygroundAvailable = request.ChildrenPlaygroundAvailable;
             if (request.ChildrenKidsMenuAvailable.HasValue)
@@ -166,10 +183,14 @@ namespace YemenBooking.Application.Features.Policies.Commands.UpdateProperty
                 policy.PetsAllowed = request.PetsAllowed;
             if (request.PetsReason != null)
                 policy.PetsReason = request.PetsReason;
+            if (request.PetsReasonEn != null)
+                policy.PetsReasonEn = string.IsNullOrWhiteSpace(request.PetsReasonEn) ? null : request.PetsReasonEn;
             if (request.PetsFeeAmount.HasValue)
                 policy.PetsFeeAmount = request.PetsFeeAmount;
             if (request.PetsMaxWeight != null)
                 policy.PetsMaxWeight = request.PetsMaxWeight;
+            if (request.PetsMaxWeightEn != null)
+                policy.PetsMaxWeightEn = string.IsNullOrWhiteSpace(request.PetsMaxWeightEn) ? null : request.PetsMaxWeightEn;
             if (request.PetsRequiresApproval.HasValue)
                 policy.PetsRequiresApproval = request.PetsRequiresApproval;
             if (request.PetsNoFees.HasValue)
@@ -187,10 +208,14 @@ namespace YemenBooking.Application.Features.Policies.Commands.UpdateProperty
                 policy.ModificationFreeModificationHours = request.ModificationFreeModificationHours;
             if (request.ModificationFeesAfter != null)
                 policy.ModificationFeesAfter = request.ModificationFeesAfter;
+            if (request.ModificationFeesAfterEn != null)
+                policy.ModificationFeesAfterEn = string.IsNullOrWhiteSpace(request.ModificationFeesAfterEn) ? null : request.ModificationFeesAfterEn;
             if (request.ModificationFlexible.HasValue)
                 policy.ModificationFlexible = request.ModificationFlexible;
             if (request.ModificationReason != null)
                 policy.ModificationReason = request.ModificationReason;
+            if (request.ModificationReasonEn != null)
+                policy.ModificationReasonEn = string.IsNullOrWhiteSpace(request.ModificationReasonEn) ? null : request.ModificationReasonEn;
 
             if (string.IsNullOrWhiteSpace(request.Rules))
             {

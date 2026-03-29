@@ -68,8 +68,11 @@ namespace YemenBooking.Application.Features.PropertyServices.Queries.GetProperty
                 Id = s.Id,
                 PropertyId = s.PropertyId,
                 PropertyName = s.Property?.Name ?? string.Empty,
+                PropertyNameEn = s.Property?.NameEn,
                 Name = s.Name,
+                NameEn = s.NameEn,
                 Description = s.Description,
+                DescriptionEn = s.DescriptionEn,
                 Price = new MoneyDto
                 {
                     Amount = s.Price.Amount,

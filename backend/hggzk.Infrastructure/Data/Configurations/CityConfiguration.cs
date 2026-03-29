@@ -22,9 +22,13 @@ public class CityConfiguration : IEntityTypeConfiguration<City>
         builder.Property(c => c.Name)
                .HasMaxLength(100)
                .IsRequired();
+        builder.Property(c => c.NameEn)
+               .HasMaxLength(100);
         builder.Property(c => c.Country)
                .HasMaxLength(100)
                .IsRequired();
+        builder.Property(c => c.CountryEn)
+               .HasMaxLength(100);
         builder.Property(c => c.ImagesJson)
                .HasColumnType("text")
                .HasDefaultValue("[]");
@@ -37,5 +41,6 @@ public class CityConfiguration : IEntityTypeConfiguration<City>
                .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasIndex(c => new { c.Name, c.Country }).IsUnique();
+        builder.HasIndex(c => c.NameEn);
     }
 }

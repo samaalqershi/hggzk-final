@@ -4,6 +4,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'dart:ui';
 import 'dart:math' as math;
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/image_utils.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -546,7 +547,7 @@ class _UnitGalleryPageState extends State<UnitGalleryPage>
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  'الصورة الرئيسية',
+                                  context.tr('property.gallery.mainImage'),
                                   style: AppTextStyles.caption.copyWith(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,

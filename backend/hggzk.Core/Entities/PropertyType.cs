@@ -17,6 +17,13 @@ public class PropertyType : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "اسم نوع الكيان")]
     public string Name { get; set; }
+
+    /// <summary>
+    /// اسم نوع العقار باللغة الإنجليزية.
+    /// English property type name.
+    /// </summary>
+    [Display(Name = "اسم نوع الكيان بالإنجليزية")]
+    public string? NameEn { get; set; }
     
     /// <summary>
     /// وصف يوضح طبيعة هذا النوع من العقارات.
@@ -24,6 +31,13 @@ public class PropertyType : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "وصف نوع الكيان")]
     public string Description { get; set; }
+
+    /// <summary>
+    /// وصف نوع العقار باللغة الإنجليزية.
+    /// English property type description.
+    /// </summary>
+    [Display(Name = "وصف نوع الكيان بالإنجليزية")]
+    public string? DescriptionEn { get; set; }
     
     /// <summary>
     /// المرافق الافتراضية المقترحة لهذا النوع بصيغة JSON.

@@ -371,8 +371,8 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
             {
                 UserId = booking.UserId,
                 Type = NotificationType.BookingCancelled,
-                Title = "تم إلغاء الحجز",
-                Message = $"تم إلغاء حجزك. رقم الحجز: {bookingNumber}. السبب: {reason}.",
+                Title = "تم إلغاء الحجز / Booking cancelled",
+                Message = $"تم إلغاء حجزك. رقم الحجز: {bookingNumber}. السبب: {reason}. / Your booking has been cancelled. Booking number: {bookingNumber}. Reason: {reason}.",
                 Data = new { BookingId = booking.Id, BookingNumber = bookingNumber, Reason = reason }
             }, cancellationToken);
 
@@ -387,8 +387,8 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
                     {
                         UserId = propertyEntity.OwnerId,
                         Type = NotificationType.BookingCancelled,
-                        Title = "تم إلغاء حجز",
-                        Message = $"تم إلغاء حجز في وحدتك. رقم الحجز: {bookingNumber}. السبب: {reason}.",
+                        Title = "تم إلغاء حجز / A booking has been cancelled",
+                        Message = $"تم إلغاء حجز في وحدتك. رقم الحجز: {bookingNumber}. السبب: {reason}. / A booking in your unit has been cancelled. Booking number: {bookingNumber}. Reason: {reason}.",
                         Data = new { BookingId = booking.Id, UnitId = unitEntity.Id, BookingNumber = bookingNumber, Reason = reason }
                     }, cancellationToken);
                 }

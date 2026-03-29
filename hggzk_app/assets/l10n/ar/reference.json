@@ -1,0 +1,9 @@
+{
+  "reference.selectCityTitle": "اختر مدينتك",
+  "reference.selectCitySubtitle": "حدد المدينة للحصول على أفضل النتائج",
+  "reference.searchHint": "ابحث عن مدينة...",
+  "reference.loadingCities": "جاري تحميل المدن...",
+  "reference.noResultsTitle": "لا توجد نتائج",
+  "reference.noResultsSubtitle": "جرب البحث بكلمات أخرى",
+  "reference.errorTitle": "حدث خطأ"
+}

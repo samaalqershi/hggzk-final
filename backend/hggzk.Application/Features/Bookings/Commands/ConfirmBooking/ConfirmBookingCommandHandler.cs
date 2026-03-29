@@ -255,8 +255,8 @@ public class ConfirmBookingCommandHandler : IRequestHandler<ConfirmBookingComman
             {
                 UserId = booking.UserId,
                 Type = NotificationType.BookingConfirmed,
-                Title = "تم تأكيد الحجز",
-                Message = $"تم تأكيد حجزك بنجاح. رقم الحجز: {bookingNumber}.",
+                Title = "تم تأكيد الحجز / Booking confirmed",
+                Message = $"تم تأكيد حجزك بنجاح. رقم الحجز: {bookingNumber}. / Your booking has been confirmed successfully. Booking number: {bookingNumber}.",
                 Data = new { BookingId = booking.Id, BookingNumber = bookingNumber }
             }, cancellationToken);
 
@@ -267,8 +267,8 @@ public class ConfirmBookingCommandHandler : IRequestHandler<ConfirmBookingComman
                 {
                     UserId = propertyEntity.OwnerId,
                     Type = NotificationType.BookingConfirmed,
-                    Title = "تم تأكيد حجز",
-                    Message = $"تم تأكيد حجز في وحدتك. رقم الحجز: {bookingNumber}.",
+                    Title = "تم تأكيد حجز / A booking has been confirmed",
+                    Message = $"تم تأكيد حجز في وحدتك. رقم الحجز: {bookingNumber}. / A booking in your unit has been confirmed. Booking number: {bookingNumber}.",
                     Data = new { BookingId = booking.Id, UnitId = unitEntity.Id, BookingNumber = bookingNumber }
                 }, cancellationToken);
             }

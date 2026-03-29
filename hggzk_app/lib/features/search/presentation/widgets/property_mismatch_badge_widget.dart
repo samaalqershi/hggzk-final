@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/app_localizations.dart';
 import 'package:hggzk/core/theme/app_text_styles.dart';
 import '../../data/models/property_filter_mismatch_model.dart';
 
@@ -54,7 +55,10 @@ class PropertyMismatchBadgeWidget extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            '${mismatches.length} فرق',
+            context.tr(
+              'search.result.mismatchCount',
+              params: {'count': mismatches.length},
+            ),
             style: AppTextStyles.bodySmall.copyWith(
               color: Colors.orange[700],
               fontWeight: FontWeight.w600,
@@ -73,7 +77,9 @@ class PropertyMismatchBadgeWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          'فروقات عن طلبك:',
+          context.tr(
+            'search.result.mismatchesTitle',
+          ),
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 color: Colors.grey[700],
                 fontWeight: FontWeight.bold,

@@ -9,6 +9,12 @@ namespace YemenBooking.Application.Features.Properties.DTOs
     public class AdvancedPropertyDto
     {
         /// <summary>
+        /// معرف العقار
+        /// Property identifier
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
         /// الصورة الرئيسية للفندق
         /// URL of main image
         /// </summary>
@@ -19,6 +25,48 @@ namespace YemenBooking.Application.Features.Properties.DTOs
         /// Property name
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// الاسم الإنجليزي للكيان
+        /// English property name
+        /// </summary>
+        public string? NameEn { get; set; }
+
+        /// <summary>
+        /// العنوان العربي أو الافتراضي
+        /// Default or Arabic address
+        /// </summary>
+        public string? Address { get; set; }
+
+        /// <summary>
+        /// العنوان الإنجليزي
+        /// English address
+        /// </summary>
+        public string? AddressEn { get; set; }
+
+        /// <summary>
+        /// المدينة العربية أو الافتراضية
+        /// Default or Arabic city
+        /// </summary>
+        public string? City { get; set; }
+
+        /// <summary>
+        /// المدينة الإنجليزية
+        /// English city
+        /// </summary>
+        public string? CityEn { get; set; }
+
+        /// <summary>
+        /// نوع العقار العربي أو الافتراضي
+        /// Default or Arabic property type
+        /// </summary>
+        public string? TypeName { get; set; }
+
+        /// <summary>
+        /// نوع العقار الإنجليزي
+        /// English property type
+        /// </summary>
+        public string? TypeNameEn { get; set; }
 
         /// <summary>
         /// متوسط تقييم الفندق

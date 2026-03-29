@@ -17,7 +17,9 @@ class CreatePolicyUseCase implements UseCase<String, CreatePolicyParams> {
       propertyId: params.propertyId,
       type: params.type,
       description: params.description,
+      descriptionEn: params.descriptionEn,
       rules: params.rules,
+      rulesEn: params.rulesEn,
       cancellationWindowDays: params.cancellationWindowDays,
       requireFullPaymentBeforeConfirmation:
           params.requireFullPaymentBeforeConfirmation,
@@ -47,6 +49,7 @@ class CreatePolicyUseCase implements UseCase<String, CreatePolicyParams> {
       checkInRequiresCoordination: params.checkInRequiresCoordination,
       checkInContactOwner: params.checkInContactOwner,
       checkInEarlyCheckInNote: params.checkInEarlyCheckInNote,
+      checkInEarlyCheckInNoteEn: params.checkInEarlyCheckInNoteEn,
       checkInLateCheckOutNote: params.checkInLateCheckOutNote,
       checkInLateCheckOutFee: params.checkInLateCheckOutFee,
       childrenAllowed: params.childrenAllowed,
@@ -55,10 +58,12 @@ class CreatePolicyUseCase implements UseCase<String, CreatePolicyParams> {
       childrenMaxChildrenPerRoom: params.childrenMaxChildrenPerRoom,
       childrenMaxChildren: params.childrenMaxChildren,
       childrenCribsNote: params.childrenCribsNote,
+      childrenCribsNoteEn: params.childrenCribsNoteEn,
       childrenPlaygroundAvailable: params.childrenPlaygroundAvailable,
       childrenKidsMenuAvailable: params.childrenKidsMenuAvailable,
       petsAllowed: params.petsAllowed,
       petsReason: params.petsReason,
+      petsReasonEn: params.petsReasonEn,
       petsFeeAmount: params.petsFeeAmount,
       petsMaxWeight: params.petsMaxWeight,
       petsRequiresApproval: params.petsRequiresApproval,
@@ -72,6 +77,7 @@ class CreatePolicyUseCase implements UseCase<String, CreatePolicyParams> {
       modificationFeesAfter: params.modificationFeesAfter,
       modificationFlexible: params.modificationFlexible,
       modificationReason: params.modificationReason,
+      modificationReasonEn: params.modificationReasonEn,
     );
   }
 }
@@ -84,7 +90,11 @@ class CreatePolicyParams extends Equatable {
 
   final String description;
 
+  final String? descriptionEn;
+
   final String? rules;
+
+  final String? rulesEn;
 
   final int cancellationWindowDays;
 
@@ -142,6 +152,8 @@ class CreatePolicyParams extends Equatable {
 
   final String? checkInEarlyCheckInNote;
 
+  final String? checkInEarlyCheckInNoteEn;
+
   final String? checkInLateCheckOutNote;
 
   final String? checkInLateCheckOutFee;
@@ -158,6 +170,8 @@ class CreatePolicyParams extends Equatable {
 
   final String? childrenCribsNote;
 
+  final String? childrenCribsNoteEn;
+
   final bool? childrenPlaygroundAvailable;
 
   final bool? childrenKidsMenuAvailable;
@@ -165,6 +179,8 @@ class CreatePolicyParams extends Equatable {
   final bool? petsAllowed;
 
   final String? petsReason;
+
+  final String? petsReasonEn;
 
   final double? petsFeeAmount;
 
@@ -190,11 +206,15 @@ class CreatePolicyParams extends Equatable {
 
   final String? modificationReason;
 
+  final String? modificationReasonEn;
+
   const CreatePolicyParams({
     required this.propertyId,
     required this.type,
     required this.description,
+    this.descriptionEn,
     this.rules,
+    this.rulesEn,
     this.cancellationWindowDays = 0,
     this.requireFullPaymentBeforeConfirmation = false,
     this.minimumDepositPercentage = 0.0,
@@ -223,6 +243,7 @@ class CreatePolicyParams extends Equatable {
     this.checkInRequiresCoordination,
     this.checkInContactOwner,
     this.checkInEarlyCheckInNote,
+    this.checkInEarlyCheckInNoteEn,
     this.checkInLateCheckOutNote,
     this.checkInLateCheckOutFee,
     this.childrenAllowed,
@@ -231,10 +252,12 @@ class CreatePolicyParams extends Equatable {
     this.childrenMaxChildrenPerRoom,
     this.childrenMaxChildren,
     this.childrenCribsNote,
+    this.childrenCribsNoteEn,
     this.childrenPlaygroundAvailable,
     this.childrenKidsMenuAvailable,
     this.petsAllowed,
     this.petsReason,
+    this.petsReasonEn,
     this.petsFeeAmount,
     this.petsMaxWeight,
     this.petsRequiresApproval,
@@ -247,6 +270,7 @@ class CreatePolicyParams extends Equatable {
     this.modificationFeesAfter,
     this.modificationFlexible,
     this.modificationReason,
+    this.modificationReasonEn,
   });
 
   @override
@@ -254,7 +278,9 @@ class CreatePolicyParams extends Equatable {
         propertyId,
         type,
         description,
+        descriptionEn,
         rules,
+        rulesEn,
         cancellationWindowDays,
         requireFullPaymentBeforeConfirmation,
         minimumDepositPercentage,
@@ -283,6 +309,7 @@ class CreatePolicyParams extends Equatable {
         checkInRequiresCoordination,
         checkInContactOwner,
         checkInEarlyCheckInNote,
+        checkInEarlyCheckInNoteEn,
         checkInLateCheckOutNote,
         checkInLateCheckOutFee,
         childrenAllowed,
@@ -291,10 +318,12 @@ class CreatePolicyParams extends Equatable {
         childrenMaxChildrenPerRoom,
         childrenMaxChildren,
         childrenCribsNote,
+        childrenCribsNoteEn,
         childrenPlaygroundAvailable,
         childrenKidsMenuAvailable,
         petsAllowed,
         petsReason,
+        petsReasonEn,
         petsFeeAmount,
         petsMaxWeight,
         petsRequiresApproval,
@@ -307,5 +336,6 @@ class CreatePolicyParams extends Equatable {
         modificationFeesAfter,
         modificationFlexible,
         modificationReason,
+        modificationReasonEn,
       ];
 }

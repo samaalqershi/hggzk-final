@@ -13,10 +13,14 @@ class PropertyIdentityCardTooltip {
     required GlobalKey targetKey,
     required String propertyId,
     required String name,
+    String? nameEn,
     required String typeName,
+    String? typeNameEn,
     required String ownerName,
     required String address,
+    String? addressEn,
     required String city,
+    String? cityEn,
     required int starRating,
     String? coverImage,
     required bool isApproved,
@@ -26,6 +30,7 @@ class PropertyIdentityCardTooltip {
     int bookingCount = 0,
     double averageRating = 0.0,
     String? shortDescription,
+    String? shortDescriptionEn,
     String currency = 'YER',
     int amenitiesCount = 0,
     int policiesCount = 0,
@@ -38,10 +43,14 @@ class PropertyIdentityCardTooltip {
         targetKey: targetKey,
         propertyId: propertyId,
         name: name,
+        nameEn: nameEn,
         typeName: typeName,
+        typeNameEn: typeNameEn,
         ownerName: ownerName,
         address: address,
+        addressEn: addressEn,
         city: city,
+        cityEn: cityEn,
         starRating: starRating,
         coverImage: coverImage,
         isApproved: isApproved,
@@ -51,6 +60,7 @@ class PropertyIdentityCardTooltip {
         bookingCount: bookingCount,
         averageRating: averageRating,
         shortDescription: shortDescription,
+        shortDescriptionEn: shortDescriptionEn,
         currency: currency,
         amenitiesCount: amenitiesCount,
         policiesCount: policiesCount,
@@ -61,6 +71,7 @@ class PropertyIdentityCardTooltip {
 
     Overlay.of(context).insert(_overlayEntry!);
   }
+
   static void hide() {
     _contentKey.currentState?.animateOut(() {
       _overlayEntry?.remove();
@@ -68,14 +79,19 @@ class PropertyIdentityCardTooltip {
     });
   }
 }
+
 class _PropertyCardOverlay extends StatelessWidget {
   final GlobalKey targetKey;
   final String propertyId;
   final String name;
+  final String? nameEn;
   final String typeName;
+  final String? typeNameEn;
   final String ownerName;
   final String address;
+  final String? addressEn;
   final String city;
+  final String? cityEn;
   final int starRating;
   final String? coverImage;
   final bool isApproved;
@@ -85,6 +101,7 @@ class _PropertyCardOverlay extends StatelessWidget {
   final int bookingCount;
   final double averageRating;
   final String? shortDescription;
+  final String? shortDescriptionEn;
   final String currency;
   final int amenitiesCount;
   final int policiesCount;
@@ -94,10 +111,14 @@ class _PropertyCardOverlay extends StatelessWidget {
     required this.targetKey,
     required this.propertyId,
     required this.name,
+    this.nameEn,
     required this.typeName,
+    this.typeNameEn,
     required this.ownerName,
     required this.address,
+    this.addressEn,
     required this.city,
+    this.cityEn,
     required this.starRating,
     this.coverImage,
     required this.isApproved,
@@ -107,6 +128,7 @@ class _PropertyCardOverlay extends StatelessWidget {
     required this.bookingCount,
     required this.averageRating,
     this.shortDescription,
+    this.shortDescriptionEn,
     required this.currency,
     required this.amenitiesCount,
     required this.policiesCount,
@@ -128,10 +150,14 @@ class _PropertyCardOverlay extends StatelessWidget {
           targetKey: targetKey,
           propertyId: propertyId,
           name: name,
+          nameEn: nameEn,
           typeName: typeName,
+          typeNameEn: typeNameEn,
           ownerName: ownerName,
           address: address,
+          addressEn: addressEn,
           city: city,
+          cityEn: cityEn,
           starRating: starRating,
           coverImage: coverImage,
           isApproved: isApproved,
@@ -141,6 +167,7 @@ class _PropertyCardOverlay extends StatelessWidget {
           bookingCount: bookingCount,
           averageRating: averageRating,
           shortDescription: shortDescription,
+          shortDescriptionEn: shortDescriptionEn,
           currency: currency,
           amenitiesCount: amenitiesCount,
           policiesCount: policiesCount,
@@ -150,14 +177,19 @@ class _PropertyCardOverlay extends StatelessWidget {
     );
   }
 }
+
 class _PropertyCardContent extends StatefulWidget {
   final GlobalKey targetKey;
   final String propertyId;
   final String name;
+  final String? nameEn;
   final String typeName;
+  final String? typeNameEn;
   final String ownerName;
   final String address;
+  final String? addressEn;
   final String city;
+  final String? cityEn;
   final int starRating;
   final String? coverImage;
   final bool isApproved;
@@ -167,6 +199,7 @@ class _PropertyCardContent extends StatefulWidget {
   final int bookingCount;
   final double averageRating;
   final String? shortDescription;
+  final String? shortDescriptionEn;
   final String currency;
   final int amenitiesCount;
   final int policiesCount;
@@ -176,10 +209,14 @@ class _PropertyCardContent extends StatefulWidget {
     required this.targetKey,
     required this.propertyId,
     required this.name,
+    this.nameEn,
     required this.typeName,
+    this.typeNameEn,
     required this.ownerName,
     required this.address,
+    this.addressEn,
     required this.city,
+    this.cityEn,
     required this.starRating,
     this.coverImage,
     required this.isApproved,
@@ -189,6 +226,7 @@ class _PropertyCardContent extends StatefulWidget {
     required this.bookingCount,
     required this.averageRating,
     this.shortDescription,
+    this.shortDescriptionEn,
     required this.currency,
     required this.amenitiesCount,
     required this.policiesCount,
@@ -197,6 +235,7 @@ class _PropertyCardContent extends StatefulWidget {
   @override
   State<_PropertyCardContent> createState() => _PropertyCardContentState();
 }
+
 class _PropertyCardContentState extends State<_PropertyCardContent>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
@@ -220,19 +259,76 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
 
     _controller.forward();
   }
+
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
+
   void animateOut(VoidCallback onComplete) {
     _controller.reverse().then((_) => onComplete());
   }
+
+  bool _hasSecondary(String? secondary, String primary) {
+    if (secondary == null) {
+      return false;
+    }
+
+    final trimmed = secondary.trim();
+    return trimmed.isNotEmpty && trimmed != primary.trim();
+  }
+
+  Widget _buildBilingualText(
+    String primary, {
+    String? secondary,
+    TextStyle? primaryStyle,
+    TextStyle? secondaryStyle,
+    TextAlign textAlign = TextAlign.start,
+    int primaryMaxLines = 2,
+    int secondaryMaxLines = 2,
+  }) {
+    final normalizedPrimary = primary.trim();
+    final effectivePrimary =
+        normalizedPrimary.isEmpty ? (secondary?.trim() ?? '') : primary;
+    final effectiveSecondary = normalizedPrimary.isEmpty ? null : secondary;
+    final showSecondary = _hasSecondary(effectiveSecondary, effectivePrimary);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          effectivePrimary,
+          style: primaryStyle,
+          textAlign: textAlign,
+          maxLines: primaryMaxLines,
+          overflow: TextOverflow.ellipsis,
+        ),
+        if (showSecondary) ...[
+          const SizedBox(height: 4),
+          Text(
+            effectiveSecondary!,
+            style: secondaryStyle ??
+                primaryStyle?.copyWith(
+                  color: AppTheme.textMuted,
+                  fontSize: (primaryStyle.fontSize ?? 14) - 1,
+                ),
+            textAlign: textAlign,
+            maxLines: secondaryMaxLines,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ],
+    );
+  }
+
   Color _getStatusColor() {
     if (!widget.isApproved) return AppTheme.warning;
     if (widget.isFeatured) return AppTheme.primaryBlue;
     return AppTheme.success;
   }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -294,6 +390,7 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
                                       'نوع العقار',
                                       widget.typeName,
                                       AppTheme.primaryBlue,
+                                      secondaryValue: widget.typeNameEn,
                                     ),
                                     const SizedBox(height: 12),
                                     _buildInfoRow(
@@ -308,6 +405,13 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
                                       'الموقع',
                                       '${widget.address}, ${widget.city}',
                                       AppTheme.primaryCyan,
+                                      secondaryValue: _hasSecondary(
+                                                  widget.addressEn,
+                                                  widget.address) ||
+                                              _hasSecondary(
+                                                  widget.cityEn, widget.city)
+                                          ? '${widget.addressEn ?? widget.address}, ${widget.cityEn ?? widget.city}'
+                                          : null,
                                     ),
                                     const SizedBox(height: 16),
                                     _buildStatsGrid(),
@@ -330,6 +434,7 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
       },
     );
   }
+
   Widget _buildHeader(Color statusColor) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -378,6 +483,7 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
       ),
     );
   }
+
   Widget _buildPropertyImage(Color statusColor) {
     return Container(
       decoration: BoxDecoration(
@@ -419,26 +525,31 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
             child: Column(
               children: [
                 // Property Name
-                Text(
+                _buildBilingualText(
                   widget.name,
-                  style: AppTextStyles.heading2.copyWith(
+                  secondary: widget.nameEn,
+                  primaryStyle: AppTextStyles.heading2.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
+                  secondaryStyle: AppTextStyles.bodySmall.copyWith(
+                    color: AppTheme.textMuted,
+                  ),
                   textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
 
-                if (widget.shortDescription != null) ...[
+                if (widget.shortDescription != null ||
+                    widget.shortDescriptionEn != null) ...[
                   const SizedBox(height: 8),
-                  Text(
-                    widget.shortDescription!,
-                    style: AppTextStyles.bodySmall.copyWith(
+                  _buildBilingualText(
+                    widget.shortDescription ?? '',
+                    secondary: widget.shortDescriptionEn,
+                    primaryStyle: AppTextStyles.bodySmall.copyWith(
                       color: AppTheme.textMuted,
                     ),
+                    secondaryStyle: AppTextStyles.caption.copyWith(
+                      color: AppTheme.textMuted.withValues(alpha: 0.75),
+                    ),
                     textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
 
@@ -531,6 +642,7 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
       ),
     );
   }
+
   Widget _buildDefaultImage(Color color) {
     return Container(
       color: color.withValues(alpha: 0.1),
@@ -543,7 +655,14 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
       ),
     );
   }
-  Widget _buildInfoRow(IconData icon, String label, String value, Color color) {
+
+  Widget _buildInfoRow(
+    IconData icon,
+    String label,
+    String value,
+    Color color, {
+    String? secondaryValue,
+  }) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -572,13 +691,15 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
+                _buildBilingualText(
                   value,
-                  style: AppTextStyles.bodySmall.copyWith(
+                  secondary: secondaryValue,
+                  primaryStyle: AppTextStyles.bodySmall.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  secondaryStyle: AppTextStyles.caption.copyWith(
+                    color: AppTheme.textMuted,
+                  ),
                 ),
               ],
             ),
@@ -587,6 +708,7 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
       ),
     );
   }
+
   Widget _buildStatsGrid() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -664,6 +786,7 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
       ),
     );
   }
+
   Widget _buildStatItem(
       IconData icon, String value, String label, Color color) {
     return Container(
@@ -712,6 +835,7 @@ class _PropertyCardContentState extends State<_PropertyCardContent>
       ),
     );
   }
+
   Widget _buildPropertyId() {
     return Container(
       width: double.infinity,

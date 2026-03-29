@@ -27,7 +27,9 @@ public class UnitConfiguration : IEntityTypeConfiguration<Unit>
         builder.Property(u => u.PropertyId).IsRequired();
         builder.Property(u => u.UnitTypeId).IsRequired();
         builder.Property(u => u.Name).IsRequired().HasMaxLength(100);
+        builder.Property(u => u.NameEn).HasMaxLength(100);
         builder.Property(u => u.CustomFeatures).HasColumnType("text");
+        builder.Property(u => u.CustomFeaturesEn).HasColumnType("text");
         builder.Property(u => u.AllowsCancellation)
             .HasDefaultValue(true)
             .HasComment("هل تقبل الوحدة إلغاء الحجز");

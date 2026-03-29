@@ -39,9 +39,44 @@ public class PropertyPolicyConfiguration : IEntityTypeConfiguration<PropertyPoli
             .HasMaxLength(1000)
             .HasComment("وصف السياسة");
 
+        builder.Property(pp => pp.DescriptionEn)
+            .HasMaxLength(1000)
+            .HasComment("وصف السياسة بالإنجليزية");
+
         builder.Property(pp => pp.Rules)
             .HasColumnType("text")
             .HasComment("قواعد السياسة (JSON)");
+
+        builder.Property(pp => pp.RulesEn)
+            .HasColumnType("text")
+            .HasComment("قواعد السياسة بالإنجليزية (JSON)");
+
+        builder.Property(pp => pp.CancellationPenaltyAfterDeadlineEn)
+            .HasMaxLength(1000);
+
+        builder.Property(pp => pp.CheckInEarlyCheckInNoteEn)
+            .HasMaxLength(1000);
+
+        builder.Property(pp => pp.CheckInLateCheckOutNoteEn)
+            .HasMaxLength(1000);
+
+        builder.Property(pp => pp.CheckInLateCheckOutFeeEn)
+            .HasMaxLength(500);
+
+        builder.Property(pp => pp.ChildrenCribsNoteEn)
+            .HasMaxLength(1000);
+
+        builder.Property(pp => pp.PetsReasonEn)
+            .HasMaxLength(1000);
+
+        builder.Property(pp => pp.PetsMaxWeightEn)
+            .HasMaxLength(500);
+
+        builder.Property(pp => pp.ModificationFeesAfterEn)
+            .HasMaxLength(1000);
+
+        builder.Property(pp => pp.ModificationReasonEn)
+            .HasMaxLength(1000);
 
         builder.Property(pp => pp.PaymentAcceptedMethods)
             .HasColumnType("text[]");

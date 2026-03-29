@@ -118,6 +118,8 @@ flutter:
 
 
   assets:
+    - assets/l10n/ar/
+    - assets/l10n/en/
     - assets/images/
     - assets/images/payment/
     - assets/icons/

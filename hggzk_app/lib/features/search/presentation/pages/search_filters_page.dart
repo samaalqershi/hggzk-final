@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hggzk/features/search/domain/entities/search_result.dart';
+import '../../../../core/localization/app_localizations.dart';
 import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
@@ -472,7 +473,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
                     stops: const [0.0, 0.5, 1.0],
                   ).createShader(bounds),
                   child: Text(
-                    'تخصيص البحث',
+                    context.tr('search.filters.searchTitle'),
                     style: AppTextStyles.bodyLarge.copyWith(
                       fontWeight: FontWeight.w700,
                       color: AppTheme.textWhite,
@@ -484,7 +485,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
           ),
           if (_activeFilterCount > 0)
             _buildNanoTextButton(
-              label: 'مسح',
+              label: context.tr('search.filters.clear'),
               icon: Icons.clear_all_rounded,
               onTap: _resetFilters,
               color: AppTheme.error,
@@ -565,10 +566,22 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
   /// العربية: يبني quick filters.
   Widget _buildQuickFilters() {
     final quickFilters = [
-      {'label': 'الأكثر شعبية', 'icon': Icons.trending_up_rounded},
-      {'label': 'الأفضل تقييماً', 'icon': Icons.star_rounded},
-      {'label': 'الأرخص', 'icon': Icons.attach_money_rounded},
-      {'label': 'قريب مني', 'icon': Icons.near_me_rounded},
+      {
+        'label': context.tr('search.filters.sort.popularity'),
+        'icon': Icons.trending_up_rounded,
+      },
+      {
+        'label': context.tr('search.filters.sort.rating'),
+        'icon': Icons.star_rounded,
+      },
+      {
+        'label': context.tr('search.filters.sort.priceAsc'),
+        'icon': Icons.attach_money_rounded,
+      },
+      {
+        'label': context.tr('search.filters.sort.distance'),
+        'icon': Icons.near_me_rounded,
+      },
     ];
 
     return Container(
@@ -606,7 +619,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     final selectedCity = (_filters['city'] as String?)?.trim();
 
     return _NanoSection(
-      title: 'المدينة',
+      title: context.tr('search.filters.city'),
       icon: Icons.location_city_outlined,
       child: _buildVerticalOptionsList(
         cities.map((city) {
@@ -638,7 +651,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
   /// العربية: يبني search term section.
   Widget _buildSearchTermSection() {
     return _NanoSection(
-      title: 'بحث عن عقار',
+      title: context.tr('search.filters.propertySearchTitle'),
       icon: Icons.search_rounded,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -676,7 +689,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
           decoration: InputDecoration(
             border: InputBorder.none,
             isDense: true,
-            hintText: 'ابحث بالاسم، الوصف، أو المدينة...',
+            hintText: context.tr('search.filters.searchHint'),
             hintStyle: AppTextStyles.bodySmall.copyWith(
               color: AppTheme.textMuted.withOpacity(0.7),
             ),
@@ -688,7 +701,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
             suffixIcon: _searchTermController.text.trim().isEmpty
                 ? null
                 : IconButton(
-                    tooltip: 'مسح',
+                    tooltip: context.tr('search.filters.clear'),
                     onPressed: () {
                       HapticFeedback.lightImpact();
                       setState(() {
@@ -770,7 +783,9 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
   /// العربية: يبني date section.
   Widget _buildDateSection(SearchFiltersLoaded? loadedState) {
     return _NanoSection(
-      title: 'التواريخ',
+      title: context.tr(
+        'search.filters.dateTitle',
+      ),
       icon: Icons.calendar_today_rounded,
       headerSuffix: _buildSectionCountBadge(
         matchingResultsCount: loadedState?.matchingResultsCount,
@@ -782,7 +797,9 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
             children: [
               Expanded(
                 child: _buildDateField(
-                  label: 'من',
+                  label: context.tr(
+                    'search.filters.from',
+                  ),
                   date: _filters['checkIn'],
                   onTap: () => _selectDate('checkIn'),
                 ),
@@ -804,7 +821,9 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
               const SizedBox(width: 8),
               Expanded(
                 child: _buildDateField(
-                  label: 'إلى',
+                  label: context.tr(
+                    'search.filters.to',
+                  ),
                   date: _filters['checkOut'],
                   onTap: () => _selectDate('checkOut'),
                 ),
@@ -815,7 +834,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
           _buildSectionCountSummary(
             matchingResultsCount: loadedState?.matchingResultsCount,
             isLoading: loadedState?.isPreviewLoading ?? false,
-            label: 'مطابق للتواريخ الحالية',
+            label: context.tr('search.filters.currentDatesMatched'),
             icon: Icons.event_available_rounded,
           ),
         ],
@@ -856,7 +875,9 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
             ),
             const SizedBox(height: 4),
             Text(
-              date != null ? _formatDate(date) : 'اختر',
+              date != null
+                  ? _formatDate(date)
+                  : context.tr('search.filters.select'),
               style: AppTextStyles.bodySmall.copyWith(
                 color: date != null
                     ? AppTheme.textWhite
@@ -875,7 +896,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     final guestsCount = _filters['guestsCount'] ?? 1;
 
     return _NanoSection(
-      title: 'الضيوف',
+      title: context.tr('search.filters.guests'),
       icon: Icons.people_outline_rounded,
       child: Container(
         padding: const EdgeInsets.all(12),
@@ -896,7 +917,15 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '$guestsCount ${guestsCount == 1 ? 'ضيف' : 'ضيوف'}',
+              guestsCount == 1
+                  ? context.tr(
+                      'search.filters.guestsOne',
+                      params: {'value': '$guestsCount'},
+                    )
+                  : context.tr(
+                      'search.filters.guestsMany',
+                      params: {'value': '$guestsCount'},
+                    ),
               style: AppTextStyles.bodySmall.copyWith(
                 fontWeight: FontWeight.w600,
                 color: AppTheme.textWhite,
@@ -965,7 +994,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     final isRequired = _requiredFieldsStatus['propertyTypeId'] == false;
 
     return _NanoSection(
-      title: 'نوع العقار',
+      title: context.tr('search.filters.propertyTypeTitle'),
       icon: Icons.home_outlined,
       isRequired: true,
       hasError: isRequired,
@@ -1023,7 +1052,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     final isRequired = _requiredFieldsStatus['unitTypeId'] == false;
 
     return _NanoSection(
-      title: 'نوع الوحدة',
+      title: context.tr('search.filters.unitTypeTitle'),
       icon: Icons.bed_outlined,
       isRequired: true,
       hasError: isRequired,
@@ -1062,7 +1091,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     const String selectedCurrency = 'YER';
 
     return _NanoSection(
-      title: 'السعر',
+      title: context.tr('search.filters.priceTitle'),
       icon: Icons.payments_outlined,
       headerSuffix: _buildSectionCountBadge(
         matchingResultsCount: loadedState?.matchingResultsCount,
@@ -1074,7 +1103,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
             children: [
               Expanded(
                 child: _buildPriceField(
-                  label: 'من',
+                  label: context.tr('search.filters.from'),
                   value: minPrice,
                   currency: selectedCurrency,
                 ),
@@ -1089,7 +1118,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
               ),
               Expanded(
                 child: _buildPriceField(
-                  label: 'إلى',
+                  label: context.tr('search.filters.to'),
                   value: maxPrice,
                   currency: selectedCurrency,
                 ),
@@ -1102,7 +1131,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
           _buildSectionCountSummary(
             matchingResultsCount: loadedState?.matchingResultsCount,
             isLoading: loadedState?.isPreviewLoading ?? false,
-            label: 'مطابق لنطاق السعر الحالي',
+            label: context.tr('search.filters.currentPriceMatched'),
             icon: Icons.price_change_outlined,
           ),
         ],
@@ -1199,7 +1228,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
           Expanded(
             child: Text(
               isLoading
-                  ? 'يتم تحديث العداد...'
+                  ? context.tr('search.filters.updateCounter')
                   : '$label: ${matchingResultsCount ?? 0}',
               style: AppTextStyles.caption.copyWith(
                 color: AppTheme.textWhite,
@@ -1344,7 +1373,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
           );
 
     return _NanoSection(
-      title: 'التقييم',
+      title: context.tr('search.filters.ratingTitle'),
       icon: Icons.star_outline_rounded,
       child: _buildVerticalOptionsList(
         ratings.map((option) {
@@ -1352,7 +1381,10 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
           final isSelected = selectedRating == rating;
 
           return _buildVerticalCountOption(
-            label: '$rating نجوم فأكثر',
+            label: context.tr(
+              'search.filters.starsPlus',
+              params: {'value': '$rating'},
+            ),
             count: option.propertiesCount,
             icon: Icons.star_rounded,
             isSelected: isSelected,
@@ -1435,7 +1467,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
         List<String>.from(_filters['requiredAmenities'] ?? []);
 
     return _NanoSection(
-      title: 'المرافق',
+      title: context.tr('search.filters.amenitiesTitle'),
       icon: Icons.widgets_outlined,
       child: _buildVerticalOptionsList(
         amenities.map((amenity) {
@@ -1472,7 +1504,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     final selectedServices = List<String>.from(_filters['serviceIds'] ?? []);
 
     return _NanoSection(
-      title: 'الخدمات',
+      title: context.tr('search.filters.servicesTitle'),
       icon: Icons.room_service_outlined,
       child: _buildVerticalOptionsList(
         services.map((service) {
@@ -1522,7 +1554,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
         Map<String, dynamic>.from(_filters['dynamicFieldFilters'] ?? {});
 
     return _NanoSection(
-      title: 'الخصائص الإضافية',
+      title: context.tr('search.filters.extraFeaturesTitle'),
       icon: Icons.tune_rounded,
       child: Column(
         children: grouped.entries.map((entry) {
@@ -1721,7 +1753,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
   String _humanizeDynamicFieldName(String value) {
     final normalized = value.trim();
     if (normalized.isEmpty) {
-      return 'حقل إضافي';
+      return context.tr('search.filters.additionalField');
     }
 
     final withSpaces = normalized.replaceAll(RegExp(r'[_-]+'), ' ');
@@ -1790,8 +1822,13 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
                   Expanded(
                     child: Text(
                       isPreviewLoading
-                          ? 'يتم تحديث العدادات والنتائج...'
-                          : 'النتائج المطابقة الآن: ${matchingResultsCount ?? 0}',
+                          ? context.tr('search.filters.resultsNowUpdating')
+                          : context.tr(
+                              'search.filters.resultsNow',
+                              params: {
+                                'count': '${matchingResultsCount ?? 0}',
+                              },
+                            ),
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppTheme.textWhite,
                         fontWeight: FontWeight.w600,
@@ -1855,7 +1892,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
                           ),
                           child: Center(
                             child: Text(
-                              'مسح الكل',
+                              context.tr('search.filters.clearAll'),
                               style: AppTextStyles.buttonMedium.copyWith(
                                 color: AppTheme.error,
                               ),
@@ -1921,9 +1958,19 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
                                   Text(
                                     _isValidFilter
                                         ? (_activeFilterCount > 0
-                                            ? 'عرض ${matchingResultsCount ?? 0} نتيجة'
-                                            : 'تطبيق الفلاتر')
-                                        : 'أكمل الحقول المطلوبة',
+                                            ? context.tr(
+                                                'search.filters.showResults',
+                                                params: {
+                                                  'count':
+                                                      '${matchingResultsCount ?? 0}',
+                                                },
+                                              )
+                                            : context.tr(
+                                                'search.filters.applyFilters',
+                                              ))
+                                        : context.tr(
+                                            'search.filters.completeRequiredFields',
+                                          ),
                                     style: AppTextStyles.buttonMedium.copyWith(
                                       color: _isValidFilter
                                           ? Colors.white

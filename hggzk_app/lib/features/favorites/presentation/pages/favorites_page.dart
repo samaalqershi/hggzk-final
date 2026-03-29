@@ -6,6 +6,7 @@ import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../bloc/favorites_bloc.dart';
 import '../bloc/favorites_event.dart';
@@ -314,7 +315,7 @@ class _FavoritesPageState extends State<FavoritesPage>
                     ],
                   ).createShader(bounds),
                   child: Text(
-                    'المفضلة',
+                    context.tr('favorites.title'),
                     style: AppTextStyles.h2.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
@@ -424,7 +425,9 @@ class _FavoritesPageState extends State<FavoritesPage>
                       color: AppTheme.textWhite.withOpacity(0.9),
                     ),
                     decoration: InputDecoration(
-                      hintText: 'البحث في المفضلة...',
+                      hintText: context.tr(
+                        'favorites.searchHint',
+                      ),
                       hintStyle: AppTextStyles.bodySmall.copyWith(
                         color: AppTheme.textMuted.withOpacity(0.4),
                       ),
@@ -509,10 +512,10 @@ class _FavoritesPageState extends State<FavoritesPage>
   /// Builds the loading state.
   /// العربية: يبني loading state.
   Widget _buildLoadingState() {
-    return const Center(
+    return Center(
       child: LoadingWidget(
         type: LoadingType.futuristic,
-        message: 'جاري التحميل...',
+        message: context.tr('common.loading'),
       ),
     );
   }
@@ -567,14 +570,18 @@ class _FavoritesPageState extends State<FavoritesPage>
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'لا توجد مفضلات',
+                    context.tr(
+                      'favorites.emptyTitle',
+                    ),
                     style: AppTextStyles.h3.copyWith(
                       color: AppTheme.textWhite.withOpacity(0.8),
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'ابدأ بإضافة العقارات المفضلة لديك',
+                    context.tr(
+                      'favorites.emptySubtitle',
+                    ),
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppTheme.textMuted.withOpacity(0.5),
                     ),
@@ -607,7 +614,9 @@ class _FavoritesPageState extends State<FavoritesPage>
                         ],
                       ),
                       child: Text(
-                        'تصفح العقارات',
+                        context.tr(
+                          'favorites.browseProperties',
+                        ),
                         style: AppTextStyles.bodySmall.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -640,14 +649,18 @@ class _FavoritesPageState extends State<FavoritesPage>
             ),
             const SizedBox(height: 12),
             Text(
-              'لا توجد نتائج',
+              context.tr(
+                'favorites.noResultsTitle',
+              ),
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppTheme.textWhite.withOpacity(0.7),
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              'جرب البحث بكلمات مختلفة',
+              context.tr(
+                'favorites.noResultsSubtitle',
+              ),
               style: AppTextStyles.caption.copyWith(
                 color: AppTheme.textMuted.withOpacity(0.5),
               ),
@@ -712,7 +725,7 @@ class _FavoritesPageState extends State<FavoritesPage>
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'إعادة المحاولة',
+                  context.tr('common.retry'),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,

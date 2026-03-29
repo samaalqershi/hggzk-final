@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hggzk/features/property/domain/entities/property_detail.dart';
+import '../../../../core/localization/app_localizations.dart';
 import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
@@ -559,10 +560,12 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
   /// Builds the futuristic loader.
   /// العربية: يبني futuristic loader.
   Widget _buildFuturisticLoader() {
-    return const Center(
+    return Center(
       child: LoadingWidget(
         type: LoadingType.futuristic,
-        message: 'جاري تحميل تفاصيل العقار',
+        message: context.tr(
+          'property.loadingDetails',
+        ),
       ),
     );
   }
@@ -610,7 +613,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
             ),
             const SizedBox(height: 12),
             Text(
-              'حدث خطأ',
+              context.tr('property.errorTitle'),
               style: AppTextStyles.bodyLarge.copyWith(
                 color: AppTheme.error,
                 fontWeight: FontWeight.bold,
@@ -629,13 +632,13 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
               onPressed: () {
                 _dispatchPropertyLoad();
               },
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.refresh, size: 16),
                   SizedBox(width: 6),
                   Text(
-                    'إعادة المحاولة',
+                    context.tr('property.retry'),
                     style: AppTextStyles.buttonMedium,
                   ),
                 ],
@@ -761,10 +764,26 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
         unselectedLabelStyle: AppTextStyles.caption,
         overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.02)),
         tabs: [
-          _buildFuturisticTab('نظرة عامة', Icons.info_outline, 0),
-          _buildFuturisticTab('المرافق', Icons.star_border, 1),
-          _buildFuturisticTab('التقييمات', Icons.rate_review, 2),
-          _buildFuturisticTab('الموقع', Icons.location_on, 3),
+          _buildFuturisticTab(
+            context.tr('property.tabs.overview'),
+            Icons.info_outline,
+            0,
+          ),
+          _buildFuturisticTab(
+            context.tr('property.tabs.amenities'),
+            Icons.star_border,
+            1,
+          ),
+          _buildFuturisticTab(
+            context.tr('property.tabs.reviews'),
+            Icons.rate_review,
+            2,
+          ),
+          _buildFuturisticTab(
+            context.tr('property.tabs.location'),
+            Icons.location_on,
+            3,
+          ),
         ],
       ),
     );
@@ -857,13 +876,23 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
           ),
           const SizedBox(height: 12),
           if (state.property.services.isNotEmpty) ...[
-            _buildSectionTitle('الخدمات المتاحة', Icons.room_service),
+            _buildSectionTitle(
+              context.tr(
+                'property.sections.availableServices',
+              ),
+              Icons.room_service,
+            ),
             const SizedBox(height: 10),
             _buildServicesGrid(state),
             const SizedBox(height: 12),
           ],
           if (state.property.policies.isNotEmpty) ...[
-            _buildSectionTitle('السياسات والقوانين', Icons.policy),
+            _buildSectionTitle(
+              context.tr(
+                'property.sections.policies',
+              ),
+              Icons.policy,
+            ),
             const SizedBox(height: 10),
             _buildGlassContainer(
               child: PoliciesWidget(policies: state.property.policies),
@@ -1439,7 +1468,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
           const Icon(Icons.calendar_today, size: 16, color: Colors.white),
           const SizedBox(width: 8),
           Text(
-            'احجز الآن',
+            context.tr('property.bookNow'),
             style: AppTextStyles.buttonMedium.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,

@@ -166,7 +166,9 @@ public class GetAvailableUnitsQueryHandler : IRequestHandler<GetAvailableUnitsQu
                     {
                         Id = unitType.Id,
                         Name = unitType.Name ?? string.Empty,
-                        Description = unitType.Description ?? string.Empty
+                        NameEn = unitType.NameEn,
+                        Description = unitType.Description ?? string.Empty,
+                        DescriptionEn = unitType.DescriptionEn
                     } : new UnitTypeDto();
 
                     // Load unit images.
@@ -186,6 +188,7 @@ public class GetAvailableUnitsQueryHandler : IRequestHandler<GetAvailableUnitsQu
                     {
                         FieldName = fv.UnitTypeField?.FieldName ?? string.Empty,
                         DisplayName = fv.UnitTypeField?.DisplayName ?? string.Empty,
+                        DisplayNameEn = fv.UnitTypeField?.DisplayNameEn,
                         Value = fv.FieldValue ?? string.Empty,
                         FieldType = fv.UnitTypeField?.FieldTypeId ?? string.Empty,
                         IsPrimaryFilter = fv.UnitTypeField?.IsPrimaryFilter ?? false,
@@ -212,6 +215,7 @@ public class GetAvailableUnitsQueryHandler : IRequestHandler<GetAvailableUnitsQu
                     {
                         Id = unit.Id,
                         Name = unit.Name ?? string.Empty,
+                        NameEn = unit.NameEn,
                         UnitType = unitTypeDto,
                         MaxCapacity = unit.MaxCapacity,
                         TotalPrice = totalPrice,
@@ -220,6 +224,7 @@ public class GetAvailableUnitsQueryHandler : IRequestHandler<GetAvailableUnitsQu
                         PricingMethod = unit.PricingMethod.ToString(),
                         Images = imageDtos,
                         CustomFeatures = ParseCustomFeatures(unit.CustomFeatures),
+                        CustomFeaturesEn = ParseCustomFeatures(unit.CustomFeaturesEn),
                         FieldValues = fieldValueDtos
                     };
 

@@ -3,6 +3,7 @@ import 'dart:io'; // إضافة للحصول على Platform
 import '../utils/timezone_helper.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/services/local_storage_service.dart';
 import 'package:hggzk/core/services/message_service.dart';
 import '../constants/storage_constants.dart';
@@ -22,15 +23,12 @@ class AuthInterceptor extends Interceptor {
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
-    // Allow skipping auth header for specific requests
-    if (options.extra['skipAuth'] == true) {
-      return handler.next(options);
-    }
+    final skipAuth = options.extra['skipAuth'] == true;
 
     final localStorage = sl<LocalStorageService>();
     final token = localStorage.getData(StorageConstants.accessToken) as String?;
 
-    if (token != null && token.isNotEmpty) {
+    if (!skipAuth && token != null && token.isNotEmpty) {
       options.headers[ApiConstants.authorization] =
           '${ApiConstants.bearer} $token';
     }
@@ -78,7 +76,11 @@ class AuthInterceptor extends Interceptor {
       options.headers['X-TimeZone-Offset'] = offset.toString();
 
       // إضافة معلومات إضافية مفيدة
-      options.headers['X-User-Locale'] = Platform.localeName; // ar_SA مثلاً
+      final appLocale = LocaleManager.getCurrentLocale();
+      options.headers['X-User-Locale'] =
+          appLocale.countryCode == null || appLocale.countryCode!.isEmpty
+              ? appLocale.languageCode
+              : '${appLocale.languageCode}_${appLocale.countryCode}';
 
       // يمكن حفظ timezone في localStorage للاستخدام offline
       final localStorage = sl<LocalStorageService>();
@@ -89,7 +91,7 @@ class AuthInterceptor extends Interceptor {
         print('📍 Timezone Headers Added:');
         print('   - X-TimeZone: $timezone');
         print('   - X-TimeZone-Offset: $offset minutes');
-        print('   - X-User-Locale: ${Platform.localeName}');
+        print('   - X-User-Locale: ${options.headers['X-User-Locale']}');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -333,7 +335,7 @@ class ErrorInterceptor extends Interceptor {
             statusCode: 401,
             data: {
               'success': false,
-              'message': 'انتهت صلاحية الجلسة، تم تسجيل الخروج.'
+              'message': AppLocalizations.translateSync('common.sessionExpired')
             },
           ));
         }
@@ -346,7 +348,7 @@ class ErrorInterceptor extends Interceptor {
             statusCode: 401,
             data: {
               'success': false,
-              'message': 'انتهت صلاحية الجلسة، تم تسجيل الخروج.'
+              'message': AppLocalizations.translateSync('common.sessionExpired')
             },
           ));
         }
@@ -374,7 +376,8 @@ class ErrorInterceptor extends Interceptor {
               statusCode: 401,
               data: {
                 'success': false,
-                'message': 'انتهت صلاحية الجلسة، تم تسجيل الخروج.'
+                'message':
+                    AppLocalizations.translateSync('common.sessionExpired')
               },
             ));
           }
@@ -391,7 +394,7 @@ class ErrorInterceptor extends Interceptor {
             statusCode: 401,
             data: {
               'success': false,
-              'message': 'انتهت صلاحية الجلسة، تم تسجيل الخروج.'
+              'message': AppLocalizations.translateSync('common.sessionExpired')
             },
           ));
         }
@@ -430,7 +433,7 @@ class ErrorInterceptor extends Interceptor {
           statusCode: 401,
           data: {
             'success': false,
-            'message': 'انتهت صلاحية الجلسة، تم تسجيل الخروج.'
+            'message': AppLocalizations.translateSync('common.sessionExpired')
           },
         ));
       }
@@ -447,7 +450,9 @@ class ErrorInterceptor extends Interceptor {
         await authRepository.refreshToken(refreshToken: refreshToken);
     // Throw on failure so the caller logs out immediately
     result.fold(
-      (_) => throw Exception('Failed to refresh access token'),
+      (_) => throw Exception(
+        AppLocalizations.translateSync('common.sessionExpired'),
+      ),
       (_) => null,
     );
   }
@@ -517,19 +522,20 @@ String _extractErrorMessage(DioException err) {
   final statusCode = err.response?.statusCode;
   switch (statusCode) {
     case 400:
-      return 'طلب غير صحيح';
+      return AppLocalizations.translateSync('common.badRequest');
     case 401:
-      return 'غير مصرح بالوصول';
+      return AppLocalizations.translateSync('common.unauthorized');
     case 403:
-      return 'ليس لديك صلاحية';
+      return AppLocalizations.translateSync('common.permissionDenied');
     case 404:
-      return 'لم يتم العثور على البيانات';
+      return AppLocalizations.translateSync('common.notFound');
     case 422:
-      return 'البيانات المدخلة غير صحيحة';
+      return AppLocalizations.translateSync('common.invalidData');
     case 500:
-      return 'خطأ في الخادم';
+      return AppLocalizations.translateSync('common.serverError');
     default:
-      return err.message ?? 'حدث خطأ غير متوقع';
+      return err.message ??
+          AppLocalizations.translateSync('common.unexpectedError');
   }
 }
 

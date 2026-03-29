@@ -32,9 +32,9 @@ namespace YemenBooking.Core.Seeds
 
             // Seed some cities
             modelBuilder.Entity<City>().HasData(
-                new City { Name = "صنعاء", Country = "اليمن", ImagesJson = "[]" },
-                new City { Name = "عدن", Country = "اليمن", ImagesJson = "[]" },
-                new City { Name = "تعز", Country = "اليمن", ImagesJson = "[]" }
+                new City { Name = "صنعاء", NameEn = "Sana'a", Country = "اليمن", CountryEn = "Yemen", ImagesJson = "[]" },
+                new City { Name = "عدن", NameEn = "Aden", Country = "اليمن", CountryEn = "Yemen", ImagesJson = "[]" },
+                new City { Name = "تعز", NameEn = "Taiz", Country = "اليمن", CountryEn = "Yemen", ImagesJson = "[]" }
             );
             
             // Seed user roles

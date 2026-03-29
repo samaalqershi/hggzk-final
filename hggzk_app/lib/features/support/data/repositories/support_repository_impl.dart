@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exceptions.dart';
 import '../../domain/entities/support_message.dart';
@@ -58,9 +59,10 @@ class SupportRepositoryImpl implements SupportRepository {
         }
         return const Right({});
       } else {
-        return const Left(ServerFailure(
-          'فشل إرسال رسالة الدعم',
-        ));
+        return Left(
+          ServerFailure(
+              AppLocalizations.translateSync('common.unexpectedError')),
+        );
       }
     } on ApiException catch (e) {
       return Left(ServerFailure.meta(
@@ -69,7 +71,7 @@ class SupportRepositoryImpl implements SupportRepository {
       ));
     } catch (e) {
       return Left(ServerFailure(
-        'حدث خطأ غير متوقع: ${e.toString()}',
+        AppLocalizations.translateSync('common.unexpectedError'),
       ));
     }
   }

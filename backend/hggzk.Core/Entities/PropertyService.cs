@@ -26,6 +26,13 @@ public class PropertyService : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "اسم الخدمة")]
     public string Name { get; set; }
+
+    /// <summary>
+    /// اسم الخدمة باللغة الإنجليزية.
+    /// English service name.
+    /// </summary>
+    [Display(Name = "اسم الخدمة بالإنجليزية")]
+    public string? NameEn { get; set; }
     
     /// <summary>
     /// سعر الخدمة وفق العملة المعتمدة.
@@ -39,6 +46,12 @@ public class PropertyService : BaseEntity<Guid>
     /// Description explaining what the service includes.
     /// </summary>
     public string? Description { get; set; }
+
+    /// <summary>
+    /// وصف الخدمة باللغة الإنجليزية.
+    /// English service description.
+    /// </summary>
+    public string? DescriptionEn { get; set; }
 
     /// <summary>
     /// الأيقونة المستخدمة لتمثيل الخدمة.

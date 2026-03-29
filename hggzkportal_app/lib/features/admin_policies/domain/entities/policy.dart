@@ -13,7 +13,11 @@ class Policy extends Equatable {
 
   final String description;
 
+  final String? descriptionEn;
+
   final String? rules;
+
+  final String? rulesEn;
 
   final int cancellationWindowDays;
 
@@ -71,6 +75,8 @@ class Policy extends Equatable {
 
   final String? checkInEarlyCheckInNote;
 
+  final String? checkInEarlyCheckInNoteEn;
+
   final String? checkInLateCheckOutNote;
 
   final String? checkInLateCheckOutFee;
@@ -87,6 +93,8 @@ class Policy extends Equatable {
 
   final String? childrenCribsNote;
 
+  final String? childrenCribsNoteEn;
+
   final bool? childrenPlaygroundAvailable;
 
   final bool? childrenKidsMenuAvailable;
@@ -94,6 +102,8 @@ class Policy extends Equatable {
   final bool? petsAllowed;
 
   final String? petsReason;
+
+  final String? petsReasonEn;
 
   final double? petsFeeAmount;
 
@@ -119,6 +129,8 @@ class Policy extends Equatable {
 
   final String? modificationReason;
 
+  final String? modificationReasonEn;
+
   final DateTime? createdAt;
 
   final DateTime? updatedAt;
@@ -131,7 +143,9 @@ class Policy extends Equatable {
     this.propertyName,
     required this.type,
     required this.description,
+    this.descriptionEn,
     this.rules,
+    this.rulesEn,
     this.cancellationWindowDays = 0,
     this.requireFullPaymentBeforeConfirmation = false,
     this.minimumDepositPercentage = 0.0,
@@ -160,6 +174,7 @@ class Policy extends Equatable {
     this.checkInRequiresCoordination,
     this.checkInContactOwner,
     this.checkInEarlyCheckInNote,
+    this.checkInEarlyCheckInNoteEn,
     this.checkInLateCheckOutNote,
     this.checkInLateCheckOutFee,
     this.childrenAllowed,
@@ -168,10 +183,12 @@ class Policy extends Equatable {
     this.childrenMaxChildrenPerRoom,
     this.childrenMaxChildren,
     this.childrenCribsNote,
+    this.childrenCribsNoteEn,
     this.childrenPlaygroundAvailable,
     this.childrenKidsMenuAvailable,
     this.petsAllowed,
     this.petsReason,
+    this.petsReasonEn,
     this.petsFeeAmount,
     this.petsMaxWeight,
     this.petsRequiresApproval,
@@ -184,6 +201,7 @@ class Policy extends Equatable {
     this.modificationFeesAfter,
     this.modificationFlexible,
     this.modificationReason,
+    this.modificationReasonEn,
     this.createdAt,
     this.updatedAt,
     this.isActive = true,
@@ -195,7 +213,9 @@ class Policy extends Equatable {
     String? propertyName,
     PolicyType? type,
     String? description,
+    String? descriptionEn,
     String? rules,
+    String? rulesEn,
     int? cancellationWindowDays,
     bool? requireFullPaymentBeforeConfirmation,
     double? minimumDepositPercentage,
@@ -224,6 +244,7 @@ class Policy extends Equatable {
     bool? checkInRequiresCoordination,
     bool? checkInContactOwner,
     String? checkInEarlyCheckInNote,
+    String? checkInEarlyCheckInNoteEn,
     String? checkInLateCheckOutNote,
     String? checkInLateCheckOutFee,
     bool? childrenAllowed,
@@ -232,10 +253,12 @@ class Policy extends Equatable {
     int? childrenMaxChildrenPerRoom,
     int? childrenMaxChildren,
     String? childrenCribsNote,
+    String? childrenCribsNoteEn,
     bool? childrenPlaygroundAvailable,
     bool? childrenKidsMenuAvailable,
     bool? petsAllowed,
     String? petsReason,
+    String? petsReasonEn,
     double? petsFeeAmount,
     String? petsMaxWeight,
     bool? petsRequiresApproval,
@@ -248,6 +271,7 @@ class Policy extends Equatable {
     String? modificationFeesAfter,
     bool? modificationFlexible,
     String? modificationReason,
+    String? modificationReasonEn,
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? isActive,
@@ -258,7 +282,9 @@ class Policy extends Equatable {
       propertyName: propertyName ?? this.propertyName,
       type: type ?? this.type,
       description: description ?? this.description,
+      descriptionEn: descriptionEn ?? this.descriptionEn,
       rules: rules ?? this.rules,
+      rulesEn: rulesEn ?? this.rulesEn,
       cancellationWindowDays:
           cancellationWindowDays ?? this.cancellationWindowDays,
       requireFullPaymentBeforeConfirmation:
@@ -306,6 +332,8 @@ class Policy extends Equatable {
       checkInContactOwner: checkInContactOwner ?? this.checkInContactOwner,
       checkInEarlyCheckInNote:
           checkInEarlyCheckInNote ?? this.checkInEarlyCheckInNote,
+      checkInEarlyCheckInNoteEn:
+          checkInEarlyCheckInNoteEn ?? this.checkInEarlyCheckInNoteEn,
       checkInLateCheckOutNote:
           checkInLateCheckOutNote ?? this.checkInLateCheckOutNote,
       checkInLateCheckOutFee:
@@ -318,12 +346,14 @@ class Policy extends Equatable {
           childrenMaxChildrenPerRoom ?? this.childrenMaxChildrenPerRoom,
       childrenMaxChildren: childrenMaxChildren ?? this.childrenMaxChildren,
       childrenCribsNote: childrenCribsNote ?? this.childrenCribsNote,
+      childrenCribsNoteEn: childrenCribsNoteEn ?? this.childrenCribsNoteEn,
       childrenPlaygroundAvailable:
           childrenPlaygroundAvailable ?? this.childrenPlaygroundAvailable,
       childrenKidsMenuAvailable:
           childrenKidsMenuAvailable ?? this.childrenKidsMenuAvailable,
       petsAllowed: petsAllowed ?? this.petsAllowed,
       petsReason: petsReason ?? this.petsReason,
+      petsReasonEn: petsReasonEn ?? this.petsReasonEn,
       petsFeeAmount: petsFeeAmount ?? this.petsFeeAmount,
       petsMaxWeight: petsMaxWeight ?? this.petsMaxWeight,
       petsRequiresApproval: petsRequiresApproval ?? this.petsRequiresApproval,
@@ -338,6 +368,7 @@ class Policy extends Equatable {
           modificationFeesAfter ?? this.modificationFeesAfter,
       modificationFlexible: modificationFlexible ?? this.modificationFlexible,
       modificationReason: modificationReason ?? this.modificationReason,
+      modificationReasonEn: modificationReasonEn ?? this.modificationReasonEn,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       isActive: isActive ?? this.isActive,
@@ -351,7 +382,9 @@ class Policy extends Equatable {
         propertyName,
         type,
         description,
+        descriptionEn,
         rules,
+        rulesEn,
         cancellationWindowDays,
         requireFullPaymentBeforeConfirmation,
         minimumDepositPercentage,
@@ -380,6 +413,7 @@ class Policy extends Equatable {
         checkInRequiresCoordination,
         checkInContactOwner,
         checkInEarlyCheckInNote,
+        checkInEarlyCheckInNoteEn,
         checkInLateCheckOutNote,
         checkInLateCheckOutFee,
         childrenAllowed,
@@ -388,10 +422,12 @@ class Policy extends Equatable {
         childrenMaxChildrenPerRoom,
         childrenMaxChildren,
         childrenCribsNote,
+        childrenCribsNoteEn,
         childrenPlaygroundAvailable,
         childrenKidsMenuAvailable,
         petsAllowed,
         petsReason,
+        petsReasonEn,
         petsFeeAmount,
         petsMaxWeight,
         petsRequiresApproval,
@@ -404,6 +440,7 @@ class Policy extends Equatable {
         modificationFeesAfter,
         modificationFlexible,
         modificationReason,
+        modificationReasonEn,
         createdAt,
         updatedAt,
         isActive,

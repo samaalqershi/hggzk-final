@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'dart:math' as math;
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
@@ -437,7 +438,7 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
               children: [
                 _buildHorizontalImageSection(unit, isSelected),
                 Expanded(
-                  child: _buildHorizontalContent(unit, isSelected),
+                  child: _buildHorizontalContent(context, unit, isSelected),
                 ),
               ],
             ),
@@ -693,7 +694,11 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
 
   /// Builds the horizontal content.
   /// العربية: يبني horizontal content.
-  Widget _buildHorizontalContent(Unit unit, bool isSelected) {
+  Widget _buildHorizontalContent(
+    BuildContext context,
+    Unit unit,
+    bool isSelected,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Column(
@@ -749,7 +754,9 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              isSelected ? 'محدد' : 'اختيار',
+              isSelected
+                  ? context.tr('property.units.selected')
+                  : context.tr('property.units.select'),
               style: AppTextStyles.caption.copyWith(
                 color: isSelected ? Colors.white : AppTheme.primaryBlue,
                 fontWeight: FontWeight.bold,
@@ -807,6 +814,7 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
   /// Builds the empty state.
   /// العربية: يبني empty state.
   Widget _buildEmptyState() {
+    final context = this.context;
     return Center(
       child: Container(
         padding: const EdgeInsets.all(24),
@@ -837,7 +845,7 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
               shaderCallback: (bounds) =>
                   AppTheme.primaryGradient.createShader(bounds),
               child: Text(
-                'لا توجد وحدات متاحة',
+                context.tr('property.units.noUnitsAvailable'),
                 style: AppTextStyles.bodyLarge.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -846,7 +854,7 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
             ),
             const SizedBox(height: 8),
             Text(
-              'جميع الوحدات محجوزة حالياً',
+              context.tr('property.units.allUnitsBookedNow'),
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted,
               ),
@@ -889,16 +897,16 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
 
   /// Exposes the pricing period.
   /// العربية: يعيد pricing period.
-  String _getPricingPeriod(PricingMethod method) {
+  String _getPricingPeriod(BuildContext context, PricingMethod method) {
     switch (method) {
       case PricingMethod.hourly:
-        return 'ساعة';
+        return context.tr('property.units.hour');
       case PricingMethod.daily:
-        return 'ليلة';
+        return context.tr('property.units.night');
       case PricingMethod.weekly:
-        return 'أسبوع';
+        return context.tr('property.units.week');
       case PricingMethod.monthly:
-        return 'شهر';
+        return context.tr('property.units.month');
     }
   }
 }

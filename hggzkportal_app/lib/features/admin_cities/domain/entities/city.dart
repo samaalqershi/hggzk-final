@@ -10,10 +10,20 @@ class City extends Equatable {
   /// الاسم الظاهر الذي يعرّف المدينة في القوائم والنماذج وطلبات الـ API.
   final String name;
 
+  /// English city name stored for bilingual admin and client experiences.
+  ///
+  /// اسم المدينة بالإنجليزية لدعم التجارب الثنائية اللغة.
+  final String? nameEn;
+
   /// Country name used to group cities and filter the administrative view.
   ///
   /// اسم الدولة الذي يُستخدم لتجميع المدن وتصفية العرض الإداري.
   final String country;
+
+  /// English country name shown in English experiences.
+  ///
+  /// اسم الدولة بالإنجليزية في التجارب الإنجليزية.
+  final String? countryEn;
 
   /// Media references attached to the city, usually gallery or cover images.
   ///
@@ -50,7 +60,9 @@ class City extends Equatable {
   /// ينشئ نسخة من المدينة جاهزة للمقارنة والربط مع الواجهة.
   const City({
     required this.name,
+    this.nameEn,
     required this.country,
+    this.countryEn,
     required this.images,
     this.createdAt,
     this.updatedAt,
@@ -64,7 +76,9 @@ class City extends Equatable {
   /// ينشئ مدينة حيادية لاستخدامها في النماذج ومسارات الحالة الفارغة.
   factory City.empty() => const City(
         name: '',
+        nameEn: '',
         country: '',
+        countryEn: '',
         images: [],
       );
 
@@ -73,7 +87,9 @@ class City extends Equatable {
   /// ينشئ نسخة جديدة مع الإبقاء على أي قيمة لم يتم تغييرها صراحة.
   City copyWith({
     String? name,
+    String? nameEn,
     String? country,
+    String? countryEn,
     List<String>? images,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -83,7 +99,9 @@ class City extends Equatable {
   }) {
     return City(
       name: name ?? this.name,
+      nameEn: nameEn ?? this.nameEn,
       country: country ?? this.country,
+      countryEn: countryEn ?? this.countryEn,
       images: images ?? this.images,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -100,7 +118,9 @@ class City extends Equatable {
   @override
   List<Object?> get props => [
         name,
+        nameEn,
         country,
+        countryEn,
         images,
         createdAt,
         updatedAt,

@@ -26,15 +26,20 @@ class CreatePolicyEvent extends PoliciesEvent {
   final String propertyId;
   final PolicyType policyType;
   final String description;
+  final String? descriptionEn;
   final String rules;
+  final String? rulesEn;
   const CreatePolicyEvent({
     required this.propertyId,
     required this.policyType,
     required this.description,
+    this.descriptionEn,
     required this.rules,
+    this.rulesEn,
   });
   @override
-  List<Object> get props => [propertyId, policyType, description, rules];
+  List<Object?> get props =>
+      [propertyId, policyType, description, descriptionEn, rules, rulesEn];
 }
 
 class UpdatePolicyEvent extends PoliciesEvent {
@@ -42,15 +47,20 @@ class UpdatePolicyEvent extends PoliciesEvent {
   final String policyId;
   final PolicyType? policyType;
   final String? description;
+  final String? descriptionEn;
   final String? rules;
+  final String? rulesEn;
   const UpdatePolicyEvent({
     required this.policyId,
     this.policyType,
     this.description,
+    this.descriptionEn,
     this.rules,
+    this.rulesEn,
   });
   @override
-  List<Object?> get props => [policyId, policyType, description, rules];
+  List<Object?> get props =>
+      [policyId, policyType, description, descriptionEn, rules, rulesEn];
 }
 
 class DeletePolicyEvent extends PoliciesEvent {

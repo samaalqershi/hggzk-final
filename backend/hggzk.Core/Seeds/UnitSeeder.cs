@@ -1110,6 +1110,11 @@ namespace YemenBooking.Core.Seeds
                 UpdatedAt = SeedDate
             });
 
+            foreach (var unit in units)
+            {
+                SeedLocalizationHelper.ApplyUnitEnglish(unit);
+            }
+
             return units;
         }
     }

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../../../core/localization/app_localizations.dart';
 import 'package:hggzk/core/network/api_exceptions.dart';
 import '../../../../core/error/exceptions.dart' hide ApiException;
 import '../../../../core/models/result_dto.dart';
@@ -126,6 +127,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   /// ينشئ المصدر البعيد مع عميل الشبكة المعتمد.
   /// Creates the remote data source with the configured API client.
   AuthRemoteDataSourceImpl({required this.apiClient});
+
+  ApiException _unexpectedAuthException() {
+    return ApiException(
+      message: AppLocalizations.translateSync('auth.errors.unexpected'),
+    );
+  }
+
   @override
   Future<AuthResponseModel> login({
     required String emailOrPhone,
@@ -185,7 +193,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           message: resultDto.message ??
               (resultDto.errors.isNotEmpty
                   ? resultDto.errors.join(', ')
-                  : 'فشل تسجيل الدخول'),
+                  : AppLocalizations.translateSync('auth.errors.unexpected')),
           statusCode: response.statusCode,
           data: resultDto.errors,
         );
@@ -195,8 +203,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      if (e is ServerException) rethrow;
-      throw ApiException(message: e.toString());
+      if (e is ServerException || e is ApiException) rethrow;
+      throw _unexpectedAuthException();
     }
   }
 
@@ -238,7 +246,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           message: resultDto.message ??
               (resultDto.errors.isNotEmpty
                   ? resultDto.errors.join(', ')
-                  : 'فشل حذف الحساب'),
+                  : AppLocalizations.translateSync('auth.errors.unexpected')),
           statusCode: response.statusCode,
         );
       }
@@ -247,8 +255,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      if (e is ServerException) rethrow;
-      throw ApiException(message: e.toString());
+      if (e is ServerException || e is ApiException) rethrow;
+      throw _unexpectedAuthException();
     }
   }
 
@@ -312,7 +320,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           message: resultDto.message ??
               (resultDto.errors.isNotEmpty
                   ? resultDto.errors.join(', ')
-                  : 'فشل تسجيل الدخول الاجتماعي'),
+                  : AppLocalizations.translateSync('auth.errors.unexpected')),
           statusCode: response.statusCode,
           data: resultDto.errors,
         );
@@ -322,8 +330,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      if (e is ServerException) rethrow;
-      throw ApiException(message: e.toString());
+      if (e is ServerException || e is ApiException) rethrow;
+      throw _unexpectedAuthException();
     }
   }
 
@@ -367,7 +375,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           message: resultDto.message ??
               (resultDto.errors.isNotEmpty
                   ? resultDto.errors.join(', ')
-                  : 'فشل إنشاء الحساب'),
+                  : AppLocalizations.translateSync('auth.errors.unexpected')),
           statusCode: response.statusCode,
           data: resultDto.errors,
         );
@@ -377,8 +385,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      if (e is ServerException) rethrow;
-      throw ApiException(message: e.toString());
+      if (e is ServerException || e is ApiException) rethrow;
+      throw _unexpectedAuthException();
     }
   }
 
@@ -415,7 +423,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           message: resultDto.message ??
               (resultDto.errors.isNotEmpty
                   ? resultDto.errors.join(', ')
-                  : 'فشل تسجيل الخروج'),
+                  : AppLocalizations.translateSync('auth.errors.unexpected')),
           statusCode: response.statusCode,
         );
       }
@@ -424,8 +432,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      if (e is ServerException) rethrow;
-      throw ApiException(message: e.toString());
+      if (e is ServerException || e is ApiException) rethrow;
+      throw _unexpectedAuthException();
     }
   }
 
@@ -452,7 +460,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           message: resultDto.message ??
               (resultDto.errors.isNotEmpty
                   ? resultDto.errors.join(', ')
-                  : 'فشل إرسال رابط إعادة تعيين كلمة المرور'),
+                  : AppLocalizations.translateSync('auth.errors.unexpected')),
           statusCode: response.statusCode,
         );
       }
@@ -461,8 +469,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      if (e is ServerException) rethrow;
-      throw ApiException(message: e.toString());
+      if (e is ServerException || e is ApiException) rethrow;
+      throw _unexpectedAuthException();
     }
   }
 
@@ -502,7 +510,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           message: resultDto.message ??
               (resultDto.errors.isNotEmpty
                   ? resultDto.errors.join(', ')
-                  : 'فشل تحديث الجلسة'),
+                  : AppLocalizations.translateSync(
+                      'auth.errors.sessionExpired')),
           statusCode: response.statusCode,
         );
       }
@@ -511,8 +520,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      if (e is ServerException) rethrow;
-      throw ApiException(message: e.toString());
+      if (e is ServerException || e is ApiException) rethrow;
+      throw _unexpectedAuthException();
     }
   }
 
@@ -536,7 +545,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         final String message = resultDto.message ??
             (resultDto.errors.isNotEmpty
                 ? resultDto.errors.join(', ')
-                : 'فشل جلب المستخدم الحالي');
+                : AppLocalizations.translateSync('auth.errors.unexpected'));
         throw ApiException(
           message: message,
           statusCode: response.statusCode,
@@ -547,8 +556,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      if (e is ServerException) rethrow;
-      throw ApiException(message: e.toString());
+      if (e is ServerException || e is ApiException) rethrow;
+      throw _unexpectedAuthException();
     }
   }
 
@@ -588,7 +597,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           message: resultDto.message ??
               (resultDto.errors.isNotEmpty
                   ? resultDto.errors.join(', ')
-                  : 'فشل تحديث الملف الشخصي'),
+                  : AppLocalizations.translateSync('auth.errors.unexpected')),
           statusCode: response.statusCode,
         );
       }
@@ -597,8 +606,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      if (e is ServerException) rethrow;
-      throw ApiException(message: e.toString());
+      if (e is ServerException || e is ApiException) rethrow;
+      throw _unexpectedAuthException();
     }
   }
 
@@ -632,7 +641,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           message: resultDto.message ??
               (resultDto.errors.isNotEmpty
                   ? resultDto.errors.join(', ')
-                  : 'فشل تغيير كلمة المرور'),
+                  : AppLocalizations.translateSync('auth.errors.unexpected')),
           statusCode: response.statusCode,
         );
       }
@@ -641,8 +650,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      if (e is ServerException) rethrow;
-      throw ApiException(message: e.toString());
+      if (e is ServerException || e is ApiException) rethrow;
+      throw _unexpectedAuthException();
     }
   }
 
@@ -674,8 +683,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      if (e is ServerException) rethrow;
-      throw ApiException(message: e.toString());
+      if (e is ServerException || e is ApiException) rethrow;
+      throw _unexpectedAuthException();
     }
   }
 
@@ -709,7 +718,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           message: resultDto.message ??
               (resultDto.errors.isNotEmpty
                   ? resultDto.errors.join(', ')
-                  : 'فشل تأكيد البريد الإلكتروني'),
+                  : AppLocalizations.translateSync('auth.verify.unexpected')),
           statusCode: response.statusCode,
           data: resultDto.errors,
         );
@@ -719,9 +728,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      if (e is ServerException) rethrow;
-      if (e is ApiException) rethrow;
-      throw ApiException(message: e.toString());
+      if (e is ServerException || e is ApiException) rethrow;
+      throw _unexpectedAuthException();
     }
   }
 
@@ -753,7 +761,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           message: resultDto.message ??
               (resultDto.errors.isNotEmpty
                   ? resultDto.errors.join(', ')
-                  : 'فشل إعادة إرسال رمز التحقق'),
+                  : AppLocalizations.translateSync('auth.verify.unexpected')),
           statusCode: response.statusCode,
           data: resultDto.errors,
         );
@@ -768,9 +776,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      if (e is ServerException) rethrow;
-      if (e is ApiException) rethrow;
-      throw ApiException(message: e.toString());
+      if (e is ServerException || e is ApiException) rethrow;
+      throw _unexpectedAuthException();
     }
   }
 }

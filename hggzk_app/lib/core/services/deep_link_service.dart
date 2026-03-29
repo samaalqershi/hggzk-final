@@ -3,6 +3,8 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
+import 'package:hggzk/core/localization/locale_manager.dart';
 
 /// يجمع روابط Firebase والروابط الأصلية للنظام ويحوّلها إلى بيانات مسار واضحة.
 /// Collects Firebase and native app links and converts them into typed routing data.
@@ -213,8 +215,8 @@ class DeepLinkService {
   }) async {
     return await createDynamicLink(
       path: '/property/$propertyId',
-      title: propertyName ?? 'عقار مميز على hggzk',
-      description: 'شاهد هذا العقار المميز على تطبيق hggzk',
+      title: propertyName ?? await _tr('core.deepLink.featuredPropertyTitle'),
+      description: await _tr('core.deepLink.featuredPropertyDescription'),
       imageUrl: propertyImage,
     );
   }
@@ -226,8 +228,8 @@ class DeepLinkService {
   }) async {
     return await createDynamicLink(
       path: '/booking/$bookingId',
-      title: 'حجزي على hggzk',
-      description: 'تفاصيل الحجز على تطبيق hggzk',
+      title: await _tr('core.deepLink.bookingTitle'),
+      description: await _tr('core.deepLink.bookingDescription'),
     );
   }
 
@@ -252,8 +254,20 @@ class DeepLinkService {
     return await createDynamicLink(
       path: '/search',
       queryParameters: queryParams,
-      title: 'ابحث عن عقارات في hggzk',
-      description: 'اكتشف أفضل العقارات والفنادق في اليمن',
+      title: await _tr('core.deepLink.searchTitle'),
+      description: await _tr('core.deepLink.searchDescription'),
+    );
+  }
+
+  Future<String> _tr(
+    String key, {
+    String? fallback,
+    Map<String, Object?> params = const {},
+  }) {
+    return AppLocalizations.translate(
+      key,
+      locale: LocaleManager.getCurrentLocale(),
+      params: params,
     );
   }
 

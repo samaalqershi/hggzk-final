@@ -32,11 +32,25 @@ public class SearchFilter : BaseEntity<Guid>
     public string DisplayName { get; set; }
 
     /// <summary>
+    /// الاسم المعروض للفلتر باللغة الإنجليزية.
+    /// English display name for the filter.
+    /// </summary>
+    [Display(Name = "الاسم المعروض للفلتر بالإنجليزية")]
+    public string? DisplayNameEn { get; set; }
+
+    /// <summary>
     /// خيارات الفلتر بصيغة JSON.
     /// Filter options in JSON.
     /// </summary>
     [Display(Name = "خيارات إضافية للفلتر")]
     public string FilterOptions { get; set; }
+
+    /// <summary>
+    /// خيارات الفلتر باللغة الإنجليزية بصيغة JSON.
+    /// English filter options stored as JSON.
+    /// </summary>
+    [Display(Name = "خيارات الفلتر بالإنجليزية")]
+    public string? FilterOptionsEn { get; set; }
 
     /// <summary>
     /// يحدد ما إذا كان الفلتر مفعلاً.

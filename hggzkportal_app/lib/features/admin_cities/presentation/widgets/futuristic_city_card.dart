@@ -72,6 +72,29 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
   /// Controls whether the action overlay is visible.
   bool _showActions = false;
 
+  Widget _buildSecondaryText(
+    String? value, {
+    double fontSize = 10,
+    int maxLines = 1,
+  }) {
+    if (value == null || value.trim().isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Text(
+        value,
+        style: AppTextStyles.caption.copyWith(
+          color: AppTheme.textMuted.withValues(alpha: 0.75),
+          fontSize: fontSize,
+        ),
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+
   /// يجهز متحكم الحركة قبل العرض الأول للبطاقة.
   /// Initializes the animation controller before the card first renders.
   @override
@@ -296,6 +319,7 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
+              _buildSecondaryText(widget.city.nameEn),
               const SizedBox(height: 2),
               // الموقع
               Row(
@@ -319,6 +343,7 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
                   ),
                 ],
               ),
+              _buildSecondaryText(widget.city.countryEn, fontSize: 9),
               if (widget.city.propertiesCount != null) ...[
                 const SizedBox(height: 2),
                 _buildPropertiesCount(),
@@ -377,6 +402,7 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
                   _buildStatusBadge(isSmall: true),
                 ],
               ),
+              _buildSecondaryText(widget.city.nameEn, fontSize: 9),
               const SizedBox(height: 3),
               // الموقع
               Row(
@@ -400,6 +426,7 @@ class _FuturisticCityCardState extends State<FuturisticCityCard>
                   ),
                 ],
               ),
+              _buildSecondaryText(widget.city.countryEn, fontSize: 8),
               const SizedBox(height: 3),
               // المعلومات الإضافية
               Row(

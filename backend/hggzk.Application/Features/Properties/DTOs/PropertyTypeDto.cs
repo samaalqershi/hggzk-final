@@ -20,12 +20,14 @@ public class PropertyTypeDto
     /// Property type name (hotel, chalet, resort, villa, apartment)
     /// </summary>
     public string Name { get; set; } = string.Empty;
+    public string? NameEn { get; set; }
 
     /// <summary>
     /// وصف نوع العقار
     /// Property type description
     /// </summary>
     public string Description { get; set; } = string.Empty;
+    public string? DescriptionEn { get; set; }
 
     /// <summary>
     /// عدد العقارات من هذا النوع

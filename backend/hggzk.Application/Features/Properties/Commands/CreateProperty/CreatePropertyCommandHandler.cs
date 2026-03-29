@@ -126,10 +126,15 @@ namespace YemenBooking.Application.Features.Properties.Commands.CreateProperty
                 OwnerId = request.OwnerId,
                 TypeId = request.PropertyTypeId,
                 Name = request.Name,
+                NameEn = string.IsNullOrWhiteSpace(request.NameEn) ? null : request.NameEn.Trim(),
                 Address = request.Address,
+                AddressEn = string.IsNullOrWhiteSpace(request.AddressEn) ? null : request.AddressEn.Trim(),
                 ShortDescription = string.IsNullOrWhiteSpace(request.ShortDescription) ? null : request.ShortDescription,
+                ShortDescriptionEn = string.IsNullOrWhiteSpace(request.ShortDescriptionEn) ? null : request.ShortDescriptionEn.Trim(),
                 Description = request.Description,
+                DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn.Trim(),
                 City = request.City.Trim(),
+                CityEn = string.IsNullOrWhiteSpace(request.CityEn) ? null : request.CityEn.Trim(),
                 Currency = string.IsNullOrWhiteSpace(request.Currency) ? "YER" : request.Currency!.ToUpperInvariant(),
                 Latitude = (decimal)request.Latitude,
                 Longitude = (decimal)request.Longitude,
@@ -189,8 +194,15 @@ namespace YemenBooking.Application.Features.Properties.Commands.CreateProperty
                 newValues: JsonSerializer.Serialize(new {
                     created.Id,
                     created.Name,
+                    created.NameEn,
                     created.Address,
+                    created.AddressEn,
                     created.City,
+                    created.CityEn,
+                    created.ShortDescription,
+                    created.ShortDescriptionEn,
+                    created.Description,
+                    created.DescriptionEn,
                     created.Currency,
                     created.StarRating,
                     created.IsApproved,
@@ -206,8 +218,8 @@ namespace YemenBooking.Application.Features.Properties.Commands.CreateProperty
             {
                 UserId = request.OwnerId,
                 Type = NotificationType.BookingCreated,
-                Title = "تم إنشاء الكيان وينتظر الموافقة",
-                Message = $"تم إنشاء الكيان '{created.Name}' ويحتاج إلى موافقة الإدارة"
+                Title = "تم إنشاء الكيان وينتظر الموافقة / Property created and awaiting approval",
+                Message = $"تم إنشاء الكيان '{created.Name}' ويحتاج إلى موافقة الإدارة / Property '{created.Name}' has been created and is awaiting admin approval"
             }, cancellationToken);
 
             _logger.LogInformation("اكتمل إنشاء الكيان: PropertyId={PropertyId}", created.Id);

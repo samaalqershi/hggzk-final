@@ -88,8 +88,11 @@ public class UpdateFieldGroupCommandHandler : IRequestHandler<UpdateFieldGroupCo
             var originalValues = new
             {
                 existingFieldGroup.GroupName,
+                existingFieldGroup.GroupNameEn,
                 existingFieldGroup.DisplayName,
+                existingFieldGroup.DisplayNameEn,
                 existingFieldGroup.Description,
+                existingFieldGroup.DescriptionEn,
                 existingFieldGroup.SortOrder,
                 existingFieldGroup.IsCollapsible,
                 existingFieldGroup.IsExpandedByDefault
@@ -97,8 +100,11 @@ public class UpdateFieldGroupCommandHandler : IRequestHandler<UpdateFieldGroupCo
 
             // Step 6: Update the field group / الخطوة 6: تحديث مجموعة الحقول
             existingFieldGroup.GroupName = request.GroupName;
+            existingFieldGroup.GroupNameEn = string.IsNullOrWhiteSpace(request.GroupNameEn) ? null : request.GroupNameEn.Trim();
             existingFieldGroup.DisplayName = request.DisplayName;
+            existingFieldGroup.DisplayNameEn = string.IsNullOrWhiteSpace(request.DisplayNameEn) ? null : request.DisplayNameEn.Trim();
             existingFieldGroup.Description = request.Description;
+            existingFieldGroup.DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn.Trim();
             existingFieldGroup.SortOrder = request.SortOrder;
             existingFieldGroup.IsCollapsible = request.IsCollapsible;
             existingFieldGroup.IsExpandedByDefault = request.IsExpandedByDefault;

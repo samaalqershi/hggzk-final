@@ -156,6 +156,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("DescriptionEn")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<string>("Icon")
                         .IsRequired()
                         .HasColumnType("text");
@@ -170,6 +174,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("NameEn")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
@@ -1052,8 +1060,16 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("NameEn")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<string>("Country")
                         .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("CountryEn")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -1067,6 +1083,8 @@ namespace YemenBooking.Infrastructure.Data.Migrations
 
                     b.HasIndex("Name", "Country")
                         .IsUnique();
+
+                    b.HasIndex("NameEn");
 
                     b.ToTable("Cities", (string)null);
                 });
@@ -1344,13 +1362,25 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("DescriptionEn")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("DisplayNameEn")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<string>("GroupName")
                         .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("GroupNameEn")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -2395,6 +2425,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("AddressEn")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<decimal>("AverageRating")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("decimal(5,2)")
@@ -2407,6 +2441,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
 
                     b.Property<string>("City")
                         .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("CityEn")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -2429,6 +2467,9 @@ namespace YemenBooking.Infrastructure.Data.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionEn")
                         .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
@@ -2463,11 +2504,19 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("NameEn")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ShortDescription")
                         .HasColumnType("text");
+
+                    b.Property<string>("ShortDescriptionEn")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<int>("StarRating")
                         .ValueGeneratedOnAdd()
@@ -3062,6 +3111,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                     b.Property<string>("CancellationPenaltyAfterDeadline")
                         .HasColumnType("text");
 
+                    b.Property<string>("CancellationPenaltyAfterDeadlineEn")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
                     b.Property<int?>("CancellationRefundPercentage")
                         .HasColumnType("integer");
 
@@ -3073,6 +3126,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
 
                     b.Property<string>("CheckInEarlyCheckInNote")
                         .HasColumnType("text");
+
+                    b.Property<string>("CheckInEarlyCheckInNoteEn")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<bool?>("CheckInFlexible")
                         .HasColumnType("boolean");
@@ -3086,8 +3143,16 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                     b.Property<string>("CheckInLateCheckOutFee")
                         .HasColumnType("text");
 
+                    b.Property<string>("CheckInLateCheckOutFeeEn")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<string>("CheckInLateCheckOutNote")
                         .HasColumnType("text");
+
+                    b.Property<string>("CheckInLateCheckOutNoteEn")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<bool?>("CheckInRequiresCoordination")
                         .HasColumnType("boolean");
@@ -3106,6 +3171,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
 
                     b.Property<string>("ChildrenCribsNote")
                         .HasColumnType("text");
+
+                    b.Property<string>("ChildrenCribsNoteEn")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<int?>("ChildrenFreeUnderAge")
                         .HasColumnType("integer");
@@ -3143,6 +3212,11 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(1000)")
                         .HasComment("وصف السياسة");
 
+                    b.Property<string>("DescriptionEn")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasComment("وصف السياسة بالإنجليزية");
+
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -3165,6 +3239,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                     b.Property<string>("ModificationFeesAfter")
                         .HasColumnType("text");
 
+                    b.Property<string>("ModificationFeesAfterEn")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
                     b.Property<bool?>("ModificationFlexible")
                         .HasColumnType("boolean");
 
@@ -3173,6 +3251,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
 
                     b.Property<string>("ModificationReason")
                         .HasColumnType("text");
+
+                    b.Property<string>("ModificationReasonEn")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<bool?>("PaymentAcceptCard")
                         .HasColumnType("boolean");
@@ -3207,6 +3289,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                     b.Property<string>("PetsMaxWeight")
                         .HasColumnType("text");
 
+                    b.Property<string>("PetsMaxWeightEn")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<bool?>("PetsNoFees")
                         .HasColumnType("boolean");
 
@@ -3218,6 +3304,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
 
                     b.Property<string>("PetsReason")
                         .HasColumnType("text");
+
+                    b.Property<string>("PetsReasonEn")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<bool?>("PetsRequiresApproval")
                         .HasColumnType("boolean");
@@ -3235,6 +3325,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                     b.Property<string>("Rules")
                         .HasColumnType("text")
                         .HasComment("قواعد السياسة (JSON)");
+
+                    b.Property<string>("RulesEn")
+                        .HasColumnType("text")
+                        .HasComment("قواعد السياسة بالإنجليزية (JSON)");
 
                     b.Property<int>("Type")
                         .HasMaxLength(50)
@@ -3289,6 +3383,11 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(1000)")
                         .HasComment("وصف الخدمة");
 
+                    b.Property<string>("DescriptionEn")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasComment("وصف الخدمة بالإنجليزية");
+
                     b.Property<string>("Icon")
                         .IsRequired()
                         .HasColumnType("text");
@@ -3306,6 +3405,11 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasComment("اسم الخدمة");
+
+                    b.Property<string>("NameEn")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasComment("اسم الخدمة بالإنجليزية");
 
                     b.Property<int>("PricingModel")
                         .HasColumnType("integer")
@@ -3328,6 +3432,9 @@ namespace YemenBooking.Infrastructure.Data.Migrations
 
                     b.HasIndex("Name")
                         .HasDatabaseName("IX_PropertyServices_Name");
+
+                    b.HasIndex("NameEn")
+                        .HasDatabaseName("IX_PropertyServices_NameEn");
 
                     b.HasIndex("PropertyId")
                         .HasDatabaseName("IX_PropertyServices_PropertyId");
@@ -3366,6 +3473,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("DescriptionEn")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<string>("Icon")
                         .IsRequired()
                         .HasColumnType("text");
@@ -3380,6 +3491,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("NameEn")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
@@ -3884,11 +3999,18 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("DisplayNameEn")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<Guid>("FieldId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("FilterOptions")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FilterOptionsEn")
                         .HasColumnType("text");
 
                     b.Property<string>("FilterType")
@@ -4344,6 +4466,9 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("CustomFeaturesEn")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -4366,6 +4491,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("NameEn")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -4821,6 +4950,11 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("DescriptionEn")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasComment("وصف نوع الوحدة بالإنجليزية");
+
                     b.Property<string>("Icon")
                         .IsRequired()
                         .HasColumnType("text");
@@ -4854,6 +4988,11 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasComment("اسم نوع الوحدة");
+
+                    b.Property<string>("NameEn")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("اسم نوع الوحدة بالإنجليزية");
 
                     b.Property<Guid>("PropertyTypeId")
                         .HasColumnType("uuid")
@@ -4892,6 +5031,10 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("CategoryEn")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -4909,8 +5052,16 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("DescriptionEn")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<string>("DisplayName")
                         .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("DisplayNameEn")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -4921,6 +5072,9 @@ namespace YemenBooking.Infrastructure.Data.Migrations
 
                     b.Property<string>("FieldOptions")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FieldOptionsEn")
                         .HasColumnType("text");
 
                     b.Property<string>("FieldTypeId")

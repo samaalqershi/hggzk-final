@@ -37,7 +37,7 @@ class GetSectionDataUseCase
         forceRefresh: params.forceRefresh,
       );
     }
-    return const Left(UnknownFailure('GetSectionDataUseCase not implemented'));
+    return Left(UnknownFailure());
   }
 }
 

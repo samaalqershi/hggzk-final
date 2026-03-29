@@ -1,6 +1,5 @@
 // lib/features/admin_policies/presentation/pages/edit_policy_page.dart
 
-import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -49,6 +48,9 @@ class _EditPolicyPageState extends State<EditPolicyPage>
   // Form Controllers
   final _formKey = GlobalKey<FormState>();
   final _descriptionController = TextEditingController();
+  final _descriptionEnController = TextEditingController();
+  final _rulesController = TextEditingController();
+  final _rulesEnController = TextEditingController();
   final _cancellationWindowController = TextEditingController(text: '0');
   final _depositPercentageController = TextEditingController(text: '0');
   final _minHoursController = TextEditingController(text: '0');
@@ -65,6 +67,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
   final _checkInFromController = TextEditingController();
   final _checkInUntilController = TextEditingController();
   final _checkInEarlyCheckInNoteController = TextEditingController();
+  final _checkInEarlyCheckInNoteEnController = TextEditingController();
   final _checkInLateCheckOutNoteController = TextEditingController();
   final _checkInLateCheckOutFeeController = TextEditingController();
 
@@ -73,14 +76,17 @@ class _EditPolicyPageState extends State<EditPolicyPage>
   final _childrenMaxChildrenPerRoomController = TextEditingController();
   final _childrenMaxChildrenController = TextEditingController();
   final _childrenCribsNoteController = TextEditingController();
+  final _childrenCribsNoteEnController = TextEditingController();
 
   final _petsReasonController = TextEditingController();
+  final _petsReasonEnController = TextEditingController();
   final _petsFeeAmountController = TextEditingController();
   final _petsMaxWeightController = TextEditingController();
 
   final _modificationFreeModificationHoursController = TextEditingController();
   final _modificationFeesAfterController = TextEditingController();
   final _modificationReasonController = TextEditingController();
+  final _modificationReasonEnController = TextEditingController();
   final _storage = GetIt.I<LocalStorageService>();
 
   // State
@@ -266,6 +272,9 @@ class _EditPolicyPageState extends State<EditPolicyPage>
       // Populate controllers
       _selectedType = policy.type;
       _descriptionController.text = policy.description;
+      _descriptionEnController.text = policy.descriptionEn ?? '';
+      _rulesController.text = policy.rules ?? '';
+      _rulesEnController.text = policy.rulesEn ?? '';
       _propertyName = policy.propertyName;
 
       // Type-specific fields
@@ -309,6 +318,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
       _checkInContactOwner = policy.checkInContactOwner;
       _checkInEarlyCheckInNoteController.text =
           policy.checkInEarlyCheckInNote ?? '';
+      _checkInEarlyCheckInNoteEnController.text =
+          policy.checkInEarlyCheckInNoteEn ?? '';
       _checkInLateCheckOutNoteController.text =
           policy.checkInLateCheckOutNote ?? '';
       _checkInLateCheckOutFeeController.text =
@@ -324,11 +335,13 @@ class _EditPolicyPageState extends State<EditPolicyPage>
       _childrenMaxChildrenController.text =
           policy.childrenMaxChildren?.toString() ?? '';
       _childrenCribsNoteController.text = policy.childrenCribsNote ?? '';
+      _childrenCribsNoteEnController.text = policy.childrenCribsNoteEn ?? '';
       _childrenPlaygroundAvailable = policy.childrenPlaygroundAvailable;
       _childrenKidsMenuAvailable = policy.childrenKidsMenuAvailable;
 
       _petsAllowed = policy.petsAllowed;
       _petsReasonController.text = policy.petsReason ?? '';
+      _petsReasonEnController.text = policy.petsReasonEn ?? '';
       _petsFeeAmountController.text = policy.petsFeeAmount?.toString() ?? '';
       _petsMaxWeightController.text = policy.petsMaxWeight ?? '';
       _petsRequiresApproval = policy.petsRequiresApproval;
@@ -344,6 +357,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
           policy.modificationFeesAfter ?? '';
       _modificationFlexible = policy.modificationFlexible;
       _modificationReasonController.text = policy.modificationReason ?? '';
+      _modificationReasonEnController.text = policy.modificationReasonEn ?? '';
     });
 
     // Start animation after data is loaded
@@ -360,6 +374,9 @@ class _EditPolicyPageState extends State<EditPolicyPage>
     _glowController.dispose();
     _loadingAnimationController.dispose();
     _descriptionController.dispose();
+    _descriptionEnController.dispose();
+    _rulesController.dispose();
+    _rulesEnController.dispose();
     _cancellationWindowController.dispose();
     _depositPercentageController.dispose();
     _minHoursController.dispose();
@@ -376,6 +393,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
     _checkInFromController.dispose();
     _checkInUntilController.dispose();
     _checkInEarlyCheckInNoteController.dispose();
+    _checkInEarlyCheckInNoteEnController.dispose();
     _checkInLateCheckOutNoteController.dispose();
     _checkInLateCheckOutFeeController.dispose();
 
@@ -384,14 +402,17 @@ class _EditPolicyPageState extends State<EditPolicyPage>
     _childrenMaxChildrenPerRoomController.dispose();
     _childrenMaxChildrenController.dispose();
     _childrenCribsNoteController.dispose();
+    _childrenCribsNoteEnController.dispose();
 
     _petsReasonController.dispose();
+    _petsReasonEnController.dispose();
     _petsFeeAmountController.dispose();
     _petsMaxWeightController.dispose();
 
     _modificationFreeModificationHoursController.dispose();
     _modificationFeesAfterController.dispose();
     _modificationReasonController.dispose();
+    _modificationReasonEnController.dispose();
     super.dispose();
   }
 
@@ -890,6 +911,64 @@ class _EditPolicyPageState extends State<EditPolicyPage>
           ),
 
           const SizedBox(height: 20),
+
+          if (_originalPolicy != null)
+            _buildOriginalValueIndicator(
+              'الوصف الإنجليزي الأصلي',
+              _originalPolicy!.descriptionEn?.isEmpty ?? true
+                  ? 'لا يوجد'
+                  : _originalPolicy!.descriptionEn!,
+              _descriptionEnController.text !=
+                  (_originalPolicy!.descriptionEn ?? ''),
+            ),
+
+          _buildInputField(
+            controller: _descriptionEnController,
+            label: 'الوصف بالإنجليزية',
+            hint: 'Enter the policy description in English',
+            icon: Icons.translate_rounded,
+            maxLines: 3,
+          ),
+
+          const SizedBox(height: 20),
+
+          if (_originalPolicy != null)
+            _buildOriginalValueIndicator(
+              'القواعد الإضافية الأصلية',
+              _originalPolicy!.rules?.isEmpty ?? true
+                  ? 'لا يوجد'
+                  : _originalPolicy!.rules!,
+              _rulesController.text != (_originalPolicy!.rules ?? ''),
+            ),
+
+          _buildInputField(
+            controller: _rulesController,
+            label: 'القواعد الإضافية',
+            hint: 'أدخل أي قواعد أو شروط إضافية',
+            icon: Icons.rule_folder_rounded,
+            maxLines: 3,
+          ),
+
+          const SizedBox(height: 20),
+
+          if (_originalPolicy != null)
+            _buildOriginalValueIndicator(
+              'القواعد الإضافية الإنجليزية الأصلية',
+              _originalPolicy!.rulesEn?.isEmpty ?? true
+                  ? 'لا يوجد'
+                  : _originalPolicy!.rulesEn!,
+              _rulesEnController.text != (_originalPolicy!.rulesEn ?? ''),
+            ),
+
+          _buildInputField(
+            controller: _rulesEnController,
+            label: 'القواعد الإضافية بالإنجليزية',
+            hint: 'Enter any additional rules in English',
+            icon: Icons.gavel_rounded,
+            maxLines: 3,
+          ),
+
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -1064,6 +1143,30 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                 'value': _descriptionController.text,
                 'changed':
                     _descriptionController.text != _originalPolicy?.description
+              },
+              {
+                'label': 'الوصف بالإنجليزية',
+                'value': _descriptionEnController.text.isEmpty
+                    ? 'غير مدخل'
+                    : _descriptionEnController.text,
+                'changed': _descriptionEnController.text !=
+                    (_originalPolicy?.descriptionEn ?? '')
+              },
+              {
+                'label': 'القواعد الإضافية',
+                'value': _rulesController.text.isEmpty
+                    ? 'غير مدخل'
+                    : _rulesController.text,
+                'changed':
+                    _rulesController.text != (_originalPolicy?.rules ?? '')
+              },
+              {
+                'label': 'القواعد الإضافية بالإنجليزية',
+                'value': _rulesEnController.text.isEmpty
+                    ? 'غير مدخل'
+                    : _rulesEnController.text,
+                'changed':
+                    _rulesEnController.text != (_originalPolicy?.rulesEn ?? '')
               },
             ],
           ),
@@ -1367,6 +1470,14 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             ),
             const SizedBox(height: 16),
             _buildInputField(
+              controller: _checkInEarlyCheckInNoteEnController,
+              label: 'ملاحظة تسجيل دخول مبكر بالإنجليزية',
+              hint: 'Write the early check-in note in English',
+              icon: Icons.translate_rounded,
+              maxLines: 2,
+            ),
+            const SizedBox(height: 16),
+            _buildInputField(
               controller: _checkInLateCheckOutNoteController,
               label: 'ملاحظة تسجيل خروج متأخر',
               hint: 'اكتب أي ملاحظة',
@@ -1431,6 +1542,14 @@ class _EditPolicyPageState extends State<EditPolicyPage>
               maxLines: 2,
             ),
             const SizedBox(height: 16),
+            _buildInputField(
+              controller: _childrenCribsNoteEnController,
+              label: 'ملاحظة الأسرّة للأطفال بالإنجليزية',
+              hint: 'Write the crib note in English',
+              icon: Icons.translate_rounded,
+              maxLines: 2,
+            ),
+            const SizedBox(height: 16),
             _buildBooleanTile(
               title: 'ساحة لعب',
               value: _childrenPlaygroundAvailable ?? false,
@@ -1459,6 +1578,14 @@ class _EditPolicyPageState extends State<EditPolicyPage>
               label: 'ملاحظة/سبب',
               hint: 'اكتب أي تفاصيل',
               icon: Icons.note_rounded,
+              maxLines: 2,
+            ),
+            const SizedBox(height: 16),
+            _buildInputField(
+              controller: _petsReasonEnController,
+              label: 'ملاحظة/سبب بالإنجليزية',
+              hint: 'Write the pet note in English',
+              icon: Icons.translate_rounded,
               maxLines: 2,
             ),
             const SizedBox(height: 16),
@@ -1539,7 +1666,21 @@ class _EditPolicyPageState extends State<EditPolicyPage>
               maxLines: 2,
             ),
             const SizedBox(height: 16),
-            const SizedBox.shrink(),
+            _buildInputField(
+              controller: _modificationReasonController,
+              label: 'سبب/ملاحظة التعديل',
+              hint: 'اكتب أي تفاصيل إضافية',
+              icon: Icons.note_alt_rounded,
+              maxLines: 2,
+            ),
+            const SizedBox(height: 16),
+            _buildInputField(
+              controller: _modificationReasonEnController,
+              label: 'سبب/ملاحظة التعديل بالإنجليزية',
+              hint: 'Write the modification note in English',
+              icon: Icons.translate_rounded,
+              maxLines: 2,
+            ),
           ],
         );
     }
@@ -2160,6 +2301,9 @@ class _EditPolicyPageState extends State<EditPolicyPage>
     final original = _originalPolicy!;
 
     return _descriptionController.text != original.description ||
+        _descriptionEnController.text != (original.descriptionEn ?? '') ||
+        _rulesController.text != (original.rules ?? '') ||
+        _rulesEnController.text != (original.rulesEn ?? '') ||
         int.tryParse(_cancellationWindowController.text) !=
             original.cancellationWindowDays ||
         _requireFullPayment != original.requireFullPaymentBeforeConfirmation ||
@@ -2210,6 +2354,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             (original.checkInContactOwner ?? false) ||
         _nullIfEmpty(_checkInEarlyCheckInNoteController.text) !=
             original.checkInEarlyCheckInNote ||
+        _nullIfEmpty(_checkInEarlyCheckInNoteEnController.text) !=
+            original.checkInEarlyCheckInNoteEn ||
         _nullIfEmpty(_checkInLateCheckOutNoteController.text) !=
             original.checkInLateCheckOutNote ||
         _nullIfEmpty(_checkInLateCheckOutFeeController.text) !=
@@ -2225,12 +2371,15 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             original.childrenMaxChildren ||
         _nullIfEmpty(_childrenCribsNoteController.text) !=
             original.childrenCribsNote ||
+        _nullIfEmpty(_childrenCribsNoteEnController.text) !=
+            original.childrenCribsNoteEn ||
         (_childrenPlaygroundAvailable ?? false) !=
             (original.childrenPlaygroundAvailable ?? false) ||
         (_childrenKidsMenuAvailable ?? false) !=
             (original.childrenKidsMenuAvailable ?? false) ||
         (_petsAllowed ?? false) != (original.petsAllowed ?? false) ||
         _nullIfEmpty(_petsReasonController.text) != original.petsReason ||
+        _nullIfEmpty(_petsReasonEnController.text) != original.petsReasonEn ||
         double.tryParse(_petsFeeAmountController.text) !=
             original.petsFeeAmount ||
         _nullIfEmpty(_petsMaxWeightController.text) != original.petsMaxWeight ||
@@ -2249,7 +2398,9 @@ class _EditPolicyPageState extends State<EditPolicyPage>
         (_modificationFlexible ?? false) !=
             (original.modificationFlexible ?? false) ||
         _nullIfEmpty(_modificationReasonController.text) !=
-            original.modificationReason;
+            original.modificationReason ||
+        _nullIfEmpty(_modificationReasonEnController.text) !=
+            original.modificationReasonEn;
   }
 
   bool _hasChangesInStep(int step) {
@@ -2257,7 +2408,11 @@ class _EditPolicyPageState extends State<EditPolicyPage>
 
     switch (step) {
       case 0: // Basic Info
-        return _descriptionController.text != _originalPolicy!.description;
+        return _descriptionController.text != _originalPolicy!.description ||
+            _descriptionEnController.text !=
+                (_originalPolicy!.descriptionEn ?? '') ||
+            _rulesController.text != (_originalPolicy!.rules ?? '') ||
+            _rulesEnController.text != (_originalPolicy!.rulesEn ?? '');
       case 1: // Settings
         switch (_selectedType) {
           case PolicyType.cancellation:
@@ -2290,6 +2445,42 @@ class _EditPolicyPageState extends State<EditPolicyPage>
         'field': 'الوصف',
         'oldValue': _originalPolicy!.description,
         'newValue': _descriptionController.text,
+      });
+    }
+
+    if (_descriptionEnController.text !=
+        (_originalPolicy!.descriptionEn ?? '')) {
+      changes.add({
+        'field': 'الوصف بالإنجليزية',
+        'oldValue': _originalPolicy!.descriptionEn?.isEmpty ?? true
+            ? 'لا يوجد'
+            : _originalPolicy!.descriptionEn!,
+        'newValue': _descriptionEnController.text.isEmpty
+            ? 'لا يوجد'
+            : _descriptionEnController.text,
+      });
+    }
+
+    if (_rulesController.text != (_originalPolicy!.rules ?? '')) {
+      changes.add({
+        'field': 'القواعد الإضافية',
+        'oldValue': _originalPolicy!.rules?.isEmpty ?? true
+            ? 'لا يوجد'
+            : _originalPolicy!.rules!,
+        'newValue':
+            _rulesController.text.isEmpty ? 'لا يوجد' : _rulesController.text,
+      });
+    }
+
+    if (_rulesEnController.text != (_originalPolicy!.rulesEn ?? '')) {
+      changes.add({
+        'field': 'القواعد الإضافية بالإنجليزية',
+        'oldValue': _originalPolicy!.rulesEn?.isEmpty ?? true
+            ? 'لا يوجد'
+            : _originalPolicy!.rulesEn!,
+        'newValue': _rulesEnController.text.isEmpty
+            ? 'لا يوجد'
+            : _rulesEnController.text,
       });
     }
 
@@ -2356,6 +2547,10 @@ class _EditPolicyPageState extends State<EditPolicyPage>
 
           setState(() {
             _descriptionController.text = _originalPolicy!.description;
+            _descriptionEnController.text =
+                _originalPolicy!.descriptionEn ?? '';
+            _rulesController.text = _originalPolicy!.rules ?? '';
+            _rulesEnController.text = _originalPolicy!.rulesEn ?? '';
             _cancellationWindowController.text =
                 _originalPolicy!.cancellationWindowDays.toString();
             _requireFullPayment =
@@ -2403,6 +2598,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             _checkInContactOwner = _originalPolicy!.checkInContactOwner;
             _checkInEarlyCheckInNoteController.text =
                 _originalPolicy!.checkInEarlyCheckInNote ?? '';
+            _checkInEarlyCheckInNoteEnController.text =
+                _originalPolicy!.checkInEarlyCheckInNoteEn ?? '';
             _checkInLateCheckOutNoteController.text =
                 _originalPolicy!.checkInLateCheckOutNote ?? '';
             _checkInLateCheckOutFeeController.text =
@@ -2419,6 +2616,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                 _originalPolicy!.childrenMaxChildren?.toString() ?? '';
             _childrenCribsNoteController.text =
                 _originalPolicy!.childrenCribsNote ?? '';
+            _childrenCribsNoteEnController.text =
+                _originalPolicy!.childrenCribsNoteEn ?? '';
             _childrenPlaygroundAvailable =
                 _originalPolicy!.childrenPlaygroundAvailable;
             _childrenKidsMenuAvailable =
@@ -2426,6 +2625,7 @@ class _EditPolicyPageState extends State<EditPolicyPage>
 
             _petsAllowed = _originalPolicy!.petsAllowed;
             _petsReasonController.text = _originalPolicy!.petsReason ?? '';
+            _petsReasonEnController.text = _originalPolicy!.petsReasonEn ?? '';
             _petsFeeAmountController.text =
                 _originalPolicy!.petsFeeAmount?.toString() ?? '';
             _petsMaxWeightController.text =
@@ -2446,6 +2646,8 @@ class _EditPolicyPageState extends State<EditPolicyPage>
             _modificationFlexible = _originalPolicy!.modificationFlexible;
             _modificationReasonController.text =
                 _originalPolicy!.modificationReason ?? '';
+            _modificationReasonEnController.text =
+                _originalPolicy!.modificationReasonEn ?? '';
             _hasChanges = false;
           });
 
@@ -2561,6 +2763,15 @@ class _EditPolicyPageState extends State<EditPolicyPage>
               policyId: widget.policyId,
               type: _selectedType,
               description: _descriptionController.text,
+              descriptionEn: _descriptionEnController.text.trim().isEmpty
+                  ? null
+                  : _descriptionEnController.text.trim(),
+              rules: _rulesController.text.trim().isEmpty
+                  ? null
+                  : _rulesController.text.trim(),
+              rulesEn: _rulesEnController.text.trim().isEmpty
+                  ? null
+                  : _rulesEnController.text.trim(),
               cancellationWindowDays:
                   int.tryParse(_cancellationWindowController.text),
               requireFullPaymentBeforeConfirmation: _requireFullPayment,
@@ -2616,6 +2827,10 @@ class _EditPolicyPageState extends State<EditPolicyPage>
                   _checkInEarlyCheckInNoteController.text.isEmpty
                       ? null
                       : _checkInEarlyCheckInNoteController.text,
+              checkInEarlyCheckInNoteEn:
+                  _checkInEarlyCheckInNoteEnController.text.isEmpty
+                      ? null
+                      : _checkInEarlyCheckInNoteEnController.text,
               checkInLateCheckOutNote:
                   _checkInLateCheckOutNoteController.text.isEmpty
                       ? null
@@ -2636,12 +2851,18 @@ class _EditPolicyPageState extends State<EditPolicyPage>
               childrenCribsNote: _childrenCribsNoteController.text.isEmpty
                   ? null
                   : _childrenCribsNoteController.text,
+              childrenCribsNoteEn: _childrenCribsNoteEnController.text.isEmpty
+                  ? null
+                  : _childrenCribsNoteEnController.text,
               childrenPlaygroundAvailable: _childrenPlaygroundAvailable,
               childrenKidsMenuAvailable: _childrenKidsMenuAvailable,
               petsAllowed: _petsAllowed,
               petsReason: _petsReasonController.text.isEmpty
                   ? null
                   : _petsReasonController.text,
+              petsReasonEn: _petsReasonEnController.text.isEmpty
+                  ? null
+                  : _petsReasonEnController.text,
               petsFeeAmount: double.tryParse(_petsFeeAmountController.text),
               petsMaxWeight: _petsMaxWeightController.text.isEmpty
                   ? null
@@ -2662,6 +2883,9 @@ class _EditPolicyPageState extends State<EditPolicyPage>
               modificationReason: _modificationReasonController.text.isEmpty
                   ? null
                   : _modificationReasonController.text,
+              modificationReasonEn: _modificationReasonEnController.text.isEmpty
+                  ? null
+                  : _modificationReasonEnController.text,
             ),
           );
     }

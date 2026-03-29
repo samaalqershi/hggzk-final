@@ -24,14 +24,18 @@ class PolicyEditorWidget extends StatefulWidget {
 class _PolicyEditorWidgetState extends State<PolicyEditorWidget> {
   final _formKey = GlobalKey<FormState>();
   final _descriptionController = TextEditingController();
+  final _descriptionEnController = TextEditingController();
   final _rulesController = TextEditingController();
+  final _rulesEnController = TextEditingController();
   PolicyType _selectedType = PolicyType.cancellation;
   @override
   void initState() {
     super.initState();
     if (widget.policy != null) {
       _descriptionController.text = widget.policy!.description;
+      _descriptionEnController.text = widget.policy!.descriptionEn ?? '';
       _rulesController.text = widget.policy!.rules;
+      _rulesEnController.text = widget.policy!.rulesEn ?? '';
       _selectedType = widget.policy!.policyType;
     }
   }
@@ -39,7 +43,9 @@ class _PolicyEditorWidgetState extends State<PolicyEditorWidget> {
   @override
   void dispose() {
     _descriptionController.dispose();
+    _descriptionEnController.dispose();
     _rulesController.dispose();
+    _rulesEnController.dispose();
     super.dispose();
   }
 
@@ -205,6 +211,47 @@ class _PolicyEditorWidgetState extends State<PolicyEditorWidget> {
 
             const SizedBox(height: 16),
 
+            Text(
+              'الوصف بالإنجليزية',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppTheme.textMuted,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              child: TextFormField(
+                controller: _descriptionEnController,
+                maxLines: 2,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppTheme.textWhite,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Enter the policy description in English',
+                  hintStyle: AppTextStyles.bodyMedium.copyWith(
+                    color: AppTheme.textMuted.withValues(alpha: 0.5),
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.all(12),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
             // Rules Field
             Text(
               'القواعد',
@@ -248,6 +295,47 @@ class _PolicyEditorWidgetState extends State<PolicyEditorWidget> {
                   }
                   return null;
                 },
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            Text(
+              'القواعد بالإنجليزية',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppTheme.textMuted,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppTheme.darkSurface.withValues(alpha: 0.5),
+                    AppTheme.darkSurface.withValues(alpha: 0.3),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppTheme.darkBorder.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              child: TextFormField(
+                controller: _rulesEnController,
+                maxLines: 3,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppTheme.textWhite,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Enter the policy rules in English',
+                  hintStyle: AppTextStyles.bodyMedium.copyWith(
+                    color: AppTheme.textMuted.withValues(alpha: 0.5),
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.all(12),
+                ),
               ),
             ),
 
@@ -326,7 +414,13 @@ class _PolicyEditorWidgetState extends State<PolicyEditorWidget> {
         propertyId: widget.policy?.propertyId ?? '',
         policyType: _selectedType,
         description: _descriptionController.text,
+        descriptionEn: _descriptionEnController.text.trim().isEmpty
+            ? null
+            : _descriptionEnController.text.trim(),
         rules: _rulesController.text,
+        rulesEn: _rulesEnController.text.trim().isEmpty
+            ? null
+            : _rulesEnController.text.trim(),
         isActive: true,
       );
 

@@ -80,12 +80,16 @@ class _EditPropertyViewState extends State<_EditPropertyView>
   // Form Controllers
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _nameEnController = TextEditingController();
   final _addressController = TextEditingController();
+  final _addressEnController = TextEditingController();
   final _cityController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _descriptionEnController = TextEditingController();
   final _latitudeController = TextEditingController();
   final _longitudeController = TextEditingController();
   final _shortDescriptionController = TextEditingController();
+  final _shortDescriptionEnController = TextEditingController();
   final _systemCommissionRateController = TextEditingController();
 
   // State
@@ -164,11 +168,15 @@ class _EditPropertyViewState extends State<_EditPropertyView>
 
       // Populate text controllers
       _nameController.text = property.name;
+      _nameEnController.text = property.nameEn ?? '';
       _shortDescriptionController.text = property.shortDescription ?? '';
+      _shortDescriptionEnController.text = property.shortDescriptionEn ?? '';
       _addressController.text = property.address;
+      _addressEnController.text = property.addressEn ?? '';
       _cityController.text = property.city;
       _selectedCity = property.city.isNotEmpty ? property.city : null;
       _descriptionController.text = property.description;
+      _descriptionEnController.text = property.descriptionEn ?? '';
       _latitudeController.text = property.latitude?.toString() ?? '';
       _longitudeController.text = property.longitude?.toString() ?? '';
 
@@ -217,12 +225,16 @@ class _EditPropertyViewState extends State<_EditPropertyView>
     _glowController.dispose();
     _loadingAnimationController.dispose();
     _nameController.dispose();
+    _nameEnController.dispose();
     _addressController.dispose();
+    _addressEnController.dispose();
     _cityController.dispose();
     _descriptionController.dispose();
+    _descriptionEnController.dispose();
     _latitudeController.dispose();
     _longitudeController.dispose();
     _shortDescriptionController.dispose();
+    _shortDescriptionEnController.dispose();
     _systemCommissionRateController.dispose();
     super.dispose();
   }
@@ -733,6 +745,30 @@ class _EditPropertyViewState extends State<_EditPropertyView>
 
           const SizedBox(height: 20),
 
+          if (_originalProperty != null &&
+              _nameEnController.text != (_originalProperty!.nameEn ?? ''))
+            _buildOriginalValueIndicator(
+              'الاسم الإنجليزي الأصلي',
+              (_originalProperty!.nameEn ?? '').isEmpty
+                  ? 'لا يوجد'
+                  : _originalProperty!.nameEn!,
+              true,
+            ),
+
+          _buildInputField(
+            controller: _nameEnController,
+            label: 'اسم العقار بالإنجليزية',
+            hint: 'Enter property name in English',
+            icon: Icons.translate_rounded,
+            onChanged: (value) {
+              setState(() {
+                _hasChanges = _checkForChanges();
+              });
+            },
+          ),
+
+          const SizedBox(height: 20),
+
           // Property Type (Read-only in edit mode)
           _buildReadOnlyField(
             label: 'نوع العقار',
@@ -849,6 +885,31 @@ class _EditPropertyViewState extends State<_EditPropertyView>
 
           const SizedBox(height: 20),
 
+          if (_originalProperty != null &&
+              _shortDescriptionEnController.text !=
+                  (_originalProperty!.shortDescriptionEn ?? ''))
+            _buildOriginalValueIndicator(
+              'الوصف المختصر الإنجليزي الأصلي',
+              (_originalProperty!.shortDescriptionEn ?? '').isEmpty
+                  ? 'لا يوجد'
+                  : _originalProperty!.shortDescriptionEn!,
+              true,
+            ),
+
+          _buildInputField(
+            controller: _shortDescriptionEnController,
+            label: 'وصف مختصر بالإنجليزية',
+            hint: 'Short summary used in English listings',
+            icon: Icons.translate_rounded,
+            onChanged: (value) {
+              setState(() {
+                _hasChanges = _checkForChanges();
+              });
+            },
+          ),
+
+          const SizedBox(height: 20),
+
           // Description
           if (_originalProperty != null &&
               _descriptionController.text != _originalProperty!.description)
@@ -872,6 +933,32 @@ class _EditPropertyViewState extends State<_EditPropertyView>
               }
               return null;
             },
+            onChanged: (value) {
+              setState(() {
+                _hasChanges = _checkForChanges();
+              });
+            },
+          ),
+
+          const SizedBox(height: 20),
+
+          if (_originalProperty != null &&
+              _descriptionEnController.text !=
+                  (_originalProperty!.descriptionEn ?? ''))
+            _buildOriginalValueIndicator(
+              'الوصف الإنجليزي الأصلي',
+              (_originalProperty!.descriptionEn ?? '').isEmpty
+                  ? 'لا يوجد'
+                  : _originalProperty!.descriptionEn!,
+              true,
+            ),
+
+          _buildInputField(
+            controller: _descriptionEnController,
+            label: 'الوصف بالإنجليزية',
+            hint: 'Enter detailed property description in English',
+            icon: Icons.translate_rounded,
+            maxLines: 5,
             onChanged: (value) {
               setState(() {
                 _hasChanges = _checkForChanges();
@@ -1011,6 +1098,30 @@ class _EditPropertyViewState extends State<_EditPropertyView>
               }
               return null;
             },
+            onChanged: (value) {
+              setState(() {
+                _hasChanges = _checkForChanges();
+              });
+            },
+          ),
+
+          const SizedBox(height: 20),
+
+          if (_originalProperty != null &&
+              _addressEnController.text != (_originalProperty!.addressEn ?? ''))
+            _buildOriginalValueIndicator(
+              'العنوان الإنجليزي الأصلي',
+              (_originalProperty!.addressEn ?? '').isEmpty
+                  ? 'لا يوجد'
+                  : _originalProperty!.addressEn!,
+              true,
+            ),
+
+          _buildInputField(
+            controller: _addressEnController,
+            label: 'العنوان بالإنجليزية',
+            hint: 'Enter the full address in English',
+            icon: Icons.translate_rounded,
             onChanged: (value) {
               setState(() {
                 _hasChanges = _checkForChanges();
@@ -2178,10 +2289,16 @@ class _EditPropertyViewState extends State<_EditPropertyView>
     // التحقق من الحقول الأساسية
     final basicFieldsChanged =
         _nameController.text != _originalProperty!.name ||
+            _nameEnController.text != (_originalProperty!.nameEn ?? '') ||
             _descriptionController.text != _originalProperty!.description ||
+            _descriptionEnController.text !=
+                (_originalProperty!.descriptionEn ?? '') ||
             _shortDescriptionController.text !=
                 (_originalProperty!.shortDescription ?? '') ||
+            _shortDescriptionEnController.text !=
+                (_originalProperty!.shortDescriptionEn ?? '') ||
             _addressController.text != _originalProperty!.address ||
+            _addressEnController.text != (_originalProperty!.addressEn ?? '') ||
             _cityController.text != _originalProperty!.city ||
             double.tryParse(_latitudeController.text) !=
                 _originalProperty!.latitude ||
@@ -2212,9 +2329,14 @@ class _EditPropertyViewState extends State<_EditPropertyView>
     switch (step) {
       case 0: // Basic Info
         return _nameController.text != _originalProperty!.name ||
+            _nameEnController.text != (_originalProperty!.nameEn ?? '') ||
             _descriptionController.text != _originalProperty!.description ||
+            _descriptionEnController.text !=
+                (_originalProperty!.descriptionEn ?? '') ||
             _shortDescriptionController.text !=
                 (_originalProperty!.shortDescription ?? '') ||
+            _shortDescriptionEnController.text !=
+                (_originalProperty!.shortDescriptionEn ?? '') ||
             _starRating != _originalProperty!.starRating ||
             _isFeatured != _originalProperty!.isFeatured ||
             _currency != _originalProperty!.currency ||
@@ -2223,6 +2345,7 @@ class _EditPropertyViewState extends State<_EditPropertyView>
                 _selectedOwner!.id != _originalProperty!.ownerId);
       case 1: // Location
         return _addressController.text != _originalProperty!.address ||
+            _addressEnController.text != (_originalProperty!.addressEn ?? '') ||
             _cityController.text != _originalProperty!.city ||
             double.tryParse(_latitudeController.text) !=
                 _originalProperty!.latitude ||
@@ -2248,6 +2371,17 @@ class _EditPropertyViewState extends State<_EditPropertyView>
       });
     }
 
+    if (_nameEnController.text != (_originalProperty!.nameEn ?? '')) {
+      changes.add({
+        'field': 'الاسم الإنجليزي',
+        'oldValue': (_originalProperty!.nameEn ?? '').isEmpty
+            ? 'لا يوجد'
+            : _originalProperty!.nameEn!,
+        'newValue':
+            _nameEnController.text.isEmpty ? 'لا يوجد' : _nameEnController.text,
+      });
+    }
+
     if (_selectedOwner != null &&
         _selectedOwner!.id != _originalProperty!.ownerId) {
       changes.add({
@@ -2269,6 +2403,19 @@ class _EditPropertyViewState extends State<_EditPropertyView>
       });
     }
 
+    if (_descriptionEnController.text !=
+        (_originalProperty!.descriptionEn ?? '')) {
+      changes.add({
+        'field': 'الوصف الإنجليزي',
+        'oldValue': (_originalProperty!.descriptionEn ?? '').isEmpty
+            ? 'لا يوجد'
+            : _originalProperty!.descriptionEn!,
+        'newValue': _descriptionEnController.text.isEmpty
+            ? 'لا يوجد'
+            : _descriptionEnController.text,
+      });
+    }
+
     if (_shortDescriptionController.text !=
         (_originalProperty!.shortDescription ?? '')) {
       changes.add({
@@ -2279,6 +2426,19 @@ class _EditPropertyViewState extends State<_EditPropertyView>
         'newValue': _shortDescriptionController.text.isEmpty
             ? 'لا يوجد'
             : _shortDescriptionController.text,
+      });
+    }
+
+    if (_shortDescriptionEnController.text !=
+        (_originalProperty!.shortDescriptionEn ?? '')) {
+      changes.add({
+        'field': 'الوصف المختصر الإنجليزي',
+        'oldValue': (_originalProperty!.shortDescriptionEn ?? '').isEmpty
+            ? 'لا يوجد'
+            : _originalProperty!.shortDescriptionEn!,
+        'newValue': _shortDescriptionEnController.text.isEmpty
+            ? 'لا يوجد'
+            : _shortDescriptionEnController.text,
       });
     }
 
@@ -2323,6 +2483,18 @@ class _EditPropertyViewState extends State<_EditPropertyView>
         'field': 'العنوان',
         'oldValue': _originalProperty!.address,
         'newValue': _addressController.text,
+      });
+    }
+
+    if (_addressEnController.text != (_originalProperty!.addressEn ?? '')) {
+      changes.add({
+        'field': 'العنوان الإنجليزي',
+        'oldValue': (_originalProperty!.addressEn ?? '').isEmpty
+            ? 'لا يوجد'
+            : _originalProperty!.addressEn!,
+        'newValue': _addressEnController.text.isEmpty
+            ? 'لا يوجد'
+            : _addressEnController.text,
       });
     }
 
@@ -2386,14 +2558,20 @@ class _EditPropertyViewState extends State<_EditPropertyView>
           // إعادة تعيين جميع القيم
           setState(() {
             _nameController.text = _originalProperty!.name;
+            _nameEnController.text = _originalProperty!.nameEn ?? '';
             _shortDescriptionController.text =
                 _originalProperty!.shortDescription ?? '';
+            _shortDescriptionEnController.text =
+                _originalProperty!.shortDescriptionEn ?? '';
             _addressController.text = _originalProperty!.address;
+            _addressEnController.text = _originalProperty!.addressEn ?? '';
             _cityController.text = _originalProperty!.city;
             _selectedCity = _originalProperty!.city.isNotEmpty
                 ? _originalProperty!.city
                 : null;
             _descriptionController.text = _originalProperty!.description;
+            _descriptionEnController.text =
+                _originalProperty!.descriptionEn ?? '';
             _latitudeController.text =
                 _originalProperty!.latitude?.toString() ?? '';
             _longitudeController.text =
@@ -2547,15 +2725,27 @@ class _EditPropertyViewState extends State<_EditPropertyView>
             UpdatePropertyEvent(
               propertyId: widget.propertyId,
               name: _nameController.text,
+              nameEn: _nameEnController.text.trim().isEmpty
+                  ? null
+                  : _nameEnController.text.trim(),
               address: _addressController.text,
+              addressEn: _addressEnController.text.trim().isEmpty
+                  ? null
+                  : _addressEnController.text.trim(),
               city: _cityController.text.isEmpty ? null : _cityController.text,
               description: _descriptionController.text,
+              descriptionEn: _descriptionEnController.text.trim().isEmpty
+                  ? null
+                  : _descriptionEnController.text.trim(),
               latitude: double.tryParse(_latitudeController.text),
               longitude: double.tryParse(_longitudeController.text),
               starRating: _starRating,
               images: imageUrls,
               shortDescription: _shortDescriptionController.text.isNotEmpty
                   ? _shortDescriptionController.text
+                  : null,
+              shortDescriptionEn: _shortDescriptionEnController.text.isNotEmpty
+                  ? _shortDescriptionEnController.text
                   : null,
               currency: _currency,
               isFeatured: _isFeatured,

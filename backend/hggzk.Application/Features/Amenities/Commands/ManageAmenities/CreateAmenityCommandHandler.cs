@@ -89,7 +89,9 @@ namespace YemenBooking.Application.Features.Amenities.Commands.ManageAmenities
                 {
                     Id = Guid.NewGuid(),
                     Name = request.Name.Trim(),
+                    NameEn = string.IsNullOrWhiteSpace(request.NameEn) ? null : request.NameEn.Trim(),
                     Description = request.Description.Trim(),
+                    DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn.Trim(),
                     Icon = (request.Icon ?? string.Empty).Trim(),
                     IsActive = true, // تفعيل المرفق تلقائياً عند الإنشاء
                     CreatedAt = DateTime.UtcNow
@@ -141,7 +143,7 @@ namespace YemenBooking.Application.Features.Amenities.Commands.ManageAmenities
                     entityId: amenity.Id,
                     action: AuditAction.CREATE,
                     oldValues: null,
-                    newValues: System.Text.Json.JsonSerializer.Serialize(new { amenity.Id, amenity.Name, amenity.Description, amenity.Icon }),
+                    newValues: System.Text.Json.JsonSerializer.Serialize(new { amenity.Id, amenity.Name, amenity.NameEn, amenity.Description, amenity.DescriptionEn, amenity.Icon }),
                     performedBy: _currentUserService.UserId,
                     notes: notes,
                     cancellationToken: cancellationToken);
@@ -166,8 +168,14 @@ namespace YemenBooking.Application.Features.Amenities.Commands.ManageAmenities
             else if (request.Name.Length > 50)
                 errors.Add("اسم المرفق لا يجب أن يتجاوز 50 حرفًا");
 
+            if (!string.IsNullOrWhiteSpace(request.NameEn) && request.NameEn.Length > 50)
+                errors.Add("اسم المرفق بالإنجليزية لا يجب أن يتجاوز 50 حرفًا");
+
             if (!string.IsNullOrWhiteSpace(request.Description) && request.Description.Length > 200)
                 errors.Add("وصف المرفق لا يجب أن يتجاوز 200 حرفًا");
+
+            if (!string.IsNullOrWhiteSpace(request.DescriptionEn) && request.DescriptionEn.Length > 200)
+                errors.Add("وصف المرفق بالإنجليزية لا يجب أن يتجاوز 200 حرفًا");
 
             if (errors.Count > 0)
                 return Task.FromResult(ResultDto<Guid>.Failed(errors, "بيانات المدخلات غير صحيحة"));

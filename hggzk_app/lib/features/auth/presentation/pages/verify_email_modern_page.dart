@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import 'package:hggzk/core/constants/route_constants.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/theme/app_text_styles.dart';
 import 'package:hggzk/core/theme/app_theme.dart';
 import 'package:hggzk/features/auth/presentation/bloc/auth_event.dart';
@@ -188,7 +189,9 @@ class _VerifyEmailModernPageState extends State<VerifyEmailModernPage>
               shaderCallback: (bounds) =>
                   AppTheme.primaryGradient.createShader(bounds),
               child: Text(
-                'تأكيد البريد الإلكتروني',
+                context.tr(
+                  'auth.verify.title',
+                ),
                 style: AppTextStyles.h2.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
@@ -199,8 +202,13 @@ class _VerifyEmailModernPageState extends State<VerifyEmailModernPage>
           const SizedBox(height: 8),
           Text(
             email.isNotEmpty
-                ? 'تم إرسال رمز تحقق مكوّن من 6 أرقام إلى:\n$email'
-                : 'أدخل رمز التحقق المرسل إلى بريدك الإلكتروني',
+                ? context.tr(
+                    'auth.verify.sentToEmail',
+                    params: {'email': email},
+                  )
+                : context.tr(
+                    'auth.verify.prompt',
+                  ),
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(
               color: AppTheme.textMuted,
@@ -220,7 +228,9 @@ class _VerifyEmailModernPageState extends State<VerifyEmailModernPage>
               letterSpacing: 4,
             ),
             decoration: InputDecoration(
-              labelText: 'رمز التحقق',
+              labelText: context.tr(
+                'auth.verify.codeLabel',
+              ),
               hintText: '######',
               labelStyle: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted,
@@ -269,7 +279,7 @@ class _VerifyEmailModernPageState extends State<VerifyEmailModernPage>
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : Text(
-                          'تأكيد',
+                          context.tr('common.confirm'),
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -286,8 +296,13 @@ class _VerifyEmailModernPageState extends State<VerifyEmailModernPage>
                 : () => _onResendPressed(context),
             child: Text(
               _seconds > 0
-                  ? 'إعادة إرسال الرمز بعد $_seconds ث'
-                  : 'إعادة إرسال الرمز',
+                  ? context.tr(
+                      'auth.verify.resendCountdown',
+                      params: {'seconds': _seconds},
+                    )
+                  : context.tr(
+                      'auth.verify.resend',
+                    ),
               style: AppTextStyles.bodySmall.copyWith(
                 color: _seconds > 0 ? AppTheme.textMuted : AppTheme.primaryBlue,
               ),
@@ -305,20 +320,34 @@ class _VerifyEmailModernPageState extends State<VerifyEmailModernPage>
     if (state is EmailVerificationSuccess) {
       HapticFeedback.mediumImpact();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم تأكيد البريد الإلكتروني بنجاح')),
+        SnackBar(
+          content: Text(
+            context.tr(
+              'auth.verify.success',
+            ),
+          ),
+        ),
       );
       context.read<AuthBloc>().add(const LogoutEvent());
       Future.microtask(() => context.go(RouteConstants.login));
     } else if (state is EmailVerificationError) {
       HapticFeedback.heavyImpact();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(state.message)),
+        SnackBar(
+          content: Text(state.message),
+        ),
       );
     } else if (state is EmailVerificationCodeResent) {
       final seconds = state.retryAfterSeconds ?? 60;
       _startTimer(seconds);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم إرسال رمز جديد إلى بريدك')),
+        SnackBar(
+          content: Text(
+            context.tr(
+              'auth.verify.resendSuccess',
+            ),
+          ),
+        ),
       );
     }
   }
@@ -327,14 +356,26 @@ class _VerifyEmailModernPageState extends State<VerifyEmailModernPage>
     final code = _codeController.text.trim();
     if (code.length < 4) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('يرجى إدخال رمز تحقق صالح')),
+        SnackBar(
+          content: Text(
+            context.tr(
+              'auth.verify.invalidCode',
+            ),
+          ),
+        ),
       );
       return;
     }
     final authState = context.read<AuthBloc>().state;
     if (authState is! AuthAuthenticated) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('حدثت مشكلة في جلسة المستخدم')),
+        SnackBar(
+          content: Text(
+            context.tr(
+              'auth.verify.sessionError',
+            ),
+          ),
+        ),
       );
       return;
     }

@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../../../../core/network/network_info.dart';
 import '../../domain/entities/notification.dart';
@@ -61,7 +62,9 @@ class NotificationRepositoryImpl implements NotificationRepository {
         ));
       }
     } catch (e) {
-      return const Left(ServerFailure('Server error occurred'));
+      return Left(
+        ServerFailure(AppLocalizations.translateSync('common.serverError')),
+      );
     }
   }
 
@@ -72,10 +75,12 @@ class NotificationRepositoryImpl implements NotificationRepository {
         await remoteDataSource.markAsRead(notificationId);
         return const Right(null);
       } else {
-        return const Left(NetworkFailure());
+        return Left(NetworkFailure());
       }
     } catch (e) {
-      return const Left(ServerFailure('Server error occurred'));
+      return Left(
+        ServerFailure(AppLocalizations.translateSync('common.serverError')),
+      );
     }
   }
 
@@ -86,10 +91,12 @@ class NotificationRepositoryImpl implements NotificationRepository {
         await remoteDataSource.markAllAsRead();
         return const Right(null);
       } else {
-        return const Left(NetworkFailure());
+        return Left(NetworkFailure());
       }
     } catch (e) {
-      return const Left(ServerFailure('Server error occurred'));
+      return Left(
+        ServerFailure(AppLocalizations.translateSync('common.serverError')),
+      );
     }
   }
 
@@ -101,10 +108,12 @@ class NotificationRepositoryImpl implements NotificationRepository {
         await remoteDataSource.dismissNotification(notificationId);
         return const Right(null);
       } else {
-        return const Left(NetworkFailure());
+        return Left(NetworkFailure());
       }
     } catch (e) {
-      return const Left(ServerFailure('Server error occurred'));
+      return Left(
+        ServerFailure(AppLocalizations.translateSync('common.serverError')),
+      );
     }
   }
 
@@ -120,7 +129,9 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return Right(cachedSettings);
       }
     } catch (e) {
-      return const Left(ServerFailure('Server error occurred'));
+      return Left(
+        ServerFailure(AppLocalizations.translateSync('common.serverError')),
+      );
     }
   }
 
@@ -133,10 +144,12 @@ class NotificationRepositoryImpl implements NotificationRepository {
         await localDataSource.saveNotificationSettings(settings);
         return const Right(null);
       } else {
-        return const Left(NetworkFailure());
+        return Left(NetworkFailure());
       }
     } catch (e) {
-      return const Left(ServerFailure('Server error occurred'));
+      return Left(
+        ServerFailure(AppLocalizations.translateSync('common.serverError')),
+      );
     }
   }
 
@@ -147,10 +160,12 @@ class NotificationRepositoryImpl implements NotificationRepository {
         final count = await remoteDataSource.getUnreadCount();
         return Right(count);
       } else {
-        return const Left(NetworkFailure());
+        return Left(NetworkFailure());
       }
     } catch (e) {
-      return const Left(ServerFailure('Server error occurred'));
+      return Left(
+        ServerFailure(AppLocalizations.translateSync('common.serverError')),
+      );
     }
   }
 }

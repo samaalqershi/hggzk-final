@@ -1,3 +1,5 @@
+import 'package:hggzk/core/localization/localized_api_value.dart';
+
 import '../../domain/entities/amenity.dart';
 
 /// Describes the AmenityModel data model used to parse and emit property API payloads.
@@ -24,8 +26,16 @@ class AmenityModel extends Amenity {
     return AmenityModel(
       // prefer property-specific amenityId, fallback to global id
       id: json['amenityId'] ?? json['id'] ?? '',
-      name: json['name'] ?? '',
-      description: json['description'] ?? '',
+      name: LocalizedApiValue.text(
+        json,
+        arabicKey: 'name',
+        englishKey: 'nameEn',
+      ),
+      description: LocalizedApiValue.text(
+        json,
+        arabicKey: 'description',
+        englishKey: 'descriptionEn',
+      ),
       iconUrl: json['iconUrl'] ?? '',
       category: json['category'] ?? '',
       icon: json['icon'] ?? '',

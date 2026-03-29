@@ -9,7 +9,9 @@ import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/route_constants.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/app_logo_widget.dart';
+import '../../../../core/widgets/language_switch_button.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -350,8 +352,7 @@ class _RegisterPageState extends State<RegisterPage>
           ),
         ),
 
-        // Language button (optional)
-        const SizedBox(width: 36, height: 36),
+        const LanguageSwitchButton(size: 36),
       ],
     );
   }
@@ -458,7 +459,7 @@ class _RegisterPageState extends State<RegisterPage>
           shaderCallback: (bounds) =>
               AppTheme.primaryGradient.createShader(bounds),
           child: Text(
-            'إنشاء حساب',
+            context.tr('auth.register.title'),
             style: AppTextStyles.h2.copyWith(
               fontWeight: FontWeight.bold,
               color: Colors.white,
@@ -468,7 +469,7 @@ class _RegisterPageState extends State<RegisterPage>
         ),
         const SizedBox(height: 6),
         Text(
-          'انضم واستمتع بتجربة فريدة',
+          context.tr('auth.register.subtitle'),
           style: AppTextStyles.caption.copyWith(
             color: AppTheme.textMuted.withOpacity(0.6),
             letterSpacing: 0.3,
@@ -538,7 +539,7 @@ class _RegisterPageState extends State<RegisterPage>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'لديك حساب؟',
+            context.tr('auth.register.noAccount'),
             style: AppTextStyles.caption.copyWith(
               color: AppTheme.textMuted.withOpacity(0.5),
             ),
@@ -564,7 +565,7 @@ class _RegisterPageState extends State<RegisterPage>
                 shaderCallback: (bounds) =>
                     AppTheme.primaryGradient.createShader(bounds),
                 child: Text(
-                  'سجل دخول',
+                  context.tr('auth.register.signUpNow'),
                   style: AppTextStyles.caption.copyWith(
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
@@ -574,74 +575,6 @@ class _RegisterPageState extends State<RegisterPage>
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSkipButton() {
-    return Positioned(
-      bottom: MediaQuery.of(context).padding.bottom + 20,
-      left: 20,
-      right: 20,
-      child: AnimatedBuilder(
-        animation: _glowAnimation,
-        builder: (context, child) {
-          return GestureDetector(
-            onTap: () {
-              HapticFeedback.mediumImpact();
-              context.go(RouteConstants.main);
-            },
-            child: Container(
-              height: 42,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.white.withOpacity(0.08),
-                    Colors.white.withOpacity(0.04),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.white
-                      .withOpacity(0.1 + 0.05 * _glowAnimation.value),
-                  width: 0.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color:
-                        Colors.white.withOpacity(0.05 * _glowAnimation.value),
-                    blurRadius: 10,
-                    spreadRadius: 1,
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'تخطي التسجيل',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppTheme.textWhite.withOpacity(0.7),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Icon(
-                        Icons.arrow_forward_rounded,
-                        size: 16,
-                        color: AppTheme.textWhite.withOpacity(0.7),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
       ),
     );
   }
@@ -698,7 +631,7 @@ class _RegisterPageState extends State<RegisterPage>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'خطأ',
+                      context.tr('common.error'),
                       style: AppTextStyles.caption.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

@@ -324,7 +324,7 @@ class ConversationCreated extends ChatState {
   /// ينشئ حالة نجاح إنشاء المحادثة.
   const ConversationCreated({
     required this.conversation,
-    this.message = 'تم إنشاء المحادثة بنجاح',
+    this.message = '',
   });
 
   /// Creation states are compared by the conversation and confirmation text.

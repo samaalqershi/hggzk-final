@@ -28,7 +28,7 @@ namespace YemenBooking.Infrastructure.Services.Settings
         {
             var rows = await _db.Cities.AsNoTracking()
                 .OrderBy(c => c.Country).ThenBy(c => c.Name)
-                .Select(c => new { c.Name, c.Country, c.ImagesJson })
+                .Select(c => new { c.Name, c.NameEn, c.Country, c.CountryEn, c.ImagesJson })
                 .ToListAsync(cancellationToken);
 
             var result = new List<CityDto>(rows.Count);
@@ -59,7 +59,14 @@ namespace YemenBooking.Infrastructure.Services.Settings
                     catch { imageUrls = new List<string>(); }
                 }
 
-                result.Add(new CityDto { Name = r.Name, Country = r.Country, Images = imageUrls });
+                result.Add(new CityDto
+                {
+                    Name = r.Name,
+                    NameEn = r.NameEn,
+                    Country = r.Country,
+                    CountryEn = r.CountryEn,
+                    Images = imageUrls
+                });
             }
             return result;
         }
@@ -91,13 +98,17 @@ namespace YemenBooking.Infrastructure.Services.Settings
                     _db.Cities.Add(new City
                     {
                         Name = dto.Name,
+                        NameEn = string.IsNullOrWhiteSpace(dto.NameEn) ? null : dto.NameEn.Trim(),
                         Country = dto.Country,
+                        CountryEn = string.IsNullOrWhiteSpace(dto.CountryEn) ? null : dto.CountryEn.Trim(),
                         ImagesJson = imagesJson
                     });
                 }
                 else
                 {
+                    entity.NameEn = string.IsNullOrWhiteSpace(dto.NameEn) ? null : dto.NameEn.Trim();
                     entity.Country = dto.Country;
+                    entity.CountryEn = string.IsNullOrWhiteSpace(dto.CountryEn) ? null : dto.CountryEn.Trim();
                     entity.ImagesJson = imagesJson;
                     _db.Cities.Update(entity);
                 }

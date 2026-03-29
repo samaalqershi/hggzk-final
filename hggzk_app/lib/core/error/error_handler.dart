@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'exceptions.dart';
 import 'failures.dart';
 
@@ -40,7 +41,7 @@ class ErrorHandler {
       return Left(TimeoutFailure(error.message));
     } else {
       return Left(UnknownFailure(
-        error.toString(),
+        AppLocalizations.translateSync('common.unexpectedError'),
       ));
     }
   }
@@ -54,18 +55,22 @@ class ErrorHandler {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return const TimeoutFailure();
+        return TimeoutFailure();
       case DioExceptionType.badResponse:
         return _handleBadResponse(error.response);
       case DioExceptionType.cancel:
-        return const UnknownFailure('تم إلغاء الطلب');
+        return UnknownFailure(
+          AppLocalizations.translateSync('common.requestCancelled'),
+        );
       case DioExceptionType.connectionError:
-        return const NetworkFailure();
+        return NetworkFailure();
       case DioExceptionType.badCertificate:
-        return const ServerFailure('خطأ في شهادة الأمان');
+        return ServerFailure(
+          AppLocalizations.translateSync('common.badCertificate'),
+        );
       case DioExceptionType.unknown:
       default:
-        return const UnknownFailure();
+        return UnknownFailure();
     }
   }
 
@@ -75,12 +80,14 @@ class ErrorHandler {
   /// specific failure based on status code and payload message.
   static Failure _handleBadResponse(Response? response) {
     if (response == null) {
-      return const ServerFailure('لا توجد استجابة من الخادم');
+      return ServerFailure(
+        AppLocalizations.translateSync('common.noResponse'),
+      );
     }
 
     final statusCode = response.statusCode;
     final data = response.data;
-    String message = 'حدث خطأ';
+    String message = AppLocalizations.translateSync('common.unexpectedError');
 
     if (data is Map<String, dynamic>) {
       message = data['message'] ?? data['error'] ?? message;

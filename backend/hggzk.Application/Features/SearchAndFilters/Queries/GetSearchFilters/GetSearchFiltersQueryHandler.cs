@@ -184,6 +184,7 @@ public class GetSearchFiltersQueryHandler : IRequestHandler<YBQuery, ResultDto<S
                 {
                     Id = pt.Id,
                     Name = pt.Name ?? string.Empty,
+                    NameEn = pt.NameEn,
                     PropertiesCount = properties.Count(p => p.TypeId == pt.Id)
                 })
                 .OrderBy(pt => pt.Name)
@@ -241,7 +242,9 @@ public class GetSearchFiltersQueryHandler : IRequestHandler<YBQuery, ResultDto<S
                     {
                         Id = a.Id,
                         Name = a.Name ?? string.Empty,
+                        NameEn = a.NameEn,
                         Category = "عام",
+                        CategoryEn = "General",
                         Icon = a.Icon ?? string.Empty,
                         PropertiesCount = allPropertyAmenities
                             .Where(pa => activePropertyIds.Contains(pa.PropertyId)
@@ -347,6 +350,7 @@ public class GetSearchFiltersQueryHandler : IRequestHandler<YBQuery, ResultDto<S
                 {
                     Id = ut.Id,
                     Name = ut.Name ?? string.Empty,
+                    NameEn = ut.NameEn,
                     UnitsCount = properties.Sum(p => p.Units.Count(u => u.UnitTypeId == ut.Id)),
                     IsHasAdults = ut.IsHasAdults,
                     IsHasChildren = ut.IsHasChildren,
@@ -377,6 +381,7 @@ public class GetSearchFiltersQueryHandler : IRequestHandler<YBQuery, ResultDto<S
                 {
                     Id = g.Key.Id,
                     Name = g.Key.Name ?? string.Empty,
+                    NameEn = g.FirstOrDefault()?.NameEn,
                     PropertiesCount = g.Select(s => s.PropertyId).Distinct().Count(),
                     Icon = g.FirstOrDefault()?.Icon ?? "service"
                 })
@@ -398,7 +403,8 @@ public class GetSearchFiltersQueryHandler : IRequestHandler<YBQuery, ResultDto<S
     {
         try
         {
-            var dynamicValueCounts = new Dictionary<(string field, string displayName, string value), int>();
+            var dynamicValueCounts =
+                new Dictionary<(string field, string displayName, string? displayNameEn, string value), int>();
 
             foreach (var property in properties)
             {
@@ -411,8 +417,9 @@ public class GetSearchFiltersQueryHandler : IRequestHandler<YBQuery, ResultDto<S
                     {
                         var fieldName = fieldValue.UnitTypeField?.FieldName ?? string.Empty;
                         var displayName = fieldValue.UnitTypeField?.DisplayName ?? fieldName;
+                        var displayNameEn = fieldValue.UnitTypeField?.DisplayNameEn;
                         var valueStr = fieldValue.FieldValue;
-                        var key = (fieldName, displayName, valueStr);
+                        var key = (fieldName, displayName, displayNameEn, valueStr);
                         if (dynamicValueCounts.ContainsKey(key))
                         {
                             dynamicValueCounts[key]++;
@@ -429,6 +436,7 @@ public class GetSearchFiltersQueryHandler : IRequestHandler<YBQuery, ResultDto<S
             {
                 FieldName = d.Key.field,
                 DisplayName = string.IsNullOrWhiteSpace(d.Key.displayName) ? d.Key.field : d.Key.displayName,
+                DisplayNameEn = d.Key.displayNameEn,
                 Value = d.Key.value,
                 Count = d.Value
             }).OrderBy(d => d.DisplayName).ThenBy(d => d.Value).ToList();

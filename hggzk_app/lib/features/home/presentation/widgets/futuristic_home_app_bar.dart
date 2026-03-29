@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:math' as math;
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/route_constants.dart';
@@ -56,7 +57,7 @@ class FuturisticHomeAppBar extends StatefulWidget {
     required this.scrollOffset,
     this.userName,
     this.userImage,
-    this.currentLocation = 'صنعاء',
+    this.currentLocation = '',
     this.notificationCount = 0,
     this.onLocationTap,
     this.onNotificationTap,
@@ -470,7 +471,7 @@ class _FuturisticHomeAppBarState extends State<FuturisticHomeAppBar>
               Text(
                 widget.currentLocation.isNotEmpty
                     ? widget.currentLocation
-                    : 'حدد المدينة',
+                    : context.tr('home.appBar.defaultCity'),
                 style: AppTextStyles.caption.copyWith(
                   color: AppTheme.textWhite,
                   fontWeight: FontWeight.w600,
@@ -693,7 +694,9 @@ class _FuturisticHomeAppBarState extends State<FuturisticHomeAppBar>
   }
 
   Widget _buildDefaultAvatar() {
-    final initials = _getInitials(widget.userName ?? 'مستخدم');
+    final initials = _getInitials(
+      widget.userName ?? context.tr('common.user'),
+    );
 
     return Center(
       child: Text(

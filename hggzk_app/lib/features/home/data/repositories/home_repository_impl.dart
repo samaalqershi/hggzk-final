@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:hggzk/core/error/error_handler.dart';
 import 'package:hggzk/core/error/failures.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/network/network_info.dart';
 import 'package:hggzk/core/models/paginated_result.dart' as core;
 import 'package:hggzk/features/home/data/models/section_item_models.dart';
@@ -93,7 +94,9 @@ class HomeRepositoryImpl implements HomeRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
   }
 
@@ -211,8 +214,11 @@ class HomeRepositoryImpl implements HomeRepository {
         );
         return Right(mapped);
       } catch (e) {
-        return const Left(
-            NetworkFailure('لا يوجد اتصال بالإنترنت ولا توجد بيانات محفوظة'));
+        return Left(
+          NetworkFailure(
+            AppLocalizations.translateSync('common.noInternetAndNoData'),
+          ),
+        );
       }
     }
   }
@@ -275,8 +281,11 @@ class HomeRepositoryImpl implements HomeRepository {
         );
         return Right(cachedItems);
       } catch (e) {
-        return const Left(
-            NetworkFailure('لا يوجد اتصال بالإنترنت ولا توجد بيانات محفوظة'));
+        return Left(
+          NetworkFailure(
+            AppLocalizations.translateSync('common.noInternetAndNoData'),
+          ),
+        );
       }
     }
   }
@@ -314,8 +323,11 @@ class HomeRepositoryImpl implements HomeRepository {
         final cachedTypes = await localDataSource.getCachedPropertyTypes();
         return Right(cachedTypes.map((model) => model.toEntity()).toList());
       } catch (e) {
-        return const Left(
-            NetworkFailure('لا يوجد اتصال بالإنترنت ولا توجد بيانات محفوظة'));
+        return Left(
+          NetworkFailure(
+            AppLocalizations.translateSync('common.noInternetAndNoData'),
+          ),
+        );
       }
     }
   }
@@ -364,8 +376,11 @@ class HomeRepositoryImpl implements HomeRepository {
         );
         return Right(cachedTypes.map((model) => model.toEntity()).toList());
       } catch (e) {
-        return const Left(
-            NetworkFailure('لا يوجد اتصال بالإنترنت ولا توجد بيانات محفوظة'));
+        return Left(
+          NetworkFailure(
+            AppLocalizations.translateSync('common.noInternetAndNoData'),
+          ),
+        );
       }
     }
   }

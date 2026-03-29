@@ -150,7 +150,9 @@ public class GetNearbyPropertiesQueryHandler : IRequestHandler<GetNearbyProperti
                 {
                     Id = property.Id,
                     Name = property.Name ?? string.Empty,
+                    NameEn = property.NameEn,
                     Address = property.Address ?? string.Empty,
+                    AddressEn = property.AddressEn,
                     DistanceKm = Math.Round(distance, 2),
                     AverageRating = Math.Round(averageRating, 1),
                     MinPrice = minPrice,

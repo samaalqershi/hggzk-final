@@ -10,8 +10,14 @@ class Amenity extends Equatable {
   /// العربية: الاسم المعروض للمرفق داخل الإدارة.
   final String name;
 
+  /// العربية: الاسم الإنجليزي للمرفق لدعم المحتوى الثنائي اللغة.
+  final String? nameEn;
+
   /// العربية: وصف يوضح وظيفة المرفق أو قيمة إضافته.
   final String description;
+
+  /// العربية: الوصف الإنجليزي للمرفق عند العرض أو التحرير بالإنجليزية.
+  final String? descriptionEn;
 
   /// العربية: الرمز البصري المستخدم لتمثيل المرفق.
   final String icon;
@@ -36,7 +42,9 @@ class Amenity extends Equatable {
   const Amenity({
     required this.id,
     required this.name,
+    this.nameEn,
     required this.description,
+    this.descriptionEn,
     required this.icon,
     this.createdAt,
     this.updatedAt,
@@ -50,7 +58,9 @@ class Amenity extends Equatable {
   Amenity copyWith({
     String? id,
     String? name,
+    String? nameEn,
     String? description,
+    String? descriptionEn,
     String? icon,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -61,7 +71,9 @@ class Amenity extends Equatable {
     return Amenity(
       id: id ?? this.id,
       name: name ?? this.name,
+      nameEn: nameEn ?? this.nameEn,
       description: description ?? this.description,
+      descriptionEn: descriptionEn ?? this.descriptionEn,
       icon: icon ?? this.icon,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -76,7 +88,9 @@ class Amenity extends Equatable {
   List<Object?> get props => [
         id,
         name,
+        nameEn,
         description,
+        descriptionEn,
         icon,
         createdAt,
         updatedAt,

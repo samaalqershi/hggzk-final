@@ -25,6 +25,7 @@ namespace YemenBooking.Application.Features.Policies.DTOs {
         /// Property name
         /// </summary>
         public string? PropertyName { get; set; }
+        public string? PropertyNameEn { get; set; }
 
         /// <summary>
         /// نوع السياسة
@@ -37,12 +38,14 @@ namespace YemenBooking.Application.Features.Policies.DTOs {
         /// Policy description
         /// </summary>
         public string Description { get; set; } = string.Empty;
+        public string? DescriptionEn { get; set; }
 
         /// <summary>
         /// قواعد السياسة (JSON)
         /// Policy rules (JSON)
         /// </summary>
         public string Rules { get; set; } = string.Empty;
+        public string? RulesEn { get; set; }
 
         /// <summary>
         /// خاصية CancellationFreeCancel.
@@ -79,6 +82,7 @@ namespace YemenBooking.Application.Features.Policies.DTOs {
         /// CancellationPenaltyAfterDeadline property.
         /// </summary>
         public string? CancellationPenaltyAfterDeadline { get; set; }
+        public string? CancellationPenaltyAfterDeadlineEn { get; set; }
 
         /// <summary>
         /// خاصية PaymentDepositRequired.
@@ -166,16 +170,19 @@ namespace YemenBooking.Application.Features.Policies.DTOs {
         /// CheckInEarlyCheckInNote property.
         /// </summary>
         public string? CheckInEarlyCheckInNote { get; set; }
+        public string? CheckInEarlyCheckInNoteEn { get; set; }
         /// <summary>
         /// خاصية CheckInLateCheckOutNote.
         /// CheckInLateCheckOutNote property.
         /// </summary>
         public string? CheckInLateCheckOutNote { get; set; }
+        public string? CheckInLateCheckOutNoteEn { get; set; }
         /// <summary>
         /// خاصية CheckInLateCheckOutFee.
         /// CheckInLateCheckOutFee property.
         /// </summary>
         public string? CheckInLateCheckOutFee { get; set; }
+        public string? CheckInLateCheckOutFeeEn { get; set; }
 
         /// <summary>
         /// خاصية ChildrenAllowed.
@@ -207,6 +214,7 @@ namespace YemenBooking.Application.Features.Policies.DTOs {
         /// ChildrenCribsNote property.
         /// </summary>
         public string? ChildrenCribsNote { get; set; }
+        public string? ChildrenCribsNoteEn { get; set; }
         /// <summary>
         /// خاصية ChildrenPlaygroundAvailable.
         /// ChildrenPlaygroundAvailable property.
@@ -228,6 +236,7 @@ namespace YemenBooking.Application.Features.Policies.DTOs {
         /// PetsReason property.
         /// </summary>
         public string? PetsReason { get; set; }
+        public string? PetsReasonEn { get; set; }
         /// <summary>
         /// خاصية PetsFeeAmount.
         /// PetsFeeAmount property.
@@ -238,6 +247,7 @@ namespace YemenBooking.Application.Features.Policies.DTOs {
         /// PetsMaxWeight property.
         /// </summary>
         public string? PetsMaxWeight { get; set; }
+        public string? PetsMaxWeightEn { get; set; }
         /// <summary>
         /// خاصية PetsRequiresApproval.
         /// PetsRequiresApproval property.
@@ -279,6 +289,7 @@ namespace YemenBooking.Application.Features.Policies.DTOs {
         /// ModificationFeesAfter property.
         /// </summary>
         public string? ModificationFeesAfter { get; set; }
+        public string? ModificationFeesAfterEn { get; set; }
         /// <summary>
         /// خاصية ModificationFlexible.
         /// ModificationFlexible property.
@@ -289,6 +300,7 @@ namespace YemenBooking.Application.Features.Policies.DTOs {
         /// ModificationReason property.
         /// </summary>
         public string? ModificationReason { get; set; }
+        public string? ModificationReasonEn { get; set; }
 
         /// <summary>
         /// عدد أيام نافذة الإلغاء قبل تاريخ الوصول

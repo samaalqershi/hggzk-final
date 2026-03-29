@@ -8,10 +8,13 @@ import '../../repositories/properties_repository.dart';
 class CreatePropertyParams {
   /// العربية: يخزن القيمة `name`.
   final String name;
+  final String? nameEn;
   final String address;
+  final String? addressEn;
   final String propertyTypeId;
   final String ownerId;
   final String description;
+  final String? descriptionEn;
   final double latitude;
   final double longitude;
   final String city;
@@ -20,15 +23,19 @@ class CreatePropertyParams {
   final List<String>? amenityIds; // أضف هذا السطر
   final String? tempKey;
   final String shortDescription;
+  final String? shortDescriptionEn;
   final String currency;
   final bool isFeatured;
   final double? systemCommissionRate;
   CreatePropertyParams({
     required this.name,
+    this.nameEn,
     required this.address,
+    this.addressEn,
     required this.propertyTypeId,
     required this.ownerId,
     required this.description,
+    this.descriptionEn,
     required this.latitude,
     required this.longitude,
     required this.city,
@@ -37,6 +44,7 @@ class CreatePropertyParams {
     this.amenityIds, // أضف هذا السطر
     this.tempKey,
     required this.shortDescription,
+    this.shortDescriptionEn,
     required this.currency,
     required this.isFeatured,
     this.systemCommissionRate,
@@ -44,15 +52,19 @@ class CreatePropertyParams {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
+      if (nameEn != null) 'nameEn': nameEn,
       'address': address,
+      if (addressEn != null) 'addressEn': addressEn,
       'propertyTypeId': propertyTypeId,
       'ownerId': ownerId,
       'description': description,
+      if (descriptionEn != null) 'descriptionEn': descriptionEn,
       'latitude': latitude,
       'longitude': longitude,
       'city': city,
       'starRating': starRating,
       'shortDescription': shortDescription,
+      if (shortDescriptionEn != null) 'shortDescriptionEn': shortDescriptionEn,
       'currency': currency,
       'isFeatured': isFeatured,
       if (systemCommissionRate != null)

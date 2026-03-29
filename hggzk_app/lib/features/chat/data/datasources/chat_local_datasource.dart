@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hggzk/features/chat/data/models/chat_settings_model.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/message.dart';
 import '../models/conversation_model.dart';
 import '../models/message_model.dart';
@@ -149,7 +150,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
       }
       _isInitialized = true;
     } catch (e) {
-      throw const CacheException('فشل في تهيئة التخزين المحلي');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
@@ -182,7 +185,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
         json.encode(conversations.map((c) => c.id).toList()),
       );
     } catch (e) {
-      throw const CacheException('فشل في حفظ المحادثات');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
@@ -209,7 +214,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
 
       return conversations.isNotEmpty ? conversations : null;
     } catch (e) {
-      throw const CacheException('فشل في قراءة المحادثات المحفوظة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
@@ -224,7 +231,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
 
       return ConversationModel.fromJson(json.decode(conversationJson));
     } catch (e) {
-      throw const CacheException('فشل في قراءة المحادثة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
@@ -250,7 +259,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
       // Delete messages
       await _messagesBox.delete('messages_$conversationId');
     } catch (e) {
-      throw const CacheException('فشل في حذف المحادثة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
@@ -266,7 +277,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
         json.encode(messagesJson),
       );
     } catch (e) {
-      throw const CacheException('فشل في حفظ الرسائل');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
@@ -281,7 +294,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
       final List<dynamic> messagesList = json.decode(messagesJson);
       return messagesList.map((json) => MessageModel.fromJson(json)).toList();
     } catch (e) {
-      throw const CacheException('فشل في قراءة الرسائل المحفوظة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
@@ -301,7 +316,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
 
       await cacheMessages(conversationId, messages);
     } catch (e) {
-      throw const CacheException('فشل في إضافة الرسالة للذاكرة المؤقتة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
@@ -336,7 +353,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
 
       await _queuedMessagesBox.put(messageId, json.encode(queuedMessage));
     } catch (e) {
-      throw const CacheException('فشل في إضافة الرسالة لقائمة الانتظار');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
@@ -354,7 +373,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
       }
       return messages;
     } catch (e) {
-      throw const CacheException('فشل في قراءة الرسائل في قائمة الانتظار');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
@@ -365,7 +386,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
     try {
       await _queuedMessagesBox.delete(messageId);
     } catch (e) {
-      throw const CacheException('فشل في حذف الرسالة من قائمة الانتظار');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
@@ -376,7 +399,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
     try {
       await _settingsBox.put('settings', json.encode(settings.toJson()));
     } catch (e) {
-      throw const CacheException('فشل في حفظ الإعدادات');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
@@ -390,7 +415,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
 
       return ChatSettingsModel.fromJson(json.decode(settingsJson));
     } catch (e) {
-      throw const CacheException('فشل في قراءة الإعدادات المحفوظة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
@@ -406,7 +433,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
         _queuedMessagesBox.clear(),
       ]);
     } catch (e) {
-      throw const CacheException('فشل في مسح الذاكرة المؤقتة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
@@ -417,7 +446,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
     try {
       await _conversationsBox.clear();
     } catch (e) {
-      throw const CacheException('فشل في مسح المحادثات المحفوظة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
@@ -428,7 +459,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
     try {
       await _messagesBox.clear();
     } catch (e) {
-      throw const CacheException('فشل في مسح الرسائل المحفوظة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 }

@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
 import 'dart:math' as math;
-import 'package:go_router/go_router.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../bloc/auth_bloc.dart';
@@ -310,7 +310,7 @@ class _EditProfilePageState extends State<EditProfilePage>
           // Title
           Expanded(
             child: Text(
-              'تعديل الملف الشخصي',
+              context.tr('profile.edit.title'),
               style: AppTextStyles.h3.copyWith(
                 color: AppTheme.textWhite,
                 fontWeight: FontWeight.w600,
@@ -425,7 +425,7 @@ class _EditProfilePageState extends State<EditProfilePage>
           shaderCallback: (bounds) =>
               AppTheme.primaryGradient.createShader(bounds),
           child: Text(
-            'تحديث معلوماتك',
+            context.tr('profile.edit.heroTitle'),
             style: AppTextStyles.h3.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w600,
@@ -436,7 +436,7 @@ class _EditProfilePageState extends State<EditProfilePage>
         const SizedBox(height: 4),
 
         Text(
-          'قم بتحديث معلومات ملفك الشخصي',
+          context.tr('profile.edit.heroSubtitle'),
           style: AppTextStyles.bodySmall.copyWith(
             color: AppTheme.textMuted.withOpacity(0.7),
           ),
@@ -485,13 +485,13 @@ class _EditProfilePageState extends State<EditProfilePage>
                 _buildPremiumField(
                   controller: _nameController,
                   focusNode: _nameFocusNode,
-                  label: 'الاسم الكامل',
-                  hint: 'أدخل اسمك الكامل',
+                  label: context.tr('profile.edit.nameLabel'),
+                  hint: context.tr('profile.edit.nameHint'),
                   icon: Icons.person_outline_rounded,
                   enabled: !isLoading,
                   validator: (v) {
                     if (v == null || v.trim().length < 2) {
-                      return 'أدخل اسم صالح (حرفين على الأقل)';
+                      return context.tr('profile.edit.nameInvalid');
                     }
                     return null;
                   },
@@ -500,8 +500,8 @@ class _EditProfilePageState extends State<EditProfilePage>
                 _buildPremiumField(
                   controller: _emailController,
                   focusNode: _emailFocusNode,
-                  label: 'البريد الإلكتروني',
-                  hint: 'example@email.com',
+                  label: context.tr('profile.edit.emailLabel'),
+                  hint: context.tr('profile.edit.emailHint'),
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   // حقل البريد للعرض فقط ولا يمكن تعديله من التطبيق
@@ -511,15 +511,15 @@ class _EditProfilePageState extends State<EditProfilePage>
                 _buildPremiumField(
                   controller: _phoneController,
                   focusNode: _phoneFocusNode,
-                  label: 'رقم الهاتف',
-                  hint: '7XX XXX XXX',
+                  label: context.tr('profile.edit.phoneLabel'),
+                  hint: context.tr('profile.edit.phoneHint'),
                   icon: Icons.phone_outlined,
                   keyboardType: TextInputType.phone,
                   enabled: !isLoading,
                   validator: (v) {
                     if (v != null && v.isNotEmpty) {
                       if (v.length < 9) {
-                        return 'أدخل رقم هاتف صحيح';
+                        return context.tr('profile.edit.phoneInvalid');
                       }
                     }
                     return null;
@@ -529,8 +529,8 @@ class _EditProfilePageState extends State<EditProfilePage>
                 _buildPremiumField(
                   controller: _bioController,
                   focusNode: _bioFocusNode,
-                  label: 'نبذة عنك',
-                  hint: 'اكتب نبذة مختصرة عن نفسك',
+                  label: context.tr('profile.edit.bioLabel'),
+                  hint: context.tr('profile.edit.bioHint'),
                   icon: Icons.info_outline_rounded,
                   maxLines: 3,
                   enabled: !isLoading,
@@ -703,7 +703,7 @@ class _EditProfilePageState extends State<EditProfilePage>
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      'جاري الحفظ...',
+                      context.tr('profile.edit.saving'),
                       style: AppTextStyles.bodySmall.copyWith(
                         color: Colors.white.withOpacity(0.8),
                       ),
@@ -728,7 +728,7 @@ class _EditProfilePageState extends State<EditProfilePage>
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      'حفظ التغييرات',
+                      context.tr('profile.edit.saveChanges'),
                       style: AppTextStyles.buttonMedium.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -794,7 +794,7 @@ class _EditProfilePageState extends State<EditProfilePage>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'تم التحديث بنجاح',
+                      context.tr('profile.edit.updatedTitle'),
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -802,7 +802,7 @@ class _EditProfilePageState extends State<EditProfilePage>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'تم حفظ معلوماتك الشخصية',
+                      context.tr('profile.edit.updatedMessage'),
                       style: AppTextStyles.caption.copyWith(
                         color: Colors.white.withOpacity(0.8),
                       ),

@@ -56,9 +56,17 @@ class _CityFormPageState extends State<CityFormPage>
   /// English: Controls the city name input field.
   late TextEditingController _nameController;
 
+  /// Arabic: يتحكم في إدخال اسم المدينة بالإنجليزية.
+  /// English: Controls the English city name input field.
+  late TextEditingController _nameEnController;
+
   /// Arabic: يتحكم في إدخال اسم الدولة.
   /// English: Controls the country input field.
   late TextEditingController _countryController;
+
+  /// Arabic: يتحكم في إدخال اسم الدولة بالإنجليزية.
+  /// English: Controls the English country input field.
+  late TextEditingController _countryEnController;
 
   /// Arabic: يحتفظ بروابط الصور الحالية المرتبطة بالمدينة.
   /// English: Stores the current image URLs associated with the city.
@@ -110,15 +118,20 @@ class _CityFormPageState extends State<CityFormPage>
     )..repeat(reverse: true);
 
     _nameController = TextEditingController(text: widget.city?.name ?? '');
+    _nameEnController = TextEditingController(text: widget.city?.nameEn ?? '');
     _countryController =
         TextEditingController(text: widget.city?.country ?? '');
+    _countryEnController =
+        TextEditingController(text: widget.city?.countryEn ?? '');
     _images = List.from(widget.city?.images ?? []);
     _isActive = widget.city?.isActive ?? true;
 
     // Arabic: يراقب تغيّر الحقول الأساسية حتى تظهر حالة وجود تعديلات.
     // English: Watches the main fields so the unsaved-changes state can be shown.
     _nameController.addListener(_onFormChanged);
+    _nameEnController.addListener(_onFormChanged);
     _countryController.addListener(_onFormChanged);
+    _countryEnController.addListener(_onFormChanged);
   }
 
   /// Arabic: يعلّم النموذج على أنه تغيّر بمجرد تعديل أي حقل أساسي.
@@ -137,7 +150,9 @@ class _CityFormPageState extends State<CityFormPage>
     _formAnimationController.dispose();
     _saveButtonAnimationController.dispose();
     _nameController.dispose();
+    _nameEnController.dispose();
     _countryController.dispose();
+    _countryEnController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -457,7 +472,11 @@ class _CityFormPageState extends State<CityFormPage>
                   const SizedBox(height: 20),
                   _buildNameField(),
                   const SizedBox(height: 20),
+                  _buildNameEnField(),
+                  const SizedBox(height: 20),
                   _buildCountryField(),
+                  const SizedBox(height: 24),
+                  _buildCountryEnField(),
                   const SizedBox(height: 24),
                   _buildActiveSwitch(),
                   const SizedBox(height: 32),
@@ -735,6 +754,117 @@ class _CityFormPageState extends State<CityFormPage>
               }
               return null;
             },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNameEnField() {
+    return _buildOptionalTextField(
+      controller: _nameEnController,
+      title: 'اسم المدينة بالإنجليزية',
+      hint: 'Example: Sana\'a',
+      icon: CupertinoIcons.textformat_abc,
+      accentColor: AppTheme.primaryBlue,
+    );
+  }
+
+  Widget _buildCountryEnField() {
+    return _buildOptionalTextField(
+      controller: _countryEnController,
+      title: 'الدولة بالإنجليزية',
+      hint: 'Example: Yemen',
+      icon: CupertinoIcons.globe,
+      accentColor: AppTheme.primaryPurple,
+    );
+  }
+
+  Widget _buildOptionalTextField({
+    required TextEditingController controller,
+    required String title,
+    required String hint,
+    required IconData icon,
+    required Color accentColor,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 18, color: accentColor),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppTheme.textLight,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.shadowDark.withValues(alpha: 0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: TextFormField(
+            controller: controller,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppTheme.textWhite,
+            ),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: AppTextStyles.bodyMedium.copyWith(
+                color: AppTheme.textMuted.withValues(alpha: 0.5),
+              ),
+              filled: true,
+              fillColor: AppTheme.darkCard.withValues(alpha: 0.5),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: AppTheme.darkBorder.withValues(alpha: 0.2),
+                  width: 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: accentColor,
+                  width: 2,
+                ),
+              ),
+              contentPadding: const EdgeInsets.all(16),
+              prefixIcon: Container(
+                margin: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      accentColor.withValues(alpha: 0.1),
+                      accentColor.withValues(alpha: 0.04),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: accentColor,
+                  size: 16,
+                ),
+              ),
+            ),
           ),
         ),
       ],
@@ -1230,7 +1360,13 @@ class _CityFormPageState extends State<CityFormPage>
 
       final city = City(
         name: _nameController.text.trim(),
+        nameEn: _nameEnController.text.trim().isEmpty
+            ? null
+            : _nameEnController.text.trim(),
         country: _countryController.text.trim(),
+        countryEn: _countryEnController.text.trim().isEmpty
+            ? null
+            : _countryEnController.text.trim(),
         images: dedupedImages,
         isActive: _isActive,
         propertiesCount: widget.city?.propertiesCount,

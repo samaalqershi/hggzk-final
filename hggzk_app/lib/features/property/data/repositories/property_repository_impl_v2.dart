@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:hggzk/core/error/error_handler.dart';
 import 'package:hggzk/core/error/failures.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/network/network_info.dart';
 import 'package:hggzk/features/property/domain/entities/property_detail.dart';
 import '../../domain/repositories/property_repository.dart';
@@ -50,7 +51,9 @@ class PropertyRepositoryImpl implements PropertyRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
   }
 
@@ -72,7 +75,9 @@ class PropertyRepositoryImpl implements PropertyRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
   }
 
@@ -91,7 +96,9 @@ class PropertyRepositoryImpl implements PropertyRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
   }
 
@@ -124,7 +131,9 @@ class PropertyRepositoryImpl implements PropertyRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
   }
 
@@ -148,7 +157,9 @@ class PropertyRepositoryImpl implements PropertyRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
   }
 
@@ -172,7 +183,9 @@ class PropertyRepositoryImpl implements PropertyRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
   }
 
@@ -199,7 +212,9 @@ class PropertyRepositoryImpl implements PropertyRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
   }
 }

@@ -293,8 +293,14 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
       context: context,
       targetKey: _cardKey,
       amenityId: widget.amenity.id,
-      name: widget.amenity.name,
-      description: widget.amenity.description,
+      name: _combineBilingual(
+        widget.amenity.name,
+        widget.amenity.nameEn,
+      ),
+      description: _combineBilingual(
+        widget.amenity.description,
+        widget.amenity.descriptionEn,
+      ),
       icon: widget.amenity.icon,
       isAvailable: widget.amenity.isActive ?? true,
       extraCost: widget.amenity.averageExtraCost,
@@ -412,6 +418,25 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
+              if (_normalizedSecondary(
+                    widget.amenity.nameEn,
+                    widget.amenity.name,
+                  ) !=
+                  null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    _normalizedSecondary(
+                      widget.amenity.nameEn,
+                      widget.amenity.name,
+                    )!,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppTheme.textMuted,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               const SizedBox(height: 2),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -517,6 +542,11 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
   /// يبني وصفًا مختصرًا للمرفق داخل صندوق واضح القراءة.
   /// Builds a short amenity description inside a readable box.
   Widget _buildDescription() {
+    final secondaryDescription = _normalizedSecondary(
+      widget.amenity.descriptionEn,
+      widget.amenity.description,
+    );
+
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -527,14 +557,32 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
           width: 0.5,
         ),
       ),
-      child: Text(
-        widget.amenity.description,
-        style: AppTextStyles.bodySmall.copyWith(
-          color: AppTheme.textMuted,
-          height: 1.4,
-        ),
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.amenity.description,
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppTheme.textMuted,
+              height: 1.4,
+            ),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (secondaryDescription != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                secondaryDescription,
+                style: AppTextStyles.caption.copyWith(
+                  color: AppTheme.textMuted.withValues(alpha: 0.78),
+                  height: 1.4,
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -616,6 +664,28 @@ class _FuturisticAmenityCardState extends State<FuturisticAmenityCard>
         ],
       ),
     );
+  }
+
+  String _combineBilingual(String primary, String? secondary) {
+    final normalizedSecondary = _normalizedSecondary(secondary, primary);
+    if (normalizedSecondary == null) {
+      return primary;
+    }
+
+    return '$primary\n$normalizedSecondary';
+  }
+
+  String? _normalizedSecondary(String? secondary, String primary) {
+    final normalized = secondary?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      return null;
+    }
+
+    if (normalized == primary.trim()) {
+      return null;
+    }
+
+    return normalized;
   }
 
   /// يبني تذييل البطاقة الذي يعرض التاريخ وأزرار الإجراءات.

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -284,7 +285,9 @@ class _PoliciesDialogState extends State<PoliciesDialog>
 
           // Title
           Text(
-            'الشروط والأحكام',
+            context.tr(
+              'booking.policies.title',
+            ),
             style: AppTextStyles.h3.copyWith(
               color: AppTheme.textWhite,
               fontWeight: FontWeight.w700,
@@ -372,7 +375,9 @@ class _PoliciesDialogState extends State<PoliciesDialog>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'اسحب للأسفل لعرض المزيد',
+                  context.tr(
+                    'booking.policies.swipe',
+                  ),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.textMuted.withOpacity(0.7),
                   ),
@@ -637,154 +642,239 @@ class _PoliciesDialogState extends State<PoliciesDialog>
     return [
       PolicySection(
         icon: Icons.cancel_outlined,
-        title: 'سياسة الإلغاء',
-        subtitle: 'شروط وأحكام إلغاء الحجز',
+        title: context.tr(
+          'booking.policies.cancellation',
+        ),
+        subtitle: context.tr(
+          'booking.policies.cancellationSub',
+        ),
         color: AppTheme.warning,
         items: [
           PolicyItem(
             icon: Icons.check_circle_outline,
-            title: 'الإلغاء المجاني',
-            description:
-                'يمكنك إلغاء حجزك مجاناً قبل 48 ساعة من موعد تسجيل الوصول المحدد',
-            additionalInfo: 'استرداد كامل',
+            title: context.tr(
+              'booking.policies.freeCancel',
+            ),
+            description: context.tr(
+              'booking.policies.freeCancelBody',
+            ),
+            additionalInfo: context.tr(
+              'booking.policies.freeCancelInfo',
+            ),
             type: PolicyType.success,
           ),
           PolicyItem(
             icon: Icons.schedule,
-            title: 'الإلغاء قبل 24 ساعة',
-            description:
-                'في حالة الإلغاء قبل 24 ساعة من الوصول، سيتم استرداد 75% من المبلغ المدفوع',
-            additionalInfo: 'خصم 25%',
+            title: context.tr(
+              'booking.policies.partial24',
+            ),
+            description: context.tr(
+              'booking.policies.partial24Body',
+            ),
+            additionalInfo: context.tr(
+              'booking.policies.partial24Info',
+            ),
             type: PolicyType.warning,
           ),
           PolicyItem(
             icon: Icons.access_time,
-            title: 'الإلغاء قبل 12 ساعة',
-            description:
-                'الإلغاء قبل 12 ساعة من الوصول يترتب عليه استرداد 50% فقط من المبلغ',
-            additionalInfo: 'خصم 50%',
+            title: context.tr(
+              'booking.policies.partial12',
+            ),
+            description: context.tr(
+              'booking.policies.partial12Body',
+            ),
+            additionalInfo: context.tr(
+              'booking.policies.partial12Info',
+            ),
             type: PolicyType.warning,
           ),
           PolicyItem(
             icon: Icons.cancel,
-            title: 'الإلغاء المتأخر',
-            description:
-                'لا يمكن استرداد أي مبلغ في حالة الإلغاء قبل أقل من 12 ساعة',
-            additionalInfo: 'عدم الاسترداد',
+            title: context.tr(
+              'booking.policies.lateCancel',
+            ),
+            description: context.tr(
+              'booking.policies.lateCancelBody',
+            ),
+            additionalInfo: context.tr(
+              'booking.policies.lateCancelInfo',
+            ),
             type: PolicyType.error,
           ),
           PolicyItem(
             icon: Icons.event_busy,
-            title: 'عدم الحضور',
-            description:
-                'في حالة عدم الحضور دون إشعار مسبق، سيتم خصم كامل قيمة الحجز',
-            additionalInfo: 'خصم 100%',
+            title: context.tr(
+              'booking.policies.noShow',
+            ),
+            description: context.tr(
+              'booking.policies.noShowBody',
+            ),
+            additionalInfo: context.tr(
+              'booking.policies.noShowInfo',
+            ),
             type: PolicyType.error,
           ),
         ],
       ),
       PolicySection(
         icon: Icons.payment_outlined,
-        title: 'سياسة الدفع',
-        subtitle: 'طرق وشروط الدفع',
+        title: context.tr(
+          'booking.policies.payment',
+        ),
+        subtitle: context.tr(
+          'booking.policies.paymentSub',
+        ),
         color: AppTheme.primaryBlue,
         items: [
           PolicyItem(
             icon: Icons.payment,
-            title: 'طرق الدفع المقبولة',
-            description:
-                'نقبل الدفع نقداً، بطاقات الائتمان والخصم، والمحافظ الإلكترونية المعتمدة',
+            title: context.tr(
+              'booking.policies.acceptedPayments',
+            ),
+            description: context.tr(
+              'booking.policies.acceptedPaymentsBody',
+            ),
             type: PolicyType.info,
           ),
           PolicyItem(
             icon: Icons.security,
-            title: 'أمان المعاملات',
-            description:
-                'جميع المعاملات المالية محمية بتشفير SSL 256-bit وتتم عبر بوابات دفع آمنة',
-            additionalInfo: 'معتمد PCI DSS',
+            title: context.tr(
+              'booking.policies.transactionSecurity',
+            ),
+            description: context.tr(
+              'booking.policies.transactionSecurityBody',
+            ),
+            additionalInfo: context.tr(
+              'booking.policies.transactionSecurityInfo',
+            ),
             type: PolicyType.success,
           ),
           PolicyItem(
             icon: Icons.schedule_send,
-            title: 'توقيت الدفع',
-            description:
-                'يجب إتمام الدفع الكامل عند تأكيد الحجز لضمان حجز العقار',
+            title: context.tr(
+              'booking.policies.paymentTiming',
+            ),
+            description: context.tr(
+              'booking.policies.paymentTimingBody',
+            ),
             type: PolicyType.warning,
           ),
           PolicyItem(
             icon: Icons.receipt_long,
-            title: 'الفواتير والإيصالات',
-            description:
-                'ستتلقى فاتورة إلكترونية مفصلة عبر البريد الإلكتروني فور إتمام الدفع',
+            title: context.tr(
+              'booking.policies.receipts',
+            ),
+            description: context.tr(
+              'booking.policies.receiptsBody',
+            ),
             type: PolicyType.info,
           ),
           PolicyItem(
             icon: Icons.replay,
-            title: 'استرداد المدفوعات',
-            description:
-                'يتم معالجة المبالغ المستردة خلال 7-14 يوم عمل حسب طريقة الدفع الأصلية',
-            additionalInfo: '7-14 يوم',
+            title: context.tr(
+              'booking.policies.refunds',
+            ),
+            description: context.tr(
+              'booking.policies.refundsBody',
+            ),
+            additionalInfo: context.tr(
+              'booking.policies.refundsInfo',
+            ),
             type: PolicyType.warning,
           ),
         ],
       ),
       PolicySection(
         icon: Icons.rule_outlined,
-        title: 'قوانين الإقامة',
-        subtitle: 'قواعد وتعليمات العقار',
+        title: context.tr(
+          'booking.policies.stayRules',
+        ),
+        subtitle: context.tr(
+          'booking.policies.stayRulesSub',
+        ),
         color: AppTheme.primaryPurple,
         items: [
           PolicyItem(
             icon: Icons.login,
-            title: 'تسجيل الوصول',
-            description:
-                'وقت تسجيل الوصول من الساعة 2:00 مساءً. يرجى التواصل مسبقاً للوصول المبكر',
-            additionalInfo: '2:00 PM',
+            title: context.tr(
+              'booking.policies.checkIn',
+            ),
+            description: context.tr(
+              'booking.policies.checkInBody',
+            ),
+            additionalInfo: context.tr(
+              'booking.policies.checkInInfo',
+            ),
             type: PolicyType.info,
           ),
           PolicyItem(
             icon: Icons.logout,
-            title: 'تسجيل المغادرة',
-            description:
-                'يجب تسجيل المغادرة قبل الساعة 12:00 ظهراً. التأخير قد يترتب عليه رسوم إضافية',
-            additionalInfo: '12:00 PM',
+            title: context.tr(
+              'booking.policies.checkOut',
+            ),
+            description: context.tr(
+              'booking.policies.checkOutBody',
+            ),
+            additionalInfo: context.tr(
+              'booking.policies.checkOutInfo',
+            ),
             type: PolicyType.info,
           ),
           PolicyItem(
             icon: Icons.smoke_free,
-            title: 'سياسة التدخين',
-            description:
-                'التدخين ممنوع منعاً باتاً في جميع الأماكن المغلقة. مخالفة هذه السياسة تترتب عليها غرامة',
-            additionalInfo: 'ممنوع',
+            title: context.tr(
+              'booking.policies.smoking',
+            ),
+            description: context.tr(
+              'booking.policies.smokingBody',
+            ),
+            additionalInfo: context.tr(
+              'booking.policies.smokingInfo',
+            ),
             type: PolicyType.error,
           ),
           PolicyItem(
             icon: Icons.pets,
-            title: 'الحيوانات الأليفة',
-            description:
-                'غير مسموح باصطحاب الحيوانات الأليفة إلا بترتيب مسبق وقد تطبق رسوم إضافية',
+            title: context.tr(
+              'booking.policies.pets',
+            ),
+            description: context.tr(
+              'booking.policies.petsBody',
+            ),
             type: PolicyType.warning,
           ),
           PolicyItem(
             icon: Icons.volume_off,
-            title: 'ساعات الهدوء',
-            description:
-                'يرجى احترام ساعات الهدوء من 10:00 مساءً حتى 8:00 صباحاً',
-            additionalInfo: '10 PM - 8 AM',
+            title: context.tr(
+              'booking.policies.quietHours',
+            ),
+            description: context.tr(
+              'booking.policies.quietHoursBody',
+            ),
+            additionalInfo: context.tr(
+              'booking.policies.quietHoursInfo',
+            ),
             type: PolicyType.warning,
           ),
           PolicyItem(
             icon: Icons.people_outline,
-            title: 'عدد الضيوف',
-            description:
-                'يجب عدم تجاوز العدد الأقصى للضيوف المحدد. ضيوف إضافيون يتطلبون موافقة مسبقة',
+            title: context.tr(
+              'booking.policies.guests',
+            ),
+            description: context.tr(
+              'booking.policies.guestsBody',
+            ),
             type: PolicyType.info,
           ),
           PolicyItem(
             icon: Icons.cleaning_services,
-            title: 'النظافة والصيانة',
-            description:
-                'يُتوقع من الضيوف المحافظة على نظافة العقار. أضرار إضافية قد تترتب عليها رسوم',
+            title: context.tr(
+              'booking.policies.cleaning',
+            ),
+            description: context.tr(
+              'booking.policies.cleaningBody',
+            ),
             type: PolicyType.info,
           ),
         ],
@@ -838,7 +928,9 @@ class _PoliciesDialogState extends State<PoliciesDialog>
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'بإتمام الحجز، فإنك تقر بقراءة وفهم والموافقة على جميع الشروط والأحكام',
+                      context.tr(
+                        'booking.policies.footerNote',
+                      ),
                       style: AppTextStyles.caption.copyWith(
                         color: AppTheme.textLight.withOpacity(0.9),
                         height: 1.4,
@@ -863,7 +955,9 @@ class _PoliciesDialogState extends State<PoliciesDialog>
                         Navigator.pop(context);
                         context.push('/property/${widget.propertyId}');
                       },
-                      label: 'عرض العقار',
+                      label: context.tr(
+                        'booking.policies.viewProperty',
+                      ),
                       icon: Icons.home_outlined,
                       isPrimary: false,
                     ),
@@ -876,7 +970,9 @@ class _PoliciesDialogState extends State<PoliciesDialog>
                       HapticFeedback.lightImpact();
                       Navigator.pop(context);
                     },
-                    label: 'موافق، فهمت',
+                    label: context.tr(
+                      'booking.policies.understood',
+                    ),
                     icon: Icons.check,
                     isPrimary: true,
                   ),

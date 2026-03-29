@@ -1,6 +1,8 @@
 // lib/features/reference/presentation/bloc/reference_bloc.dart
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hggzk/core/error/failure_localizer.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/usecases/usecase.dart';
 import 'package:hggzk/core/services/local_storage_service.dart';
 import '../../domain/entities/city.dart';
@@ -84,7 +86,8 @@ class ReferenceBloc extends Bloc<ReferenceEvent, ReferenceState> {
     final result = await getCitiesUseCase(NoParams());
 
     result.fold(
-      (failure) => emit(ReferenceError(message: failure.message)),
+      (failure) =>
+          emit(ReferenceError(message: FailureLocalizer.localize(failure))),
       (cities) {
         _cachedCities = cities;
         _selectedCity = localStorage.getSelectedCity();
@@ -117,7 +120,8 @@ class ReferenceBloc extends Bloc<ReferenceEvent, ReferenceState> {
     final result = await getCurrenciesUseCase(NoParams());
 
     result.fold(
-      (failure) => emit(ReferenceError(message: failure.message)),
+      (failure) =>
+          emit(ReferenceError(message: FailureLocalizer.localize(failure))),
       (currencies) {
         _cachedCurrencies = currencies;
         _selectedCurrency = localStorage.getSelectedCurrency();
@@ -143,7 +147,11 @@ class ReferenceBloc extends Bloc<ReferenceEvent, ReferenceState> {
       final currenciesResult = await getCurrenciesUseCase(NoParams());
 
       if (citiesResult.isLeft() || currenciesResult.isLeft()) {
-        emit(const ReferenceError(message: 'فشل تحميل البيانات المرجعية'));
+        emit(
+          ReferenceError(
+            message: AppLocalizations.translateSync('common.unexpectedError'),
+          ),
+        );
         return;
       }
 
@@ -159,7 +167,13 @@ class ReferenceBloc extends Bloc<ReferenceEvent, ReferenceState> {
         selectedCurrency: _selectedCurrency,
       ));
     } catch (e) {
-      emit(ReferenceError(message: e.toString()));
+      emit(
+        ReferenceError(
+          message: AppLocalizations.translateSync(
+            'core.reference.unexpectedError',
+          ),
+        ),
+      );
     }
   }
 
@@ -185,7 +199,10 @@ class ReferenceBloc extends Bloc<ReferenceEvent, ReferenceState> {
       // إرسال حدث نجاح الاختيار
       emit(CitySelected(
         city: event.city,
-        message: 'تم اختيار ${event.city.name}',
+        message: AppLocalizations.translateSync(
+          'common.selectedValue',
+          params: {'value': event.city.name},
+        ),
       ));
 
       // العودة للحالة السابقة
@@ -196,7 +213,11 @@ class ReferenceBloc extends Bloc<ReferenceEvent, ReferenceState> {
         ));
       }
     } catch (e) {
-      emit(ReferenceError(message: 'فشل حفظ المدينة المختارة'));
+      emit(
+        ReferenceError(
+          message: AppLocalizations.translateSync('common.localStorageError'),
+        ),
+      );
     }
   }
 
@@ -222,7 +243,10 @@ class ReferenceBloc extends Bloc<ReferenceEvent, ReferenceState> {
       // إرسال حدث نجاح الاختيار
       emit(CurrencySelected(
         currency: event.currency,
-        message: 'تم اختيار ${event.currency.arabicName}',
+        message: AppLocalizations.translateSync(
+          'common.selectedValue',
+          params: {'value': event.currency.arabicName},
+        ),
       ));
 
       // العودة للحالة السابقة
@@ -233,7 +257,11 @@ class ReferenceBloc extends Bloc<ReferenceEvent, ReferenceState> {
         ));
       }
     } catch (e) {
-      emit(ReferenceError(message: 'فشل حفظ العملة المختارة'));
+      emit(
+        ReferenceError(
+          message: AppLocalizations.translateSync('common.localStorageError'),
+        ),
+      );
     }
   }
 
@@ -244,7 +272,11 @@ class ReferenceBloc extends Bloc<ReferenceEvent, ReferenceState> {
     Emitter<ReferenceState> emit,
   ) {
     if (_cachedCities == null) {
-      emit(const ReferenceError(message: 'لا توجد مدن محملة'));
+      emit(
+        ReferenceError(
+          message: AppLocalizations.translateSync('common.noData'),
+        ),
+      );
       return;
     }
 
@@ -278,7 +310,11 @@ class ReferenceBloc extends Bloc<ReferenceEvent, ReferenceState> {
     Emitter<ReferenceState> emit,
   ) {
     if (_cachedCurrencies == null) {
-      emit(const ReferenceError(message: 'لا توجد عملات محملة'));
+      emit(
+        ReferenceError(
+          message: AppLocalizations.translateSync('common.noData'),
+        ),
+      );
       return;
     }
 

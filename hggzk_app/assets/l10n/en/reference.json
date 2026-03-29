@@ -1,0 +1,9 @@
+{
+  "reference.selectCityTitle": "Choose your city",
+  "reference.selectCitySubtitle": "Select the city to get the best results",
+  "reference.searchHint": "Search for a city...",
+  "reference.loadingCities": "Loading cities...",
+  "reference.noResultsTitle": "No results",
+  "reference.noResultsSubtitle": "Try searching with different words",
+  "reference.errorTitle": "Something went wrong"
+}

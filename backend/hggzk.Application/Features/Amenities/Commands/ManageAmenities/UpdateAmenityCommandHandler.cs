@@ -75,7 +75,9 @@ namespace YemenBooking.Application.Features.Amenities.Commands.ManageAmenities
                 {
                     Id = existing.Id,
                     Name = existing.Name,
+                    NameEn = existing.NameEn,
                     Description = existing.Description,
+                    DescriptionEn = existing.DescriptionEn,
                     CreatedAt = existing.CreatedAt,
                     UpdatedAt = existing.UpdatedAt,
                     IsDeleted = existing.IsDeleted,
@@ -85,8 +87,12 @@ namespace YemenBooking.Application.Features.Amenities.Commands.ManageAmenities
                 // التنفيذ: تحديث بيانات المرفق
                 if (!string.IsNullOrWhiteSpace(request.Name))
                     existing.Name = request.Name.Trim();
+                if (request.NameEn != null)
+                    existing.NameEn = string.IsNullOrWhiteSpace(request.NameEn) ? null : request.NameEn.Trim();
                 if (!string.IsNullOrWhiteSpace(request.Description))
                     existing.Description = request.Description.Trim();
+                if (request.DescriptionEn != null)
+                    existing.DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn.Trim();
                 if (!string.IsNullOrWhiteSpace(request.Icon))
                     existing.Icon = request.Icon.Trim();
                 existing.UpdatedAt = DateTime.UtcNow;
@@ -100,8 +106,8 @@ namespace YemenBooking.Application.Features.Amenities.Commands.ManageAmenities
                     entityType: nameof(Amenity),
                     entityId: existing.Id,
                     action: AuditAction.UPDATE,
-                    oldValues: System.Text.Json.JsonSerializer.Serialize(new { oldValues.Id, oldValues.Name, oldValues.Description }),
-                    newValues: System.Text.Json.JsonSerializer.Serialize(new { existing.Id, existing.Name, existing.Description }),
+                    oldValues: System.Text.Json.JsonSerializer.Serialize(new { oldValues.Id, oldValues.Name, oldValues.NameEn, oldValues.Description, oldValues.DescriptionEn }),
+                    newValues: System.Text.Json.JsonSerializer.Serialize(new { existing.Id, existing.Name, existing.NameEn, existing.Description, existing.DescriptionEn }),
                     performedBy: _currentUserService.UserId,
                     notes: notes,
                     cancellationToken: cancellationToken);
@@ -128,10 +134,16 @@ namespace YemenBooking.Application.Features.Amenities.Commands.ManageAmenities
             else if (request.Name.Length > 50)
                 errors.Add("اسم المرفق لا يجب أن يتجاوز 50 حرفًا");
 
+            if (!string.IsNullOrWhiteSpace(request.NameEn) && request.NameEn.Length > 50)
+                errors.Add("اسم المرفق بالإنجليزية لا يجب أن يتجاوز 50 حرفًا");
+
             if (request.Description == null)
                 errors.Add("وصف المرفق مطلوب");
             else if (request.Description.Length > 200)
                 errors.Add("وصف المرفق لا يجب أن يتجاوز 200 حرفًا");
+
+            if (!string.IsNullOrWhiteSpace(request.DescriptionEn) && request.DescriptionEn.Length > 200)
+                errors.Add("وصف المرفق بالإنجليزية لا يجب أن يتجاوز 200 حرفًا");
 
             if (errors.Count > 0)
                 return Task.FromResult(ResultDto<bool>.Failed(errors, "بيانات المدخلات غير صحيحة"));

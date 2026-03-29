@@ -111,7 +111,9 @@ public class GetUnitDetailsQueryHandler : IRequestHandler<GetUnitDetailsQuery, R
             {
                 Id = unitType.Id,
                 Name = unitType.Name ?? string.Empty,
-                Description = unitType.Description ?? string.Empty
+                NameEn = unitType.NameEn,
+                Description = unitType.Description ?? string.Empty,
+                DescriptionEn = unitType.DescriptionEn
             } : new UnitTypeDto();
 
             // Load unit images.
@@ -134,6 +136,7 @@ public class GetUnitDetailsQueryHandler : IRequestHandler<GetUnitDetailsQuery, R
             {
                 FieldName = fv.UnitTypeField?.FieldName ?? string.Empty,
                 DisplayName = fv.UnitTypeField?.DisplayName ?? string.Empty,
+                DisplayNameEn = fv.UnitTypeField?.DisplayNameEn,
                 Value = fv.FieldValue ?? string.Empty,
                 FieldType = fv.UnitTypeField?.FieldTypeId ?? string.Empty
             }).ToList() ?? new List<UnitFieldValueDto>();
@@ -199,12 +202,15 @@ public class GetUnitDetailsQueryHandler : IRequestHandler<GetUnitDetailsQuery, R
                 Id = unit.Id,
                 PropertyId = unit.PropertyId,
                 PropertyName = property.Name ?? string.Empty,
+                PropertyNameEn = property.NameEn,
                 Name = unit.Name ?? string.Empty,
+                NameEn = unit.NameEn,
                 UnitType = unitTypeDto,
                 MaxCapacity = unit.MaxCapacity,
                 PricingMethod = unit.PricingMethod.ToString(),
                 Images = imageDtos,
                 CustomFeatures = unit.CustomFeatures ?? string.Empty,
+                CustomFeaturesEn = unit.CustomFeaturesEn,
                 FieldValues = fieldValueDtos,
                 DailySchedules = dailySchedules,
                 CalculatedPrice = calculatedPrice

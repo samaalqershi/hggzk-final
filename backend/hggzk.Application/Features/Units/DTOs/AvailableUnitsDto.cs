@@ -41,6 +41,7 @@ public class AvailableUnitDto
     /// Unit name
     /// </summary>
     public string Name { get; set; } = string.Empty;
+    public string? NameEn { get; set; }
     
     /// <summary>
     /// نوع الوحدة
@@ -89,6 +90,7 @@ public class AvailableUnitDto
     /// Custom features
     /// </summary>
     public Dictionary<string, object> CustomFeatures { get; set; } = new();
+    public Dictionary<string, object>? CustomFeaturesEn { get; set; }
     
     /// <summary>
     /// قيم الحقول الديناميكية
@@ -154,6 +156,7 @@ public class UnitFieldSimpleDto
     /// Display name
     /// </summary>
     public string DisplayName { get; set; } = string.Empty;
+    public string? DisplayNameEn { get; set; }
     
     /// <summary>
     /// القيمة

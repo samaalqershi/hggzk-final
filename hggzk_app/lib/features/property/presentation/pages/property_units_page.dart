@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui';
 import 'dart:math' as math;
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import 'package:hggzk/app/dependency_injection/injection_container.dart';
@@ -370,7 +371,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                           shaderCallback: (bounds) =>
                               AppTheme.primaryGradient.createShader(bounds),
                           child: Text(
-                            'الوحدات المتاحة',
+                            context.tr('property.units.availableTitle'),
                             style: AppTextStyles.bodyLarge.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -502,7 +503,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                       ),
                     ),
                     child: Text(
-                      'يتم عرض كل الوحدات بدون فلتر تاريخ. اختر التواريخ لعرض التوفر والسعر الدقيقين.',
+                      context.tr('property.units.allWithoutDateFilter'),
                       style: AppTextStyles.caption.copyWith(
                         color: AppTheme.textMuted,
                         height: 1.5,
@@ -513,7 +514,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                   children: [
                     Expanded(
                       child: _buildFuturisticDateCard(
-                        title: 'تسجيل الدخول',
+                        title: context.tr('property.units.checkIn'),
                         date: _hasDateFilter ? _checkInDate : null,
                         icon: Icons.login,
                         color: AppTheme.primaryBlue,
@@ -555,7 +556,10 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    _hasDateFilter ? '$nights' : 'بدون',
+                                    _hasDateFilter
+                                        ? '$nights'
+                                        : context
+                                            .tr('property.units.withoutDates'),
                                     style: AppTextStyles.bodyMedium.copyWith(
                                       color: AppTheme.isDark
                                           ? Colors.white
@@ -565,8 +569,12 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                                   ),
                                   Text(
                                     _hasDateFilter
-                                        ? (nights == 1 ? 'ليلة' : 'ليالي')
-                                        : 'تواريخ',
+                                        ? (nights == 1
+                                            ? context
+                                                .tr('property.units.nightsOne')
+                                            : context.tr(
+                                                'property.units.nightsMany'))
+                                        : context.tr('property.units.dates'),
                                     style: AppTextStyles.caption.copyWith(
                                       color: AppTheme.isDark
                                           ? Colors.white.withOpacity(0.9)
@@ -582,7 +590,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                     ),
                     Expanded(
                       child: _buildFuturisticDateCard(
-                        title: 'تسجيل الخروج',
+                        title: context.tr('property.units.checkOut'),
                         date: _hasDateFilter ? _checkOutDate : null,
                         icon: Icons.logout,
                         color: AppTheme.primaryPurple,
@@ -600,7 +608,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                     child: TextButton.icon(
                       onPressed: () => _clearDateFilter(context),
                       icon: const Icon(Icons.filter_alt_off_rounded, size: 16),
-                      label: const Text('عرض كل الوحدات'),
+                      label: Text(
+                        context.tr('property.units.showAll'),
+                      ),
                       style: TextButton.styleFrom(
                         foregroundColor: AppTheme.textMuted,
                       ),
@@ -660,7 +670,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                 colors: [color, color.withOpacity(0.8)],
               ).createShader(bounds),
               child: Text(
-                date != null ? _formatDate(date) : 'اختر التاريخ',
+                date != null
+                    ? _formatDate(date)
+                    : context.tr('property.units.chooseDate'),
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -697,7 +709,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'عدد الضيوف',
+              context.tr('property.units.guestCount'),
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textWhite,
                 fontWeight: FontWeight.w600,
@@ -948,8 +960,11 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                         _buildPremiumBadge(
                           icon: Icons.photo_library_outlined,
                           label: unit.images.isEmpty
-                              ? 'بدون صور'
-                              : '${unit.images.length} صور',
+                              ? context.tr('property.units.noImages')
+                              : context.tr(
+                                  'property.units.imagesCount',
+                                  params: {'count': '${unit.images.length}'},
+                                ),
                           color: Colors.white,
                         ),
                       ],
@@ -985,7 +1000,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          isSelected ? 'محددة' : 'اختر',
+                          isSelected
+                              ? context.tr('property.units.selected')
+                              : context.tr('property.units.select'),
                           style: AppTextStyles.caption.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
@@ -1010,7 +1027,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'معرض الوحدة',
+                          context.tr('property.units.galleryTitle'),
                           style: AppTextStyles.caption.copyWith(
                             color: Colors.white.withOpacity(0.72),
                             fontWeight: FontWeight.w600,
@@ -1033,7 +1050,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                         Text(
                           unit.customFeatures.isNotEmpty
                               ? unit.customFeatures
-                              : 'اضغط لعرض صور الوحدة بتفاصيل أوضح',
+                              : context.tr('property.units.tapToViewImages'),
                           style: AppTextStyles.bodySmall.copyWith(
                             color: Colors.white.withOpacity(0.78),
                             height: 1.35,
@@ -1062,7 +1079,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
   /// العربية: يبني unit info section.
   Widget _buildUnitInfoSection(Unit unit, bool isSelected, int index) {
     final accentColor = _getUnitAccentColor(index);
-    final currency = unit.currency ?? 'ريال';
+    final currency = unit.currency ?? context.tr('property.units.currency');
 
     return Container(
       decoration: BoxDecoration(
@@ -1134,14 +1151,18 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isSelected ? 'الحالة' : 'الإجراء',
+                        isSelected
+                            ? context.tr('property.units.status')
+                            : context.tr('property.units.action'),
                         style: AppTextStyles.caption.copyWith(
                           color: AppTheme.textMuted,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        isSelected ? 'تم الاختيار' : 'اضغط للاختيار',
+                        isSelected
+                            ? context.tr('property.units.selectedReady')
+                            : context.tr('property.units.select'),
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppTheme.textWhite,
                           fontWeight: FontWeight.w700,
@@ -1170,7 +1191,12 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                 if (unit.distanceKm != null)
                   _buildPremiumBadge(
                     icon: Icons.near_me_outlined,
-                    label: '${unit.distanceKm!.toStringAsFixed(1)} كم',
+                    label: context.tr(
+                      'property.units.distanceKm',
+                      params: {
+                        'value': unit.distanceKm!.toStringAsFixed(1),
+                      },
+                    ),
                     color: AppTheme.warning,
                   ),
               ],
@@ -1222,7 +1248,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'أبرز ما يميز هذه الوحدة',
+                            context.tr('property.units.keyHighlights'),
                             style: AppTextStyles.bodySmall.copyWith(
                               color: AppTheme.textWhite,
                               fontWeight: FontWeight.w700,
@@ -1294,7 +1320,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
               ),
               const SizedBox(width: 10),
               Text(
-                'المزايا الأساسية',
+                context.tr('property.units.basicAmenities'),
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppTheme.textWhite,
                   fontWeight: FontWeight.w700,
@@ -1624,7 +1650,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  hasBasePrice ? 'السعر يبدأ من' : 'السعر الإجمالي',
+                  hasBasePrice
+                      ? context.tr('property.units.priceFrom')
+                      : context.tr('property.units.totalPrice'),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.textMuted,
                   ),
@@ -1642,8 +1670,14 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                 const SizedBox(height: 4),
                 Text(
                   hasBasePrice
-                      ? 'لكل ${_getPricingPeriodLabel(unit.pricingMethod)}'
-                      : 'للفترة المختارة',
+                      ? context.tr(
+                          'property.units.per',
+                          params: {
+                            'period':
+                                _getPricingPeriodLabel(unit.pricingMethod),
+                          },
+                        )
+                      : context.tr('property.units.selectedPeriod'),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.textLight,
                   ),
@@ -1663,7 +1697,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'الإجمالي',
+                    context.tr('property.units.total'),
                     style: AppTextStyles.caption.copyWith(
                       color: AppTheme.textMuted,
                     ),
@@ -1691,18 +1725,21 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     final children = unit.childrenCapacity ?? 0;
 
     if (adults <= 0 && children <= 0) {
-      return 'السعة غير محددة';
+      return context.tr('property.units.capacityUnknown');
     }
 
     if (children > 0) {
-      return '$adults بالغ • $children طفل';
+      return '$adults ${context.tr('home.adults')} • $children ${context.tr('home.children')}';
     }
 
     if (adults == 1) {
-      return 'ضيف واحد';
+      return context.tr('property.units.oneGuest');
     }
 
-    return '$adults ضيوف';
+    return context.tr(
+      'property.units.guestsCount',
+      params: {'count': adults},
+    );
   }
 
   /// Formats the price.
@@ -1717,13 +1754,13 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
   String _getPricingPeriodLabel(PricingMethod method) {
     switch (method) {
       case PricingMethod.hourly:
-        return 'ساعة';
+        return context.tr('property.units.hour');
       case PricingMethod.daily:
-        return 'ليلة';
+        return context.tr('property.units.night');
       case PricingMethod.weekly:
-        return 'أسبوع';
+        return context.tr('property.units.week');
       case PricingMethod.monthly:
-        return 'شهر';
+        return context.tr('property.units.month');
     }
   }
 
@@ -1731,25 +1768,25 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
   /// العربية: ينسق dynamic field value.
   String _formatDynamicFieldValue(dynamic value, String fieldType) {
     if (value == null || value.toString().isEmpty) {
-      return 'غير محدد';
+      return context.tr('property.units.unknown');
     }
 
     switch (fieldType) {
       case 'boolean':
         final boolValue = value.toString().toLowerCase();
         return (boolValue == 'true' || boolValue == '1' || boolValue == 'yes')
-            ? 'نعم'
-            : 'لا';
+            ? context.tr('property.units.yes')
+            : context.tr('property.units.no');
 
       case 'currency':
         if (value is num) {
-          return '${value.toStringAsFixed(0)} ريال';
+          return '${value.toStringAsFixed(0)} ${context.tr('property.units.currency')}';
         }
         final numValue = double.tryParse(value.toString());
         if (numValue != null) {
-          return '${numValue.toStringAsFixed(0)} ريال';
+          return '${numValue.toStringAsFixed(0)} ${context.tr('property.units.currency')}';
         }
-        return '$value ريال';
+        return '$value ${context.tr('property.units.currency')}';
 
       case 'date':
         try {
@@ -1810,7 +1847,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
 
       case 'file':
       case 'image':
-        return 'ملف مرفق';
+        return context.tr(
+          'property.units.attachedFile',
+        );
 
       default:
         final strValue = value.toString();
@@ -1929,7 +1968,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'الوحدة المحددة',
+                                  context.tr(
+                                    'property.units.selectedUnit',
+                                  ),
                                   style: AppTextStyles.caption.copyWith(
                                     color: AppTheme.textMuted,
                                   ),
@@ -1948,7 +1989,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  'الحالة',
+                                  context.tr(
+                                    'property.units.status',
+                                  ),
                                   style: AppTextStyles.caption.copyWith(
                                     color: AppTheme.textMuted,
                                   ),
@@ -1959,7 +2002,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                                       .primaryGradient
                                       .createShader(bounds),
                                   child: Text(
-                                    'جاهز للحجز',
+                                    context.tr(
+                                      'property.units.readyForBooking',
+                                    ),
                                     style: AppTextStyles.bodyLarge.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -1980,7 +2025,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                               const Icon(Icons.calendar_today, size: 16),
                               const SizedBox(width: 8),
                               Text(
-                                'متابعة الحجز',
+                                context.tr(
+                                  'property.units.continueBooking',
+                                ),
                                 style: AppTextStyles.buttonMedium.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -2029,7 +2076,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
             shaderCallback: (bounds) =>
                 AppTheme.primaryGradient.createShader(bounds),
             child: Text(
-              'جاري البحث عن الوحدات المتاحة',
+              context.tr(
+                'property.units.searchingAvailableUnits',
+              ),
               style: AppTextStyles.bodyMedium.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
@@ -2067,7 +2116,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
             Icon(Icons.error_outline, size: 40, color: AppTheme.error),
             const SizedBox(height: 12),
             Text(
-              'حدث خطأ',
+              context.tr(
+                'property.errorTitle',
+              ),
               style: AppTextStyles.bodyLarge.copyWith(color: AppTheme.error),
             ),
             const SizedBox(height: 6),
@@ -2087,7 +2138,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                   const Icon(Icons.refresh, size: 16),
                   const SizedBox(width: 6),
                   Text(
-                    'إعادة المحاولة',
+                    context.tr(
+                      'property.retry',
+                    ),
                     style: AppTextStyles.buttonMedium.copyWith(
                       color: Colors.white,
                     ),
@@ -2134,7 +2187,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
               shaderCallback: (bounds) =>
                   AppTheme.primaryGradient.createShader(bounds),
               child: Text(
-                'لا توجد وحدات متاحة',
+                context.tr(
+                  'property.units.noUnitsAvailable',
+                ),
                 style: AppTextStyles.bodyLarge.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -2144,8 +2199,10 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
             const SizedBox(height: 8),
             Text(
               _hasDateFilter
-                  ? 'لا توجد وحدات متاحة في التواريخ المحددة'
-                  : 'اختر التواريخ لعرض التوفر والسعر الدقيقين',
+                  ? context.tr(
+                      'property.units.noUnitsInDates',
+                    )
+                  : context.tr('property.units.chooseDatesHint'),
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted,
               ),
@@ -2164,7 +2221,13 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                       const Icon(Icons.calendar_today, size: 16),
                       const SizedBox(width: 6),
                       Text(
-                        _hasDateFilter ? 'تغيير التواريخ' : 'اختيار التواريخ',
+                        _hasDateFilter
+                            ? context.tr(
+                                'property.units.changeDates',
+                              )
+                            : context.tr(
+                                'property.units.selectDates',
+                              ),
                         style: AppTextStyles.buttonMedium.copyWith(
                           color: Colors.white,
                         ),
@@ -2181,7 +2244,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                         const Icon(Icons.filter_alt_off_rounded, size: 16),
                         const SizedBox(width: 6),
                         Text(
-                          'عرض كل الوحدات',
+                          context.tr(
+                            'property.units.showAll',
+                          ),
                           style: AppTextStyles.buttonMedium.copyWith(
                             color: Colors.white,
                           ),
@@ -2232,21 +2297,10 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
   /// Formats the date.
   /// العربية: ينسق date.
   String _formatDate(DateTime date) {
-    final months = [
-      'يناير',
-      'فبراير',
-      'مارس',
-      'أبريل',
-      'مايو',
-      'يونيو',
-      'يوليو',
-      'أغسطس',
-      'سبتمبر',
-      'أكتوبر',
-      'نوفمبر',
-      'ديسمبر',
-    ];
-    return '${date.day} ${months[date.month - 1]}';
+    return DateFormat(
+      'd MMMM',
+      Localizations.localeOf(context).toString(),
+    ).format(date);
   }
 
   /// Loads the units.
@@ -2406,7 +2460,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'نوع الوحدة',
+                    context.tr(
+                      'property.units.unitTypeTitle',
+                    ),
                     style: AppTextStyles.bodyLarge.copyWith(
                       color: AppTheme.textWhite,
                       fontWeight: FontWeight.bold,
@@ -2426,7 +2482,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                 children: [
                   ChoiceChip(
                     label: Text(
-                      'كل الوحدات',
+                      context.tr(
+                        'property.units.allUnits',
+                      ),
                       style: AppTextStyles.bodySmall.copyWith(
                         color: _selectedUnitTypeId == null
                             ? AppTheme.textWhite
@@ -2531,7 +2589,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'اختر تاريخ الوصول والمغادرة أولاً قبل متابعة الحجز.',
+          context.tr(
+            'property.units.selectBookingDates',
+          ),
           style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
         ),
         backgroundColor: AppTheme.warning,

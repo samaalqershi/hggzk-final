@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/rating_widget.dart';
@@ -437,7 +438,7 @@ class _PropertyHeaderWidgetState extends State<PropertyHeaderWidget>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'الموقع',
+                  context.tr('property.header.location'),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.primaryBlue,
                     fontWeight: FontWeight.w600,
@@ -472,7 +473,7 @@ class _PropertyHeaderWidgetState extends State<PropertyHeaderWidget>
                 child: _buildStatCard(
                   icon: Icons.visibility_outlined,
                   value: widget.property.viewCount.toString(),
-                  label: 'مشاهدة',
+                  label: context.tr('property.header.view'),
                   color: AppTheme.primaryBlue,
                   delay: 0,
                 ),
@@ -482,7 +483,7 @@ class _PropertyHeaderWidgetState extends State<PropertyHeaderWidget>
                 child: _buildStatCard(
                   icon: Icons.bookmark_outline,
                   value: widget.property.bookingCount.toString(),
-                  label: 'حجز',
+                  label: context.tr('property.header.book'),
                   color: AppTheme.primaryPurple,
                   delay: 50,
                 ),
@@ -492,7 +493,7 @@ class _PropertyHeaderWidgetState extends State<PropertyHeaderWidget>
                 child: _buildStatCard(
                   icon: Icons.home_outlined,
                   value: widget.property.unitsCount.toString(),
-                  label: 'وحدة',
+                  label: context.tr('property.header.unit'),
                   color: AppTheme.primaryCyan,
                   delay: 100,
                 ),

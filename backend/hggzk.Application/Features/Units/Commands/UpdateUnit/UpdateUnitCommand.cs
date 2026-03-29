@@ -22,12 +22,22 @@ public class UpdateUnitCommand : IRequest<ResultDto<bool>>
     /// Name.
     /// </summary>
     public string? Name { get; set; }
+    /// <summary>
+    /// الاسم بالإنجليزية.
+    /// Name in English.
+    /// </summary>
+    public string? NameEn { get; set; }
 
     /// <summary>
     /// الميزات المخصصة.
     /// Custom features.
     /// </summary>
     public string? CustomFeatures { get; set; }
+    /// <summary>
+    /// الميزات المخصصة بالإنجليزية.
+    /// Custom features in English.
+    /// </summary>
+    public string? CustomFeaturesEn { get; set; }
 
     /// <summary>
     /// طريقة التسعير.

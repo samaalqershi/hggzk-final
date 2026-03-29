@@ -1,6 +1,7 @@
 // lib/features/home/data/models/section_item_models.dart
 
 import 'package:equatable/equatable.dart';
+import 'package:hggzk/core/localization/localized_api_value.dart';
 
 class SectionImageModel extends Equatable {
   final String id;
@@ -132,10 +133,29 @@ class SectionPropertyItemModel extends Equatable {
       propertyInSectionId:
           (json['propertyInSectionId'] ?? json['PropertyInSectionId'] ?? '')
               .toString(),
-      name: (json['name'] ?? json['Name'] ?? '').toString(),
-      description: (json['description'] ?? '').toString(),
-      address: (json['address'] ?? json['Address'] ?? '').toString(),
-      city: (json['city'] ?? json['City'] ?? '').toString(),
+      name: LocalizedApiValue.text(
+        json,
+        arabicKey: 'name',
+        englishKey: 'nameEn',
+        fallbackKey: 'Name',
+      ),
+      description: LocalizedApiValue.text(
+        json,
+        arabicKey: 'description',
+        englishKey: 'descriptionEn',
+      ),
+      address: LocalizedApiValue.text(
+        json,
+        arabicKey: 'address',
+        englishKey: 'addressEn',
+        fallbackKey: 'Address',
+      ),
+      city: LocalizedApiValue.text(
+        json,
+        arabicKey: 'city',
+        englishKey: 'cityEn',
+        fallbackKey: 'City',
+      ),
       starRating: int.tryParse((json['starRating'] ??
                   json['StarRating'] ??
                   json['propertyStarRating'] ??
@@ -160,12 +180,23 @@ class SectionPropertyItemModel extends Equatable {
       mainImageId: json['mainImageId']?.toString(),
       imageUrls: List<String>.from(json['imageUrls'] ?? const []),
       additionalImages: images,
-      propertyType: (json['propertyType'] ??
-              json['PropertyType'] ??
-              json['unitTypeName'] ??
-              json['UnitTypeName'] ??
-              '')
-          .toString(),
+      propertyType: () {
+        final propertyTypeName = LocalizedApiValue.text(
+          json,
+          arabicKey: 'propertyType',
+          englishKey: 'propertyTypeEn',
+          fallbackKey: 'PropertyType',
+        );
+        if (propertyTypeName.isNotEmpty) {
+          return propertyTypeName;
+        }
+        return LocalizedApiValue.text(
+          json,
+          arabicKey: 'unitTypeName',
+          englishKey: 'unitTypeNameEn',
+          fallbackKey: 'UnitTypeName',
+        );
+      }(),
       isFeatured: (json['isFeatured'] ?? false) == true,
       isAvailable: (json['isAvailable'] ?? true) == true,
       availableUnitsCount:

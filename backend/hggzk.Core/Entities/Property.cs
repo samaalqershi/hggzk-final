@@ -31,6 +31,13 @@ public class Property : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "اسم الكيان")]
     public string Name { get; set; }
+
+    /// <summary>
+    /// الاسم الإنجليزي المعروض للعقار.
+    /// English display name of the property.
+    /// </summary>
+    [Display(Name = "اسم الكيان بالإنجليزية")]
+    public string? NameEn { get; set; }
     
     /// <summary>
     /// وصف موجز يعرّف العقار بسرعة للمستخدم.
@@ -38,6 +45,13 @@ public class Property : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "وصف قصير للكيان")]
     public string? ShortDescription { get; set; }
+
+    /// <summary>
+    /// الوصف المختصر باللغة الإنجليزية.
+    /// English short summary for the property.
+    /// </summary>
+    [Display(Name = "الوصف القصير للكيان بالإنجليزية")]
+    public string? ShortDescriptionEn { get; set; }
     
     
     
@@ -47,6 +61,13 @@ public class Property : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "عنوان الكيان")]
     public string Address { get; set; }
+
+    /// <summary>
+    /// العنوان النصي للعقار باللغة الإنجليزية.
+    /// English textual address for the property.
+    /// </summary>
+    [Display(Name = "عنوان الكيان بالإنجليزية")]
+    public string? AddressEn { get; set; }
     
     /// <summary>
     /// المدينة التي يقع فيها العقار.
@@ -54,6 +75,13 @@ public class Property : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "المدينة")]
     public string City { get; set; }
+
+    /// <summary>
+    /// اسم المدينة باللغة الإنجليزية كما يظهر للمستخدم.
+    /// English city label shown to users.
+    /// </summary>
+    [Display(Name = "المدينة بالإنجليزية")]
+    public string? CityEn { get; set; }
     
     /// <summary>
     /// خط العرض الجغرافي لموقع العقار.
@@ -82,6 +110,13 @@ public class Property : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "وصف الكيان")]
     public string Description { get; set; }
+
+    /// <summary>
+    /// الوصف التفصيلي باللغة الإنجليزية.
+    /// English detailed description.
+    /// </summary>
+    [Display(Name = "وصف الكيان بالإنجليزية")]
+    public string? DescriptionEn { get; set; }
     
     /// <summary>
     /// يحدد ما إذا كان العقار قد تمت الموافقة عليه للنشر.

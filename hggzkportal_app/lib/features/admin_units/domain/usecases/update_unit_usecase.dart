@@ -22,8 +22,10 @@ class UpdateUnitUseCase implements UseCase<bool, UpdateUnitParams> {
     return await repository.updateUnit(
       unitId: params.unitId,
       name: params.name,
+      nameEn: params.nameEn,
       description: params.description,
       customFeatures: params.customFeatures,
+      customFeaturesEn: params.customFeaturesEn,
       pricingMethod: params.pricingMethod,
       fieldValues: params.fieldValues,
       images: params.images,
@@ -46,6 +48,8 @@ class UpdateUnitParams extends Equatable {
   /// This field keeps the name value used by the admin unit workflow.
   final String? name;
 
+  final String? nameEn;
+
   /// يحتفظ هذا الحقل بقيمة description التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the description value used by the admin unit workflow.
   final String? description;
@@ -53,6 +57,8 @@ class UpdateUnitParams extends Equatable {
   /// يحتفظ هذا الحقل بقيمة customFeatures التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the customFeatures value used by the admin unit workflow.
   final String? customFeatures;
+
+  final String? customFeaturesEn;
 
   /// يحتفظ هذا الحقل بقيمة pricingMethod التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the pricingMethod value used by the admin unit workflow.
@@ -87,8 +93,10 @@ class UpdateUnitParams extends Equatable {
   const UpdateUnitParams({
     required this.unitId,
     this.name,
+    this.nameEn,
     this.description,
     this.customFeatures,
+    this.customFeaturesEn,
     this.pricingMethod,
     this.fieldValues,
     this.images,
@@ -104,8 +112,10 @@ class UpdateUnitParams extends Equatable {
   List<Object?> get props => [
         unitId,
         name,
+        nameEn,
         description,
         customFeatures,
+        customFeaturesEn,
         pricingMethod,
         fieldValues,
         images,

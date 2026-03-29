@@ -1,3 +1,5 @@
+import 'package:hggzk/core/localization/localized_api_value.dart';
+
 import '../../domain/entities/property_type.dart' as domain;
 
 /// يمثل نوع العقار كما يصل من الشبكة قبل تحويله إلى كيان المجال الذي تعمل به
@@ -12,10 +14,14 @@ class PropertyTypeModel {
   /// الاسم الذي سيعرض للمستخدم في الواجهة.
   /// Name that will be shown to the user in the interface.
   final String name;
+  final String nameAr;
+  final String nameEn;
 
   /// الوصف النصي المرافق لنوع العقار.
   /// Textual description associated with this property type.
   final String description;
+  final String descriptionAr;
+  final String descriptionEn;
 
   /// عدد العقارات التي يربطها الخادم بهذا النوع.
   /// Number of properties that the backend associates with this type.
@@ -44,7 +50,11 @@ class PropertyTypeModel {
   const PropertyTypeModel({
     required this.id,
     required this.name,
+    required this.nameAr,
+    required this.nameEn,
     required this.description,
+    required this.descriptionAr,
+    required this.descriptionEn,
     required this.propertiesCount,
     required this.icon,
     required this.count,
@@ -59,8 +69,20 @@ class PropertyTypeModel {
   factory PropertyTypeModel.fromJson(Map<String, dynamic> json) {
     return PropertyTypeModel(
       id: json['id'] ?? '',
-      name: json['name'] ?? '',
-      description: json['description'] ?? '',
+      name: LocalizedApiValue.text(
+        json,
+        arabicKey: 'name',
+        englishKey: 'nameEn',
+      ),
+      nameAr: (json['name'] ?? '').toString(),
+      nameEn: (json['nameEn'] ?? '').toString(),
+      description: LocalizedApiValue.text(
+        json,
+        arabicKey: 'description',
+        englishKey: 'descriptionEn',
+      ),
+      descriptionAr: (json['description'] ?? '').toString(),
+      descriptionEn: (json['descriptionEn'] ?? '').toString(),
       propertiesCount: json['propertiesCount'] ?? 0,
       icon: json['icon'] ?? '',
       count: json['count'] ?? json['propertiesCount'] ?? 0,
@@ -79,8 +101,10 @@ class PropertyTypeModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'name': name,
-      'description': description,
+      'name': nameAr.isNotEmpty ? nameAr : name,
+      'nameEn': nameEn,
+      'description': descriptionAr.isNotEmpty ? descriptionAr : description,
+      'descriptionEn': descriptionEn,
       'propertiesCount': propertiesCount,
       'icon': icon,
       'count': count,

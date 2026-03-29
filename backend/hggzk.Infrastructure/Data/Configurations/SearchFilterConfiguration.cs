@@ -38,7 +38,13 @@ public class SearchFilterConfiguration : IEntityTypeConfiguration<SearchFilter>
         builder.Property(sf => sf.DisplayName)
             .HasMaxLength(100);
 
+        builder.Property(sf => sf.DisplayNameEn)
+            .HasMaxLength(100);
+
         builder.Property(sf => sf.FilterOptions)
+            .HasColumnType("text");
+
+        builder.Property(sf => sf.FilterOptionsEn)
             .HasColumnType("text");
 
         builder.Property(sf => sf.SortOrder)

@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/attachment.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
@@ -83,7 +84,9 @@ class ChatRepositoryImpl implements ChatRepository {
         if (cachedConversations != null && cachedConversations.isNotEmpty) {
           return Right(cachedConversations);
         }
-        return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+        return Left(
+          NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+        );
       }
     } catch (e) {
       return ErrorHandler.handle(e);
@@ -100,7 +103,9 @@ class ChatRepositoryImpl implements ChatRepository {
       if (cached != null) {
         return Right(cached);
       }
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -117,7 +122,9 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Either<Failure, void>> archiveConversation(
       String conversationId) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -133,7 +140,9 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Either<Failure, void>> unarchiveConversation(
       String conversationId) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -149,7 +158,9 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Either<Failure, void>> deleteConversation(
       String conversationId) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -189,7 +200,9 @@ class ChatRepositoryImpl implements ChatRepository {
         if (cachedMessages != null && cachedMessages.isNotEmpty) {
           return Right(cachedMessages);
         }
-        return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+        return Left(
+          NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+        );
       }
     } catch (e) {
       return ErrorHandler.handle(e);
@@ -216,8 +229,9 @@ class ChatRepositoryImpl implements ChatRepository {
         replyToMessageId: replyToMessageId,
         attachmentIds: attachmentIds,
       );
-      return const Left(NetworkFailure(
-          'الرسالة في قائمة الانتظار وسيتم إرسالها عند توفر الاتصال'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('chat.errors.network')),
+      );
     }
 
     try {
@@ -246,7 +260,9 @@ class ChatRepositoryImpl implements ChatRepository {
     required String content,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -264,7 +280,9 @@ class ChatRepositoryImpl implements ChatRepository {
   @override
   Future<Either<Failure, void>> deleteMessage(String messageId) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -282,7 +300,9 @@ class ChatRepositoryImpl implements ChatRepository {
     required List<String> messageIds,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -303,7 +323,9 @@ class ChatRepositoryImpl implements ChatRepository {
     required String reactionType,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -324,7 +346,9 @@ class ChatRepositoryImpl implements ChatRepository {
     required String reactionType,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -347,7 +371,9 @@ class ChatRepositoryImpl implements ChatRepository {
     ProgressCallback? onSendProgress,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -372,7 +398,9 @@ class ChatRepositoryImpl implements ChatRepository {
     ProgressCallback? onSendProgress,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -405,7 +433,9 @@ class ChatRepositoryImpl implements ChatRepository {
     required int limit,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -432,7 +462,9 @@ class ChatRepositoryImpl implements ChatRepository {
     String? propertyId,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -450,7 +482,9 @@ class ChatRepositoryImpl implements ChatRepository {
   @override
   Future<Either<Failure, List<ChatUser>>> getAdminUsers() async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -465,7 +499,9 @@ class ChatRepositoryImpl implements ChatRepository {
   @override
   Future<Either<Failure, void>> updateUserStatus(String status) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -493,7 +529,9 @@ class ChatRepositoryImpl implements ChatRepository {
       }
 
       if (!await internetConnectionChecker.hasConnection) {
-        return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+        return Left(
+          NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+        );
       }
 
       final settings = await remoteDataSource.getChatSettings();
@@ -517,7 +555,9 @@ class ChatRepositoryImpl implements ChatRepository {
     bool? backupMessages,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {

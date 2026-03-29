@@ -14,15 +14,19 @@ class UnitModel extends Unit {
     required String propertyId,
     required String unitTypeId,
     required String name,
+    String? nameEn,
     int maxCapacity = 2,
     double discountPercentage = 0.0,
     required String customFeatures,
+    String? customFeaturesEn,
     int viewCount = 0,
     int bookingCount = 0,
     int? adultsCapacity,
     int? childrenCapacity,
     required String propertyName,
+    String? propertyNameEn,
     required String unitTypeName,
+    String? unitTypeNameEn,
     required PricingMethod pricingMethod,
     List<UnitFieldValue> fieldValues = const [],
     List<FieldGroupWithValues> dynamicFields = const [],
@@ -35,15 +39,19 @@ class UnitModel extends Unit {
           propertyId: propertyId,
           unitTypeId: unitTypeId,
           name: name,
+          nameEn: nameEn,
           maxCapacity: maxCapacity,
           discountPercentage: discountPercentage,
           customFeatures: customFeatures,
+          customFeaturesEn: customFeaturesEn,
           viewCount: viewCount,
           bookingCount: bookingCount,
           adultsCapacity: adultsCapacity,
           childrenCapacity: childrenCapacity,
           propertyName: propertyName,
+          propertyNameEn: propertyNameEn,
           unitTypeName: unitTypeName,
+          unitTypeNameEn: unitTypeNameEn,
           pricingMethod: pricingMethod,
           fieldValues: fieldValues,
           dynamicFields: dynamicFields,
@@ -68,14 +76,14 @@ class UnitModel extends Unit {
       return null;
     }
 
-    final dynamic _cwdRaw = json['cancellationWindowDays'];
-    final int? _cwd = _cwdRaw == null
+    final dynamic cancellationWindowRaw = json['cancellationWindowDays'];
+    final int? cancellationWindowDays = cancellationWindowRaw == null
         ? null
-        : (_cwdRaw is int
-            ? _cwdRaw
-            : (_cwdRaw is num
-                ? _cwdRaw.toInt()
-                : (int.tryParse(_cwdRaw.toString()))));
+        : (cancellationWindowRaw is int
+            ? cancellationWindowRaw
+            : (cancellationWindowRaw is num
+                ? cancellationWindowRaw.toInt()
+                : (int.tryParse(cancellationWindowRaw.toString()))));
     final adultsCapacity = readNullableInt([
       'adultsCapacity',
       'adultCapacity',
@@ -97,16 +105,20 @@ class UnitModel extends Unit {
       propertyId: json['propertyId'] as String,
       unitTypeId: json['unitTypeId'] as String,
       name: json['name'] as String,
+      nameEn: json['nameEn'] as String?,
       maxCapacity: resolvedMaxCapacity,
       discountPercentage:
           (json['discountPercentage'] as num?)?.toDouble() ?? 0.0,
       customFeatures: json['customFeatures'] as String? ?? '',
+      customFeaturesEn: json['customFeaturesEn'] as String?,
       viewCount: json['viewCount'] as int? ?? 0,
       bookingCount: json['bookingCount'] as int? ?? 0,
       adultsCapacity: adultsCapacity,
       childrenCapacity: childrenCapacity,
       propertyName: json['propertyName'] as String,
+      propertyNameEn: json['propertyNameEn'] as String?,
       unitTypeName: json['unitTypeName'] as String,
+      unitTypeNameEn: json['unitTypeNameEn'] as String?,
       pricingMethod: PricingMethod.fromString(json['pricingMethod'] as String),
       fieldValues: (json['fieldValues'] as List?)
               ?.map((e) => UnitFieldValueModel.fromJson(e))
@@ -121,7 +133,7 @@ class UnitModel extends Unit {
           (json['images'] as List?)?.map((e) => e['url'] as String).toList() ??
               [],
       allowsCancellation: json['allowsCancellation'] as bool? ?? true,
-      cancellationWindowDays: _cwd,
+      cancellationWindowDays: cancellationWindowDays,
     );
   }
 
@@ -133,15 +145,19 @@ class UnitModel extends Unit {
       'propertyId': propertyId,
       'unitTypeId': unitTypeId,
       'name': name,
+      if (nameEn != null) 'nameEn': nameEn,
       'maxCapacity': maxCapacity,
       'discountPercentage': discountPercentage,
       'customFeatures': customFeatures,
+      if (customFeaturesEn != null) 'customFeaturesEn': customFeaturesEn,
       'viewCount': viewCount,
       'bookingCount': bookingCount,
       if (adultsCapacity != null) 'adultsCapacity': adultsCapacity,
       if (childrenCapacity != null) 'childrenCapacity': childrenCapacity,
       'propertyName': propertyName,
+      if (propertyNameEn != null) 'propertyNameEn': propertyNameEn,
       'unitTypeName': unitTypeName,
+      if (unitTypeNameEn != null) 'unitTypeNameEn': unitTypeNameEn,
       'pricingMethod': pricingMethod.value,
       'fieldValues': fieldValues
           .map((e) => UnitFieldValueModel.fromEntity(e).toJson())

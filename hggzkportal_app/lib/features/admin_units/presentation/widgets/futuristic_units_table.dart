@@ -84,6 +84,29 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
   /// This field keeps the _tabletBreakpoint value used by the admin unit workflow.
   static const double _tabletBreakpoint = 1024;
 
+  Widget _buildSecondaryText(
+    String? value, {
+    int maxLines = 1,
+    TextStyle? style,
+  }) {
+    if (value == null || value.trim().isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Text(
+        value,
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+        style: style ??
+            AppTextStyles.caption.copyWith(
+              color: AppTheme.textMuted.withValues(alpha: 0.85),
+            ),
+      ),
+    );
+  }
+
   /// ينفذ هذا الأسلوب عملية initState ضمن مسار إدارة الوحدات.
   /// This method performs the initState operation in the admin unit workflow.
   @override
@@ -379,6 +402,7 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
+                            _buildSecondaryText(unit.nameEn),
                             const SizedBox(height: 2),
                             Row(
                               children: [
@@ -401,6 +425,7 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
                                 ),
                               ],
                             ),
+                            _buildSecondaryText(unit.propertyNameEn),
                           ],
                         ),
                       ),
@@ -901,6 +926,7 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
+                          _buildSecondaryText(unit.nameEn),
                           Text(
                             unit.propertyName,
                             style: AppTextStyles.caption.copyWith(
@@ -909,6 +935,7 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
+                          _buildSecondaryText(unit.propertyNameEn),
                           Builder(builder: (context) {
                             final fields = _getPrimaryFilterFields(unit);
                             if (fields.isEmpty) return const SizedBox.shrink();
@@ -1174,6 +1201,7 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    _buildSecondaryText(unit.nameEn),
                     Builder(builder: (context) {
                       final fields = _getPrimaryFilterFields(unit);
                       if (fields.isEmpty) return const SizedBox.shrink();
@@ -1193,8 +1221,18 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
                   ],
                 ),
               ),
-              _buildCell(unit.unitTypeName, flex: 1),
-              _buildCell(unit.propertyName, flex: 2),
+              _buildCell(
+                unit.unitTypeNameEn?.trim().isNotEmpty == true
+                    ? '${unit.unitTypeName}\n${unit.unitTypeNameEn}'
+                    : unit.unitTypeName,
+                flex: 1,
+              ),
+              _buildCell(
+                unit.propertyNameEn?.trim().isNotEmpty == true
+                    ? '${unit.propertyName}\n${unit.propertyNameEn}'
+                    : unit.propertyName,
+                flex: 2,
+              ),
               _buildCell(
                   unit.capacityDisplay.isEmpty ? '-' : unit.capacityDisplay,
                   flex: 1),
@@ -1222,7 +1260,7 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
                   : AppTheme.textLight,
           fontWeight: isName || isPrice ? FontWeight.w600 : FontWeight.normal,
         ),
-        maxLines: 1,
+        maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
     );
@@ -1352,7 +1390,10 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     for (final fv in unit.fieldValues) {
       if (fv.isPrimaryFilter == true && !seen.contains(fv.fieldId)) {
         fields.add({
-          'displayName': fv.displayName ?? fv.fieldName ?? 'حقل',
+          'displayName': _bilingualFieldLabel(
+            primary: fv.displayName ?? fv.fieldName ?? 'حقل',
+            secondary: fv.displayNameEn,
+          ),
           'value': fv.fieldValue,
           'fieldTypeId': fv.fieldTypeId ?? 'text',
         });
@@ -1365,7 +1406,10 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
       for (final f in group.fieldValues) {
         if (f.isPrimaryFilter == true && !seen.contains(f.fieldId)) {
           fields.add({
-            'displayName': f.displayName ?? f.fieldName ?? 'حقل',
+            'displayName': _bilingualFieldLabel(
+              primary: f.displayName ?? f.fieldName ?? 'حقل',
+              secondary: f.displayNameEn,
+            ),
             'value': f.fieldValue,
             'fieldTypeId': f.fieldTypeId ?? 'text',
           });
@@ -1380,7 +1424,10 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
     for (final fv in unit.fieldValues) {
       if (fv.fieldValue.isNotEmpty && !seen.contains(fv.fieldId)) {
         fields.add({
-          'displayName': fv.displayName ?? fv.fieldName ?? 'حقل',
+          'displayName': _bilingualFieldLabel(
+            primary: fv.displayName ?? fv.fieldName ?? 'حقل',
+            secondary: fv.displayNameEn,
+          ),
           'value': fv.fieldValue,
           'fieldTypeId': fv.fieldTypeId ?? 'text',
         });
@@ -1391,7 +1438,10 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
       for (final f in group.fieldValues) {
         if (f.fieldValue.isNotEmpty && !seen.contains(f.fieldId)) {
           fields.add({
-            'displayName': f.displayName ?? f.fieldName ?? 'حقل',
+            'displayName': _bilingualFieldLabel(
+              primary: f.displayName ?? f.fieldName ?? 'حقل',
+              secondary: f.displayNameEn,
+            ),
             'value': f.fieldValue,
             'fieldTypeId': f.fieldTypeId ?? 'text',
           });
@@ -1400,6 +1450,20 @@ class _FuturisticUnitsTableState extends State<FuturisticUnitsTable>
       }
     }
     return fields;
+  }
+
+  String _bilingualFieldLabel({
+    required String primary,
+    String? secondary,
+  }) {
+    final normalized = secondary?.trim();
+    if (normalized == null ||
+        normalized.isEmpty ||
+        normalized == primary.trim()) {
+      return primary;
+    }
+
+    return '$primary\n$normalized';
   }
 
   /// ينفذ هذا الأسلوب عملية _buildDynamicFieldRow ضمن مسار إدارة الوحدات.

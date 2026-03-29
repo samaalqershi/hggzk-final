@@ -1,0 +1,15 @@
+{
+  "favorites.title": "المفضلة",
+  "favorites.searchHint": "البحث في المفضلة...",
+  "favorites.emptyTitle": "لا توجد مفضلات",
+  "favorites.emptySubtitle": "ابدأ بإضافة العقارات المفضلة لديك",
+  "favorites.browseProperties": "تصفح العقارات",
+  "favorites.noResultsTitle": "لا توجد نتائج",
+  "favorites.noResultsSubtitle": "جرب البحث بكلمات مختلفة",
+  "favorites.errors.server": "حدث خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً",
+  "favorites.errors.localStorage": "حدث خطأ في التخزين المحلي",
+  "favorites.errors.network": "يرجى التحقق من اتصالك بالإنترنت",
+  "favorites.errors.loginRequired": "يجب تسجيل الدخول لإضافة المفضلة",
+  "favorites.errors.unauthorized": "غير مصرح لك بالقيام بهذا الإجراء",
+  "favorites.errors.unexpected": "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى"
+}

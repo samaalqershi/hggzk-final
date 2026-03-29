@@ -18,12 +18,14 @@ namespace YemenBooking.Application.Features.Amenities.DTOs {
         /// Amenity name
         /// </summary>
         public string Name { get; set; } = string.Empty;
+        public string? NameEn { get; set; }
         
         /// <summary>
         /// وصف الوسيلة
         /// Amenity description
         /// </summary>
         public string Description { get; set; } = string.Empty;
+        public string? DescriptionEn { get; set; }
         
         /// <summary>
         /// رابط أيقونة الوسيلة

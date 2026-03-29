@@ -11,7 +11,9 @@ class AmenityModel extends Amenity {
   const AmenityModel({
     required String id,
     required String name,
+    String? nameEn,
     required String description,
+    String? descriptionEn,
     required String icon,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -21,7 +23,9 @@ class AmenityModel extends Amenity {
   }) : super(
           id: id,
           name: name,
+          nameEn: nameEn,
           description: description,
+          descriptionEn: descriptionEn,
           icon: icon,
           createdAt: createdAt,
           updatedAt: updatedAt,
@@ -38,7 +42,9 @@ class AmenityModel extends Amenity {
     return AmenityModel(
       id: (json['id'] ?? json['amenityId'] ?? '').toString(),
       name: json['name'] ?? '',
+      nameEn: json['nameEn'],
       description: json['description'] ?? '',
+      descriptionEn: json['descriptionEn'],
       icon: (json['icon'] ?? json['iconUrl'] ?? 'star') as String,
       createdAt:
           json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
@@ -57,7 +63,9 @@ class AmenityModel extends Amenity {
     return {
       'id': id,
       'name': name,
+      'nameEn': nameEn,
       'description': description,
+      'descriptionEn': descriptionEn,
       'icon': icon,
       if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
       if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
@@ -75,7 +83,9 @@ class AmenityModel extends Amenity {
     return AmenityModel(
       id: entity.id,
       name: entity.name,
+      nameEn: entity.nameEn,
       description: entity.description,
+      descriptionEn: entity.descriptionEn,
       icon: entity.icon,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,

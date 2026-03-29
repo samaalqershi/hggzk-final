@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/notification.dart';
 import '../../domain/usecases/get_notifications_usecase.dart';
@@ -82,8 +83,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     if (getNotificationsUseCase == null) {
-      emit(const NotificationError(
-          message: 'Notifications feature not initialized'));
+      emit(NotificationError(
+        message: AppLocalizations.translateSync(
+          'notifications.errors.featureNotInitialized',
+        ),
+      ));
       return;
     }
 
@@ -123,8 +127,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     if (markAsReadUseCase == null) {
-      emit(const NotificationError(
-          message: 'Mark as read feature not initialized'));
+      emit(NotificationError(
+        message: AppLocalizations.translateSync(
+          'notifications.errors.featureNotInitialized',
+        ),
+      ));
       return;
     }
 
@@ -141,8 +148,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
                 : notification)
             .toList(growable: false);
         await _refreshUnreadCount();
-        emit(const NotificationOperationSuccess(
-            message: 'Notification marked as read'));
+        emit(NotificationOperationSuccess(
+          message: AppLocalizations.translateSync(
+            'notifications.actions.markedRead',
+          ),
+        ));
         _emitLoadedState(emit);
       },
     );
@@ -155,8 +165,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     if (markAsReadUseCase == null) {
-      emit(const NotificationError(
-          message: 'Mark as read feature not initialized'));
+      emit(NotificationError(
+        message: AppLocalizations.translateSync(
+          'notifications.errors.featureNotInitialized',
+        ),
+      ));
       return;
     }
 
@@ -171,8 +184,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
             .map((notification) => _markNotificationAsRead(notification))
             .toList(growable: false);
         await _refreshUnreadCount();
-        emit(const NotificationOperationSuccess(
-            message: 'All notifications marked as read'));
+        emit(NotificationOperationSuccess(
+          message: AppLocalizations.translateSync(
+            'notifications.actions.allMarkedRead',
+          ),
+        ));
         _emitLoadedState(emit);
       },
     );
@@ -185,8 +201,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     if (dismissNotificationUseCase == null) {
-      emit(const NotificationError(
-          message: 'Dismiss notification feature not initialized'));
+      emit(NotificationError(
+        message: AppLocalizations.translateSync(
+          'notifications.errors.featureNotInitialized',
+        ),
+      ));
       return;
     }
 
@@ -202,8 +221,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
             .where((notification) => notification.id != event.notificationId)
             .toList(growable: false);
         await _refreshUnreadCount();
-        emit(const NotificationOperationSuccess(
-            message: 'Notification dismissed'));
+        emit(NotificationOperationSuccess(
+          message: AppLocalizations.translateSync(
+            'notifications.actions.dismissed',
+          ),
+        ));
         _emitLoadedState(emit);
       },
     );
@@ -217,8 +239,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     if (updateNotificationSettingsUseCase == null) {
-      emit(const NotificationError(
-          message: 'Update settings feature not initialized'));
+      emit(NotificationError(
+        message: AppLocalizations.translateSync(
+          'notifications.errors.featureNotInitialized',
+        ),
+      ));
       return;
     }
 
@@ -228,8 +253,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     await result.fold(
       (failure) async =>
           emit(NotificationError(message: _mapFailureToMessage(failure))),
-      (_) async => emit(const NotificationOperationSuccess(
-          message: 'Settings updated successfully')),
+      (_) async => emit(NotificationOperationSuccess(
+        message: AppLocalizations.translateSync(
+          'notifications.actions.settingsUpdated',
+        ),
+      )),
     );
   }
 
@@ -240,8 +268,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     if (getNotificationSettingsUseCase == null) {
-      emit(const NotificationError(
-          message: 'Notification settings feature not initialized'));
+      emit(NotificationError(
+        message: AppLocalizations.translateSync(
+          'notifications.errors.featureNotInitialized',
+        ),
+      ));
       return;
     }
 
@@ -265,8 +296,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     if (getUnreadCountUseCase == null) {
-      emit(const NotificationError(
-          message: 'Unread count feature not initialized'));
+      emit(NotificationError(
+        message: AppLocalizations.translateSync(
+          'notifications.errors.featureNotInitialized',
+        ),
+      ));
       return;
     }
     final result = await getUnreadCountUseCase!(const GetUnreadCountParams());
@@ -294,11 +328,12 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
       case ServerFailure:
-        return 'Server error occurred. Please try again later.';
+        return AppLocalizations.translateSync('notifications.errors.server');
       case NetworkFailure:
-        return 'Please check your internet connection.';
+        return AppLocalizations.translateSync('notifications.errors.network');
       default:
-        return 'An unexpected error occurred. Please try again.';
+        return AppLocalizations.translateSync(
+            'notifications.errors.unexpected');
     }
   }
 

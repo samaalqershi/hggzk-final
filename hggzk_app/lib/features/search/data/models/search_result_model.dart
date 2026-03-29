@@ -1,3 +1,5 @@
+import 'package:hggzk/core/localization/localized_api_value.dart';
+
 import '../../domain/entities/search_result.dart';
 import 'property_filter_mismatch_model.dart';
 
@@ -49,10 +51,26 @@ class SearchResultModel extends SearchResult {
 
     return SearchResultModel(
       id: json['id'] ?? '',
-      name: json['name'] ?? '',
-      description: json['description'] ?? '',
-      address: json['address'] ?? '',
-      city: json['city'] ?? '',
+      name: LocalizedApiValue.text(
+        json,
+        arabicKey: 'name',
+        englishKey: 'nameEn',
+      ),
+      description: LocalizedApiValue.text(
+        json,
+        arabicKey: 'description',
+        englishKey: 'descriptionEn',
+      ),
+      address: LocalizedApiValue.text(
+        json,
+        arabicKey: 'address',
+        englishKey: 'addressEn',
+      ),
+      city: LocalizedApiValue.text(
+        json,
+        arabicKey: 'city',
+        englishKey: 'cityEn',
+      ),
       starRating: json['starRating'] ?? 0,
       averageRating: (json['averageRating'] ?? 0).toDouble(),
       reviewsCount: json['reviewsCount'] ?? 0,
@@ -65,14 +83,26 @@ class SearchResultModel extends SearchResult {
       latitude: (json['latitude'] ?? 0).toDouble(),
       longitude: (json['longitude'] ?? 0).toDouble(),
       unitId: json['unitId'],
-      unitName: json['unitName'],
+      unitName: LocalizedApiValue.text(
+        json,
+        arabicKey: 'unitName',
+        englishKey: 'unitNameEn',
+      ),
       dynamicFieldValues:
           Map<String, dynamic>.from(json['dynamicFieldValues'] ?? {}),
       isAvailable: json['isAvailable'] ?? true,
       availableUnitsCount: json['availableUnitsCount'] ?? 0,
-      propertyType: json['propertyType'] ?? '',
+      propertyType: LocalizedApiValue.text(
+        json,
+        arabicKey: 'propertyType',
+        englishKey: 'propertyTypeEn',
+      ),
       isFeatured: json['isFeatured'] ?? false,
-      mainAmenities: List<String>.from(json['mainAmenities'] ?? []),
+      mainAmenities: LocalizedApiValue.stringList(
+        json,
+        arabicKey: 'mainAmenities',
+        englishKey: 'mainAmenitiesEn',
+      ),
       reviews: (json['reviews'] as List?)
               ?.map((e) => ReviewModel.fromJson(e))
               .toList() ??

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
 import '../bloc/chat_bloc.dart';
@@ -537,7 +538,9 @@ class _ChatPageState extends State<ChatPage>
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'جاري تحميل الرسائل...',
+                        context.tr(
+                          'chat.thread.loading',
+                        ),
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppTheme.textWhite.withOpacity(0.7),
                           fontSize: 12,
@@ -614,7 +617,9 @@ class _ChatPageState extends State<ChatPage>
                           ],
                         ).createShader(bounds),
                         child: Text(
-                          'ابدأ المحادثة',
+                          context.tr(
+                            'chat.thread.start',
+                          ),
                           style: AppTextStyles.h3.copyWith(
                             color: AppTheme.textWhite,
                             fontWeight: FontWeight.w600,
@@ -624,7 +629,9 @@ class _ChatPageState extends State<ChatPage>
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'اكتب رسالتك الأولى للبدء',
+                        context.tr(
+                          'chat.thread.firstMessageHint',
+                        ),
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppTheme.textMuted.withOpacity(0.5),
                           fontSize: 11,
@@ -879,8 +886,8 @@ class _ChatPageState extends State<ChatPage>
     final currentUserId = _currentUserId;
     final displayName =
         currentUserId != null && replyMessage.senderId == currentUserId
-            ? 'أنت'
-            : 'مستخدم';
+            ? context.tr('chat.message.you')
+            : context.tr('chat.message.user');
 
     return GestureDetector(
       onTap: () => _scrollToMessage(replyMessage!.id),
@@ -927,7 +934,9 @@ class _ChatPageState extends State<ChatPage>
                         const SizedBox(height: 2),
                         Text(
                           (replyMessage.content ?? '').trim().isEmpty
-                              ? '[محتوى غير نصي]'
+                              ? context.tr(
+                                  'chat.message.placeholder',
+                                )
                               : replyMessage.content!.trim(),
                           style: AppTextStyles.bodySmall.copyWith(
                             color: AppTheme.textWhite.withOpacity(0.7),
@@ -1006,7 +1015,9 @@ class _ChatPageState extends State<ChatPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'تعديل الرسالة',
+                        context.tr(
+                          'chat.thread.editTitle',
+                        ),
                         style: AppTextStyles.caption.copyWith(
                           color: AppTheme.warning.withOpacity(0.7),
                           fontSize: 9,
@@ -1199,20 +1210,26 @@ class _ChatPageState extends State<ChatPage>
     final messageDate = DateTime(date.year, date.month, date.day);
 
     if (messageDate == today) {
-      return 'اليوم';
+      return context.tr('chat.thread.today');
     } else if (messageDate == yesterday) {
-      return 'أمس';
+      return context.tr('chat.thread.yesterday');
     } else if (now.difference(date).inDays < 7) {
-      final days = [
-        'الأحد',
-        'الإثنين',
-        'الثلاثاء',
-        'الأربعاء',
-        'الخميس',
-        'الجمعة',
-        'السبت'
-      ];
-      return days[date.weekday % 7];
+      switch (date.weekday) {
+        case DateTime.monday:
+          return context.tr('chat.thread.days.monday');
+        case DateTime.tuesday:
+          return context.tr('chat.thread.days.tuesday');
+        case DateTime.wednesday:
+          return context.tr('chat.thread.days.wednesday');
+        case DateTime.thursday:
+          return context.tr('chat.thread.days.thursday');
+        case DateTime.friday:
+          return context.tr('chat.thread.days.friday');
+        case DateTime.saturday:
+          return context.tr('chat.thread.days.saturday');
+        default:
+          return context.tr('chat.thread.days.sunday');
+      }
     } else {
       return '${date.day}/${date.month}/${date.year}';
     }
@@ -1276,7 +1293,9 @@ class _PremiumDeleteDialog extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'حذف الرسالة',
+                    context.tr(
+                      'chat.thread.deleteTitle',
+                    ),
                     style: AppTextStyles.h3.copyWith(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -1284,7 +1303,9 @@ class _PremiumDeleteDialog extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'هل أنت متأكد من حذف هذه الرسالة؟',
+                    context.tr(
+                      'chat.thread.deleteConfirm',
+                    ),
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppTheme.textMuted.withOpacity(0.6),
                       fontSize: 11,
@@ -1307,7 +1328,9 @@ class _PremiumDeleteDialog extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              'إلغاء',
+                              context.tr(
+                                'chat.thread.action.cancel',
+                              ),
                               style: AppTextStyles.bodySmall.copyWith(
                                 fontSize: 12,
                                 color: AppTheme.textWhite.withOpacity(0.7),
@@ -1333,7 +1356,9 @@ class _PremiumDeleteDialog extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              'حذف',
+                              context.tr(
+                                'chat.thread.action.delete',
+                              ),
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: AppTheme.textWhite,
                                 fontSize: 12,

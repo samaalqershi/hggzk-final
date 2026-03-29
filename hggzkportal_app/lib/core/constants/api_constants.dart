@@ -12,7 +12,8 @@ class ApiConstants {
   /// English: Root backend URL used to build every network endpoint.
   static const String baseUrl = String.fromEnvironment(
     'BASE_URL',
-    defaultValue: 'https://api.hggzk.com/',
+    // defaultValue: 'https://api.hggzk.com/',
+    defaultValue: 'http://192.168.0.101:5000/',
   );
 
   /// Arabic: المسار الموحد لخدمات الواجهة العامة فوق عنوان الخادم الجذري.

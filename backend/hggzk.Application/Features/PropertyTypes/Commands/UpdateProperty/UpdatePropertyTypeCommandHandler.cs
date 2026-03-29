@@ -69,7 +69,9 @@ namespace YemenBooking.Application.Features.PropertyTypes.Commands.UpdatePropert
                     return ResultDto<bool>.Failed("يوجد نوع كيان آخر بنفس الاسم");
                 type.Name = request.Name.Trim();
             }
+            type.NameEn = string.IsNullOrWhiteSpace(request.NameEn) ? null : request.NameEn.Trim();
             type.Description = request.Description?.Trim();
+            type.DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn.Trim();
             type.DefaultAmenities = request.DefaultAmenities;
             type.Icon = request.Icon.Trim();
             type.UpdatedBy = _currentUserService.UserId;

@@ -34,18 +34,21 @@ namespace YemenBooking.Application.Features.Properties.DTOs
         /// يحصل أو يعيّن اسم العقار.
         /// </summary>
         public string Name { get; set; }
+        public string? NameEn { get; set; }
 
         /// <summary>
         /// Gets or sets the full address.
         /// يحصل أو يعيّن العنوان الكامل.
         /// </summary>
         public string Address { get; set; }
+        public string? AddressEn { get; set; }
 
         /// <summary>
         /// Gets or sets the city.
         /// يحصل أو يعيّن المدينة.
         /// </summary>
         public string City { get; set; }
+        public string? CityEn { get; set; }
 
         /// <summary>
         /// Gets or sets the latitude.
@@ -70,12 +73,14 @@ namespace YemenBooking.Application.Features.Properties.DTOs
         /// يحصل أو يعيّن الوصف.
         /// </summary>
         public string Description { get; set; }
+        public string? DescriptionEn { get; set; }
 
         /// <summary>
         /// Gets or sets the short description.
         /// يحصل أو يعيّن الوصف المختصر.
         /// </summary>
         public string? ShortDescription { get; set; }
+        public string? ShortDescriptionEn { get; set; }
 
         /// <summary>
         /// Gets or sets whether the property is approved.
@@ -100,6 +105,7 @@ namespace YemenBooking.Application.Features.Properties.DTOs
         /// يحصل أو يعيّن اسم نوع العقار.
         /// </summary>
         public string TypeName { get; set; }
+        public string? TypeNameEn { get; set; }
         /// <summary>
         /// Gets or sets the property images.
         /// يحصل أو يعيّن صور العقار.

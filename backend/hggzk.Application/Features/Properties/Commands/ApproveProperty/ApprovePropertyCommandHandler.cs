@@ -148,8 +148,8 @@ namespace YemenBooking.Application.Features.Properties.Commands.ApproveProperty
             {
                 UserId = property.OwnerId,
                 Type = NotificationType.BookingConfirmed,
-                Title = "تمت الموافقة على الكيان",
-                Message = $"تمت الموافقة على كيانك '{property.Name}' بنجاح"
+                Title = "تمت الموافقة على الكيان / Property approved",
+                Message = $"تمت الموافقة على كيانك '{property.Name}' بنجاح / Your property '{property.Name}' has been approved successfully"
             }, cancellationToken);
 
             _logger.LogInformation("اكتملت الموافقة على الكيان: PropertyId={PropertyId}", request.PropertyId);

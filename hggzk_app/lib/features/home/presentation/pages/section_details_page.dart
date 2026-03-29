@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/section.dart';
@@ -71,7 +72,8 @@ class _SectionDetailsPageState extends State<SectionDetailsPage> {
         title: Text(
           widget.section?.title?.trim().isNotEmpty == true
               ? widget.section!.title!.trim()
-              : (widget.section?.name ?? 'عرض القسم'),
+              : (widget.section?.name ??
+                  context.tr('home.sections.viewSection')),
           style: AppTextStyles.h3.copyWith(color: AppTheme.textWhite),
         ),
         centerTitle: true,
@@ -104,7 +106,7 @@ class _SectionDetailsPageState extends State<SectionDetailsPage> {
                   displayOrder: 0,
                   target: fallbackBase?.target ?? SectionTarget.properties,
                   isActive: true,
-                  title: 'عرض القسم',
+                  title: context.tr('home.sections.viewSection'),
                 );
               }
             }

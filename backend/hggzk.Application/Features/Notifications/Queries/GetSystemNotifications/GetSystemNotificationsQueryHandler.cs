@@ -87,12 +87,14 @@ namespace YemenBooking.Application.Features.Notifications.Queries.GetSystemNotif
                 .Take(request.PageSize)
                 .ToListAsync(cancellationToken);
 
+            var language = _currentUserService.Language;
+
             var items = entities.Select(n => new NotificationDto
             {
                 Id = n.Id,
                 Type = n.Type,
-                Title = n.GetTitle("ar"),
-                Message = n.GetMessage("ar"),
+                Title = n.GetTitle(language),
+                Message = n.GetMessage(language),
                 Priority = n.Priority,
                 Status = n.Status,
                 RecipientId = n.RecipientId,

@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../entities/transaction.dart';
 import '../repositories/payment_repository.dart';
@@ -16,11 +17,17 @@ class ProcessPaymentUseCase
   Future<Either<Failure, Transaction>> call(ProcessPaymentParams params) async {
     // Validate payment details
     if (params.amount <= 0) {
-      return const Left(ValidationFailure('مبلغ الدفع غير صالح'));
+      return Left(
+        ValidationFailure(
+          AppLocalizations.translateSync('common.invalidData'),
+        ),
+      );
     }
 
     if (params.paymentMethod.isEmpty) {
-      return const Left(ValidationFailure('طريقة الدفع مطلوبة'));
+      return Left(
+        ValidationFailure(AppLocalizations.translateSync('common.required')),
+      );
     }
 
     final methodLower = params.paymentMethod.toLowerCase();
@@ -32,14 +39,26 @@ class ProcessPaymentUseCase
       if (cardDetails is! Map ||
           cardDetails['cardNumber'] == null ||
           cardDetails['cardNumber'].toString().isEmpty) {
-        return const Left(ValidationFailure('رقم البطاقة مطلوب'));
+        return Left(
+          ValidationFailure(
+            AppLocalizations.translateSync(
+              'payment.validation.cardNumberRequired',
+            ),
+          ),
+        );
       }
     } else if (methodLower.contains('jwali')) {
       // جوالي: يعتمد على voucher (كود شراء) وليس رقم محفظة/WalletId
       if (params.paymentDetails == null ||
           params.paymentDetails!['voucher'] == null ||
           params.paymentDetails!['voucher'].toString().isEmpty) {
-        return const Left(ValidationFailure('كود جوالي مطلوب'));
+        return Left(
+          ValidationFailure(
+            AppLocalizations.translateSync(
+              'payment.validation.walletCodeRequired',
+            ),
+          ),
+        );
       }
     } else if (methodLower.contains('wallet') &&
         !methodLower.contains('sabacash') &&
@@ -48,7 +67,13 @@ class ProcessPaymentUseCase
       if (params.paymentDetails == null ||
           params.paymentDetails!['walletId'] == null ||
           params.paymentDetails!['walletId'].toString().isEmpty) {
-        return const Left(ValidationFailure('رقم المحفظة مطلوب'));
+        return Left(
+          ValidationFailure(
+            AppLocalizations.translateSync(
+              'payment.validation.walletNumberRequired',
+            ),
+          ),
+        );
       }
     } else if (methodLower.contains('sabacash')) {
       // سبأ كاش: التحقق من OTP في المرحلة الثانية فقط (إذا أرسلت)
@@ -57,8 +82,11 @@ class ProcessPaymentUseCase
           params.paymentDetails!['otp'].toString().isNotEmpty) {
         final otp = params.paymentDetails!['otp'].toString();
         if (otp.length != 4) {
-          return const Left(
-              ValidationFailure('رمز التحقق يجب أن يتكون من 4 أرقام'));
+          return Left(
+            ValidationFailure(
+              AppLocalizations.translateSync('common.invalidData'),
+            ),
+          );
         }
       }
     } else if (methodLower.contains('flosk')) {
@@ -68,8 +96,11 @@ class ProcessPaymentUseCase
           params.paymentDetails!['otp'].toString().isNotEmpty) {
         final otp = params.paymentDetails!['otp'].toString();
         if (otp.length != 6 || int.tryParse(otp) == null) {
-          return const Left(
-              ValidationFailure('رمز التحقق يجب أن يتكون من 6 أرقام'));
+          return Left(
+            ValidationFailure(
+              AppLocalizations.translateSync('common.invalidData'),
+            ),
+          );
         }
       }
     }

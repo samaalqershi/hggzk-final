@@ -61,7 +61,9 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
         propertyId: event.propertyId,
         policyType: event.policyType,
         description: event.description,
+        descriptionEn: event.descriptionEn,
         rules: event.rules,
+        rulesEn: event.rulesEn,
       ),
     );
 
@@ -85,7 +87,9 @@ class PoliciesBloc extends Bloc<PoliciesEvent, PoliciesState> {
         policyId: event.policyId,
         policyType: event.policyType,
         description: event.description,
+        descriptionEn: event.descriptionEn,
         rules: event.rules,
+        rulesEn: event.rulesEn,
       ),
     );
 

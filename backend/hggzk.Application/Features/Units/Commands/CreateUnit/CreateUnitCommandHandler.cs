@@ -174,12 +174,14 @@ namespace YemenBooking.Application.Features.Units.Commands.CreateUnit
                     PropertyId = request.PropertyId,
                     UnitTypeId = request.UnitTypeId,
                     Name = request.Name.Trim(),
+                    NameEn = string.IsNullOrWhiteSpace(request.NameEn) ? null : request.NameEn.Trim(),
                     MaxCapacity = unitType.MaxCapacity,
                     AdultsCapacity = request.AdultCapacity.HasValue && request.AdultCapacity.Value > 0
                         ? request.AdultCapacity.Value
                         : null,
                     ChildrenCapacity = request.ChildrenCapacity,
                     CustomFeatures = request.CustomFeatures.Trim(),
+                    CustomFeaturesEn = string.IsNullOrWhiteSpace(request.CustomFeaturesEn) ? null : request.CustomFeaturesEn.Trim(),
                     PricingMethod = request.PricingMethod,
                     AllowsCancellation = request.AllowsCancellation,
                     CancellationWindowDays = request.CancellationWindowDays,
@@ -215,10 +217,12 @@ namespace YemenBooking.Application.Features.Units.Commands.CreateUnit
                     created.PropertyId,
                     created.UnitTypeId,
                     created.Name,
+                    created.NameEn,
                     created.MaxCapacity,
                     created.AdultsCapacity,
                     created.ChildrenCapacity,
                     created.CustomFeatures,
+                    created.CustomFeaturesEn,
                     created.PricingMethod,
                     created.AllowsCancellation,
                     created.CancellationWindowDays

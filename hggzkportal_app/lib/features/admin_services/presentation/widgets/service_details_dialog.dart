@@ -1,4 +1,3 @@
-import 'package:hggzkportal/features/admin_services/domain/entities/service_details.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
@@ -52,6 +51,7 @@ class ServiceDetailsDialog extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -103,6 +103,18 @@ class ServiceDetailsDialog extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                if (_normalizedSecondary(service.nameEn, service.name) != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      _normalizedSecondary(service.nameEn, service.name)!,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppTheme.textMuted,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 4),
                 Text(
                   'Icons.${service.icon}',
                   style: AppTextStyles.caption.copyWith(
@@ -122,6 +134,7 @@ class ServiceDetailsDialog extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildContent() {
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -131,6 +144,8 @@ class ServiceDetailsDialog extends StatelessWidget {
             icon: Icons.business_rounded,
             label: 'العقار',
             value: service.propertyName,
+            secondaryValue: _normalizedSecondary(
+                service.propertyNameEn, service.propertyName),
           ),
           const SizedBox(height: 16),
           _buildInfoRow(
@@ -143,10 +158,13 @@ class ServiceDetailsDialog extends StatelessWidget {
           _buildInfoRow(
             icon: Icons.description_rounded,
             label: 'الوصف',
-            value: (service is ServiceDetails &&
-                    (service as dynamic).description != null)
-                ? ((service as dynamic).description as String)
+            value: service.description?.trim().isNotEmpty == true
+                ? service.description!
                 : '-',
+            secondaryValue: _normalizedSecondary(
+              service.descriptionEn,
+              service.description ?? '',
+            ),
           ),
           const SizedBox(height: 16),
           _buildInfoRow(
@@ -165,10 +183,12 @@ class ServiceDetailsDialog extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildInfoRow({
     required IconData icon,
     required String label,
     required String value,
+    String? secondaryValue,
     bool isMonospace = false,
     Color? valueColor,
   }) {
@@ -206,10 +226,33 @@ class ServiceDetailsDialog extends StatelessWidget {
                   fontFamily: isMonospace ? 'monospace' : null,
                 ),
               ),
+              if (secondaryValue != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    secondaryValue,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppTheme.textMuted,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
       ],
     );
+  }
+
+  String? _normalizedSecondary(String? secondary, String primary) {
+    final normalized = secondary?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      return null;
+    }
+
+    if (normalized == primary.trim()) {
+      return null;
+    }
+
+    return normalized;
   }
 }

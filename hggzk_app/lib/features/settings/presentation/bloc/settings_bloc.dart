@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/storage_constants.dart';
 import '../../../../core/usecases/usecase.dart';
 import 'package:hggzk/app/dependency_injection/injection_container.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
+import 'package:hggzk/core/localization/locale_manager.dart';
 import 'package:hggzk/core/services/biometric_auth_service.dart';
 import 'package:hggzk/core/services/local_storage_service.dart';
 import '../../domain/entities/app_settings.dart';
@@ -24,6 +26,18 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   /// The working settings snapshot that gets updated locally before being
   /// reloaded from the persistent source.
   AppSettings? _currentSettings;
+
+  Future<String> _tr(
+    String key, {
+    String? fallback,
+    Map<String, Object?> params = const {},
+  }) {
+    return AppLocalizations.translate(
+      key,
+      locale: LocaleManager.getCurrentLocale(),
+      params: params,
+    );
+  }
 
   /// يحمّل النسخة المعتمدة من الإعدادات عند الطلب حتى يبدأ البلوك من حالة
   /// صحيحة.
@@ -130,7 +144,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           );
           emit(SettingsUpdated(
             _currentSettings!,
-            message: 'تم تغيير اللغة بنجاح',
+            message: await _tr('settings.language.updated'),
           ));
           add(LoadSettingsEvent());
         },
@@ -164,8 +178,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           emit(SettingsUpdated(
             _currentSettings!,
             message: event.isDarkMode
-                ? 'تم تفعيل الوضع الليلي'
-                : 'تم تفعيل الوضع النهاري',
+                ? await _tr('settings.theme.darkEnabled')
+                : await _tr('settings.theme.lightEnabled'),
           ));
           add(LoadSettingsEvent());
         },
@@ -195,14 +209,18 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
             },
           );
           await _syncBiometricStorage(event.enabled);
-          emit(SettingsUpdated(_currentSettings!,
-              message: event.enabled
-                  ? 'تم تفعيل تسجيل الدخول بالبصمة'
-                  : 'تم إيقاف تسجيل الدخول بالبصمة'));
+          emit(SettingsUpdated(
+            _currentSettings!,
+            message: event.enabled
+                ? await _tr('settings.biometric.enabled')
+                : await _tr('settings.biometric.disabled'),
+          ));
           add(LoadSettingsEvent());
         } catch (e) {
-          emit(SettingsError('فشل تحديث البصمة',
-              lastKnownSettings: _currentSettings));
+          emit(SettingsError(
+            await _tr('settings.biometric.updateFailed'),
+            lastKnownSettings: _currentSettings,
+          ));
         }
         return;
       }
@@ -227,8 +245,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           emit(SettingsUpdated(
             _currentSettings!,
             message: event.enabled
-                ? 'تم تفعيل تسجيل الدخول بالبصمة'
-                : 'تم إيقاف تسجيل الدخول بالبصمة',
+                ? await _tr('settings.biometric.enabled')
+                : await _tr('settings.biometric.disabled'),
           ));
           add(LoadSettingsEvent());
         },
@@ -261,7 +279,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           );
           emit(SettingsUpdated(
             _currentSettings!,
-            message: 'تم تحديث إعدادات الإشعارات',
+            message: await _tr('settings.notifications.updated'),
           ));
           // Reload to ensure consistency
           add(LoadSettingsEvent());
@@ -289,7 +307,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
       emit(SettingsUpdated(
         _currentSettings!,
-        message: 'تم تغيير العملة بنجاح',
+        message: await _tr('settings.currency.updated'),
       ));
     }
   }
@@ -311,7 +329,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
       emit(SettingsUpdated(
         _currentSettings!,
-        message: 'تم تغيير المنطقة الزمنية',
+        message: await _tr('settings.timezone.updated'),
       ));
     }
   }
@@ -331,7 +349,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
     emit(SettingsUpdated(
       _currentSettings!,
-      message: 'تم إعادة الإعدادات إلى الوضع الافتراضي',
+      message: await _tr('settings.reset.done'),
     ));
 
     // Reload settings
@@ -382,7 +400,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         },
       );
       _currentSettings = updatedSettings;
-      emit(SettingsUpdated(updatedSettings, message: 'تم قبول سياسة الخصوصية'));
+      emit(SettingsUpdated(
+        updatedSettings,
+        message: await _tr('settings.privacy.accepted'),
+      ));
     }
   }
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 
 /// يراقب الشبكة ويقدّم حالة اتصال موحدة يعتمد عليها التطبيق كله.
 /// Watches network reachability and exposes one shared connection state.
@@ -217,15 +218,15 @@ extension ConnectionQualityExtension on ConnectionQuality {
   String get displayName {
     switch (this) {
       case ConnectionQuality.none:
-        return 'لا يوجد اتصال';
+        return AppLocalizations.translateSync('core.connectivity.none');
       case ConnectionQuality.poor:
-        return 'اتصال ضعيف';
+        return AppLocalizations.translateSync('core.connectivity.poor');
       case ConnectionQuality.fair:
-        return 'اتصال مقبول';
+        return AppLocalizations.translateSync('core.connectivity.fair');
       case ConnectionQuality.good:
-        return 'اتصال جيد';
+        return AppLocalizations.translateSync('core.connectivity.good');
       case ConnectionQuality.excellent:
-        return 'اتصال ممتاز';
+        return AppLocalizations.translateSync('core.connectivity.excellent');
     }
   }
 

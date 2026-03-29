@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/validators.dart';
@@ -155,7 +156,7 @@ class _RegisterFormState extends State<RegisterForm>
               shaderCallback: (bounds) =>
                   AppTheme.primaryGradient.createShader(bounds),
               child: Text(
-                'إنشاء حساب',
+                context.tr('auth.register.title'),
                 style: AppTextStyles.h2.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
@@ -167,7 +168,9 @@ class _RegisterFormState extends State<RegisterForm>
           const SizedBox(height: 8),
 
           Text(
-            'أدخل بياناتك لإنشاء حساب جديد',
+            context.tr(
+              'auth.register.subtitle',
+            ),
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(
               color: AppTheme.textMuted,
@@ -180,8 +183,10 @@ class _RegisterFormState extends State<RegisterForm>
           _buildUltraCompactField(
             controller: _nameController,
             focusNode: _nameFocusNode,
-            label: 'الاسم',
-            hint: 'اسمك الكامل',
+            label: context.tr('auth.register.nameLabel'),
+            hint: context.tr(
+              'auth.register.nameHint',
+            ),
             icon: Icons.person_outline_rounded,
             textInputAction: TextInputAction.next,
             onFieldSubmitted: (_) {
@@ -189,10 +194,12 @@ class _RegisterFormState extends State<RegisterForm>
             },
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'مطلوب';
+                return context.tr('auth.validation.required');
               }
               if (value.length < 3) {
-                return '3 أحرف على الأقل';
+                return context.tr(
+                  'auth.register.nameMin3',
+                );
               }
               return null;
             },
@@ -204,8 +211,10 @@ class _RegisterFormState extends State<RegisterForm>
           _buildUltraCompactField(
             controller: _emailController,
             focusNode: _emailFocusNode,
-            label: 'البريد',
-            hint: 'example@email.com',
+            label: context.tr('auth.register.emailLabel'),
+            hint: context.tr(
+              'auth.register.emailHint',
+            ),
             icon: Icons.email_outlined,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
@@ -214,10 +223,12 @@ class _RegisterFormState extends State<RegisterForm>
             },
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'مطلوب';
+                return context.tr('auth.validation.required');
               }
               if (!Validators.isValidEmail(value)) {
-                return 'بريد غير صحيح';
+                return context.tr(
+                  'auth.register.emailInvalid',
+                );
               }
               return null;
             },
@@ -229,8 +240,10 @@ class _RegisterFormState extends State<RegisterForm>
           _buildUltraCompactField(
             controller: _phoneController,
             focusNode: _phoneFocusNode,
-            label: 'الهاتف',
-            hint: '7XXXXXXXX أو +9677XXXXXXX',
+            label: context.tr('auth.register.phoneLabel'),
+            hint: context.tr(
+              'auth.register.phoneHint',
+            ),
             icon: Icons.phone_outlined,
             keyboardType: TextInputType.phone,
             textInputAction: TextInputAction.next,
@@ -245,12 +258,14 @@ class _RegisterFormState extends State<RegisterForm>
             },
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'مطلوب';
+                return context.tr('auth.validation.required');
               }
               // Validate against normalized local format (9 digits starting with 7).
               if (!Validators.isValidPhoneNumber(
                   Validators.normalizeYemenPhone(value))) {
-                return 'رقم غير صحيح';
+                return context.tr(
+                  'auth.register.phoneInvalid',
+                );
               }
               return null;
             },
@@ -262,8 +277,12 @@ class _RegisterFormState extends State<RegisterForm>
           _buildUltraCompactField(
             controller: _passwordController,
             focusNode: _passwordFocusNode,
-            label: 'كلمة المرور',
-            hint: '••••••••',
+            label: context.tr(
+              'auth.register.passwordLabel',
+            ),
+            hint: context.tr(
+              'auth.register.passwordHint',
+            ),
             icon: Icons.lock_outline_rounded,
             obscureText: _obscurePassword,
             textInputAction: TextInputAction.next,
@@ -276,10 +295,12 @@ class _RegisterFormState extends State<RegisterForm>
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'مطلوب';
+                return context.tr('auth.validation.required');
               }
               if (!Validators.isValidPassword(value, minLength: 8)) {
-                return '8 أحرف على الأقل';
+                return context.tr(
+                  'auth.register.passwordMin8',
+                );
               }
               return null;
             },
@@ -300,8 +321,12 @@ class _RegisterFormState extends State<RegisterForm>
           _buildUltraCompactField(
             controller: _confirmPasswordController,
             focusNode: _confirmPasswordFocusNode,
-            label: 'تأكيد المرور',
-            hint: '••••••••',
+            label: context.tr(
+              'auth.register.confirmPasswordLabel',
+            ),
+            hint: context.tr(
+              'auth.register.confirmPasswordHint',
+            ),
             icon: Icons.lock_outline_rounded,
             obscureText: _obscureConfirmPassword,
             textInputAction: TextInputAction.done,
@@ -313,10 +338,12 @@ class _RegisterFormState extends State<RegisterForm>
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'مطلوب';
+                return context.tr('auth.validation.required');
               }
               if (value != _passwordController.text) {
-                return 'كلمات المرور غير متطابقة';
+                return context.tr(
+                  'auth.register.passwordMismatch',
+                );
               }
               return null;
             },
@@ -502,9 +529,15 @@ class _RegisterFormState extends State<RegisterForm>
                   color: AppTheme.textMuted.withOpacity(0.5),
                 ),
                 children: [
-                  const TextSpan(text: 'أوافق على '),
                   TextSpan(
-                    text: 'الشروط',
+                    text: context.tr(
+                      'auth.register.termsPrefix',
+                    ),
+                  ),
+                  TextSpan(
+                    text: context.tr(
+                      'auth.register.termsText',
+                    ),
                     style: TextStyle(
                       color: AppTheme.primaryBlue.withOpacity(0.7),
                       decoration: TextDecoration.underline,
@@ -512,9 +545,15 @@ class _RegisterFormState extends State<RegisterForm>
                     ),
                     recognizer: _termsRecognizer,
                   ),
-                  const TextSpan(text: ' و'),
                   TextSpan(
-                    text: 'الخصوصية',
+                    text: context.tr(
+                      'auth.register.termsAnd',
+                    ),
+                  ),
+                  TextSpan(
+                    text: context.tr(
+                      'auth.register.privacyText',
+                    ),
                     style: TextStyle(
                       color: AppTheme.primaryBlue.withOpacity(0.7),
                       decoration: TextDecoration.underline,
@@ -568,7 +607,9 @@ class _RegisterFormState extends State<RegisterForm>
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'جاري التسجيل...',
+                        context.tr(
+                          'auth.register.loading',
+                        ),
                         style: AppTextStyles.bodySmall.copyWith(
                           color: Colors.white,
                         ),
@@ -585,7 +626,9 @@ class _RegisterFormState extends State<RegisterForm>
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'إنشاء حساب',
+                        context.tr(
+                          'auth.register.submit',
+                        ),
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -657,7 +700,9 @@ class _RegisterFormState extends State<RegisterForm>
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'يجب الموافقة على الشروط',
+                  context.tr(
+                    'auth.register.mustAcceptTerms',
+                  ),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.textWhite.withOpacity(0.9),
                   ),

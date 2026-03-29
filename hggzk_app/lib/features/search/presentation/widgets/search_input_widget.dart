@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'dart:math' as math;
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -134,16 +135,16 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
   Timer? _typingTimer;
 
   // Enhanced suggestions
-  final List<String> _defaultSuggestions = [
-    'فندق في صنعاء',
-    'شقة للإيجار في عدن',
-    'فيلا في تعز',
-    'منتجع ساحلي',
-    'غرفة فندقية رخيصة',
-    'شاليه على البحر',
-    'استراحة عائلية',
-    'مكان هادئ',
-  ];
+  List<String> _defaultSuggestions(BuildContext context) => [
+        context.tr('search.input.suggestions.hotelSanaa'),
+        context.tr('search.input.suggestions.apartmentAden'),
+        context.tr('search.input.suggestions.villaTaiz'),
+        context.tr('search.input.suggestions.coastalResort'),
+        context.tr('search.input.suggestions.cheapRoom'),
+        context.tr('search.input.suggestions.seaChalet'),
+        context.tr('search.input.suggestions.familyLodge'),
+        context.tr('search.input.suggestions.quietPlace'),
+      ];
 
   // Recent searches
   /// Recent suggestions shown before the user types a long query.
@@ -300,7 +301,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
   void _showSuggestions() {
     _hideSuggestions();
 
-    final suggestions = _getFilteredSuggestions();
+    final suggestions = _getFilteredSuggestions(context);
     if (suggestions.isEmpty) return;
 
     _overlayEntry = _createUltraOverlayEntry(suggestions);
@@ -313,12 +314,12 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     _overlayEntry = null;
   }
 
-  List<String> _getFilteredSuggestions() {
+  List<String> _getFilteredSuggestions(BuildContext context) {
     final query = _controller.text.toLowerCase();
     final sourceSuggestions =
         (widget.suggestions != null && widget.suggestions!.isNotEmpty)
             ? widget.suggestions!
-            : _defaultSuggestions;
+            : _defaultSuggestions(context);
 
     final allSuggestions = [
       ..._recentSearches,
@@ -518,7 +519,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
                             ),
                             if (isRecent)
                               Text(
-                                'بحث سابق',
+                                context.tr('search.input.recentSearch'),
                                 style: AppTextStyles.overline.copyWith(
                                   color: AppTheme.textMuted.withOpacity(0.5),
                                 ),
@@ -682,7 +683,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
                 ),
                 decoration: InputDecoration(
                   hintText:
-                      widget.hintText ?? 'ابحث عن الفنادق، الشقق، المدن...',
+                      widget.hintText ?? context.tr('search.input.placeholder'),
                   hintStyle: AppTextStyles.bodySmall.copyWith(
                     color: AppTheme.textMuted.withOpacity(0.4),
                   ),

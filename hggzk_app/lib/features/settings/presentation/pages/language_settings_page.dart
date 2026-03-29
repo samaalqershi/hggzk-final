@@ -5,9 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../bloc/settings_bloc.dart';
 import '../bloc/settings_event.dart';
 import '../bloc/settings_state.dart';
@@ -58,32 +58,24 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
   /// Pulse animation value used by the background painter.
   late Animation<double> _pulseAnimation;
 
-  /// قيمة الانتقال المستخدمة لتفعيل تأثير التحديد.
-  /// Selection animation value used to activate the highlight effect.
-  late Animation<double> _selectionAnimation;
-
-  /// اللغة المحددة حاليًا داخل الصفحة قبل حفظها في الإعدادات.
-  /// Currently selected language inside the page before persistence.
-  String? _selectedLanguage;
-
   /// خيارات اللغة المعروضة للمستخدم داخل الواجهة.
   /// Language options shown to the user in the UI.
-  final List<_UltraMinimalLanguage> _languages = [
-    _UltraMinimalLanguage(
-      code: 'ar',
-      name: 'العربية',
-      subtitle: 'Arabic',
-      icon: '🇾🇪',
-      direction: 'RTL',
-    ),
-    _UltraMinimalLanguage(
-      code: 'en',
-      name: 'English',
-      subtitle: 'الإنجليزية',
-      icon: '🇬🇧',
-      direction: 'LTR',
-    ),
-  ];
+  List<_UltraMinimalLanguage> _localizedLanguages(BuildContext context) => [
+        _UltraMinimalLanguage(
+          code: 'ar',
+          name: context.tr('settings.item.languageArabic'),
+          subtitle: context.tr('settings.item.languageArabic'),
+          icon: '🇾🇪',
+          direction: 'RTL',
+        ),
+        _UltraMinimalLanguage(
+          code: 'en',
+          name: context.tr('settings.item.languageEnglish'),
+          subtitle: context.tr('settings.item.languageEnglish'),
+          icon: '🇬🇧',
+          direction: 'LTR',
+        ),
+      ];
 
   /// يهيئ المتحكمات الحركية ويبدأ الانتقالات الأولى للصفحة.
   /// Initializes animation controllers and starts the first page transitions.
@@ -138,11 +130,6 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
       curve: Curves.easeInOut,
     ));
 
-    _selectionAnimation = CurvedAnimation(
-      parent: _selectionController,
-      curve: Curves.easeOutCubic,
-    );
-
     _fadeController.forward();
     _slideController.forward();
   }
@@ -150,15 +137,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
   /// يقرأ اللغة المحفوظة من SettingsBloc ليعرض الاختيار الحالي بدقة.
   /// Reads the saved language from SettingsBloc so the current selection is accurate.
   void _loadCurrentLanguage() {
-    final state = context.read<SettingsBloc>().state;
-    if (state is SettingsLoaded || state is SettingsUpdated) {
-      final settings = (state is SettingsLoaded)
-          ? state.settings
-          : (state as SettingsUpdated).settings;
-      setState(() {
-        _selectedLanguage = settings.preferredLanguage;
-      });
-    }
+    // The current language is read directly from SettingsBloc in build().
   }
 
   /// يحرر متحكمات الحركة حتى لا تبقى موارد معلقّة بعد مغادرة الصفحة.
@@ -253,7 +232,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'اللغة',
+                  context.tr('settings.language.title'),
                   style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -262,7 +241,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'اختر لغة التطبيق',
+                  context.tr('settings.language.subtitle'),
                   style: AppTextStyles.caption.copyWith(
                     fontSize: 11,
                     color: AppTheme.textMuted.withOpacity(0.5),
@@ -330,6 +309,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
     return BlocBuilder<SettingsBloc, SettingsState>(
       builder: (context, state) {
         String currentLanguage = 'ar';
+        final languages = _localizedLanguages(context);
 
         if (state is SettingsLoaded || state is SettingsUpdated) {
           final settings = (state is SettingsLoaded)
@@ -345,8 +325,8 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
               const SizedBox(height: 32),
 
               // Language cards
-              ...List.generate(_languages.length, (index) {
-                final language = _languages[index];
+              ...List.generate(languages.length, (index) {
+                final language = languages[index];
                 final isSelected = language.code == currentLanguage;
 
                 return TweenAnimationBuilder<double>(
@@ -391,9 +371,6 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
-        setState(() {
-          _selectedLanguage = language.code;
-        });
         if (isSelected) return;
         _selectionController.forward(from: 0);
         onTap();
@@ -590,7 +567,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      currentLanguage == 'ar' ? 'معلومة' : 'Info',
+                      context.tr('settings.language.infoTitle'),
                       style: AppTextStyles.caption.copyWith(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -599,9 +576,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      currentLanguage == 'ar'
-                          ? 'سيتم تطبيق اللغة على جميع أجزاء التطبيق'
-                          : 'Language will be applied to all app sections',
+                      context.tr('settings.language.infoDescription'),
                       style: AppTextStyles.caption.copyWith(
                         fontSize: 10,
                         color: AppTheme.textMuted.withOpacity(0.6),
@@ -632,9 +607,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage>
 
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
-      builder: (context) => _UltraMinimalSnackBar(
-        languageCode: languageCode,
-      ),
+      builder: (context) => _UltraMinimalSnackBar(languageCode: languageCode),
     );
 
     overlay.insert(overlayEntry);
@@ -783,8 +756,8 @@ class _UltraMinimalSnackBarState extends State<_UltraMinimalSnackBar>
                       const SizedBox(width: 10),
                       Text(
                         isArabic
-                            ? 'تم تغيير اللغة إلى العربية'
-                            : 'Language changed to English',
+                            ? context.tr('settings.language.changedArabic')
+                            : context.tr('settings.language.changedEnglish'),
                         style: AppTextStyles.caption.copyWith(
                           fontSize: 12,
                           color: AppTheme.textWhite.withOpacity(0.9),

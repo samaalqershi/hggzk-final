@@ -26,6 +26,13 @@ public class FieldGroup : BaseEntity<Guid>
     public string GroupName { get; set; }
 
     /// <summary>
+    /// اسم المجموعة باللغة الإنجليزية.
+    /// English group name.
+    /// </summary>
+    [Display(Name = "اسم المجموعة بالإنجليزية")]
+    public string? GroupNameEn { get; set; }
+
+    /// <summary>
     /// الاسم المعروض للمجموعة.
     /// Display name of the group.
     /// </summary>
@@ -33,11 +40,25 @@ public class FieldGroup : BaseEntity<Guid>
     public string DisplayName { get; set; }
 
     /// <summary>
+    /// الاسم المعروض للمجموعة باللغة الإنجليزية.
+    /// English display name of the group.
+    /// </summary>
+    [Display(Name = "الاسم المعروض للمجموعة بالإنجليزية")]
+    public string? DisplayNameEn { get; set; }
+
+    /// <summary>
     /// وصف المجموعة.
     /// Group description.
     /// </summary>
     [Display(Name = "وصف المجموعة")]
     public string Description { get; set; }
+
+    /// <summary>
+    /// وصف المجموعة باللغة الإنجليزية.
+    /// English group description.
+    /// </summary>
+    [Display(Name = "وصف المجموعة بالإنجليزية")]
+    public string? DescriptionEn { get; set; }
 
     /// <summary>
     /// ترتيب العرض.

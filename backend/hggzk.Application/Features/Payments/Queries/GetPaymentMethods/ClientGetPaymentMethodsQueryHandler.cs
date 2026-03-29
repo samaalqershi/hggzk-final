@@ -9,6 +9,7 @@ using YemenBooking.Core.Enums;
 using YemenBooking.Application.Features;
 using System.Collections.Generic;
 using System.Linq;
+using YemenBooking.Application.Common.Helpers;
 
 namespace YemenBooking.Application.Features.Payments.Queries.GetPaymentMethods;
 
@@ -263,7 +264,7 @@ public class ClientGetPaymentMethodsQueryHandler : IRequestHandler<ClientGetPaym
                 MaxAmount = 1000000,
                 SupportedCurrencies = jwaliCurrencies,
                 SupportedCountries = new List<string> { "YE" },
-                ProcessingTime = "فوري",
+                ProcessingTime = LocalizedText.Choose("فوري", "Instant"),
                 Type = PaymentMethodEnum.JwaliWallet.ToString(),
                 RequiresVerification = false,
                 SupportsRefunds = true,
@@ -294,7 +295,7 @@ public class ClientGetPaymentMethodsQueryHandler : IRequestHandler<ClientGetPaym
                 MaxAmount = 1000000,
                 SupportedCurrencies = floskCurrencies,
                 SupportedCountries = new List<string> { "YE" },
-                ProcessingTime = "فوري",
+                ProcessingTime = LocalizedText.Choose("فوري", "Instant"),
                 Type = PaymentMethodEnum.FloskWallet.ToString(),
                 RequiresVerification = true,
                 SupportsRefunds = true,
@@ -313,8 +314,10 @@ public class ClientGetPaymentMethodsQueryHandler : IRequestHandler<ClientGetPaym
             methods.Add(new ClientPaymentMethodDto
             {
                 Id = ((int)PaymentMethodEnum.SabaCashWallet).ToString(),
-                Name = "محفظة سبأ كاش",
-                Description = "الدفع عبر محفظة سبأ كاش الإلكترونية (عبر YottaPay)",
+                Name = LocalizedText.Choose("محفظة سبأ كاش", "SabaCash Wallet"),
+                Description = LocalizedText.Choose(
+                    "الدفع عبر محفظة سبأ كاش الإلكترونية (عبر YottaPay)",
+                    "Pay via the SabaCash electronic wallet (through YottaPay)"),
                 IconUrl = "/images/payment-sabacash.png",
                 LogoUrl = "/images/payment-sabacash.png",
                 IsAvailable = true,
@@ -324,7 +327,7 @@ public class ClientGetPaymentMethodsQueryHandler : IRequestHandler<ClientGetPaym
                 MaxAmount = 1000000,
                 SupportedCurrencies = new List<string> { "YER" },
                 SupportedCountries = new List<string> { "YE" },
-                ProcessingTime = "فوري",
+                ProcessingTime = LocalizedText.Choose("فوري", "Instant"),
                 Type = PaymentMethodEnum.SabaCashWallet.ToString(),
                 RequiresVerification = true,
                 SupportsRefunds = true,
@@ -345,14 +348,14 @@ public class ClientGetPaymentMethodsQueryHandler : IRequestHandler<ClientGetPaym
     {
         return method switch
         {
-            PaymentMethodEnum.JwaliWallet => "محفظة جوالي",
-            PaymentMethodEnum.CashWallet => "محفظة كاش",
-            PaymentMethodEnum.OneCashWallet => "محفظة ون كاش",
-            PaymentMethodEnum.FloskWallet => "محفظة فلوس",
-            PaymentMethodEnum.JaibWallet => "محفظة جيب",
-            PaymentMethodEnum.Cash => "نقدي",
+            PaymentMethodEnum.JwaliWallet => LocalizedText.Choose("محفظة جوالي", "Jwali Wallet"),
+            PaymentMethodEnum.CashWallet => LocalizedText.Choose("محفظة كاش", "Cash Wallet"),
+            PaymentMethodEnum.OneCashWallet => LocalizedText.Choose("محفظة ون كاش", "OneCash Wallet"),
+            PaymentMethodEnum.FloskWallet => LocalizedText.Choose("محفظة فلوس", "Flosk Wallet"),
+            PaymentMethodEnum.JaibWallet => LocalizedText.Choose("محفظة جيب", "Jaib Wallet"),
+            PaymentMethodEnum.Cash => LocalizedText.Choose("نقدي", "Cash"),
             PaymentMethodEnum.Paypal => "PayPal",
-            PaymentMethodEnum.CreditCard => "بطاقة ائتمان",
+            PaymentMethodEnum.CreditCard => LocalizedText.Choose("بطاقة ائتمان", "Credit Card"),
             _ => method.ToString()
         };
     }
@@ -361,15 +364,31 @@ public class ClientGetPaymentMethodsQueryHandler : IRequestHandler<ClientGetPaym
     {
         return method switch
         {
-            PaymentMethodEnum.JwaliWallet => "الدفع عبر محفظة جوالي الإلكترونية",
-            PaymentMethodEnum.CashWallet => "الدفع عبر محفظة كاش الإلكترونية",
-            PaymentMethodEnum.OneCashWallet => "الدفع عبر محفظة ون كاش",
-            PaymentMethodEnum.FloskWallet => "الدفع عبر محفظة فلوس",
-            PaymentMethodEnum.JaibWallet => "الدفع عبر محفظة جيب",
-            PaymentMethodEnum.Cash => "الدفع نقداً عند الوصول",
-            PaymentMethodEnum.Paypal => "الدفع عبر PayPal",
-            PaymentMethodEnum.CreditCard => "الدفع بالبطاقة الائتمانية",
-            _ => "طريقة دفع"
+            PaymentMethodEnum.JwaliWallet => LocalizedText.Choose(
+                "الدفع عبر محفظة جوالي الإلكترونية",
+                "Pay using the Jwali electronic wallet"),
+            PaymentMethodEnum.CashWallet => LocalizedText.Choose(
+                "الدفع عبر محفظة كاش الإلكترونية",
+                "Pay using the Cash electronic wallet"),
+            PaymentMethodEnum.OneCashWallet => LocalizedText.Choose(
+                "الدفع عبر محفظة ون كاش",
+                "Pay using the OneCash wallet"),
+            PaymentMethodEnum.FloskWallet => LocalizedText.Choose(
+                "الدفع عبر محفظة فلوس",
+                "Pay using the Flosk wallet"),
+            PaymentMethodEnum.JaibWallet => LocalizedText.Choose(
+                "الدفع عبر محفظة جيب",
+                "Pay using the Jaib wallet"),
+            PaymentMethodEnum.Cash => LocalizedText.Choose(
+                "الدفع نقداً عند الوصول",
+                "Pay in cash upon arrival"),
+            PaymentMethodEnum.Paypal => LocalizedText.Choose(
+                "الدفع عبر PayPal",
+                "Pay via PayPal"),
+            PaymentMethodEnum.CreditCard => LocalizedText.Choose(
+                "الدفع بالبطاقة الائتمانية",
+                "Pay with a credit card"),
+            _ => LocalizedText.Choose("طريقة دفع", "Payment method")
         };
     }
     
@@ -413,8 +432,10 @@ public class ClientGetPaymentMethodsQueryHandler : IRequestHandler<ClientGetPaym
                 new ClientPaymentMethodDto
                 {
                     Id = "cash_on_delivery",
-                    Name = "الدفع عند الاستلام",
-                    Description = "ادفع نقداً عند وصولك للعقار",
+                    Name = LocalizedText.Choose("الدفع عند الاستلام", "Pay on arrival"),
+                    Description = LocalizedText.Choose(
+                        "ادفع نقداً عند وصولك للعقار",
+                        "Pay in cash when you arrive at the property"),
                     Type = "cash",
                     IsAvailable = true,
                     TransactionFee = 0,
@@ -423,7 +444,7 @@ public class ClientGetPaymentMethodsQueryHandler : IRequestHandler<ClientGetPaym
                     MaxAmount = 1000000,
                     SupportedCurrencies = new List<string> { "YER" },
                     SupportedCountries = new List<string> { "YE" },
-                    ProcessingTime = "فوري",
+                    ProcessingTime = LocalizedText.Choose("فوري", "Instant"),
                     SupportsRefunds = true,
                     DisplayOrder = 1,
                     IsRecommended = true
@@ -431,8 +452,10 @@ public class ClientGetPaymentMethodsQueryHandler : IRequestHandler<ClientGetPaym
                 new ClientPaymentMethodDto
                 {
                     Id = "bank_transfer",
-                    Name = "تحويل بنكي",
-                    Description = "حوّل المبلغ إلى حساب العقار مباشرة",
+                    Name = LocalizedText.Choose("تحويل بنكي", "Bank transfer"),
+                    Description = LocalizedText.Choose(
+                        "حوّل المبلغ إلى حساب العقار مباشرة",
+                        "Transfer the amount directly to the property's account"),
                     Type = "bank_transfer",
                     IsAvailable = true,
                     TransactionFee = 10,
@@ -441,15 +464,17 @@ public class ClientGetPaymentMethodsQueryHandler : IRequestHandler<ClientGetPaym
                     MaxAmount = 5000000,
                     SupportedCurrencies = new List<string> { "YER", "USD", "SAR" },
                     SupportedCountries = new List<string> { "YE", "SA", "AE" },
-                    ProcessingTime = "1-3 أيام عمل",
+                    ProcessingTime = LocalizedText.Choose("1-3 أيام عمل", "1-3 business days"),
                     SupportsRefunds = true,
                     DisplayOrder = 2
                 },
                 new ClientPaymentMethodDto
                 {
                     Id = "mobile_wallet",
-                    Name = "محفظة موبايل",
-                    Description = "ادفع باستخدام محفظتك الرقمية",
+                    Name = LocalizedText.Choose("محفظة موبايل", "Mobile wallet"),
+                    Description = LocalizedText.Choose(
+                        "ادفع باستخدام محفظتك الرقمية",
+                        "Pay using your digital wallet"),
                     Type = "digital_wallet",
                     IsAvailable = true,
                     TransactionFee = 5,
@@ -458,7 +483,7 @@ public class ClientGetPaymentMethodsQueryHandler : IRequestHandler<ClientGetPaym
                     MaxAmount = 500000,
                     SupportedCurrencies = new List<string> { "YER" },
                     SupportedCountries = new List<string> { "YE" },
-                    ProcessingTime = "فوري",
+                    ProcessingTime = LocalizedText.Choose("فوري", "Instant"),
                     SupportsRefunds = true,
                     DisplayOrder = 3
                 }
@@ -471,14 +496,16 @@ public class ClientGetPaymentMethodsQueryHandler : IRequestHandler<ClientGetPaym
             defaultMethods.Add(new ClientPaymentMethodDto
             {
                 Id = "credit_card",
-                Name = "بطاقة ائتمانية",
-                Description = "ادفع باستخدام بطاقة فيزا أو ماستركارد",
+                Name = LocalizedText.Choose("بطاقة ائتمانية", "Credit card"),
+                Description = LocalizedText.Choose(
+                    "ادفع باستخدام بطاقة فيزا أو ماستركارد",
+                    "Pay using a Visa or Mastercard"),
                 Type = "credit_card",
                 MinAmount = 1,
                 MaxAmount = 50000,
                 SupportedCurrencies = new List<string> { "USD", "EUR", "SAR", "AED" },
                 SupportedCountries = new List<string> { "YE", "SA", "AE", "US", "GB" },
-                ProcessingTime = "فوري",
+                ProcessingTime = LocalizedText.Choose("فوري", "Instant"),
                 RequiresVerification = true,
                 SupportsRefunds = true,
                 IsRecommended = true

@@ -17,12 +17,14 @@ public class NearbyPropertyDto
     /// Property name
     /// </summary>
     public string Name { get; set; } = string.Empty;
+    public string? NameEn { get; set; }
     
     /// <summary>
     /// العنوان
     /// Address
     /// </summary>
     public string Address { get; set; } = string.Empty;
+    public string? AddressEn { get; set; }
     
     /// <summary>
     /// المسافة بالكيلومترات

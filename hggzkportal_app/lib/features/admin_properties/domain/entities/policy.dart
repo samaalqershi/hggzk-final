@@ -19,7 +19,9 @@ class Policy extends Equatable {
   final String propertyId;
   final PolicyType policyType;
   final String description;
+  final String? descriptionEn;
   final String rules;
+  final String? rulesEn;
   final bool isActive;
   final DateTime? effectiveDate;
   const Policy({
@@ -27,7 +29,9 @@ class Policy extends Equatable {
     required this.propertyId,
     required this.policyType,
     required this.description,
+    this.descriptionEn,
     required this.rules,
+    this.rulesEn,
     this.isActive = true,
     this.effectiveDate,
   });
@@ -58,7 +62,9 @@ class Policy extends Equatable {
         propertyId,
         policyType,
         description,
+        descriptionEn,
         rules,
+        rulesEn,
         isActive,
         effectiveDate,
       ];

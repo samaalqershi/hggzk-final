@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hggzk/core/constants/route_constants.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/theme/app_text_styles.dart';
 import 'package:hggzk/core/theme/app_theme.dart';
 import 'package:hggzk/features/auth/presentation/bloc/auth_bloc.dart';
@@ -99,40 +100,40 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         const NavigationPage(child: MyBookingsPage()),
         const NavigationPage(child: ProfilePage()),
       ];
-  final List<_NavItem> _navItems = [
-    _NavItem(
-      icon: Icons.home_rounded,
-      activeIcon: Icons.home_rounded,
-      label: 'الرئيسية',
-      gradient: LinearGradient(
-        colors: [AppTheme.primaryCyan, AppTheme.primaryBlue],
-      ),
-    ),
-    _NavItem(
-      icon: Icons.explore_outlined,
-      activeIcon: Icons.explore_rounded,
-      label: 'المفضلة',
-      gradient: LinearGradient(
-        colors: [AppTheme.neonBlue, AppTheme.primaryPurple],
-      ),
-    ),
-    _NavItem(
-      icon: Icons.calendar_today_outlined,
-      activeIcon: Icons.calendar_month_rounded,
-      label: 'حجوزاتي',
-      gradient: LinearGradient(
-        colors: [AppTheme.primaryPurple, AppTheme.neonPurple],
-      ),
-    ),
-    _NavItem(
-      icon: Icons.person_outline_rounded,
-      activeIcon: Icons.person_rounded,
-      label: 'حسابي',
-      gradient: LinearGradient(
-        colors: [AppTheme.primaryViolet, AppTheme.neonPurple],
-      ),
-    ),
-  ];
+  List<_NavItem> get _navItems => [
+        _NavItem(
+          icon: Icons.home_rounded,
+          activeIcon: Icons.home_rounded,
+          labelKey: 'nav.home',
+          gradient: LinearGradient(
+            colors: [AppTheme.primaryCyan, AppTheme.primaryBlue],
+          ),
+        ),
+        _NavItem(
+          icon: Icons.explore_outlined,
+          activeIcon: Icons.explore_rounded,
+          labelKey: 'nav.favorites',
+          gradient: LinearGradient(
+            colors: [AppTheme.neonBlue, AppTheme.primaryPurple],
+          ),
+        ),
+        _NavItem(
+          icon: Icons.calendar_today_outlined,
+          activeIcon: Icons.calendar_month_rounded,
+          labelKey: 'nav.myBookings',
+          gradient: LinearGradient(
+            colors: [AppTheme.primaryPurple, AppTheme.neonPurple],
+          ),
+        ),
+        _NavItem(
+          icon: Icons.person_outline_rounded,
+          activeIcon: Icons.person_rounded,
+          labelKey: 'nav.account',
+          gradient: LinearGradient(
+            colors: [AppTheme.primaryViolet, AppTheme.neonPurple],
+          ),
+        ),
+      ];
 
   /// يجهز متحكمات التنقل والرسوم ثم يطبق قيد الدخول قبل عرض المحتوى.
   /// Prepares controllers, animations, and the auth guard before content becomes visible.
@@ -687,7 +688,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                           : AppTheme.textMuted.withOpacity(0.6),
                       height: 1.0,
                     ),
-                    child: Text(item.label),
+                    child: Text(_navLabel(index)),
                   ),
 
                   // Active indicator
@@ -709,6 +710,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
+  String _navLabel(int index) {
+    return context.tr(_navItems[index].labelKey);
+  }
 }
 
 /// يحمل بيانات عنصر التنقل الواحد في الشريط السفلي بما في ذلك
@@ -724,9 +729,9 @@ class _NavItem {
   /// Icon shown when the item is active.
   final IconData activeIcon;
 
-  /// النص الظاهر أسفل الأيقونة.
-  /// Label displayed below the icon.
-  final String label;
+  /// مفتاح الترجمة الذي يحدد النص الظاهر أسفل الأيقونة.
+  /// Translation key for the label displayed below the icon.
+  final String labelKey;
 
   /// التدرج اللوني الذي يميّز العنصر النشط.
   /// Gradient used to highlight the active state.
@@ -737,7 +742,7 @@ class _NavItem {
   _NavItem({
     required this.icon,
     required this.activeIcon,
-    required this.label,
+    required this.labelKey,
     required this.gradient,
   });
 }

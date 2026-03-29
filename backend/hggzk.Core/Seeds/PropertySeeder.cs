@@ -199,7 +199,7 @@ namespace YemenBooking.Core.Seeds
             // Fixed: Use static date instead of DateTime.UtcNow for PostgreSQL compatibility
             var baseDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             
-            return new List<Property>
+            var properties = new List<Property>
             {
                 // فندق الزهراء - صنعاء
                 new Property
@@ -532,6 +532,13 @@ namespace YemenBooking.Core.Seeds
                     IsDeleted = false
                 }
             };
+
+            foreach (var property in properties)
+            {
+                SeedLocalizationHelper.ApplyPropertyEnglish(property);
+            }
+
+            return properties;
         }
     }
-} 
+}

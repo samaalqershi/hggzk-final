@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -205,8 +206,12 @@ class _BookingFormPageState extends State<BookingFormPage>
 
     final unitId = widget.unitId;
     if (unitId == null || unitId.isEmpty) {
-      _showSnackBar('لا يمكن عرض الأيام المتاحة بدون تحديد وحدة',
-          isError: true);
+      _showSnackBar(
+        context.tr(
+          'booking.form.noUnitSelected',
+        ),
+        isError: true,
+      );
       return;
     }
 
@@ -228,7 +233,9 @@ class _BookingFormPageState extends State<BookingFormPage>
           _showSnackBar(
             failure.message.isNotEmpty
                 ? failure.message
-                : 'تعذر جلب الأيام المتاحة',
+                : context.tr(
+                    'booking.form.noAvailability',
+                  ),
             isError: true,
           );
         },
@@ -261,7 +268,12 @@ class _BookingFormPageState extends State<BookingFormPage>
       );
     } catch (_) {
       if (mounted) {
-        _showSnackBar('تعذر فتح تقويم الأيام المتاحة', isError: true);
+        _showSnackBar(
+          context.tr(
+            'booking.form.noCalendar',
+          ),
+          isError: true,
+        );
       }
     } finally {
       if (mounted) setState(() => _calendarLoading = false);
@@ -311,7 +323,11 @@ class _BookingFormPageState extends State<BookingFormPage>
     } else if (state is BookingError) {
       _showSnackBar(state.message, isError: true);
     } else if (state is BookingUpdated && widget.isEditMode) {
-      _showSnackBar('تم تحديث الحجز بنجاح');
+      _showSnackBar(
+        context.tr(
+          'booking.form.updated',
+        ),
+      );
       context.pop(true);
     }
   }
@@ -331,7 +347,14 @@ class _BookingFormPageState extends State<BookingFormPage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.isEditMode ? 'تعديل الحجز' : 'حجز ${widget.propertyName}',
+              widget.isEditMode
+                  ? context.tr(
+                      'booking.form.editTitle',
+                    )
+                  : context.tr(
+                      'booking.form.title',
+                      params: {'propertyName': widget.propertyName},
+                    ),
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppTheme.textWhite,
                 fontWeight: FontWeight.w600,
@@ -341,7 +364,9 @@ class _BookingFormPageState extends State<BookingFormPage>
             ),
             if (!widget.isEditMode)
               Text(
-                'الخطوة 1 من 3',
+                context.tr(
+                  'booking.form.step1',
+                ),
                 style: AppTextStyles.caption.copyWith(
                   color: AppTheme.textMuted,
                 ),
@@ -411,20 +436,42 @@ class _BookingFormPageState extends State<BookingFormPage>
                   const SizedBox(height: 20),
                 ],
                 _buildSectionTitle(
-                    'تواريخ الإقامة', Icons.calendar_today_rounded, 1),
+                  context.tr(
+                    'booking.form.stayDates',
+                  ),
+                  Icons.calendar_today_rounded,
+                  1,
+                ),
                 const SizedBox(height: 12),
                 _buildDateSelection(),
                 const SizedBox(height: 24),
-                _buildSectionTitle('عدد الضيوف', Icons.people_rounded, 2),
+                _buildSectionTitle(
+                  context.tr(
+                    'booking.form.guestCountTitle',
+                  ),
+                  Icons.people_rounded,
+                  2,
+                ),
                 const SizedBox(height: 12),
                 _buildGuestSelection(),
                 const SizedBox(height: 24),
                 _buildSectionTitle(
-                    'الخدمات الإضافية', Icons.room_service_rounded, 3),
+                  context.tr(
+                    'booking.form.additionalServices',
+                  ),
+                  Icons.room_service_rounded,
+                  3,
+                ),
                 const SizedBox(height: 12),
                 _buildServicesSelection(),
                 const SizedBox(height: 24),
-                _buildSectionTitle('طلبات خاصة', Icons.note_rounded, 4),
+                _buildSectionTitle(
+                  context.tr(
+                    'booking.form.specialRequests',
+                  ),
+                  Icons.note_rounded,
+                  4,
+                ),
                 const SizedBox(height: 12),
                 _buildSpecialRequests(),
                 const SizedBox(height: 32),
@@ -475,7 +522,10 @@ class _BookingFormPageState extends State<BookingFormPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.unitName ?? 'وحدة بدون اسم',
+                  widget.unitName ??
+                      context.tr(
+                        'booking.form.unnamedUnit',
+                      ),
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: AppTheme.textWhite,
                     fontWeight: FontWeight.w600,
@@ -511,7 +561,13 @@ class _BookingFormPageState extends State<BookingFormPage>
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      '${displayPrice.toStringAsFixed(0)} $displayCurrency / ليلة',
+                      context.tr(
+                        'booking.form.stayPrice',
+                        params: {
+                          'amount': displayPrice.toStringAsFixed(0),
+                          'currency': displayCurrency,
+                        },
+                      ),
                       style: AppTextStyles.caption.copyWith(
                         color: AppTheme.primaryBlue,
                         fontWeight: FontWeight.w600,
@@ -599,7 +655,9 @@ class _BookingFormPageState extends State<BookingFormPage>
       child: Column(
         children: [
           DatePickerWidget(
-            label: 'تاريخ الوصول',
+            label: context.tr(
+              'booking.form.checkIn',
+            ),
             selectedDate: _checkInDate,
             firstDate: DateTime.now(),
             lastDate: DateTime.now().add(const Duration(days: 365)),
@@ -617,7 +675,9 @@ class _BookingFormPageState extends State<BookingFormPage>
           ),
           _buildDivider(),
           DatePickerWidget(
-            label: 'تاريخ المغادرة',
+            label: context.tr(
+              'booking.form.checkOut',
+            ),
             selectedDate: _checkOutDate,
             firstDate: _checkInDate?.add(const Duration(days: 1)) ??
                 DateTime.now().add(const Duration(days: 1)),
@@ -644,7 +704,9 @@ class _BookingFormPageState extends State<BookingFormPage>
       child: Column(
         children: [
           GuestSelectorWidget(
-            label: 'البالغين',
+            label: context.tr(
+              'booking.form.adults',
+            ),
             count: _adultsCount,
             minCount: 1,
             maxCount: widget.adultsCapacity ?? 10,
@@ -655,8 +717,12 @@ class _BookingFormPageState extends State<BookingFormPage>
           ),
           const SizedBox(height: 12),
           GuestSelectorWidget(
-            label: 'الأطفال',
-            subtitle: '(أقل من 12 سنة)',
+            label: context.tr(
+              'booking.form.children',
+            ),
+            subtitle: context.tr(
+              'booking.form.childrenSubtitle',
+            ),
             count: _childrenCount,
             minCount: 0,
             maxCount: widget.childrenCapacity ?? 5,
@@ -702,7 +768,9 @@ class _BookingFormPageState extends State<BookingFormPage>
           color: AppTheme.textWhite,
         ),
         decoration: InputDecoration(
-          hintText: 'أضف أي طلبات أو ملاحظات خاصة...',
+          hintText: context.tr(
+            'booking.form.specialRequestsHint',
+          ),
           hintStyle: AppTextStyles.caption.copyWith(
             color: AppTheme.textMuted.withOpacity(0.6),
           ),
@@ -755,7 +823,13 @@ class _BookingFormPageState extends State<BookingFormPage>
             ),
             const SizedBox(width: 10),
             Text(
-              widget.isEditMode ? 'حفظ التعديلات' : 'المتابعة إلى الملخص',
+              widget.isEditMode
+                  ? context.tr(
+                      'booking.form.saveChanges',
+                    )
+                  : context.tr(
+                      'booking.form.continueToSummary',
+                    ),
               style: AppTextStyles.bodyMedium.copyWith(
                 color: isValid ? Colors.white : AppTheme.textMuted,
                 fontWeight: FontWeight.w600,
@@ -793,12 +867,31 @@ class _BookingFormPageState extends State<BookingFormPage>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildPriceRow('ليالي (${_nightsCountFromAvailability ?? 0})',
-                nightsAmount, currency),
+            _buildPriceRow(
+              context.tr(
+                'booking.form.nightsCount',
+                params: {'count': _nightsCountFromAvailability ?? 0},
+              ),
+              nightsAmount,
+              currency,
+            ),
             const SizedBox(height: 8),
-            _buildPriceRow('الخدمات', servicesTotal, currency),
+            _buildPriceRow(
+              context.tr(
+                'booking.form.services',
+              ),
+              servicesTotal,
+              currency,
+            ),
             const SizedBox(height: 8),
-            _buildPriceRow('الإجمالي', total, currency, isBold: true),
+            _buildPriceRow(
+              context.tr(
+                'booking.form.total',
+              ),
+              total,
+              currency,
+              isBold: true,
+            ),
             const SizedBox(height: 16),
             Row(
               children: [
@@ -813,7 +906,11 @@ class _BookingFormPageState extends State<BookingFormPage>
                       foregroundColor: AppTheme.textMuted,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: const Text('إلغاء'),
+                    child: Text(
+                      context.tr(
+                        'booking.form.cancel',
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -825,7 +922,11 @@ class _BookingFormPageState extends State<BookingFormPage>
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: const Text('تأكيد الحفظ'),
+                    child: Text(
+                      context.tr(
+                        'booking.form.confirmSave',
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -927,7 +1028,9 @@ class _BookingFormPageState extends State<BookingFormPage>
           ),
           const SizedBox(height: 20),
           Text(
-            'جاري التحقق من التوفر...',
+            context.tr(
+              'booking.form.loadingAvailability',
+            ),
             style: AppTextStyles.bodySmall.copyWith(
               color: AppTheme.textMuted,
             ),
@@ -984,7 +1087,9 @@ class _BookingFormPageState extends State<BookingFormPage>
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'سياسات وقوانين الحجز',
+                  context.tr(
+                    'booking.form.policiesTitle',
+                  ),
                   style: AppTextStyles.h3.copyWith(
                     color: AppTheme.textWhite,
                     fontWeight: FontWeight.w700,
@@ -992,7 +1097,9 @@ class _BookingFormPageState extends State<BookingFormPage>
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'يرجى مراجعة السياسات قبل تأكيد الحجز.',
+                  context.tr(
+                    'booking.form.policiesMessage',
+                  ),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppTheme.textMuted,
                   ),
@@ -1018,7 +1125,11 @@ class _BookingFormPageState extends State<BookingFormPage>
                           foregroundColor: AppTheme.textMuted,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        child: const Text('رجوع'),
+                        child: Text(
+                          context.tr(
+                            'booking.form.back',
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -1033,7 +1144,11 @@ class _BookingFormPageState extends State<BookingFormPage>
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        child: const Text('أوافق'),
+                        child: Text(
+                          context.tr(
+                            'booking.form.agree',
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -1081,7 +1196,9 @@ class _BookingFormPageState extends State<BookingFormPage>
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'غير متاح',
+                  context.tr(
+                    'booking.form.unavailableTitle',
+                  ),
                   style: AppTextStyles.h3.copyWith(
                     color: AppTheme.textWhite,
                     fontWeight: FontWeight.w700,
@@ -1089,7 +1206,9 @@ class _BookingFormPageState extends State<BookingFormPage>
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'عذراً، الوحدة غير متاحة في التواريخ المحددة.',
+                  context.tr(
+                    'booking.form.unavailableMessage',
+                  ),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppTheme.textMuted,
                   ),
@@ -1105,7 +1224,11 @@ class _BookingFormPageState extends State<BookingFormPage>
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: const Text('حسناً'),
+                    child: Text(
+                      context.tr(
+                        'booking.form.ok',
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -1123,10 +1246,20 @@ class _BookingFormPageState extends State<BookingFormPage>
   String _buildCapacityText() {
     final parts = <String>[];
     if (widget.adultsCapacity != null && widget.adultsCapacity! > 0) {
-      parts.add('${widget.adultsCapacity} بالغ');
+      parts.add(
+        context.tr(
+          'booking.form.capacityAdults',
+          params: {'count': widget.adultsCapacity},
+        ),
+      );
     }
     if (widget.childrenCapacity != null && widget.childrenCapacity! > 0) {
-      parts.add('${widget.childrenCapacity} طفل');
+      parts.add(
+        context.tr(
+          'booking.form.capacityChildren',
+          params: {'count': widget.childrenCapacity},
+        ),
+      );
     }
     return parts.isEmpty ? '' : parts.join('، ');
   }
@@ -1141,11 +1274,21 @@ class _BookingFormPageState extends State<BookingFormPage>
     final maxChildren = widget.childrenCapacity;
 
     if (maxAdults != null && _adultsCount > maxAdults) {
-      _showSnackBar('عدد البالغين يتجاوز السعة المتاحة', isError: true);
+      _showSnackBar(
+        context.tr(
+          'booking.form.adultsExceeded',
+        ),
+        isError: true,
+      );
       return;
     }
     if (maxChildren != null && _childrenCount > maxChildren) {
-      _showSnackBar('عدد الأطفال يتجاوز السعة المتاحة', isError: true);
+      _showSnackBar(
+        context.tr(
+          'booking.form.childrenExceeded',
+        ),
+        isError: true,
+      );
       return;
     }
 

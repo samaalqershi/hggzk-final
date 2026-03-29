@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import 'package:hggzk/core/constants/route_constants.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/services/local_storage_service.dart';
 import 'package:hggzk/core/widgets/app_logo_widget.dart';
 import 'package:hggzk/features/auth/presentation/bloc/auth_bloc.dart';
@@ -458,7 +459,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Smart booking made simple',
+                  context.tr('common.splash.tagline'),
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white.withOpacity(0.8),
@@ -499,7 +500,7 @@ class _SplashScreenState extends State<SplashScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'Loading your experience...',
+              context.tr('common.splash.loading'),
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.white.withOpacity(0.7),
@@ -523,7 +524,7 @@ class _SplashScreenState extends State<SplashScreen>
         return Opacity(
           opacity: _subtitleFadeAnimation.value.clamp(0.0, 1.0),
           child: Text(
-            'Booking excellence starts here',
+            context.tr('common.splash.footer'),
             style: TextStyle(
               fontSize: 13,
               color: Colors.white.withOpacity(0.65),

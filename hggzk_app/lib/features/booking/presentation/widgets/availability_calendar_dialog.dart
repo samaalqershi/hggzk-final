@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -203,7 +204,9 @@ class _AvailabilityCalendarDialogState
               children: [
                 Expanded(
                   child: Text(
-                    'اختر تاريخ الوصول',
+                    context.tr(
+                      'booking.calendar.title',
+                    ),
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppTheme.textWhite,
                       fontWeight: FontWeight.w700,
@@ -328,7 +331,9 @@ class _AvailabilityCalendarDialogState
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'الأيام ذات العلامة الحمراء غير مسعّرة بعد، ولا يمكن اختيارها للحجز.',
+                    context.tr(
+                      'booking.calendar.unpricedNote',
+                    ),
                     style: AppTextStyles.caption.copyWith(
                       color: AppTheme.textMuted,
                     ),

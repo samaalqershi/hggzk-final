@@ -81,6 +81,8 @@ namespace YemenBooking.Application.Features.PropertyServices.Commands.UpdateProp
                     return ResultDto<bool>.Failed("يوجد خدمة أخرى بنفس الاسم لهذا الكيان");
                 service.Name = request.Name.Trim();
             }
+            if (request.NameEn != null)
+                service.NameEn = string.IsNullOrWhiteSpace(request.NameEn) ? null : request.NameEn.Trim();
 
             // apply updates
             if (request.Price != null)
@@ -91,6 +93,8 @@ namespace YemenBooking.Application.Features.PropertyServices.Commands.UpdateProp
                 service.Icon = request.Icon.Trim();
             if (request.Description != null)
                 service.Description = request.Description.Trim();
+            if (request.DescriptionEn != null)
+                service.DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn.Trim();
 
             service.UpdatedBy = _currentUserService.UserId;
             service.UpdatedAt = DateTime.UtcNow;
@@ -105,7 +109,7 @@ namespace YemenBooking.Application.Features.PropertyServices.Commands.UpdateProp
                 entityId: request.ServiceId,
                 action: AuditAction.UPDATE,
                 oldValues: null,
-                newValues: System.Text.Json.JsonSerializer.Serialize(new { Updated = true, service.Price, service.Description }),
+                newValues: System.Text.Json.JsonSerializer.Serialize(new { Updated = true, service.Name, service.NameEn, service.Price, service.Description, service.DescriptionEn }),
                 performedBy: _currentUserService.UserId,
                 notes: notes,
                 cancellationToken: cancellationToken);

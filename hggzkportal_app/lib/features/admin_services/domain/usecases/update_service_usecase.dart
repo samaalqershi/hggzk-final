@@ -16,30 +16,45 @@ class UpdateServiceUseCase implements UseCase<bool, UpdateServiceParams> {
     return await repository.updateService(
       serviceId: params.serviceId,
       name: params.name,
+      nameEn: params.nameEn,
       price: params.price,
       pricingModel: params.pricingModel,
       icon: params.icon,
       description: params.description,
+      descriptionEn: params.descriptionEn,
     );
   }
 }
+
 class UpdateServiceParams extends Equatable {
   /// العربية: يخزن القيمة `serviceId`.
   final String serviceId;
   final String? name;
+  final String? nameEn;
   final Money? price;
   final PricingModel? pricingModel;
   final String? icon;
   final String? description;
+  final String? descriptionEn;
   const UpdateServiceParams({
     required this.serviceId,
     this.name,
+    this.nameEn,
     this.price,
     this.pricingModel,
     this.icon,
     this.description,
+    this.descriptionEn,
   });
   @override
-  List<Object?> get props =>
-      [serviceId, name, price, pricingModel, icon, description];
+  List<Object?> get props => [
+        serviceId,
+        name,
+        nameEn,
+        price,
+        pricingModel,
+        icon,
+        description,
+        descriptionEn
+      ];
 }

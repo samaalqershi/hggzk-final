@@ -26,6 +26,16 @@ namespace YemenBooking.Application.Features.PropertyTypes.DTOs
         /// </summary>
         public string Description { get; set; } = string.Empty;
         /// <summary>
+        /// خاصية NameEn.
+        /// English name property.
+        /// </summary>
+        public string? NameEn { get; set; }
+        /// <summary>
+        /// خاصية DescriptionEn.
+        /// English description property.
+        /// </summary>
+        public string? DescriptionEn { get; set; }
+        /// <summary>
         /// خاصية PropertiesCount.
         /// PropertiesCount property.
         /// </summary>

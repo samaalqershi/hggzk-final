@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -232,7 +233,7 @@ class _SearchResultCompactWidgetState extends State<SearchResultCompactWidget>
             shaderCallback: (bounds) =>
                 AppTheme.primaryGradient.createShader(bounds),
             child: Text(
-              'لا توجد نتائج',
+              context.tr('search.results.none'),
               style: AppTextStyles.h2.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -242,7 +243,7 @@ class _SearchResultCompactWidgetState extends State<SearchResultCompactWidget>
           const SizedBox(height: 12),
 
           Text(
-            'جرب تغيير معايير البحث',
+            context.tr('search.results.tryDifferent'),
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppTheme.textMuted,
             ),
@@ -280,7 +281,7 @@ class _SearchResultCompactWidgetState extends State<SearchResultCompactWidget>
             const SizedBox(height: 16),
 
             Text(
-              'جاري تحميل المزيد...',
+              context.tr('search.results.loadingMore'),
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted,
               ),

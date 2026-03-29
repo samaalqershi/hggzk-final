@@ -1,4 +1,5 @@
 import '../../domain/entities/unit_available_days.dart';
+import '../../../../core/localization/app_localizations.dart';
 
 /// العربية: يمثل نموذج البيانات `UnitAvailableDaysModel`.
 class UnitAvailableDaysModel extends UnitAvailableDays {
@@ -14,7 +15,9 @@ class UnitAvailableDaysModel extends UnitAvailableDays {
   static DateTime _parseDateOnly(dynamic value) {
     final raw = value?.toString() ?? '';
     if (raw.isEmpty) {
-      throw const FormatException('Invalid date value');
+      throw FormatException(
+        AppLocalizations.translateSync('common.invalidData'),
+      );
     }
 
     final datePart = raw.length >= 10 ? raw.substring(0, 10) : raw;

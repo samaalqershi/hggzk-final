@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hggzk/features/property/domain/entities/property_detail.dart';
 import 'dart:ui';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -81,6 +82,7 @@ class _ServicesSelectorWidgetState extends State<ServicesSelectorWidget>
           'id': s.id,
           'name': s.name,
           'price': s.price,
+          'currency': s.currency,
           'description': s.description ?? '',
           'icon': Icons.room_service,
           'color': color,
@@ -210,7 +212,9 @@ class _ServicesSelectorWidgetState extends State<ServicesSelectorWidget>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'الخدمات الإضافية',
+                    context.tr(
+                      'booking.services.title',
+                    ),
                     style: AppTextStyles.bodyMedium.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppTheme.textWhite,
@@ -218,8 +222,13 @@ class _ServicesSelectorWidgetState extends State<ServicesSelectorWidget>
                   ),
                   Text(
                     selectedCount > 0
-                        ? 'تم اختيار $selectedCount خدمة'
-                        : 'اختر الخدمات الإضافية (اختياري)',
+                        ? context.tr(
+                            'booking.services.selectedCount',
+                            params: {'count': selectedCount},
+                          )
+                        : context.tr(
+                            'booking.services.selectOptional',
+                          ),
                     style: AppTextStyles.caption.copyWith(
                       color: AppTheme.textMuted,
                     ),
@@ -342,7 +351,15 @@ class _ServicesSelectorWidgetState extends State<ServicesSelectorWidget>
                                 ],
                               ).createShader(bounds),
                               child: Text(
-                                '${service['price'].toStringAsFixed(0)} ريال',
+                                context.tr(
+                                  'booking.services.priceSuffix',
+                                  params: {
+                                    'price':
+                                        service['price'].toStringAsFixed(0),
+                                    'currency':
+                                        service['currency']?.toString() ?? '',
+                                  },
+                                ),
                                 style: AppTextStyles.bodyMedium.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -438,7 +455,9 @@ class _ServicesSelectorWidgetState extends State<ServicesSelectorWidget>
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Text(
-            'الكمية:',
+            context.tr(
+              'booking.services.quantity',
+            ),
             style: AppTextStyles.caption.copyWith(
               color: AppTheme.textMuted,
             ),

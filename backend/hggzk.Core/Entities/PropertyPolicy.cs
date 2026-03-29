@@ -59,6 +59,13 @@ public class PropertyPolicy : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "وصف السياسة")]
     public string Description { get; set; }
+
+    /// <summary>
+    /// وصف السياسة باللغة الإنجليزية.
+    /// English policy description.
+    /// </summary>
+    [Display(Name = "وصف السياسة بالإنجليزية")]
+    public string? DescriptionEn { get; set; }
     
     /// <summary>
     /// قواعد السياسة المخزنة بصيغة JSON لاستهلاكها من الواجهة أو الخدمات.
@@ -66,6 +73,13 @@ public class PropertyPolicy : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "قواعد السياسة")]
     public string? Rules { get; set; }
+
+    /// <summary>
+    /// قواعد السياسة باللغة الإنجليزية بصيغة JSON.
+    /// English policy rules stored as JSON.
+    /// </summary>
+    [Display(Name = "قواعد السياسة بالإنجليزية")]
+    public string? RulesEn { get; set; }
 
     /// <summary>
     /// يحدد ما إذا كان الإلغاء مجانيًا بالكامل.
@@ -102,6 +116,12 @@ public class PropertyPolicy : BaseEntity<Guid>
     /// Description of the penalty applied after the cancellation deadline.
     /// </summary>
     public string? CancellationPenaltyAfterDeadline { get; set; }
+
+    /// <summary>
+    /// وصف جزاء الإلغاء بعد المهلة باللغة الإنجليزية.
+    /// English cancellation penalty description after deadline.
+    /// </summary>
+    public string? CancellationPenaltyAfterDeadlineEn { get; set; }
 
     /// <summary>
     /// يحدد ما إذا كان مطلوبًا دفع عربون.
@@ -189,16 +209,34 @@ public class PropertyPolicy : BaseEntity<Guid>
     /// Note related to early check-in.
     /// </summary>
     public string? CheckInEarlyCheckInNote { get; set; }
+
+    /// <summary>
+    /// ملاحظة تسجيل الوصول المبكر باللغة الإنجليزية.
+    /// English early check-in note.
+    /// </summary>
+    public string? CheckInEarlyCheckInNoteEn { get; set; }
     /// <summary>
     /// ملاحظة تتعلق بالتسجيل المتأخر للمغادرة.
     /// Note related to late check-out.
     /// </summary>
     public string? CheckInLateCheckOutNote { get; set; }
+
+    /// <summary>
+    /// ملاحظة تسجيل المغادرة المتأخر باللغة الإنجليزية.
+    /// English late check-out note.
+    /// </summary>
+    public string? CheckInLateCheckOutNoteEn { get; set; }
     /// <summary>
     /// وصف أو قيمة الرسوم الخاصة بالمغادرة المتأخرة.
     /// Description or amount of the late check-out fee.
     /// </summary>
     public string? CheckInLateCheckOutFee { get; set; }
+
+    /// <summary>
+    /// وصف رسوم المغادرة المتأخرة باللغة الإنجليزية.
+    /// English late check-out fee description.
+    /// </summary>
+    public string? CheckInLateCheckOutFeeEn { get; set; }
 
     /// <summary>
     /// يحدد ما إذا كانت الإقامة مع الأطفال مسموحة.
@@ -230,6 +268,12 @@ public class PropertyPolicy : BaseEntity<Guid>
     /// Note about cribs or children's beds.
     /// </summary>
     public string? ChildrenCribsNote { get; set; }
+
+    /// <summary>
+    /// ملاحظة أسرّة الأطفال باللغة الإنجليزية.
+    /// English note about children's beds or cribs.
+    /// </summary>
+    public string? ChildrenCribsNoteEn { get; set; }
     /// <summary>
     /// يحدد ما إذا كانت مساحة لعب الأطفال متاحة.
     /// Indicates whether a children's playground is available.
@@ -251,6 +295,12 @@ public class PropertyPolicy : BaseEntity<Guid>
     /// Reason or explanation related to the pet policy.
     /// </summary>
     public string? PetsReason { get; set; }
+
+    /// <summary>
+    /// سبب سياسة الحيوانات الأليفة باللغة الإنجليزية.
+    /// English reason for the pet policy.
+    /// </summary>
+    public string? PetsReasonEn { get; set; }
     /// <summary>
     /// رسوم الحيوانات الأليفة إن وجدت.
     /// Pet fee amount, when applicable.
@@ -261,6 +311,12 @@ public class PropertyPolicy : BaseEntity<Guid>
     /// Maximum allowed pet weight.
     /// </summary>
     public string? PetsMaxWeight { get; set; }
+
+    /// <summary>
+    /// الحد الأقصى لوزن الحيوانات الأليفة باللغة الإنجليزية.
+    /// English maximum pet weight description.
+    /// </summary>
+    public string? PetsMaxWeightEn { get; set; }
     /// <summary>
     /// يحدد ما إذا كانت موافقة مسبقة مطلوبة للحيوانات الأليفة.
     /// Indicates whether prior approval is required for pets.
@@ -302,6 +358,12 @@ public class PropertyPolicy : BaseEntity<Guid>
     /// Description of fees applied after the free modification window.
     /// </summary>
     public string? ModificationFeesAfter { get; set; }
+
+    /// <summary>
+    /// وصف رسوم التعديل بعد المهلة باللغة الإنجليزية.
+    /// English modification fee description after the free window.
+    /// </summary>
+    public string? ModificationFeesAfterEn { get; set; }
     /// <summary>
     /// يحدد ما إذا كانت التعديلات تتم بمرونة.
     /// Indicates whether modifications are flexible.
@@ -312,6 +374,12 @@ public class PropertyPolicy : BaseEntity<Guid>
     /// Reason or explanation related to the modification policy.
     /// </summary>
     public string? ModificationReason { get; set; }
+
+    /// <summary>
+    /// سبب سياسة التعديل باللغة الإنجليزية.
+    /// English reason for the modification policy.
+    /// </summary>
+    public string? ModificationReasonEn { get; set; }
     
     /// <summary>
     /// المرجع الملاحي إلى العقار المرتبط بهذه السياسة.

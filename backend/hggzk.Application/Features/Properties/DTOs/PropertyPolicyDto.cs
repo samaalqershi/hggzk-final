@@ -45,6 +45,9 @@ namespace YemenBooking.Application.Features.Properties.DTOs
         /// Policy description
         /// </summary>
         public string Description { get; set; } = string.Empty;
+        public string? DescriptionEn { get; set; }
+        public string? RulesEn { get; set; }
+        public string? RulesJson { get; set; }
 
         /// <summary>
         /// قواعد السياسة بصيغة قابلة للتسلسل إلى JSON

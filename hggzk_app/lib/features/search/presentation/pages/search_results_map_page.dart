@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/image_utils.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -485,7 +486,7 @@ class _MinimalMapPropertyCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                'مميز',
+                                context.tr('search.result.featured'),
                                 style: AppTextStyles.bodySmall.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w500,
@@ -637,20 +638,20 @@ class _MinimalMapTypeSelector extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'نوع الخريطة',
+              context.tr('search.map.typeTitle'),
               style: AppTextStyles.bodyMedium.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 16),
-            _buildOption(
-                'عادية', Icons.map_outlined, () => onSelectType('normal')),
-            _buildOption('قمر صناعي', Icons.satellite_outlined,
-                () => onSelectType('satellite')),
-            _buildOption('تضاريس', Icons.terrain_outlined,
-                () => onSelectType('terrain')),
-            _buildOption(
-                'هجين', Icons.layers_outlined, () => onSelectType('hybrid')),
+            _buildOption(context.tr('search.map.normal'), Icons.map_outlined,
+                () => onSelectType('normal')),
+            _buildOption(context.tr('search.map.satellite'),
+                Icons.satellite_outlined, () => onSelectType('satellite')),
+            _buildOption(context.tr('search.map.terrain'),
+                Icons.terrain_outlined, () => onSelectType('terrain')),
+            _buildOption(context.tr('search.map.hybrid'), Icons.layers_outlined,
+                () => onSelectType('hybrid')),
             const SizedBox(height: 16),
           ],
         ),
@@ -732,7 +733,7 @@ class _MinimalMapFilterOptionsState extends State<_MinimalMapFilterOptions> {
             ),
             const SizedBox(height: 16),
             Text(
-              'فلاتر الخريطة',
+              context.tr('search.map.filtersTitle'),
               style: AppTextStyles.bodyMedium.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -748,7 +749,7 @@ class _MinimalMapFilterOptionsState extends State<_MinimalMapFilterOptions> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'نطاق البحث',
+                        context.tr('search.map.radius'),
                         style: AppTextStyles.bodySmall,
                       ),
                       Container(
@@ -761,7 +762,10 @@ class _MinimalMapFilterOptionsState extends State<_MinimalMapFilterOptions> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          '${_radiusKm.toStringAsFixed(1)} كم',
+                          context.tr(
+                            'search.map.radiusValue',
+                            params: {'value': _radiusKm.toStringAsFixed(1)},
+                          ),
                           style: AppTextStyles.bodySmall.copyWith(
                             color: AppTheme.primaryBlue,
                             fontWeight: FontWeight.w500,
@@ -795,9 +799,9 @@ class _MinimalMapFilterOptionsState extends State<_MinimalMapFilterOptions> {
             const SizedBox(height: 12),
 
             // Toggle Options
-            _buildSwitch('العقارات المميزة فقط', _showFeatured,
+            _buildSwitch(context.tr('search.map.featuredOnly'), _showFeatured,
                 (v) => setState(() => _showFeatured = v)),
-            _buildSwitch('المتاح فقط', _showAvailable,
+            _buildSwitch(context.tr('search.map.availableOnly'), _showAvailable,
                 (v) => setState(() => _showAvailable = v)),
 
             const SizedBox(height: 20),
@@ -828,7 +832,7 @@ class _MinimalMapFilterOptionsState extends State<_MinimalMapFilterOptions> {
                   ),
                   child: Center(
                     child: Text(
-                      'تطبيق',
+                      context.tr('search.map.apply'),
                       style: AppTextStyles.bodySmall.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,

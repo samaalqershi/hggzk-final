@@ -1,5 +1,6 @@
 import 'package:hggzk/core/network/api_client.dart';
 import 'package:hggzk/core/error/exceptions.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:dio/dio.dart';
 
 import '../models/city_model.dart';
@@ -41,9 +42,13 @@ class ReferenceRemoteDataSourceImpl implements ReferenceRemoteDataSource {
           return list.map((e) => CityModel.fromJson(e)).toList();
         }
       }
-      throw const ServerException('Invalid response structure for cities');
+      throw ServerException(
+        AppLocalizations.translateSync('core.reference.invalidCitiesResponse'),
+      );
     } on DioException catch (e) {
-      throw ServerException(e.message ?? 'Network error');
+      throw ServerException(
+        e.message ?? AppLocalizations.translateSync('core.reference.networkError'),
+      );
     }
   }
 
@@ -61,9 +66,15 @@ class ReferenceRemoteDataSourceImpl implements ReferenceRemoteDataSource {
           return list.map((e) => CurrencyModel.fromJson(e)).toList();
         }
       }
-      throw const ServerException('Invalid response structure for currencies');
+      throw ServerException(
+        AppLocalizations.translateSync(
+          'core.reference.invalidCurrenciesResponse',
+        ),
+      );
     } on DioException catch (e) {
-      throw ServerException(e.message ?? 'Network error');
+      throw ServerException(
+        e.message ?? AppLocalizations.translateSync('core.reference.networkError'),
+      );
     }
   }
 }

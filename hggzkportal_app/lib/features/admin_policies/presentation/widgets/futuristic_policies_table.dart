@@ -68,6 +68,30 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
 
   final Map<String, GlobalKey> _policyRowKeys = {};
 
+  Widget _buildSecondaryText(
+    String? value, {
+    int maxLines = 2,
+    TextStyle? style,
+  }) {
+    if (value == null || value.trim().isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
+        value,
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+        style: style ??
+            AppTextStyles.caption.copyWith(
+              color: AppTheme.textMuted.withValues(alpha: 0.8),
+              height: 1.3,
+            ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -128,7 +152,9 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
       targetKey: targetKey,
       policyId: policy.id,
       policyType: _mapPolicyType(policy.type),
-      description: policy.description,
+      description: policy.descriptionEn?.trim().isNotEmpty == true
+          ? '${policy.description}\n${policy.descriptionEn}'
+          : policy.description,
       rules: policy.rules ?? '',
       isActive: policy.isActive ?? true,
       propertyName: policy.propertyName,
@@ -461,6 +487,14 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
                             ? TextOverflow.visible
                             : TextOverflow.ellipsis,
                       ),
+                      _buildSecondaryText(
+                        policy.descriptionEn,
+                        maxLines: isExpanded ? 6 : 2,
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppTheme.textMuted.withValues(alpha: 0.8),
+                          height: 1.35,
+                        ),
+                      ),
 
                       // Expand Button
                       if (policy.description.length > 100)
@@ -672,6 +706,7 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  _buildSecondaryText(policy.descriptionEn, maxLines: 2),
 
                   const SizedBox(height: 12),
 
@@ -852,14 +887,21 @@ class _FuturisticPoliciesTableState extends State<FuturisticPoliciesTable>
                 flex: 3,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    policy.description,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppTheme.textLight,
-                      height: 1.4,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        policy.description,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppTheme.textLight,
+                          height: 1.4,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      _buildSecondaryText(policy.descriptionEn),
+                    ],
                   ),
                 ),
               ),

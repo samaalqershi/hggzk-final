@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:hggzk/core/error/exceptions.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/network/api_client.dart';
 import 'package:hggzk/core/utils/request_logger.dart';
 import 'package:hggzk/core/models/paginated_result.dart' as core;
@@ -51,6 +52,23 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   final LocalStorageService localStorage;
   HomeRemoteDataSourceImpl(
       {required this.apiClient, required this.localStorage});
+
+  String _serverFallback() {
+    return AppLocalizations.translateSync('home.error.server');
+  }
+
+  String _networkFallback() {
+    return AppLocalizations.translateSync('home.error.network');
+  }
+
+  String _unexpectedFallback() {
+    return AppLocalizations.translateSync('home.error.unexpected');
+  }
+
+  String _invalidResponseFallback() {
+    return AppLocalizations.translateSync('common.invalidResponse');
+  }
+
   @override
   Future<void> recordSectionImpression({required String sectionId}) async {
     const requestName = 'recordSectionImpression';
@@ -65,15 +83,14 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.statusCode != 200 && response.statusCode != 204) {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to record section impression');
+        throw ServerException(response.data['message'] ?? _serverFallback());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkFallback());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedFallback());
     }
   }
 
@@ -106,15 +123,14 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.statusCode != 200 && response.statusCode != 204) {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to record section interaction');
+        throw ServerException(response.data['message'] ?? _serverFallback());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkFallback());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedFallback());
     }
   }
 
@@ -200,17 +216,16 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
           );
         }
 
-        throw const ServerException('Invalid response structure for sections');
+        throw ServerException(_invalidResponseFallback());
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to load sections');
+        throw ServerException(response.data['message'] ?? _serverFallback());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkFallback());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedFallback());
     }
   }
 
@@ -287,18 +302,16 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
           );
         }
 
-        throw const ServerException(
-            'Invalid response structure for section property items');
+        throw ServerException(_invalidResponseFallback());
       } else {
-        throw ServerException(response.data['message'] ??
-            'Failed to load section property items');
+        throw ServerException(response.data['message'] ?? _serverFallback());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkFallback());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedFallback());
     }
   }
 
@@ -326,29 +339,26 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
               dataField['items'] is List) {
             propertyTypesJson = dataField['items'] as List<dynamic>;
           } else {
-            throw const ServerException(
-                'Invalid response structure for property types');
+            throw ServerException(_invalidResponseFallback());
           }
         } else if (responseData is List) {
           propertyTypesJson = responseData;
         } else {
-          throw const ServerException(
-              'Invalid response structure for property types');
+          throw ServerException(_invalidResponseFallback());
         }
 
         return propertyTypesJson
             .map((json) => PropertyTypeModel.fromJson(json))
             .toList();
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to load property types');
+        throw ServerException(response.data['message'] ?? _serverFallback());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkFallback());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedFallback());
     }
   }
 
@@ -380,29 +390,26 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
               dataField['items'] is List) {
             unitTypesJson = dataField['items'] as List<dynamic>;
           } else {
-            throw const ServerException(
-                'Invalid response structure for unit types');
+            throw ServerException(_invalidResponseFallback());
           }
         } else if (responseData is List) {
           unitTypesJson = responseData;
         } else {
-          throw const ServerException(
-              'Invalid response structure for unit types');
+          throw ServerException(_invalidResponseFallback());
         }
 
         return unitTypesJson
             .map((json) => UnitTypeModel.fromJson(json))
             .toList();
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to load unit types');
+        throw ServerException(response.data['message'] ?? _serverFallback());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkFallback());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedFallback());
     }
   }
 
@@ -429,14 +436,12 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
               dataField['items'] is List) {
             listJson = dataField['items'] as List<dynamic>;
           } else {
-            throw const ServerException(
-                'Invalid response structure for property types with units');
+            throw ServerException(_invalidResponseFallback());
           }
         } else if (responseData is List) {
           listJson = responseData;
         } else {
-          throw const ServerException(
-              'Invalid response structure for property types with units');
+          throw ServerException(_invalidResponseFallback());
         }
 
         return listJson
@@ -444,15 +449,14 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
                 json as Map<String, dynamic>))
             .toList();
       } else {
-        throw ServerException(response.data['message'] ??
-            'Failed to load property types with units');
+        throw ServerException(response.data['message'] ?? _serverFallback());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkFallback());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedFallback());
     }
   }
 }

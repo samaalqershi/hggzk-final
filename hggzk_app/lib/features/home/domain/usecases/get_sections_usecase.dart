@@ -38,7 +38,7 @@ class GetSectionsUseCase
         forceRefresh: params.forceRefresh,
       );
     }
-    return const Left(UnknownFailure('GetSectionsUseCase not implemented'));
+    return Left(UnknownFailure());
   }
 }
 

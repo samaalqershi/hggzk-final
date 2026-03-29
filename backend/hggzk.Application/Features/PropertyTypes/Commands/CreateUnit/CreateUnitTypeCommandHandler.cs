@@ -80,9 +80,11 @@ namespace YemenBooking.Application.Features.PropertyTypes.Commands.CreateUnit
             {
                 PropertyTypeId = request.PropertyTypeId,
                 Name = request.Name.Trim(),
+                NameEn = string.IsNullOrWhiteSpace(request.NameEn) ? null : request.NameEn.Trim(),
                 MaxCapacity = request.MaxCapacity,
                 Icon = request.Icon.Trim(),
-                Description = string.Empty,
+                Description = request.Description?.Trim() ?? string.Empty,
+                DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn.Trim(),
                 DefaultPricingRules = string.Empty,
                 IsHasAdults = request.IsHasAdults,
                 IsHasChildren = request.IsHasChildren,
@@ -102,7 +104,7 @@ namespace YemenBooking.Application.Features.PropertyTypes.Commands.CreateUnit
                 entityId: created.Id,
                 action: AuditAction.CREATE,
                 oldValues: null,
-                newValues: System.Text.Json.JsonSerializer.Serialize(new { created.Id, created.Name }),
+                newValues: System.Text.Json.JsonSerializer.Serialize(new { created.Id, created.Name, created.NameEn, created.Description, created.DescriptionEn }),
                 performedBy: _currentUserService.UserId,
                 notes: notes,
                 cancellationToken: cancellationToken);

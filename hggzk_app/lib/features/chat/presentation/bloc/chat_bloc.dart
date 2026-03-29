@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
+import 'package:hggzk/core/localization/locale_manager.dart';
 import 'package:hggzk/core/services/websocket_service.dart';
 import 'package:hggzk/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:hggzk/features/chat/domain/usecases/get_messages_usecase.dart';
@@ -280,8 +282,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       final currentUserResult = await getCurrentUserUseCase(NoParams());
 
       await conversationsResult.fold(
-        (failure) async =>
-            emit(ChatError(message: _mapFailureToMessage(failure))),
+        (failure) async => emit(
+          ChatError(message: await _mapFailureToMessage(failure)),
+        ),
         (conversations) async {
           ChatSettings? settings;
           await settingsResult.fold(
@@ -303,7 +306,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         },
       );
     } catch (e) {
-      emit(ChatError(message: 'حدث خطأ في تهيئة الشات: ${e.toString()}'));
+      emit(
+        ChatError(
+          message: await _tr('chat.errors.init'),
+        ),
+      );
     }
   }
 
@@ -329,10 +336,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       (failure) async {
         if (currentState is ChatLoaded) {
           emit(currentState.copyWith(
-            error: _mapFailureToMessage(failure),
+            error: await _mapFailureToMessage(failure),
           ));
         } else {
-          emit(ChatError(message: _mapFailureToMessage(failure)));
+          emit(ChatError(message: await _mapFailureToMessage(failure)));
         }
       },
       (conversations) async {
@@ -389,7 +396,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         _conversationLoadingStates[event.conversationId] = false;
         emit(currentState.copyWith(
           isLoadingMessages: false,
-          error: _mapFailureToMessage(failure),
+          error: await _mapFailureToMessage(failure),
         ));
       },
       (messages) async {
@@ -460,7 +467,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         _conversationLoadingStates[event.conversationId] = false;
         emit(currentState.copyWith(
           isLoadingMore: false,
-          error: _mapFailureToMessage(failure),
+          error: await _mapFailureToMessage(failure),
         ));
       },
       (messages) async {
@@ -562,6 +569,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         final failedMessages =
             Map<String, List<Message>>.from(currentState.messages);
         final messages = failedMessages[event.conversationId] ?? [];
+        final failureReason = await _mapFailureToMessage(failure);
 
         final updatedMessagesList = messages.map((msg) {
           if (msg.id == optimisticMessage.id) {
@@ -582,7 +590,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               isEdited: msg.isEdited,
               isDeleted: msg.isDeleted,
               deliveryReceipt: msg.deliveryReceipt,
-              failureReason: _mapFailureToMessage(failure),
+              failureReason: failureReason,
             );
           }
           return msg;
@@ -593,7 +601,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         emit(currentState.copyWith(
           messages: failedMessages,
           isSendingMessage: false,
-          error: 'فشل إرسال الرسالة',
+          error: await _tr('chat.errors.messageSendFailed'),
         ));
       },
       (sentMessage) async {
@@ -725,7 +733,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               event.conversationId,
               uploadTask.id,
               isFailed: true,
-              error: _mapFailureToMessage(failure),
+              error: await _mapFailureToMessage(failure),
             );
           },
           (attachment) async {
@@ -748,7 +756,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           event.conversationId,
           uploadTask.id,
           isFailed: true,
-          error: e.toString(),
+          error: await _tr('chat.errors.unknown'),
         );
       } finally {
         _activeUploads.remove(uploadTask.id);
@@ -868,7 +876,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           event.conversationId,
           event.uploadId,
           isFailed: true,
-          error: 'تم إلغاء الرفع',
+          error: await _tr('chat.errors.uploadCancelled'),
         );
       }
     }
@@ -895,7 +903,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async =>
-          emit(ChatError(message: _mapFailureToMessage(failure))),
+          emit(ChatError(message: await _mapFailureToMessage(failure))),
       (conversation) async {
         emit(ConversationCreated(conversation: conversation));
 
@@ -930,7 +938,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (_) async {
         // Remove the conversation from the visible inbox.
@@ -970,7 +978,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (_) async {
         // Mark the conversation as archived in the visible list.
@@ -1018,7 +1026,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (_) async {
         // Mark the conversation as active again.
@@ -1066,12 +1074,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (_) async {
         // Replace the message body with a deleted placeholder.
         final updatedMessages =
             Map<String, List<Message>>.from(currentState.messages);
+        final deletedPlaceholder = await _tr('chat.message.deletedPlaceholder');
 
         updatedMessages.forEach((conversationId, messages) {
           final updatedList = messages.map((msg) {
@@ -1082,7 +1091,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
                 senderId: msg.senderId,
                 senderName: msg.senderName,
                 messageType: msg.messageType,
-                content: '[رسالة محذوفة]',
+                content: deletedPlaceholder,
                 location: msg.location,
                 replyToMessageId: msg.replyToMessageId,
                 attachments: const [],
@@ -1164,7 +1173,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     await result.fold(
       (failure) async {
         // Restore the previous state when the edit fails.
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (editedMessage) async {
         // Replace the optimistic copy with the server response.
@@ -1237,7 +1246,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         );
         emit(currentState.copyWith(
           messages: revertedMessages,
-          error: 'فشل في إضافة التفاعل',
+          error: await _tr('chat.errors.reactionAddFailed'),
         ));
       },
       (_) async {
@@ -1303,7 +1312,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         );
         emit(currentState.copyWith(
           messages: revertedMessages,
-          error: 'فشل في إزالة التفاعل',
+          error: await _tr('chat.errors.reactionRemoveFailed'),
         ));
       },
       (_) async {
@@ -1427,7 +1436,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       (failure) async {
         emit(currentState.copyWith(
           isSearching: false,
-          error: _mapFailureToMessage(failure),
+          error: await _mapFailureToMessage(failure),
         ));
       },
       (searchResult) async {
@@ -1458,7 +1467,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (users) async {
         emit(currentState.copyWith(
@@ -1482,7 +1491,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (admins) async {
         emit(currentState.copyWith(
@@ -1508,7 +1517,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (_) async {
         // Reflect the presence change locally as well.
@@ -1540,7 +1549,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (settings) async {
         emit(currentState.copyWith(
@@ -1601,7 +1610,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         // Restore the previous settings when persistence fails.
         emit(currentState.copyWith(
           settings: currentSettings,
-          error: _mapFailureToMessage(failure),
+          error: await _mapFailureToMessage(failure),
         ));
       },
       (settings) async {
@@ -1741,6 +1750,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     final updatedMessages =
         Map<String, List<Message>>.from(currentState.messages);
+    final deletedPlaceholder = await _tr('chat.message.deletedPlaceholder');
 
     updatedMessages.forEach((conversationId, messages) {
       final messageIndex = messages.indexWhere((msg) => msg.id == messageId);
@@ -1752,7 +1762,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           senderId: deletedMessage.senderId,
           senderName: deletedMessage.senderName,
           messageType: deletedMessage.messageType,
-          content: '[رسالة محذوفة]',
+          content: deletedPlaceholder,
           location: deletedMessage.location,
           replyToMessageId: deletedMessage.replyToMessageId,
           attachments: const [],
@@ -2201,28 +2211,42 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     return updatedMessages;
   }
 
+  /// Resolves a localized bloc-side message without requiring a widget
+  /// context.
+  Future<String> _tr(
+    String key, {
+    String? fallback,
+    Map<String, Object?> params = const {},
+  }) {
+    return AppLocalizations.translate(
+      key,
+      locale: LocaleManager.getCurrentLocale(),
+      params: params,
+    );
+  }
+
   /// Maps repository failures to user-facing copy that the UI can display.
   /// يحوّل أنواع الفشل إلى رسائل يمكن للواجهة عرضها للمستخدم.
-  String _mapFailureToMessage(Failure failure) {
+  Future<String> _mapFailureToMessage(Failure failure) async {
     switch (failure.runtimeType) {
       case ServerFailure:
-        return 'حدث خطأ في الخادم. يرجى المحاولة مرة أخرى.';
+        return await _tr('chat.errors.server');
       case NetworkFailure:
-        return 'لا يوجد اتصال بالإنترنت. تحقق من الاتصال وحاول مرة أخرى.';
+        return await _tr('chat.errors.network');
       case AuthenticationFailure:
-        return 'فشل التحقق من الهوية. يرجى تسجيل الدخول مرة أخرى.';
+        return await _tr('chat.errors.auth');
       case ValidationFailure:
-        return 'البيانات المدخلة غير صحيحة. تحقق وحاول مرة أخرى.';
+        return await _tr('chat.errors.validation');
       case NotFoundFailure:
-        return 'المحتوى المطلوب غير موجود.';
+        return await _tr('chat.errors.notFound');
       case PermissionDeniedFailure:
-        return 'ليس لديك صلاحيات لتنفيذ هذا الإجراء.';
+        return await _tr('chat.errors.permissionDenied');
       case TimeoutFailure:
-        return 'انتهت مهلة الاتصال. حاول مرة أخرى.';
+        return await _tr('chat.errors.timeout');
       case CacheFailure:
-        return 'حدث خطأ في الذاكرة المؤقتة.';
+        return await _tr('chat.errors.cache');
       default:
-        return 'حدث خطأ غير متوقع. يرجى المحاولة لاحقاً.';
+        return await _tr('chat.errors.unknown');
     }
   }
 

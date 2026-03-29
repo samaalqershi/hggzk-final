@@ -1,4 +1,5 @@
 import 'package:hggzk/features/search/domain/entities/search_result.dart';
+import 'package:hggzk/core/localization/localized_api_value.dart';
 
 import '../../domain/entities/search_filter.dart';
 
@@ -22,8 +23,16 @@ class SearchFilterModel extends SearchFilter {
       filterId: json['filterId'] ?? '',
       fieldId: json['fieldId'] ?? '',
       filterType: json['filterType'] ?? '',
-      displayName: json['displayName'] ?? '',
-      filterOptions: Map<String, dynamic>.from(json['filterOptions'] ?? {}),
+      displayName: LocalizedApiValue.text(
+        json,
+        arabicKey: 'displayName',
+        englishKey: 'displayNameEn',
+      ),
+      filterOptions: LocalizedApiValue.map(
+        json,
+        arabicKey: 'filterOptions',
+        englishKey: 'filterOptionsEn',
+      ),
       isActive: json['isActive'] ?? false,
       sortOrder: json['sortOrder'] ?? 0,
       field: json['field'] != null
@@ -78,15 +87,32 @@ class UnitTypeFieldModel extends UnitTypeField {
       unitTypeId: json['unitTypeId'] ?? '',
       fieldTypeId: json['fieldTypeId'] ?? '',
       fieldName: json['fieldName'] ?? '',
-      displayName: json['displayName'] ?? '',
-      description: json['description'],
-      fieldOptions: Map<String, dynamic>.from(json['fieldOptions'] ?? {}),
+      displayName: LocalizedApiValue.text(
+        json,
+        arabicKey: 'displayName',
+        englishKey: 'displayNameEn',
+        fallbackKey: 'fieldName',
+      ),
+      description: LocalizedApiValue.text(
+        json,
+        arabicKey: 'description',
+        englishKey: 'descriptionEn',
+      ),
+      fieldOptions: LocalizedApiValue.map(
+        json,
+        arabicKey: 'fieldOptions',
+        englishKey: 'fieldOptionsEn',
+      ),
       validationRules: Map<String, dynamic>.from(json['validationRules'] ?? {}),
       isRequired: json['isRequired'] ?? false,
       isSearchable: json['isSearchable'] ?? false,
       isPublic: json['isPublic'] ?? false,
       sortOrder: json['sortOrder'] ?? 0,
-      category: json['category'],
+      category: LocalizedApiValue.text(
+        json,
+        arabicKey: 'category',
+        englishKey: 'categoryEn',
+      ),
       groupId: json['groupId'],
       isForUnits: json['isForUnits'] ?? false,
       showInCards: json['showInCards'] ?? false,
@@ -232,7 +258,11 @@ class CityFilterModel extends CityFilter {
   factory CityFilterModel.fromJson(Map<String, dynamic> json) {
     return CityFilterModel(
       id: json['id'] ?? '',
-      name: json['name'] ?? '',
+      name: LocalizedApiValue.text(
+        json,
+        arabicKey: 'name',
+        englishKey: 'nameEn',
+      ),
       propertiesCount: json['propertiesCount'] ?? 0,
     );
   }
@@ -264,7 +294,11 @@ class PropertyTypeFilterModel extends PropertyTypeFilter {
   factory PropertyTypeFilterModel.fromJson(Map<String, dynamic> json) {
     return PropertyTypeFilterModel(
       id: json['id'] ?? '',
-      name: json['name'] ?? '',
+      name: LocalizedApiValue.text(
+        json,
+        arabicKey: 'name',
+        englishKey: 'nameEn',
+      ),
       propertiesCount: json['propertiesCount'] ?? 0,
       icon: json['icon'] ?? 'home', // Default icon if not provided
     );
@@ -325,7 +359,11 @@ class AmenityFilterModel extends AmenityFilter {
   factory AmenityFilterModel.fromJson(Map<String, dynamic> json) {
     return AmenityFilterModel(
       id: json['id'] ?? '',
-      name: json['name'] ?? '',
+      name: LocalizedApiValue.text(
+        json,
+        arabicKey: 'name',
+        englishKey: 'nameEn',
+      ),
       category: json['category'] ?? '',
       propertiesCount: json['propertiesCount'] ?? 0,
       icon: json['icon'] ?? '',
@@ -372,7 +410,11 @@ class UnitTypeFilterModel extends UnitTypeFilter {
   factory UnitTypeFilterModel.fromJson(Map<String, dynamic> json) {
     return UnitTypeFilterModel(
         id: json['id'] ?? '',
-        name: json['name'] ?? '',
+        name: LocalizedApiValue.text(
+          json,
+          arabicKey: 'name',
+          englishKey: 'nameEn',
+        ),
         unitsCount: json['unitsCount'] ?? 0,
         propertyTypeId: json['propertyTypeId'] ?? '',
         icon: json['icon'] ?? 'home',
@@ -438,7 +480,11 @@ class ServiceFilterModel extends ServiceFilter {
   factory ServiceFilterModel.fromJson(Map<String, dynamic> json) {
     return ServiceFilterModel(
       id: json['id'] ?? '',
-      name: json['name'] ?? '',
+      name: LocalizedApiValue.text(
+        json,
+        arabicKey: 'name',
+        englishKey: 'nameEn',
+      ),
       propertiesCount: json['propertiesCount'] ?? 0,
       icon: json['icon'] ?? 'service',
     );
@@ -469,7 +515,12 @@ class DynamicFieldValueFilterModel extends DynamicFieldValueFilter {
   factory DynamicFieldValueFilterModel.fromJson(Map<String, dynamic> json) {
     return DynamicFieldValueFilterModel(
       fieldName: json['fieldName'] ?? '',
-      displayName: json['displayName'] ?? json['fieldName'] ?? '',
+      displayName: LocalizedApiValue.text(
+        json,
+        arabicKey: 'displayName',
+        englishKey: 'displayNameEn',
+        fallbackKey: 'fieldName',
+      ),
       value: json['value'] ?? '',
       count: json['count'] ?? 0,
     );

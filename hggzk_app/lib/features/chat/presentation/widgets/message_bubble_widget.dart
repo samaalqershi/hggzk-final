@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import '../../../../core/utils/image_utils.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -45,6 +46,7 @@ class MessageBubbleWidget extends StatefulWidget {
   /// Applies a reaction picked from the inline reaction tray.
   /// يضيف تفاعلًا مختارًا من درج التفاعلات المضمّن.
   final Function(String)? onReaction;
+
   /// Opens the referenced reply when the user taps the quoted preview.
   /// يفتح الرد المشار إليه عندما ينقر المستخدم على المعاينة المقتبسة.
   final VoidCallback? onReplyTap;
@@ -305,7 +307,7 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'رد على رسالة',
+                    context.tr('chat.message.replyTo'),
                     style: AppTextStyles.caption.copyWith(
                       color: widget.isMe
                           ? Colors.white.withOpacity(0.6)
@@ -316,7 +318,9 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
                   ),
                   const SizedBox(height: 1),
                   Text(
-                    'محتوى الرسالة المرد عليها',
+                    context.tr(
+                      'chat.message.repliedContent',
+                    ),
                     style: AppTextStyles.caption.copyWith(
                       color: widget.isMe
                           ? Colors.white.withOpacity(0.4)
@@ -445,7 +449,10 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
                         const SizedBox(width: 5),
                         Expanded(
                           child: Text(
-                            widget.message.location!.address ?? 'موقع',
+                            widget.message.location!.address ??
+                                context.tr(
+                                  'chat.message.location',
+                                ),
                             style: AppTextStyles.caption.copyWith(
                               color: Colors.white.withOpacity(0.9),
                               fontSize: 10,
@@ -497,7 +504,7 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
             Padding(
               padding: const EdgeInsets.only(right: 3),
               child: Text(
-                'معدّل',
+                context.tr('chat.message.edited'),
                 style: AppTextStyles.caption.copyWith(
                   color: widget.isMe
                       ? Colors.white.withOpacity(0.4)
@@ -695,7 +702,9 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
             Clipboard.setData(ClipboardData(text: widget.message.content!));
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('تم النسخ'),
+                content: Text(
+                  context.tr('chat.message.copied'),
+                ),
                 duration: const Duration(seconds: 1),
                 behavior: SnackBarBehavior.floating,
                 backgroundColor: AppTheme.darkCard.withOpacity(0.9),
@@ -885,25 +894,25 @@ class _MinimalMessageOptionsSheet extends StatelessWidget {
                 if (onReply != null)
                   _buildOption(
                     icon: Icons.reply_rounded,
-                    title: 'رد',
+                    title: context.tr('chat.message.reply'),
                     onTap: onReply!,
                   ),
                 if (message.content != null && onCopy != null)
                   _buildOption(
                     icon: Icons.copy_rounded,
-                    title: 'نسخ',
+                    title: context.tr('chat.message.copy'),
                     onTap: onCopy!,
                   ),
                 if (isMe && onEdit != null)
                   _buildOption(
                     icon: Icons.edit_rounded,
-                    title: 'تعديل',
+                    title: context.tr('chat.message.edit'),
                     onTap: onEdit!,
                   ),
                 if (isMe && onDelete != null)
                   _buildOption(
                     icon: Icons.delete_rounded,
-                    title: 'حذف',
+                    title: context.tr('chat.message.delete'),
                     onTap: onDelete!,
                     isDestructive: true,
                   ),

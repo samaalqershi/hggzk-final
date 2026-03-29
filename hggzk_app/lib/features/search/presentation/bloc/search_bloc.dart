@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hggzk/core/usecases/usecase.dart';
 import 'dart:convert';
+import 'package:hggzk/core/localization/app_localizations.dart';
+import 'package:hggzk/core/localization/locale_manager.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../../domain/entities/search_result.dart';
 import '../../domain/entities/search_relaxation_info.dart';
@@ -167,7 +169,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
             id: '',
             propertyTypeId: '',
             name: '',
+            nameAr: '',
+            nameEn: '',
             description: '',
+            descriptionAr: '',
+            descriptionEn: '',
             maxCapacity: 0,
             icon: '',
             isHasAdults: false,
@@ -490,7 +496,12 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       ));
     } catch (e) {
       emit((state as SearchCombinedState).copyWith(
-        filtersState: SearchFiltersError(message: 'لا يمكن تحميل الفلاتر'),
+        filtersState: SearchFiltersError(
+          message: await AppLocalizations.translate(
+            'search.filters.loadFailed',
+            locale: LocaleManager.getCurrentLocale(),
+          ),
+        ),
       ));
     }
   }
@@ -908,7 +919,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         relaxedFilters: metadata['relaxedFilters'] != null
             ? List<String>.from(metadata['relaxedFilters'] as List)
             : [],
-        searchStrategy: metadata['searchStrategy'] as String? ?? 'تطابق دقيق',
+        searchStrategy: metadata['searchStrategy'] as String? ??
+            AppLocalizations.translateSync('core.searchRelaxation.exact'),
         originalCriteria: metadata['originalCriteria'] != null
             ? Map<String, dynamic>.from(metadata['originalCriteria'] as Map)
             : {},

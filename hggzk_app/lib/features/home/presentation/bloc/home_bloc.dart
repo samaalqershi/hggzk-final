@@ -1,5 +1,6 @@
 // lib/features/home/presentation/bloc/home_bloc.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../domain/usecases/get_sections_usecase.dart';
 import '../../domain/usecases/get_section_data_usecase.dart';
 import '../../domain/usecases/get_property_types_usecase.dart';
@@ -10,6 +11,7 @@ import '../../../../core/usecases/usecase.dart';
 import '../../../../core/error/failures.dart';
 import 'package:hggzk/core/services/data_sync_service.dart';
 import 'package:hggzk/core/services/filter_storage_service.dart';
+import 'package:hggzk/core/localization/locale_manager.dart';
 import 'home_event.dart';
 import 'home_state.dart';
 
@@ -21,27 +23,34 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   /// حالة الاستخدام التي تجلب تعريفات الأقسام الظاهرة في الصفحة الرئيسية.
   /// Use case that loads the section definitions shown on the home screen.
   final GetSectionsUseCase getSectionsUseCase;
+
   /// حالة الاستخدام التي تجلب محتوى قسم واحد حسب الصفحات والمعايير.
   /// Use case that loads the contents of a single section with paging options.
   final GetSectionDataUseCase getSectionDataUseCase;
+
   /// حالة الاستخدام الخاصة بتحميل أنواع العقارات المستخدمة في الفلاتر.
   /// Use case that loads property types used by home filters.
   final GetPropertyTypesUseCase getPropertyTypesUseCase;
+
   /// حالة الاستخدام التي تجلب أنواع الوحدات والحقول المرتبطة بها.
   /// Use case that loads unit types together with their dynamic fields.
   final GetUnitTypesWithFieldsUseCase getUnitTypesWithFieldsUseCase;
+
   /// حالة استخدام اختيارية تجمع تحميل أنواع العقارات والوحدات في طلب واحد
   /// لتحسين الأداء عند التهيئة الأولى.
   /// Optional combined use case that loads property and unit types in one
   /// request to speed up the initial home bootstrap.
   final GetPropertyTypesWithUnitsUseCase? getPropertyTypesWithUnitsUseCase;
+
   /// المستودع المسؤول عن العمليات الجانبية مثل تسجيل الانطباعات والتفاعل.
   /// Repository responsible for side effects such as recording impressions and
   /// interactions.
   final HomeRepository homeRepository;
+
   /// خدمة مزامنة تساعد على استخدام البيانات المحلية عند تعثر المصدر البعيد.
   /// Sync service used to fall back to local data when the remote source fails.
   final DataSyncService dataSyncService;
+
   /// تخزين دائم لاختيارات الفلاتر والبحث الخاصة بالصفحة الرئيسية.
   /// Persistent storage for home-specific search and filter selections.
   final FilterStorageService filterStorageService;
@@ -93,7 +102,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
       if (sectionsResult.isLeft()) {
         final failure = sectionsResult.fold((l) => l, (r) => null);
-        emit(HomeError(message: _mapFailureToMessage(failure!)));
+        emit(HomeError(message: await _mapFailureToMessage(failure!)));
         return;
       }
 
@@ -250,7 +259,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         sectionsLoadingMore: sectionsLoadingMore,
       ));
     } catch (e) {
-      emit(HomeError(message: 'حدث خطأ غير متوقع: $e'));
+      emit(
+        HomeError(
+          message: AppLocalizations.translateSync('common.unexpectedError'),
+        ),
+      );
     }
   }
 
@@ -269,7 +282,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
 
     sectionsResult.fold(
-      (failure) => emit(HomeError(message: _mapFailureToMessage(failure))),
+      (failure) async =>
+          emit(HomeError(message: await _mapFailureToMessage(failure))),
       (sections) {
         if (state is HomeLoaded) {
           final currentState = state as HomeLoaded;
@@ -305,11 +319,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       ),
     );
 
-    sectionDataResult.fold(
-      (failure) => emit(SectionError(
-        sectionId: event.sectionId,
-        message: _mapFailureToMessage(failure),
-      )),
+    await sectionDataResult.fold(
+      (failure) async {
+        emit(SectionError(
+          sectionId: event.sectionId,
+          message: await _mapFailureToMessage(failure),
+        ));
+      },
       (data) {
         if (state is HomeLoaded) {
           final currentState = state as HomeLoaded;
@@ -336,12 +352,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ) async {
     final result = await getPropertyTypesUseCase(NoParams());
 
-    result.fold(
-      (failure) {
+    await result.fold(
+      (failure) async {
         if (state is HomeLoaded) {
           // Don't emit error if we're in loaded state, just log it
         } else {
-          emit(HomeError(message: _mapFailureToMessage(failure)));
+          emit(HomeError(message: await _mapFailureToMessage(failure)));
         }
       },
       (propertyTypes) {
@@ -566,16 +582,29 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  String _mapFailureToMessage(Failure failure) {
+  Future<String> _mapFailureToMessage(Failure failure) async {
+    final locale = LocaleManager.getCurrentLocale();
     switch (failure.runtimeType) {
       case (ServerFailure):
-        return 'حدث خطأ في الخادم. يرجى المحاولة مرة أخرى.';
+        return AppLocalizations.translate(
+          'home.error.server',
+          locale: locale,
+        );
       case (CacheFailure):
-        return 'حدث خطأ في تحميل البيانات المحفوظة.';
+        return AppLocalizations.translate(
+          'home.error.cache',
+          locale: locale,
+        );
       case (NetworkFailure):
-        return 'يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.';
+        return AppLocalizations.translate(
+          'home.error.network',
+          locale: locale,
+        );
       default:
-        return 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.';
+        return AppLocalizations.translate(
+          'home.error.unexpected',
+          locale: locale,
+        );
     }
   }
 }

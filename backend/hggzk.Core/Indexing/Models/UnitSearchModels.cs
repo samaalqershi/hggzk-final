@@ -327,11 +327,21 @@ public class UnitSearchItem
     /// اسم الوحدة
     /// </summary>
     public string UnitName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// اسم الوحدة بالإنجليزية
+    /// </summary>
+    public string? UnitNameEn { get; set; }
     
     /// <summary>
     /// نوع الوحدة
     /// </summary>
     public string UnitTypeName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// نوع الوحدة بالإنجليزية
+    /// </summary>
+    public string? UnitTypeNameEn { get; set; }
     
     /// <summary>
     /// السعر الأساسي (لليلة/الساعة حسب PricingMethod)
@@ -368,22 +378,42 @@ public class UnitSearchItem
     /// اسم العقار
     /// </summary>
     public string PropertyName { get; set; } = string.Empty;
-    
+
+    /// <summary>
+    /// اسم العقار بالإنجليزية
+    /// </summary>
+    public string? PropertyNameEn { get; set; }
+
     /// <summary>
     /// نوع العقار
     /// </summary>
     public string PropertyTypeName { get; set; } = string.Empty;
-    
+
+    /// <summary>
+    /// نوع العقار بالإنجليزية
+    /// </summary>
+    public string? PropertyTypeNameEn { get; set; }
+
     /// <summary>
     /// المدينة
     /// </summary>
     public string City { get; set; } = string.Empty;
-    
+
+    /// <summary>
+    /// المدينة بالإنجليزية
+    /// </summary>
+    public string? CityEn { get; set; }
+
     /// <summary>
     /// العنوان
     /// </summary>
     public string Address { get; set; } = string.Empty;
-    
+
+    /// <summary>
+    /// العنوان بالإنجليزية
+    /// </summary>
+    public string? AddressEn { get; set; }
+
     /// <summary>
     /// تصنيف النجوم
     /// </summary>
@@ -461,6 +491,11 @@ public class UnitSearchItem
     /// ملخص المرافق الرئيسية (3-5 مرافق مهمة)
     /// </summary>
     public List<string> MainAmenities { get; set; } = new();
+
+    /// <summary>
+    /// ملخص المرافق الرئيسية بالإنجليزية
+    /// </summary>
+    public List<string> MainAmenitiesEn { get; set; } = new();
     
     /// <summary>
     /// ملخص الحقول الديناميكية المهمة (للعرض في البطاقة)
@@ -710,6 +745,11 @@ public class PropertyGroupSearchItem
     /// ملخص المرافق المتوفرة
     /// </summary>
     public List<string> AvailableAmenities { get; set; } = new();
+
+    /// <summary>
+    /// ملخص المرافق المتوفرة بالإنجليزية
+    /// </summary>
+    public List<string> AvailableAmenitiesEn { get; set; } = new();
     
     #endregion
     

@@ -395,6 +395,7 @@ public sealed class PostgresSearchFacetService : ISearchFacetService
             {
                 UnitTypeIdText = u.UnitTypeId.ToString(),
                 Name = u.UnitType.Name,
+                NameEn = u.UnitType.NameEn,
                 PropertyTypeIdText = u.Property.TypeId.ToString(),
                 u.UnitType.IsHasAdults,
                 u.UnitType.IsHasChildren,
@@ -405,6 +406,7 @@ public sealed class PostgresSearchFacetService : ISearchFacetService
             {
                 group.Key.UnitTypeIdText,
                 Name = group.Key.Name ?? string.Empty,
+                NameEn = group.Key.NameEn,
                 group.Key.PropertyTypeIdText,
                 UnitsCount = group.Count(),
                 IsHasAdults = group.Key.IsHasAdults,
@@ -422,6 +424,7 @@ public sealed class PostgresSearchFacetService : ISearchFacetService
             {
                 Id = ParseGuidOrEmpty(type.UnitTypeIdText),
                 Name = type.Name,
+                NameEn = type.NameEn,
                 PropertyTypeId = ParseGuidOrEmpty(type.PropertyTypeIdText),
                 UnitsCount = type.UnitsCount,
                 IsHasAdults = type.IsHasAdults,
@@ -483,15 +486,17 @@ public sealed class PostgresSearchFacetService : ISearchFacetService
             {
                 IdText = service.Id.ToString(),
                 service.Name,
+                service.NameEn,
                 service.Icon,
                 PropertyIdText = service.PropertyId.ToString()
             }))
             .Distinct()
-            .GroupBy(x => new { x.IdText, x.Name, x.Icon })
+            .GroupBy(x => new { x.IdText, x.Name, x.NameEn, x.Icon })
             .Select(group => new
             {
                 group.Key.IdText,
                 Name = group.Key.Name ?? string.Empty,
+                NameEn = group.Key.NameEn,
                 Icon = group.Key.Icon ?? string.Empty,
                 PropertiesCount = group.Select(x => x.PropertyIdText).Distinct().Count()
             })
@@ -505,6 +510,7 @@ public sealed class PostgresSearchFacetService : ISearchFacetService
             {
                 Id = ParseGuidOrEmpty(service.IdText),
                 Name = service.Name,
+                NameEn = service.NameEn,
                 Icon = service.Icon,
                 PropertiesCount = service.PropertiesCount
             })

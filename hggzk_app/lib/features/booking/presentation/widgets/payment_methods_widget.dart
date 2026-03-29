@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/enums/payment_method_enum.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -78,7 +79,9 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
           // ═══════════════════════════════════════════
           _buildSectionTitle(
             icon: Icons.account_balance_wallet_rounded,
-            title: 'المحافظ الإلكترونية',
+            title: context.tr(
+              'booking.payment.walletsTitle',
+            ),
             color: AppTheme.primaryCyan,
           ),
           const SizedBox(height: 20),
@@ -91,7 +94,9 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
           // ═══════════════════════════════════════════
           _buildSectionTitle(
             icon: Icons.payments_rounded,
-            title: 'طرق دفع أخرى',
+            title: context.tr(
+              'booking.payment.otherMethodsTitle',
+            ),
             color: AppTheme.success,
           ),
           const SizedBox(height: 20),
@@ -254,7 +259,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        _getWalletName(wallet),
+                        _getWalletName(context, wallet),
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: isSelected
                               ? Colors.white
@@ -287,7 +292,9 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
                               ),
                               const SizedBox(width: 2),
                               Text(
-                                'موصى',
+                                context.tr(
+                                  'booking.payment.recommended',
+                                ),
                                 style: AppTextStyles.caption.copyWith(
                                   fontWeight: FontWeight.w600,
                                   color: isSelected
@@ -303,7 +310,9 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'دفع فوري',
+                    context.tr(
+                      'booking.payment.instantPay',
+                    ),
                     style: AppTextStyles.caption.copyWith(
                       color: isSelected
                           ? Colors.white.withOpacity(0.7)
@@ -468,7 +477,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
 
                   // الوصف
                   Text(
-                    _getMethodDescription(method) ?? '',
+                    _getMethodDescription(context, method) ?? '',
                     style: AppTextStyles.caption.copyWith(
                       color: AppTheme.textMuted.withOpacity(0.7),
                     ),
@@ -511,7 +520,9 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'قريباً',
+                            context.tr(
+                              'booking.payment.comingSoon',
+                            ),
                             style: AppTextStyles.caption.copyWith(
                               color: AppTheme.textMuted,
                               fontWeight: FontWeight.w500,
@@ -629,34 +640,44 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget>
   }
 
   /// العربية: يعيد wallet name.
-  String _getWalletName(PaymentMethod wallet) {
+  String _getWalletName(BuildContext context, PaymentMethod wallet) {
     switch (wallet) {
       case PaymentMethod.jaibWallet:
-        return 'جيب';
+        return context.tr('booking.payment.wallet.jaib');
       case PaymentMethod.jwaliWallet:
-        return 'جوالي';
+        return context.tr('booking.payment.wallet.jwali');
       case PaymentMethod.cashWallet:
-        return 'كاش';
+        return context.tr('booking.payment.wallet.cash');
       case PaymentMethod.oneCashWallet:
-        return 'ون كاش';
+        return context.tr(
+          'booking.payment.wallet.oneCash',
+        );
       case PaymentMethod.floskWallet:
-        return 'فلوس';
+        return context.tr('booking.payment.wallet.flosk');
       case PaymentMethod.sabaCashWallet:
-        return 'سبأ كاش'; // ✅ اسم سبأ كاش
+        return context.tr(
+          'booking.payment.wallet.sabaCash',
+        );
       default:
         return '';
     }
   }
 
   /// العربية: يعيد method description.
-  String? _getMethodDescription(PaymentMethod method) {
+  String? _getMethodDescription(BuildContext context, PaymentMethod method) {
     switch (method) {
       case PaymentMethod.cash:
-        return 'عند الاستلام';
+        return context.tr(
+          'booking.payment.method.cashOnDelivery',
+        );
       case PaymentMethod.creditCard:
-        return 'فيزا / ماستر';
+        return context.tr(
+          'booking.payment.method.creditAndMaster',
+        );
       case PaymentMethod.paypal:
-        return 'دفع آمن';
+        return context.tr(
+          'booking.payment.method.securePay',
+        );
       default:
         return null;
     }

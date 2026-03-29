@@ -8,6 +8,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:hggzk/app/router/navigation_service.dart';
 import 'package:hggzk/core/constants/route_constants.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
+import 'package:hggzk/core/localization/locale_manager.dart';
 import 'package:hggzk/core/network/api_client.dart';
 import 'package:hggzk/core/services/local_storage_service.dart';
 import 'package:hggzk/features/auth/data/datasources/auth_local_datasource.dart';
@@ -125,16 +127,17 @@ class NotificationService {
     );
 
     // Android: create notification channels up front
-    const androidChannel = AndroidNotificationChannel(
+    final androidChannel = AndroidNotificationChannel(
       'hggzk_channel',
-      'hggzk Notifications',
-      description: 'إشعارات تطبيق حجزك',
+      await _tr('core.notifications.channel.main.name'),
+      description: await _tr('core.notifications.channel.main.description'),
       importance: Importance.high,
     );
-    const androidScheduledChannel = AndroidNotificationChannel(
+    final androidScheduledChannel = AndroidNotificationChannel(
       'hggzk_scheduled',
-      'hggzk Scheduled',
-      description: 'إشعارات مجدولة لتطبيق حجزك',
+      await _tr('core.notifications.channel.scheduled.name'),
+      description:
+          await _tr('core.notifications.channel.scheduled.description'),
       importance: Importance.high,
     );
     final androidPlugin =
@@ -376,35 +379,54 @@ class NotificationService {
     if (title.isEmpty) {
       switch (fallbackType) {
         case 'booking':
-          title = 'تحديث جديد على الحجز';
+          title = await _tr(
+            'core.notifications.booking.title',
+          );
           break;
         case 'chat':
         case 'new_message':
-          title = 'رسالة جديدة';
+          title = await _tr(
+            'core.notifications.chat.title',
+          );
           break;
         case 'conversation_created':
-          title = 'تم إنشاء محادثة جديدة';
+          title = await _tr(
+            'core.notifications.conversationCreated.title',
+          );
           break;
         default:
-          title = 'إشعار جديد';
+          title = await _tr(
+            'core.notifications.default.title',
+          );
       }
     }
     if (body.isEmpty) {
       switch (fallbackType) {
         case 'booking':
           body = id.isNotEmpty
-              ? 'تم تحديث الحجز رقم $id'
-              : 'اطّلع على تفاصيل التحديث.';
+              ? await _tr(
+                  'core.notifications.booking.bodyWithId',
+                  params: {'id': id},
+                )
+              : await _tr(
+                  'core.notifications.booking.body',
+                );
           break;
         case 'chat':
         case 'new_message':
-          body = 'لديك رسالة جديدة. اضغط فتح للعرض.';
+          body = await _tr(
+            'core.notifications.chat.body',
+          );
           break;
         case 'conversation_created':
-          body = 'تم إنشاء محادثة جديدة. اضغط فتح للانتقال.';
+          body = await _tr(
+            'core.notifications.conversationCreated.body',
+          );
           break;
         default:
-          body = 'لديك إشعار جديد. اضغط فتح للعرض.';
+          body = await _tr(
+            'core.notifications.default.body',
+          );
       }
     }
 
@@ -616,6 +638,18 @@ class NotificationService {
         break;
     }
 
+    final closeLabel = await _tr(
+      'notifications.service.close',
+    );
+    final openLabel = await _tr(
+      'notifications.service.open',
+    );
+
+    if (!context.mounted) {
+      debugPrint('In-app notification context disposed before dialog display');
+      return;
+    }
+
     await showDialog<void>(
       context: context,
       builder: (dialogContext) {
@@ -631,14 +665,14 @@ class NotificationService {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('إغلاق'),
+              child: Text(closeLabel),
             ),
             FilledButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 onOpen();
               },
-              child: const Text('فتح'),
+              child: Text(openLabel),
             ),
           ],
         );
@@ -766,10 +800,11 @@ class NotificationService {
     required DateTime scheduledDate,
     Map<String, dynamic>? payload,
   }) async {
-    const androidDetails = AndroidNotificationDetails(
+    final androidDetails = AndroidNotificationDetails(
       'hggzk_scheduled',
-      'hggzk Scheduled',
-      channelDescription: 'إشعارات مجدولة لتطبيق حجزك',
+      await _tr('notifications.service.scheduledChannelName'),
+      channelDescription:
+          await _tr('notifications.service.scheduledChannelDescription'),
       importance: Importance.high,
       priority: Priority.high,
     );
@@ -780,7 +815,7 @@ class NotificationService {
       presentSound: true,
     );
 
-    const details = NotificationDetails(
+    final details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
@@ -821,5 +856,17 @@ class NotificationService {
   /// يزيل الجهاز من topic مخصص عندما لا تبقى هناك حاجة لذلك المسار من الرسائل.
   Future<void> unsubscribeFromTopic(String topic) async {
     await _firebaseMessaging.unsubscribeFromTopic(topic);
+  }
+
+  Future<String> _tr(
+    String key, {
+    String? fallback,
+    Map<String, Object?> params = const {},
+  }) {
+    return AppLocalizations.translate(
+      key,
+      locale: LocaleManager.getCurrentLocale(),
+      params: params,
+    );
   }
 }

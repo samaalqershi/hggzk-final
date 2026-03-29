@@ -465,6 +465,7 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
                         ),
                       ),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Icon(
                             _getAmenityIcon(widget.amenity.icon),
@@ -472,11 +473,33 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
                             color: AppTheme.primaryPurple,
                           ),
                           const SizedBox(width: 6),
-                          Text(
-                            widget.amenity.name,
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppTheme.primaryPurple,
-                              fontWeight: FontWeight.w600,
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.amenity.name,
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                    color: AppTheme.primaryPurple,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                if (_normalizedSecondary(
+                                      widget.amenity.nameEn,
+                                      widget.amenity.name,
+                                    ) !=
+                                    null)
+                                  Text(
+                                    _normalizedSecondary(
+                                      widget.amenity.nameEn,
+                                      widget.amenity.name,
+                                    )!,
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppTheme.primaryPurple
+                                          .withValues(alpha: 0.8),
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
                         ],
@@ -1083,6 +1106,11 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
   /// يبني بطاقة معلومات سريعة تذكّر المستخدم بوصف المرفق الجاري إسناده.
   /// Builds a quick info card that reminds the user of the amenity being assigned.
   Widget _buildInfoCard() {
+    final secondaryDescription = _normalizedSecondary(
+      widget.amenity.descriptionEn,
+      widget.amenity.description,
+    );
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1139,12 +1167,37 @@ class _AssignAmenityDialogState extends State<AssignAmenityDialog>
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
+                if (secondaryDescription != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      secondaryDescription,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppTheme.textMuted.withValues(alpha: 0.78),
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
               ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  String? _normalizedSecondary(String? secondary, String primary) {
+    final normalized = secondary?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      return null;
+    }
+
+    if (normalized == primary.trim()) {
+      return null;
+    }
+
+    return normalized;
   }
 
   /// يبني تذييل الحوار مع أزرار الإلغاء والتنفيذ وحالة التحميل المرتبطة بهما.

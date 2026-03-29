@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using YemenBooking.Application.Common.Models;
 using YemenBooking.Core.Interfaces.Repositories;
 using YemenBooking.Application.Common.Interfaces;
+using YemenBooking.Application.Common.Helpers;
 using YemenBooking.Application.Features.Payments.DTOs;
 
 namespace YemenBooking.Application.Features.Payments.Queries.GetPaymentById
@@ -110,11 +111,11 @@ namespace YemenBooking.Application.Features.Payments.Queries.GetPaymentById
             activities.Add(new PaymentActivityDto
             {
                 Id = Guid.NewGuid().ToString(),
-                Action = "Created",
-                Description = "تم إنشاء الدفعة",
+                Action = LocalizedText.Choose("تم الإنشاء", "Created", _currentUserService.Language),
+                Description = LocalizedText.Choose("تم إنشاء الدفعة", "Payment created", _currentUserService.Language),
                 Timestamp = await _currentUserService.ConvertFromUtcToUserLocalAsync(payment.PaymentDate),
                 UserId = payment.Booking?.UserId.ToString(),
-                UserName = payment.Booking?.User?.Name ?? "Guest"
+                UserName = payment.Booking?.User?.Name ?? LocalizedText.Choose("ضيف", "Guest", _currentUserService.Language)
             });
 
             // Processed activity
@@ -123,11 +124,11 @@ namespace YemenBooking.Application.Features.Payments.Queries.GetPaymentById
                 activities.Add(new PaymentActivityDto
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Action = "Processed",
-                    Description = "تمت معالجة الدفعة",
+                    Action = LocalizedText.Choose("تمت المعالجة", "Processed", _currentUserService.Language),
+                    Description = LocalizedText.Choose("تمت معالجة الدفعة", "Payment processed", _currentUserService.Language),
                     Timestamp = await _currentUserService.ConvertFromUtcToUserLocalAsync(payment.ProcessedAt.Value),
                     UserId = payment.ProcessedBy.ToString(),
-                    UserName = "System"
+                    UserName = LocalizedText.Choose("النظام", "System", _currentUserService.Language)
                 });
             }
 
@@ -138,10 +139,13 @@ namespace YemenBooking.Application.Features.Payments.Queries.GetPaymentById
                 activities.Add(new PaymentActivityDto
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Action = "Refunded",
-                    Description = $"تم استرداد المبلغ - {payment.Status}",
+                    Action = LocalizedText.Choose("تم الاسترداد", "Refunded", _currentUserService.Language),
+                    Description = LocalizedText.Choose(
+                        $"تم استرداد المبلغ - {payment.Status}",
+                        $"Refund processed - {payment.Status}",
+                        _currentUserService.Language),
                     Timestamp = await _currentUserService.ConvertFromUtcToUserLocalAsync(payment.UpdatedAt),
-                    UserName = "System"
+                    UserName = LocalizedText.Choose("النظام", "System", _currentUserService.Language)
                 });
             }
 
@@ -150,10 +154,10 @@ namespace YemenBooking.Application.Features.Payments.Queries.GetPaymentById
                 activities.Add(new PaymentActivityDto
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Action = "Voided",
-                    Description = "تم إلغاء الدفعة",
+                    Action = LocalizedText.Choose("تم الإبطال", "Voided", _currentUserService.Language),
+                    Description = LocalizedText.Choose("تم إلغاء الدفعة", "Payment voided", _currentUserService.Language),
                     Timestamp = await _currentUserService.ConvertFromUtcToUserLocalAsync(payment.UpdatedAt),
-                    UserName = "System"
+                    UserName = LocalizedText.Choose("النظام", "System", _currentUserService.Language)
                 });
             }
 
@@ -167,8 +171,8 @@ namespace YemenBooking.Application.Features.Payments.Queries.GetPaymentById
                     BookingReference = $"BK-{payment.Booking.Id.ToString().Substring(0, 8).ToUpper()}",
                     CheckIn = await _currentUserService.ConvertFromUtcToUserLocalAsync(payment.Booking.CheckIn),
                     CheckOut = await _currentUserService.ConvertFromUtcToUserLocalAsync(payment.Booking.CheckOut),
-                    UnitName = payment.Booking.Unit?.Name ?? "N/A",
-                    PropertyName = payment.Booking.Unit?.Property?.Name ?? "N/A",
+                    UnitName = payment.Booking.Unit?.Name ?? LocalizedText.Choose("غير متوفر", "N/A", _currentUserService.Language),
+                    PropertyName = payment.Booking.Unit?.Property?.Name ?? LocalizedText.Choose("غير متوفر", "N/A", _currentUserService.Language),
                     GuestsCount = payment.Booking.GuestsCount
                 };
             }
@@ -183,7 +187,10 @@ namespace YemenBooking.Application.Features.Payments.Queries.GetPaymentById
                     GatewayTransactionId = payment.GatewayTransactionId,
                     AuthorizationCode = payment.GatewayTransactionId,
                     ResponseCode = payment.Status.ToString(),
-                    ResponseMessage = $"Payment {payment.Status}"
+                    ResponseMessage = LocalizedText.Choose(
+                        $"حالة الدفع: {payment.Status}",
+                        $"Payment {payment.Status}",
+                        _currentUserService.Language)
                 };
             }
 

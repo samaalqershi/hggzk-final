@@ -9,7 +9,9 @@ class CityModel extends City {
   /// ينشئ نموذجًا جاهزًا لتبادل JSON مع الخادم.
   const CityModel({
     required super.name,
+    super.nameEn,
     required super.country,
+    super.countryEn,
     required super.images,
     super.createdAt,
     super.updatedAt,
@@ -50,7 +52,9 @@ class CityModel extends City {
 
     return CityModel(
       name: json['name'] ?? '',
+      nameEn: json['nameEn'],
       country: json['country'] ?? '',
+      countryEn: json['countryEn'],
       images: sanitized,
       createdAt:
           json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
@@ -68,7 +72,9 @@ class CityModel extends City {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
+      'nameEn': nameEn,
       'country': country,
+      'countryEn': countryEn,
       'images': images,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
@@ -84,7 +90,9 @@ class CityModel extends City {
   factory CityModel.fromEntity(City city) {
     return CityModel(
       name: city.name,
+      nameEn: city.nameEn,
       country: city.country,
+      countryEn: city.countryEn,
       images: city.images,
       createdAt: city.createdAt,
       updatedAt: city.updatedAt,

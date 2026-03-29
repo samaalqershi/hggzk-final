@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../entities/transaction.dart';
@@ -18,27 +19,40 @@ class GetPaymentHistoryUseCase
     // Validate date range
     if (params.fromDate != null && params.toDate != null) {
       if (params.fromDate!.isAfter(params.toDate!)) {
-        return const Left(
-            ValidationFailure('تاريخ البداية يجب أن يكون قبل تاريخ النهاية'));
+        return Left(
+          ValidationFailure(
+            AppLocalizations.translateSync('common.invalidData'),
+          ),
+        );
       }
     }
 
     // Validate amount range
     if (params.minAmount != null && params.maxAmount != null) {
       if (params.minAmount! > params.maxAmount!) {
-        return const Left(ValidationFailure(
-            'الحد الأدنى للمبلغ يجب أن يكون أقل من الحد الأقصى'));
+        return Left(
+          ValidationFailure(
+            AppLocalizations.translateSync('common.invalidData'),
+          ),
+        );
       }
     }
 
     // Validate pagination
     if (params.pageNumber < 1) {
-      return const Left(ValidationFailure('رقم الصفحة غير صالح'));
+      return Left(
+        ValidationFailure(
+          AppLocalizations.translateSync('common.invalidData'),
+        ),
+      );
     }
 
     if (params.pageSize < 1 || params.pageSize > 100) {
-      return const Left(
-          ValidationFailure('حجم الصفحة يجب أن يكون بين 1 و 100'));
+      return Left(
+        ValidationFailure(
+          AppLocalizations.translateSync('common.invalidData'),
+        ),
+      );
     }
 
     return await repository.getPaymentHistory(

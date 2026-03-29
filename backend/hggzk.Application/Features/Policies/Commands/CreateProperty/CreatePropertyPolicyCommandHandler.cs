@@ -99,6 +99,7 @@ namespace YemenBooking.Application.Features.Policies.Commands.CreateProperty
                 PropertyId = request.PropertyId,
                 Type = request.Type,
                 Description = request.Description,
+                DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn.Trim(),
                 CancellationWindowDays = request.CancellationWindowDays,
                 RequireFullPaymentBeforeConfirmation = request.RequireFullPaymentBeforeConfirmation,
                 MinimumDepositPercentage = request.MinimumDepositPercentage,
@@ -110,6 +111,7 @@ namespace YemenBooking.Application.Features.Policies.Commands.CreateProperty
                 CancellationHoursBeforeCheckIn = request.CancellationHoursBeforeCheckIn,
                 CancellationNonRefundable = request.CancellationNonRefundable,
                 CancellationPenaltyAfterDeadline = request.CancellationPenaltyAfterDeadline,
+                CancellationPenaltyAfterDeadlineEn = request.CancellationPenaltyAfterDeadlineEn,
                 PaymentDepositRequired = request.PaymentDepositRequired,
                 PaymentFullPaymentRequired = request.PaymentFullPaymentRequired,
                 PaymentDepositPercentage = request.PaymentDepositPercentage,
@@ -127,20 +129,26 @@ namespace YemenBooking.Application.Features.Policies.Commands.CreateProperty
                 CheckInRequiresCoordination = request.CheckInRequiresCoordination,
                 CheckInContactOwner = request.CheckInContactOwner,
                 CheckInEarlyCheckInNote = request.CheckInEarlyCheckInNote,
+                CheckInEarlyCheckInNoteEn = request.CheckInEarlyCheckInNoteEn,
                 CheckInLateCheckOutNote = request.CheckInLateCheckOutNote,
+                CheckInLateCheckOutNoteEn = request.CheckInLateCheckOutNoteEn,
                 CheckInLateCheckOutFee = request.CheckInLateCheckOutFee,
+                CheckInLateCheckOutFeeEn = request.CheckInLateCheckOutFeeEn,
                 ChildrenAllowed = request.ChildrenAllowed,
                 ChildrenFreeUnderAge = request.ChildrenFreeUnderAge,
                 ChildrenHalfPriceUnderAge = request.ChildrenHalfPriceUnderAge,
                 ChildrenMaxChildrenPerRoom = request.ChildrenMaxChildrenPerRoom,
                 ChildrenMaxChildren = request.ChildrenMaxChildren,
                 ChildrenCribsNote = request.ChildrenCribsNote,
+                ChildrenCribsNoteEn = request.ChildrenCribsNoteEn,
                 ChildrenPlaygroundAvailable = request.ChildrenPlaygroundAvailable,
                 ChildrenKidsMenuAvailable = request.ChildrenKidsMenuAvailable,
                 PetsAllowed = request.PetsAllowed,
                 PetsReason = request.PetsReason,
+                PetsReasonEn = request.PetsReasonEn,
                 PetsFeeAmount = request.PetsFeeAmount,
                 PetsMaxWeight = request.PetsMaxWeight,
+                PetsMaxWeightEn = request.PetsMaxWeightEn,
                 PetsRequiresApproval = request.PetsRequiresApproval,
                 PetsNoFees = request.PetsNoFees,
                 PetsPetFriendly = request.PetsPetFriendly,
@@ -149,8 +157,10 @@ namespace YemenBooking.Application.Features.Policies.Commands.CreateProperty
                 ModificationAllowed = request.ModificationAllowed,
                 ModificationFreeModificationHours = request.ModificationFreeModificationHours,
                 ModificationFeesAfter = request.ModificationFeesAfter,
+                ModificationFeesAfterEn = request.ModificationFeesAfterEn,
                 ModificationFlexible = request.ModificationFlexible,
                 ModificationReason = request.ModificationReason,
+                ModificationReasonEn = request.ModificationReasonEn,
                 CreatedBy = _currentUserService.UserId,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
@@ -161,6 +171,7 @@ namespace YemenBooking.Application.Features.Policies.Commands.CreateProperty
             if (!string.IsNullOrWhiteSpace(request.Rules))
             {
                 policy.Rules = request.Rules;
+                policy.RulesEn = string.IsNullOrWhiteSpace(request.RulesEn) ? null : request.RulesEn;
                 PolicyRulesMapper.PopulatePolicyFromRulesJson(policy, request.Rules);
             }
             else

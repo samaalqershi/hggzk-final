@@ -171,6 +171,8 @@ namespace YemenBooking.Application.Features.Units.Commands.UpdateUnit
                 // تطبيق التحديثات الممكنة على الوحدة
                 if (!string.IsNullOrWhiteSpace(request.CustomFeatures))
                     unit.CustomFeatures = request.CustomFeatures.Trim();
+                if (request.CustomFeaturesEn != null)
+                    unit.CustomFeaturesEn = string.IsNullOrWhiteSpace(request.CustomFeaturesEn) ? null : request.CustomFeaturesEn.Trim();
                 if (request.PricingMethod.HasValue)
                     unit.PricingMethod = request.PricingMethod.Value;
                 if (request.AdultCapacity.HasValue)
@@ -250,9 +252,11 @@ namespace YemenBooking.Application.Features.Units.Commands.UpdateUnit
                 {
                     unit.Id,
                     unit.Name,
+                    unit.NameEn,
                     unit.AdultsCapacity,
                     unit.ChildrenCapacity,
                     unit.CustomFeatures,
+                    unit.CustomFeaturesEn,
                     unit.PricingMethod,
                     unit.AllowsCancellation,
                     unit.CancellationWindowDays
@@ -261,9 +265,11 @@ namespace YemenBooking.Application.Features.Units.Commands.UpdateUnit
                 {
                     unit.Id,
                     unit.Name,
+                    unit.NameEn,
                     unit.AdultsCapacity,
                     unit.ChildrenCapacity,
                     unit.CustomFeatures,
+                    unit.CustomFeaturesEn,
                     unit.PricingMethod,
                     unit.AllowsCancellation,
                     unit.CancellationWindowDays

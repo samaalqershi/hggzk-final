@@ -70,7 +70,9 @@ class _EditUnitPageState extends State<EditUnitPage>
   // Form Controllers
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _nameEnController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _descriptionEnController = TextEditingController();
   // final _priceController = TextEditingController(); // Removed: basePrice no longer used
   final _featuresController = TextEditingController();
   final _cancellationDaysController = TextEditingController();
@@ -238,7 +240,9 @@ class _EditUnitPageState extends State<EditUnitPage>
 
       // Populate text controllers
       _nameController.text = unit.name;
+      _nameEnController.text = unit.nameEn ?? '';
       _descriptionController.text = unit.customFeatures;
+      _descriptionEnController.text = unit.customFeaturesEn ?? '';
       // _priceController.text = unit.basePrice.amount.toString(); // Removed: basePrice no longer used
 
       // Extract features from customFeatures if it's comma-separated
@@ -312,7 +316,9 @@ class _EditUnitPageState extends State<EditUnitPage>
   void _updateFormBloc() {
     // تحديث جميع الحقول في البلوك
     _updateUnitName();
+    _updateUnitNameEn();
     _updateDescription();
+    _updateDescriptionEn();
     // _updatePricing(); // Commented out: basePrice no longer used
     _updateFeatures();
     _updateCapacity();
@@ -344,7 +350,9 @@ class _EditUnitPageState extends State<EditUnitPage>
     _glowController.dispose();
     _loadingAnimationController.dispose();
     _nameController.dispose();
+    _nameEnController.dispose();
     _descriptionController.dispose();
+    _descriptionEnController.dispose();
     // _priceController.dispose(); // Removed: basePrice no longer used
     _featuresController.dispose();
     _cancellationDaysController.dispose();
@@ -824,6 +832,26 @@ class _EditUnitPageState extends State<EditUnitPage>
 
           const SizedBox(height: 20),
 
+          if (_originalUnit != null &&
+              _nameEnController.text != (_originalUnit!.nameEn ?? ''))
+            _buildOriginalValueIndicator(
+              'الاسم الإنجليزي الأصلي',
+              _originalUnit!.nameEn?.isEmpty ?? true
+                  ? 'لا يوجد'
+                  : _originalUnit!.nameEn!,
+              true,
+            ),
+
+          _buildInputField(
+            controller: _nameEnController,
+            label: 'اسم الوحدة بالإنجليزية',
+            hint: 'Enter the unit name in English',
+            icon: Icons.translate_rounded,
+            onChanged: (value) => _updateUnitNameEn(),
+          ),
+
+          const SizedBox(height: 20),
+
           if (!_isOwner)
             _buildReadOnlyField(
               label: 'العقار',
@@ -866,6 +894,28 @@ class _EditUnitPageState extends State<EditUnitPage>
               return null;
             },
             onChanged: (value) => _updateDescription(),
+          ),
+
+          const SizedBox(height: 20),
+
+          if (_originalUnit != null &&
+              _descriptionEnController.text !=
+                  (_originalUnit!.customFeaturesEn ?? ''))
+            _buildOriginalValueIndicator(
+              'الوصف الإنجليزي الأصلي',
+              _originalUnit!.customFeaturesEn?.isEmpty ?? true
+                  ? 'لا يوجد'
+                  : _originalUnit!.customFeaturesEn!,
+              true,
+            ),
+
+          _buildInputField(
+            controller: _descriptionEnController,
+            label: 'الوصف بالإنجليزية',
+            hint: 'Enter the unit description in English',
+            icon: Icons.translate_rounded,
+            maxLines: 5,
+            onChanged: (value) => _updateDescriptionEn(),
           ),
         ],
       ),
@@ -1178,6 +1228,14 @@ class _EditUnitPageState extends State<EditUnitPage>
                 'changed': _nameController.text != _originalUnit?.name
               },
               {
+                'label': 'الاسم بالإنجليزية',
+                'value': _nameEnController.text.isEmpty
+                    ? 'غير مدخل'
+                    : _nameEnController.text,
+                'changed':
+                    _nameEnController.text != (_originalUnit?.nameEn ?? '')
+              },
+              {
                 'label': 'العقار',
                 'value': _selectedPropertyName ?? '',
                 'changed': false
@@ -1280,6 +1338,14 @@ class _EditUnitPageState extends State<EditUnitPage>
                 'value': _descriptionController.text,
                 'changed':
                     _descriptionController.text != _originalUnit?.customFeatures
+              },
+              {
+                'label': 'الوصف بالإنجليزية',
+                'value': _descriptionEnController.text.isEmpty
+                    ? 'غير مدخل'
+                    : _descriptionEnController.text,
+                'changed': _descriptionEnController.text !=
+                    (_originalUnit?.customFeaturesEn ?? '')
               },
             ],
           ),
@@ -1411,11 +1477,17 @@ class _EditUnitPageState extends State<EditUnitPage>
                             : AppTheme.textMuted.withValues(alpha: 0.7),
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        field.displayName,
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color:
-                              isChanged ? AppTheme.warning : AppTheme.textMuted,
+                      Expanded(
+                        child: Text(
+                          _bilingualFieldLabel(
+                            field.displayName,
+                            field.displayNameEn,
+                          ),
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: isChanged
+                                ? AppTheme.warning
+                                : AppTheme.textMuted,
+                          ),
                         ),
                       ),
                     ],
@@ -2001,7 +2073,10 @@ class _EditUnitPageState extends State<EditUnitPage>
     if (_originalUnit == null) return false;
 
     final basicFieldsChanged = _nameController.text != _originalUnit!.name ||
+        _nameEnController.text != (_originalUnit!.nameEn ?? '') ||
         _descriptionController.text != _originalUnit!.customFeatures ||
+        _descriptionEnController.text !=
+            (_originalUnit!.customFeaturesEn ?? '') ||
         _adultCapacity !=
             (_originalUnit!.adultsCapacity ?? _originalUnit!.maxCapacity) ||
         _childrenCapacity != (_originalUnit!.childrenCapacity ?? 0) ||
@@ -2069,7 +2144,10 @@ class _EditUnitPageState extends State<EditUnitPage>
     switch (step) {
       case 0: // Basic Info
         return _nameController.text != _originalUnit!.name ||
-            _descriptionController.text != _originalUnit!.customFeatures;
+            _nameEnController.text != (_originalUnit!.nameEn ?? '') ||
+            _descriptionController.text != _originalUnit!.customFeatures ||
+            _descriptionEnController.text !=
+                (_originalUnit!.customFeaturesEn ?? '');
       case 1: // Capacity & Pricing
         return _adultCapacity !=
                 (_originalUnit!.adultsCapacity ?? _originalUnit!.maxCapacity) ||
@@ -2102,6 +2180,17 @@ class _EditUnitPageState extends State<EditUnitPage>
       });
     }
 
+    if (_nameEnController.text != (_originalUnit!.nameEn ?? '')) {
+      changes.add({
+        'field': 'اسم الوحدة بالإنجليزية',
+        'oldValue': _originalUnit!.nameEn?.isEmpty ?? true
+            ? 'لا يوجد'
+            : _originalUnit!.nameEn!,
+        'newValue':
+            _nameEnController.text.isEmpty ? 'لا يوجد' : _nameEnController.text,
+      });
+    }
+
     if (_descriptionController.text != _originalUnit!.customFeatures) {
       changes.add({
         'field': 'الوصف',
@@ -2109,6 +2198,19 @@ class _EditUnitPageState extends State<EditUnitPage>
             ? 'لا يوجد'
             : _originalUnit!.customFeatures,
         'newValue': _descriptionController.text,
+      });
+    }
+
+    if (_descriptionEnController.text !=
+        (_originalUnit!.customFeaturesEn ?? '')) {
+      changes.add({
+        'field': 'الوصف بالإنجليزية',
+        'oldValue': _originalUnit!.customFeaturesEn?.isEmpty ?? true
+            ? 'لا يوجد'
+            : _originalUnit!.customFeaturesEn!,
+        'newValue': _descriptionEnController.text.isEmpty
+            ? 'لا يوجد'
+            : _descriptionEnController.text,
       });
     }
 
@@ -2169,7 +2271,10 @@ class _EditUnitPageState extends State<EditUnitPage>
           // إعادة تعيين جميع القيم
           setState(() {
             _nameController.text = _originalUnit!.name;
+            _nameEnController.text = _originalUnit!.nameEn ?? '';
             _descriptionController.text = _originalUnit!.customFeatures;
+            _descriptionEnController.text =
+                _originalUnit!.customFeaturesEn ?? '';
             _featuresController.text = _originalUnit!.customFeatures;
             _adultCapacity =
                 _originalUnit!.adultsCapacity ?? _originalUnit!.maxCapacity;
@@ -2477,7 +2582,11 @@ class _EditUnitPageState extends State<EditUnitPage>
   /// This method performs the _updateFeatures operation in the admin unit workflow.
   void _updateFeatures() {
     context.read<UnitFormBloc>().add(
-          UpdateFeaturesEvent(features: _featuresController.text),
+          UpdateFeaturesEvent(
+            features: _featuresController.text.isEmpty
+                ? _descriptionController.text
+                : _featuresController.text,
+          ),
         );
   }
 
@@ -2489,12 +2598,36 @@ class _EditUnitPageState extends State<EditUnitPage>
         );
   }
 
+  void _updateUnitNameEn() {
+    context.read<UnitFormBloc>().add(
+          UpdateUnitNameEnEvent(nameEn: _nameEnController.text),
+        );
+  }
+
   /// ينفذ هذا الأسلوب عملية _updateDescription ضمن مسار إدارة الوحدات.
   /// This method performs the _updateDescription operation in the admin unit workflow.
   void _updateDescription() {
     context.read<UnitFormBloc>().add(
           UpdateDescriptionEvent(description: _descriptionController.text),
         );
+  }
+
+  void _updateDescriptionEn() {
+    context.read<UnitFormBloc>().add(
+          UpdateDescriptionEnEvent(
+              descriptionEn: _descriptionEnController.text),
+        );
+  }
+
+  String _bilingualFieldLabel(String primary, String? secondary) {
+    final normalized = secondary?.trim();
+    if (normalized == null ||
+        normalized.isEmpty ||
+        normalized == primary.trim()) {
+      return primary;
+    }
+
+    return '$primary\n$normalized';
   }
 
   /// ينفذ هذا الأسلوب عملية _updateDynamicFields ضمن مسار إدارة الوحدات.

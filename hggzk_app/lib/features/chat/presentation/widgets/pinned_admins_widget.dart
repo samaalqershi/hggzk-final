@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/conversation.dart';
@@ -91,7 +92,9 @@ class PinnedAdminsWidget extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'إدارة التطبيق',
+                  context.tr(
+                    'chat.thread.adminGroup',
+                  ),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppTheme.textMuted,
                     fontSize: 12,
@@ -148,8 +151,8 @@ class PinnedAdminsWidget extends StatelessWidget {
   }
 }
 
-  /// Individual admin tile rendered inside the horizontal strip.
-  /// بطاقة مشرف منفصلة داخل الشريط الأفقي.
+/// Individual admin tile rendered inside the horizontal strip.
+/// بطاقة مشرف منفصلة داخل الشريط الأفقي.
 class _AdminItemWidget extends StatefulWidget {
   /// Admin user represented by this tile.
   /// مستخدم الإدارة الذي تمثله هذه البطاقة.
@@ -410,7 +413,9 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          'متصل',
+                          context.tr(
+                            'chat.participant.onlineNow',
+                          ),
                           style: AppTextStyles.caption.copyWith(
                             color: AppTheme.success,
                             fontSize: 9,

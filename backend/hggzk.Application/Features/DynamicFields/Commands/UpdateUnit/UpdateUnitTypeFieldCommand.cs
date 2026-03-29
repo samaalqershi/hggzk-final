@@ -28,18 +28,33 @@ public class UpdateUnitTypeFieldCommand : IRequest<ResultDto<Unit>>
     /// DisplayName
     /// </summary>
     public string DisplayName { get; set; } = string.Empty;
+    /// <summary>
+    /// الاسم المعروض للحقل بالإنجليزية
+    /// DisplayName in English
+    /// </summary>
+    public string? DisplayNameEn { get; set; }
 
     /// <summary>
     /// وصف الحقل
     /// Description
     /// </summary>
     public string Description { get; set; } = string.Empty;
+    /// <summary>
+    /// وصف الحقل بالإنجليزية
+    /// Description in English
+    /// </summary>
+    public string? DescriptionEn { get; set; }
 
     /// <summary>
     /// خيارات الحقل (JSON)
     /// FieldOptions
     /// </summary>
     public Dictionary<string, object> FieldOptions { get; set; } = new();
+    /// <summary>
+    /// خيارات الحقل بالإنجليزية (JSON)
+    /// English field options
+    /// </summary>
+    public Dictionary<string, object>? FieldOptionsEn { get; set; }
 
     /// <summary>
     /// قواعد التحقق المخصصة (JSON)
@@ -76,6 +91,11 @@ public class UpdateUnitTypeFieldCommand : IRequest<ResultDto<Unit>>
     /// Category
     /// </summary>
     public string Category { get; set; } = string.Empty;
+    /// <summary>
+    /// فئة الحقل بالإنجليزية
+    /// Category in English
+    /// </summary>
+    public string? CategoryEn { get; set; }
 
     /// <summary>
     /// يحدد ما إذا كان الحقل مخصص للوحدات

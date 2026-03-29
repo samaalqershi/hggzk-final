@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
@@ -246,7 +247,7 @@ class _SettingsPageState extends State<SettingsPage>
                               shaderCallback: (bounds) =>
                                   AppTheme.primaryGradient.createShader(bounds),
                               child: Text(
-                                'الإعدادات',
+                                context.tr('settings.title'),
                                 style: AppTextStyles.h1.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w900,
@@ -305,7 +306,7 @@ class _SettingsPageState extends State<SettingsPage>
 
           // Account Section
           _buildFuturisticSection(
-            title: 'الحساب',
+            title: context.tr('settings.section.account'),
             icon: Icons.account_circle_rounded,
             gradient: LinearGradient(
               colors: [AppTheme.primaryBlue, AppTheme.primaryCyan],
@@ -313,8 +314,8 @@ class _SettingsPageState extends State<SettingsPage>
             items: [
               FuturisticSettingsItem(
                 icon: Icons.person_outline_rounded,
-                title: 'الملف الشخصي',
-                subtitle: 'تعديل معلوماتك الشخصية',
+                title: context.tr('settings.item.profile'),
+                subtitle: context.tr('settings.item.profileSubtitle'),
                 gradient: LinearGradient(
                   colors: [AppTheme.primaryBlue, AppTheme.primaryCyan],
                 ),
@@ -322,8 +323,8 @@ class _SettingsPageState extends State<SettingsPage>
               ),
               FuturisticSettingsItem(
                 icon: Icons.lock_outline_rounded,
-                title: 'كلمة المرور',
-                subtitle: 'تغيير كلمة المرور',
+                title: context.tr('settings.item.password'),
+                subtitle: context.tr('settings.item.passwordSubtitle'),
                 gradient: LinearGradient(
                   colors: [AppTheme.primaryPurple, AppTheme.primaryViolet],
                 ),
@@ -336,7 +337,7 @@ class _SettingsPageState extends State<SettingsPage>
 
           // Preferences Section
           _buildFuturisticSection(
-            title: 'التفضيلات',
+            title: context.tr('settings.section.preferences'),
             icon: Icons.tune_rounded,
             gradient: LinearGradient(
               colors: [AppTheme.primaryPurple, AppTheme.primaryViolet],
@@ -344,9 +345,10 @@ class _SettingsPageState extends State<SettingsPage>
             items: [
               FuturisticSettingsItem(
                 icon: Icons.language_rounded,
-                title: 'اللغة',
-                subtitle:
-                    settings.preferredLanguage == 'ar' ? 'العربية' : 'English',
+                title: context.tr('settings.item.language'),
+                subtitle: settings.preferredLanguage == 'ar'
+                    ? context.tr('settings.item.languageArabic')
+                    : context.tr('settings.item.languageEnglish'),
                 gradient: LinearGradient(
                   colors: [AppTheme.neonBlue, AppTheme.primaryCyan],
                 ),
@@ -354,8 +356,10 @@ class _SettingsPageState extends State<SettingsPage>
               ),
               FuturisticSettingsItem(
                 icon: Icons.dark_mode_rounded,
-                title: 'المظهر',
-                subtitle: settings.darkMode ? 'الوضع الليلي' : 'الوضع النهاري',
+                title: context.tr('settings.item.theme'),
+                subtitle: settings.darkMode
+                    ? context.tr('settings.item.themeDark')
+                    : context.tr('settings.item.themeLight'),
                 gradient: LinearGradient(
                   colors: [AppTheme.primaryViolet, AppTheme.neonPurple],
                 ),
@@ -368,16 +372,16 @@ class _SettingsPageState extends State<SettingsPage>
               ),
               FuturisticSettingsItem(
                 icon: Icons.fingerprint_rounded,
-                title: 'بصمة الإصبع',
+                title: context.tr('settings.item.biometric'),
                 subtitle: settings.biometricEnabled
-                    ? 'مفعّل لتسجيل الدخول'
-                    : 'غير مفعّل',
+                    ? context.tr('settings.item.biometricEnabled')
+                    : context.tr('settings.item.biometricDisabled'),
                 gradient: LinearGradient(
                   colors: [AppTheme.primaryPurple, AppTheme.neonPurple],
                 ),
                 trailing: FuturisticSettingsToggle(
                   icon: Icons.fingerprint_rounded,
-                  title: 'بصمة الإصبع',
+                  title: context.tr('settings.item.biometric'),
                   gradient: LinearGradient(
                     colors: [AppTheme.primaryPurple, AppTheme.neonPurple],
                   ),
@@ -391,8 +395,8 @@ class _SettingsPageState extends State<SettingsPage>
               ),
               FuturisticSettingsItem(
                 icon: Icons.attach_money_rounded,
-                title: 'العملة',
-                subtitle: _getCurrencyName(settings.preferredCurrency),
+                title: context.tr('settings.item.currency'),
+                subtitle: _getCurrencyName(context, settings.preferredCurrency),
                 gradient: LinearGradient(
                   colors: [AppTheme.success, AppTheme.neonGreen],
                 ),
@@ -401,8 +405,8 @@ class _SettingsPageState extends State<SettingsPage>
               ),
               FuturisticSettingsItem(
                 icon: Icons.notifications_active_rounded,
-                title: 'الإشعارات',
-                subtitle: 'إدارة إعدادات الإشعارات',
+                title: context.tr('settings.item.notifications'),
+                subtitle: context.tr('settings.item.notificationsSubtitle'),
                 gradient: LinearGradient(
                   colors: [AppTheme.warning, Colors.orange],
                 ),
@@ -415,7 +419,7 @@ class _SettingsPageState extends State<SettingsPage>
 
           // Support Section
           _buildFuturisticSection(
-            title: 'الدعم والمساعدة',
+            title: context.tr('settings.section.support'),
             icon: Icons.support_agent_rounded,
             gradient: LinearGradient(
               colors: [AppTheme.info, AppTheme.neonBlue],
@@ -423,8 +427,8 @@ class _SettingsPageState extends State<SettingsPage>
             items: [
               FuturisticSettingsItem(
                 icon: Icons.help_outline_rounded,
-                title: 'مركز المساعدة',
-                subtitle: 'الأسئلة الشائعة والدعم',
+                title: context.tr('settings.item.helpCenter'),
+                subtitle: context.tr('settings.item.helpCenterSubtitle'),
                 gradient: LinearGradient(
                   colors: [AppTheme.info, AppTheme.primaryBlue],
                 ),
@@ -432,8 +436,8 @@ class _SettingsPageState extends State<SettingsPage>
               ),
               FuturisticSettingsItem(
                 icon: Icons.privacy_tip_rounded,
-                title: 'سياسة الخصوصية',
-                subtitle: 'اقرأ سياسة الخصوصية',
+                title: context.tr('settings.item.privacyPolicy'),
+                subtitle: context.tr('settings.item.privacyPolicySubtitle'),
                 gradient: LinearGradient(
                   colors: [AppTheme.primaryCyan, AppTheme.neonBlue],
                 ),
@@ -441,8 +445,8 @@ class _SettingsPageState extends State<SettingsPage>
               ),
               FuturisticSettingsItem(
                 icon: Icons.description_rounded,
-                title: 'الشروط والأحكام',
-                subtitle: 'اقرأ الشروط والأحكام',
+                title: context.tr('settings.item.terms'),
+                subtitle: context.tr('settings.item.termsSubtitle'),
                 gradient: LinearGradient(
                   colors: [AppTheme.primaryBlue, AppTheme.primaryPurple],
                 ),
@@ -455,7 +459,7 @@ class _SettingsPageState extends State<SettingsPage>
 
           // About Section
           _buildFuturisticSection(
-            title: 'حول',
+            title: context.tr('settings.section.about'),
             icon: Icons.info_rounded,
             gradient: LinearGradient(
               colors: [AppTheme.primaryViolet, AppTheme.neonPurple],
@@ -463,8 +467,8 @@ class _SettingsPageState extends State<SettingsPage>
             items: [
               FuturisticSettingsItem(
                 icon: Icons.info_outline_rounded,
-                title: 'عن التطبيق',
-                subtitle: 'معلومات حول التطبيق',
+                title: context.tr('settings.item.aboutApp'),
+                subtitle: context.tr('settings.item.aboutAppSubtitle'),
                 gradient: LinearGradient(
                   colors: [AppTheme.primaryViolet, AppTheme.neonPurple],
                 ),
@@ -472,8 +476,8 @@ class _SettingsPageState extends State<SettingsPage>
               ),
               FuturisticSettingsItem(
                 icon: Icons.star_rounded,
-                title: 'قيم التطبيق',
-                subtitle: 'شاركنا رأيك',
+                title: context.tr('settings.item.rateApp'),
+                subtitle: context.tr('settings.item.rateAppSubtitle'),
                 gradient: LinearGradient(
                   colors: [Colors.orange, AppTheme.warning],
                 ),
@@ -481,8 +485,8 @@ class _SettingsPageState extends State<SettingsPage>
               ),
               FuturisticSettingsItem(
                 icon: Icons.share_rounded,
-                title: 'شارك التطبيق',
-                subtitle: 'شارك التطبيق مع أصدقائك',
+                title: context.tr('settings.item.shareApp'),
+                subtitle: context.tr('settings.item.shareAppSubtitle'),
                 gradient: LinearGradient(
                   colors: [AppTheme.primaryBlue, AppTheme.info],
                 ),
@@ -548,7 +552,7 @@ class _SettingsPageState extends State<SettingsPage>
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'حذف الحساب',
+                    context.tr('settings.deleteAccount.title'),
                     style: AppTextStyles.buttonLarge.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -594,7 +598,7 @@ class _SettingsPageState extends State<SettingsPage>
                     colors: [AppTheme.error, AppTheme.error.withOpacity(0.8)],
                   ).createShader(bounds),
                   child: Text(
-                    'حذف الحساب',
+                    context.tr('settings.deleteAccount.title'),
                     style: AppTextStyles.bodySmall.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -607,7 +611,7 @@ class _SettingsPageState extends State<SettingsPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'سيتم حذف حسابك بشكل نهائي من التطبيق. قد تبقى بعض السجلات (مثل الحجوزات) لأسباب قانونية/محاسبية.',
+                        context.tr('settings.deleteAccount.warning'),
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: AppTheme.textMuted,
                         ),
@@ -617,7 +621,8 @@ class _SettingsPageState extends State<SettingsPage>
                         controller: passwordController,
                         obscureText: obscure,
                         decoration: InputDecoration(
-                          labelText: 'كلمة المرور للتأكيد',
+                          labelText: context
+                              .tr('settings.deleteAccount.passwordLabel'),
                           suffixIcon: IconButton(
                             onPressed: () => setState(() => obscure = !obscure),
                             icon: Icon(
@@ -632,8 +637,9 @@ class _SettingsPageState extends State<SettingsPage>
                       const SizedBox(height: 12),
                       TextField(
                         controller: reasonController,
-                        decoration: const InputDecoration(
-                          labelText: 'السبب (اختياري)',
+                        decoration: InputDecoration(
+                          labelText:
+                              context.tr('settings.deleteAccount.reasonLabel'),
                         ),
                         maxLines: 2,
                       ),
@@ -648,7 +654,7 @@ class _SettingsPageState extends State<SettingsPage>
                       Navigator.pop(dialogContext);
                     },
                     child: Text(
-                      'إلغاء',
+                      context.tr('settings.deleteAccount.cancel'),
                       style: AppTextStyles.bodySmall
                           .copyWith(color: AppTheme.textMuted),
                     ),
@@ -672,8 +678,8 @@ class _SettingsPageState extends State<SettingsPage>
                           if (password.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: const Text(
-                                    'يرجى إدخال كلمة المرور للتأكيد'),
+                                content: Text(context.tr(
+                                    'settings.deleteAccount.passwordRequired')),
                                 backgroundColor: AppTheme.error,
                               ),
                             );
@@ -695,7 +701,7 @@ class _SettingsPageState extends State<SettingsPage>
                             vertical: 10,
                           ),
                           child: Text(
-                            'حذف الحساب',
+                            context.tr('settings.deleteAccount.confirm'),
                             style: AppTextStyles.bodySmall
                                 .copyWith(color: Colors.white),
                           ),
@@ -843,7 +849,7 @@ class _SettingsPageState extends State<SettingsPage>
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'تسجيل الخروج',
+                    context.tr('settings.logout.title'),
                     style: AppTextStyles.buttonLarge.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -882,7 +888,7 @@ class _SettingsPageState extends State<SettingsPage>
                 colors: [AppTheme.error, AppTheme.error.withOpacity(0.8)],
               ).createShader(bounds),
               child: Text(
-                'تسجيل الخروج',
+                context.tr('settings.logout.title'),
                 style: AppTextStyles.bodySmall.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -890,7 +896,7 @@ class _SettingsPageState extends State<SettingsPage>
               ),
             ),
             content: Text(
-              'هل أنت متأكد من رغبتك في تسجيل الخروج؟',
+              context.tr('settings.logout.message'),
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppTheme.textMuted,
               ),
@@ -899,7 +905,7 @@ class _SettingsPageState extends State<SettingsPage>
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext),
                 child: Text(
-                  'إلغاء',
+                  context.tr('settings.logout.cancel'),
                   style: AppTextStyles.bodySmall
                       .copyWith(color: AppTheme.textMuted),
                 ),
@@ -925,7 +931,7 @@ class _SettingsPageState extends State<SettingsPage>
                         vertical: 10,
                       ),
                       child: Text(
-                        'تسجيل الخروج',
+                        context.tr('settings.logout.confirm'),
                         style: AppTextStyles.bodySmall
                             .copyWith(color: Colors.white),
                       ),
@@ -952,16 +958,16 @@ class _SettingsPageState extends State<SettingsPage>
   /// يحول رمز العملة المخزن إلى اسم واضح يمكن عرضه داخل عناصر الإعدادات.
   /// Converts a stored currency code into a readable label that can be shown
   /// in the settings list.
-  String _getCurrencyName(String code) {
+  String _getCurrencyName(BuildContext context, String code) {
     switch (code) {
       case 'YER':
-        return 'الريال اليمني';
+        return context.tr('settings.currency.yer');
       case 'USD':
-        return 'الدولار الأمريكي';
+        return context.tr('settings.currency.usd');
       case 'SAR':
-        return 'الريال السعودي';
+        return context.tr('settings.currency.sar');
       case 'EUR':
-        return 'اليورو';
+        return context.tr('settings.currency.eur');
       default:
         return code;
     }

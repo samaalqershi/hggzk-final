@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import '../../../../core/localization/app_localizations.dart';
 import 'package:hggzk/features/chat/data/models/chat_settings_model.dart';
 import 'package:hggzk/features/chat/data/models/chat_user_model.dart';
 import '../../../../core/network/api_client.dart';
@@ -167,6 +168,12 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   /// يبني مصدر البيانات البعيد حول عميل الـ API المشترك.
   ChatRemoteDataSourceImpl({required this.apiClient});
 
+  ServerException _unexpectedChatException() {
+    return ServerException(
+      AppLocalizations.translateSync('common.unexpectedError'),
+    );
+  }
+
   /// Creates a conversation on the server and returns the new snapshot.
   /// ينشئ محادثة على الخادم ويعيد اللقطة الجديدة.
   @override
@@ -186,7 +193,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         .toList();
 
     if (cleanParticipantIds.isEmpty) {
-      throw ServerException('قائمة المشاركين فارغة');
+      throw ServerException(
+          AppLocalizations.translateSync('chat.errors.validation'));
     }
 
     logRequestStart(requestName, details: {
@@ -216,7 +224,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             response.data['data'] as Map<String, dynamic>);
       }
 
-      final errorMessage = response.data['message'] ?? 'فشل إنشاء المحادثة';
+      final errorMessage = response.data['message'] ??
+          AppLocalizations.translateSync('chat.errors.unknown');
       throw ServerException(errorMessage);
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -230,11 +239,18 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
         if (statusCode == 400) {
           throw ServerException(
-              message.isNotEmpty ? message : 'بيانات غير صحيحة');
+            message.isNotEmpty
+                ? message
+                : AppLocalizations.translateSync('chat.errors.validation'),
+          );
         } else if (statusCode == 404) {
-          throw ServerException('المستخدم المطلوب غير موجود');
+          throw ServerException(
+            AppLocalizations.translateSync('chat.errors.notFound'),
+          );
         } else if (statusCode == 500) {
-          throw ServerException('خطأ في الخادم، يرجى المحاولة لاحقاً');
+          throw ServerException(
+            AppLocalizations.translateSync('chat.errors.server'),
+          );
         }
       }
 
@@ -242,7 +258,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -280,7 +296,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -301,14 +317,17 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       if (response.data['success'] == true && response.data['data'] != null) {
         return ConversationModel.fromJson(response.data['data']);
       }
-      throw ServerException(response.data['message'] ?? 'المحادثة غير موجودة');
+      throw ServerException(
+        response.data['message'] ??
+            AppLocalizations.translateSync('chat.system.conversationNotFound'),
+      );
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -325,7 +344,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.data['success'] != true) {
-        throw ServerException(response.data['message'] ?? 'فشل أرشفة المحادثة');
+        throw ServerException(
+          response.data['message'] ??
+              AppLocalizations.translateSync('chat.errors.unknown'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -333,7 +355,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -351,7 +373,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       if (response.data['success'] != true) {
         throw ServerException(
-            response.data['message'] ?? 'فشل إلغاء أرشفة المحادثة');
+          response.data['message'] ??
+              AppLocalizations.translateSync('chat.errors.unknown'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -359,7 +383,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -376,7 +400,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.data['success'] != true) {
-        throw ServerException(response.data['message'] ?? 'فشل حذف المحادثة');
+        throw ServerException(
+          response.data['message'] ??
+              AppLocalizations.translateSync('chat.errors.unknown'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -384,7 +411,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -427,7 +454,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -450,7 +477,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     try {
       // تحقق من صحة البيانات
       if (messageType == 'text' && (content == null || content.isEmpty)) {
-        throw ServerException('محتوى الرسالة مطلوب للرسائل النصية');
+        throw ServerException(
+          AppLocalizations.translateSync('chat.errors.validation'),
+        );
       }
 
       // استخدم FormData لأن الـ backend يتوقع [FromForm]
@@ -506,12 +535,15 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         return MessageModel.fromJson(data);
       }
 
-      throw ServerException('صيغة الاستجابة غير صحيحة');
+      throw ServerException(
+        AppLocalizations.translateSync('chat.errors.unknown'),
+      );
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
 
       if (e.response?.statusCode == 400) {
-        final message = e.response?.data?['message'] ?? 'بيانات غير صحيحة';
+        final message = e.response?.data?['message'] ??
+            AppLocalizations.translateSync('chat.errors.validation');
         throw ServerException(message);
       }
 
@@ -519,7 +551,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -544,14 +576,17 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       if (response.data['success'] == true && response.data['data'] != null) {
         return MessageModel.fromJson(response.data['data']);
       }
-      throw ServerException(response.data['message'] ?? 'فشل تعديل الرسالة');
+      throw ServerException(
+        response.data['message'] ??
+            AppLocalizations.translateSync('chat.errors.messageSendFailed'),
+      );
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -568,7 +603,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.data['success'] != true) {
-        throw ServerException(response.data['message'] ?? 'فشل حذف الرسالة');
+        throw ServerException(
+          response.data['message'] ??
+              AppLocalizations.translateSync('chat.errors.unknown'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -576,7 +614,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -607,7 +645,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -633,7 +671,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.data['success'] != true) {
-        throw ServerException(response.data['message'] ?? 'فشل إضافة التفاعل');
+        throw ServerException(
+          response.data['message'] ??
+              AppLocalizations.translateSync('chat.errors.reactionAddFailed'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -641,7 +682,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -664,7 +705,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.data['success'] != true) {
-        throw ServerException(response.data['message'] ?? 'فشل إزالة التفاعل');
+        throw ServerException(
+          response.data['message'] ??
+              AppLocalizations.translateSync(
+                  'chat.errors.reactionRemoveFailed'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -672,7 +717,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -716,14 +761,17 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       if (response.data['success'] == true && response.data['data'] != null) {
         return AttachmentModel.fromJson(response.data['data']);
       }
-      throw ServerException(response.data['message'] ?? 'فشل رفع المرفق');
+      throw ServerException(
+        response.data['message'] ??
+            AppLocalizations.translateSync('chat.errors.unknown'),
+      );
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -791,7 +839,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -830,7 +878,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -859,7 +907,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -879,7 +927,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.data['success'] != true) {
-        throw ServerException(response.data['message'] ?? 'فشل تحديث الحالة');
+        throw ServerException(
+          response.data['message'] ??
+              AppLocalizations.translateSync('chat.errors.unknown'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -887,7 +938,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -933,7 +984,14 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       final msg = e.response?.data is Map
           ? (e.response?.data['message']?.toString() ?? '')
           : '';
+      final normalizedMessage = msg.toLowerCase();
       final notFound = e.response?.statusCode == 404 || msg.contains('إعدادات');
+      final settingsMissing = normalizedMessage.contains('settings');
+      if (settingsMissing) {
+        logRequestSuccess('$requestName.not_found_fallback',
+            statusCode: e.response?.statusCode);
+        return const ChatSettingsModel(id: '', userId: '');
+      }
       if (notFound) {
         logRequestSuccess('$requestName.not_found_fallback',
             statusCode: e.response?.statusCode);
@@ -942,7 +1000,14 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestError(requestName, e, stackTrace: s);
       throw ApiException.fromDioError(e);
     } on ApiException catch (e, s) {
+      final normalizedMessage = e.message.toLowerCase();
       final notFound = e.statusCode == 404 || e.message.contains('إعدادات');
+      final settingsMissing = normalizedMessage.contains('settings');
+      if (settingsMissing) {
+        logRequestSuccess('$requestName.not_found_fallback',
+            statusCode: e.statusCode);
+        return const ChatSettingsModel(id: '', userId: '');
+      }
       if (notFound) {
         logRequestSuccess('$requestName.not_found_fallback',
             statusCode: e.statusCode);
@@ -953,7 +1018,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
@@ -1014,8 +1079,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       }
 
       final errorMessage = (raw is Map<String, dynamic>)
-          ? (raw['message']?.toString() ?? 'فشل تحديث إعدادات الدردشة')
-          : 'فشل تحديث إعدادات الدردشة';
+          ? (raw['message']?.toString() ??
+              AppLocalizations.translateSync('chat.settings.updateFailed'))
+          : AppLocalizations.translateSync('chat.settings.updateFailed');
       throw ServerException(errorMessage);
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -1023,7 +1089,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 }

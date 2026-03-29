@@ -8,7 +8,9 @@ class PolicyModel extends Policy {
     String? propertyName,
     required PolicyType type,
     required String description,
+    String? descriptionEn,
     String? rules,
+    String? rulesEn,
     int cancellationWindowDays = 0,
     bool requireFullPaymentBeforeConfirmation = false,
     double minimumDepositPercentage = 0.0,
@@ -37,6 +39,7 @@ class PolicyModel extends Policy {
     bool? checkInRequiresCoordination,
     bool? checkInContactOwner,
     String? checkInEarlyCheckInNote,
+    String? checkInEarlyCheckInNoteEn,
     String? checkInLateCheckOutNote,
     String? checkInLateCheckOutFee,
     bool? childrenAllowed,
@@ -45,10 +48,12 @@ class PolicyModel extends Policy {
     int? childrenMaxChildrenPerRoom,
     int? childrenMaxChildren,
     String? childrenCribsNote,
+    String? childrenCribsNoteEn,
     bool? childrenPlaygroundAvailable,
     bool? childrenKidsMenuAvailable,
     bool? petsAllowed,
     String? petsReason,
+    String? petsReasonEn,
     double? petsFeeAmount,
     String? petsMaxWeight,
     bool? petsRequiresApproval,
@@ -61,6 +66,7 @@ class PolicyModel extends Policy {
     String? modificationFeesAfter,
     bool? modificationFlexible,
     String? modificationReason,
+    String? modificationReasonEn,
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? isActive,
@@ -70,7 +76,9 @@ class PolicyModel extends Policy {
           propertyName: propertyName,
           type: type,
           description: description,
+          descriptionEn: descriptionEn,
           rules: rules,
+          rulesEn: rulesEn,
           cancellationWindowDays: cancellationWindowDays,
           requireFullPaymentBeforeConfirmation:
               requireFullPaymentBeforeConfirmation,
@@ -100,6 +108,7 @@ class PolicyModel extends Policy {
           checkInRequiresCoordination: checkInRequiresCoordination,
           checkInContactOwner: checkInContactOwner,
           checkInEarlyCheckInNote: checkInEarlyCheckInNote,
+          checkInEarlyCheckInNoteEn: checkInEarlyCheckInNoteEn,
           checkInLateCheckOutNote: checkInLateCheckOutNote,
           checkInLateCheckOutFee: checkInLateCheckOutFee,
           childrenAllowed: childrenAllowed,
@@ -108,10 +117,12 @@ class PolicyModel extends Policy {
           childrenMaxChildrenPerRoom: childrenMaxChildrenPerRoom,
           childrenMaxChildren: childrenMaxChildren,
           childrenCribsNote: childrenCribsNote,
+          childrenCribsNoteEn: childrenCribsNoteEn,
           childrenPlaygroundAvailable: childrenPlaygroundAvailable,
           childrenKidsMenuAvailable: childrenKidsMenuAvailable,
           petsAllowed: petsAllowed,
           petsReason: petsReason,
+          petsReasonEn: petsReasonEn,
           petsFeeAmount: petsFeeAmount,
           petsMaxWeight: petsMaxWeight,
           petsRequiresApproval: petsRequiresApproval,
@@ -124,6 +135,7 @@ class PolicyModel extends Policy {
           modificationFeesAfter: modificationFeesAfter,
           modificationFlexible: modificationFlexible,
           modificationReason: modificationReason,
+          modificationReasonEn: modificationReasonEn,
           createdAt: createdAt,
           updatedAt: updatedAt,
           isActive: isActive,
@@ -140,7 +152,10 @@ class PolicyModel extends Policy {
             json['Type'] ??
             json['PolicyType']),
         description: json['description'] ?? json['Description'] ?? '',
+        descriptionEn:
+            (json['descriptionEn'] ?? json['DescriptionEn'])?.toString(),
         rules: (json['rules'] ?? json['Rules'])?.toString(),
+        rulesEn: (json['rulesEn'] ?? json['RulesEn'])?.toString(),
         cancellationWindowDays: json['cancellationWindowDays'] ??
             json['CancellationWindowDays'] ??
             0,
@@ -204,6 +219,9 @@ class PolicyModel extends Policy {
         checkInEarlyCheckInNote:
             (json['checkInEarlyCheckInNote'] ?? json['CheckInEarlyCheckInNote'])
                 ?.toString(),
+        checkInEarlyCheckInNoteEn: (json['checkInEarlyCheckInNoteEn'] ??
+                json['CheckInEarlyCheckInNoteEn'])
+            ?.toString(),
         checkInLateCheckOutNote:
             (json['checkInLateCheckOutNote'] ?? json['CheckInLateCheckOutNote'])
                 ?.toString(),
@@ -222,12 +240,17 @@ class PolicyModel extends Policy {
         childrenCribsNote:
             (json['childrenCribsNote'] ?? json['ChildrenCribsNote'])
                 ?.toString(),
+        childrenCribsNoteEn:
+            (json['childrenCribsNoteEn'] ?? json['ChildrenCribsNoteEn'])
+                ?.toString(),
         childrenPlaygroundAvailable: json['childrenPlaygroundAvailable'] ??
             json['ChildrenPlaygroundAvailable'],
         childrenKidsMenuAvailable: json['childrenKidsMenuAvailable'] ??
             json['ChildrenKidsMenuAvailable'],
         petsAllowed: json['petsAllowed'] ?? json['PetsAllowed'],
         petsReason: (json['petsReason'] ?? json['PetsReason'])?.toString(),
+        petsReasonEn:
+            (json['petsReasonEn'] ?? json['PetsReasonEn'])?.toString(),
         petsFeeAmount:
             (json['petsFeeAmount'] ?? json['PetsFeeAmount'])?.toDouble(),
         petsMaxWeight:
@@ -250,6 +273,9 @@ class PolicyModel extends Policy {
             json['modificationFlexible'] ?? json['ModificationFlexible'],
         modificationReason:
             (json['modificationReason'] ?? json['ModificationReason'])
+                ?.toString(),
+        modificationReasonEn:
+            (json['modificationReasonEn'] ?? json['ModificationReasonEn'])
                 ?.toString(),
         createdAt: json['createdAt'] != null
             ? DateTime.parse(json['createdAt'])
@@ -278,7 +304,9 @@ class PolicyModel extends Policy {
       if (propertyName != null) 'propertyName': propertyName,
       'type': type.apiValue,
       'description': description,
+      if (descriptionEn != null) 'descriptionEn': descriptionEn,
       if (rules != null) 'rules': rules,
+      if (rulesEn != null) 'rulesEn': rulesEn,
       'cancellationWindowDays': cancellationWindowDays,
       'requireFullPaymentBeforeConfirmation':
           requireFullPaymentBeforeConfirmation,
@@ -325,6 +353,8 @@ class PolicyModel extends Policy {
         'checkInContactOwner': checkInContactOwner,
       if (checkInEarlyCheckInNote != null)
         'checkInEarlyCheckInNote': checkInEarlyCheckInNote,
+      if (checkInEarlyCheckInNoteEn != null)
+        'checkInEarlyCheckInNoteEn': checkInEarlyCheckInNoteEn,
       if (checkInLateCheckOutNote != null)
         'checkInLateCheckOutNote': checkInLateCheckOutNote,
       if (checkInLateCheckOutFee != null)
@@ -339,12 +369,15 @@ class PolicyModel extends Policy {
       if (childrenMaxChildren != null)
         'childrenMaxChildren': childrenMaxChildren,
       if (childrenCribsNote != null) 'childrenCribsNote': childrenCribsNote,
+      if (childrenCribsNoteEn != null)
+        'childrenCribsNoteEn': childrenCribsNoteEn,
       if (childrenPlaygroundAvailable != null)
         'childrenPlaygroundAvailable': childrenPlaygroundAvailable,
       if (childrenKidsMenuAvailable != null)
         'childrenKidsMenuAvailable': childrenKidsMenuAvailable,
       if (petsAllowed != null) 'petsAllowed': petsAllowed,
       if (petsReason != null) 'petsReason': petsReason,
+      if (petsReasonEn != null) 'petsReasonEn': petsReasonEn,
       if (petsFeeAmount != null) 'petsFeeAmount': petsFeeAmount,
       if (petsMaxWeight != null) 'petsMaxWeight': petsMaxWeight,
       if (petsRequiresApproval != null)
@@ -362,6 +395,8 @@ class PolicyModel extends Policy {
       if (modificationFlexible != null)
         'modificationFlexible': modificationFlexible,
       if (modificationReason != null) 'modificationReason': modificationReason,
+      if (modificationReasonEn != null)
+        'modificationReasonEn': modificationReasonEn,
       if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
       if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
       'isActive': isActive,
@@ -375,7 +410,9 @@ class PolicyModel extends Policy {
       propertyName: entity.propertyName,
       type: entity.type,
       description: entity.description,
+      descriptionEn: entity.descriptionEn,
       rules: entity.rules,
+      rulesEn: entity.rulesEn,
       cancellationWindowDays: entity.cancellationWindowDays,
       requireFullPaymentBeforeConfirmation:
           entity.requireFullPaymentBeforeConfirmation,
@@ -405,6 +442,7 @@ class PolicyModel extends Policy {
       checkInRequiresCoordination: entity.checkInRequiresCoordination,
       checkInContactOwner: entity.checkInContactOwner,
       checkInEarlyCheckInNote: entity.checkInEarlyCheckInNote,
+      checkInEarlyCheckInNoteEn: entity.checkInEarlyCheckInNoteEn,
       checkInLateCheckOutNote: entity.checkInLateCheckOutNote,
       checkInLateCheckOutFee: entity.checkInLateCheckOutFee,
       childrenAllowed: entity.childrenAllowed,
@@ -413,10 +451,12 @@ class PolicyModel extends Policy {
       childrenMaxChildrenPerRoom: entity.childrenMaxChildrenPerRoom,
       childrenMaxChildren: entity.childrenMaxChildren,
       childrenCribsNote: entity.childrenCribsNote,
+      childrenCribsNoteEn: entity.childrenCribsNoteEn,
       childrenPlaygroundAvailable: entity.childrenPlaygroundAvailable,
       childrenKidsMenuAvailable: entity.childrenKidsMenuAvailable,
       petsAllowed: entity.petsAllowed,
       petsReason: entity.petsReason,
+      petsReasonEn: entity.petsReasonEn,
       petsFeeAmount: entity.petsFeeAmount,
       petsMaxWeight: entity.petsMaxWeight,
       petsRequiresApproval: entity.petsRequiresApproval,
@@ -430,6 +470,7 @@ class PolicyModel extends Policy {
       modificationFeesAfter: entity.modificationFeesAfter,
       modificationFlexible: entity.modificationFlexible,
       modificationReason: entity.modificationReason,
+      modificationReasonEn: entity.modificationReasonEn,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       isActive: entity.isActive,

@@ -42,8 +42,13 @@ using YemenBooking.Api.Settings;
 using Serilog;
 using Serilog.Events;
 using YemenBooking.Api.Infrastructure.Logging;
+using YemenBooking.Api.Infrastructure.Localization;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.CaptureStartupErrors(true);
+builder.WebHost.UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
 
 // Optional local secrets file for non-committed sensitive settings
 builder.Configuration.AddJsonFile("appsettings.secrets.json", optional: true, reloadOnChange: true);
@@ -69,6 +74,10 @@ builder.Host.UseSerilog((context, services, loggerConfiguration) =>
         .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
         .Enrich.FromLogContext()
         .Enrich.WithProperty("Application", "hggzk.Api")
+        .WriteTo.Console(
+            outputTemplate:
+                "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} " +
+                "{Properties:j}{NewLine}{Exception}")
         .WriteTo.File(
             Path.Combine(logsDirectory, "application-.log"),
             rollingInterval: RollingInterval.Day,
@@ -120,6 +129,37 @@ builder.Services.AddDapperRepository(builder.Configuration);
 // Add services to the container.
 // Configuring Swagger/OpenAPI with JWT security
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[]
+    {
+        new CultureInfo("ar"),
+        new CultureInfo("en")
+    };
+
+    options.DefaultRequestCulture = new RequestCulture("ar");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+    options.ApplyCurrentCultureToResponseHeaders = true;
+    options.RequestCultureProviders = new List<IRequestCultureProvider>
+    {
+        new AcceptLanguageHeaderRequestCultureProvider(),
+        new CustomRequestCultureProvider(context =>
+        {
+            var header = context.Request.Headers["X-User-Locale"].ToString();
+            if (string.IsNullOrWhiteSpace(header))
+            {
+                return Task.FromResult<ProviderCultureResult?>(null);
+            }
+
+            var normalized = header.StartsWith("en", StringComparison.OrdinalIgnoreCase) ? "en" : "ar";
+            return Task.FromResult<ProviderCultureResult?>(new ProviderCultureResult(normalized));
+        })
+    };
+});
+builder.Services.AddScoped<IBackendTextLocalizer, BackendTextLocalizer>();
+builder.Services.AddScoped<LocalizedResponseFilter>();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
@@ -237,6 +277,7 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.AddControllers(options =>
 {
     options.Conventions.Add(new RouteTokenTransformerConvention(new KebabCaseParameterTransformer()));
+    options.Filters.AddService(typeof(LocalizedResponseFilter));
     
     // Insert the UTC DateTime binder first to normalize incoming timestamps for PostgreSQL.
     // إدراج UtcDateTimeModelBinder أولاً لتطبيع التواريخ الواردة بما يتوافق مع PostgreSQL.
@@ -335,7 +376,13 @@ builder.Services.AddAuthentication(options =>
                 context.NoResult();
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 context.Response.ContentType = "application/json";
-                var payload = JsonSerializer.Serialize(new { success = false, message = "Token expired" });
+                var localizer = context.HttpContext.RequestServices.GetRequiredService<IBackendTextLocalizer>();
+                var payload = JsonSerializer.Serialize(new
+                {
+                    success = false,
+                    message = localizer.Translate("common.sessionExpired"),
+                    errorCode = "TOKEN_EXPIRED"
+                });
                 return context.Response.WriteAsync(payload);
             }
             return Task.CompletedTask;
@@ -348,7 +395,13 @@ builder.Services.AddAuthentication(options =>
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 context.Response.ContentType = "application/json";
-                var payload = JsonSerializer.Serialize(new { success = false, message = "Unauthorized" });
+                var localizer = context.HttpContext.RequestServices.GetRequiredService<IBackendTextLocalizer>();
+                var payload = JsonSerializer.Serialize(new
+                {
+                    success = false,
+                    message = localizer.Translate("common.unauthorized"),
+                    errorCode = "UNAUTHORIZED"
+                });
                 return context.Response.WriteAsync(payload);
             }
             return Task.CompletedTask;
@@ -450,7 +503,11 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "Failed to ensure stored procedures on startup");
+        logger.LogCritical(ex, "Failed to ensure stored procedures on startup");
+        if (app.Environment.IsDevelopment())
+        {
+            throw;
+        }
     }
 }
 
@@ -479,9 +536,11 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "Failed to migrate and seed database on startup");
-        // Do not rethrow here to avoid blocking local startup during development.
-        // عدم إعادة رمي الاستثناء هنا حتى لا يتم تعطيل التشغيل المحلي في بيئات التطوير.
+        logger.LogCritical(ex, "Failed to migrate and seed database on startup");
+        if (app.Environment.IsDevelopment())
+        {
+            throw;
+        }
     }
 }
 

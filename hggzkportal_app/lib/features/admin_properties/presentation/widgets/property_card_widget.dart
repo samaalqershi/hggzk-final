@@ -68,10 +68,14 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
       targetKey: _cardKey,
       propertyId: property.id,
       name: property.name,
+      nameEn: property.nameEn,
       typeName: property.typeName,
+      typeNameEn: property.typeNameEn,
       ownerName: property.ownerName,
       address: property.address,
+      addressEn: property.addressEn,
       city: property.city,
+      cityEn: property.cityEn,
       starRating: property.starRating,
       coverImage: property.images.isNotEmpty
           ? property.images.first.thumbnails.large
@@ -83,6 +87,7 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
       bookingCount: property.bookingCount,
       averageRating: property.averageRating,
       shortDescription: property.shortDescription,
+      shortDescriptionEn: property.shortDescriptionEn,
       currency: property.currency,
       amenitiesCount: property.amenities.length,
       policiesCount: property.policies.length,
@@ -92,6 +97,52 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
     Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted) setState(() => _isPressed = false);
     });
+  }
+
+  bool _hasSecondary(String? secondary, String primary) {
+    if (secondary == null) {
+      return false;
+    }
+
+    final trimmed = secondary.trim();
+    return trimmed.isNotEmpty && trimmed != primary.trim();
+  }
+
+  Widget _buildBilingualText(
+    String primary, {
+    String? secondary,
+    TextStyle? primaryStyle,
+    TextStyle? secondaryStyle,
+    int primaryMaxLines = 1,
+    int secondaryMaxLines = 1,
+  }) {
+    final showSecondary = _hasSecondary(secondary, primary);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          primary,
+          style: primaryStyle,
+          maxLines: primaryMaxLines,
+          overflow: TextOverflow.ellipsis,
+        ),
+        if (showSecondary) ...[
+          const SizedBox(height: 2),
+          Text(
+            secondary!,
+            style: secondaryStyle ??
+                primaryStyle?.copyWith(
+                  color: AppTheme.textMuted,
+                  fontSize: (primaryStyle.fontSize ?? 14) - 1,
+                ),
+            maxLines: secondaryMaxLines,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ],
+    );
   }
 
   @override
@@ -262,14 +313,16 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
                             const Spacer(),
 
                             // Property Name
-                            Text(
+                            _buildBilingualText(
                               widget.property.name,
-                              style: AppTextStyles.heading3.copyWith(
+                              secondary: widget.property.nameEn,
+                              primaryStyle: AppTextStyles.heading3.copyWith(
                                 color: AppTheme.textWhite,
                                 fontWeight: FontWeight.bold,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              secondaryStyle: AppTextStyles.caption.copyWith(
+                                color: AppTheme.textMuted,
+                              ),
                             ),
 
                             const SizedBox(height: 4),
@@ -285,13 +338,18 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
                                 ),
                                 const SizedBox(width: 4),
                                 Expanded(
-                                  child: Text(
+                                  child: _buildBilingualText(
                                     widget.property.city,
-                                    style: AppTextStyles.caption.copyWith(
+                                    secondary: widget.property.cityEn,
+                                    primaryStyle:
+                                        AppTextStyles.caption.copyWith(
                                       color: AppTheme.textMuted,
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                    secondaryStyle:
+                                        AppTextStyles.caption.copyWith(
+                                      color: AppTheme.textMuted
+                                          .withValues(alpha: 0.75),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -327,12 +385,20 @@ class _PropertyCardWidgetState extends State<PropertyCardWidget>
                                         .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Text(
+                                  child: _buildBilingualText(
                                     widget.property.typeName,
-                                    style: AppTextStyles.caption.copyWith(
+                                    secondary: widget.property.typeNameEn,
+                                    primaryStyle:
+                                        AppTextStyles.caption.copyWith(
                                       color: AppTheme.primaryBlue,
                                       fontWeight: FontWeight.w600,
                                     ),
+                                    secondaryStyle:
+                                        AppTextStyles.caption.copyWith(
+                                      color: AppTheme.primaryBlue
+                                          .withValues(alpha: 0.8),
+                                    ),
+                                    secondaryMaxLines: 2,
                                   ),
                                 ),
                               ],

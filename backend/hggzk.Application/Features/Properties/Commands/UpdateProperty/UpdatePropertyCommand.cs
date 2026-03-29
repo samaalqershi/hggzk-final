@@ -20,15 +20,30 @@ public class UpdatePropertyCommand : IRequest<ResultDto<bool>>
     /// </summary>
     public string? Name { get; set; }
     /// <summary>
+    /// اسم العقار بالإنجليزية.
+    /// Property name in English.
+    /// </summary>
+    public string? NameEn { get; set; }
+    /// <summary>
     /// عنوان العقار.
     /// Property address.
     /// </summary>
     public string? Address { get; set; }
     /// <summary>
+    /// عنوان العقار بالإنجليزية.
+    /// Property address in English.
+    /// </summary>
+    public string? AddressEn { get; set; }
+    /// <summary>
     /// وصف العقار.
     /// Property description.
     /// </summary>
     public string? Description { get; set; }
+    /// <summary>
+    /// وصف العقار بالإنجليزية.
+    /// Property description in English.
+    /// </summary>
+    public string? DescriptionEn { get; set; }
     /// <summary>
     /// خط العرض لموقع العقار.
     /// Property latitude.
@@ -45,6 +60,11 @@ public class UpdatePropertyCommand : IRequest<ResultDto<bool>>
     /// </summary>
     public string? City { get; set; }
     /// <summary>
+    /// اسم المدينة بالإنجليزية.
+    /// City name in English.
+    /// </summary>
+    public string? CityEn { get; set; }
+    /// <summary>
     /// التقييم بالنجوم.
     /// Star rating.
     /// </summary>
@@ -60,6 +80,11 @@ public class UpdatePropertyCommand : IRequest<ResultDto<bool>>
     /// Short property description.
     /// </summary>
     public string? ShortDescription { get; set; }
+    /// <summary>
+    /// وصف قصير موجز للعقار بالإنجليزية.
+    /// Short property description in English.
+    /// </summary>
+    public string? ShortDescriptionEn { get; set; }
     /// <summary>
     /// رمز العملة المستخدم في التسعير.
     /// Currency code used for pricing.

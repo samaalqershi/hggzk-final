@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/constants/route_constants.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
@@ -396,7 +397,7 @@ class _ConversationsPageState extends State<ConversationsPage>
 
           // Minimal title
           Text(
-            'المحادثات',
+            context.tr('chat.inbox.title'),
             style: AppTextStyles.h3.copyWith(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -497,7 +498,9 @@ class _ConversationsPageState extends State<ConversationsPage>
                 color: AppTheme.textWhite.withOpacity(0.9),
               ),
               decoration: InputDecoration(
-                hintText: 'البحث...',
+                hintText: context.tr(
+                  'chat.inbox.searchHint',
+                ),
                 hintStyle: AppTextStyles.caption.copyWith(
                   color: AppTheme.textMuted.withOpacity(0.3),
                   fontSize: 12,
@@ -605,7 +608,7 @@ class _ConversationsPageState extends State<ConversationsPage>
           const SizedBox(height: 12),
 
           Text(
-            'جاري التحميل',
+            context.tr('chat.inbox.loading'),
             style: AppTextStyles.caption.copyWith(
               color: AppTheme.textMuted.withOpacity(0.5),
               fontSize: 11,
@@ -664,7 +667,7 @@ class _ConversationsPageState extends State<ConversationsPage>
                   ),
                 ),
                 child: Text(
-                  'إعادة المحاولة',
+                  context.tr('chat.inbox.retry'),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.error.withOpacity(0.8),
                     fontSize: 11,
@@ -715,7 +718,13 @@ class _ConversationsPageState extends State<ConversationsPage>
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      _isSearching ? 'لا توجد نتائج' : 'لا توجد محادثات',
+                      _isSearching
+                          ? context.tr(
+                              'chat.inbox.emptySearchTitle',
+                            )
+                          : context.tr(
+                              'chat.inbox.emptyTitle',
+                            ),
                       style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 14,
                         color: AppTheme.textWhite.withOpacity(0.7),
@@ -724,8 +733,12 @@ class _ConversationsPageState extends State<ConversationsPage>
                     const SizedBox(height: 4),
                     Text(
                       _isSearching
-                          ? 'جرب البحث بكلمات أخرى'
-                          : 'ابدأ محادثة جديدة',
+                          ? context.tr(
+                              'chat.inbox.emptySearchSubtitle',
+                            )
+                          : context.tr(
+                              'chat.inbox.emptySubtitle',
+                            ),
                       style: AppTextStyles.caption.copyWith(
                         color: AppTheme.textMuted.withOpacity(0.4),
                         fontSize: 11,
@@ -766,7 +779,9 @@ class _ConversationsPageState extends State<ConversationsPage>
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                'محادثة جديدة',
+                                context.tr(
+                                  'chat.inbox.startConversation',
+                                ),
                                 style: AppTextStyles.caption.copyWith(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -961,7 +976,9 @@ class _ConversationsPageState extends State<ConversationsPage>
               ),
               const SizedBox(height: 28),
               Text(
-                'يرجى تسجيل الدخول',
+                context.tr(
+                  'chat.inbox.loginPromptTitle',
+                ),
                 style: AppTextStyles.h2.copyWith(
                   fontWeight: FontWeight.w600,
                   color: AppTheme.textWhite,
@@ -969,7 +986,9 @@ class _ConversationsPageState extends State<ConversationsPage>
               ),
               const SizedBox(height: 12),
               Text(
-                'قم بتسجيل الدخول للوصول إلى محادثاتك',
+                context.tr(
+                  'chat.inbox.loginPromptBody',
+                ),
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppTheme.textMuted,
                 ),
@@ -988,7 +1007,7 @@ class _ConversationsPageState extends State<ConversationsPage>
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'تسجيل الدخول',
+                      context.tr('common.login'),
                       style: AppTextStyles.buttonMedium.copyWith(
                         color: Colors.white,
                       ),
@@ -1125,9 +1144,13 @@ class _ConversationsPageState extends State<ConversationsPage>
       context: context,
       barrierColor: Colors.black26,
       builder: (context) => _UltraMinimalDialog(
-        title: 'حذف المحادثة',
-        message: 'هل تريد حذف هذه المحادثة؟',
-        confirmText: 'حذف',
+        title: context.tr(
+          'chat.inbox.deleteConversationTitle',
+        ),
+        message: context.tr(
+          'chat.inbox.deleteConversationMessage',
+        ),
+        confirmText: context.tr('chat.inbox.action.delete'),
         isDestructive: true,
         onConfirm: () {
           context.read<ChatBloc>().add(
@@ -1189,7 +1212,9 @@ class _UltraMinimalOptionsSheet extends StatelessWidget {
 
                 _buildMinimalOption(
                   icon: Icons.archive_outlined,
-                  title: 'أرشفة الكل',
+                  title: context.tr(
+                    'chat.inbox.action.archiveAll',
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     onArchiveAll();
@@ -1198,7 +1223,9 @@ class _UltraMinimalOptionsSheet extends StatelessWidget {
 
                 _buildMinimalOption(
                   icon: Icons.settings_outlined,
-                  title: 'الإعدادات',
+                  title: context.tr(
+                    'chat.inbox.action.settings',
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     onSettings();
@@ -1304,7 +1331,13 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
                   icon: conversation.isMuted
                       ? Icons.notifications_active_outlined
                       : Icons.notifications_off_outlined,
-                  title: conversation.isMuted ? 'إلغاء الكتم' : 'كتم',
+                  title: conversation.isMuted
+                      ? context.tr(
+                          'chat.inbox.action.unmute',
+                        )
+                      : context.tr(
+                          'chat.inbox.action.mute',
+                        ),
                   onTap: () {
                     Navigator.pop(context);
                     onMute();
@@ -1314,7 +1347,13 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
                   icon: conversation.isArchived
                       ? Icons.unarchive_outlined
                       : Icons.archive_outlined,
-                  title: conversation.isArchived ? 'إلغاء الأرشفة' : 'أرشفة',
+                  title: conversation.isArchived
+                      ? context.tr(
+                          'chat.inbox.action.unarchive',
+                        )
+                      : context.tr(
+                          'chat.inbox.action.archive',
+                        ),
                   onTap: () {
                     Navigator.pop(context);
                     onArchive();
@@ -1322,7 +1361,7 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
                 ),
                 _buildOption(
                   icon: Icons.delete_outline,
-                  title: 'حذف',
+                  title: context.tr('chat.inbox.action.delete'),
                   color: AppTheme.error.withOpacity(0.7),
                   onTap: () {
                     Navigator.pop(context);
@@ -1471,7 +1510,9 @@ class _UltraMinimalDialog extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              'إلغاء',
+                              context.tr(
+                                'chat.inbox.action.cancel',
+                              ),
                               style: AppTextStyles.caption.copyWith(
                                 fontSize: 12,
                               ),

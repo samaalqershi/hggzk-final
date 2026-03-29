@@ -28,12 +28,14 @@ namespace YemenBooking.Application.Features.Units.DTOs {
         /// Unit type name
         /// </summary>
         public string Name { get; set; }
+        public string? NameEn { get; set; }
 
         /// <summary>
         /// وصف نوع الوحدة
         /// Unit type description
         /// </summary>
         public string Description { get; set; }
+        public string? DescriptionEn { get; set; }
 
         /// <summary>
         /// قواعد التسعير الافتراضية (JSON)

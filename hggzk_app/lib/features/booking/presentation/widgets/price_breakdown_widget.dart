@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'dart:math' as math;
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/price_widget.dart';
@@ -243,7 +244,9 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
         ),
         const SizedBox(width: 8),
         Text(
-          'تفاصيل السعر',
+          context.tr(
+            'booking.price.details',
+          ),
           style: AppTextStyles.bodyMedium.copyWith(
             fontWeight: FontWeight.w600,
             color: AppTheme.textWhite.withOpacity(0.9),
@@ -269,7 +272,9 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'المجموع الكلي',
+            context.tr(
+              'booking.price.total',
+            ),
             style: AppTextStyles.bodyMedium.copyWith(
               fontWeight: FontWeight.w600,
               color: AppTheme.textWhite.withOpacity(0.9),
@@ -303,8 +308,14 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
 
         // Accommodation
         _buildAnimatedCompactPriceRow(
-          label:
-              'الإقامة (${widget.nights} × ${widget.pricePerNight.toStringAsFixed(0)} ${widget.currency})',
+          label: context.tr(
+            'booking.price.stay',
+            params: {
+              'nights': widget.nights,
+              'price': widget.pricePerNight.toStringAsFixed(0),
+              'currency': widget.currency,
+            },
+          ),
           amount: accommodationTotal,
           index: 0,
           icon: Icons.hotel_rounded,
@@ -315,7 +326,9 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
         if (widget.servicesTotal > 0) ...[
           const SizedBox(height: 8),
           _buildAnimatedCompactPriceRow(
-            label: 'الخدمات الإضافية',
+            label: context.tr(
+              'booking.price.services',
+            ),
             amount: widget.servicesTotal,
             index: 1,
             icon: Icons.room_service_rounded,
@@ -367,7 +380,9 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
         _buildSubtleDivider(),
         const SizedBox(height: 10),
         _buildAnimatedCompactPriceRow(
-          label: 'المجموع الفرعي',
+          label: context.tr(
+            'booking.price.subtotal',
+          ),
           amount: subtotal,
           index: 2,
           isSubtotal: true,
@@ -377,8 +392,10 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
         if (discountAmount > 0) ...[
           const SizedBox(height: 8),
           _buildAnimatedCompactPriceRow(
-            label:
-                'الخصم${widget.promoCode != null ? ' (${widget.promoCode})' : ''}',
+            label: context.tr(
+                  'booking.price.discount',
+                ) +
+                (widget.promoCode != null ? ' (${widget.promoCode})' : ''),
             amount: -discountAmount,
             index: 3,
             icon: Icons.discount_rounded,
@@ -497,7 +514,13 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              _isExpanded ? 'إخفاء التفاصيل' : 'عرض التفاصيل',
+              _isExpanded
+                  ? context.tr(
+                      'booking.price.hideDetails',
+                    )
+                  : context.tr(
+                      'booking.price.showDetails',
+                    ),
               style: AppTextStyles.caption.copyWith(
                 color: AppTheme.primaryBlue.withOpacity(0.9),
                 fontWeight: FontWeight.w600,

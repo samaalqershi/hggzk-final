@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:hggzk/core/utils/timezone_helper.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../constants/api_constants.dart';
 import 'api_interceptors.dart';
 import 'api_exceptions.dart';
@@ -193,7 +194,8 @@ class ApiClient {
         // معالجة خاصة للخطأ 400
         if (e.response?.statusCode == 400) {
           final errorData = e.response?.data;
-          String errorMessage = 'طلب غير صحيح';
+          String errorMessage =
+              AppLocalizations.translateSync('common.badRequest');
 
           if (errorData is Map) {
             // محاولة استخراج رسالة الخطأ
@@ -216,7 +218,7 @@ class ApiClient {
               // رسالة خطأ عامة
               errorMessage = errorData['message'] ??
                   errorData['error'] ??
-                  'طلب غير صحيح: تحقق من البيانات المدخلة';
+                  AppLocalizations.translateSync('common.badRequest');
             }
           }
 

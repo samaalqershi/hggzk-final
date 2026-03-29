@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hggzk/core/error/failure_localizer.dart';
 import 'package:hggzk/core/error/failures.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/enums/payment_method_enum.dart';
 import '../../domain/usecases/process_payment_usecase.dart';
 import '../../domain/usecases/get_payment_history_usecase.dart';
@@ -46,12 +48,12 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       (failure) {
         if (failure is ServerFailure) {
           emit(PaymentError(
-            message: failure.message,
+            message: FailureLocalizer.localize(failure),
             code: failure.code,
             showAsDialog: failure.showAsDialog,
           ));
         } else {
-          emit(PaymentError(message: failure.message));
+          emit(PaymentError(message: FailureLocalizer.localize(failure)));
         }
       },
       (transaction) => emit(PaymentSuccess(transaction: transaction)),
@@ -79,7 +81,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     final result = await getPaymentHistoryUseCase(params);
 
     result.fold(
-      (failure) => emit(PaymentError(message: failure.message)),
+      (failure) => emit(PaymentError(message: FailureLocalizer.localize(failure))),
       (paginatedTransactions) => emit(PaymentHistoryLoaded(
         transactions: paginatedTransactions.items,
         hasMore: paginatedTransactions.hasNextPage,
@@ -115,7 +117,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       final result = await getPaymentHistoryUseCase(params);
 
       result.fold(
-        (failure) => emit(PaymentError(message: failure.message)),
+        (failure) =>
+            emit(PaymentError(message: FailureLocalizer.localize(failure))),
         (paginatedTransactions) {
           final updatedTransactions = [
             ...currentState.transactions,
@@ -151,37 +154,57 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
     if (event.paymentMethod == PaymentMethod.creditCard) {
       if (event.cardNumber?.isEmpty ?? true) {
-        errors['cardNumber'] = 'رقم البطاقة مطلوب';
+        errors['cardNumber'] = AppLocalizations.translateSync(
+          'payment.validation.cardNumberRequired',
+        );
       } else if (!_isValidCardNumber(event.cardNumber!)) {
-        errors['cardNumber'] = 'رقم البطاقة غير صالح';
+        errors['cardNumber'] = AppLocalizations.translateSync(
+          'payment.validation.cardNumberInvalid',
+        );
       }
 
       if (event.cardHolderName?.isEmpty ?? true) {
-        errors['cardHolderName'] = 'اسم حامل البطاقة مطلوب';
+        errors['cardHolderName'] = AppLocalizations.translateSync(
+          'payment.validation.cardHolderNameRequired',
+        );
       }
 
       if (event.expiryDate?.isEmpty ?? true) {
-        errors['expiryDate'] = 'تاريخ الانتهاء مطلوب';
+        errors['expiryDate'] = AppLocalizations.translateSync(
+          'payment.validation.expiryDateRequired',
+        );
       } else if (!_isValidExpiryDate(event.expiryDate!)) {
-        errors['expiryDate'] = 'تاريخ الانتهاء غير صالح';
+        errors['expiryDate'] = AppLocalizations.translateSync(
+          'payment.validation.expiryDateInvalid',
+        );
       }
 
       if (event.cvv?.isEmpty ?? true) {
-        errors['cvv'] = 'رمز CVV مطلوب';
+        errors['cvv'] = AppLocalizations.translateSync(
+          'payment.validation.cvvRequired',
+        );
       } else if (!_isValidCVV(event.cvv!)) {
-        errors['cvv'] = 'رمز CVV غير صالح';
+        errors['cvv'] = AppLocalizations.translateSync(
+          'payment.validation.cvvInvalid',
+        );
       }
     } else if (event.paymentMethod.isWallet) {
       if (event.paymentMethod == PaymentMethod.jwaliWallet) {
         if (event.walletNumber?.isEmpty ?? true) {
-          errors['walletNumber'] = 'كود جوالي مطلوب';
+          errors['walletNumber'] = AppLocalizations.translateSync(
+            'payment.validation.walletCodeRequired',
+          );
         }
       } else {
         if (event.walletNumber?.isEmpty ?? true) {
-          errors['walletNumber'] = 'رقم المحفظة مطلوب';
+          errors['walletNumber'] = AppLocalizations.translateSync(
+            'payment.validation.walletNumberRequired',
+          );
         }
         if (event.walletPin?.isEmpty ?? true) {
-          errors['walletPin'] = 'رمز المحفظة مطلوب';
+          errors['walletPin'] = AppLocalizations.translateSync(
+            'payment.validation.walletPinRequired',
+          );
         }
       }
     }
@@ -209,8 +232,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     // Implement refund logic here
     await Future.delayed(const Duration(seconds: 2));
 
-    emit(const PaymentRefundSuccess(
-      message: 'تم استرداد المبلغ بنجاح',
+    emit(PaymentRefundSuccess(
+      message: AppLocalizations.translateSync('payment.refund.success'),
     ));
   }
 

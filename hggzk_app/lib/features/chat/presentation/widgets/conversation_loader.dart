@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/theme/app_theme.dart';
 import 'package:hggzk/core/theme/app_text_styles.dart';
 import 'package:hggzk/features/chat/presentation/bloc/chat_bloc.dart';
@@ -45,7 +46,9 @@ class ConversationLoaderState extends State<ConversationLoader> {
     if (state is ChatLoaded) {
       final conversation = state.conversations.firstWhere(
         (c) => c.id == widget.conversationId,
-        orElse: () => throw Exception('Conversation not found'),
+        orElse: () => throw Exception(
+          context.l10n.get('chat.system.conversationNotFound'),
+        ),
       );
 
       // انتقل للصفحة مع المحادثة
@@ -77,7 +80,9 @@ class ConversationLoaderState extends State<ConversationLoader> {
             ),
             const SizedBox(height: 16),
             Text(
-              'جاري تحميل المحادثة...',
+              context.tr(
+                'chat.loader.loadingConversation',
+              ),
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted,
               ),

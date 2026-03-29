@@ -9,6 +9,7 @@ import 'package:record/record.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/message.dart';
 import '../bloc/chat_bloc.dart';
 
@@ -246,7 +247,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
         children: [
           _MinimalAttachmentOption(
             icon: Icons.image_rounded,
-            label: 'صورة',
+            label: context.tr('chat.composer.image'),
             gradient: [
               AppTheme.primaryBlue.withOpacity(0.8),
               AppTheme.primaryBlue.withOpacity(0.6),
@@ -255,7 +256,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
           ),
           _MinimalAttachmentOption(
             icon: Icons.camera_alt_rounded,
-            label: 'كاميرا',
+            label: context.tr('chat.composer.camera'),
             gradient: [
               AppTheme.neonGreen.withOpacity(0.8),
               AppTheme.neonGreen.withOpacity(0.6),
@@ -264,7 +265,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
           ),
           _MinimalAttachmentOption(
             icon: Icons.videocam_rounded,
-            label: 'فيديو',
+            label: context.tr('chat.composer.video'),
             gradient: [
               AppTheme.error.withOpacity(0.8),
               AppTheme.error.withOpacity(0.6),
@@ -273,7 +274,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
           ),
           _MinimalAttachmentOption(
             icon: Icons.attach_file_rounded,
-            label: 'ملف',
+            label: context.tr('chat.composer.file'),
             gradient: [
               AppTheme.warning.withOpacity(0.8),
               AppTheme.warning.withOpacity(0.6),
@@ -282,7 +283,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
           ),
           _MinimalAttachmentOption(
             icon: Icons.location_on_rounded,
-            label: 'موقع',
+            label: context.tr('chat.composer.location'),
             gradient: [
               AppTheme.primaryPurple.withOpacity(0.8),
               AppTheme.primaryPurple.withOpacity(0.6),
@@ -385,10 +386,16 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
               ),
               decoration: InputDecoration(
                 hintText: widget.editingMessage != null
-                    ? 'تعديل الرسالة...'
+                    ? context.tr(
+                        'chat.composer.editHint',
+                      )
                     : widget.replyToMessageId != null
-                        ? 'اكتب ردك...'
-                        : 'اكتب رسالة...',
+                        ? context.tr(
+                            'chat.composer.replyHint',
+                          )
+                        : context.tr(
+                            'chat.composer.messageHint',
+                          ),
                 hintStyle: AppTextStyles.bodySmall.copyWith(
                   color: AppTheme.textMuted.withOpacity(0.35),
                   fontSize: 12,

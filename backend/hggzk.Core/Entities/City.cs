@@ -18,10 +18,22 @@ public class City
     public string Name { get; set; }
 
     /// <summary>
+    /// الاسم الإنجليزي للمدينة.
+    /// English city name.
+    /// </summary>
+    public string? NameEn { get; set; }
+
+    /// <summary>
     /// الدولة.
     /// Country name.
     /// </summary>
     public string Country { get; set; }
+
+    /// <summary>
+    /// اسم الدولة باللغة الإنجليزية.
+    /// English country name.
+    /// </summary>
+    public string? CountryEn { get; set; }
 
     /// <summary>
     /// روابط الصور المخزنة بصيغة JSON.

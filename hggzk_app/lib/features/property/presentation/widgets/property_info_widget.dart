@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/property_detail.dart';
@@ -122,12 +123,18 @@ class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (widget.property.description.isNotEmpty) ...[
-          _buildFuturisticSectionTitle('الوصف', Icons.description_outlined),
+          _buildFuturisticSectionTitle(
+            context.tr('property.info.description'),
+            Icons.description_outlined,
+          ),
           const SizedBox(height: 10),
           _buildFuturisticExpandableText(),
           const SizedBox(height: 16),
         ],
-        _buildFuturisticSectionTitle('معلومات العقار', Icons.info_outline),
+        _buildFuturisticSectionTitle(
+          context.tr('property.info.details'),
+          Icons.info_outline,
+        ),
         const SizedBox(height: 10),
         _buildFuturisticInfoGrid(),
         if (widget.property.ownerName.isNotEmpty) ...[
@@ -257,7 +264,9 @@ class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            _isDescriptionExpanded ? 'عرض أقل' : 'عرض المزيد',
+                            _isDescriptionExpanded
+                                ? context.tr('property.info.showLess')
+                                : context.tr('property.info.showMore'),
                             style: AppTextStyles.caption.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -282,26 +291,32 @@ class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
     final items = [
       _InfoItem(
         icon: Icons.home_work_outlined,
-        label: 'النوع',
+        label: context.tr('property.info.type'),
         value: widget.property.typeName,
         color: AppTheme.primaryBlue,
       ),
       _InfoItem(
         icon: Icons.stars_outlined,
-        label: 'التصنيف',
-        value: '${widget.property.starRating} نجوم',
+        label: context.tr('property.info.category'),
+        value: context.tr(
+          'property.info.stars',
+          params: {'count': widget.property.starRating},
+        ),
         color: AppTheme.warning,
       ),
       _InfoItem(
         icon: Icons.location_city_outlined,
-        label: 'المدينة',
+        label: context.tr('property.info.city'),
         value: widget.property.city,
         color: AppTheme.primaryCyan,
       ),
       _InfoItem(
         icon: Icons.apartment_outlined,
-        label: 'عدد الوحدات',
-        value: '${widget.property.unitsCount} وحدة',
+        label: context.tr('property.info.unitsCount'),
+        value: context.tr(
+          'property.info.unitsValue',
+          params: {'count': widget.property.unitsCount},
+        ),
         color: AppTheme.primaryPurple,
       ),
     ];
@@ -455,7 +470,7 @@ class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'المالك',
+                  context.tr('property.info.owner'),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.primaryViolet,
                     fontWeight: FontWeight.w600,
@@ -506,7 +521,7 @@ class _PropertyInfoWidgetState extends State<PropertyInfoWidget>
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'متصل',
+                  context.tr('property.info.online'),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.success,
                     fontWeight: FontWeight.bold,

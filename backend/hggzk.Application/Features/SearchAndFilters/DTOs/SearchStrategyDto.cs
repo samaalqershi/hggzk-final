@@ -1,3 +1,4 @@
+using YemenBooking.Application.Common.Helpers;
 using YemenBooking.Core.Indexing.Enums;
 
 namespace YemenBooking.Application.Features.SearchAndFilters.DTOs;
@@ -63,42 +64,52 @@ public class SearchStrategyDto
                 Level = level,
                 StrategyName = "تطابق دقيق",
                 StrategyNameEn = "Exact Match",
-                Description = "جميع معايير البحث مطابقة تماماً"
+                Description = LocalizedText.Choose(
+                    "جميع معايير البحث مطابقة تماماً",
+                    "All search criteria match exactly")
             },
             SearchRelaxationLevel.MinorRelaxation => new SearchStrategyDto
             {
                 Level = level,
                 StrategyName = "تخفيف بسيط",
                 StrategyNameEn = "Minor Relaxation",
-                Description = "توسيع طفيف في معايير البحث (15-20%)"
+                Description = LocalizedText.Choose(
+                    "توسيع طفيف في معايير البحث (15-20%)",
+                    "A slight expansion of the search criteria (15-20%)")
             },
             SearchRelaxationLevel.ModerateRelaxation => new SearchStrategyDto
             {
                 Level = level,
                 StrategyName = "تخفيف متوسط",
                 StrategyNameEn = "Moderate Relaxation",
-                Description = "توسيع متوسط في معايير البحث (30-40%)"
+                Description = LocalizedText.Choose(
+                    "توسيع متوسط في معايير البحث (30-40%)",
+                    "A moderate expansion of the search criteria (30-40%)")
             },
             SearchRelaxationLevel.MajorRelaxation => new SearchStrategyDto
             {
                 Level = level,
                 StrategyName = "تخفيف كبير",
                 StrategyNameEn = "Major Relaxation",
-                Description = "توسيع كبير في معايير البحث (50%+)"
+                Description = LocalizedText.Choose(
+                    "توسيع كبير في معايير البحث (50%+)",
+                    "A major expansion of the search criteria (50%+)")
             },
             SearchRelaxationLevel.AlternativeSuggestions => new SearchStrategyDto
             {
                 Level = level,
                 StrategyName = "اقتراحات بديلة",
                 StrategyNameEn = "Alternative Suggestions",
-                Description = "عرض خيارات بديلة بمعايير أساسية"
+                Description = LocalizedText.Choose(
+                    "عرض خيارات بديلة بمعايير أساسية",
+                    "Showing alternative options with core criteria")
             },
             _ => new SearchStrategyDto
             {
                 Level = SearchRelaxationLevel.Exact,
                 StrategyName = "تطابق دقيق",
                 StrategyNameEn = "Exact Match",
-                Description = "افتراضي"
+                Description = LocalizedText.Choose("افتراضي", "Default")
             }
         };
     }

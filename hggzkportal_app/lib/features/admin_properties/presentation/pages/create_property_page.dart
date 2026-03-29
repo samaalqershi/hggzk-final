@@ -71,12 +71,16 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
   // Form Controllers
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _nameEnController = TextEditingController();
   final _addressController = TextEditingController();
+  final _addressEnController = TextEditingController();
   final _cityController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _descriptionEnController = TextEditingController();
   final _latitudeController = TextEditingController();
   final _longitudeController = TextEditingController();
   final _shortDescriptionController = TextEditingController();
+  final _shortDescriptionEnController = TextEditingController();
   final _systemCommissionRateController = TextEditingController();
 
   // State
@@ -146,12 +150,16 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
     _animationController.dispose();
     _glowController.dispose();
     _nameController.dispose();
+    _nameEnController.dispose();
     _addressController.dispose();
+    _addressEnController.dispose();
     _cityController.dispose();
     _descriptionController.dispose();
+    _descriptionEnController.dispose();
     _latitudeController.dispose();
     _longitudeController.dispose();
     _shortDescriptionController.dispose();
+    _shortDescriptionEnController.dispose();
     _systemCommissionRateController.dispose();
     super.dispose();
   }
@@ -453,6 +461,15 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
 
           const SizedBox(height: 20),
 
+          _buildInputField(
+            controller: _nameEnController,
+            label: 'اسم العقار بالإنجليزية',
+            hint: 'Enter property name in English',
+            icon: Icons.translate_rounded,
+          ),
+
+          const SizedBox(height: 20),
+
           // Property Type
           _buildPropertyTypeSelector(),
 
@@ -519,6 +536,15 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
 
           const SizedBox(height: 20),
 
+          _buildInputField(
+            controller: _shortDescriptionEnController,
+            label: 'وصف مختصر بالإنجليزية',
+            hint: 'Short summary used in English listings',
+            icon: Icons.translate_rounded,
+          ),
+
+          const SizedBox(height: 20),
+
           // Description
           _buildInputField(
             controller: _descriptionController,
@@ -532,6 +558,16 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
               }
               return null;
             },
+          ),
+
+          const SizedBox(height: 20),
+
+          _buildInputField(
+            controller: _descriptionEnController,
+            label: 'الوصف التفصيلي بالإنجليزية',
+            hint: 'Enter detailed property description in English',
+            icon: Icons.translate_rounded,
+            maxLines: 5,
           ),
         ],
       ),
@@ -667,6 +703,15 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
               }
               return null;
             },
+          ),
+
+          const SizedBox(height: 20),
+
+          _buildInputField(
+            controller: _addressEnController,
+            label: 'العنوان الكامل بالإنجليزية',
+            hint: 'Enter the full address in English',
+            icon: Icons.translate_rounded,
           ),
 
           const SizedBox(height: 20),
@@ -859,6 +904,12 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
             iconColor: AppTheme.primaryBlue,
             items: [
               {'label': 'الاسم', 'value': _nameController.text},
+              {
+                'label': 'الاسم بالإنجليزية',
+                'value': _nameEnController.text.isEmpty
+                    ? 'لا يوجد'
+                    : _nameEnController.text
+              },
               {'label': 'النوع', 'value': _getPropertyTypeName()},
               {'label': 'المالك', 'value': _selectedOwner?.name ?? 'غير محدد'},
               {'label': 'التقييم', 'value': '$_starRating نجوم'},
@@ -882,6 +933,12 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
             iconColor: AppTheme.success,
             items: [
               {'label': 'العنوان', 'value': _addressController.text},
+              {
+                'label': 'العنوان بالإنجليزية',
+                'value': _addressEnController.text.isEmpty
+                    ? 'لا يوجد'
+                    : _addressEnController.text
+              },
               {'label': 'المدينة', 'value': _cityController.text},
               {'label': 'خط العرض', 'value': _latitudeController.text},
               {'label': 'خط الطول', 'value': _longitudeController.text},
@@ -919,7 +976,19 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                     ? 'لا يوجد'
                     : _shortDescriptionController.text
               },
+              {
+                'label': 'الوصف المختصر بالإنجليزية',
+                'value': _shortDescriptionEnController.text.isEmpty
+                    ? 'لا يوجد'
+                    : _shortDescriptionEnController.text
+              },
               {'label': 'الوصف التفصيلي', 'value': _descriptionController.text},
+              {
+                'label': 'الوصف التفصيلي بالإنجليزية',
+                'value': _descriptionEnController.text.isEmpty
+                    ? 'لا يوجد'
+                    : _descriptionEnController.text
+              },
             ],
           ),
 
@@ -1924,10 +1993,19 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
       context.read<PropertiesBloc>().add(
             CreatePropertyEvent(
               name: _nameController.text.trim(),
+              nameEn: _nameEnController.text.trim().isEmpty
+                  ? null
+                  : _nameEnController.text.trim(),
               address: _addressController.text.trim(),
+              addressEn: _addressEnController.text.trim().isEmpty
+                  ? null
+                  : _addressEnController.text.trim(),
               propertyTypeId: _selectedPropertyTypeId!,
               ownerId: ownerId,
               description: _descriptionController.text.trim(),
+              descriptionEn: _descriptionEnController.text.trim().isEmpty
+                  ? null
+                  : _descriptionEnController.text.trim(),
               latitude: double.tryParse(_latitudeController.text) ?? 0.0,
               longitude: double.tryParse(_longitudeController.text) ?? 0.0,
               city: _cityController.text.trim(),
@@ -1940,6 +2018,16 @@ class _CreatePropertyViewState extends State<_CreatePropertyView>
                       ? _shortDescriptionController.text
                       : _descriptionController.text)
                   .trim(),
+              shortDescriptionEn: (_shortDescriptionEnController.text.isNotEmpty
+                          ? _shortDescriptionEnController.text
+                          : _descriptionEnController.text)
+                      .trim()
+                      .isEmpty
+                  ? null
+                  : (_shortDescriptionEnController.text.isNotEmpty
+                          ? _shortDescriptionEnController.text
+                          : _descriptionEnController.text)
+                      .trim(),
               currency: _currency,
               isFeatured: _isFeatured,
               systemCommissionRate: parsedCommission,

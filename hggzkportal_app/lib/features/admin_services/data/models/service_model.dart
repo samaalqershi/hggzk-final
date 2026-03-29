@@ -9,11 +9,14 @@ class ServiceModel extends Service {
     required super.id,
     required super.propertyId,
     required super.propertyName,
+    super.propertyNameEn,
     required super.name,
+    super.nameEn,
     required super.price,
     required super.pricingModel,
     required super.icon,
     super.description,
+    super.descriptionEn,
   });
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
     // Handle pricing model from backend format
@@ -31,11 +34,14 @@ class ServiceModel extends Service {
       id: json['id'] ?? '',
       propertyId: json['propertyId'] ?? '',
       propertyName: json['propertyName'] ?? '',
+      propertyNameEn: json['propertyNameEn'],
       name: json['name'] ?? '',
+      nameEn: json['nameEn'],
       price: MoneyModel.fromJson(json['price'] ?? {}),
       pricingModel: pricingModel,
       icon: json['icon'] ?? 'room_service',
       description: json['description'],
+      descriptionEn: json['descriptionEn'],
     );
   }
   Map<String, dynamic> toJson() {
@@ -43,7 +49,9 @@ class ServiceModel extends Service {
       'id': id,
       'propertyId': propertyId,
       'propertyName': propertyName,
+      'propertyNameEn': propertyNameEn,
       'name': name,
+      'nameEn': nameEn,
       'price': MoneyModel(
         amount: price.amount,
         currency: price.currency,
@@ -52,16 +60,21 @@ class ServiceModel extends Service {
       'pricingModel': pricingModel.value,
       'icon': icon,
       if (description != null) 'description': description,
+      if (descriptionEn != null) 'descriptionEn': descriptionEn,
     };
   }
+
   Service toEntity() => Service(
         id: id,
         propertyId: propertyId,
         propertyName: propertyName,
+        propertyNameEn: propertyNameEn,
         name: name,
+        nameEn: nameEn,
         price: price,
         pricingModel: pricingModel,
         icon: icon,
         description: description,
+        descriptionEn: descriptionEn,
       );
 }

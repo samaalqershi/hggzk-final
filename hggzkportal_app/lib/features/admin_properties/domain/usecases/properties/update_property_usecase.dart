@@ -9,14 +9,18 @@ class UpdatePropertyParams {
   /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
   final String? name;
+  final String? nameEn;
   final String? address;
+  final String? addressEn;
   final String? description;
+  final String? descriptionEn;
   final double? latitude;
   final double? longitude;
   final String? city;
   final int? starRating;
   final List<String>? images;
   final String? shortDescription;
+  final String? shortDescriptionEn;
   final String? currency;
   final bool? isFeatured;
   final double? systemCommissionRate;
@@ -25,14 +29,18 @@ class UpdatePropertyParams {
   UpdatePropertyParams({
     required this.propertyId,
     this.name,
+    this.nameEn,
     this.address,
+    this.addressEn,
     this.description,
+    this.descriptionEn,
     this.latitude,
     this.longitude,
     this.city,
     this.starRating,
     this.images,
     this.shortDescription,
+    this.shortDescriptionEn,
     this.currency,
     this.isFeatured,
     this.systemCommissionRate,
@@ -42,14 +50,20 @@ class UpdatePropertyParams {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
     if (name != null) data['name'] = name;
+    if (nameEn != null) data['nameEn'] = nameEn;
     if (address != null) data['address'] = address;
+    if (addressEn != null) data['addressEn'] = addressEn;
     if (description != null) data['description'] = description;
+    if (descriptionEn != null) data['descriptionEn'] = descriptionEn;
     if (latitude != null) data['latitude'] = latitude;
     if (longitude != null) data['longitude'] = longitude;
     if (city != null) data['city'] = city;
     if (starRating != null) data['starRating'] = starRating;
     if (images != null) data['images'] = images;
     if (shortDescription != null) data['shortDescription'] = shortDescription;
+    if (shortDescriptionEn != null) {
+      data['shortDescriptionEn'] = shortDescriptionEn;
+    }
     if (currency != null) data['currency'] = currency;
     if (isFeatured != null) data['isFeatured'] = isFeatured;
     if (systemCommissionRate != null) {

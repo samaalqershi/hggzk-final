@@ -677,6 +677,11 @@ namespace YemenBooking.Core.Seeds
                 IsDeleted = false
             });
 
+            foreach (var field in fields)
+            {
+                SeedLocalizationHelper.ApplyFieldEnglish(field);
+            }
+
             return fields;
         }
     }

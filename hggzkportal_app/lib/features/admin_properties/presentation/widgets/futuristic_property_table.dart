@@ -84,10 +84,14 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
       targetKey: _getRowKey(property.id),
       propertyId: property.id,
       name: property.name,
+      nameEn: property.nameEn,
       typeName: property.typeName,
+      typeNameEn: property.typeNameEn,
       ownerName: property.ownerName,
       address: property.address,
+      addressEn: property.addressEn,
       city: property.city,
+      cityEn: property.cityEn,
       starRating: property.starRating,
       coverImage: property.images.isNotEmpty
           ? property.images.first.thumbnails.large
@@ -99,6 +103,7 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
       bookingCount: property.bookingCount,
       averageRating: property.averageRating,
       shortDescription: property.shortDescription,
+      shortDescriptionEn: property.shortDescriptionEn,
       currency: property.currency,
       amenitiesCount: property.amenities.length,
       policiesCount: property.policies.length,
@@ -106,6 +111,52 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
     );
 
     Future.delayed(const Duration(milliseconds: 200), () {});
+  }
+
+  bool _hasSecondary(String? secondary, String primary) {
+    if (secondary == null) {
+      return false;
+    }
+
+    final trimmed = secondary.trim();
+    return trimmed.isNotEmpty && trimmed != primary.trim();
+  }
+
+  Widget _buildBilingualText(
+    String primary, {
+    String? secondary,
+    TextStyle? primaryStyle,
+    TextStyle? secondaryStyle,
+    int primaryMaxLines = 1,
+    int secondaryMaxLines = 1,
+  }) {
+    final showSecondary = _hasSecondary(secondary, primary);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          primary,
+          style: primaryStyle,
+          maxLines: primaryMaxLines,
+          overflow: TextOverflow.ellipsis,
+        ),
+        if (showSecondary) ...[
+          const SizedBox(height: 2),
+          Text(
+            secondary!,
+            style: secondaryStyle ??
+                primaryStyle?.copyWith(
+                  color: AppTheme.textMuted,
+                  fontSize: (primaryStyle.fontSize ?? 14) - 1,
+                ),
+            maxLines: secondaryMaxLines,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ],
+    );
   }
 
   @override
@@ -216,14 +267,17 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              _buildBilingualText(
                                 property.name,
-                                style: AppTextStyles.heading3.copyWith(
+                                secondary: property.nameEn,
+                                primaryStyle: AppTextStyles.heading3.copyWith(
                                   fontSize: 16,
                                   color: AppTheme.textWhite,
                                 ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
+                                secondaryStyle: AppTextStyles.caption.copyWith(
+                                  color: AppTheme.textMuted,
+                                ),
+                                primaryMaxLines: 2,
                               ),
                               const SizedBox(height: 4),
                               Container(
@@ -236,12 +290,19 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
                                       .withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Text(
+                                child: _buildBilingualText(
                                   property.typeName,
-                                  style: AppTextStyles.caption.copyWith(
+                                  secondary: property.typeNameEn,
+                                  primaryStyle: AppTextStyles.caption.copyWith(
                                     color: AppTheme.primaryBlue,
                                     fontWeight: FontWeight.w600,
                                   ),
+                                  secondaryStyle:
+                                      AppTextStyles.caption.copyWith(
+                                    color: AppTheme.primaryBlue
+                                        .withValues(alpha: 0.8),
+                                  ),
+                                  secondaryMaxLines: 2,
                                 ),
                               ),
                             ],
@@ -266,14 +327,19 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
                           _buildMobileDetailRow(
                             icon: Icons.location_on_rounded,
                             label: 'المدينة',
-                            value: property.city,
+                            value: _hasSecondary(property.cityEn, property.city)
+                                ? '${property.city}\n${property.cityEn!}'
+                                : property.city,
                             iconColor: AppTheme.primaryBlue,
                           ),
                           const SizedBox(height: 8),
                           _buildMobileDetailRow(
                             icon: Icons.location_city_rounded,
                             label: 'العنوان',
-                            value: property.address,
+                            value: _hasSecondary(
+                                    property.addressEn, property.address)
+                                ? '${property.address}\n${property.addressEn!}'
+                                : property.address,
                             iconColor: AppTheme.primaryPurple,
                           ),
                           const SizedBox(height: 8),
@@ -389,7 +455,7 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
               color: AppTheme.textLight,
               fontWeight: FontWeight.w600,
             ),
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -636,21 +702,31 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          _buildBilingualText(
                             property.name,
-                            style: AppTextStyles.bodyMedium.copyWith(
+                            secondary: property.nameEn,
+                            primaryStyle: AppTextStyles.bodyMedium.copyWith(
                               color: AppTheme.textWhite,
                               fontWeight: FontWeight.w600,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            secondaryStyle: AppTextStyles.caption.copyWith(
+                              color: AppTheme.textMuted,
+                            ),
                           ),
                           Row(
                             children: [
-                              Text(
-                                property.typeName,
-                                style: AppTextStyles.caption.copyWith(
-                                  color: AppTheme.textMuted,
+                              Expanded(
+                                child: _buildBilingualText(
+                                  property.typeName,
+                                  secondary: property.typeNameEn,
+                                  primaryStyle: AppTextStyles.caption.copyWith(
+                                    color: AppTheme.textMuted,
+                                  ),
+                                  secondaryStyle:
+                                      AppTextStyles.caption.copyWith(
+                                    color: AppTheme.textMuted
+                                        .withValues(alpha: 0.75),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -681,19 +757,22 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    _buildBilingualText(
                       property.city,
-                      style: AppTextStyles.bodySmall.copyWith(
+                      secondary: property.cityEn,
+                      primaryStyle: AppTextStyles.bodySmall.copyWith(
                         color: AppTheme.textLight,
                       ),
-                    ),
-                    Text(
-                      property.address,
-                      style: AppTextStyles.caption.copyWith(
+                      secondaryStyle: AppTextStyles.caption.copyWith(
                         color: AppTheme.textMuted,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    ),
+                    _buildBilingualText(
+                      property.address,
+                      secondary: property.addressEn,
+                      primaryStyle: AppTextStyles.caption.copyWith(
+                        color: AppTheme.textMuted,
+                      ),
                     ),
                   ],
                 ),
@@ -950,22 +1029,23 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          _buildBilingualText(
                             property.name,
-                            style: AppTextStyles.bodyMedium.copyWith(
+                            secondary: property.nameEn,
+                            primaryStyle: AppTextStyles.bodyMedium.copyWith(
                               color: AppTheme.textWhite,
                               fontWeight: FontWeight.w600,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            property.address,
-                            style: AppTextStyles.caption.copyWith(
+                            secondaryStyle: AppTextStyles.caption.copyWith(
                               color: AppTheme.textMuted,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          ),
+                          _buildBilingualText(
+                            property.address,
+                            secondary: property.addressEn,
+                            primaryStyle: AppTextStyles.caption.copyWith(
+                              color: AppTheme.textMuted,
+                            ),
                           ),
                         ],
                       ),
@@ -977,10 +1057,14 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
               // Type
               Expanded(
                 flex: 2,
-                child: Text(
+                child: _buildBilingualText(
                   property.typeName,
-                  style: AppTextStyles.bodySmall.copyWith(
+                  secondary: property.typeNameEn,
+                  primaryStyle: AppTextStyles.bodySmall.copyWith(
                     color: AppTheme.textLight,
+                  ),
+                  secondaryStyle: AppTextStyles.caption.copyWith(
+                    color: AppTheme.textMuted,
                   ),
                 ),
               ),
@@ -996,10 +1080,16 @@ class _FuturisticPropertyTableState extends State<FuturisticPropertyTable>
                       color: AppTheme.primaryBlue.withValues(alpha: 0.7),
                     ),
                     const SizedBox(width: 4),
-                    Text(
-                      property.city,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppTheme.textLight,
+                    Expanded(
+                      child: _buildBilingualText(
+                        property.city,
+                        secondary: property.cityEn,
+                        primaryStyle: AppTextStyles.bodySmall.copyWith(
+                          color: AppTheme.textLight,
+                        ),
+                        secondaryStyle: AppTextStyles.caption.copyWith(
+                          color: AppTheme.textMuted,
+                        ),
                       ),
                     ),
                   ],

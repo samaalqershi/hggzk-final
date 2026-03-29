@@ -33,6 +33,14 @@ public class UnitTypeConfiguration : IEntityTypeConfiguration<UnitType>
             .HasMaxLength(50)
             .HasComment("اسم نوع الوحدة");
 
+        builder.Property(ut => ut.NameEn)
+            .HasMaxLength(50)
+            .HasComment("اسم نوع الوحدة بالإنجليزية");
+
+        builder.Property(ut => ut.DescriptionEn)
+            .HasMaxLength(500)
+            .HasComment("وصف نوع الوحدة بالإنجليزية");
+
         builder.Property(ut => ut.MaxCapacity)
             .IsRequired()
             .HasComment("الحد الأقصى للسعة");

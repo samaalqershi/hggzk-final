@@ -84,7 +84,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure());
+      return Left(NetworkFailure());
     }
   }
 
@@ -116,7 +116,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure());
+      return Left(NetworkFailure());
     }
   }
 
@@ -153,7 +153,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure());
+      return Left(NetworkFailure());
     }
   }
 
@@ -195,7 +195,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure());
+      return Left(NetworkFailure());
     }
   }
 
@@ -244,7 +244,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure());
+      return Left(NetworkFailure());
     }
   }
 
@@ -311,7 +311,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure());
+      return Left(NetworkFailure());
     }
   }
 
@@ -341,7 +341,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await localDataSource.cacheUser(user);
         return Right(user);
       } else {
-        return const Left(NetworkFailure());
+        return Left(NetworkFailure());
       }
     } catch (e) {
       return ErrorHandler.handle(e);
@@ -389,7 +389,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure());
+      return Left(NetworkFailure());
     }
   }
 
@@ -415,7 +415,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure());
+      return Left(NetworkFailure());
     }
   }
 
@@ -538,7 +538,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure());
+      return Left(NetworkFailure());
     }
   }
 
@@ -558,7 +558,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure());
+      return Left(NetworkFailure());
     }
   }
 
@@ -578,7 +578,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return ErrorHandler.handle(e);
       }
     } else {
-      return const Left(NetworkFailure());
+      return Left(NetworkFailure());
     }
   }
 }

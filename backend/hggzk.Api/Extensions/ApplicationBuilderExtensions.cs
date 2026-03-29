@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.FileProviders;
@@ -79,6 +80,8 @@ namespace YemenBooking.Api.Extensions
             // تفعيل نظام التوجيه.
             // Enable routing.
             app.UseRouting();
+            app.UseRequestLocalization();
+            app.UseLocalizedExceptions();
             // Log resolved endpoint for each request (helps detect routing issues)
             app.Use(async (context, next) =>
             {

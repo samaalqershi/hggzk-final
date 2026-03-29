@@ -6,10 +6,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:math' as math;
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_logo_widget.dart';
+import '../../../../core/widgets/language_switch_button.dart';
 import '../bloc/onboarding_bloc.dart';
 import '../bloc/onboarding_event.dart';
 import '../bloc/onboarding_state.dart';
@@ -357,7 +358,7 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
             shaderCallback: (bounds) =>
                 AppTheme.primaryGradient.createShader(bounds),
             child: Text(
-              'جاري التحضير...',
+              context.tr('common.loading'),
               style: AppTextStyles.bodyMedium.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w500,
@@ -396,7 +397,7 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
             ),
             const SizedBox(height: 20),
             Text(
-              'حدث خطأ',
+              context.tr('common.error'),
               style: AppTextStyles.h3.copyWith(
                 color: AppTheme.error,
                 fontWeight: FontWeight.w600,
@@ -447,7 +448,7 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
             ),
             const SizedBox(width: 8),
             Text(
-              'إعادة المحاولة',
+              context.tr('common.retry'),
               style: AppTextStyles.buttonMedium.copyWith(
                 color: Colors.white,
               ),
@@ -548,7 +549,9 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
                   shaderCallback: (bounds) =>
                       AppTheme.primaryGradient.createShader(bounds),
                   child: Text(
-                    _currentStep == 0 ? 'اختر مدينتك' : 'اختر العملة',
+                    _currentStep == 0
+                        ? context.tr('home.onboarding.selectCityTitle')
+                        : context.tr('home.onboarding.selectCurrencyTitle'),
                     style: AppTextStyles.h3.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -557,8 +560,8 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
                 ),
                 Text(
                   _currentStep == 0
-                      ? 'حدد موقعك للحصول على أفضل العروض'
-                      : 'اختر العملة المفضلة للعرض',
+                      ? context.tr('home.onboarding.selectCitySubtitle')
+                      : context.tr('home.onboarding.selectCurrencySubtitle'),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.textMuted.withOpacity(0.7),
                   ),
@@ -567,34 +570,43 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
             ),
           ),
 
-          // Skip button (optional)
-          if (_currentStep == 0)
-            GestureDetector(
-              onTap: () {
-                HapticFeedback.lightImpact();
-                setState(() {
-                  _currentStep = 1;
-                });
-              },
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppTheme.darkCard.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppTheme.darkBorder.withOpacity(0.2),
-                    width: 0.5,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const LanguageSwitchButton(size: 36, showLabel: false),
+              if (_currentStep == 0) ...[
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    setState(() {
+                      _currentStep = 1;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppTheme.darkCard.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: AppTheme.darkBorder.withOpacity(0.2),
+                        width: 0.5,
+                      ),
+                    ),
+                    child: Text(
+                      context.tr('common.skip'),
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppTheme.textMuted,
+                      ),
+                    ),
                   ),
                 ),
-                child: Text(
-                  'تخطي',
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppTheme.textMuted,
-                  ),
-                ),
-              ),
-            ),
+              ],
+            ],
+          ),
         ],
       ),
     );
@@ -610,7 +622,7 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
             child: _buildStepIndicator(
               isActive: true,
               isCompleted: _currentStep > 0,
-              label: 'المدينة',
+              label: context.tr('home.onboarding.cityStep'),
             ),
           ),
 
@@ -628,7 +640,7 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
             child: _buildStepIndicator(
               isActive: _currentStep == 1,
               isCompleted: false,
-              label: 'العملة',
+              label: context.tr('home.onboarding.currencyStep'),
             ),
           ),
         ],
@@ -695,7 +707,7 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
         // Search field
         _buildSearchField(
           controller: _searchCityController,
-          hint: 'ابحث عن مدينة...',
+          hint: context.tr('home.onboarding.searchCityHint'),
           onChanged: (value) {
             setState(() {
               _citySearchQuery = value;
@@ -762,7 +774,7 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
         // Search field
         _buildSearchField(
           controller: _searchCurrencyController,
-          hint: 'ابحث عن عملة...',
+          hint: context.tr('home.onboarding.searchCurrencyHint'),
           onChanged: (value) {
             setState(() {
               _currencySearchQuery = value;
@@ -866,13 +878,13 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
           ),
           const SizedBox(height: 12),
           Text(
-            'لا توجد نتائج',
+            context.tr('home.onboarding.noResults'),
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppTheme.textMuted.withOpacity(0.5),
             ),
           ),
           Text(
-            'جرب البحث بكلمات أخرى',
+            context.tr('home.onboarding.tryAnotherSearch'),
             style: AppTextStyles.caption.copyWith(
               color: AppTheme.textMuted.withOpacity(0.3),
             ),
@@ -1040,7 +1052,9 @@ class _SelectCityCurrencyPageState extends State<SelectCityCurrencyPage>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      _currentStep == 0 ? 'التالي' : 'ابدأ الآن',
+                      _currentStep == 0
+                          ? context.tr('common.next')
+                          : context.tr('home.onboarding.startNow'),
                       style: AppTextStyles.buttonMedium.copyWith(
                         color: enabled
                             ? Colors.white

@@ -6,6 +6,7 @@ abstract class NotificationEvent extends Equatable {
   /// ينشئ حدثًا مجردًا لميزة الإشعارات.
   /// Creates an abstract event for the notifications feature.
   const NotificationEvent();
+
   /// يعيد الحقول التي تدخل في مقارنة الأحداث.
   /// Returns the fields that participate in event equality.
   @override
@@ -18,15 +19,19 @@ class LoadNotificationsEvent extends NotificationEvent {
   /// رقم الصفحة المطلوب تحميلها.
   /// Page number that should be loaded.
   final int page;
+
   /// عدد العناصر المطلوب في الصفحة الواحدة.
   /// Number of items requested per page.
   final int limit;
+
   /// نوع الإشعار المستخدم كتصفية اختيارية.
   /// Optional notification type used as a filter.
   final String? type;
+
   /// يحدد ما إذا كان الطلب يمثل تحديثًا كاملًا للقائمة.
   /// Indicates whether the request should refresh the list from scratch.
   final bool refresh;
+
   /// ينشئ حدث تحميل الإشعارات مع معايير الصفحة والتصفية.
   /// Creates the load-notifications event with paging and filter parameters.
   const LoadNotificationsEvent({
@@ -35,6 +40,7 @@ class LoadNotificationsEvent extends NotificationEvent {
     this.type,
     this.refresh = false,
   });
+
   /// يعيد الحقول المستخدمة في مقارنة طلبات التحميل.
   /// Returns the fields used to compare load requests.
   @override
@@ -47,9 +53,11 @@ class MarkNotificationAsReadEvent extends NotificationEvent {
   /// معرّف الإشعار المراد تحديث حالته.
   /// Identifier of the notification whose state should change.
   final String notificationId;
+
   /// ينشئ حدث تعليم الإشعار كمقروء.
   /// Creates the mark-as-read event for one notification.
   const MarkNotificationAsReadEvent({required this.notificationId});
+
   /// يعيد الحقول المستخدمة في مقارنة هذا الحدث.
   /// Returns the fields used when comparing this event.
   @override
@@ -70,9 +78,11 @@ class DismissNotificationEvent extends NotificationEvent {
   /// معرّف الإشعار المراد إخفاؤه.
   /// Identifier of the notification that should be dismissed.
   final String notificationId;
+
   /// ينشئ حدث إخفاء إشعار معين.
   /// Creates the dismiss-notification event.
   const DismissNotificationEvent({required this.notificationId});
+
   /// يعيد الحقول المستخدمة في مقارنة هذا الحدث.
   /// Returns the fields used to compare this event.
   @override
@@ -93,9 +103,11 @@ class UpdateNotificationSettingsEvent extends NotificationEvent {
   /// خريطة التفضيلات الجديدة المطلوب حفظها.
   /// Map of the new preferences that should be stored.
   final Map<String, bool> settings;
+
   /// ينشئ حدث تحديث إعدادات الإشعارات.
   /// Creates the update-notification-settings event.
   const UpdateNotificationSettingsEvent({required this.settings});
+
   /// يعيد الحقول المستخدمة في مقارنة هذا الحدث.
   /// Returns the fields used to compare this event.
   @override

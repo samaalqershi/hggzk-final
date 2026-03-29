@@ -40,6 +40,13 @@ public class UnitTypeField : BaseEntity<Guid>
     public string DisplayName { get; set; }
 
     /// <summary>
+    /// الاسم المعروض للحقل باللغة الإنجليزية.
+    /// English display name of the field.
+    /// </summary>
+    [Display(Name = "الاسم المعروض للحقل بالإنجليزية")]
+    public string? DisplayNameEn { get; set; }
+
+    /// <summary>
     /// وصف الحقل.
     /// Field description.
     /// </summary>
@@ -47,11 +54,25 @@ public class UnitTypeField : BaseEntity<Guid>
     public string Description { get; set; }
 
     /// <summary>
+    /// وصف الحقل باللغة الإنجليزية.
+    /// English field description.
+    /// </summary>
+    [Display(Name = "وصف الحقل بالإنجليزية")]
+    public string? DescriptionEn { get; set; }
+
+    /// <summary>
     /// خيارات الحقل بصيغة JSON عند استخدام select أو multi_select.
     /// Field options in JSON format for select or multi-select fields.
     /// </summary>
     [Display(Name = "خيارات الحقل")]
     public string FieldOptions { get; set; }
+
+    /// <summary>
+    /// خيارات الحقل المترجمة إلى الإنجليزية بصيغة JSON.
+    /// English-translated field options stored as JSON.
+    /// </summary>
+    [Display(Name = "خيارات الحقل بالإنجليزية")]
+    public string? FieldOptionsEn { get; set; }
 
     /// <summary>
     /// قواعد التحقق المخصصة بصيغة JSON.
@@ -94,6 +115,13 @@ public class UnitTypeField : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "فئة الحقل")]
     public string Category { get; set; }
+
+    /// <summary>
+    /// فئة الحقل باللغة الإنجليزية.
+    /// English field category.
+    /// </summary>
+    [Display(Name = "فئة الحقل بالإنجليزية")]
+    public string? CategoryEn { get; set; }
 
     /// <summary>
     /// نوع الوحدة المرتبط.

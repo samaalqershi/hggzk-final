@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
+import 'package:hggzk/core/localization/locale_manager.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/request_logger.dart';
@@ -84,6 +86,22 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
   /// العربية: ينشئ مثيلًا جديدًا من `PropertyRemoteDataSourceImpl`.
   PropertyRemoteDataSourceImpl({required this.apiClient});
 
+  String _operationFailed() {
+    return AppLocalizations.translateSync('common.operationFailed');
+  }
+
+  String _networkError() {
+    return AppLocalizations.translateSync('common.noInternet');
+  }
+
+  String _unexpectedError() {
+    return AppLocalizations.translateSync('common.unexpectedError');
+  }
+
+  String _invalidResponse() {
+    return AppLocalizations.translateSync('common.invalidResponse');
+  }
+
   /// Checks the availability.
   /// العربية: يتحقق من availability.
   @override
@@ -129,7 +147,7 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
           // إذا الـ backend أعاد success=false (مثل: "تاريخ الوصول يجب أن يكون قبل تاريخ المغادرة")
           if (success is bool && !success) {
             throw ServerException(
-              message ?? 'Failed to check availability',
+              message ?? _operationFailed(),
               code: errorCode,
               showAsDialog: showAsDialog,
             );
@@ -149,40 +167,44 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
 
           // إذا لم نجد بيانات صالحة، اعتبرها خطأ منطقي واضح بدلاً من كراش
           throw ServerException(
-            message ?? 'لا توجد بيانات توفّر متاحة لهذا العقار.',
+            message ??
+                await AppLocalizations.translate(
+                  'property.availability.noData',
+                  locale: LocaleManager.getCurrentLocale(),
+                ),
             code: errorCode,
             showAsDialog: showAsDialog,
           );
         }
 
         // إذا لم تكن الاستجابة Map، فهذا شكل غير متوقع
-        throw const ServerException('Invalid availability response format');
+        throw ServerException(_invalidResponse());
       } else {
         final data = response.data;
         if (data is Map<String, dynamic>) {
           throw ServerException(
-            data['message']?.toString() ?? 'Failed to check availability',
+            data['message']?.toString() ?? _operationFailed(),
             code: data['errorCode']?.toString() ?? data['code']?.toString(),
             showAsDialog: data['showAsDialog'] == true,
           );
         }
-        throw const ServerException('Failed to check availability');
+        throw ServerException(_operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       final data = e.response?.data;
       if (data is Map<String, dynamic>) {
         throw ServerException(
-          data['message']?.toString() ?? e.message ?? 'Network error occurred',
+          data['message']?.toString() ?? e.message ?? _networkError(),
           code: data['errorCode']?.toString() ?? data['code']?.toString(),
           showAsDialog: data['showAsDialog'] == true,
         );
       }
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 
@@ -220,15 +242,14 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
         final data = response.data['data'];
         return PropertyDetailModel.fromJson(data);
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to load property details');
+        throw ServerException(response.data['message'] ?? _operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 
@@ -284,15 +305,14 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
         }
         return unitsJson.map((json) => UnitModel.fromJson(json)).toList();
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to load units');
+        throw ServerException(response.data['message'] ?? _operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 
@@ -338,15 +358,14 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
         final data = response.data['data']['items'] as List;
         return data.map((json) => ReviewModel.fromJson(json)).toList();
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to load reviews');
+        throw ServerException(response.data['message'] ?? _operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 
@@ -398,15 +417,14 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
         }
         return success;
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to add to favorites');
+        throw ServerException(response.data['message'] ?? _operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 
@@ -449,15 +467,14 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
         }
         return success;
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to remove from favorites');
+        throw ServerException(response.data['message'] ?? _operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 
@@ -484,15 +501,14 @@ class PropertyRemoteDataSourceImpl implements PropertyRemoteDataSource {
       if (response.statusCode == 200) {
         return response.data['data'] ?? false;
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to update view count');
+        throw ServerException(response.data['message'] ?? _operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 }

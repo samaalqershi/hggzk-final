@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'package:hggzk/core/localization/localized_api_value.dart';
 import '../../domain/entities/unit.dart';
 
 /// Describes the UnitModel data model used to parse and emit property API payloads.
@@ -30,14 +30,27 @@ class UnitModel extends Unit {
   /// العربية: ينشئ مثيلًا جديدًا من `UnitModel.fromJson`.
   factory UnitModel.fromJson(Map<String, dynamic> json) {
     final unitType = json['unitType'] as Map<String, dynamic>?;
-    final unitTypeName =
-        (json['unitTypeName'] ?? unitType?['name'] ?? '').toString();
+    final resolvedUnitTypeName = LocalizedApiValue.text(
+      json,
+      arabicKey: 'unitTypeName',
+      englishKey: 'unitTypeNameEn',
+    );
+    final unitTypeName = resolvedUnitTypeName.isNotEmpty
+        ? resolvedUnitTypeName
+        : LocalizedApiValue.text(
+            Map<String, dynamic>.from(unitType ?? const <String, dynamic>{}),
+            arabicKey: 'name',
+            englishKey: 'nameEn',
+          );
     final unitTypeId =
         (json['unitTypeId'] ?? unitType?['id']?.toString() ?? '').toString();
 
-    final cf = json['customFeatures'];
-    final customFeatures =
-        cf == null ? '' : (cf is String ? cf : jsonEncode(cf));
+    final cf = LocalizedApiValue.text(
+      json,
+      arabicKey: 'customFeatures',
+      englishKey: 'customFeaturesEn',
+    );
+    final customFeatures = cf;
 
     final images = (json['images'] as List?)
             ?.map((e) => UnitImageModel.fromJson(Map<String, dynamic>.from(e)))
@@ -54,9 +67,17 @@ class UnitModel extends Unit {
       id: (json['id'] ?? '').toString(),
       propertyId: (json['propertyId'] ?? '').toString(),
       unitTypeId: unitTypeId,
-      name: (json['name'] ?? '').toString(),
+      name: LocalizedApiValue.text(
+        json,
+        arabicKey: 'name',
+        englishKey: 'nameEn',
+      ),
       customFeatures: customFeatures,
-      propertyName: (json['propertyName'] ?? '').toString(),
+      propertyName: LocalizedApiValue.text(
+        json,
+        arabicKey: 'propertyName',
+        englishKey: 'propertyNameEn',
+      ),
       unitTypeName: unitTypeName,
       pricingMethod: _parsePricingMethod(json['pricingMethod']),
       fieldValues: fieldValues,
@@ -177,7 +198,12 @@ class UnitFieldValueModel extends UnitFieldValue {
         valueId: (json['valueId'] ?? '').toString(),
         fieldId: (json['fieldId'] ?? '').toString(),
         fieldName: (json['fieldName'] ?? '').toString(),
-        displayName: (json['displayName'] ?? '').toString(),
+        displayName: LocalizedApiValue.text(
+          json,
+          arabicKey: 'displayName',
+          englishKey: 'displayNameEn',
+          fallbackKey: 'fieldName',
+        ),
         value: (json['value'] ?? '').toString(),
         fieldTypeId: json['fieldTypeId']?.toString(),
         isPrimaryFilter: json['isPrimaryFilter'] as bool?,
@@ -187,7 +213,12 @@ class UnitFieldValueModel extends UnitFieldValue {
       valueId: '',
       fieldId: '',
       fieldName: (json['fieldName'] ?? '').toString(),
-      displayName: (json['displayName'] ?? '').toString(),
+      displayName: LocalizedApiValue.text(
+        json,
+        arabicKey: 'displayName',
+        englishKey: 'displayNameEn',
+        fallbackKey: 'fieldName',
+      ),
       value: (json['value'] ?? '').toString(),
       fieldTypeId: json['fieldTypeId']?.toString(),
       isPrimaryFilter: json['isPrimaryFilter'] as bool?,
@@ -227,9 +258,21 @@ class FieldGroupWithValuesModel extends FieldGroupWithValues {
   factory FieldGroupWithValuesModel.fromJson(Map<String, dynamic> json) {
     return FieldGroupWithValuesModel(
       groupId: (json['groupId'] ?? '').toString(),
-      groupName: (json['groupName'] ?? '').toString(),
-      displayName: (json['displayName'] ?? '').toString(),
-      description: (json['description'] ?? '').toString(),
+      groupName: LocalizedApiValue.text(
+        json,
+        arabicKey: 'groupName',
+        englishKey: 'groupNameEn',
+      ),
+      displayName: LocalizedApiValue.text(
+        json,
+        arabicKey: 'displayName',
+        englishKey: 'displayNameEn',
+      ),
+      description: LocalizedApiValue.text(
+        json,
+        arabicKey: 'description',
+        englishKey: 'descriptionEn',
+      ),
       fieldValues: (json['fieldValues'] as List?)
               ?.map((e) =>
                   UnitFieldValueModel.fromJson(Map<String, dynamic>.from(e)))

@@ -101,12 +101,13 @@ public class ResultDto<T>
     /// </summary>
     public static ResultDto<T> Failure(string arabicMessage, string? englishMessage = null, string? errorCode = null, bool showAsDialog = false)
     {
+        var message = arabicMessage ?? englishMessage ?? "common.operationFailed";
         return new ResultDto<T>
         {
             Success = false,
-            Message = arabicMessage ?? englishMessage,
+            Message = message,
             ErrorCode = errorCode,
-            Errors = new[] { arabicMessage ?? englishMessage ?? "خطأ غير محدد" },
+            Errors = new[] { message },
             ShowAsDialog = showAsDialog
         };
     }
@@ -120,7 +121,7 @@ public class ResultDto<T>
         return new ResultDto<T>
         {
             Success = false,
-            Message = message ?? "حدثت أخطاء متعددة",
+            Message = message ?? "common.operationFailed",
             ErrorCode = errorCode,
             Errors = errors,
             ShowAsDialog = showAsDialog
@@ -133,12 +134,13 @@ public class ResultDto<T>
     /// </summary>
     public static ResultDto<T> Failed(string arabicMessage, string? errorCode = null, bool showAsDialog = false)
     {
+        var message = arabicMessage ?? "common.operationFailed";
         return new ResultDto<T>
         {
             Success = false,
-            Message = arabicMessage,
+            Message = message,
             ErrorCode = errorCode,
-            Errors = new[] { arabicMessage },
+            Errors = new[] { message },
             ShowAsDialog = showAsDialog
         };
     }
@@ -235,12 +237,13 @@ public class ResultDto
     /// </summary>
     public static ResultDto Failure(string arabicMessage, string? englishMessage = null, string? errorCode = null, bool showAsDialog = false)
     {
+        var message = arabicMessage ?? englishMessage ?? "common.operationFailed";
         return new ResultDto
         {
             Success = false,
-            Message = arabicMessage ?? englishMessage,
+            Message = message,
             ErrorCode = errorCode,
-            Errors = new[] { arabicMessage ?? englishMessage ?? "خطأ غير محدد" },
+            Errors = new[] { message },
             ShowAsDialog = showAsDialog
         };
     }
@@ -254,7 +257,7 @@ public class ResultDto
         return new ResultDto
         {
             Success = false,
-            Message = message ?? "حدثت أخطاء متعددة",
+            Message = message ?? "common.operationFailed",
             ErrorCode = errorCode,
             Errors = errors,
             ShowAsDialog = showAsDialog
@@ -267,12 +270,13 @@ public class ResultDto
     /// </summary>
     public static ResultDto Failed(string? message = null, string? errorCode = null, bool showAsDialog = false)
     {
+        var resolvedMessage = message ?? "common.operationFailed";
         return new ResultDto
         {
             Success = false,
-            Message = message ?? "حدثت أخطاء متعددة",
+            Message = resolvedMessage,
             ErrorCode = errorCode,
-            Errors = new[] { message ?? "خطأ غير محدد" },
+            Errors = new[] { resolvedMessage },
             ShowAsDialog = showAsDialog
         };
     }

@@ -6,22 +6,27 @@ import '../models/service_model.dart';
 import '../models/service_details_model.dart';
 import '../../domain/entities/money.dart';
 import '../../domain/entities/pricing_model.dart';
+
 abstract class ServicesRemoteDataSource {
   Future<String> createService({
     required String propertyId,
     required String name,
+    String? nameEn,
     required Money price,
     required PricingModel pricingModel,
     required String icon,
     String? description,
+    String? descriptionEn,
   });
   Future<bool> updateService({
     required String serviceId,
     String? name,
+    String? nameEn,
     Money? price,
     PricingModel? pricingModel,
     String? icon,
     String? description,
+    String? descriptionEn,
   });
   Future<bool> deleteService(String serviceId);
   Future<List<ServiceModel>> getServicesByProperty(String propertyId);
@@ -32,6 +37,7 @@ abstract class ServicesRemoteDataSource {
     int? pageSize,
   });
 }
+
 class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
   /// العربية: يخزن القيمة `apiClient`.
   final ApiClient apiClient;
@@ -41,10 +47,12 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
   Future<String> createService({
     required String propertyId,
     required String name,
+    String? nameEn,
     required Money price,
     required PricingModel pricingModel,
     required String icon,
     String? description,
+    String? descriptionEn,
   }) async {
     try {
       final response = await apiClient.post(
@@ -52,6 +60,7 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
         data: {
           'propertyId': propertyId,
           'name': name,
+          if (nameEn != null) 'nameEn': nameEn,
           'price': {
             'amount': price.amount,
             'currency': price.currency,
@@ -60,6 +69,7 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
           'pricingModel': _toServerPricingModel(pricingModel),
           'icon': icon,
           if (description != null) 'description': description,
+          if (descriptionEn != null) 'descriptionEn': descriptionEn,
         },
       );
 
@@ -72,14 +82,17 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
       throw ApiException.fromDioError(e);
     }
   }
+
   @override
   Future<bool> updateService({
     required String serviceId,
     String? name,
+    String? nameEn,
     Money? price,
     PricingModel? pricingModel,
     String? icon,
     String? description,
+    String? descriptionEn,
   }) async {
     try {
       final data = <String, dynamic>{
@@ -87,6 +100,7 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
       };
 
       if (name != null) data['name'] = name;
+      if (nameEn != null) data['nameEn'] = nameEn;
       if (price != null) {
         data['price'] = {
           'amount': price.amount,
@@ -97,6 +111,7 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
         data['pricingModel'] = _toServerPricingModel(pricingModel);
       if (icon != null) data['icon'] = icon;
       if (description != null) data['description'] = description;
+      if (descriptionEn != null) data['descriptionEn'] = descriptionEn;
 
       final response = await apiClient.put(
         '$_adminBasePath/$serviceId',
@@ -108,6 +123,7 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
       throw ApiException.fromDioError(e);
     }
   }
+
   @override
   Future<bool> deleteService(String serviceId) async {
     try {
@@ -126,6 +142,7 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
       throw ApiException.fromDioError(e);
     }
   }
+
   @override
   Future<List<ServiceModel>> getServicesByProperty(String propertyId) async {
     try {
@@ -141,6 +158,7 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
       throw ApiException.fromDioError(e);
     }
   }
+
   @override
   Future<ServiceDetailsModel> getServiceDetails(String serviceId) async {
     try {
@@ -154,6 +172,7 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
       throw ApiException.fromDioError(e);
     }
   }
+
   @override
   Future<PaginatedResult<ServiceModel>> getServicesByType({
     required String serviceType,
@@ -177,6 +196,7 @@ class ServicesRemoteDataSourceImpl implements ServicesRemoteDataSource {
       throw ApiException.fromDioError(e);
     }
   }
+
   String _toServerPricingModel(PricingModel model) {
     // Backend enum YemenBooking.Core.Enums.PricingModel supports: Fixed, PerPerson, PerNight
     switch (model) {

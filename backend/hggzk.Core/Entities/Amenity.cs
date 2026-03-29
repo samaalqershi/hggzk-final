@@ -17,6 +17,13 @@ public class Amenity : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "اسم المرفق")]
     public string Name { get; set; }
+
+    /// <summary>
+    /// اسم المرفق باللغة الإنجليزية.
+    /// English amenity name.
+    /// </summary>
+    [Display(Name = "اسم المرفق بالإنجليزية")]
+    public string? NameEn { get; set; }
     
     /// <summary>
     /// وصف يوضح وظيفة المرفق أو فائدته.
@@ -24,6 +31,13 @@ public class Amenity : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "وصف المرفق")]
     public string Description { get; set; }
+
+    /// <summary>
+    /// وصف المرفق باللغة الإنجليزية.
+    /// English amenity description.
+    /// </summary>
+    [Display(Name = "وصف المرفق بالإنجليزية")]
+    public string? DescriptionEn { get; set; }
     
     /// <summary>
     /// الأيقونة المستخدمة لتمثيل المرفق.

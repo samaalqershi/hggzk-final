@@ -5,6 +5,8 @@ import 'dart:ui';
 import 'dart:math' as math;
 import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import '../../../../core/constants/storage_constants.dart';
+import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/localization/locale_manager.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/route_constants.dart';
@@ -315,7 +317,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
         // Welcome Text
         Text(
-          'مرحباً بعودتك',
+          context.tr('auth.login.welcomeBack'),
           style: AppTextStyles.h4.copyWith(
             color: AppTheme.textWhite,
             fontWeight: FontWeight.w500,
@@ -326,7 +328,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
         // Subtitle
         Text(
-          'سجل دخولك للمتابعة',
+          context.tr('auth.login.subtitle'),
           style: AppTextStyles.bodyMedium.copyWith(
             color: AppTheme.textMuted,
           ),
@@ -435,7 +437,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             children: [
               // Card Title
               Text(
-                'تسجيل الدخول',
+                context.tr('auth.login.cardTitle'),
                 style: AppTextStyles.h3.copyWith(
                   color: AppTheme.textWhite,
                   fontWeight: FontWeight.w600,
@@ -447,7 +449,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
               // Card Subtitle
               Text(
-                'أدخل بياناتك للمتابعة',
+                context.tr(
+                  'auth.login.cardSubtitle',
+                ),
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppTheme.textMuted,
                 ),
@@ -490,7 +494,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       child: Column(
         children: [
           Text(
-            'أو سجّل الدخول بالبصمة',
+            context.tr(
+              'auth.login.biometricPrompt',
+            ),
             style: AppTextStyles.bodySmall.copyWith(
               color: AppTheme.textMuted,
             ),
@@ -546,8 +552,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   Future<void> _onBiometricLoginPressed() async {
-    final result =
-        await _biometric.authenticate(reason: 'تأكيد هويتك لتسجيل الدخول');
+    final result = await _biometric.authenticate(
+      reason: await AppLocalizations.translate(
+        'auth.login.biometricReason',
+        locale: LocaleManager.getCurrentLocale(context),
+      ),
+    );
 
     if (!result.isSuccess) {
       if (mounted && result.message != null) {
@@ -569,8 +579,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     }
 
     if (refreshToken == null || refreshToken.isEmpty) {
+      if (!mounted) return;
       _showErrorSnackBar(
-        'لا يوجد رمز تحديث محفوظ. يرجى تسجيل الدخول مرة واحدة أولاً.',
+        context.tr('auth.login.noStoredSession'),
       );
       return;
     }
@@ -610,7 +621,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               ),
             ),
             child: Text(
-              'أو',
+              context.tr('common.or'),
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted,
               ),
@@ -654,7 +665,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'ليس لديك حساب؟',
+            context.tr('auth.register.noAccount'),
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppTheme.textMuted,
             ),
@@ -670,7 +681,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               shaderCallback: (bounds) =>
                   AppTheme.primaryGradient.createShader(bounds),
               child: Text(
-                'سجل الآن',
+                context.tr('auth.register.signUpNow'),
                 style: AppTextStyles.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -762,7 +773,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'خطأ في تسجيل الدخول',
+                      context.tr(
+                        'auth.login.errorTitle',
+                      ),
                       style: AppTextStyles.labelMedium.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,

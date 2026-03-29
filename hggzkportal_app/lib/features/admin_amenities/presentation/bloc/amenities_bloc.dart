@@ -214,7 +214,9 @@ class AmenitiesBloc extends Bloc<AmenitiesEvent, AmenitiesState> {
     final result = await createAmenityUseCase(
       CreateAmenityParams(
         name: event.name,
+        nameEn: event.nameEn,
         description: event.description,
+        descriptionEn: event.descriptionEn,
         icon: event.icon,
         propertyTypeId: event.propertyTypeId,
         isDefaultForType: event.isDefaultForType,
@@ -257,7 +259,9 @@ class AmenitiesBloc extends Bloc<AmenitiesEvent, AmenitiesState> {
       UpdateAmenityParams(
         amenityId: event.amenityId,
         name: event.name,
+        nameEn: event.nameEn,
         description: event.description,
+        descriptionEn: event.descriptionEn,
         icon: event.icon,
       ),
     );

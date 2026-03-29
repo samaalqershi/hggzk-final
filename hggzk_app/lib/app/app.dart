@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:hggzk/app/bloc/app_bloc.dart';
@@ -9,7 +8,6 @@ import 'package:hggzk/app/router/app_router.dart';
 import 'package:hggzk/core/bloc/theme/theme_bloc.dart';
 import 'package:hggzk/core/bloc/theme/theme_state.dart';
 import 'package:hggzk/core/localization/app_localizations.dart';
-import 'package:hggzk/core/localization/locale_manager.dart';
 import 'package:hggzk/core/theme/app_theme.dart';
 import 'package:hggzk/features/chat/presentation/providers/typing_indicator_provider.dart';
 import 'package:hggzk/features/settings/presentation/bloc/settings_bloc.dart';
@@ -40,19 +38,14 @@ class HggzkApp extends StatelessWidget {
           bloc: AppBloc.theme,
           builder: (context, themeState) {
             return MaterialApp.router(
-              title: 'hggzk',
+              onGenerateTitle: (context) => context.tr('app.appName'),
               debugShowCheckedModeBanner: false,
               theme: _buildAppTheme(Brightness.light),
               darkTheme: _buildAppTheme(Brightness.dark),
               themeMode: themeState.themeMode,
               locale: locale,
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: LocaleManager.supportedLocales,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
               routerConfig: AppRouter.build(context),
               builder: (context, child) {
                 AppTheme.init(context, mode: themeState.themeMode);

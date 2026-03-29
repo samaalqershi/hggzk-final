@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/models/paginated_result.dart';
 import '../../../../core/error/exceptions.dart';
 import '../models/search_properties_response_model.dart';
@@ -126,13 +127,17 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
       if (requiredAmenities != null &&
           requiredAmenities.isNotEmpty &&
           !Validators.areValidGuids(requiredAmenities)) {
-        throw ServerException('Invalid amenity GUIDs provided');
+        throw ServerException(
+          AppLocalizations.translateSync('core.search.invalidAmenityGuids'),
+        );
       }
 
       if (serviceIds != null &&
           serviceIds.isNotEmpty &&
           !Validators.areValidGuids(serviceIds)) {
-        throw ServerException('Invalid service GUIDs provided');
+        throw ServerException(
+          AppLocalizations.translateSync('core.search.invalidServiceGuids'),
+        );
       }
 
       final requestBody = <String, dynamic>{
@@ -184,14 +189,20 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
         );
       } else {
         throw ServerException(
-            response.data['message'] ?? 'Failed to search properties');
+          response.data['message'] ??
+              AppLocalizations.translateSync('core.search.failedSearch'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(
+        e.message ?? AppLocalizations.translateSync('core.search.networkError'),
+      );
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(
+        AppLocalizations.translateSync('core.search.unexpectedError'),
+      );
     }
   }
 
@@ -254,14 +265,20 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
         );
       } else {
         throw ServerException(
-            response.data['message'] ?? 'Failed to load search filters');
+          response.data['message'] ??
+              AppLocalizations.translateSync('core.search.failedFilters'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(
+        e.message ?? AppLocalizations.translateSync('core.search.networkError'),
+      );
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(
+        AppLocalizations.translateSync('core.search.unexpectedError'),
+      );
     }
   }
 
@@ -295,14 +312,20 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
         );
       } else {
         throw ServerException(
-            response.data['message'] ?? 'Failed to get suggestions');
+          response.data['message'] ??
+              AppLocalizations.translateSync('core.search.failedSuggestions'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(
+        e.message ?? AppLocalizations.translateSync('core.search.networkError'),
+      );
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(
+        AppLocalizations.translateSync('core.search.unexpectedError'),
+      );
     }
   }
 
@@ -340,14 +363,22 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
         );
       } else {
         throw ServerException(
-            response.data['message'] ?? 'Failed to get recommended properties');
+          response.data['message'] ??
+              AppLocalizations.translateSync(
+                'core.search.failedRecommendations',
+              ),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(
+        e.message ?? AppLocalizations.translateSync('core.search.networkError'),
+      );
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(
+        AppLocalizations.translateSync('core.search.unexpectedError'),
+      );
     }
   }
 
@@ -378,14 +409,22 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
         );
       } else {
         throw ServerException(
-            response.data['message'] ?? 'Failed to get popular destinations');
+          response.data['message'] ??
+              AppLocalizations.translateSync(
+                'core.search.failedPopularDestinations',
+              ),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(
+        e.message ?? AppLocalizations.translateSync('core.search.networkError'),
+      );
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(
+        AppLocalizations.translateSync('core.search.unexpectedError'),
+      );
     }
   }
 }

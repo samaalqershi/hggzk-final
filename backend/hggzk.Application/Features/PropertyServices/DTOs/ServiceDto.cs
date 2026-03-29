@@ -26,12 +26,14 @@ namespace YemenBooking.Application.Features.PropertyServices.DTOs {
         /// Property name
         /// </summary>
         public string PropertyName { get; set; }
+        public string? PropertyNameEn { get; set; }
 
         /// <summary>
         /// اسم الخدمة
         /// Service name
         /// </summary>
         public string Name { get; set; }
+        public string? NameEn { get; set; }
 
         /// <summary>
         /// أيقونة الخدمة
@@ -44,6 +46,7 @@ namespace YemenBooking.Application.Features.PropertyServices.DTOs {
         /// Service description
         /// </summary>
         public string? Description { get; set; }
+        public string? DescriptionEn { get; set; }
 
         /// <summary>
         /// سعر الخدمة

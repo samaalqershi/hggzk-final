@@ -35,24 +35,28 @@ namespace YemenBooking.Application.Features.Units.DTOs {
         /// Unit name
         /// </summary>
         public string Name { get; set; }
+        public string? NameEn { get; set; }
 
         /// <summary>
         /// الميزات المخصصة للوحدة (JSON)
         /// Custom features of the unit
         /// </summary>
         public string CustomFeatures { get; set; }
+        public string? CustomFeaturesEn { get; set; }
 
         /// <summary>
         /// اسم الكيان
         /// Property name
         /// </summary>
         public string PropertyName { get; set; }
+        public string? PropertyNameEn { get; set; }
 
         /// <summary>
         /// اسم نوع الوحدة
         /// Unit type name
         /// </summary>
         public string UnitTypeName { get; set; }
+        public string? UnitTypeNameEn { get; set; }
 
         /// <summary>
         /// طريقة حساب السعر

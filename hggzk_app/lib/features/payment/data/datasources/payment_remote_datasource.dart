@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../../../../core/models/result_dto.dart';
@@ -99,7 +100,8 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
           return resultDto;
         } else {
           throw ServerException(
-            resultDto.message ?? 'فشل في معالجة الدفع',
+            resultDto.message ??
+                AppLocalizations.translateSync('common.unexpectedError'),
             code: resultDto.errorCode ?? resultDto.code,
             showAsDialog: resultDto.showAsDialog,
           );
@@ -108,28 +110,36 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
         final data = response.data;
         if (data is Map<String, dynamic>) {
           throw ServerException(
-            data['message'] ?? 'فشل في معالجة الدفع',
+            data['message'] ??
+                AppLocalizations.translateSync('common.unexpectedError'),
             code: data['errorCode']?.toString() ?? data['code']?.toString(),
             showAsDialog: data['showAsDialog'] == true,
           );
         }
-        throw ServerException('فشل في معالجة الدفع');
+        throw ServerException(
+          AppLocalizations.translateSync('common.unexpectedError'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       final data = e.response?.data;
       if (data is Map<String, dynamic>) {
         throw ServerException(
-          data['message'] ?? e.message ?? 'حدث خطأ في الشبكة',
+          data['message'] ??
+              e.message ??
+              AppLocalizations.translateSync('common.noInternet'),
           code: data['errorCode']?.toString() ?? data['code']?.toString(),
           showAsDialog: data['showAsDialog'] == true,
         );
       }
-      throw ServerException(e.message ?? 'حدث خطأ في الشبكة');
+      throw ServerException(
+        e.message ?? AppLocalizations.translateSync('common.noInternet'),
+      );
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException('خطأ غير متوقع: $e');
+      throw ServerException(
+          AppLocalizations.translateSync('common.unexpectedError'));
     }
   }
 
@@ -185,15 +195,20 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
         );
       } else {
         throw ServerException(
-            response.data['message'] ?? 'فشل في جلب سجل المدفوعات');
+          response.data['message'] ??
+              AppLocalizations.translateSync('common.unexpectedError'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'حدث خطأ في الشبكة');
+      throw ServerException(
+        e.message ?? AppLocalizations.translateSync('common.noInternet'),
+      );
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException('خطأ غير متوقع: $e');
+      throw ServerException(
+          AppLocalizations.translateSync('common.unexpectedError'));
     }
   }
 }

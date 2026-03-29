@@ -105,6 +105,7 @@ namespace YemenBooking.Application.Features.SearchAndFilters.DTOs {
         /// يحصل أو يعيّن اسم المدينة.
         /// </summary>
         public string Name { get; set; } = string.Empty;
+        public string? NameEn { get; set; }
 
         /// <summary>
         /// Gets or sets the count of available properties in the city.
@@ -130,6 +131,7 @@ namespace YemenBooking.Application.Features.SearchAndFilters.DTOs {
         /// يحصل أو يعيّن اسم نوع العقار.
         /// </summary>
         public string Name { get; set; } = string.Empty;
+        public string? NameEn { get; set; }
 
         /// <summary>
         /// Gets or sets the count of available properties for the type.
@@ -157,12 +159,14 @@ namespace YemenBooking.Application.Features.SearchAndFilters.DTOs {
         /// يحصل أو يعيّن اسم وسيلة الراحة.
         /// </summary>
         public string Name { get; set; } = string.Empty;
+        public string? NameEn { get; set; }
 
         /// <summary>
         /// Gets or sets the amenity category.
         /// يحصل أو يعيّن فئة وسيلة الراحة.
         /// </summary>
         public string Category { get; set; } = string.Empty;
+        public string? CategoryEn { get; set; }
 
         /// <summary>
         /// Gets or sets the count of properties that expose this amenity.
@@ -200,6 +204,7 @@ namespace YemenBooking.Application.Features.SearchAndFilters.DTOs {
         /// يحصل أو يعيّن اسم نوع الوحدة.
         /// </summary>
         public string Name { get; set; } = string.Empty;
+        public string? NameEn { get; set; }
 
         /// <summary>
         /// Gets or sets the parent property-type identifier.
@@ -274,6 +279,7 @@ namespace YemenBooking.Application.Features.SearchAndFilters.DTOs {
         /// يحصل أو يعيّن اسم الخدمة.
         /// </summary>
         public string Name { get; set; } = string.Empty;
+        public string? NameEn { get; set; }
 
         /// <summary>
         /// Gets or sets the count of properties that provide the service.
@@ -305,6 +311,7 @@ namespace YemenBooking.Application.Features.SearchAndFilters.DTOs {
         /// يحصل أو يعيّن الاسم المعروض للحقل الديناميكي.
         /// </summary>
         public string DisplayName { get; set; } = string.Empty;
+        public string? DisplayNameEn { get; set; }
 
         /// <summary>
         /// Gets or sets the selectable value.

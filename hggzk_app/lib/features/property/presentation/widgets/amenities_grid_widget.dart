@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/amenity.dart';
@@ -121,6 +122,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
           final categoryAmenities = groupedAmenities[category]!;
 
           return _buildUltraMinimalCategory(
+            context,
             category,
             categoryAmenities,
             index,
@@ -133,6 +135,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
   /// Builds the ultra minimal empty state.
   /// العربية: يبني ultra minimal empty state.
   Widget _buildUltraMinimalEmptyState() {
+    final context = this.context;
     return Container(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -153,14 +156,14 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
           ),
           const SizedBox(height: 16),
           Text(
-            'لا توجد مرافق',
+            context.tr('property.amenities.emptyTitle'),
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppTheme.textWhite.withOpacity(0.7),
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            'سيتم إضافة المرافق قريباً',
+            context.tr('property.amenities.emptySubtitle'),
             style: AppTextStyles.caption.copyWith(
               color: AppTheme.textMuted.withOpacity(0.5),
             ),
@@ -173,6 +176,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
   /// Builds the ultra minimal category.
   /// العربية: يبني ultra minimal category.
   Widget _buildUltraMinimalCategory(
+    BuildContext context,
     String category,
     List<Amenity> amenities,
     int categoryIndex,
@@ -197,7 +201,11 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
           child: Column(
             children: [
               _buildMinimalCategoryHeader(
-                  category, categoryColor, amenities.length),
+                context,
+                category,
+                categoryColor,
+                amenities.length,
+              ),
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 height: isExpanded ? null : 0,
@@ -214,7 +222,12 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
 
   /// Builds the minimal category header.
   /// العربية: يبني minimal category header.
-  Widget _buildMinimalCategoryHeader(String category, Color color, int count) {
+  Widget _buildMinimalCategoryHeader(
+    BuildContext context,
+    String category,
+    Color color,
+    int count,
+  ) {
     final isExpanded = _expandedCategories[category] ?? false;
 
     return InkWell(
@@ -261,14 +274,17 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    category,
+                    _getCategoryDisplayName(context, category),
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppTheme.textWhite.withOpacity(0.9),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   Text(
-                    '$count مرافق',
+                    context.tr(
+                      'property.amenities.count',
+                      params: {'count': count},
+                    ),
                     style: AppTextStyles.caption.copyWith(
                       color: AppTheme.textMuted.withOpacity(0.5),
                     ),
@@ -443,7 +459,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
-                  'غير متوفر',
+                  context.tr('property.amenities.unavailable'),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.error.withOpacity(0.9),
                     fontWeight: FontWeight.w600,
@@ -455,6 +471,69 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
         ),
       ),
     );
+  }
+
+  /// Resolves a localized display label for amenity categories.
+  /// العربية: يعيد تسمية محلية لفئات المرافق.
+  String _getCategoryDisplayName(BuildContext context, String category) {
+    switch (category.toLowerCase()) {
+      case 'عام':
+      case 'general':
+        return context.tr('property.amenities.category.general');
+      case 'أساسيات':
+      case 'basics':
+        return context.tr('property.amenities.category.basics');
+      case 'مرافق':
+      case 'facilities':
+        return context.tr('property.amenities.category.facilities');
+      case 'خدمات':
+      case 'services':
+        return context.tr('property.amenities.category.services');
+      case 'ترفيه':
+      case 'entertainment':
+        return context.tr('property.amenities.category.entertainment');
+      case 'أمان':
+      case 'security':
+        return context.tr('property.amenities.category.security');
+      case 'مطبخ':
+      case 'kitchen':
+        return context.tr('property.amenities.category.kitchen');
+      case 'أجهزة':
+      case 'devices':
+        return context.tr('property.amenities.category.devices');
+      case 'حمام':
+      case 'bathroom':
+        return context.tr('property.amenities.category.bathroom');
+      case 'نوم':
+      case 'sleeping':
+        return context.tr('property.amenities.category.sleeping');
+      case 'رياضة':
+      case 'sports':
+        return context.tr('property.amenities.category.sports');
+      case 'مواصلات':
+      case 'transportation':
+        return context.tr('property.amenities.category.transportation');
+      case 'وصول':
+      case 'accessibility':
+        return context.tr('property.amenities.category.accessibility');
+      case 'خارجي':
+      case 'outdoor':
+        return context.tr('property.amenities.category.outdoor');
+      case 'أطفال':
+      case 'children':
+        return context.tr('property.amenities.category.children');
+      case 'حيوانات':
+      case 'pets':
+        return context.tr('property.amenities.category.pets');
+      case 'عمل':
+      case 'business':
+        return context.tr('property.amenities.category.business');
+      case 'ديني':
+      case 'religious':
+        return context.tr('property.amenities.category.religious');
+      default:
+        return category;
+    }
   }
 
   /// Exposes the category icon.

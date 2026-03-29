@@ -1,4 +1,74 @@
 import 'package:equatable/equatable.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
+
+String _normalizeFailureMessage(String message) {
+  final normalized = message.trim();
+  if (normalized.isEmpty) {
+    return AppLocalizations.translateSync('common.unexpectedError');
+  }
+
+  const directMap = <String, String>{
+    'Server error occurred': 'common.serverError',
+    'Invalid language code': 'common.invalidLanguageCode',
+  };
+
+  final directKey = directMap[normalized];
+  if (directKey != null) {
+    return AppLocalizations.translateSync(directKey);
+  }
+
+  if (normalized.startsWith('Invalid response structure') ||
+      normalized == 'Invalid response format' ||
+      normalized == 'Invalid availability response format' ||
+      normalized == 'Invalid amenity GUIDs provided' ||
+      normalized == 'Invalid service GUIDs provided') {
+    return AppLocalizations.translateSync('common.invalidResponse');
+  }
+
+  if (normalized == 'Invalid date value' ||
+      normalized.startsWith('FormatException:')) {
+    return AppLocalizations.translateSync('common.invalidData');
+  }
+
+  if (normalized.contains('feature not initialized')) {
+    return AppLocalizations.translateSync('common.featureNotInitialized');
+  }
+
+  if (normalized.startsWith('Network error')) {
+    return AppLocalizations.translateSync('common.noInternet');
+  }
+
+  if (normalized.startsWith('SocketException') ||
+      normalized.contains('xmlhttprequest error')) {
+    return AppLocalizations.translateSync('common.noInternet');
+  }
+
+  if (normalized.startsWith('Unexpected error:') ||
+      normalized.startsWith('Exception:') ||
+      normalized.startsWith('DioException') ||
+      normalized.startsWith('HttpException') ||
+      normalized.startsWith('PlatformException') ||
+      normalized.startsWith('type ') ||
+      normalized.contains('is not a subtype of type') ||
+      normalized.contains('null check operator used on a null value')) {
+    return AppLocalizations.translateSync('common.unexpectedError');
+  }
+
+  if (normalized.contains('cache expired') ||
+      normalized.contains('no cached ')) {
+    return AppLocalizations.translateSync('common.localStorageError');
+  }
+
+  if (normalized == 'Failed to refresh access token') {
+    return AppLocalizations.translateSync('common.sessionExpired');
+  }
+
+  if (normalized == 'Search failed' || normalized.startsWith('Failed to ')) {
+    return AppLocalizations.translateSync('common.operationFailed');
+  }
+
+  return normalized;
+}
 
 /// يمثل الطبقة العليا لجميع حالات الفشل التي يقرأها منطق المجال
 /// ويحوّلها إلى رسائل أو حالات UI مفهومة.
@@ -7,16 +77,26 @@ import 'package:equatable/equatable.dart';
 abstract class Failure extends Equatable {
   /// الرسالة المرافقة للفشل والمقصودة لعرضها أو تسجيلها.
   /// The message attached to the failure for display or logging.
-  final String message;
+  final String _message;
+
+  /// النص الخام قبل التطبيع المركزي.
+  /// Raw message before centralized normalization.
+  String get rawMessage => _message;
+
+  /// الرسالة النهائية بعد تمريرها على مطبّع الرسائل المركزي.
+  /// Final message after applying centralized normalization.
+  String get message => _normalizeFailureMessage(_message);
 
   /// يتيح إنشاء فشل عام عندما لا يوجد نوع أكثر تخصصًا.
   /// Allows a generic failure when no more specific subtype fits.
-  const Failure([this.message = 'An unexpected error occurred']);
+  Failure([String? message])
+      : _message =
+            message ?? AppLocalizations.translateSync('common.unexpectedError');
 
   /// يحدد الرسالة وحدها كأساس للمقارنة.
   /// Uses the message as the equality anchor.
   @override
-  List<Object> get props => [message];
+  List<Object> get props => [_message];
 }
 
 // General failures
@@ -33,23 +113,24 @@ class ServerFailure extends Failure {
 
   /// يستخدم عندما يكون لدينا فشل خادم عام بدون معلومات إضافية.
   /// Used for a generic server failure without extra metadata.
-  const ServerFailure([super.message = 'Server failure'])
+  ServerFailure([String? message])
       : code = null,
-        showAsDialog = false;
+        showAsDialog = false,
+        super(message ?? AppLocalizations.translateSync('common.serverError'));
 
   /// يستخدم عندما نعرف الرسالة أو الرمز أو نريد التحكم في طريقة العرض.
   /// Used when message, code, or dialog presentation need explicit
   /// control.
-  const ServerFailure.meta({
-    String message = 'Server failure',
+  ServerFailure.meta({
+    String? message,
     this.code,
     this.showAsDialog = false,
-  }) : super(message);
+  }) : super(message ?? AppLocalizations.translateSync('common.serverError'));
 
   /// يجعل الرسالة والرمز وخيار الحوار جزءًا من المقارنة.
   /// Includes message, code, and dialog flag in equality checks.
   @override
-  List<Object> get props => [message, code ?? '', showAsDialog];
+  List<Object> get props => [rawMessage, code ?? '', showAsDialog];
 }
 
 /// يشير إلى فشل في التخزين المحلي أو القراءة منه.
@@ -57,7 +138,10 @@ class ServerFailure extends Failure {
 class CacheFailure extends Failure {
   /// يستخدم عندما تكون طبقة التخزين المحلي هي مصدر المشكلة.
   /// Used when the local persistence layer is the source of failure.
-  const CacheFailure([super.message = 'Cache failure']);
+  CacheFailure([String? message])
+      : super(
+          message ?? AppLocalizations.translateSync('common.localStorageError'),
+        );
 }
 
 /// يشير إلى أن الاتصال بالشبكة نفسه لم ينجح.
@@ -65,7 +149,8 @@ class CacheFailure extends Failure {
 class NetworkFailure extends Failure {
   /// يستخدم عندما لا يمكن الوصول إلى الخادم بسبب الشبكة.
   /// Used when the backend cannot be reached due to connectivity.
-  const NetworkFailure([super.message = 'Network failure']);
+  NetworkFailure([String? message])
+      : super(message ?? AppLocalizations.translateSync('common.noInternet'));
 }
 
 /// يشير إلى فشل عام في المصادقة.
@@ -73,7 +158,10 @@ class NetworkFailure extends Failure {
 class AuthFailure extends Failure {
   /// يستخدم عندما تكون المشكلة مرتبطة بتسجيل الدخول أو الجلسة.
   /// Used when the issue is tied to login or session handling.
-  const AuthFailure([super.message = 'Authentication failure']);
+  AuthFailure([String? message])
+      : super(
+          message ?? AppLocalizations.translateSync('common.unauthorized'),
+        );
 }
 
 /// يصف فشل التحقق مع خريطة أخطاء تفصيلية يمكن عرضها في النموذج.
@@ -86,12 +174,13 @@ class ValidationFailure extends Failure {
 
   /// يستخدم عندما يفشل التحقق لكننا لا نحتاج إلى تفاصيل الحقول.
   /// Used when validation fails but field-level details are optional.
-  const ValidationFailure([super.message = 'Validation failure', this.errors]);
+  ValidationFailure([String? message, this.errors])
+      : super(message ?? AppLocalizations.translateSync('common.invalidData'));
 
   /// يضم الرسالة والخريطة التفصيلية في المقارنة.
   /// Includes the message and validation map in equality checks.
   @override
-  List<Object> get props => [message, errors ?? {}];
+  List<Object> get props => [rawMessage, errors ?? {}];
 }
 
 /// يشير إلى أن المورد المطلوب غير موجود.
@@ -99,7 +188,8 @@ class ValidationFailure extends Failure {
 class NotFoundFailure extends Failure {
   /// يستخدم عند غياب المورد المقصود.
   /// Used when the target resource is missing.
-  const NotFoundFailure([super.message = 'Resource not found']);
+  NotFoundFailure([String? message])
+      : super(message ?? AppLocalizations.translateSync('common.notFound'));
 }
 
 /// يشير إلى أن الطلب افتقد اعتمادًا صالحًا.
@@ -107,7 +197,8 @@ class NotFoundFailure extends Failure {
 class UnauthorizedFailure extends Failure {
   /// يستخدم عندما لا توجد صلاحية للدخول إلى المورد.
   /// Used when access to the resource is not permitted.
-  const UnauthorizedFailure([super.message = 'Unauthorized access']);
+  UnauthorizedFailure([String? message])
+      : super(message ?? AppLocalizations.translateSync('common.unauthorized'));
 }
 
 /// يشير إلى أن الطلب تجاوز الزمن المسموح به.
@@ -115,7 +206,10 @@ class UnauthorizedFailure extends Failure {
 class TimeoutFailure extends Failure {
   /// يستخدم عندما يستغرق الاتصال أو الاستجابة وقتًا أطول من اللازم.
   /// Used when the network or backend response took too long.
-  const TimeoutFailure([super.message = 'Request timeout']);
+  TimeoutFailure([String? message])
+      : super(
+          message ?? AppLocalizations.translateSync('common.requestTimeout'),
+        );
 }
 
 /// يغطي الحالات التي لا نستطيع تصنيفها تحت نوع أدق.
@@ -123,7 +217,10 @@ class TimeoutFailure extends Failure {
 class UnknownFailure extends Failure {
   /// يستخدم كملاذ أخير للحالات غير المتوقعة.
   /// Used as a last resort for unexpected conditions.
-  const UnknownFailure([super.message = 'Unknown failure']);
+  UnknownFailure([String? message])
+      : super(
+          message ?? AppLocalizations.translateSync('common.unexpectedError'),
+        );
 }
 
 /// يشير إلى فشل مصادقة أعمق من مجرد غياب الصلاحية.
@@ -132,7 +229,10 @@ class UnknownFailure extends Failure {
 class AuthenticationFailure extends Failure {
   /// يستخدم عند فشل التحقق من هوية المستخدم نفسها.
   /// Used when the user identity itself cannot be verified.
-  const AuthenticationFailure([super.message = 'Authentication failure']);
+  AuthenticationFailure([String? message])
+      : super(
+          message ?? AppLocalizations.translateSync('common.unauthorized'),
+        );
 }
 
 /// يمثل فشلًا صريحًا من طبقة API مع رمز محدد.
@@ -144,13 +244,12 @@ class ApiFailure extends Failure {
 
   /// يستخدم عندما يرسل الـ API رسالة ورمزًا يمكن التعامل معهما.
   /// Used when the API provides a message and code the app can act on.
-  const ApiFailure({required String message, required this.code})
-      : super(message);
+  ApiFailure({required String message, required this.code}) : super(message);
 
   /// يضم الرسالة والرمز في المقارنة.
   /// Includes message and code in equality checks.
   @override
-  List<Object> get props => [message, code];
+  List<Object> get props => [rawMessage, code];
 }
 
 /// يشير إلى انتهاء الجلسة المصادقة.
@@ -158,7 +257,10 @@ class ApiFailure extends Failure {
 class SessionExpiredFailure extends Failure {
   /// يستخدم عندما ينبغي إعادة تسجيل الدخول.
   /// Used when the user needs to sign in again.
-  const SessionExpiredFailure([super.message = 'Session expired']);
+  SessionExpiredFailure([String? message])
+      : super(
+          message ?? AppLocalizations.translateSync('common.sessionExpired'),
+        );
 }
 
 /// يشير إلى أن المستخدم لا يملك إذنًا كافيًا.
@@ -166,7 +268,10 @@ class SessionExpiredFailure extends Failure {
 class PermissionDeniedFailure extends Failure {
   /// يستخدم عندما يكون المورد محجوبًا بسبب الصلاحيات.
   /// Used when access is blocked by permissions.
-  const PermissionDeniedFailure([super.message = 'Permission denied']);
+  PermissionDeniedFailure([String? message])
+      : super(
+          message ?? AppLocalizations.translateSync('common.permissionDenied'),
+        );
 }
 
 /// نسخة من فشل التحقق تحتفظ بتفاصيل الحقول كاملة.
@@ -178,12 +283,11 @@ class ValidationFailureWithErrors extends Failure {
 
   /// يستخدم عندما يحتاج النموذج إلى عرض أخطاء حقلية مباشرة.
   /// Used when the form needs to surface direct field-level feedback.
-  const ValidationFailureWithErrors(
-      {required String message, required this.errors})
+  ValidationFailureWithErrors({required String message, required this.errors})
       : super(message);
 
   /// يجعل الرسالة وخريطة الأخطاء جزءًا من المقارنة.
   /// Includes the message and error map in equality checks.
   @override
-  List<Object> get props => [message, errors];
+  List<Object> get props => [rawMessage, errors];
 }

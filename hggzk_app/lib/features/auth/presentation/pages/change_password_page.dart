@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
 import 'dart:math' as math;
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../bloc/auth_bloc.dart';
@@ -113,16 +114,16 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
       _passwordStrength = strength.clamp(0.0, 1.0);
 
       if (_passwordStrength <= 0.25) {
-        _passwordStrengthText = 'ضعيفة';
+        _passwordStrengthText = context.tr('auth.passwordStrength.weak');
         _passwordStrengthColor = AppTheme.error;
       } else if (_passwordStrength <= 0.5) {
-        _passwordStrengthText = 'متوسطة';
+        _passwordStrengthText = context.tr('auth.passwordStrength.medium');
         _passwordStrengthColor = AppTheme.warning;
       } else if (_passwordStrength <= 0.75) {
-        _passwordStrengthText = 'جيدة';
+        _passwordStrengthText = context.tr('auth.passwordStrength.good');
         _passwordStrengthColor = AppTheme.info;
       } else {
-        _passwordStrengthText = 'قوية جداً';
+        _passwordStrengthText = context.tr('auth.passwordStrength.strong');
         _passwordStrengthColor = AppTheme.success;
       }
     });
@@ -339,7 +340,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
           // Title
           Expanded(
             child: Text(
-              'تغيير كلمة المرور',
+              context.tr(
+                'auth.changePassword.title',
+              ),
               style: AppTextStyles.h3.copyWith(
                 color: AppTheme.textWhite,
                 fontWeight: FontWeight.w600,
@@ -457,7 +460,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
           shaderCallback: (bounds) =>
               AppTheme.primaryGradient.createShader(bounds),
           child: Text(
-            'تأمين حسابك',
+            context.tr(
+              'auth.changePassword.securityTitle',
+            ),
             style: AppTextStyles.h3.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w600,
@@ -468,7 +473,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
         const SizedBox(height: 4),
 
         Text(
-          'قم بتغيير كلمة المرور لحماية حسابك',
+          context.tr(
+            'auth.changePassword.securitySubtitle',
+          ),
           style: AppTextStyles.bodySmall.copyWith(
             color: AppTheme.textMuted.withOpacity(0.7),
           ),
@@ -507,8 +514,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
                 _buildPasswordField(
                   controller: _currentController,
                   focusNode: _currentFocusNode,
-                  label: 'كلمة المرور الحالية',
-                  hint: '••••••••',
+                  label: context.tr(
+                    'auth.changePassword.currentLabel',
+                  ),
+                  hint: context.tr(
+                    'auth.changePassword.currentHint',
+                  ),
                   obscureText: _obscureCurrent,
                   enabled: !isLoading,
                   onToggleVisibility: () {
@@ -516,7 +527,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
                   },
                   validator: (v) {
                     if (v == null || v.isEmpty) {
-                      return 'أدخل كلمة المرور الحالية';
+                      return context.tr(
+                        'auth.changePassword.currentRequired',
+                      );
                     }
                     return null;
                   },
@@ -527,8 +540,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
                 _buildPasswordField(
                   controller: _newController,
                   focusNode: _newFocusNode,
-                  label: 'كلمة المرور الجديدة',
-                  hint: '••••••••',
+                  label: context.tr(
+                    'auth.changePassword.newLabel',
+                  ),
+                  hint: context.tr(
+                    'auth.changePassword.newHint',
+                  ),
                   obscureText: _obscureNew,
                   enabled: !isLoading,
                   showStrength: true,
@@ -537,10 +554,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
                   },
                   validator: (v) {
                     if (v == null || v.length < 8) {
-                      return 'الحد الأدنى 8 أحرف';
+                      return context.tr(
+                        'auth.changePassword.newMin8',
+                      );
                     }
                     if (v == _currentController.text) {
-                      return 'كلمة المرور الجديدة مطابقة للحالية';
+                      return context.tr(
+                        'auth.changePassword.newDifferent',
+                      );
                     }
                     return null;
                   },
@@ -557,8 +578,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
                 _buildPasswordField(
                   controller: _confirmController,
                   focusNode: _confirmFocusNode,
-                  label: 'تأكيد كلمة المرور الجديدة',
-                  hint: '••••••••',
+                  label: context.tr(
+                    'auth.changePassword.confirmLabel',
+                  ),
+                  hint: context.tr(
+                    'auth.changePassword.confirmHint',
+                  ),
                   obscureText: _obscureConfirm,
                   enabled: !isLoading,
                   onToggleVisibility: () {
@@ -566,10 +591,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
                   },
                   validator: (v) {
                     if (v == null || v.isEmpty) {
-                      return 'أدخل تأكيد كلمة المرور';
+                      return context.tr(
+                        'auth.changePassword.confirmRequired',
+                      );
                     }
                     if (v != _newController.text) {
-                      return 'كلمة المرور غير متطابقة';
+                      return context.tr(
+                        'auth.changePassword.confirmMismatch',
+                      );
                     }
                     return null;
                   },
@@ -783,7 +812,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
               ),
               const SizedBox(width: 8),
               Text(
-                'نصائح لكلمة مرور قوية',
+                context.tr(
+                  'auth.changePassword.tipsTitle',
+                ),
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppTheme.info,
                   fontWeight: FontWeight.w600,
@@ -793,10 +824,18 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
           ),
           const SizedBox(height: 8),
           ...[
-            'استخدم 8 أحرف على الأقل',
-            'امزج بين الأحرف الكبيرة والصغيرة',
-            'أضف أرقاماً ورموزاً خاصة',
-            'تجنب المعلومات الشخصية',
+            context.tr(
+              'auth.changePassword.tipLength',
+            ),
+            context.tr(
+              'auth.changePassword.tipCase',
+            ),
+            context.tr(
+              'auth.changePassword.tipNumbers',
+            ),
+            context.tr(
+              'auth.changePassword.tipPrivate',
+            ),
           ].map((tip) => Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Row(
@@ -870,7 +909,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      'جاري التحديث...',
+                      context.tr(
+                        'auth.changePassword.loading',
+                      ),
                       style: AppTextStyles.bodySmall.copyWith(
                         color: Colors.white.withOpacity(0.8),
                       ),
@@ -895,7 +936,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      'تغيير كلمة المرور',
+                      context.tr(
+                        'auth.changePassword.submit',
+                      ),
                       style: AppTextStyles.buttonMedium.copyWith(
                         color: Colors.white,
                       ),
@@ -911,7 +954,11 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
     if (!_formKey.currentState!.validate()) return;
 
     if (_newController.text != _confirmController.text) {
-      _showErrorSnackBar('كلمة المرور الجديدة وتأكيدها غير متطابقين');
+      _showErrorSnackBar(
+        context.tr(
+          'auth.changePassword.submitMismatch',
+        ),
+      );
       return;
     }
 
@@ -972,7 +1019,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
               ),
               const SizedBox(height: 16),
               Text(
-                'تم التغيير بنجاح',
+                context.tr(
+                  'auth.changePassword.successTitle',
+                ),
                 style: AppTextStyles.h3.copyWith(
                   color: AppTheme.textWhite,
                 ),
@@ -1001,7 +1050,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage>
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
-                    'حسناً',
+                    context.tr('common.ok'),
                     style: AppTextStyles.buttonMedium.copyWith(
                       color: Colors.white,
                     ),

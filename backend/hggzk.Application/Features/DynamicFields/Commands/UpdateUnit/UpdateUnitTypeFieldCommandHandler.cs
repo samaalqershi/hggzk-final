@@ -147,14 +147,18 @@ public class UpdateUnitTypeFieldCommandHandler : IRequestHandler<UpdateUnitTypeF
                 // Step 7: Update the field / الخطوة 7: تحديث الحقل الديناميكي
                 existingField.FieldName = request.FieldName;
                 existingField.DisplayName = request.DisplayName;
+                existingField.DisplayNameEn = string.IsNullOrWhiteSpace(request.DisplayNameEn) ? null : request.DisplayNameEn.Trim();
                 existingField.Description = request.Description;
+                existingField.DescriptionEn = string.IsNullOrWhiteSpace(request.DescriptionEn) ? null : request.DescriptionEn.Trim();
                 existingField.FieldOptions = JsonHelper.SafeSerializeDictionary(request.FieldOptions);
+                existingField.FieldOptionsEn = JsonHelper.SafeSerializeDictionary(request.FieldOptionsEn);
                 existingField.ValidationRules = JsonHelper.SafeSerializeDictionary(request.ValidationRules);
                 existingField.IsRequired = request.IsRequired;
                 existingField.IsSearchable = request.IsSearchable;
                 existingField.IsPublic = request.IsPublic;
                 existingField.SortOrder = request.SortOrder;
                 existingField.Category = request.Category;
+                existingField.CategoryEn = string.IsNullOrWhiteSpace(request.CategoryEn) ? null : request.CategoryEn.Trim();
                 existingField.IsForUnits = request.IsForUnits;
                 existingField.ShowInCards = request.ShowInCards ?? existingField.ShowInCards;
                 existingField.IsPrimaryFilter = request.IsPrimaryFilter ?? existingField.IsPrimaryFilter;
@@ -249,14 +253,18 @@ public class UpdateUnitTypeFieldCommandHandler : IRequestHandler<UpdateUnitTypeF
                 newValues: JsonSerializer.Serialize(new {
                     updatedField.FieldName,
                     updatedField.DisplayName,
+                    updatedField.DisplayNameEn,
                     updatedField.Description,
+                    updatedField.DescriptionEn,
                     updatedField.FieldOptions,
+                    updatedField.FieldOptionsEn,
                     updatedField.ValidationRules,
                     updatedField.IsRequired,
                     updatedField.IsSearchable,
                     updatedField.IsPublic,
                     updatedField.SortOrder,
-                    updatedField.Category
+                    updatedField.Category,
+                    updatedField.CategoryEn
                 }),
                 performedBy: _currentUserService.UserId,
                 notes: $"تم تحديث الحقل الديناميكي: {updatedField.FieldName} لنوع الوحدة: {updatedField.UnitTypeId} بواسطة {_currentUserService.Username} (ID={_currentUserService.UserId})",

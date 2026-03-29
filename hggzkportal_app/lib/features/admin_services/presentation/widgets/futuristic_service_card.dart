@@ -28,6 +28,7 @@ class FuturisticServiceCard extends StatefulWidget {
   @override
   State<FuturisticServiceCard> createState() => _FuturisticServiceCardState();
 }
+
 class _FuturisticServiceCardState extends State<FuturisticServiceCard>
     with TickerProviderStateMixin {
   // Animation Controllers
@@ -48,6 +49,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
     super.initState();
     _initAnimations();
   }
+
   void _initAnimations() {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -96,6 +98,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       curve: Curves.linear,
     ));
   }
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -103,6 +106,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
     _pulseController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -183,6 +187,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
+
   Widget _buildMainCard({
     required IconData icon,
     required bool isMobile,
@@ -256,6 +261,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
+
   Widget _buildCardContent({
     required IconData icon,
     required bool isMobile,
@@ -270,6 +276,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       return _buildDesktopLayout(icon);
     }
   }
+
   Widget _buildMobileLayout(IconData icon) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -325,15 +332,37 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Flexible(
-                            child: Text(
-                              widget.service.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: AppTheme.textWhite,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  widget.service.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: AppTheme.textWhite,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                if (_normalizedSecondary(
+                                      widget.service.nameEn,
+                                      widget.service.name,
+                                    ) !=
+                                    null)
+                                  Text(
+                                    _normalizedSecondary(
+                                      widget.service.nameEn,
+                                      widget.service.name,
+                                    )!,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppTheme.textMuted,
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -350,14 +379,38 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                                   AppTheme.primaryBlue.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: Text(
-                              widget.service.propertyName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.caption.copyWith(
-                                color: AppTheme.primaryBlue,
-                                fontSize: 10,
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  widget.service.propertyName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppTheme.primaryBlue,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                                if (_normalizedSecondary(
+                                      widget.service.propertyNameEn,
+                                      widget.service.propertyName,
+                                    ) !=
+                                    null)
+                                  Text(
+                                    _normalizedSecondary(
+                                      widget.service.propertyNameEn,
+                                      widget.service.propertyName,
+                                    )!,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppTheme.primaryBlue
+                                          .withValues(alpha: 0.75),
+                                      fontSize: 9,
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
                         ],
@@ -490,6 +543,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       },
     );
   }
+
   Widget _buildTabletLayout(IconData icon) {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -544,6 +598,25 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                if (_normalizedSecondary(
+                      widget.service.nameEn,
+                      widget.service.name,
+                    ) !=
+                    null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      _normalizedSecondary(
+                        widget.service.nameEn,
+                        widget.service.name,
+                      )!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppTheme.textMuted,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
@@ -561,14 +634,38 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                             width: 0.5,
                           ),
                         ),
-                        child: Text(
-                          widget.service.propertyName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppTheme.primaryBlue,
-                            fontSize: 11,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              widget.service.propertyName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppTheme.primaryBlue,
+                                fontSize: 11,
+                              ),
+                            ),
+                            if (_normalizedSecondary(
+                                  widget.service.propertyNameEn,
+                                  widget.service.propertyName,
+                                ) !=
+                                null)
+                              Text(
+                                _normalizedSecondary(
+                                  widget.service.propertyNameEn,
+                                  widget.service.propertyName,
+                                )!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppTheme.primaryBlue
+                                      .withValues(alpha: 0.75),
+                                  fontSize: 10,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     ),
@@ -651,6 +748,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
+
   Widget _buildDesktopLayout(IconData icon) {
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -719,6 +817,25 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                if (_normalizedSecondary(
+                      widget.service.nameEn,
+                      widget.service.name,
+                    ) !=
+                    null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      _normalizedSecondary(
+                        widget.service.nameEn,
+                        widget.service.name,
+                      )!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppTheme.textMuted,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -742,6 +859,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Icon(
                             Icons.business_rounded,
@@ -749,14 +867,37 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
                             color: AppTheme.primaryBlue.withValues(alpha: 0.8),
                           ),
                           const SizedBox(width: 6),
-                          Text(
-                            widget.service.propertyName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppTheme.primaryBlue,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                widget.service.propertyName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppTheme.primaryBlue,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              if (_normalizedSecondary(
+                                    widget.service.propertyNameEn,
+                                    widget.service.propertyName,
+                                  ) !=
+                                  null)
+                                Text(
+                                  _normalizedSecondary(
+                                    widget.service.propertyNameEn,
+                                    widget.service.propertyName,
+                                  )!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppTheme.primaryBlue
+                                        .withValues(alpha: 0.75),
+                                  ),
+                                ),
+                            ],
                           ),
                         ],
                       ),
@@ -853,6 +994,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
+
   Widget _buildShimmerOverlay() {
     return Positioned.fill(
       child: AnimatedBuilder(
@@ -885,6 +1027,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
+
   Widget _buildSelectionIndicator() {
     return Positioned(
       top: 8,
@@ -911,6 +1054,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
+
   Widget _buildMobileActionButton() {
     return Container(
       width: 32,
@@ -940,6 +1084,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
+
   Widget _buildActionButton({
     required IconData icon,
     required String label,
@@ -991,6 +1136,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ),
     );
   }
+
   Widget _buildDesktopActions() {
     return Row(
       children: [
@@ -1024,6 +1170,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
       ],
     );
   }
+
   List<PopupMenuEntry<String>> _buildMenuItems() {
     return [
       if (widget.onEdit != null)
@@ -1072,6 +1219,7 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
         ),
     ];
   }
+
   void _handleAction(String value) {
     HapticFeedback.lightImpact();
     switch (value) {
@@ -1082,5 +1230,18 @@ class _FuturisticServiceCardState extends State<FuturisticServiceCard>
         widget.onDelete?.call();
         break;
     }
+  }
+
+  String? _normalizedSecondary(String? secondary, String primary) {
+    final normalized = secondary?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      return null;
+    }
+
+    if (normalized == primary.trim()) {
+      return null;
+    }
+
+    return normalized;
   }
 }

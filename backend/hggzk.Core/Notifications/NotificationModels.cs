@@ -27,10 +27,34 @@ namespace YemenBooking.Core.Notifications
         public string Title { get; set; } = null!;
 
         /// <summary>
+        /// عنوان الإشعار بالعربية عند توفر نسخة مزدوجة.
+        /// Arabic notification title when a dual-language variant is available.
+        /// </summary>
+        public string? TitleAr { get; set; }
+
+        /// <summary>
+        /// عنوان الإشعار بالإنجليزية عند توفر نسخة مزدوجة.
+        /// English notification title when a dual-language variant is available.
+        /// </summary>
+        public string? TitleEn { get; set; }
+
+        /// <summary>
         /// رسالة الإشعار
         /// Notification message
         /// </summary>
         public string Message { get; set; } = null!;
+
+        /// <summary>
+        /// رسالة الإشعار بالعربية عند توفر نسخة مزدوجة.
+        /// Arabic notification message when a dual-language variant is available.
+        /// </summary>
+        public string? MessageAr { get; set; }
+
+        /// <summary>
+        /// رسالة الإشعار بالإنجليزية عند توفر نسخة مزدوجة.
+        /// English notification message when a dual-language variant is available.
+        /// </summary>
+        public string? MessageEn { get; set; }
 
         /// <summary>
         /// بيانات إضافية للإشعار

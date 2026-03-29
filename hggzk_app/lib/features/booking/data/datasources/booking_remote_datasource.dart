@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:hggzk/core/enums/booking_status.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/models/paginated_result.dart';
 import '../../../../core/models/result_dto.dart';
@@ -86,6 +87,18 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
   /// العربية: ينشئ مثيلًا جديدًا من `BookingRemoteDataSourceImpl`.
   BookingRemoteDataSourceImpl({required this.apiClient});
 
+  String _operationFailed() {
+    return AppLocalizations.translateSync('common.operationFailed');
+  }
+
+  String _networkError() {
+    return AppLocalizations.translateSync('common.noInternet');
+  }
+
+  String _unexpectedError() {
+    return AppLocalizations.translateSync('common.unexpectedError');
+  }
+
   /// العربية: ينشئ booking.
   @override
   Future<ResultDto<BookingModel>> createBooking(
@@ -111,20 +124,18 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         if (resultDto.success && resultDto.data != null) {
           return resultDto;
         } else {
-          throw ServerException(
-              resultDto.message ?? 'Failed to create booking');
+          throw ServerException(resultDto.message ?? _operationFailed());
         }
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to create booking');
+        throw ServerException(response.data['message'] ?? _operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 
@@ -163,24 +174,23 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           (json) => UnitAvailableDaysModel.fromJson(json),
         );
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to get available days');
+        throw ServerException(response.data['message'] ?? _operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       final data = e.response?.data;
       if (data is Map<String, dynamic>) {
         throw ServerException(
-          data['message'] ?? e.message ?? 'Network error occurred',
+          data['message'] ?? e.message ?? _networkError(),
           code: data['errorCode']?.toString() ?? data['code']?.toString(),
           showAsDialog: data['showAsDialog'] == true,
         );
       }
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 
@@ -245,7 +255,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           );
         } else {
           throw ServerException(
-            resultDto.message ?? 'Failed to update booking',
+            resultDto.message ?? _operationFailed(),
             code: resultDto.errorCode ?? resultDto.code,
             showAsDialog: resultDto.showAsDialog,
           );
@@ -254,28 +264,28 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         final data = response.data;
         if (data is Map<String, dynamic>) {
           throw ServerException(
-            data['message'] ?? 'Failed to update booking',
+            data['message'] ?? _operationFailed(),
             code: data['errorCode']?.toString() ?? data['code']?.toString(),
             showAsDialog: data['showAsDialog'] == true,
           );
         }
-        throw const ServerException('Failed to update booking');
+        throw ServerException(_operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       final data = e.response?.data;
       if (data is Map<String, dynamic>) {
         throw ServerException(
-          data['message'] ?? e.message ?? 'Network error occurred',
+          data['message'] ?? e.message ?? _networkError(),
           code: data['errorCode']?.toString() ?? data['code']?.toString(),
           showAsDialog: data['showAsDialog'] == true,
         );
       }
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 
@@ -304,16 +314,15 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           (json) => BookingModel.fromJson(json),
         );
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to get booking details');
+        throw ServerException(response.data['message'] ?? _operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 
@@ -359,7 +368,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           );
         } else {
           throw ServerException(
-            resultDto.message ?? 'Failed to cancel booking',
+            resultDto.message ?? _operationFailed(),
             code: resultDto.errorCode ?? resultDto.code,
             showAsDialog: resultDto.showAsDialog,
           );
@@ -368,28 +377,28 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         final data = response.data;
         if (data is Map<String, dynamic>) {
           throw ServerException(
-            data['message'] ?? 'Failed to cancel booking',
+            data['message'] ?? _operationFailed(),
             code: data['errorCode']?.toString() ?? data['code']?.toString(),
             showAsDialog: data['showAsDialog'] == true,
           );
         }
-        throw const ServerException('Failed to cancel booking');
+        throw ServerException(_operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       final data = e.response?.data;
       if (data is Map<String, dynamic>) {
         throw ServerException(
-          data['message'] ?? e.message ?? 'Network error occurred',
+          data['message'] ?? e.message ?? _networkError(),
           code: data['errorCode']?.toString() ?? data['code']?.toString(),
           showAsDialog: data['showAsDialog'] == true,
         );
       }
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 
@@ -435,16 +444,15 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           ),
         );
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to get user bookings');
+        throw ServerException(response.data['message'] ?? _operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 
@@ -481,16 +489,15 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           (json) => json,
         );
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to get booking summary');
+        throw ServerException(response.data['message'] ?? _operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 
@@ -528,19 +535,18 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         if (resultDto.success && resultDto.data != null) {
           return resultDto;
         } else {
-          throw ServerException(resultDto.message ?? 'Failed to add service');
+          throw ServerException(resultDto.message ?? _operationFailed());
         }
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to add service to booking');
+        throw ServerException(response.data['message'] ?? _operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 
@@ -584,16 +590,15 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           (json) => UnitAvailabilityModel.fromJson(json),
         );
       } else {
-        throw ServerException(
-            response.data['message'] ?? 'Failed to check availability');
+        throw ServerException(response.data['message'] ?? _operationFailed());
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.message ?? 'Network error occurred');
+      throw ServerException(e.message ?? _networkError());
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException('Unexpected error: $e');
+      throw ServerException(_unexpectedError());
     }
   }
 

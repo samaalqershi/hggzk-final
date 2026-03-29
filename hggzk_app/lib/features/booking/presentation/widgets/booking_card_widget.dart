@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
@@ -147,10 +148,10 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
                   // Content
                   Column(
                     children: [
-                      _buildMinimalHeader(),
-                      _buildCompactPropertyInfo(),
-                      _buildCompactBookingDetails(dateFormat),
-                      if (widget.showActions) _buildMinimalActions(),
+                      _buildMinimalHeader(context),
+                      _buildCompactPropertyInfo(context),
+                      _buildCompactBookingDetails(context, dateFormat),
+                      if (widget.showActions) _buildMinimalActions(context),
                     ],
                   ),
                 ],
@@ -163,7 +164,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
   }
 
   /// العربية: يبني minimal header.
-  Widget _buildMinimalHeader() {
+  Widget _buildMinimalHeader(BuildContext context) {
     final bool isMissed = _hasStarted() && !_isCancelledOrDone();
     final bool isPartiallyPaid = _isPartiallyPaid();
     return Container(
@@ -217,7 +218,9 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
                         ),
                       ),
                       child: Text(
-                        'مدفوع بالكامل',
+                        context.tr(
+                          'booking.card.fullyPaid',
+                        ),
                         style: AppTextStyles.caption.copyWith(
                           color: AppTheme.success.withOpacity(0.9),
                           fontWeight: FontWeight.w600,
@@ -238,7 +241,9 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
                           ),
                         ),
                         child: Text(
-                          'مدفوع جزئياً',
+                          context.tr(
+                            'booking.card.partiallyPaid',
+                          ),
                           style: AppTextStyles.caption.copyWith(
                             color: AppTheme.info.withOpacity(0.9),
                             fontWeight: FontWeight.w600,
@@ -283,7 +288,9 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
                             ),
                           ),
                           child: Text(
-                            'تم تفويت الحجز',
+                            context.tr(
+                              'booking.card.missed',
+                            ),
                             style: AppTextStyles.caption.copyWith(
                               color: AppTheme.error.withOpacity(0.9),
                               fontWeight: FontWeight.w600,
@@ -322,7 +329,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
   }
 
   /// العربية: يبني compact property info.
-  Widget _buildCompactPropertyInfo() {
+  Widget _buildCompactPropertyInfo(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Row(
@@ -364,7 +371,10 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
                     const SizedBox(width: 3),
                     Expanded(
                       child: Text(
-                        widget.booking.propertyAddress ?? 'موقع العقار',
+                        widget.booking.propertyAddress ??
+                            context.tr(
+                              'booking.card.propertyLocation',
+                            ),
                         style: AppTextStyles.caption.copyWith(
                           color: AppTheme.textMuted.withOpacity(0.6),
                         ),
@@ -418,7 +428,8 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
   }
 
   /// العربية: يبني compact booking details.
-  Widget _buildCompactBookingDetails(DateFormat dateFormat) {
+  Widget _buildCompactBookingDetails(
+      BuildContext context, DateFormat dateFormat) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
@@ -440,21 +451,27 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
           _buildCompactDetailItem(
             icon: Icons.calendar_today_rounded,
             iconColor: AppTheme.primaryBlue.withOpacity(0.8),
-            label: 'الوصول',
+            label: context.tr(
+              'booking.card.checkIn',
+            ),
             value: dateFormat.format(widget.booking.checkInDate),
           ),
           _buildMinimalDivider(),
           _buildCompactDetailItem(
             icon: Icons.calendar_today_outlined,
             iconColor: AppTheme.primaryPurple.withOpacity(0.8),
-            label: 'المغادرة',
+            label: context.tr(
+              'booking.card.checkOut',
+            ),
             value: dateFormat.format(widget.booking.checkOutDate),
           ),
           _buildMinimalDivider(),
           _buildCompactDetailItem(
             icon: Icons.people_outline_rounded,
             iconColor: AppTheme.primaryCyan.withOpacity(0.8),
-            label: 'الضيوف',
+            label: context.tr(
+              'booking.card.guests',
+            ),
             value: widget.booking.totalGuests.toString(),
           ),
         ],
@@ -511,7 +528,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
   }
 
   /// العربية: يبني minimal actions.
-  Widget _buildMinimalActions() {
+  Widget _buildMinimalActions(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Row(
@@ -530,27 +547,39 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
             children: [
               if (widget.onCancel != null && widget.booking.canCancel)
                 _buildMinimalActionButton(
-                  label: 'إلغاء',
+                  context: context,
+                  label: context.tr(
+                    'booking.card.cancel',
+                  ),
                   onPressed: widget.onCancel!,
                   color: AppTheme.error.withOpacity(0.8),
                   icon: Icons.close_rounded,
                 ),
               if (widget.onReview != null)
                 _buildMinimalActionButton(
-                  label: 'تقييم',
+                  context: context,
+                  label: context.tr(
+                    'booking.card.review',
+                  ),
                   onPressed: widget.onReview!,
                   color: AppTheme.warning.withOpacity(0.8),
                   icon: Icons.star_outline_rounded,
                 ),
               if (widget.onEdit != null && widget.booking.canModify)
                 _buildMinimalActionButton(
-                  label: 'تعديل',
+                  context: context,
+                  label: context.tr(
+                    'booking.card.edit',
+                  ),
                   onPressed: widget.onEdit!,
                   color: AppTheme.info.withOpacity(0.8),
                   icon: Icons.edit_rounded,
                 ),
               _buildMinimalActionButton(
-                label: 'التفاصيل',
+                context: context,
+                label: context.tr(
+                  'booking.card.details',
+                ),
                 onPressed: widget.onTap,
                 color: AppTheme.primaryBlue.withOpacity(0.9),
                 icon: Icons.arrow_forward_rounded,
@@ -622,6 +651,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
 
   /// العربية: يبني minimal action button.
   Widget _buildMinimalActionButton({
+    required BuildContext context,
     required String label,
     required VoidCallback onPressed,
     required Color color,

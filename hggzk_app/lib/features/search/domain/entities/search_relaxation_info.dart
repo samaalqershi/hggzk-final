@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/enums/search_relaxation_level.dart';
 
 /// Captures how the backend relaxed a search query to produce matches.
@@ -62,15 +63,16 @@ class SearchRelaxationInfo extends Equatable {
 
   /// Empty baseline used when no relaxation metadata is available.
   /// نسخة أساسية فارغة تستخدم عندما لا تتوفر بيانات التخفيف.
-  static const SearchRelaxationInfo empty = SearchRelaxationInfo(
-    relaxationLevel: SearchRelaxationLevel.exact,
-    relaxedFilters: [],
-    searchStrategy: 'تطابق دقيق',
-    originalCriteria: {},
-    actualCriteria: {},
-    userMessage: null,
-    suggestedActions: [],
-  );
+  static SearchRelaxationInfo get empty => SearchRelaxationInfo(
+        relaxationLevel: SearchRelaxationLevel.exact,
+        relaxedFilters: const [],
+        searchStrategy:
+            AppLocalizations.translateSync('core.searchRelaxation.exact'),
+        originalCriteria: const {},
+        actualCriteria: const {},
+        userMessage: null,
+        suggestedActions: const [],
+      );
 
   /// Rebuilds the relaxation summary from a search response payload.
   /// يعيد بناء ملخص التخفيف من حمولة استجابة البحث.

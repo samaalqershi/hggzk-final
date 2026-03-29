@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
@@ -247,8 +248,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     await result.fold(
       (failure) async =>
           emit(AuthError(message: _mapFailureToMessage(failure))),
-      (_) async => emit(const AuthPasswordResetSent(
-        message: 'تم إرسال تعليمات إعادة تعيين كلمة المرور',
+      (_) async => emit(AuthPasswordResetSent(
+        message: AppLocalizations.translateSync('auth.forgot.successBody'),
       )),
     );
   }
@@ -362,10 +363,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   String _mapFailureToMessage(Failure failure) {
+    final rawMessage = failure.rawMessage.trim();
+
     // إذا كانت رسالة الخطأ موجودة ومفيدة، استخدمها مباشرة
     if (failure.message.isNotEmpty &&
-        failure.message != 'Server failure' &&
-        failure.message != 'An unexpected error occurred') {
+        rawMessage != AppLocalizations.translateSync('common.serverError') &&
+        rawMessage !=
+            AppLocalizations.translateSync('common.unexpectedError')) {
       return failure.message;
     }
 
@@ -374,17 +378,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         final serverFailure = failure as ServerFailure;
         // استخدم رسالة الخطأ الفعلية إذا كانت موجودة
         if (serverFailure.message.isNotEmpty &&
-            serverFailure.message != 'Server failure') {
+            serverFailure.rawMessage !=
+                AppLocalizations.translateSync('common.serverError')) {
           return serverFailure.message;
         }
-        return 'حدث خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً';
+        return AppLocalizations.translateSync('auth.errors.server');
       case CacheFailure:
-        return 'حدث خطأ في التخزين المحلي';
+        return AppLocalizations.translateSync('auth.errors.localStorage');
       case NetworkFailure:
         return failure.message.isNotEmpty &&
-                failure.message != 'Network failure'
+                rawMessage !=
+                    AppLocalizations.translateSync('common.noInternet')
             ? failure.message
-            : 'يرجى التحقق من اتصالك بالإنترنت';
+            : AppLocalizations.translateSync('auth.errors.network');
       case ValidationFailure:
         return (failure as ValidationFailure).message;
       case ValidationFailureWithErrors:
@@ -394,25 +400,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       case AuthenticationFailure:
         final authFailure = failure as AuthenticationFailure;
         return authFailure.message.isNotEmpty &&
-                authFailure.message != 'Authentication failure'
+                authFailure.rawMessage !=
+                    AppLocalizations.translateSync('common.unauthorized')
             ? authFailure.message
-            : 'بيانات الدخول غير صحيحة';
+            : AppLocalizations.translateSync('auth.errors.invalidCredentials');
       case UnauthorizedFailure:
         return failure.message.isNotEmpty &&
-                failure.message != 'Unauthorized access'
+                rawMessage !=
+                    AppLocalizations.translateSync('common.unauthorized')
             ? failure.message
-            : 'غير مصرح لك بالقيام بهذا الإجراء';
+            : AppLocalizations.translateSync('auth.errors.unauthorizedAction');
       case SessionExpiredFailure:
-        return 'انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى';
+        return AppLocalizations.translateSync('auth.errors.sessionExpired');
       case PermissionDeniedFailure:
         return failure.message.isNotEmpty &&
-                failure.message != 'Permission denied'
+                rawMessage !=
+                    AppLocalizations.translateSync('common.permissionDenied')
             ? failure.message
-            : 'ليس لديك صلاحية للقيام بهذا الإجراء';
+            : AppLocalizations.translateSync('auth.errors.permissionDenied');
       default:
         return failure.message.isNotEmpty
             ? failure.message
-            : 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى';
+            : AppLocalizations.translateSync('auth.errors.unexpected');
     }
   }
 }

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hggzk/core/error/failure_localizer.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'package:hggzk/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:hggzk/features/auth/presentation/bloc/auth_state.dart';
 import 'package:hggzk/features/booking/domain/usecases/get_booking_details_usecase.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -89,7 +91,9 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
       final authState = context.read<AuthBloc>().state;
       if (authState is! AuthAuthenticated) {
         setState(() {
-          _bookingDetailsError = 'يرجى تسجيل الدخول أولاً';
+          _bookingDetailsError = context.tr(
+            'reviews.loginRequiredFirst',
+          );
         });
         return;
       }
@@ -104,7 +108,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
       result.fold(
         (failure) {
           setState(() {
-            _bookingDetailsError = failure.message;
+            _bookingDetailsError = FailureLocalizer.localize(failure);
           });
         },
         (booking) {
@@ -118,7 +122,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
       );
     } catch (e) {
       setState(() {
-        _bookingDetailsError = e.toString();
+        _bookingDetailsError = context.tr('common.unexpectedError');
       });
     } finally {
       if (mounted) {
@@ -134,12 +138,14 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoadingBookingDetails) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: Colors.transparent,
         body: Center(
           child: LoadingWidget(
             type: LoadingType.circular,
-            message: 'جاري تحميل بيانات الحجز...',
+            message: context.tr(
+              'reviews.loadingBookingDetails',
+            ),
           ),
         ),
       );
@@ -174,7 +180,11 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: _loadBookingDetails,
-                    child: const Text('إعادة المحاولة'),
+                    child: Text(
+                      context.tr(
+                        'reviews.retry',
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -238,10 +248,12 @@ class _WriteReviewView extends StatelessWidget {
             },
             builder: (context, state) {
               if (state is ReviewCreating) {
-                return const Center(
+                return Center(
                   child: LoadingWidget(
                     type: LoadingType.circular,
-                    message: 'جاري إرسال التقييم...',
+                    message: context.tr(
+                      'reviews.sendingReview',
+                    ),
                   ),
                 );
               }
@@ -253,7 +265,7 @@ class _WriteReviewView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildPropertyInfo(),
+                      _buildPropertyInfo(context),
                       const SizedBox(height: AppDimensions.spacingMd),
                       _buildFormCard(context),
                     ],
@@ -301,7 +313,9 @@ class _WriteReviewView extends StatelessWidget {
         shaderCallback: (bounds) =>
             AppTheme.primaryGradient.createShader(bounds),
         child: Text(
-          'كتابة تقييم',
+          context.tr(
+            'reviews.writeReviewTitle',
+          ),
           style: AppTextStyles.h2.copyWith(
             color: AppTheme.textWhite,
             fontWeight: FontWeight.bold,
@@ -321,7 +335,7 @@ class _WriteReviewView extends StatelessWidget {
 
   /// Builds the property info.
   /// العربية: يبني property info.
-  Widget _buildPropertyInfo() {
+  Widget _buildPropertyInfo(BuildContext context) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -374,7 +388,9 @@ class _WriteReviewView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'تقييم تجربتك',
+                        context.tr(
+                          'reviews.reviewExperienceTitle',
+                        ),
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: AppTheme.textWhite.withOpacity(0.9),
                           fontWeight: FontWeight.w600,
@@ -447,7 +463,7 @@ class _WriteReviewView extends StatelessWidget {
                     const SizedBox(width: AppDimensions.spacingSm),
                     Expanded(
                       child: Text(
-                        'قيّم تجربتك بدقة لمساعدة الضيوف الآخرين على اتخاذ قرار أفضل.',
+                        context.tr('reviews.reviewExperienceHint'),
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppTheme.textMuted,
                           height: 1.4,
@@ -462,9 +478,9 @@ class _WriteReviewView extends StatelessWidget {
                 onSubmit: (ratings, comment, _) {
                   if (propertyId.trim().isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
+                      SnackBar(
                         content: Text(
-                          'تعذر تحديد العقار لهذا الحجز. يرجى إعادة المحاولة.',
+                          context.tr('reviews.cannotDetermineProperty'),
                         ),
                       ),
                     );
@@ -540,14 +556,18 @@ class _WriteReviewView extends StatelessWidget {
                 ),
                 const SizedBox(height: AppDimensions.spacingLg),
                 Text(
-                  'شكراً لك!',
+                  context.tr(
+                    'reviews.thanks',
+                  ),
                   style: AppTextStyles.h2.copyWith(
                     color: AppTheme.textWhite,
                   ),
                 ),
                 const SizedBox(height: AppDimensions.spacingSm),
                 Text(
-                  'تم إرسال تقييمك بنجاح',
+                  context.tr(
+                    'reviews.reviewSubmittedMessage',
+                  ),
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: AppTheme.textMuted,
                   ),
@@ -573,7 +593,9 @@ class _WriteReviewView extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'حسناً',
+                      context.tr(
+                        'reviews.ok',
+                      ),
                       style: AppTextStyles.buttonLarge.copyWith(
                         color: AppTheme.textWhite,
                       ),

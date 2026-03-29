@@ -15,7 +15,7 @@ namespace YemenBooking.Core.Seeds
         /// </summary>
         public IEnumerable<City> SeedData()
         {
-            return new List<City>
+            var cities = new List<City>
             {
                 new City { Name = "صنعاء", Country = "اليمن", ImagesJson = "[]" },
                 new City { Name = "عدن", Country = "اليمن", ImagesJson = "[]" },
@@ -28,6 +28,13 @@ namespace YemenBooking.Core.Seeds
                 new City { Name = "المهرة", Country = "اليمن", ImagesJson = "[]" },
                 new City { Name = "شبوة", Country = "اليمن", ImagesJson = "[]" }
             };
+
+            foreach (var city in cities)
+            {
+                SeedLocalizationHelper.ApplyCityEnglish(city);
+            }
+
+            return cities;
         }
     }
 }

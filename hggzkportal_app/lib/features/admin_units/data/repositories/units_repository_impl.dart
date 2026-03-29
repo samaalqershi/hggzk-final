@@ -179,8 +179,10 @@ class UnitsRepositoryImpl implements UnitsRepository {
     required String propertyId,
     required String unitTypeId,
     required String name,
+    String? nameEn,
     required String description,
     required String customFeatures,
+    String? customFeaturesEn,
     required String pricingMethod,
     List<Map<String, dynamic>>? fieldValues,
     List<String>? images,
@@ -196,7 +198,10 @@ class UnitsRepositoryImpl implements UnitsRepository {
           'propertyId': propertyId,
           'unitTypeId': unitTypeId,
           'name': name,
+          if (nameEn != null && nameEn.isNotEmpty) 'nameEn': nameEn,
           'customFeatures': customFeatures,
+          if (customFeaturesEn != null && customFeaturesEn.isNotEmpty)
+            'customFeaturesEn': customFeaturesEn,
           'pricingMethod': pricingMethod,
           'fieldValues': _convertFieldValuesToString(fieldValues),
           'images': images ?? [],
@@ -224,8 +229,10 @@ class UnitsRepositoryImpl implements UnitsRepository {
   Future<Either<Failure, bool>> updateUnit({
     required String unitId,
     String? name,
+    String? nameEn,
     String? description,
     String? customFeatures,
+    String? customFeaturesEn,
     String? pricingMethod,
     List<Map<String, dynamic>>? fieldValues,
     List<String>? images,
@@ -238,7 +245,9 @@ class UnitsRepositoryImpl implements UnitsRepository {
       try {
         final unitData = {
           if (name != null) 'name': name,
+          if (nameEn != null) 'nameEn': nameEn,
           if (customFeatures != null) 'customFeatures': customFeatures,
+          if (customFeaturesEn != null) 'customFeaturesEn': customFeaturesEn,
           if (pricingMethod != null) 'pricingMethod': pricingMethod,
           if (fieldValues != null)
             'fieldValues': _convertFieldValuesToString(fieldValues),

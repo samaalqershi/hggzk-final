@@ -6,6 +6,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/conversation.dart';
 
 /// Top bar for a one-to-one or group chat. It combines navigation, identity,
@@ -54,6 +55,7 @@ class ChatAppBar extends StatefulWidget implements PreferredSizeWidget {
   /// يحدد الارتفاع المتوقع من `Scaffold.appBar`.
   @override
   Size get preferredSize => const Size.fromHeight(52);
+
   /// Creates the state object that drives header animations.
   /// ينشئ كائن الحالة الذي يدير حركات الرأس.
   @override
@@ -108,13 +110,14 @@ class _ChatAppBarState extends State<ChatAppBar>
         ? widget.conversation.getOtherParticipant(widget.currentUserId)
         : null;
 
-    final displayName =
-        widget.conversation.title ?? otherParticipant?.name ?? 'محادثة';
+    final displayName = widget.conversation.title ??
+        otherParticipant?.name ??
+        context.tr('chat.message.conversationFallback');
 
     final displayImage =
         widget.conversation.avatar ?? otherParticipant?.profileImage;
 
-    final statusText = _getStatusText();
+    final statusText = _getStatusText(context);
 
     return ClipRRect(
       child: BackdropFilter(
@@ -373,23 +376,28 @@ class _ChatAppBarState extends State<ChatAppBar>
 
   /// Resolves the human-readable presence label for the active participant.
   /// يحدد تسمية الحضور المقروءة للطرف النشط.
-  String? _getStatusText() {
+  String? _getStatusText(BuildContext context) {
     if (widget.conversation.isDirectChat) {
       final otherParticipant =
           widget.conversation.getOtherParticipant(widget.currentUserId);
       if (otherParticipant == null) return null;
 
       if (otherParticipant.isOnline) {
-        return 'متصل';
+        return context.tr(
+          'chat.participant.onlineNow',
+        );
       } else if (otherParticipant.lastSeen != null) {
-        return _formatLastSeen(otherParticipant.lastSeen!);
+        return _formatLastSeen(context, otherParticipant.lastSeen!);
       }
     } else {
       final onlineCount = widget.conversation.participants
           .where((p) => p.isOnline && p.id != widget.currentUserId)
           .length;
       if (onlineCount > 0) {
-        return '$onlineCount متصل';
+        return context.tr(
+          'chat.thread.onlineCount',
+          params: {'count': onlineCount},
+        );
       }
     }
     return null;
@@ -410,20 +418,29 @@ class _ChatAppBarState extends State<ChatAppBar>
 
   /// Formats last-seen time into a compact relative label.
   /// ينسق وقت آخر ظهور إلى تسمية نسبية مختصرة.
-  String _formatLastSeen(DateTime lastSeen) {
+  String _formatLastSeen(BuildContext context, DateTime lastSeen) {
     final now = DateTime.now();
     final difference = now.difference(lastSeen);
 
     if (difference.inMinutes < 1) {
-      return 'الآن';
+      return context.tr('chat.participant.now');
     } else if (difference.inMinutes < 60) {
-      return 'منذ ${difference.inMinutes}د';
+      return context.tr(
+        'chat.participant.minuteAgo',
+        params: {'value': difference.inMinutes},
+      );
     } else if (difference.inHours < 24) {
-      return 'منذ ${difference.inHours}س';
+      return context.tr(
+        'chat.participant.hourAgo',
+        params: {'value': difference.inHours},
+      );
     } else if (difference.inDays == 1) {
-      return 'أمس';
+      return context.tr('chat.thread.yesterday');
     } else {
-      return 'منذ ${difference.inDays}ي';
+      return context.tr(
+        'chat.participant.dayAgo',
+        params: {'value': difference.inDays},
+      );
     }
   }
 

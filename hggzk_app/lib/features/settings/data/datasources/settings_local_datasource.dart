@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/services/local_storage_service.dart';
+import 'package:hggzk/core/constants/storage_constants.dart';
 import '../../../../core/error/exceptions.dart';
 import '../models/app_settings_model.dart';
 
@@ -99,6 +101,12 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   /// يربط مصدر البيانات بخدمة التخزين المحلية المشتركة.
   SettingsLocalDataSourceImpl({required this.localStorage});
 
+  CacheException _storageException() {
+    return CacheException(
+      AppLocalizations.translateSync('common.localStorageError'),
+    );
+  }
+
   /// يقرأ لقطة الإعدادات الكاملة من التخزين، أو ينشئ القيم الافتراضية إذا
   /// لم توجد بيانات محفوظة بعد.
   /// Reads the full settings snapshot from storage, or creates defaults when
@@ -116,7 +124,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
       // Fall back to defaults when nothing has been persisted yet.
       return _createDefaultSettings();
     } catch (e) {
-      throw CacheException('Failed to load settings: $e');
+      throw _storageException();
     }
   }
 
@@ -128,7 +136,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
       final json = jsonEncode(settings.toJson());
       return await localStorage.saveData(_settingsKey, json);
     } catch (e) {
-      throw CacheException('Failed to save settings: $e');
+      throw _storageException();
     }
   }
 
@@ -139,6 +147,8 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   Future<bool> updateLanguage(String languageCode) async {
     try {
       await localStorage.saveData(_languageKey, languageCode);
+      await localStorage.saveData(StorageConstants.language, languageCode);
+      await localStorage.saveData('app_language', languageCode);
 
       final settings = await getSettings();
       final updatedSettings = AppSettingsModel.fromEntity(
@@ -150,7 +160,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
 
       return await saveSettings(updatedSettings);
     } catch (e) {
-      throw CacheException('Failed to update language: $e');
+      throw _storageException();
     }
   }
 
@@ -172,7 +182,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
 
       return await saveSettings(updatedSettings);
     } catch (e) {
-      throw CacheException('Failed to update theme: $e');
+      throw _storageException();
     }
   }
 
@@ -199,7 +209,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
 
       return await saveSettings(updatedSettings);
     } catch (e) {
-      throw CacheException('Failed to update biometric: $e');
+      throw _storageException();
     }
   }
 
@@ -224,7 +234,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
 
       return await saveSettings(updatedSettings);
     } catch (e) {
-      throw CacheException('Failed to update notification settings: $e');
+      throw _storageException();
     }
   }
 
@@ -246,7 +256,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
 
       return await saveSettings(updatedSettings);
     } catch (e) {
-      throw CacheException('Failed to update currency: $e');
+      throw _storageException();
     }
   }
 
@@ -268,7 +278,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
 
       return await saveSettings(updatedSettings);
     } catch (e) {
-      throw CacheException('Failed to update time zone: $e');
+      throw _storageException();
     }
   }
 
@@ -288,7 +298,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
       await localStorage.removeData(_notificationKey);
       return true;
     } catch (e) {
-      throw CacheException('Failed to clear settings: $e');
+      throw _storageException();
     }
   }
 

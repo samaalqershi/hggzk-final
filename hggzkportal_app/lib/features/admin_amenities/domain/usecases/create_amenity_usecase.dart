@@ -25,7 +25,9 @@ class CreateAmenityUseCase implements UseCase<String, CreateAmenityParams> {
   Future<Either<Failure, String>> call(CreateAmenityParams params) async {
     return await repository.createAmenity(
       name: params.name,
+      nameEn: params.nameEn,
       description: params.description,
+      descriptionEn: params.descriptionEn,
       icon: params.icon,
       propertyTypeId: params.propertyTypeId,
       isDefaultForType: params.isDefaultForType,
@@ -42,9 +44,17 @@ class CreateAmenityParams extends Equatable {
   /// The visible amenity name shown in the UI and admin screens.
   final String name;
 
+  /// الاسم الإنجليزي الموازي للمرفق.
+  /// English name stored alongside the Arabic value.
+  final String? nameEn;
+
   /// الوصف الذي يشرح طبيعة المرفق أو استخدامه.
   /// The description that explains what the amenity is or how it is used.
   final String description;
+
+  /// الوصف الإنجليزي الموازي للمرفق.
+  /// English description stored alongside the primary text.
+  final String? descriptionEn;
 
   /// اسم الأيقونة أو المفتاح الذي يمثل المرفق بصريًا.
   /// The icon name or key used to represent the amenity visually.
@@ -63,7 +73,9 @@ class CreateAmenityParams extends Equatable {
   /// Creates the immutable payload needed to create an amenity.
   const CreateAmenityParams({
     required this.name,
+    this.nameEn,
     required this.description,
+    this.descriptionEn,
     required this.icon,
     this.propertyTypeId,
     this.isDefaultForType = false,
@@ -75,6 +87,13 @@ class CreateAmenityParams extends Equatable {
   /// مختلفًا.
   /// Equality depends on every creation field because any change produces a
   /// different request.
-  List<Object?> get props =>
-      [name, description, icon, propertyTypeId, isDefaultForType];
+  List<Object?> get props => [
+        name,
+        nameEn,
+        description,
+        descriptionEn,
+        icon,
+        propertyTypeId,
+        isDefaultForType
+      ];
 }

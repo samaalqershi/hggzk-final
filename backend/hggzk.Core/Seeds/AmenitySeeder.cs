@@ -22,7 +22,7 @@ namespace YemenBooking.Core.Seeds
         /// </summary>
         public IEnumerable<Amenity> SeedData()
         {
-            return new List<Amenity>
+            var amenities = new List<Amenity>
             {
                 // مرافق الإنترنت والاتصالات
                 new Amenity
@@ -284,6 +284,13 @@ namespace YemenBooking.Core.Seeds
                     IsDeleted = false
                 }
             };
+
+            foreach (var amenity in amenities)
+            {
+                SeedLocalizationHelper.ApplyAmenityEnglish(amenity);
+            }
+
+            return amenities;
         }
     }
 }

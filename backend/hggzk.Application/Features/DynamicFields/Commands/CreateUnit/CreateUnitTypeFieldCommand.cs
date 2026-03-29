@@ -33,18 +33,33 @@ public class CreateUnitTypeFieldCommand : IRequest<ResultDto<string>>
     /// Display name for the field.
     /// </summary>
     public required string DisplayName { get; set; }
+    /// <summary>
+    /// الاسم المعروض للحقل بالإنجليزية.
+    /// English display name for the field.
+    /// </summary>
+    public string? DisplayNameEn { get; set; }
 
     /// <summary>
     /// وصف الحقل.
     /// Field description.
     /// </summary>
     public string? Description { get; set; }
+    /// <summary>
+    /// وصف الحقل بالإنجليزية.
+    /// Field description in English.
+    /// </summary>
+    public string? DescriptionEn { get; set; }
 
     /// <summary>
     /// خيارات الحقل بصيغة JSON.
     /// Field options serialized as JSON.
     /// </summary>
     public Dictionary<string, object>? FieldOptions { get; set; }
+    /// <summary>
+    /// خيارات الحقل الإنجليزية بصيغة JSON.
+    /// English field options serialized as JSON.
+    /// </summary>
+    public Dictionary<string, object>? FieldOptionsEn { get; set; }
 
     /// <summary>
     /// قواعد التحقق المخصصة بصيغة JSON.
@@ -81,6 +96,11 @@ public class CreateUnitTypeFieldCommand : IRequest<ResultDto<string>>
     /// Field category.
     /// </summary>
     public string? Category { get; set; }
+    /// <summary>
+    /// فئة الحقل بالإنجليزية.
+    /// Field category in English.
+    /// </summary>
+    public string? CategoryEn { get; set; }
 
     /// <summary>
     /// يحدد ما إذا كان الحقل مخصصًا للوحدات.

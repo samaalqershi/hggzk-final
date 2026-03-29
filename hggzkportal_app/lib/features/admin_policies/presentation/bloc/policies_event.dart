@@ -44,7 +44,11 @@ class CreatePolicyEvent extends PoliciesEvent {
 
   final String description;
 
+  final String? descriptionEn;
+
   final String? rules;
+
+  final String? rulesEn;
 
   final int cancellationWindowDays;
 
@@ -102,6 +106,8 @@ class CreatePolicyEvent extends PoliciesEvent {
 
   final String? checkInEarlyCheckInNote;
 
+  final String? checkInEarlyCheckInNoteEn;
+
   final String? checkInLateCheckOutNote;
 
   final String? checkInLateCheckOutFee;
@@ -118,6 +124,8 @@ class CreatePolicyEvent extends PoliciesEvent {
 
   final String? childrenCribsNote;
 
+  final String? childrenCribsNoteEn;
+
   final bool? childrenPlaygroundAvailable;
 
   final bool? childrenKidsMenuAvailable;
@@ -125,6 +133,8 @@ class CreatePolicyEvent extends PoliciesEvent {
   final bool? petsAllowed;
 
   final String? petsReason;
+
+  final String? petsReasonEn;
 
   final double? petsFeeAmount;
 
@@ -150,11 +160,15 @@ class CreatePolicyEvent extends PoliciesEvent {
 
   final String? modificationReason;
 
+  final String? modificationReasonEn;
+
   const CreatePolicyEvent({
     required this.propertyId,
     required this.type,
     required this.description,
+    this.descriptionEn,
     this.rules,
+    this.rulesEn,
     this.cancellationWindowDays = 0,
     this.requireFullPaymentBeforeConfirmation = false,
     this.minimumDepositPercentage = 0.0,
@@ -183,6 +197,7 @@ class CreatePolicyEvent extends PoliciesEvent {
     this.checkInRequiresCoordination,
     this.checkInContactOwner,
     this.checkInEarlyCheckInNote,
+    this.checkInEarlyCheckInNoteEn,
     this.checkInLateCheckOutNote,
     this.checkInLateCheckOutFee,
     this.childrenAllowed,
@@ -191,10 +206,12 @@ class CreatePolicyEvent extends PoliciesEvent {
     this.childrenMaxChildrenPerRoom,
     this.childrenMaxChildren,
     this.childrenCribsNote,
+    this.childrenCribsNoteEn,
     this.childrenPlaygroundAvailable,
     this.childrenKidsMenuAvailable,
     this.petsAllowed,
     this.petsReason,
+    this.petsReasonEn,
     this.petsFeeAmount,
     this.petsMaxWeight,
     this.petsRequiresApproval,
@@ -207,6 +224,7 @@ class CreatePolicyEvent extends PoliciesEvent {
     this.modificationFeesAfter,
     this.modificationFlexible,
     this.modificationReason,
+    this.modificationReasonEn,
   });
 
   @override
@@ -214,7 +232,9 @@ class CreatePolicyEvent extends PoliciesEvent {
         propertyId,
         type,
         description,
+        descriptionEn,
         rules,
+        rulesEn,
         cancellationWindowDays,
         requireFullPaymentBeforeConfirmation,
         minimumDepositPercentage,
@@ -243,6 +263,7 @@ class CreatePolicyEvent extends PoliciesEvent {
         checkInRequiresCoordination,
         checkInContactOwner,
         checkInEarlyCheckInNote,
+        checkInEarlyCheckInNoteEn,
         checkInLateCheckOutNote,
         checkInLateCheckOutFee,
         childrenAllowed,
@@ -251,10 +272,12 @@ class CreatePolicyEvent extends PoliciesEvent {
         childrenMaxChildrenPerRoom,
         childrenMaxChildren,
         childrenCribsNote,
+        childrenCribsNoteEn,
         childrenPlaygroundAvailable,
         childrenKidsMenuAvailable,
         petsAllowed,
         petsReason,
+        petsReasonEn,
         petsFeeAmount,
         petsMaxWeight,
         petsRequiresApproval,
@@ -267,6 +290,7 @@ class CreatePolicyEvent extends PoliciesEvent {
         modificationFeesAfter,
         modificationFlexible,
         modificationReason,
+        modificationReasonEn,
       ];
 }
 
@@ -279,7 +303,11 @@ class UpdatePolicyEvent extends PoliciesEvent {
 
   final String description;
 
+  final String? descriptionEn;
+
   final String? rules;
+
+  final String? rulesEn;
 
   final int? cancellationWindowDays;
 
@@ -337,6 +365,8 @@ class UpdatePolicyEvent extends PoliciesEvent {
 
   final String? checkInEarlyCheckInNote;
 
+  final String? checkInEarlyCheckInNoteEn;
+
   final String? checkInLateCheckOutNote;
 
   final String? checkInLateCheckOutFee;
@@ -353,6 +383,8 @@ class UpdatePolicyEvent extends PoliciesEvent {
 
   final String? childrenCribsNote;
 
+  final String? childrenCribsNoteEn;
+
   final bool? childrenPlaygroundAvailable;
 
   final bool? childrenKidsMenuAvailable;
@@ -360,6 +392,8 @@ class UpdatePolicyEvent extends PoliciesEvent {
   final bool? petsAllowed;
 
   final String? petsReason;
+
+  final String? petsReasonEn;
 
   final double? petsFeeAmount;
 
@@ -385,11 +419,15 @@ class UpdatePolicyEvent extends PoliciesEvent {
 
   final String? modificationReason;
 
+  final String? modificationReasonEn;
+
   const UpdatePolicyEvent({
     required this.policyId,
     required this.type,
     required this.description,
+    this.descriptionEn,
     this.rules,
+    this.rulesEn,
     this.cancellationWindowDays,
     this.requireFullPaymentBeforeConfirmation,
     this.minimumDepositPercentage,
@@ -418,6 +456,7 @@ class UpdatePolicyEvent extends PoliciesEvent {
     this.checkInRequiresCoordination,
     this.checkInContactOwner,
     this.checkInEarlyCheckInNote,
+    this.checkInEarlyCheckInNoteEn,
     this.checkInLateCheckOutNote,
     this.checkInLateCheckOutFee,
     this.childrenAllowed,
@@ -426,10 +465,12 @@ class UpdatePolicyEvent extends PoliciesEvent {
     this.childrenMaxChildrenPerRoom,
     this.childrenMaxChildren,
     this.childrenCribsNote,
+    this.childrenCribsNoteEn,
     this.childrenPlaygroundAvailable,
     this.childrenKidsMenuAvailable,
     this.petsAllowed,
     this.petsReason,
+    this.petsReasonEn,
     this.petsFeeAmount,
     this.petsMaxWeight,
     this.petsRequiresApproval,
@@ -442,6 +483,7 @@ class UpdatePolicyEvent extends PoliciesEvent {
     this.modificationFeesAfter,
     this.modificationFlexible,
     this.modificationReason,
+    this.modificationReasonEn,
   });
 
   @override
@@ -449,7 +491,9 @@ class UpdatePolicyEvent extends PoliciesEvent {
         policyId,
         type,
         description,
+        descriptionEn,
         rules,
+        rulesEn,
         cancellationWindowDays,
         requireFullPaymentBeforeConfirmation,
         minimumDepositPercentage,
@@ -478,6 +522,7 @@ class UpdatePolicyEvent extends PoliciesEvent {
         checkInRequiresCoordination,
         checkInContactOwner,
         checkInEarlyCheckInNote,
+        checkInEarlyCheckInNoteEn,
         checkInLateCheckOutNote,
         checkInLateCheckOutFee,
         childrenAllowed,
@@ -486,10 +531,12 @@ class UpdatePolicyEvent extends PoliciesEvent {
         childrenMaxChildrenPerRoom,
         childrenMaxChildren,
         childrenCribsNote,
+        childrenCribsNoteEn,
         childrenPlaygroundAvailable,
         childrenKidsMenuAvailable,
         petsAllowed,
         petsReason,
+        petsReasonEn,
         petsFeeAmount,
         petsMaxWeight,
         petsRequiresApproval,
@@ -502,6 +549,7 @@ class UpdatePolicyEvent extends PoliciesEvent {
         modificationFeesAfter,
         modificationFlexible,
         modificationReason,
+        modificationReasonEn,
       ];
 }
 

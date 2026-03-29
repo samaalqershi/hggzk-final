@@ -38,6 +38,7 @@ public class UnitFieldValueDto
     /// DisplayName
     /// </summary>
     public string DisplayName { get; set; } = string.Empty;
+    public string? DisplayNameEn { get; set; }
 
     /// <summary>
     /// قيمة الحقل (سلسلة نصية)

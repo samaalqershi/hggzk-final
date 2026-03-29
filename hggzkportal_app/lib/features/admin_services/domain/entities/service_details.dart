@@ -10,13 +10,16 @@ class ServiceDetails extends Service {
     required super.id,
     required super.propertyId,
     required super.propertyName,
+    super.propertyNameEn,
     required super.name,
+    super.nameEn,
     required super.price,
     required super.pricingModel,
     required super.icon,
     this.createdAt,
     this.updatedAt,
     this.description,
+    super.descriptionEn,
   });
   @override
   List<Object?> get props => [

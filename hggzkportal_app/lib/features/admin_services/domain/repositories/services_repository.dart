@@ -13,20 +13,24 @@ abstract class ServicesRepository {
   Future<Either<Failure, String>> createService({
     required String propertyId,
     required String name,
+    String? nameEn,
     required Money price,
     required PricingModel pricingModel,
     required String icon,
     String? description,
+    String? descriptionEn,
   });
 
   /// تحديث خدمة
   Future<Either<Failure, bool>> updateService({
     required String serviceId,
     String? name,
+    String? nameEn,
     Money? price,
     PricingModel? pricingModel,
     String? icon,
     String? description,
+    String? descriptionEn,
   });
 
   /// حذف خدمة

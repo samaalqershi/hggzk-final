@@ -244,28 +244,50 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
   /// ينفذ هذا الأسلوب عملية _buildHeaderInfo ضمن مسار إدارة الوحدات.
   /// This method performs the _buildHeaderInfo operation in the admin unit workflow.
   Widget _buildHeaderInfo(Unit unit) {
+    final secondaryLocation = [
+      if ((unit.propertyNameEn ?? '').trim().isNotEmpty) unit.propertyNameEn!,
+      if ((unit.unitTypeNameEn ?? '').trim().isNotEmpty) unit.unitTypeNameEn!,
+    ].join(' • ');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         // Unit Name
-        Text(
-          unit.name,
-          style: AppTextStyles.heading1.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-            shadows: [
-              Shadow(
-                color: Colors.black.withValues(alpha: 0.5),
-                blurRadius: 10,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              unit.name,
+              style: AppTextStyles.heading1.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                shadows: [
+                  Shadow(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    blurRadius: 10,
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            if ((unit.nameEn ?? '').trim().isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  unit.nameEn!,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: Colors.white.withValues(alpha: 0.82),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+          ],
         ),
         const SizedBox(height: 8),
 
         // Property Name
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(
               CupertinoIcons.building_2_fill,
@@ -273,10 +295,27 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
               color: Colors.white.withValues(alpha: 0.8),
             ),
             const SizedBox(width: 6),
-            Text(
-              '${unit.propertyName} • ${unit.unitTypeName}',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: Colors.white.withValues(alpha: 0.9),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${unit.propertyName} • ${unit.unitTypeName}',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: Colors.white.withValues(alpha: 0.9),
+                    ),
+                  ),
+                  if (secondaryLocation.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        secondaryLocation,
+                        style: AppTextStyles.caption.copyWith(
+                          color: Colors.white.withValues(alpha: 0.72),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ],
@@ -525,9 +564,11 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
         children: [
           _buildSectionTitle('معلومات عامة'),
           const SizedBox(height: 16),
-          _buildInfoRow('الكود', unit.name),
-          _buildInfoRow('النوع', unit.unitTypeName),
-          _buildInfoRow('العقار', unit.propertyName),
+          _buildInfoRow('الكود', unit.name, secondaryValue: unit.nameEn),
+          _buildInfoRow('النوع', unit.unitTypeName,
+              secondaryValue: unit.unitTypeNameEn),
+          _buildInfoRow('العقار', unit.propertyName,
+              secondaryValue: unit.propertyNameEn),
           _buildInfoRow('السعة', _getCapacityInfoText(unit)),
           // الحقول الأساسية (Primary Filters)
           if (unit.dynamicFields.isNotEmpty || unit.fieldValues.isNotEmpty) ...[
@@ -593,6 +634,9 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
   /// ينفذ هذا الأسلوب عملية _buildFeaturesTab ضمن مسار إدارة الوحدات.
   /// This method performs the _buildFeaturesTab operation in the admin unit workflow.
   Widget _buildFeaturesTab(Unit unit) {
+    final primaryFeatures = unit.featuresList;
+    final secondaryFeatures = _splitFeatures(unit.customFeaturesEn);
+
     return Container(
       key: const ValueKey('features'),
       padding: const EdgeInsets.all(20),
@@ -603,7 +647,7 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
           color: AppTheme.darkBorder.withValues(alpha: 0.2),
         ),
       ),
-      child: unit.featuresList.isEmpty
+      child: primaryFeatures.isEmpty && secondaryFeatures.isEmpty
           ? Center(
               child: Column(
                 children: [
@@ -622,41 +666,32 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
                 ],
               ),
             )
-          : Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: unit.featuresList.map((feature) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (primaryFeatures.isNotEmpty)
+                  _buildFeaturesWrap(
+                    primaryFeatures,
+                    textColor: AppTheme.textWhite,
+                    accentColor: AppTheme.primaryBlue,
                   ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppTheme.primaryBlue.withValues(alpha: 0.3),
+                if (secondaryFeatures.isNotEmpty) ...[
+                  if (primaryFeatures.isNotEmpty) const SizedBox(height: 16),
+                  Text(
+                    'English',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppTheme.textMuted,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _getFeatureIcon(feature),
-                        size: 16,
-                        color: AppTheme.primaryBlue,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        feature,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppTheme.textWhite,
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 8),
+                  _buildFeaturesWrap(
+                    secondaryFeatures,
+                    textColor: Colors.white.withValues(alpha: 0.85),
+                    accentColor: AppTheme.primaryPurple,
                   ),
-                );
-              }).toList(),
+                ],
+              ],
             ),
     );
   }
@@ -692,7 +727,7 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
                 ),
               ],
             ),
-            child: Icon(
+            child: const Icon(
               CupertinoIcons.calendar_today,
               size: 40,
               color: Colors.white,
@@ -758,7 +793,7 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       CupertinoIcons.calendar_badge_plus,
                       color: Colors.white,
                       size: 20,
@@ -795,23 +830,69 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
 
   /// ينفذ هذا الأسلوب عملية _buildInfoRow ضمن مسار إدارة الوحدات.
   /// This method performs the _buildInfoRow operation in the admin unit workflow.
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(
+    String label,
+    String value, {
+    String? secondaryLabel,
+    String? secondaryValue,
+  }) {
+    final normalizedSecondaryLabel =
+        _normalizeSecondaryValue(secondaryLabel, label);
+    final normalizedSecondary = _normalizeSecondaryValue(secondaryValue, value);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textMuted,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppTheme.textMuted,
+                  ),
+                ),
+                if (normalizedSecondaryLabel != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      normalizedSecondaryLabel,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppTheme.textMuted.withValues(alpha: 0.75),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
-          Text(
-            value,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textWhite,
-              fontWeight: FontWeight.w500,
+          const SizedBox(width: 16),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  value,
+                  textAlign: TextAlign.end,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppTheme.textWhite,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                if (normalizedSecondary != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      normalizedSecondary,
+                      textAlign: TextAlign.end,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppTheme.textMuted,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ],
@@ -837,12 +918,28 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
                   fontWeight: FontWeight.w500,
                 ),
               ),
+              if (_normalizeSecondaryValue(
+                      group.displayNameEn, group.displayName) !=
+                  null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    _normalizeSecondaryValue(
+                      group.displayNameEn,
+                      group.displayName,
+                    )!,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppTheme.textMuted,
+                    ),
+                  ),
+                ),
               const SizedBox(height: 8),
               ...group.fieldValues.map((field) {
                 final value = field.fieldValue;
                 return _buildInfoRow(
                   field.displayName ?? field.fieldName ?? '',
                   _formatFieldValue(value, field.fieldTypeId ?? 'text'),
+                  secondaryLabel: field.displayNameEn,
                 );
               }),
             ],
@@ -873,6 +970,7 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
                   child: _buildInfoRow(
                     fv.displayName ?? fv.fieldName ?? 'حقل',
                     _formatFieldValue(fv.fieldValue, fv.fieldTypeId ?? 'text'),
+                    secondaryLabel: fv.displayNameEn,
                   ),
                 )),
       ],
@@ -913,6 +1011,11 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
   /// ينفذ هذا الأسلوب عملية _buildFloatingHeader ضمن مسار إدارة الوحدات.
   /// This method performs the _buildFloatingHeader operation in the admin unit workflow.
   Widget _buildFloatingHeader(Unit unit) {
+    final floatingSecondary = [
+      if ((unit.nameEn ?? '').trim().isNotEmpty) unit.nameEn!,
+      if ((unit.propertyNameEn ?? '').trim().isNotEmpty) unit.propertyNameEn!,
+    ].join(' • ');
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       height: 100,
@@ -963,6 +1066,15 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
                             color: AppTheme.textMuted,
                           ),
                         ),
+                        if (floatingSecondary.isNotEmpty)
+                          Text(
+                            floatingSecondary,
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppTheme.textMuted.withValues(alpha: 0.75),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                       ],
                     ),
                   ),
@@ -974,6 +1086,75 @@ class _UnitDetailsPageState extends State<UnitDetailsPage>
         ),
       ),
     );
+  }
+
+  List<String> _splitFeatures(String? rawFeatures) {
+    if (rawFeatures == null || rawFeatures.trim().isEmpty) {
+      return const [];
+    }
+
+    return rawFeatures
+        .split(',')
+        .map((feature) => feature.trim())
+        .where((feature) => feature.isNotEmpty)
+        .toList();
+  }
+
+  Widget _buildFeaturesWrap(
+    List<String> features, {
+    required Color textColor,
+    required Color accentColor,
+  }) {
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: features.map((feature) {
+        return Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 10,
+          ),
+          decoration: BoxDecoration(
+            color: accentColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: accentColor.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                _getFeatureIcon(feature),
+                size: 16,
+                color: accentColor,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                feature,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: textColor,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  String? _normalizeSecondaryValue(
+      String? secondaryValue, String primaryValue) {
+    final normalized = secondaryValue?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      return null;
+    }
+
+    if (normalized == primaryValue.trim()) {
+      return null;
+    }
+
+    return normalized;
   }
 
   /// ينفذ هذا الأسلوب عملية _buildFloatingActions ضمن مسار إدارة الوحدات.

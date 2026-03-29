@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/icon_mapper.dart';
@@ -186,7 +187,7 @@ class _ElegantPropertyTypesSectionState
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'يرجى تحديد نوع العقار',
+              context.tr('home.propertyTypes.hint'),
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted.withOpacity(0.85),
               ),
@@ -259,14 +260,14 @@ class _ElegantPropertyTypesSectionState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'نوع العقار',
+                      context.tr('home.propertyTypes.label'),
                       style: AppTextStyles.caption.copyWith(
                         color: AppTheme.textMuted.withOpacity(0.75),
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      selectedProperty?.name ?? '—',
+                      selectedProperty?.name ?? context.tr('common.dash'),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.bodySmall.copyWith(
@@ -337,7 +338,7 @@ class _ElegantPropertyTypesSectionState
                       children: [
                         Expanded(
                           child: Text(
-                            'اختر نوع العقار',
+                            context.tr('home.propertyTypes.choose'),
                             style: AppTextStyles.bodyLarge.copyWith(
                               color: AppTheme.textWhite,
                               fontWeight: FontWeight.w700,
@@ -350,7 +351,7 @@ class _ElegantPropertyTypesSectionState
                             Navigator.of(sheetContext).pop();
                           },
                           child: Text(
-                            '',
+                            context.tr('common.close'),
                             style: AppTextStyles.bodySmall.copyWith(
                               color: AppTheme.primaryBlue.withOpacity(0.9),
                               fontWeight: FontWeight.w600,

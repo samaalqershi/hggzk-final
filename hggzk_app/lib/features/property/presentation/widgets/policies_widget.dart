@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'package:hggzk/features/property/domain/entities/property_policy.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -224,7 +225,10 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
                     ),
                   ),
                   Text(
-                    '$count سياسة',
+                    context.tr(
+                      'property.policies.countOne',
+                      params: {'count': count},
+                    ),
                     style: AppTextStyles.caption.copyWith(
                       color: AppTheme.textMuted.withOpacity(0.5),
                     ),
@@ -324,7 +328,7 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          'إلزامي',
+                          context.tr('property.policies.required'),
                           style: AppTextStyles.caption.copyWith(
                             color: AppTheme.error.withOpacity(0.7),
                             fontWeight: FontWeight.w600,
@@ -352,7 +356,7 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'غير مفعل',
+                        context.tr('property.policies.inactive'),
                         style: AppTextStyles.caption.copyWith(
                           color: AppTheme.warning.withOpacity(0.6),
                         ),
@@ -443,23 +447,39 @@ class _PoliciesWidgetState extends State<PoliciesWidget>
     switch (type.toLowerCase()) {
       case 'checkin':
       case 'check-in':
-        return 'تسجيل الدخول';
+        return context.tr(
+          'property.policies.checkIn',
+        );
       case 'checkout':
       case 'check-out':
-        return 'تسجيل الخروج';
+        return context.tr(
+          'property.policies.checkOut',
+        );
       case 'cancellation':
-        return 'الإلغاء';
+        return context.tr(
+          'property.policies.cancellation',
+        );
       case 'payment':
-        return 'الدفع';
+        return context.tr(
+          'property.policies.payment',
+        );
       case 'house_rules':
       case 'rules':
-        return 'قوانين المكان';
+        return context.tr(
+          'property.policies.rules',
+        );
       case 'safety':
-        return 'السلامة';
+        return context.tr(
+          'property.policies.safety',
+        );
       case 'health':
-        return 'الصحة';
+        return context.tr(
+          'property.policies.health',
+        );
       default:
-        return 'سياسات أخرى';
+        return context.tr(
+          'property.policies.other',
+        );
     }
   }
 }

@@ -24,10 +24,22 @@ namespace YemenBooking.Application.Features.SearchAndFilters.DTOs {
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets the English property name.
+        /// يحصل أو يعيّن الاسم الإنجليزي للعقار.
+        /// </summary>
+        public string? NameEn { get; set; }
+
+        /// <summary>
         /// Gets or sets the property description.
         /// يحصل أو يعيّن وصف العقار.
         /// </summary>
         public string Description { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the English property description.
+        /// يحصل أو يعيّن الوصف الإنجليزي للعقار.
+        /// </summary>
+        public string? DescriptionEn { get; set; }
 
         /// <summary>
         /// Gets or sets the address.
@@ -36,10 +48,22 @@ namespace YemenBooking.Application.Features.SearchAndFilters.DTOs {
         public string Address { get; set; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets the English address.
+        /// يحصل أو يعيّن العنوان الإنجليزي.
+        /// </summary>
+        public string? AddressEn { get; set; }
+
+        /// <summary>
         /// Gets or sets the city.
         /// يحصل أو يعيّن المدينة.
         /// </summary>
         public string City { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the English city.
+        /// يحصل أو يعيّن المدينة بالإنجليزية.
+        /// </summary>
+        public string? CityEn { get; set; }
 
         /// <summary>
         /// Gets or sets the star rating.
@@ -120,6 +144,12 @@ namespace YemenBooking.Application.Features.SearchAndFilters.DTOs {
         public string? UnitName { get; set; }
 
         /// <summary>
+        /// Gets or sets the first matching unit name in English when available.
+        /// يحصل أو يعيّن اسم أول وحدة مطابقة بالإنجليزية عند توفره.
+        /// </summary>
+        public string? UnitNameEn { get; set; }
+
+        /// <summary>
         /// Gets or sets the visible dynamic field values.
         /// يحصل أو يعيّن قيم الحقول الديناميكية القابلة للعرض.
         /// </summary>
@@ -155,6 +185,12 @@ namespace YemenBooking.Application.Features.SearchAndFilters.DTOs {
         public string PropertyType { get; set; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets the English property type.
+        /// يحصل أو يعيّن نوع العقار بالإنجليزية.
+        /// </summary>
+        public string? PropertyTypeEn { get; set; }
+
+        /// <summary>
         /// Gets or sets whether the property is featured.
         /// يحصل أو يعيّن ما إذا كان العقار مميزًا.
         /// </summary>
@@ -165,6 +201,12 @@ namespace YemenBooking.Application.Features.SearchAndFilters.DTOs {
         /// يحصل أو يعيّن وسائل الراحة الرئيسية.
         /// </summary>
         public List<string> MainAmenities { get; set; } = new();
+
+        /// <summary>
+        /// Gets or sets the primary amenities in English when available.
+        /// يحصل أو يعيّن وسائل الراحة الرئيسية بالإنجليزية عند توفرها.
+        /// </summary>
+        public List<string> MainAmenitiesEn { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the reviews including their responses.

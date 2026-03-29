@@ -1,5 +1,6 @@
 import 'package:hggzk/core/services/local_data_service.dart';
 import 'package:hggzk/core/services/connectivity_service.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/features/home/data/models/property_type_model.dart';
 import 'package:hggzk/features/home/data/models/unit_type_model.dart';
 import 'package:hggzk/features/search/data/models/search_filter_model.dart';
@@ -61,7 +62,10 @@ class DataSyncService {
         if (localData.isNotEmpty) {
           return localData;
         } else {
-          throw Exception('لا توجد بيانات محفوظة محلياً');
+          throw Exception(
+            AppLocalizations.translateSync(
+                'core.dataSync.noLocalPropertyTypes'),
+          );
         }
       }
     } catch (e) {
@@ -99,7 +103,9 @@ class DataSyncService {
         if (localData.isNotEmpty) {
           return localData;
         } else {
-          throw Exception('لا توجد بيانات محفوظة محلياً');
+          throw Exception(
+            AppLocalizations.translateSync('core.dataSync.noLocalUnitTypes'),
+          );
         }
       }
     } catch (e) {
@@ -129,7 +135,9 @@ class DataSyncService {
         if (localData.isNotEmpty) {
           return localData;
         } else {
-          throw Exception('لا توجد حقول ديناميكية محفوظة');
+          throw Exception(
+            AppLocalizations.translateSync('core.dataSync.noDynamicFields'),
+          );
         }
       } else {
         // نستخدم البيانات المحفوظة محليًا.
@@ -139,7 +147,11 @@ class DataSyncService {
         if (localData.isNotEmpty) {
           return localData;
         } else {
-          throw Exception('لا توجد حقول ديناميكية محفوظة محلياً');
+          throw Exception(
+            AppLocalizations.translateSync(
+              'core.dataSync.noDynamicFieldsLocal',
+            ),
+          );
         }
       }
     } catch (e) {
@@ -169,7 +181,9 @@ class DataSyncService {
         if (localData.isNotEmpty) {
           return localData;
         } else {
-          throw Exception('لا توجد حقول قابلة للفلترة محفوظة');
+          throw Exception(
+            AppLocalizations.translateSync('core.dataSync.noFilterableFields'),
+          );
         }
       } else {
         // نستخدم النسخة المحفوظة محليًا.
@@ -179,7 +193,11 @@ class DataSyncService {
         if (localData.isNotEmpty) {
           return localData;
         } else {
-          throw Exception('لا توجد حقول قابلة للفلترة محفوظة محلياً');
+          throw Exception(
+            AppLocalizations.translateSync(
+              'core.dataSync.noFilterableFieldsLocal',
+            ),
+          );
         }
       }
     } catch (e) {
@@ -201,7 +219,9 @@ class DataSyncService {
       final isConnected = await _connectivityService.checkConnection();
 
       if (!isConnected) {
-        throw Exception('لا يوجد اتصال بالإنترنت');
+        throw Exception(
+          AppLocalizations.translateSync('core.dataSync.noInternet'),
+        );
       }
 
       // نجلب البيانات الأساسية من المصدر البعيد.

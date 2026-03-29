@@ -548,8 +548,10 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     for (final fieldValue in widget.unit.fieldValues) {
       if (fieldValue.isPrimaryFilter == true) {
         filterFields.add({
-          'displayName':
-              fieldValue.displayName ?? fieldValue.fieldName ?? 'حقل',
+          'displayName': _bilingualFieldLabel(
+            primary: fieldValue.displayName ?? fieldValue.fieldName ?? 'حقل',
+            secondary: fieldValue.displayNameEn,
+          ),
           'value': fieldValue.fieldValue,
           'fieldTypeId': fieldValue.fieldTypeId ?? 'text',
         });
@@ -559,7 +561,10 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
       for (final field in group.fieldValues) {
         if (field.isPrimaryFilter == true) {
           filterFields.add({
-            'displayName': field.displayName ?? field.fieldName ?? 'حقل',
+            'displayName': _bilingualFieldLabel(
+              primary: field.displayName ?? field.fieldName ?? 'حقل',
+              secondary: field.displayNameEn,
+            ),
             'value': field.fieldValue,
             'fieldTypeId': field.fieldTypeId ?? 'text',
           });
@@ -576,8 +581,10 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     for (final fieldValue in widget.unit.fieldValues) {
       if (fieldValue.fieldValue.isNotEmpty) {
         fallback.add({
-          'displayName':
-              fieldValue.displayName ?? fieldValue.fieldName ?? 'حقل',
+          'displayName': _bilingualFieldLabel(
+            primary: fieldValue.displayName ?? fieldValue.fieldName ?? 'حقل',
+            secondary: fieldValue.displayNameEn,
+          ),
           'value': fieldValue.fieldValue,
           'fieldTypeId': fieldValue.fieldTypeId ?? 'text',
         });
@@ -587,7 +594,10 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
       for (final field in group.fieldValues) {
         if (field.fieldValue.isNotEmpty) {
           fallback.add({
-            'displayName': field.displayName ?? field.fieldName ?? 'حقل',
+            'displayName': _bilingualFieldLabel(
+              primary: field.displayName ?? field.fieldName ?? 'حقل',
+              secondary: field.displayNameEn,
+            ),
             'value': field.fieldValue,
             'fieldTypeId': field.fieldTypeId ?? 'text',
           });
@@ -967,10 +977,27 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
             fontWeight: FontWeight.bold,
             fontSize: widget.isSelected || _isHovered ? 18 : 16,
           ),
-          child: Text(
-            widget.unit.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                widget.unit.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (_normalizedSecondary(widget.unit.nameEn, widget.unit.name) !=
+                  null)
+                Text(
+                  _normalizedSecondary(widget.unit.nameEn, widget.unit.name)!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppTheme.textMuted,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+            ],
           ),
         ),
 
@@ -1003,13 +1030,34 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
                     color: AppTheme.primaryBlue,
                   ),
                   const SizedBox(width: 4),
-                  Text(
-                    widget.unit.unitTypeName,
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.primaryBlue,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 10,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        widget.unit.unitTypeName,
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppTheme.primaryBlue,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 10,
+                        ),
+                      ),
+                      if (_normalizedSecondary(
+                            widget.unit.unitTypeNameEn,
+                            widget.unit.unitTypeName,
+                          ) !=
+                          null)
+                        Text(
+                          _normalizedSecondary(
+                            widget.unit.unitTypeNameEn,
+                            widget.unit.unitTypeName,
+                          )!,
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.75),
+                            fontSize: 9,
+                          ),
+                        ),
+                    ],
                   ),
                 ],
               ),
@@ -1036,14 +1084,37 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
             ),
             const SizedBox(width: 6),
             Expanded(
-              child: Text(
-                widget.unit.propertyName,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppTheme.textLight,
-                  fontSize: 12,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    widget.unit.propertyName,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppTheme.textLight,
+                      fontSize: 12,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (_normalizedSecondary(
+                        widget.unit.propertyNameEn,
+                        widget.unit.propertyName,
+                      ) !=
+                      null)
+                    Text(
+                      _normalizedSecondary(
+                        widget.unit.propertyNameEn,
+                        widget.unit.propertyName,
+                      )!,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppTheme.textMuted,
+                        fontSize: 11,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
               ),
             ),
           ],
@@ -1531,6 +1602,27 @@ class _FuturisticUnitCardState extends State<FuturisticUnitCard>
     } else {
       return Icons.star_rounded;
     }
+  }
+
+  String? _normalizedSecondary(String? secondary, String primary) {
+    final normalized = secondary?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      return null;
+    }
+
+    if (normalized == primary.trim()) {
+      return null;
+    }
+
+    return normalized;
+  }
+
+  String _bilingualFieldLabel({
+    required String primary,
+    String? secondary,
+  }) {
+    final normalized = _normalizedSecondary(secondary, primary);
+    return normalized == null ? primary : '$primary\n$normalized';
   }
 }
 

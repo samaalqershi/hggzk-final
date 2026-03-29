@@ -79,9 +79,17 @@ class CreateAmenityEvent extends AmenitiesEvent {
   /// اسم المرفق الظاهر.
   final String name;
 
+  /// The English amenity name stored beside the primary name.
+  /// الاسم الإنجليزي الموازي للمرفق.
+  final String? nameEn;
+
   /// The longer description shown in detail screens.
   /// الوصف الأطول المعروض في شاشات التفاصيل.
   final String description;
+
+  /// The English description stored beside the primary text.
+  /// الوصف الإنجليزي الموازي للنص الأساسي.
+  final String? descriptionEn;
 
   /// The icon identifier or symbol used in the UI.
   /// معرّف الأيقونة أو الرمز المستخدم في الواجهة.
@@ -99,7 +107,9 @@ class CreateAmenityEvent extends AmenitiesEvent {
   /// ينشئ طلب إنشاء مرفق من قيم النموذج.
   const CreateAmenityEvent({
     required this.name,
+    this.nameEn,
     required this.description,
+    this.descriptionEn,
     required this.icon,
     this.propertyTypeId,
     this.isDefaultForType = false,
@@ -109,8 +119,15 @@ class CreateAmenityEvent extends AmenitiesEvent {
 
   /// Comparison keys that capture every field used to create the amenity.
   /// مفاتيح المقارنة التي تغطي كل الحقول المستخدمة في إنشاء المرفق.
-  List<Object?> get props =>
-      [name, description, icon, propertyTypeId, isDefaultForType];
+  List<Object?> get props => [
+        name,
+        nameEn,
+        description,
+        descriptionEn,
+        icon,
+        propertyTypeId,
+        isDefaultForType
+      ];
 }
 
 /// Updates an existing amenity with edited admin values.
@@ -124,9 +141,17 @@ class UpdateAmenityEvent extends AmenitiesEvent {
   /// اسم بديل اختياري.
   final String? name;
 
+  /// Optional replacement English name.
+  /// اسم إنجليزي بديل اختياري.
+  final String? nameEn;
+
   /// Optional replacement description.
   /// وصف بديل اختياري.
   final String? description;
+
+  /// Optional replacement English description.
+  /// وصف إنجليزي بديل اختياري.
+  final String? descriptionEn;
 
   /// Optional replacement icon.
   /// أيقونة بديلة اختيارية.
@@ -137,7 +162,9 @@ class UpdateAmenityEvent extends AmenitiesEvent {
   const UpdateAmenityEvent({
     required this.amenityId,
     this.name,
+    this.nameEn,
     this.description,
+    this.descriptionEn,
     this.icon,
   });
 
@@ -145,7 +172,8 @@ class UpdateAmenityEvent extends AmenitiesEvent {
 
   /// Comparison keys for the edited amenity payload.
   /// مفاتيح المقارنة لحمولة المرفق المعدلة.
-  List<Object?> get props => [amenityId, name, description, icon];
+  List<Object?> get props =>
+      [amenityId, name, nameEn, description, descriptionEn, icon];
 }
 
 /// Deletes one amenity from the catalog.

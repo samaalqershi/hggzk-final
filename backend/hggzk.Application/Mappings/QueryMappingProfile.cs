@@ -115,6 +115,7 @@ namespace YemenBooking.Application.Mappings
             // Property mapping
             CreateMap<Property, PropertyDto>()
                 .ForMember(dest => dest.TypeName, opt => opt.MapFrom(src => src.PropertyType.Name))
+                .ForMember(dest => dest.TypeNameEn, opt => opt.MapFrom(src => src.PropertyType.NameEn))
                 .ForMember(dest => dest.OwnerName, opt => opt.MapFrom(src => src.Owner.Name))
                 .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => src.AverageRating));
 
@@ -137,12 +138,15 @@ namespace YemenBooking.Application.Mappings
             // Service mapping
             CreateMap<PropertyService, ServiceDto>()
                 .ForMember(dest => dest.PropertyName, opt => opt.MapFrom(src => src.Property.Name))
+                .ForMember(dest => dest.PropertyNameEn, opt => opt.MapFrom(src => src.Property.NameEn))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             // Unit mapping
             CreateMap<Unit, UnitDto>()
                 .ForMember(dest => dest.PropertyName, opt => opt.MapFrom(src => src.Property.Name))
+                .ForMember(dest => dest.PropertyNameEn, opt => opt.MapFrom(src => src.Property.NameEn))
                 .ForMember(dest => dest.UnitTypeName, opt => opt.MapFrom(src => src.UnitType.Name))
+                .ForMember(dest => dest.UnitTypeNameEn, opt => opt.MapFrom(src => src.UnitType.NameEn))
                 .ForMember(dest => dest.PricingMethod, opt => opt.MapFrom(src => src.PricingMethod))
                 .ForMember(dest => dest.AllowsCancellation, opt => opt.MapFrom(src => src.AllowsCancellation))
                 .ForMember(dest => dest.CancellationWindowDays, opt => opt.MapFrom(src => src.CancellationWindowDays))
@@ -174,6 +178,8 @@ namespace YemenBooking.Application.Mappings
                 .ForMember(dest => dest.IsAvailable, opt => opt.MapFrom(src => src.IsAvailable))
                 .ForMember(dest => dest.ExtraCost, opt => opt.MapFrom(src => src.ExtraCost != null ? src.ExtraCost.Amount : (decimal?)null))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.PropertyTypeAmenity.Amenity.Description))
+                .ForMember(dest => dest.NameEn, opt => opt.MapFrom(src => src.PropertyTypeAmenity.Amenity.NameEn))
+                .ForMember(dest => dest.CategoryEn, opt => opt.MapFrom(src => src.PropertyTypeAmenity.Amenity.NameEn))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PropertyTypeAmenity.Amenity.Name))
                 .ForMember(dest => dest.IconUrl, opt => opt.Ignore())
                 .ForMember(dest => dest.Category, opt => opt.Ignore());

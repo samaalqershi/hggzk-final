@@ -382,6 +382,52 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
     );
   }
 
+  bool _hasSecondary(String? secondary, String primary) {
+    if (secondary == null) {
+      return false;
+    }
+
+    final trimmed = secondary.trim();
+    return trimmed.isNotEmpty && trimmed != primary.trim();
+  }
+
+  Widget _buildBilingualText(
+    String primary, {
+    String? secondary,
+    TextStyle? primaryStyle,
+    TextStyle? secondaryStyle,
+    int primaryMaxLines = 1,
+    int secondaryMaxLines = 1,
+  }) {
+    final showSecondary = _hasSecondary(secondary, primary);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          primary,
+          style: primaryStyle,
+          maxLines: primaryMaxLines,
+          overflow: TextOverflow.ellipsis,
+        ),
+        if (showSecondary) ...[
+          const SizedBox(height: 4),
+          Text(
+            secondary!,
+            style: secondaryStyle ??
+                primaryStyle?.copyWith(
+                  color: Colors.white.withValues(alpha: 0.82),
+                  fontSize: (primaryStyle.fontSize ?? 14) - 2,
+                ),
+            maxLines: secondaryMaxLines,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ],
+    );
+  }
+
   Widget _buildHeaderInfo(Property property) {
     return Positioned(
       bottom: 20,
@@ -392,9 +438,10 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
         mainAxisSize: MainAxisSize.min,
         children: [
           // Property Name
-          Text(
+          _buildBilingualText(
             property.name,
-            style: AppTextStyles.heading1.copyWith(
+            secondary: property.nameEn,
+            primaryStyle: AppTextStyles.heading1.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w600,
               shadows: [
@@ -404,6 +451,16 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
                 ),
               ],
             ),
+            secondaryStyle: AppTextStyles.bodyMedium.copyWith(
+              color: Colors.white.withValues(alpha: 0.9),
+              shadows: [
+                Shadow(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                ),
+              ],
+            ),
+            primaryMaxLines: 2,
           ),
           const SizedBox(height: 8),
 
@@ -417,13 +474,19 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
               ),
               const SizedBox(width: 4),
               Expanded(
-                child: Text(
+                child: _buildBilingualText(
                   property.formattedAddress,
-                  style: AppTextStyles.bodyMedium.copyWith(
+                  secondary: _hasSecondary(
+                              property.addressEn, property.address) ||
+                          _hasSecondary(property.cityEn, property.city)
+                      ? '${property.addressEn ?? property.address}, ${property.cityEn ?? property.city}'
+                      : null,
+                  primaryStyle: AppTextStyles.bodyMedium.copyWith(
                     color: Colors.white.withValues(alpha: 0.9),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  secondaryStyle: AppTextStyles.caption.copyWith(
+                    color: Colors.white.withValues(alpha: 0.8),
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
@@ -534,12 +597,19 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
                       ],
                     ),
                     const SizedBox(height: 12),
-                    Text(
+                    _buildBilingualText(
                       property.description,
-                      style: AppTextStyles.bodyMedium.copyWith(
+                      secondary: property.descriptionEn,
+                      primaryStyle: AppTextStyles.bodyMedium.copyWith(
                         color: AppTheme.textLight,
                         height: 1.5,
                       ),
+                      secondaryStyle: AppTextStyles.bodySmall.copyWith(
+                        color: AppTheme.textMuted,
+                        height: 1.5,
+                      ),
+                      primaryMaxLines: 100,
+                      secondaryMaxLines: 100,
                     ),
                   ],
                 ),

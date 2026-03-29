@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
+using YemenBooking.Application.Common.Helpers;
 using YemenBooking.Application.Features.SearchAndFilters;
 using YemenBooking.Application.Common.Models;
 using YemenBooking.Core.Interfaces.Repositories;
@@ -213,18 +214,23 @@ public class GetPopularDestinationsQueryHandler : IRequestHandler<GetPopularDest
 
     private string? GetCityDescription(string cityName)
     {
-        var cityDescriptions = new Dictionary<string, string>
+        var cityDescriptions = new Dictionary<string, (string Arabic, string English)>
         {
-            { "صنعاء", "العاصمة التاريخية والثقافية لليمن" },
-            { "عدن", "العاصمة الاقتصادية والميناء الرئيسي" },
-            { "تعز", "المدينة الثقافية والتعليمية" },
-            { "الحديدة", "الميناء الغربي الرئيسي على البحر الأحمر" },
-            { "إب", "مدينة الخضرة والجمال الطبيعي" },
-            { "المكلا", "عاصمة حضرموت الساحلية" },
-            { "سيئون", "مدينة التراث والتاريخ في وادي حضرموت" }
+            { "صنعاء", ("العاصمة التاريخية والثقافية لليمن", "Yemen's historic and cultural capital") },
+            { "عدن", ("العاصمة الاقتصادية والميناء الرئيسي", "The economic capital and main seaport") },
+            { "تعز", ("المدينة الثقافية والتعليمية", "The cultural and educational city") },
+            { "الحديدة", ("الميناء الغربي الرئيسي على البحر الأحمر", "The main western port on the Red Sea") },
+            { "إب", ("مدينة الخضرة والجمال الطبيعي", "The city of greenery and natural beauty") },
+            { "المكلا", ("عاصمة حضرموت الساحلية", "The coastal capital of Hadramout") },
+            { "سيئون", ("مدينة التراث والتاريخ في وادي حضرموت", "A heritage and history city in Wadi Hadramout") }
         };
 
-        return cityDescriptions.GetValueOrDefault(cityName, $"مدينة {cityName} الجميلة");
+        if (cityDescriptions.TryGetValue(cityName, out var description))
+        {
+            return LocalizedText.Choose(description.Arabic, description.English);
+        }
+
+        return LocalizedText.Choose($"مدينة {cityName} الجميلة", $"The beautiful city of {cityName}");
     }
 
     private List<PopularDestinationDto> GetDefaultDestinations()
@@ -237,7 +243,7 @@ public class GetPopularDestinationsQueryHandler : IRequestHandler<GetPopularDest
                 PropertiesCount = 0,
                 AveragePrice = 50000,
                 ImageUrl = "/images/cities/sanaa.jpg",
-                Description = "العاصمة التاريخية والثقافية لليمن"
+                Description = LocalizedText.Choose("العاصمة التاريخية والثقافية لليمن", "Yemen's historic and cultural capital")
             },
             new PopularDestinationDto
             {
@@ -245,7 +251,7 @@ public class GetPopularDestinationsQueryHandler : IRequestHandler<GetPopularDest
                 PropertiesCount = 0,
                 AveragePrice = 45000,
                 ImageUrl = "/images/cities/aden.jpg",
-                Description = "العاصمة الاقتصادية والميناء الرئيسي"
+                Description = LocalizedText.Choose("العاصمة الاقتصادية والميناء الرئيسي", "The economic capital and main seaport")
             },
             new PopularDestinationDto
             {
@@ -253,7 +259,7 @@ public class GetPopularDestinationsQueryHandler : IRequestHandler<GetPopularDest
                 PropertiesCount = 0,
                 AveragePrice = 40000,
                 ImageUrl = "/images/cities/taiz.jpg",
-                Description = "المدينة الثقافية والتعليمية"
+                Description = LocalizedText.Choose("المدينة الثقافية والتعليمية", "The cultural and educational city")
             },
             new PopularDestinationDto
             {
@@ -261,7 +267,7 @@ public class GetPopularDestinationsQueryHandler : IRequestHandler<GetPopularDest
                 PropertiesCount = 0,
                 AveragePrice = 35000,
                 ImageUrl = "/images/cities/hodeidah.jpg",
-                Description = "الميناء الغربي الرئيسي على البحر الأحمر"
+                Description = LocalizedText.Choose("الميناء الغربي الرئيسي على البحر الأحمر", "The main western port on the Red Sea")
             },
             new PopularDestinationDto
             {
@@ -269,7 +275,7 @@ public class GetPopularDestinationsQueryHandler : IRequestHandler<GetPopularDest
                 PropertiesCount = 0,
                 AveragePrice = 30000,
                 ImageUrl = "/images/cities/ibb.jpg",
-                Description = "مدينة الخضرة والجمال الطبيعي"
+                Description = LocalizedText.Choose("مدينة الخضرة والجمال الطبيعي", "The city of greenery and natural beauty")
             }
         };
     }

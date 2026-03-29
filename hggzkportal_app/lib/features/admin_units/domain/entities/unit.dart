@@ -21,6 +21,8 @@ class Unit extends Equatable {
   /// This field keeps the name value used by the admin unit workflow.
   final String name;
 
+  final String? nameEn;
+
   /// يحتفظ هذا الحقل بقيمة maxCapacity التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the maxCapacity value used by the admin unit workflow.
   final int maxCapacity;
@@ -32,6 +34,8 @@ class Unit extends Equatable {
   /// يحتفظ هذا الحقل بقيمة customFeatures التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the customFeatures value used by the admin unit workflow.
   final String customFeatures;
+
+  final String? customFeaturesEn;
 
   /// يحتفظ هذا الحقل بقيمة viewCount التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the viewCount value used by the admin unit workflow.
@@ -53,9 +57,13 @@ class Unit extends Equatable {
   /// This field keeps the propertyName value used by the admin unit workflow.
   final String propertyName;
 
+  final String? propertyNameEn;
+
   /// يحتفظ هذا الحقل بقيمة unitTypeName التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the unitTypeName value used by the admin unit workflow.
   final String unitTypeName;
+
+  final String? unitTypeNameEn;
 
   /// يحتفظ هذا الحقل بقيمة pricingMethod التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the pricingMethod value used by the admin unit workflow.
@@ -92,15 +100,19 @@ class Unit extends Equatable {
     required this.propertyId,
     required this.unitTypeId,
     required this.name,
+    this.nameEn,
     this.maxCapacity = 2,
     this.discountPercentage = 0.0,
     required this.customFeatures,
+    this.customFeaturesEn,
     this.viewCount = 0,
     this.bookingCount = 0,
     this.adultsCapacity,
     this.childrenCapacity,
     required this.propertyName,
+    this.propertyNameEn,
     required this.unitTypeName,
+    this.unitTypeNameEn,
     required this.pricingMethod,
     this.fieldValues = const [],
     this.dynamicFields = const [],
@@ -134,15 +146,19 @@ class Unit extends Equatable {
         propertyId,
         unitTypeId,
         name,
+        nameEn,
         maxCapacity,
         discountPercentage,
         customFeatures,
+        customFeaturesEn,
         viewCount,
         bookingCount,
         adultsCapacity,
         childrenCapacity,
         propertyName,
+        propertyNameEn,
         unitTypeName,
+        unitTypeNameEn,
         pricingMethod,
         fieldValues,
         dynamicFields,

@@ -9,6 +9,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hggzk/core/constants/route_constants.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_widget.dart';
@@ -159,7 +160,9 @@ class _NotificationsPageState extends State<NotificationsPage>
             return Row(
               children: [
                 Text(
-                  'الإشعارات',
+                  context.tr(
+                    'notifications.page.title',
+                  ),
                   style: isExpanded
                       ? AppTextStyles.h1.copyWith(
                           color: AppTheme.textWhite,
@@ -300,19 +303,23 @@ class _NotificationsPageState extends State<NotificationsPage>
       },
       builder: (context, state) {
         if (state is NotificationInitial) {
-          return const SliverFillRemaining(
+          return SliverFillRemaining(
             child: LoadingWidget(
               type: LoadingType.futuristic,
-              message: 'جاري تجهيز الإشعارات...',
+              message: context.tr(
+                'notifications.page.loadingInit',
+              ),
             ),
           );
         }
 
         if (state is NotificationLoading) {
-          return const SliverFillRemaining(
+          return SliverFillRemaining(
             child: LoadingWidget(
               type: LoadingType.futuristic,
-              message: 'جاري تحميل الإشعارات...',
+              message: context.tr(
+                'notifications.page.loadingMore',
+              ),
             ),
           );
         }
@@ -320,7 +327,7 @@ class _NotificationsPageState extends State<NotificationsPage>
         if (state is NotificationError) {
           return SliverFillRemaining(
             child: CustomErrorWidget(
-              message: state.message,
+              message: context.tr(state.message),
               onRetry: _loadNotifications,
               type: ErrorType.general,
             ),
@@ -348,14 +355,18 @@ class _NotificationsPageState extends State<NotificationsPage>
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'لا توجد إشعارات',
+                      context.tr(
+                        'notifications.page.emptyTitle',
+                      ),
                       style: AppTextStyles.h3.copyWith(
                         color: AppTheme.textWhite,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'ستظهر الإشعارات هنا عند وصولها',
+                      context.tr(
+                        'notifications.page.emptyBody',
+                      ),
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: AppTheme.textMuted,
                       ),
@@ -626,7 +637,9 @@ class _NotificationsPageState extends State<NotificationsPage>
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   child: Center(
                     child: Text(
-                      'عرض التفاصيل',
+                      context.tr(
+                        'notifications.page.viewDetails',
+                      ),
                       style: AppTextStyles.buttonMedium.copyWith(
                         color: Colors.white,
                       ),

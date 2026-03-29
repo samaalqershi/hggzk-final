@@ -32,6 +32,16 @@ namespace YemenBooking.Application.Features.Policies.Commands.UpdateProperty
         /// </summary>
         public string? Rules { get; set; }
         /// <summary>
+        /// وصف السياسة باللغة الإنجليزية.
+        /// Policy description in English.
+        /// </summary>
+        public string? DescriptionEn { get; set; }
+        /// <summary>
+        /// نص القواعد التفصيلية لهذه السياسة بالإنجليزية.
+        /// Detailed rule text in English.
+        /// </summary>
+        public string? RulesEn { get; set; }
+        /// <summary>
         /// عدد الأيام المسموح بها قبل بدء الإلغاء.
         /// Number of days allowed before cancellation starts.
         /// </summary>
@@ -86,6 +96,11 @@ namespace YemenBooking.Application.Features.Policies.Commands.UpdateProperty
         /// Penalty description applied after the cancellation deadline.
         /// </summary>
         public string? CancellationPenaltyAfterDeadline { get; set; }
+        /// <summary>
+        /// وصف الجزاء بعد انتهاء المهلة بالإنجليزية.
+        /// Penalty description after the cancellation deadline in English.
+        /// </summary>
+        public string? CancellationPenaltyAfterDeadlineEn { get; set; }
         /// <summary>
         /// يحدد أن الدفعة المقدمة مطلوبة.
         /// Indicates that a deposit is required.
@@ -172,15 +187,30 @@ namespace YemenBooking.Application.Features.Policies.Commands.UpdateProperty
         /// </summary>
         public string? CheckInEarlyCheckInNote { get; set; }
         /// <summary>
+        /// ملاحظة تسجيل الوصول المبكر بالإنجليزية.
+        /// Early check-in note in English.
+        /// </summary>
+        public string? CheckInEarlyCheckInNoteEn { get; set; }
+        /// <summary>
         /// ملاحظة خاصة بتسجيل المغادرة المتأخر.
         /// Note for late check-out.
         /// </summary>
         public string? CheckInLateCheckOutNote { get; set; }
         /// <summary>
+        /// ملاحظة تسجيل المغادرة المتأخر بالإنجليزية.
+        /// Late check-out note in English.
+        /// </summary>
+        public string? CheckInLateCheckOutNoteEn { get; set; }
+        /// <summary>
         /// رسوم تسجيل المغادرة المتأخر.
         /// Late check-out fee.
         /// </summary>
         public string? CheckInLateCheckOutFee { get; set; }
+        /// <summary>
+        /// رسوم تسجيل المغادرة المتأخر بالإنجليزية.
+        /// Late check-out fee in English.
+        /// </summary>
+        public string? CheckInLateCheckOutFeeEn { get; set; }
         /// <summary>
         /// يحدد ما إذا كان الأطفال مسموحًا بهم.
         /// Indicates whether children are allowed.
@@ -212,6 +242,11 @@ namespace YemenBooking.Application.Features.Policies.Commands.UpdateProperty
         /// </summary>
         public string? ChildrenCribsNote { get; set; }
         /// <summary>
+        /// ملاحظة أسرّة الأطفال بالإنجليزية.
+        /// Note about cribs in English.
+        /// </summary>
+        public string? ChildrenCribsNoteEn { get; set; }
+        /// <summary>
         /// يحدد توفر ملعب للأطفال.
         /// Indicates whether a children’s playground is available.
         /// </summary>
@@ -232,6 +267,11 @@ namespace YemenBooking.Application.Features.Policies.Commands.UpdateProperty
         /// </summary>
         public string? PetsReason { get; set; }
         /// <summary>
+        /// سبب سياسة الحيوانات الأليفة بالإنجليزية.
+        /// Reason for the pet policy in English.
+        /// </summary>
+        public string? PetsReasonEn { get; set; }
+        /// <summary>
         /// قيمة رسوم الحيوانات الأليفة.
         /// Pet fee amount.
         /// </summary>
@@ -241,6 +281,11 @@ namespace YemenBooking.Application.Features.Policies.Commands.UpdateProperty
         /// Maximum pet weight.
         /// </summary>
         public string? PetsMaxWeight { get; set; }
+        /// <summary>
+        /// الحد الأقصى لوزن الحيوانات الأليفة بالإنجليزية.
+        /// Maximum pet weight in English.
+        /// </summary>
+        public string? PetsMaxWeightEn { get; set; }
         /// <summary>
         /// يحدد أن الحيوانات الأليفة تتطلب موافقة مسبقة.
         /// Indicates pets require prior approval.
@@ -282,6 +327,11 @@ namespace YemenBooking.Application.Features.Policies.Commands.UpdateProperty
         /// </summary>
         public string? ModificationFeesAfter { get; set; }
         /// <summary>
+        /// الرسوم بعد التعديل المجاني بالإنجليزية.
+        /// Fees applied after the free modification window in English.
+        /// </summary>
+        public string? ModificationFeesAfterEn { get; set; }
+        /// <summary>
         /// يحدد أن سياسة التعديل مرنة.
         /// Indicates a flexible modification policy.
         /// </summary>
@@ -291,5 +341,10 @@ namespace YemenBooking.Application.Features.Policies.Commands.UpdateProperty
         /// Reason for the modification policy.
         /// </summary>
         public string? ModificationReason { get; set; }
+        /// <summary>
+        /// سبب سياسة التعديل بالإنجليزية.
+        /// Reason for the modification policy in English.
+        /// </summary>
+        public string? ModificationReasonEn { get; set; }
     }
 }

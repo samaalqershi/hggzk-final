@@ -2,6 +2,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:permission_handler/permission_handler.dart'
     as permission_handler;
+import 'package:hggzk/core/localization/app_localizations.dart';
+import 'package:hggzk/core/localization/locale_manager.dart';
 
 /// طبقة موقع موحدة تعزل `geolocator` و`geocoding` عن بقية التطبيق.
 /// Unified location façade that keeps `geolocator` and `geocoding` isolated.
@@ -64,7 +66,7 @@ class LocationService {
       final serviceEnabled = await isLocationServiceEnabled();
       if (!serviceEnabled) {
         throw LocationServiceException(
-          'خدمات الموقع معطلة. يرجى تفعيلها من الإعدادات',
+          await _tr('core.location.serviceDisabled'),
           LocationErrorType.serviceDisabled,
         );
       }
@@ -75,7 +77,7 @@ class LocationService {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           throw LocationServiceException(
-            'تم رفض صلاحية الوصول للموقع',
+            await _tr('core.location.permissionDenied'),
             LocationErrorType.permissionDenied,
           );
         }
@@ -83,7 +85,7 @@ class LocationService {
 
       if (permission == LocationPermission.deniedForever) {
         throw LocationServiceException(
-          'تم رفض صلاحية الوصول للموقع بشكل دائم. يرجى تفعيلها من الإعدادات',
+          await _tr('core.location.permissionDeniedForever'),
           LocationErrorType.permissionDeniedForever,
         );
       }
@@ -108,7 +110,7 @@ class LocationService {
         rethrow;
       }
       throw LocationServiceException(
-        'حدث خطأ في الحصول على الموقع: ${e.toString()}',
+        await _tr('core.location.unknownError'),
         LocationErrorType.unknown,
       );
     }
@@ -135,6 +137,18 @@ class LocationService {
     } catch (e) {
       return null;
     }
+  }
+
+  Future<String> _tr(
+    String key, {
+    String? fallback,
+    Map<String, Object?> params = const {},
+  }) {
+    return AppLocalizations.translate(
+      key,
+      locale: LocaleManager.getCurrentLocale(),
+      params: params,
+    );
   }
 
   /// يحسب المسافة الخطية بين نقطتين لاستخدامها في التقدير أو الترتيب.

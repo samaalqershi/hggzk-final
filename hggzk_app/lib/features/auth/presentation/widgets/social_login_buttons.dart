@@ -10,6 +10,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -51,7 +52,7 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
           _FuturisticSocialButton(
             icon: 'assets/icons/google.svg',
             fallbackIcon: Icons.g_mobiledata,
-            label: 'Google',
+            label: context.tr('auth.social.google'),
             gradient: LinearGradient(
               colors: [
                 Colors.white.withOpacity(0.1),
@@ -67,7 +68,7 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
           _FuturisticSocialButton(
             icon: 'assets/icons/facebook.svg',
             fallbackIcon: Icons.facebook,
-            label: 'Facebook',
+            label: context.tr('auth.social.facebook'),
             gradient: LinearGradient(
               colors: [
                 const Color(0xFF1877F2).withOpacity(0.2),
@@ -84,7 +85,7 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
           _FuturisticSocialButton(
             icon: 'assets/icons/apple.svg',
             fallbackIcon: Icons.apple,
-            label: 'Apple',
+            label: context.tr('auth.social.apple'),
             gradient: LinearGradient(
               colors: [
                 Colors.white.withOpacity(0.1),
@@ -111,7 +112,6 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
     if (!mounted || _isLoadingDialogShown) return;
     _isLoadingDialogShown = true;
     final overlay = Overlay.of(context, rootOverlay: true);
-    if (overlay == null) return;
     _loadingOverlayEntry = OverlayEntry(
       builder: (context) {
         return IgnorePointer(
@@ -155,7 +155,7 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
       switch (provider) {
         case SocialLoginProvider.google:
           debugPrint('🔐 Google Sign-In: بدء عملية تسجيل الدخول...');
-          debugPrint('📱 Platform: ${_getCurrentPlatformName()}');
+          debugPrint('📱 Platform: ${_getCurrentPlatformName(context)}');
 
           // الحصول على Client ID المناسب للمنصة (لأغراض التحقق والـ logging)
           final String? platformClientId = _getGoogleClientIdForPlatform();
@@ -171,7 +171,7 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
           if (kIsWeb) {
             // 🌐 Web: استخدام Web Client ID
             if (AppConstants.googleWebClientId.isEmpty) {
-              throw Exception('Web Client ID غير مُعد في AppConstants');
+              throw Exception(context.tr('auth.social.googleWebClientMissing'));
             }
             debugPrint('🌐 Web: استخدام Web Client ID');
             debugPrint(
@@ -205,7 +205,7 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
           } else if (defaultTargetPlatform == TargetPlatform.iOS) {
             // 🍎 iOS: استخدام iOS Client ID مع Server Client ID
             if (AppConstants.googleIosClientId.isEmpty) {
-              throw Exception('iOS Client ID غير مُعد في AppConstants');
+              throw Exception(context.tr('auth.social.googleIosClientMissing'));
             }
             debugPrint('🍎 iOS: استخدام iOS Client ID');
             debugPrint(
@@ -225,8 +225,12 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
               serverClientId: serverClientId,
             );
           } else {
-            debugPrint('❌ منصة غير مدعومة: ${_getCurrentPlatformName()}');
-            throw UnsupportedError('منصة غير مدعومة للمصادقة بـ Google');
+            debugPrint(
+              '❌ منصة غير مدعومة: ${_getCurrentPlatformName(context)}',
+            );
+            throw UnsupportedError(
+              context.tr('auth.social.googleUnsupportedPlatform'),
+            );
           }
 
           // تسجيل الخروج أولاً لضمان اختيار الحساب الصحيح
@@ -275,8 +279,12 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
             _hideLoadingDialog();
             // ignore: use_build_context_synchronously
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('خطأ: لم يتم الحصول على رمز المصادقة من Google'),
+              SnackBar(
+                content: Text(
+                  context.tr(
+                    'auth.social.googleTokenMissing',
+                  ),
+                ),
                 backgroundColor: Colors.red,
               ),
             );
@@ -301,7 +309,10 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
 
           if (!_isFacebookSupportedPlatform()) {
             _showErrorSnackBar(
-              'تسجيل الدخول عبر Facebook غير مدعوم على ${_getCurrentPlatformName()}',
+              context.tr(
+                'auth.social.facebookUnsupportedPlatform',
+                params: {'platform': _getCurrentPlatformName(context)},
+              ),
             );
             return;
           }
@@ -324,12 +335,17 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
               );
             } on MissingPluginException {
               _showErrorSnackBar(
-                'تعذر تهيئة تسجيل الدخول عبر Facebook على هذه النسخة (${_getCurrentPlatformName()}). أعد بناء التطبيق (clean) ثم ثبته من جديد.',
+                context.tr(
+                  'auth.social.facebookInitFailed',
+                  params: {'platform': _getCurrentPlatformName(context)},
+                ),
               );
               return;
             } on PlatformException {
               _showErrorSnackBar(
-                'تعذر تنفيذ تسجيل الدخول عبر Facebook على هذه المنصة',
+                context.tr(
+                  'auth.social.facebookUnsupported',
+                ),
               );
               return;
             }
@@ -362,14 +378,21 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
         case SocialLoginProvider.apple:
           if (kIsWeb) {
             _showErrorSnackBar(
-                'تسجيل الدخول عبر Apple غير مدعوم على Web في هذا الإصدار');
+              context.tr(
+                'auth.social.appleUnsupportedWeb',
+              ),
+            );
             return;
           }
 
           if (defaultTargetPlatform != TargetPlatform.iOS &&
               defaultTargetPlatform != TargetPlatform.android) {
             _showErrorSnackBar(
-                'تسجيل الدخول عبر Apple غير مدعوم على ${_getCurrentPlatformName()}');
+              context.tr(
+                'auth.social.appleUnsupportedPlatform',
+                params: {'platform': _getCurrentPlatformName(context)},
+              ),
+            );
             return;
           }
 
@@ -385,7 +408,9 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
               _isSocialAuthInFlight = false;
               _hideLoadingDialog();
               _showErrorSnackBar(
-                'Apple Sign-In على Android يحتاج Redirect URI (https) مضبوط في AppConstants.appleRedirectUri ومُسجل في Apple Developer Services ID (${AppConstants.appleServiceId}).',
+                context.tr(
+                  'auth.social.appleRedirectMissing',
+                ),
               );
               return;
             }
@@ -410,7 +435,11 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
           if (idToken == null || idToken.isEmpty) {
             _isSocialAuthInFlight = false;
             _hideLoadingDialog();
-            _showErrorSnackBar('لم يتم الحصول على Apple identityToken');
+            _showErrorSnackBar(
+              context.tr(
+                'auth.social.appleIdentityMissing',
+              ),
+            );
             return;
           }
 
@@ -442,7 +471,9 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('خطأ في تسجيل الدخول: $e'),
+          content: Text(
+            context.tr('auth.social.loginError'),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -468,22 +499,22 @@ class _SocialLoginButtonsState extends State<SocialLoginButtons> {
     }
   }
 
-  String _getCurrentPlatformName() {
-    if (kIsWeb) return 'Web';
+  String _getCurrentPlatformName(BuildContext context) {
+    if (kIsWeb) return context.tr('auth.platform.web');
 
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return 'Android';
+        return context.tr('auth.platform.android');
       case TargetPlatform.iOS:
-        return 'iOS';
+        return context.tr('auth.platform.ios');
       case TargetPlatform.macOS:
-        return 'macOS';
+        return context.tr('auth.platform.macos');
       case TargetPlatform.windows:
-        return 'Windows';
+        return context.tr('auth.platform.windows');
       case TargetPlatform.linux:
-        return 'Linux';
+        return context.tr('auth.platform.linux');
       case TargetPlatform.fuchsia:
-        return 'Fuchsia';
+        return context.tr('auth.platform.fuchsia');
     }
   }
 
@@ -630,7 +661,10 @@ class _FuturisticSocialButtonState extends State<_FuturisticSocialButton>
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          'تسجيل الدخول بـ ${widget.label}',
+                          context.tr(
+                            'auth.social.loginWith',
+                            params: {'provider': widget.label},
+                          ),
                           style: AppTextStyles.buttonMedium.copyWith(
                             color: AppTheme.textWhite,
                           ),

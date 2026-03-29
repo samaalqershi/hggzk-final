@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/error/failures.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../domain/usecases/create_booking_usecase.dart';
 import '../../domain/usecases/get_booking_details_usecase.dart';
 import '../../domain/usecases/cancel_booking_usecase.dart';
@@ -348,8 +349,13 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
           );
         } else {
           emit(BookingError(
-              message:
-                  'فشل الدفع: ${transaction.failureReason ?? "خطأ غير معروف"}'));
+            message:
+                AppLocalizations.translateSync('booking.payment.failedPrefix') +
+                    (transaction.failureReason ??
+                        AppLocalizations.translateSync(
+                          'booking.payment.unknownError',
+                        )),
+          ));
         }
       },
     );

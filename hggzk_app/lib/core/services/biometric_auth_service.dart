@@ -2,6 +2,8 @@ import 'package:flutter/services.dart';
 import 'package:local_auth/error_codes.dart' as auth_error_codes;
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
+import 'package:hggzk/core/localization/locale_manager.dart';
 
 /// نتيجة موحدة لمسار التحقق الحيوي حتى تفهم بقية الطبقات النجاح والفشل
 /// من دون الارتباط بتفاصيل `local_auth`.
@@ -85,26 +87,27 @@ class BiometricAuthService {
   /// ينفذ طلب التحقق الحيوي ويحوّل الاستجابات التقنية إلى نتيجة مفهومة للواجهة.
   /// Runs the biometric prompt and converts platform responses into a UI-friendly result.
   Future<BiometricAuthResult> authenticate({
-    String reason = 'تأكيد الهوية بالبصمة',
+    String? reason,
   }) async {
+    final localizedReason = reason ?? await _tr('core.biometric.reason');
     try {
       if (!await isDeviceSupported()) {
-        return const BiometricAuthResult.failure(
-          'جهازك لا يدعم تسجيل الدخول بالبصمة.',
+        return BiometricAuthResult.failure(
+          await _tr('core.biometric.unsupported'),
         );
       }
 
       if (!await canCheckBiometrics()) {
         final available = await getAvailableBiometrics();
         if (available.isEmpty) {
-          return const BiometricAuthResult.failure(
-            'قم بإعداد بصمة الإصبع أو التعرف على الوجه في إعدادات الجهاز أولاً.',
+          return BiometricAuthResult.failure(
+            await _tr('core.biometric.enroll'),
           );
         }
       }
 
       final didAuth = await _localAuth.authenticate(
-        localizedReason: reason,
+        localizedReason: localizedReason,
         options: const AuthenticationOptions(
           biometricOnly: true,
           stickyAuth: true,
@@ -114,9 +117,11 @@ class BiometricAuthService {
 
       return didAuth
           ? const BiometricAuthResult.success()
-          : const BiometricAuthResult.failure('لم يتم تأكيد الهوية.');
+          : BiometricAuthResult.failure(
+              await _tr('core.biometric.notConfirmed'),
+            );
     } on PlatformException catch (e) {
-      return BiometricAuthResult.failure(_mapPlatformException(e));
+      return BiometricAuthResult.failure(await _mapPlatformException(e));
     }
   }
 
@@ -140,17 +145,29 @@ class BiometricAuthService {
 
   /// يحول أخطاء النظام إلى رسائل عملية يمكن عرضها للمستخدم مباشرة.
   /// Maps platform exceptions into user-facing messages.
-  String _mapPlatformException(PlatformException exception) {
+  Future<String> _mapPlatformException(PlatformException exception) {
     switch (exception.code) {
       case auth_error_codes.notAvailable:
-        return 'ميزة البصمة غير متوفرة على هذا الجهاز.';
+        return _tr('core.biometric.notAvailable');
       case auth_error_codes.notEnrolled:
-        return 'لم يتم تسجيل أي بصمة. يرجى إضافة بصمة في إعدادات الجهاز.';
+        return _tr('core.biometric.noEnrollment');
       case auth_error_codes.lockedOut:
       case auth_error_codes.permanentlyLockedOut:
-        return 'تجاوزت عدد المحاولات المسموح بها. استخدم كلمة المرور أو افتح قفل الجهاز أولاً.';
+        return _tr('core.biometric.tooManyAttempts');
       default:
-        return exception.message ?? 'فشل التحقق بالبصمة.';
+        return _tr('core.biometric.failed');
     }
+  }
+
+  Future<String> _tr(
+    String key, {
+    String? fallback,
+    Map<String, Object?> params = const {},
+  }) {
+    return AppLocalizations.translate(
+      key,
+      locale: LocaleManager.getCurrentLocale(),
+      params: params,
+    );
   }
 }

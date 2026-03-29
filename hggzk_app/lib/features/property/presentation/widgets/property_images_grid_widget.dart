@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
@@ -137,7 +138,7 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
             ),
             const SizedBox(height: 12),
             Text(
-              'لا توجد صور متاحة',
+              context.tr('property.images.none'),
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted,
               ),
@@ -440,7 +441,7 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
                       ),
                     ),
                     Text(
-                      'صور إضافية',
+                      context.tr('property.images.more'),
                       style: AppTextStyles.caption.copyWith(
                         color: Colors.white.withOpacity(0.8),
                       ),
@@ -540,7 +541,7 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
           ),
           const SizedBox(width: 3),
           Text(
-            'مميز',
+            context.tr('property.images.featured'),
             style: AppTextStyles.caption.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,

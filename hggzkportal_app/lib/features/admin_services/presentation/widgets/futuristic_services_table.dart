@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/service.dart';
@@ -36,6 +35,7 @@ class FuturisticServicesTable extends StatefulWidget {
   State<FuturisticServicesTable> createState() =>
       _FuturisticServicesTableState();
 }
+
 class _FuturisticServicesTableState extends State<FuturisticServicesTable>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
@@ -45,6 +45,30 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
   bool _isAscending = true;
   late final ScrollController _scrollController;
   bool _ownsController = false;
+
+  Widget _buildSecondaryText(
+    String? value, {
+    int maxLines = 1,
+    TextStyle? style,
+  }) {
+    if (value == null || value.trim().isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Text(
+        value,
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+        style: style ??
+            AppTextStyles.caption.copyWith(
+              color: AppTheme.textMuted.withValues(alpha: 0.85),
+            ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -69,6 +93,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       _scrollController.addListener(_handleScroll);
     }
   }
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -81,6 +106,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
     }
     super.dispose();
   }
+
   void _handleScroll() {
     if (widget.onLoadMore == null || widget.hasReachedMax) return;
     if (!_scrollController.hasClients) return;
@@ -89,6 +115,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       widget.onLoadMore!.call();
     }
   }
+
   List<Service> get _sortedServices {
     if (_sortBy == 'none') {
       return List<Service>.from(widget.services);
@@ -114,6 +141,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
     });
     return sorted;
   }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -173,6 +201,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       ),
     );
   }
+
   Widget _buildDesktopHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -212,6 +241,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       ),
     );
   }
+
   Widget _buildMobileHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -267,6 +297,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       ),
     );
   }
+
   PopupMenuItem<String> _buildSortMenuItem(
       String value, String label, IconData icon) {
     final isActive = _sortBy == value;
@@ -299,6 +330,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       ),
     );
   }
+
   Widget _buildHeaderCell(
     String title,
     String sortKey, {
@@ -362,6 +394,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       ),
     );
   }
+
   Widget _buildDesktopTable() {
     final sortedServices = _sortedServices;
     if (widget.embeddedInScrollView) {
@@ -441,6 +474,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
+                                  _buildSecondaryText(service.nameEn),
                                   Text(
                                     'Icons.${service.icon}',
                                     style: AppTextStyles.caption.copyWith(
@@ -458,13 +492,19 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                       // Property
                       Expanded(
                         flex: 2,
-                        child: Text(
-                          service.propertyName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppTheme.textLight,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              service.propertyName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppTheme.textLight,
+                              ),
+                            ),
+                            _buildSecondaryText(service.propertyNameEn),
+                          ],
                         ),
                       ),
 
@@ -613,6 +653,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
+                                  _buildSecondaryText(service.nameEn),
                                   Text(
                                     'Icons.${service.icon}',
                                     style: AppTextStyles.caption.copyWith(
@@ -630,13 +671,19 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                       // Property
                       Expanded(
                         flex: 2,
-                        child: Text(
-                          service.propertyName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppTheme.textLight,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              service.propertyName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppTheme.textLight,
+                              ),
+                            ),
+                            _buildSecondaryText(service.propertyNameEn),
+                          ],
                         ),
                       ),
 
@@ -708,6 +755,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
       ),
     );
   }
+
   Widget _buildMobileList() {
     final sortedServices = _sortedServices;
     if (widget.embeddedInScrollView) {
@@ -946,6 +994,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
+                              _buildSecondaryText(service.nameEn),
                               const SizedBox(height: 2),
                               Text(
                                 service.propertyName,
@@ -953,6 +1002,7 @@ class _FuturisticServicesTableState extends State<FuturisticServicesTable>
                                   color: AppTheme.textMuted,
                                 ),
                               ),
+                              _buildSecondaryText(service.propertyNameEn),
                             ],
                           ),
                         ),

@@ -61,8 +61,8 @@ class _PropertyPoliciesListState extends State<PropertyPoliciesList>
       targetKey: _getPolicyKey(policy.id),
       policyId: policy.id,
       policyType: policy.policyType,
-      description: policy.description,
-      rules: policy.rules,
+      description: _combineBilingual(policy.description, policy.descriptionEn),
+      rules: _combineBilingual(policy.rules, policy.rulesEn),
       isActive: policy.isActive,
       effectiveDate: policy.effectiveDate,
     );
@@ -335,6 +335,17 @@ class _PropertyPoliciesListState extends State<PropertyPoliciesList>
                                   height: 1.5,
                                 ),
                               ),
+                              if (_hasSecondary(policy.descriptionEn,
+                                  policy.description)) ...[
+                                const SizedBox(height: 8),
+                                Text(
+                                  policy.descriptionEn!,
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                    color: AppTheme.textMuted,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ],
 
                               // Policy Rules (if any)
                               if (policy.rules.isNotEmpty) ...[
@@ -342,6 +353,12 @@ class _PropertyPoliciesListState extends State<PropertyPoliciesList>
                                 ...policy.rules
                                     .split('\n')
                                     .map((rule) => _buildRuleItem(rule)),
+                              ],
+                              if (_hasSecondary(
+                                  policy.rulesEn, policy.rules)) ...[
+                                const SizedBox(height: 8),
+                                ...policy.rulesEn!.split('\n').map((rule) =>
+                                    _buildRuleItem(rule, isSecondary: true)),
                               ],
 
                               // No additional info in domain model
@@ -364,7 +381,7 @@ class _PropertyPoliciesListState extends State<PropertyPoliciesList>
     );
   }
 
-  Widget _buildRuleItem(String rule) {
+  Widget _buildRuleItem(String rule, {bool isSecondary = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
@@ -384,13 +401,28 @@ class _PropertyPoliciesListState extends State<PropertyPoliciesList>
             child: Text(
               rule,
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppTheme.textMuted,
+                color: isSecondary ? AppTheme.textMuted : AppTheme.textLight,
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  bool _hasSecondary(String? secondary, String primary) {
+    final normalized = secondary?.trim();
+    return normalized != null &&
+        normalized.isNotEmpty &&
+        normalized != primary.trim();
+  }
+
+  String _combineBilingual(String primary, String? secondary) {
+    if (!_hasSecondary(secondary, primary)) {
+      return primary;
+    }
+
+    return '$primary\n${secondary!.trim()}';
   }
 
   _PolicyConfig _getPolicyConfig(domain.PolicyType type) {

@@ -74,6 +74,13 @@ BEGIN
         p.PropertyId AS Id,
         img.Url AS MainImageUrl,
         p.Name,
+        p.NameEn,
+        p.Address,
+        p.AddressEn,
+        p.City,
+        p.CityEn,
+        pt.Name AS TypeName,
+        pt.NameEn AS TypeNameEn,
         ISNULL(AVG((r.Cleanliness + r.Service + r.Location + r.Value)/4.0), 0) AS AverageRating,
         0 AS IsFavorite,
         COUNT(r.Id) AS ReviewsCount,
@@ -84,13 +91,14 @@ BEGIN
     FROM Properties p
     LEFT JOIN PropertyImages img ON img.PropertyId = p.PropertyId AND img.IsMainImage = 1 AND img.IsDeleted = 0
     LEFT JOIN Units u ON u.PropertyId = p.PropertyId
+    LEFT JOIN PropertyTypes pt ON pt.Id = p.TypeId
     LEFT JOIN PricingRules pr ON pr.UnitId = u.UnitId AND pr.StartDate <= @FromDate AND pr.EndDate >= @ToDate AND pr.Currency = @Currency
     LEFT JOIN Reviews r ON r.BookingId IN (SELECT BookingId FROM Bookings WHERE UnitId = u.UnitId)
     WHERE p.IsDeleted = 0
       AND (@PropertyTypeId IS NULL OR p.TypeId = @PropertyTypeId)
       AND (@MinPrice IS NULL OR u.BasePrice_Amount >= @MinPrice)
       AND (@MaxPrice IS NULL OR u.BasePrice_Amount <= @MaxPrice)
-    GROUP BY p.PropertyId, img.Url, p.Name, p.StarRating, u.BasePrice_Amount, pr.PriceAmount, p.Latitude, p.Longitude
+    GROUP BY p.PropertyId, img.Url, p.Name, p.NameEn, p.Address, p.AddressEn, p.City, p.CityEn, pt.Name, pt.NameEn, p.StarRating, u.BasePrice_Amount, pr.PriceAmount, p.Latitude, p.Longitude
     ORDER BY 
         CASE WHEN @SortBy = 'name' THEN p.Name END ASC,
         CASE WHEN @SortBy = 'price' THEN CASE WHEN pr.PriceAmount < u.BasePrice_Amount THEN pr.PriceAmount ELSE u.BasePrice_Amount END END 

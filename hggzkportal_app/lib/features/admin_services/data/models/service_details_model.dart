@@ -9,13 +9,16 @@ class ServiceDetailsModel extends ServiceDetails {
     required super.id,
     required super.propertyId,
     required super.propertyName,
+    super.propertyNameEn,
     required super.name,
+    super.nameEn,
     required super.price,
     required super.pricingModel,
     required super.icon,
     super.createdAt,
     super.updatedAt,
     super.description,
+    super.descriptionEn,
   });
   factory ServiceDetailsModel.fromJson(Map<String, dynamic> json) {
     // Handle pricing model from backend format
@@ -33,7 +36,9 @@ class ServiceDetailsModel extends ServiceDetails {
       id: json['id'] ?? '',
       propertyId: json['propertyId'] ?? '',
       propertyName: json['propertyName'] ?? '',
+      propertyNameEn: json['propertyNameEn'],
       name: json['name'] ?? '',
+      nameEn: json['nameEn'],
       price: MoneyModel.fromJson(json['price'] ?? {}),
       pricingModel: pricingModel,
       icon: json['icon'] ?? 'room_service',
@@ -42,6 +47,7 @@ class ServiceDetailsModel extends ServiceDetails {
       updatedAt:
           json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
       description: json['description'],
+      descriptionEn: json['descriptionEn'],
     );
   }
   Map<String, dynamic> toJson() {
@@ -49,7 +55,9 @@ class ServiceDetailsModel extends ServiceDetails {
       'id': id,
       'propertyId': propertyId,
       'propertyName': propertyName,
+      'propertyNameEn': propertyNameEn,
       'name': name,
+      'nameEn': nameEn,
       'price': MoneyModel(
         amount: price.amount,
         currency: price.currency,
@@ -60,18 +68,23 @@ class ServiceDetailsModel extends ServiceDetails {
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
       'description': description,
+      'descriptionEn': descriptionEn,
     };
   }
+
   ServiceDetails toEntity() => ServiceDetails(
         id: id,
         propertyId: propertyId,
         propertyName: propertyName,
+        propertyNameEn: propertyNameEn,
         name: name,
+        nameEn: nameEn,
         price: price,
         pricingModel: pricingModel,
         icon: icon,
         createdAt: createdAt,
         updatedAt: updatedAt,
         description: description,
+        descriptionEn: descriptionEn,
       );
 }

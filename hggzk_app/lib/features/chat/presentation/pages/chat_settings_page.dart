@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../../../core/widgets/loading_widget.dart';
 import '../../domain/entities/conversation.dart';
@@ -316,7 +317,9 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
         widget.conversation.getOtherParticipant(currentUserId)?.profileImage;
     final displayName = widget.conversation.title ??
         widget.conversation.getOtherParticipant(currentUserId)?.name ??
-        'معلومات المحادثة';
+        context.tr(
+          'chat.settings.title',
+        );
 
     return SliverAppBar(
       expandedHeight: 180, // Reduced from 200
@@ -583,26 +586,34 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                   children: [
                     _PremiumInfoItem(
                       icon: Icons.message_rounded,
-                      label: 'رسائل',
+                      label: context.tr(
+                        'chat.settings.info.messages',
+                      ),
                       value: '1.2k',
                       animation: _glowAnimation,
                     ),
                     _PremiumInfoItem(
                       icon: Icons.image_rounded,
-                      label: 'وسائط',
+                      label: context.tr(
+                        'chat.settings.info.media',
+                      ),
                       value: '89',
                       animation: _glowAnimation,
                     ),
                     _PremiumInfoItem(
                       icon: Icons.attach_file_rounded,
-                      label: 'ملفات',
+                      label: context.tr(
+                        'chat.settings.info.files',
+                      ),
                       value: '12',
                       animation: _glowAnimation,
                     ),
                     if (widget.conversation.isGroupChat)
                       _PremiumInfoItem(
                         icon: Icons.group_rounded,
-                        label: 'أعضاء',
+                        label: context.tr(
+                          'chat.settings.info.members',
+                        ),
                         value:
                             widget.conversation.participants.length.toString(),
                         animation: _glowAnimation,
@@ -657,10 +668,10 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                 fontWeight: FontWeight.w600,
                 fontSize: 12,
               ),
-              tabs: const [
-                Tab(text: 'الوسائط'),
-                Tab(text: 'الأعضاء'),
-                Tab(text: 'الإعدادات'),
+              tabs: [
+                Tab(text: context.tr('chat.settings.tab.media')),
+                Tab(text: context.tr('chat.settings.tab.members')),
+                Tab(text: context.tr('chat.settings.tab.settings')),
               ],
             ),
           ),
@@ -816,7 +827,9 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'إضافة عضو',
+                    context.tr(
+                      'chat.settings.addMember',
+                    ),
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppTheme.primaryBlue,
                       fontWeight: FontWeight.w600,
@@ -846,12 +859,18 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
           padding: const EdgeInsets.all(12),
           children: [
             _buildPremiumSettingSection(
-              title: 'الإشعارات',
+              title: context.tr(
+                'chat.settings.notifications',
+              ),
               icon: Icons.notifications_rounded,
               children: [
                 _buildPremiumSwitch(
-                  title: 'تفعيل الإشعارات',
-                  subtitle: 'تلقي إشعارات للرسائل الجديدة',
+                  title: context.tr(
+                    'chat.settings.notificationsEnabled',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.notificationsSubtitle',
+                  ),
                   value: _notificationsEnabled,
                   onChanged: (value) {
                     setState(() {
@@ -862,19 +881,29 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                 ),
                 _buildPremiumListTile(
                   icon: Icons.music_note_rounded,
-                  title: 'نغمة الإشعار',
-                  subtitle: 'افتراضي',
+                  title: context.tr(
+                    'chat.settings.notificationSound',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.default',
+                  ),
                   onTap: _changeNotificationSound,
                 ),
               ],
             ),
             _buildPremiumSettingSection(
-              title: 'الخصوصية',
+              title: context.tr(
+                'chat.settings.privacy',
+              ),
               icon: Icons.lock_rounded,
               children: [
                 _buildPremiumSwitch(
-                  title: 'إيصالات القراءة',
-                  subtitle: 'السماح للآخرين بمعرفة متى قرأت رسائلهم',
+                  title: context.tr(
+                    'chat.settings.readReceipts',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.readReceiptsSubtitle',
+                  ),
                   value: _showReadReceipts,
                   onChanged: (value) {
                     setState(() {
@@ -885,45 +914,69 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                 ),
                 _buildPremiumListTile(
                   icon: Icons.block_rounded,
-                  title: 'حظر المستخدم',
-                  subtitle: 'منع هذا المستخدم من مراسلتك',
+                  title: context.tr(
+                    'chat.settings.blockUser',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.blockUserSubtitle',
+                  ),
                   onTap: _blockUser,
                   isDestructive: true,
                 ),
               ],
             ),
             _buildPremiumSettingSection(
-              title: 'المظهر',
+              title: context.tr(
+                'chat.settings.appearance',
+              ),
               icon: Icons.palette_rounded,
               children: [
                 _buildPremiumListTile(
                   icon: Icons.wallpaper_rounded,
-                  title: 'خلفية المحادثة',
-                  subtitle: _theme == 'default' ? 'افتراضي' : _theme,
+                  title: context.tr(
+                    'chat.settings.chatBackground',
+                  ),
+                  subtitle: _theme == 'default'
+                      ? context.tr('chat.settings.default')
+                      : _theme,
                   onTap: _changeChatTheme,
                 ),
                 _buildPremiumListTile(
                   icon: Icons.text_fields_rounded,
-                  title: 'حجم الخط',
-                  subtitle: 'متوسط',
+                  title: context.tr(
+                    'chat.settings.fontSize',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.fontSizeMedium',
+                  ),
                   onTap: _changeFontSize,
                 ),
               ],
             ),
             _buildPremiumSettingSection(
-              title: 'التخزين',
+              title: context.tr(
+                'chat.settings.storage',
+              ),
               icon: Icons.storage_rounded,
               children: [
                 _buildPremiumListTile(
                   icon: Icons.download_rounded,
-                  title: 'تنزيل الوسائط تلقائياً',
-                  subtitle: 'عند استخدام WiFi',
+                  title: context.tr(
+                    'chat.settings.autoDownload',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.wifiOnly',
+                  ),
                   onTap: _configureAutoDownload,
                 ),
                 _buildPremiumListTile(
                   icon: Icons.cleaning_services_rounded,
-                  title: 'مسح ذاكرة التخزين المؤقت',
-                  subtitle: 'حذف الملفات المؤقتة',
+                  title: context.tr(
+                    'chat.settings.clearCache',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.clearCacheSubtitle',
+                  ),
                   onTap: _clearCache,
                 ),
               ],
@@ -1158,7 +1211,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
             ),
             const SizedBox(height: 12),
             Text(
-              'جاري التحميل...',
+              context.tr('chat.settings.loading'),
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted.withOpacity(0.6),
                 fontSize: 12,
@@ -1219,14 +1272,18 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'لا توجد وسائط',
+                    context.tr(
+                      'chat.settings.noMediaTitle',
+                    ),
                     style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 14,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'سيتم عرض الصور والفيديوهات هنا',
+                    context.tr(
+                      'chat.settings.noMediaSubtitle',
+                    ),
                     style: AppTextStyles.caption.copyWith(
                       color: AppTheme.textMuted.withOpacity(0.6),
                       fontSize: 11,
@@ -1503,7 +1560,9 @@ class _PremiumOptionsSheet extends StatelessWidget {
                 ),
                 _buildOption(
                   icon: Icons.search_rounded,
-                  title: 'بحث في المحادثة',
+                  title: context.tr(
+                    'chat.settings.searchInChat',
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     onSearch();
@@ -1511,7 +1570,9 @@ class _PremiumOptionsSheet extends StatelessWidget {
                 ),
                 _buildOption(
                   icon: Icons.download_rounded,
-                  title: 'تصدير المحادثة',
+                  title: context.tr(
+                    'chat.settings.exportChat',
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     onExport();
@@ -1520,7 +1581,9 @@ class _PremiumOptionsSheet extends StatelessWidget {
                 if (onLeave != null)
                   _buildOption(
                     icon: Icons.exit_to_app_rounded,
-                    title: 'مغادرة المجموعة',
+                    title: context.tr(
+                      'chat.settings.leaveGroup',
+                    ),
                     color: AppTheme.error,
                     onTap: () {
                       Navigator.pop(context);
@@ -1529,7 +1592,9 @@ class _PremiumOptionsSheet extends StatelessWidget {
                   ),
                 _buildOption(
                   icon: Icons.clear_all_rounded,
-                  title: 'مسح المحادثة',
+                  title: context.tr(
+                    'chat.settings.clearChat',
+                  ),
                   color: AppTheme.error,
                   onTap: () {
                     Navigator.pop(context);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -102,7 +103,9 @@ class DatePickerWidget extends StatelessWidget {
                   Text(
                     selectedDate != null
                         ? dateFormat.format(selectedDate!)
-                        : 'اختر التاريخ',
+                        : context.tr(
+                            'booking.datePicker.selectDate',
+                          ),
                     style: AppTextStyles.bodySmall.copyWith(
                       color: enabled
                           ? (selectedDate != null

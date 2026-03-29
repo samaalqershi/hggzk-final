@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/settings_repository.dart';
 
@@ -22,7 +23,11 @@ class UpdateLanguageUseCase implements UseCase<bool, UpdateLanguageParams> {
   Future<Either<Failure, bool>> call(UpdateLanguageParams params) async {
     // Validate language code
     if (!['ar', 'en'].contains(params.languageCode)) {
-      return const Left(ValidationFailure('Invalid language code'));
+      return Left(
+        ValidationFailure(
+          AppLocalizations.translateSync('common.invalidLanguageCode'),
+        ),
+      );
     }
 
     return await repository.updateLanguage(params.languageCode);

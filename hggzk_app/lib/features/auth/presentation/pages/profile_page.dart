@@ -12,9 +12,11 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'dart:ui';
 import 'dart:math' as math;
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/route_constants.dart';
+import '../../../../core/widgets/language_switch_button.dart';
 import 'package:hggzk/app/bloc/app_bloc.dart';
 import '../../../../core/bloc/theme/theme_bloc.dart';
 import '../../../../core/bloc/theme/theme_event.dart';
@@ -187,94 +189,107 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Widget _buildUnauthenticatedView(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppTheme.darkBackground,
-            AppTheme.darkSurface.withOpacity(0.95),
-          ],
-        ),
-      ),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppTheme.darkCard.withOpacity(0.3),
-                      AppTheme.darkCard.withOpacity(0.15),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: AppTheme.primaryBlue.withOpacity(0.15),
-                    width: 0.5,
-                  ),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                    child: Center(
-                      child: Icon(
-                        Icons.person_outline_rounded,
-                        size: 48,
-                        color: AppTheme.textMuted,
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                AppTheme.darkBackground,
+                AppTheme.darkSurface.withOpacity(0.95),
+              ],
+            ),
+          ),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppTheme.darkCard.withOpacity(0.3),
+                          AppTheme.darkCard.withOpacity(0.15),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: AppTheme.primaryBlue.withOpacity(0.15),
+                        width: 0.5,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                        child: Center(
+                          child: Icon(
+                            Icons.person_outline_rounded,
+                            size: 48,
+                            color: AppTheme.textMuted,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 28),
-              Text(
-                'يرجى تسجيل الدخول',
-                style: AppTextStyles.h2.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textWhite,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'قم بتسجيل الدخول للوصول إلى ملفك الشخصي',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppTheme.textMuted,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 28),
-              _buildMinimalButton(
-                onPressed: () => context.push(RouteConstants.login),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.login_rounded,
-                      color: Colors.white,
-                      size: 18,
+                  const SizedBox(height: 28),
+                  Text(
+                    context.tr('profile.loginRequiredTitle'),
+                    style: AppTextStyles.h2.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textWhite,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'تسجيل الدخول',
-                      style: AppTextStyles.buttonMedium.copyWith(
-                        color: Colors.white,
-                      ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    context.tr('profile.loginRequiredDescription'),
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppTheme.textMuted,
                     ),
-                  ],
-                ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 28),
+                  _buildMinimalButton(
+                    onPressed: () => context.push(RouteConstants.login),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.login_rounded,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          context.tr('common.login'),
+                          style: AppTextStyles.buttonMedium.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
-      ),
+        const SafeArea(
+          child: Align(
+            alignment: AlignmentDirectional.topEnd,
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(top: 12, end: 12),
+              child: LanguageSwitchButton(size: 36),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -308,7 +323,7 @@ class _ProfilePageState extends State<ProfilePage>
                       children: [
                         const SizedBox(height: 20),
                         Text(
-                          'الملف الشخصي',
+                          context.tr('common.profile'),
                           style: AppTextStyles.h2.copyWith(
                             color: AppTheme.textWhite,
                             fontWeight: FontWeight.w600,
@@ -344,6 +359,14 @@ class _ProfilePageState extends State<ProfilePage>
         ),
         onPressed: () => Navigator.pop(context),
       ),
+      actions: const [
+        Padding(
+          padding: EdgeInsetsDirectional.only(end: 12),
+          child: Center(
+            child: LanguageSwitchButton(size: 36),
+          ),
+        ),
+      ],
     );
   }
 
@@ -424,7 +447,9 @@ class _ProfilePageState extends State<ProfilePage>
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  user.isVerified ? 'حساب موثق' : 'في انتظار التحقق',
+                  user.isVerified
+                      ? context.tr('profile.status.verified')
+                      : context.tr('profile.status.pending'),
                   style: AppTextStyles.caption.copyWith(
                     color:
                         user.isVerified ? AppTheme.success : AppTheme.warning,
@@ -467,7 +492,7 @@ class _ProfilePageState extends State<ProfilePage>
               children: [
                 _buildMinimalInfoRow(
                   icon: Icons.email_outlined,
-                  label: 'البريد الإلكتروني',
+                  label: context.tr('profile.info.email'),
                   value: user.email,
                   verified: user.isEmailVerified,
                 ),
@@ -776,7 +801,7 @@ class _ProfilePageState extends State<ProfilePage>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'مظهر التطبيق',
+                          context.tr('settings.item.theme'),
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: AppTheme.textWhite,
                             fontWeight: FontWeight.w500,
@@ -784,7 +809,9 @@ class _ProfilePageState extends State<ProfilePage>
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          isDark ? 'الوضع الداكن' : 'الوضع الفاتح',
+                          isDark
+                              ? context.tr('settings.item.themeDark')
+                              : context.tr('settings.item.themeLight'),
                           style: AppTextStyles.caption.copyWith(
                             color: AppTheme.textMuted.withOpacity(0.6),
                           ),
@@ -1038,8 +1065,8 @@ class _ProfilePageState extends State<ProfilePage>
 
         return _buildMinimalToggleMenuItem(
           icon: Icons.fingerprint_rounded,
-          title: 'تسجيل الدخول بالبصمة',
-          subtitle: 'فعّل لتسجيل الدخول السريع باستخدام البصمة',
+          title: context.tr('profile.biometric.title'),
+          subtitle: context.tr('profile.biometric.subtitle'),
           color: AppTheme.primaryPurple,
           value: biometricEnabled,
           loading: showLoading,
@@ -1059,7 +1086,7 @@ class _ProfilePageState extends State<ProfilePage>
     final menuItems = [
       {
         'icon': Icons.edit_outlined,
-        'title': 'تعديل الملف الشخصي',
+        'title': context.tr('profile.menu.editProfile'),
         'route': RouteConstants.editProfile,
         'extra': null,
         'color': AppTheme.primaryBlue,
@@ -1067,7 +1094,7 @@ class _ProfilePageState extends State<ProfilePage>
       },
       {
         'icon': Icons.lock_outline_rounded,
-        'title': 'تغيير كلمة المرور',
+        'title': context.tr('profile.menu.changePassword'),
         'route': RouteConstants.changePassword,
         'extra': null,
         'color': AppTheme.primaryPurple,
@@ -1075,7 +1102,7 @@ class _ProfilePageState extends State<ProfilePage>
       },
       {
         'icon': Icons.palette_outlined,
-        'title': 'مظهر التطبيق',
+        'title': context.tr('profile.menu.appearance'),
         'route': null,
         'extra': null,
         'color': const Color(0xFF6366F1),
@@ -1083,7 +1110,7 @@ class _ProfilePageState extends State<ProfilePage>
       },
       {
         'icon': Icons.notifications_none_rounded,
-        'title': 'إعدادات الإشعارات',
+        'title': context.tr('profile.menu.notifications'),
         'route': RouteConstants.notificationSettings,
         'extra': null,
         'color': AppTheme.warning,
@@ -1091,7 +1118,7 @@ class _ProfilePageState extends State<ProfilePage>
       },
       {
         'icon': Icons.fingerprint_rounded,
-        'title': 'تسجيل الدخول بالبصمة',
+        'title': context.tr('profile.biometric.title'),
         'route': null,
         'extra': null,
         'color': AppTheme.primaryPurple,
@@ -1099,7 +1126,7 @@ class _ProfilePageState extends State<ProfilePage>
       },
       {
         'icon': Icons.policy_rounded,
-        'title': 'السياسات والشروط',
+        'title': context.tr('settings.legal.title'),
         'route': '/legal',
         'extra': null,
         'color': AppTheme.primaryBlue,
@@ -1107,7 +1134,7 @@ class _ProfilePageState extends State<ProfilePage>
       },
       {
         'icon': Icons.help_outline_rounded,
-        'title': 'المساعدة والدعم',
+        'title': context.tr('profile.menu.helpSupport'),
         'route': '/support',
         'extra': null,
         'color': AppTheme.primaryCyan,
@@ -1264,7 +1291,7 @@ class _ProfilePageState extends State<ProfilePage>
             ),
             const SizedBox(width: 8),
             Text(
-              'تسجيل الخروج',
+              context.tr('profile.logout'),
               style: AppTextStyles.buttonMedium.copyWith(
                 color: Colors.white,
               ),
@@ -1345,7 +1372,7 @@ class _ProfilePageState extends State<ProfilePage>
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'حذف الحساب',
+                    context.tr('profile.delete.confirm'),
                     style: AppTextStyles.buttonMedium.copyWith(
                       color: AppTheme.error,
                     ),
@@ -1405,14 +1432,14 @@ class _ProfilePageState extends State<ProfilePage>
             ),
           ),
           title: Text(
-            'تسجيل الخروج',
+            context.tr('profile.logout.confirmTitle'),
             style: AppTextStyles.h3.copyWith(
               color: AppTheme.textWhite,
               fontWeight: FontWeight.w600,
             ),
           ),
           content: Text(
-            'هل أنت متأكد من تسجيل الخروج؟',
+            context.tr('profile.logout.confirmMessage'),
             style: AppTextStyles.bodySmall.copyWith(
               color: AppTheme.textMuted,
             ),
@@ -1421,7 +1448,7 @@ class _ProfilePageState extends State<ProfilePage>
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                'إلغاء',
+                context.tr('profile.logout.cancel'),
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppTheme.textMuted,
                 ),
@@ -1452,7 +1479,7 @@ class _ProfilePageState extends State<ProfilePage>
                       vertical: 8,
                     ),
                     child: Text(
-                      'تسجيل الخروج',
+                      context.tr('profile.logout.confirm'),
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w500,
@@ -1604,7 +1631,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
               ),
               const SizedBox(width: 12),
               Text(
-                'حذف الحساب',
+                context.tr('profile.delete.title'),
                 style: AppTextStyles.h3.copyWith(
                   color: AppTheme.error,
                   fontWeight: FontWeight.w600,
@@ -1658,7 +1685,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'تحذير: سيتم حذف حسابك نهائياً ولا يمكن التراجع عن هذا الإجراء.',
+                    context.tr('profile.delete.warning'),
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppTheme.error,
                     ),
@@ -1666,7 +1693,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'كلمة المرور (اختياري)',
+                  context.tr('profile.delete.passwordLabel'),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppTheme.textMuted,
                   ),
@@ -1678,7 +1705,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
                   enabled: !isBusy,
                   style: TextStyle(color: AppTheme.textWhite),
                   decoration: InputDecoration(
-                    hintText: 'أدخل كلمة المرور أو استخدم Google/Apple بالأسفل',
+                    hintText: context.tr('profile.delete.passwordHint'),
                     hintStyle: TextStyle(
                       color: AppTheme.textMuted.withOpacity(0.5),
                     ),
@@ -1715,7 +1742,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
-                        'أو',
+                        context.tr('common.or'),
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppTheme.textMuted,
                         ),
@@ -1735,7 +1762,9 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
                     OutlinedButton.icon(
                       onPressed: isBusy ? null : _authenticateWithGoogle,
                       icon: const Icon(Icons.g_mobiledata_rounded, size: 18),
-                      label: const Text('تأكيد عبر Google'),
+                      label: Text(
+                        context.tr('profile.delete.socialConfirmGoogle'),
+                      ),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.textWhite,
                         side: BorderSide(
@@ -1746,7 +1775,9 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
                     OutlinedButton.icon(
                       onPressed: isBusy ? null : _authenticateWithApple,
                       icon: const Icon(Icons.apple, size: 18),
-                      label: const Text('تأكيد عبر Apple'),
+                      label: Text(
+                        context.tr('profile.delete.socialConfirmApple'),
+                      ),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.textWhite,
                         side: BorderSide(
@@ -1781,7 +1812,14 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'تم تأكيد الهوية عبر ${_socialProvider == 'apple' ? 'Apple' : 'Google'}',
+                            context
+                                .tr('profile.delete.socialVerified')
+                                .replaceFirst(
+                                  '{provider}',
+                                  _socialProvider == 'apple'
+                                      ? context.tr('auth.social.apple')
+                                      : context.tr('auth.social.google'),
+                                ),
                             style: AppTextStyles.bodySmall.copyWith(
                               color: AppTheme.success,
                             ),
@@ -1822,7 +1860,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'جاري التحقق من الهوية...',
+                        context.tr('profile.delete.verifying'),
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppTheme.textMuted,
                         ),
@@ -1832,7 +1870,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
                 ],
                 const SizedBox(height: 12),
                 Text(
-                  'سبب الحذف (اختياري)',
+                  context.tr('profile.delete.reasonLabel'),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppTheme.textMuted,
                   ),
@@ -1844,7 +1882,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
                   enabled: !isBusy,
                   style: TextStyle(color: AppTheme.textWhite),
                   decoration: InputDecoration(
-                    hintText: 'لماذا تريد حذف حسابك؟',
+                    hintText: context.tr('profile.delete.reasonHint'),
                     hintStyle: TextStyle(
                       color: AppTheme.textMuted.withOpacity(0.5),
                     ),
@@ -1863,7 +1901,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
             TextButton(
               onPressed: isBusy ? null : () => Navigator.pop(context),
               child: Text(
-                'إلغاء',
+                context.tr('profile.delete.cancel'),
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: isBusy
                       ? AppTheme.textMuted.withOpacity(0.5)
@@ -1906,7 +1944,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
                             vertical: 8,
                           ),
                           child: Text(
-                            'حذف الحساب',
+                            context.tr('profile.delete.confirm'),
                             style: AppTextStyles.bodyMedium.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w500,
@@ -1930,8 +1968,15 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
       final attemptedProvider = _lastSocialAuthAttemptProvider;
       setState(() {
         _errorMessage = attemptedProvider == null
-            ? 'أدخل كلمة المرور أو أكد هويتك عبر Google/Apple'
-            : 'تعذر تأكيد الهوية عبر ${attemptedProvider == 'apple' ? 'Apple' : 'Google'}، أعد المحاولة أو أدخل كلمة المرور';
+            ? context.tr('profile.delete.enterPasswordOrSocial')
+            : context
+                .tr('profile.delete.cannotVerifyWithProvider')
+                .replaceFirst(
+                  '{provider}',
+                  attemptedProvider == 'apple'
+                      ? context.tr('auth.social.apple')
+                      : context.tr('auth.social.google'),
+                );
       });
       return;
     }
@@ -1961,7 +2006,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
       final GoogleSignIn googleSignIn;
       if (kIsWeb) {
         if (AppConstants.googleWebClientId.isEmpty) {
-          throw Exception('Google Web Client ID غير مُعد');
+          throw Exception(context.tr('profile.delete.googleWebClientMissing'));
         }
         googleSignIn = GoogleSignIn(
           scopes: const ['email', 'profile'],
@@ -1979,7 +2024,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
               );
       } else if (defaultTargetPlatform == TargetPlatform.iOS) {
         if (AppConstants.googleIosClientId.isEmpty) {
-          throw Exception('Google iOS Client ID غير مُعد');
+          throw Exception(context.tr('profile.delete.googleIosClientMissing'));
         }
         final serverClientId = AppConstants.googleWebClientId.isNotEmpty
             ? AppConstants.googleWebClientId
@@ -1990,14 +2035,14 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
           serverClientId: serverClientId,
         );
       } else {
-        throw Exception('Google غير مدعوم على هذه المنصة');
+        throw Exception(context.tr('profile.delete.googleUnsupportedPlatform'));
       }
 
       await googleSignIn.signOut();
       final account = await googleSignIn.signIn();
       if (account == null) {
         setState(() {
-          _errorMessage = 'تم إلغاء التحقق عبر Google';
+          _errorMessage = context.tr('profile.delete.googleCancelled');
         });
         return;
       }
@@ -2007,7 +2052,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
           ? auth.idToken!
           : (auth.accessToken ?? '');
       if (token.isEmpty) {
-        throw Exception('تعذر الحصول على رمز Google');
+        throw Exception(context.tr('profile.delete.googleTokenMissing'));
       }
 
       setState(() {
@@ -2017,7 +2062,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
       });
     } catch (_) {
       setState(() {
-        _errorMessage = 'فشل التحقق عبر Google، حاول مرة أخرى';
+        _errorMessage = context.tr('profile.delete.googleFailed');
       });
     } finally {
       if (mounted) {
@@ -2037,11 +2082,11 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
 
     try {
       if (kIsWeb) {
-        throw Exception('Apple غير مدعوم على Web');
+        throw Exception(context.tr('profile.delete.appleUnsupportedWeb'));
       }
       if (defaultTargetPlatform != TargetPlatform.iOS &&
           defaultTargetPlatform != TargetPlatform.android) {
-        throw Exception('Apple غير مدعوم على هذه المنصة');
+        throw Exception(context.tr('profile.delete.appleUnsupportedPlatform'));
       }
 
       final rawNonce = _generateNonce();
@@ -2050,7 +2095,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
       final WebAuthenticationOptions? webAuthOptions;
       if (defaultTargetPlatform == TargetPlatform.android) {
         if (AppConstants.appleRedirectUri.isEmpty) {
-          throw Exception('Apple Redirect URI غير مُعد');
+          throw Exception(context.tr('profile.delete.appleRedirectMissing'));
         }
         webAuthOptions = WebAuthenticationOptions(
           clientId: AppConstants.appleServiceId,
@@ -2071,7 +2116,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
 
       final idToken = credential.identityToken;
       if (idToken == null || idToken.isEmpty) {
-        throw Exception('تعذر الحصول على رمز Apple');
+        throw Exception(context.tr('profile.delete.appleTokenMissing'));
       }
 
       setState(() {
@@ -2081,7 +2126,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
       });
     } catch (_) {
       setState(() {
-        _errorMessage = 'فشل التحقق عبر Apple، حاول مرة أخرى';
+        _errorMessage = context.tr('profile.delete.appleFailed');
       });
     } finally {
       if (mounted) {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:ui';
 import 'package:flutter/services.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/formatters.dart';
@@ -29,6 +30,7 @@ class NotificationItemWidget extends StatefulWidget {
   /// رد اختياري عند تعليم الإشعار كمقروء.
   /// Optional callback triggered when the notification is marked as read.
   final VoidCallback? onMarkAsRead;
+
   /// ينشئ عنصر الإشعار مع بياناته وإجراءاته الاختيارية.
   /// Creates the notification item with its data and optional actions.
   const NotificationItemWidget({
@@ -191,7 +193,7 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      _formatTime(widget.notification.createdAt),
+                      _formatTime(context, widget.notification.createdAt),
                       style: AppTextStyles.caption.copyWith(
                         color: AppTheme.textMuted,
                       ),
@@ -216,7 +218,9 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
                       _buildActionButton(
                         icon: CupertinoIcons.check_mark,
                         onTap: widget.onMarkAsRead,
-                        tooltip: 'وضع كمقروء',
+                        tooltip: context.tr(
+                          'notifications.item.markRead',
+                        ),
                       ),
                     const SizedBox(width: 8),
                     _buildActionButton(
@@ -225,7 +229,9 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
                         setState(() => _isDismissed = true);
                         widget.onDismiss?.call();
                       },
-                      tooltip: 'حذف',
+                      tooltip: context.tr(
+                        'notifications.item.delete',
+                      ),
                       color: AppTheme.error,
                     ),
                   ],
@@ -267,7 +273,7 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      _formatTime(widget.notification.createdAt),
+                      _formatTime(context, widget.notification.createdAt),
                       style: AppTextStyles.caption.copyWith(
                         color: AppTheme.textMuted,
                       ),
@@ -383,19 +389,19 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
     String label;
     switch (widget.notification.type) {
       case 'booking':
-        label = 'حجز';
+        label = context.tr('notifications.item.booking');
         break;
       case 'payment':
-        label = 'دفع';
+        label = context.tr('notifications.item.payment');
         break;
       case 'promotion':
-        label = 'عرض';
+        label = context.tr('notifications.item.promotion');
         break;
       case 'system':
-        label = 'نظام';
+        label = context.tr('notifications.item.system');
         break;
       default:
-        label = 'عام';
+        label = context.tr('notifications.item.general');
     }
 
     return Container(
@@ -510,18 +516,27 @@ class _NotificationItemWidgetState extends State<NotificationItemWidget>
 
   /// يحول وقت إنشاء الإشعار إلى صياغة زمنية مناسبة للواجهة.
   /// Converts the notification timestamp into a UI-friendly relative label.
-  String _formatTime(DateTime dateTime) {
+  String _formatTime(BuildContext context, DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
     if (difference.inMinutes < 1) {
-      return 'الآن';
+      return context.tr('notifications.item.now');
     } else if (difference.inMinutes < 60) {
-      return 'منذ ${difference.inMinutes} دقيقة';
+      return context.tr(
+        'notifications.item.agoMinutes',
+        params: {'minutes': difference.inMinutes},
+      );
     } else if (difference.inHours < 24) {
-      return 'منذ ${difference.inHours} ساعة';
+      return context.tr(
+        'notifications.item.agoHours',
+        params: {'hours': difference.inHours},
+      );
     } else if (difference.inDays < 7) {
-      return 'منذ ${difference.inDays} يوم';
+      return context.tr(
+        'notifications.item.agoDays',
+        params: {'days': difference.inDays},
+      );
     } else {
       return Formatters.formatDate(dateTime);
     }

@@ -73,7 +73,7 @@ class SettingsUpdated extends SettingsState {
   /// ينشئ حالة نجاح محدثة مع الإعدادات الجديدة ورسالة اختيارية.
   /// Creates the updated-success state with refreshed settings and an optional
   /// message.
-  const SettingsUpdated(this.settings, {this.message = 'تم التحديث بنجاح'});
+  const SettingsUpdated(this.settings, {required this.message});
 
   /// يعيد الحقول المشاركة في مقارنة حالة التحديث الناجح.
   /// Returns the fields participating in equality for the updated state.

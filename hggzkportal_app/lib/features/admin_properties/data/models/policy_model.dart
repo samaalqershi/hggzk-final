@@ -1,5 +1,7 @@
 // lib/features/admin_properties/data/models/policy_model.dart
 
+import 'dart:convert';
+
 import '../../domain/entities/policy.dart';
 
 class PolicyModel extends Policy {
@@ -9,7 +11,9 @@ class PolicyModel extends Policy {
     required String propertyId,
     required PolicyType policyType,
     required String description,
+    String? descriptionEn,
     required String rules,
+    String? rulesEn,
     bool isActive = true,
     DateTime? effectiveDate,
   }) : super(
@@ -17,7 +21,9 @@ class PolicyModel extends Policy {
           propertyId: propertyId,
           policyType: policyType,
           description: description,
+          descriptionEn: descriptionEn,
           rules: rules,
+          rulesEn: rulesEn,
           isActive: isActive,
           effectiveDate: effectiveDate,
         );
@@ -29,7 +35,9 @@ class PolicyModel extends Policy {
         json['policyType'] ?? json['type'] ?? json['Type'],
       ),
       description: json['description'] as String? ?? '',
-      rules: json['rules'] != null ? json['rules'].toString() : '',
+      descriptionEn: json['descriptionEn'] as String?,
+      rules: _formatRules(json['rulesJson'] ?? json['rules']),
+      rulesEn: _formatRules(json['rulesEn']),
       isActive: json['isActive'] as bool? ?? true,
       effectiveDate: json['effectiveDate'] != null
           ? DateTime.parse(json['effectiveDate'] as String)
@@ -40,9 +48,12 @@ class PolicyModel extends Policy {
     return {
       'id': id,
       'propertyId': propertyId,
+      'type': _policyTypeToString(policyType),
       'policyType': _policyTypeToString(policyType),
       'description': description,
+      if (descriptionEn != null) 'descriptionEn': descriptionEn,
       'rules': rules,
+      if (rulesEn != null) 'rulesEn': rulesEn,
       'isActive': isActive,
       if (effectiveDate != null)
         'effectiveDate': effectiveDate!.toIso8601String(),
@@ -114,5 +125,17 @@ class PolicyModel extends Policy {
       case PolicyType.other:
         return 'Other';
     }
+  }
+
+  static String _formatRules(dynamic rawRules) {
+    if (rawRules == null) {
+      return '';
+    }
+
+    if (rawRules is String) {
+      return rawRules;
+    }
+
+    return const JsonEncoder.withIndent('  ').convert(rawRules);
   }
 }

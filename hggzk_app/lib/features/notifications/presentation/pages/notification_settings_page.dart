@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
 import 'package:flutter/services.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_widget.dart';
@@ -73,15 +74,17 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               _settings = state.settings;
             });
           } else if (state is NotificationError) {
-            _showErrorSnackbar(state.message);
+            _showErrorSnackbar(context.tr(state.message));
           }
         },
         builder: (context, state) {
           if (state is NotificationLoading ||
               state is NotificationSettingsLoading) {
-            return const LoadingWidget(
+            return LoadingWidget(
               type: LoadingType.futuristic,
-              message: 'جاري تحميل الإعدادات...',
+              message: context.tr(
+                'notifications.settings.loading',
+              ),
             );
           }
 
@@ -102,7 +105,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
       backgroundColor: AppTheme.darkBackground,
       elevation: 0,
       title: Text(
-        'إعدادات الإشعارات',
+        context.tr(
+          'notifications.settings.title',
+        ),
         style: AppTextStyles.h2.copyWith(
           color: AppTheme.textWhite,
         ),
@@ -129,82 +134,126 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSection(
-            title: 'قنوات الإشعارات',
+            title: context.tr(
+              'notifications.settings.channels',
+            ),
             icon: CupertinoIcons.bell_circle_fill,
             children: [
               _buildSettingTile(
                 key: 'push_notifications',
-                title: 'الإشعارات الفورية',
-                subtitle: 'تلقي إشعارات فورية على جهازك',
+                title: context.tr(
+                  'notifications.settings.push',
+                ),
+                subtitle: context.tr(
+                  'notifications.settings.pushSubtitle',
+                ),
                 icon: CupertinoIcons.device_phone_portrait,
               ),
               _buildSettingTile(
                 key: 'email_notifications',
-                title: 'البريد الإلكتروني',
-                subtitle: 'تلقي إشعارات عبر البريد الإلكتروني',
+                title: context.tr(
+                  'notifications.settings.email',
+                ),
+                subtitle: context.tr(
+                  'notifications.settings.emailSubtitle',
+                ),
                 icon: CupertinoIcons.mail,
               ),
               _buildSettingTile(
                 key: 'sms_notifications',
-                title: 'الرسائل النصية',
-                subtitle: 'تلقي إشعارات عبر رسائل SMS',
+                title: context.tr(
+                  'notifications.settings.sms',
+                ),
+                subtitle: context.tr(
+                  'notifications.settings.smsSubtitle',
+                ),
                 icon: CupertinoIcons.bubble_left,
               ),
             ],
           ),
           const SizedBox(height: 24),
           _buildSection(
-            title: 'إشعارات الحجوزات',
+            title: context.tr(
+              'notifications.settings.bookings',
+            ),
             icon: CupertinoIcons.calendar,
             children: [
               _buildSettingTile(
                 key: 'booking_confirmed',
-                title: 'تأكيد الحجز',
-                subtitle: 'إشعار عند تأكيد حجز جديد',
+                title: context.tr(
+                  'notifications.settings.bookingConfirmed',
+                ),
+                subtitle: context.tr(
+                  'notifications.settings.bookingConfirmedSubtitle',
+                ),
                 icon: CupertinoIcons.checkmark_circle,
               ),
               _buildSettingTile(
                 key: 'booking_cancelled',
-                title: 'إلغاء الحجز',
-                subtitle: 'إشعار عند إلغاء حجز',
+                title: context.tr(
+                  'notifications.settings.bookingCancelled',
+                ),
+                subtitle: context.tr(
+                  'notifications.settings.bookingCancelledSubtitle',
+                ),
                 icon: CupertinoIcons.xmark_circle,
               ),
             ],
           ),
           const SizedBox(height: 24),
           _buildSection(
-            title: 'إشعارات المدفوعات',
+            title: context.tr(
+              'notifications.settings.payments',
+            ),
             icon: CupertinoIcons.creditcard,
             children: [
               _buildSettingTile(
                 key: 'payment_received',
-                title: 'استلام دفعة',
-                subtitle: 'إشعار عند استلام دفعة جديدة',
+                title: context.tr(
+                  'notifications.settings.paymentReceived',
+                ),
+                subtitle: context.tr(
+                  'notifications.settings.paymentReceivedSubtitle',
+                ),
                 icon: CupertinoIcons.money_dollar_circle,
               ),
               _buildSettingTile(
                 key: 'payment_refunded',
-                title: 'استرداد دفعة',
-                subtitle: 'إشعار عند استرداد دفعة',
+                title: context.tr(
+                  'notifications.settings.paymentRefunded',
+                ),
+                subtitle: context.tr(
+                  'notifications.settings.paymentRefundedSubtitle',
+                ),
                 icon: CupertinoIcons.arrow_counterclockwise_circle,
               ),
             ],
           ),
           const SizedBox(height: 24),
           _buildSection(
-            title: 'إشعارات أخرى',
+            title: context.tr(
+              'notifications.settings.other',
+            ),
             icon: CupertinoIcons.square_grid_2x2,
             children: [
               _buildSettingTile(
                 key: 'promotion_new',
-                title: 'العروض والخصومات',
-                subtitle: 'إشعار بالعروض والخصومات الجديدة',
+                title: context.tr(
+                  'notifications.settings.promotions',
+                ),
+                subtitle: context.tr(
+                  'notifications.settings.promotionsSubtitle',
+                ),
                 icon: CupertinoIcons.gift,
               ),
               _buildSettingTile(
                 key: 'system_updates',
-                title: 'تحديثات النظام',
-                subtitle: 'إشعار بتحديثات وصيانة النظام',
+                title: context.tr(
+                  'notifications.settings.systemUpdates',
+                ),
+                subtitle: context.tr(
+                  'notifications.settings.systemUpdatesSubtitle',
+                ),
                 icon: CupertinoIcons.gear,
               ),
             ],

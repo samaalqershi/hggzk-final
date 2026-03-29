@@ -296,9 +296,13 @@ public class GetRecommendedPropertiesQueryHandler : IRequestHandler<GetRecommend
             {
                 Id = property.Id,
                 Name = property.Name ?? string.Empty,
+                NameEn = property.NameEn ?? property.Name ?? string.Empty,
                 Description = property.Description ?? string.Empty,
+                DescriptionEn = property.DescriptionEn ?? property.Description ?? string.Empty,
                 Address = property.Address ?? string.Empty,
+                AddressEn = property.AddressEn ?? property.Address ?? string.Empty,
                 City = property.City ?? string.Empty,
+                CityEn = property.CityEn ?? property.City ?? string.Empty,
                 StarRating = property.StarRating,
                 AverageRating = Math.Round(averageRating, 1),
                 ReviewsCount = reviewsCount,
@@ -306,6 +310,18 @@ public class GetRecommendedPropertiesQueryHandler : IRequestHandler<GetRecommend
                 Currency = "YER",
                 MainImageUrl = mainImageUrl,
                 IsRecommended = true, // All returned results are recommended
+                PropertyType = property.PropertyType?.Name ?? string.Empty,
+                PropertyTypeEn = property.PropertyType?.NameEn ?? property.PropertyType?.Name ?? string.Empty,
+                MainAmenities = property.Amenities
+                    .Where(a => a.IsAvailable)
+                    .Select(a => a.PropertyTypeAmenity.Amenity.Name)
+                    .Take(5)
+                    .ToList(),
+                MainAmenitiesEn = property.Amenities
+                    .Where(a => a.IsAvailable)
+                    .Select(a => a.PropertyTypeAmenity.Amenity.NameEn ?? a.PropertyTypeAmenity.Amenity.Name)
+                    .Take(5)
+                    .ToList(),
                 DistanceKm = null // Distance is not calculated for recommendations
             };
         }

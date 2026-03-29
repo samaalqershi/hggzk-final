@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
@@ -52,8 +53,9 @@ class ConversationItemWidget extends StatelessWidget {
         ? conversation.getOtherParticipant(currentUserId)
         : null;
 
-    final displayName =
-        conversation.title ?? otherParticipant?.name ?? 'محادثة';
+    final displayName = conversation.title ??
+        otherParticipant?.name ??
+        context.tr('chat.message.conversationFallback');
 
     final displayImage = conversation.avatar ?? otherParticipant?.profileImage;
 
@@ -122,8 +124,11 @@ class ConversationItemWidget extends StatelessWidget {
                           ),
                         const SizedBox(width: 8),
                         Text(
-                          _formatTime(conversation.lastMessage?.createdAt ??
-                              conversation.updatedAt),
+                          _formatTime(
+                            context,
+                            conversation.lastMessage?.createdAt ??
+                                conversation.updatedAt,
+                          ),
                           style: AppTextStyles.caption.copyWith(
                             color: conversation.hasUnreadMessages
                                 ? AppTheme.primaryBlue.withOpacity(0.7)
@@ -145,8 +150,8 @@ class ConversationItemWidget extends StatelessWidget {
                               conversation.lastMessage!.status),
                         Expanded(
                           child: isTyping
-                              ? _buildUltraMinimalTyping()
-                              : _buildUltraMinimalLastMessage(),
+                              ? _buildUltraMinimalTyping(context)
+                              : _buildUltraMinimalLastMessage(context),
                         ),
                         if (conversation.hasUnreadMessages)
                           _buildUltraMinimalBadge(),
@@ -275,10 +280,10 @@ class ConversationItemWidget extends StatelessWidget {
   }
 
   /// العربية: يبني ultra minimal last message.
-  Widget _buildUltraMinimalLastMessage() {
+  Widget _buildUltraMinimalLastMessage(BuildContext context) {
     if (conversation.lastMessage == null) {
       return Text(
-        'ابدأ المحادثة',
+        context.tr('chat.thread.start'),
         style: AppTextStyles.caption.copyWith(
           color: AppTheme.textMuted.withOpacity(0.3),
           fontStyle: FontStyle.italic,
@@ -299,27 +304,27 @@ class ConversationItemWidget extends StatelessWidget {
       case 'image':
         prefix = Icon(Icons.image,
             size: 12, color: AppTheme.textMuted.withOpacity(0.3));
-        messageText = 'صورة';
+        messageText = context.tr('chat.message.image');
         break;
       case 'video':
         prefix = Icon(Icons.videocam,
             size: 12, color: AppTheme.textMuted.withOpacity(0.3));
-        messageText = 'فيديو';
+        messageText = context.tr('chat.message.video');
         break;
       case 'audio':
         prefix = Icon(Icons.mic,
             size: 12, color: AppTheme.textMuted.withOpacity(0.3));
-        messageText = 'رسالة صوتية';
+        messageText = context.tr('chat.message.audio');
         break;
       case 'document':
         prefix = Icon(Icons.attach_file,
             size: 12, color: AppTheme.textMuted.withOpacity(0.3));
-        messageText = 'مستند';
+        messageText = context.tr('chat.message.document');
         break;
       case 'location':
         prefix = Icon(Icons.location_on,
             size: 12, color: AppTheme.textMuted.withOpacity(0.3));
-        messageText = 'موقع';
+        messageText = context.tr('chat.message.location');
         break;
     }
 
@@ -347,11 +352,11 @@ class ConversationItemWidget extends StatelessWidget {
   }
 
   /// العربية: يبني ultra minimal typing.
-  Widget _buildUltraMinimalTyping() {
+  Widget _buildUltraMinimalTyping(BuildContext context) {
     return Row(
       children: [
         Text(
-          'يكتب',
+          context.tr('chat.inbox.typing'),
           style: AppTextStyles.caption.copyWith(
             color: AppTheme.primaryBlue.withOpacity(0.6),
             fontStyle: FontStyle.italic,
@@ -424,7 +429,7 @@ class ConversationItemWidget extends StatelessWidget {
   }
 
   /// العربية: ينسق time.
-  String _formatTime(DateTime dateTime) {
+  String _formatTime(BuildContext context, DateTime dateTime) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
@@ -437,18 +442,24 @@ class ConversationItemWidget extends StatelessWidget {
     if (messageDate == today) {
       return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     } else if (messageDate == yesterday) {
-      return 'أمس';
+      return context.tr('chat.thread.yesterday');
     } else if (now.difference(dateTime).inDays < 7) {
-      final days = [
-        'الأحد',
-        'الإثنين',
-        'الثلاثاء',
-        'الأربعاء',
-        'الخميس',
-        'الجمعة',
-        'السبت'
-      ];
-      return days[dateTime.weekday % 7];
+      switch (dateTime.weekday) {
+        case DateTime.monday:
+          return context.tr('chat.thread.days.monday');
+        case DateTime.tuesday:
+          return context.tr('chat.thread.days.tuesday');
+        case DateTime.wednesday:
+          return context.tr('chat.thread.days.wednesday');
+        case DateTime.thursday:
+          return context.tr('chat.thread.days.thursday');
+        case DateTime.friday:
+          return context.tr('chat.thread.days.friday');
+        case DateTime.saturday:
+          return context.tr('chat.thread.days.saturday');
+        default:
+          return context.tr('chat.thread.days.sunday');
+      }
     } else {
       return '${dateTime.day}/${dateTime.month}';
     }

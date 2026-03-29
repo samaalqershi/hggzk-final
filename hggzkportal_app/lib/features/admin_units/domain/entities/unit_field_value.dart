@@ -18,6 +18,7 @@ class UnitFieldValue extends Equatable {
   /// يحتفظ هذا الحقل بقيمة displayName التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the displayName value used by the admin unit workflow.
   final String? displayName;
+  final String? displayNameEn;
 
   /// يحتفظ هذا الحقل بقيمة fieldTypeId التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the fieldTypeId value used by the admin unit workflow.
@@ -34,6 +35,7 @@ class UnitFieldValue extends Equatable {
     required this.fieldValue,
     this.fieldName,
     this.displayName,
+    this.displayNameEn,
     this.fieldTypeId,
     this.isPrimaryFilter, // new
   });
@@ -46,6 +48,7 @@ class UnitFieldValue extends Equatable {
         fieldValue,
         fieldName,
         displayName,
+        displayNameEn,
         fieldTypeId,
         isPrimaryFilter, // new
       ];
@@ -61,14 +64,17 @@ class FieldGroupWithValues extends Equatable {
   /// يحتفظ هذا الحقل بقيمة groupName التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the groupName value used by the admin unit workflow.
   final String groupName;
+  final String? groupNameEn;
 
   /// يحتفظ هذا الحقل بقيمة displayName التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the displayName value used by the admin unit workflow.
   final String displayName;
+  final String? displayNameEn;
 
   /// يحتفظ هذا الحقل بقيمة description التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the description value used by the admin unit workflow.
   final String description;
+  final String? descriptionEn;
 
   /// يحتفظ هذا الحقل بقيمة fieldValues التي يعتمد عليها مسار إدارة الوحدات.
   /// This field keeps the fieldValues value used by the admin unit workflow.
@@ -79,8 +85,11 @@ class FieldGroupWithValues extends Equatable {
   const FieldGroupWithValues({
     required this.groupId,
     required this.groupName,
+    this.groupNameEn,
     required this.displayName,
+    this.displayNameEn,
     required this.description,
+    this.descriptionEn,
     required this.fieldValues,
   });
 
@@ -90,8 +99,11 @@ class FieldGroupWithValues extends Equatable {
   List<Object?> get props => [
         groupId,
         groupName,
+        groupNameEn,
         displayName,
+        displayNameEn,
         description,
+        descriptionEn,
         fieldValues,
       ];
 }

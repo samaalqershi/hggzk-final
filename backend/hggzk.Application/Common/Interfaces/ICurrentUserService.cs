@@ -10,6 +10,12 @@ namespace YemenBooking.Application.Common.Interfaces;
 public interface ICurrentUserService
 {
     /// <summary>
+    /// Effective request language used for localized payloads.
+    /// اللغة الفعلية للطلب المستخدمة في الرسائل المحلية.
+    /// </summary>
+    string Language { get; }
+
+    /// <summary>
     /// Identifier of the current user.
     /// معرف المستخدم الحالي.
     /// </summary>

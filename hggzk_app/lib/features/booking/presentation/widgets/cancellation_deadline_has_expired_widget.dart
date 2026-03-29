@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -187,8 +188,12 @@ class _CancellationDeadlineHasExpiredWidgetState
             children: [
               Text(
                 widget.hasExpired
-                    ? 'انتهت مهلة الإلغاء المجاني'
-                    : 'سياسة الإلغاء',
+                    ? context.tr(
+                        'booking.cancellation.expiredTitle',
+                      )
+                    : context.tr(
+                        'booking.cancellation.policyTitle',
+                      ),
                 style: AppTextStyles.bodySmall.copyWith(
                   fontWeight: FontWeight.w600,
                   color: (widget.hasExpired ? AppTheme.error : AppTheme.warning)
@@ -205,7 +210,9 @@ class _CancellationDeadlineHasExpiredWidgetState
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    'عاجل!',
+                    context.tr(
+                      'booking.cancellation.urgent',
+                    ),
                     style: AppTextStyles.caption.copyWith(
                       color: AppTheme.error.withOpacity(0.8),
                       fontWeight: FontWeight.w600,
@@ -245,7 +252,9 @@ class _CancellationDeadlineHasExpiredWidgetState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'لقد انتهت المهلة المسموح بها للإلغاء المجاني.',
+                  context.tr(
+                    'booking.cancellation.expiredMessage',
+                  ),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.textWhite.withOpacity(0.9),
                     fontWeight: FontWeight.w600,
@@ -253,7 +262,9 @@ class _CancellationDeadlineHasExpiredWidgetState
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'في حالة الإلغاء الآن، سيتم تطبيق رسوم إلغاء وفقاً لسياسة العقار.',
+                  context.tr(
+                    'booking.cancellation.feeMessage',
+                  ),
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.textMuted.withOpacity(0.7),
                   ),
@@ -272,7 +283,9 @@ class _CancellationDeadlineHasExpiredWidgetState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'يمكنك إلغاء الحجز مجاناً حتى:',
+          context.tr(
+            'booking.cancellation.canCancelUntil',
+          ),
           style: AppTextStyles.caption.copyWith(
             color: AppTheme.textWhite.withOpacity(0.9),
           ),
@@ -318,16 +331,26 @@ class _CancellationDeadlineHasExpiredWidgetState
     Color color;
 
     if (_remainingTime.inHours <= 0) {
-      timeText = 'انتهت المهلة';
+      timeText = context.tr(
+        'booking.cancellation.expired',
+      );
       icon = Icons.timer_off_rounded;
       color = AppTheme.error.withOpacity(0.8);
     } else if (_remainingTime.inHours <= 24) {
-      timeText =
-          'متبقي ${_remainingTime.inHours} ساعة و ${_remainingTime.inMinutes % 60} دقيقة';
+      timeText = context.tr(
+        'booking.cancellation.remainingHoursMinutes',
+        params: {
+          'hours': _remainingTime.inHours,
+          'minutes': _remainingTime.inMinutes % 60,
+        },
+      );
       icon = Icons.timer_rounded;
       color = AppTheme.error.withOpacity(0.8);
     } else {
-      timeText = 'متبقي ${_remainingTime.inDays} يوم';
+      timeText = context.tr(
+        'booking.cancellation.remainingDays',
+        params: {'days': _remainingTime.inDays},
+      );
       icon = Icons.calendar_today_rounded;
       color = AppTheme.warning.withOpacity(0.8);
     }
@@ -383,7 +406,9 @@ class _CancellationDeadlineHasExpiredWidgetState
               ),
               const SizedBox(width: 4),
               Text(
-                'تفاصيل السياسة:',
+                context.tr(
+                  'booking.cancellation.policyDetails',
+                ),
                 style: AppTextStyles.caption.copyWith(
                   fontWeight: FontWeight.w600,
                   color: AppTheme.primaryBlue.withOpacity(0.8),

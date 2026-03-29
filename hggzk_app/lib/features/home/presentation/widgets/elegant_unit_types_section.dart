@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/icon_mapper.dart';
@@ -183,7 +184,7 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'يرجى تحديد نوع الوحدة',
+              context.tr('home.unitTypes.hint'),
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted.withOpacity(0.85),
               ),
@@ -256,14 +257,14 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'نوع الوحدة',
+                      context.tr('home.unitTypes.label'),
                       style: AppTextStyles.caption.copyWith(
                         color: AppTheme.textMuted.withOpacity(0.75),
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      selectedUnitType?.name ?? '—',
+                      selectedUnitType?.name ?? context.tr('common.dash'),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.bodySmall.copyWith(
@@ -334,7 +335,7 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
                       children: [
                         Expanded(
                           child: Text(
-                            'اختر نوع الوحدة',
+                            context.tr('home.unitTypes.choose'),
                             style: AppTextStyles.bodyLarge.copyWith(
                               color: AppTheme.textWhite,
                               fontWeight: FontWeight.w700,
@@ -347,7 +348,7 @@ class _ElegantUnitTypesSectionState extends State<ElegantUnitTypesSection>
                             Navigator.of(sheetContext).pop();
                           },
                           child: Text(
-                            '',
+                            context.tr('common.close'),
                             style: AppTextStyles.bodySmall.copyWith(
                               color: AppTheme.primaryPurple.withOpacity(0.9),
                               fontWeight: FontWeight.w600,

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/features/home/domain/usecases/get_property_types_usecase.dart';
 import 'package:hggzk/features/reference/domain/usecases/get_cities_usecase.dart';
 import 'package:hggzk/features/reference/domain/usecases/get_currencies_usecase.dart';
@@ -66,7 +67,8 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
       final stats = dataSyncService.getDataStats();
       emit(SplashLoaded(stats: stats));
     } catch (e) {
-      emit(SplashError(e.toString()));
+      emit(SplashError(
+          AppLocalizations.translateSync('common.unexpectedError')));
     }
   }
 }
