@@ -1,12 +1,10 @@
-import 'package:hggzkportal/features/chat/data/models/chat_user_model.dart';
+import 'chat_user_model.dart';
 
 import '../../domain/entities/conversation.dart';
 import 'message_model.dart';
 
-/// يعرّف الكلاس `ConversationModel`.
-/// Describes the `ConversationModel` class.
+/// العربية: يمثل نموذج البيانات `ConversationModel`.
 class ConversationModel extends Conversation {
-  /// Initializes a new `ConversationModel` instance.
   /// العربية: ينشئ مثيلًا جديدًا من `ConversationModel`.
   const ConversationModel({
     required super.id,
@@ -24,8 +22,7 @@ class ConversationModel extends Conversation {
     required super.participants,
   });
 
-  /// ينشئ مثيلاً من `ConversationModel`.
-  /// Builds an instance of `ConversationModel`.
+  /// العربية: ينشئ مثيلًا جديدًا من `ConversationModel.fromJson`.
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
     return ConversationModel(
       id: json['conversation_id'] ?? json['id'] ?? '',
@@ -33,7 +30,19 @@ class ConversationModel extends Conversation {
           json['conversationType'] ?? json['conversation_type'] ?? 'direct',
       title: json['title'],
       description: json['description'],
-      avatar: json['avatar'],
+      avatar: _readConversationImage(
+        json,
+        const [
+          'avatar',
+          'avatar_url',
+          'avatarUrl',
+          'image',
+          'image_url',
+          'imageUrl',
+          'profile_image',
+          'profileImage',
+        ],
+      ),
       createdAt: DateTime.parse(json['createdAt'] ?? json['created_at']),
       updatedAt: DateTime.parse(json['updatedAt'] ?? json['updated_at']),
       lastMessage: json['lastMessage'] != null || json['last_message'] != null
@@ -49,8 +58,7 @@ class ConversationModel extends Conversation {
     );
   }
 
-  /// ينفذ العملية `toJson`.
-  /// Runs the `toJson` operation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'conversation_id': id,
@@ -71,8 +79,7 @@ class ConversationModel extends Conversation {
     };
   }
 
-  /// ينشئ مثيلاً من `ConversationModel`.
-  /// Builds an instance of `ConversationModel`.
+  /// العربية: ينشئ مثيلًا جديدًا من `ConversationModel.fromEntity`.
   factory ConversationModel.fromEntity(Conversation conversation) {
     return ConversationModel(
       id: conversation.id,
@@ -90,4 +97,14 @@ class ConversationModel extends Conversation {
       participants: conversation.participants,
     );
   }
+}
+
+String? _readConversationImage(Map<String, dynamic> json, List<String> keys) {
+  for (final key in keys) {
+    final value = json[key];
+    if (value is String && value.trim().isNotEmpty) {
+      return value.trim();
+    }
+  }
+  return null;
 }

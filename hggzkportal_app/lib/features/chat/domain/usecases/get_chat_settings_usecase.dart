@@ -4,19 +4,15 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/attachment.dart';
 import '../repositories/chat_repository.dart';
 
-/// يعرّف الكلاس `GetChatSettingsUseCase`.
-/// Describes the `GetChatSettingsUseCase` class.
+/// العربية: ينفذ حالة الاستخدام `GetChatSettingsUseCase`.
 class GetChatSettingsUseCase implements UseCase<ChatSettings, NoParams> {
-  /// Holds the `repository` value.
   /// العربية: يخزن القيمة `repository`.
   final ChatRepository repository;
 
-  /// ينشئ مثيلاً من `GetChatSettingsUseCase`.
-  /// Builds an instance of `GetChatSettingsUseCase`.
+  /// العربية: ينشئ مثيلًا جديدًا من `GetChatSettingsUseCase`.
   GetChatSettingsUseCase(this.repository);
 
-  /// ينفذ العملية `call`.
-  /// Runs the `call` operation.
+  /// العربية: ينفذ السلوك الرئيسي الذي يقدمه هذا الكائن القابل للاستدعاء.
   @override
   Future<Either<Failure, ChatSettings>> call(NoParams params) async {
     return await repository.getChatSettings();

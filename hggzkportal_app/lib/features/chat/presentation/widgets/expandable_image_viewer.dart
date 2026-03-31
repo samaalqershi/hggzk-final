@@ -87,9 +87,6 @@ class _ExpandableImageViewerState extends State<ExpandableImageViewer> {
   /// ينفذ العملية `_buildPhotoChild`.
   /// Runs the `_buildPhotoChild` operation.
   Widget _buildPhotoChild(Attachment image) {
-    if (image.localFile != null && image.localFile!.existsSync()) {
-      return Image.file(image.localFile!, fit: BoxFit.contain);
-    }
     if (image.filePath.isNotEmpty) {
       final f = File(image.filePath);
       if (f.existsSync()) return Image.file(f, fit: BoxFit.contain);

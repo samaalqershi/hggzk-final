@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:hggzk/features/chat/data/models/chat_settings_model.dart';
+import '../models/chat_settings_model.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/message.dart';

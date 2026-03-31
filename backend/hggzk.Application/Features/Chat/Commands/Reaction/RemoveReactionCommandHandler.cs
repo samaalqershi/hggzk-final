@@ -22,6 +22,7 @@ namespace YemenBooking.Application.Features.Chat.Commands.Reaction
         private readonly IChatConversationRepository _conversationRepo;
         private readonly ICurrentUserService _currentUserService;
         private readonly IFirebaseService _firebaseService;
+        private readonly IChatRealtimeNotifier _chatRealtimeNotifier;
         private readonly ILogger<RemoveReactionCommandHandler> _logger;
 
         /// <summary>
@@ -34,6 +35,7 @@ namespace YemenBooking.Application.Features.Chat.Commands.Reaction
             IChatConversationRepository conversationRepo,
             ICurrentUserService currentUserService,
             IFirebaseService firebaseService,
+            IChatRealtimeNotifier chatRealtimeNotifier,
             ILogger<RemoveReactionCommandHandler> logger)
         {
             _reactionRepo = reactionRepo;
@@ -41,6 +43,7 @@ namespace YemenBooking.Application.Features.Chat.Commands.Reaction
             _conversationRepo = conversationRepo;
             _currentUserService = currentUserService;
             _firebaseService = firebaseService;
+            _chatRealtimeNotifier = chatRealtimeNotifier;
             _logger = logger;
         }
 
@@ -85,6 +88,14 @@ namespace YemenBooking.Application.Features.Chat.Commands.Reaction
                     if (participant.Id == userId) continue;
                     await _firebaseService.SendNotificationAsync($"user_{participant.Id}", string.Empty, string.Empty, dataPayload, cancellationToken);
                 }
+
+                await _chatRealtimeNotifier.NotifyReactionRemovedAsync(
+                    message.ConversationId,
+                    message.Id,
+                    userId,
+                    request.ReactionType,
+                    userId,
+                    cancellationToken);
 
                 return ResultDto.Ok("تم إزالة التفاعل بنجاح");
             }

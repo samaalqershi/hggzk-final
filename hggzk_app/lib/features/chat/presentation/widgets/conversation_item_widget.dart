@@ -8,6 +8,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/conversation.dart';
+import 'online_status_indicator.dart';
 
 /// Row item used in the conversation inbox to show identity, last message,
 /// unread state, and typing hints.
@@ -53,9 +54,13 @@ class ConversationItemWidget extends StatelessWidget {
         ? conversation.getOtherParticipant(currentUserId)
         : null;
 
-    final displayName = conversation.title ??
-        otherParticipant?.name ??
-        context.tr('chat.message.conversationFallback');
+    final displayName = conversation.isDirectChat &&
+            (otherParticipant?.name.trim().isNotEmpty == true)
+        ? otherParticipant!.name.trim()
+        : (conversation.title?.trim().isNotEmpty == true
+            ? conversation.title!.trim()
+            : otherParticipant?.name ??
+                context.tr('chat.message.conversationFallback'));
 
     final displayImage = conversation.avatar ?? otherParticipant?.profileImage;
 
@@ -170,6 +175,8 @@ class ConversationItemWidget extends StatelessWidget {
   /// Builds the compact avatar and presence badge for the thread.
   /// ينشئ الصورة المدمجة وشارة الحضور الخاصة بالسلسلة.
   Widget _buildUltraMinimalAvatar(String? imageUrl, String name) {
+    final hasImage = imageUrl != null && imageUrl.trim().isNotEmpty;
+
     return Stack(
       children: [
         Container(
@@ -196,7 +203,7 @@ class ConversationItemWidget extends StatelessWidget {
             ),
           ),
           child: ClipOval(
-            child: imageUrl != null
+            child: hasImage
                 ? CachedImageWidget(
                     imageUrl: imageUrl,
                     width: 42,
@@ -222,17 +229,11 @@ class ConversationItemWidget extends StatelessWidget {
           Positioned(
             bottom: 1,
             right: 1,
-            child: Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: AppTheme.success.withOpacity(0.9),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppTheme.darkBackground,
-                  width: 1.5,
-                ),
-              ),
+            child: const OnlineStatusIndicator(
+              isOnline: true,
+              size: 8,
+              showBorder: true,
+              animate: true,
             ),
           ),
       ],

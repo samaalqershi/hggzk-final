@@ -1,40 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hggzkportal/core/theme/app_theme.dart';
-import 'package:hggzkportal/core/theme/app_text_styles.dart';
-import 'package:hggzkportal/features/chat/presentation/bloc/chat_bloc.dart';
-import 'package:hggzkportal/features/chat/presentation/pages/chat_page.dart';
+import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../bloc/chat_bloc.dart';
+import '../pages/chat_page.dart';
 
-/// يعرّف الكلاس `ConversationLoader`.
-/// Describes the `ConversationLoader` class.
+/// Temporary screen that resolves a conversation id into a loaded chat page.
+/// شاشة مؤقتة تحوّل معرّف المحادثة إلى صفحة دردشة محمّلة.
 class ConversationLoader extends StatefulWidget {
-  /// Holds the `conversationId` value.
-  /// العربية: يخزن القيمة `conversationId`.
+  /// Identifies the conversation that should be opened.
+  /// يحدد المحادثة التي يجب فتحها.
   final String conversationId;
 
-  /// ينشئ مثيلاً من `ConversationLoader`.
-  /// Builds an instance of `ConversationLoader`.
-  const ConversationLoader({super.key, required this.conversationId});
+  /// Starts the lookup flow for the requested conversation.
+  /// يبدأ مسار العثور على المحادثة المطلوبة.
+  const ConversationLoader({required this.conversationId});
 
-  /// ينفذ العملية `createState`.
-  /// Runs the `createState` operation.
+  /// Sets up the state that performs the lookup and redirect.
+  /// يهيئ الحالة التي تنفذ البحث ثم التحويل.
   @override
   State<ConversationLoader> createState() => ConversationLoaderState();
 }
 
-/// يعرّف الكلاس `ConversationLoaderState`.
-/// Describes the `ConversationLoaderState` class.
+/// Resolves the conversation from chat bloc state and redirects once ready.
+/// يحلّ المحادثة من حالة الـ bloc ثم يحول المستخدم عندما تصبح جاهزة.
 class ConversationLoaderState extends State<ConversationLoader> {
-  /// ينفذ العملية `initState`.
-  /// Runs the `initState` operation.
+  /// Triggers the lookup as soon as the widget is mounted.
+  /// يطلق البحث فور تركيب العنصر.
   @override
   void initState() {
     super.initState();
     _loadConversation();
   }
 
-  /// ينفذ العملية `_loadConversation`.
-  /// Runs the `_loadConversation` operation.
+  /// Looks up the target conversation in the current chat state and falls
+  /// back to a reload if the inbox has not finished loading yet.
+  /// يبحث عن المحادثة المطلوبة داخل حالة الدردشة الحالية، ويطلب إعادة
+  /// التحميل إذا لم تكن القائمة قد اكتملت بعد.
   void _loadConversation() {
     // حمل المحادثة من ChatBloc
     final chatBloc = context.read<ChatBloc>();
@@ -43,7 +46,9 @@ class ConversationLoaderState extends State<ConversationLoader> {
     if (state is ChatLoaded) {
       final conversation = state.conversations.firstWhere(
         (c) => c.id == widget.conversationId,
-        orElse: () => throw Exception('Conversation not found'),
+        orElse: () => throw Exception(
+          context.l10n.get('chat.system.conversationNotFound'),
+        ),
       );
 
       // انتقل للصفحة مع المحادثة
@@ -60,8 +65,8 @@ class ConversationLoaderState extends State<ConversationLoader> {
     }
   }
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// Shows a short loading view while the redirect target is being resolved.
+  /// يعرض شاشة تحميل قصيرة أثناء تجهيز التحويل.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,7 +80,9 @@ class ConversationLoaderState extends State<ConversationLoader> {
             ),
             const SizedBox(height: 16),
             Text(
-              'جاري تحميل المحادثة...',
+              context.tr(
+                'chat.loader.loadingConversation',
+              ),
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted,
               ),

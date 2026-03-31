@@ -28,6 +28,8 @@ namespace YemenBooking.Application.Features.Chat.Commands.Conversation
         private readonly IFirebaseService _firebaseService;
         private readonly ILogger<CreateConversationCommandHandler> _logger;
         private readonly IUserRepository _userRepository;
+        private readonly IChatRealtimeNotifier _chatRealtimeNotifier;
+        private readonly IChatSettingsRepository _chatSettingsRepository;
 
         /// <summary>
         /// يهيئ مثيلاً جديدًا من المعالج.
@@ -39,6 +41,8 @@ namespace YemenBooking.Application.Features.Chat.Commands.Conversation
             ICurrentUserService currentUserService,
             IMapper mapper,
             IFirebaseService firebaseService,
+            IChatRealtimeNotifier chatRealtimeNotifier,
+            IChatSettingsRepository chatSettingsRepository,
             ILogger<CreateConversationCommandHandler> logger)
         {
             _conversationRepository = conversationRepository;
@@ -46,6 +50,8 @@ namespace YemenBooking.Application.Features.Chat.Commands.Conversation
             _currentUserService = currentUserService;
             _mapper = mapper;
             _firebaseService = firebaseService;
+            _chatRealtimeNotifier = chatRealtimeNotifier;
+            _chatSettingsRepository = chatSettingsRepository;
             _logger = logger;
         }
 
@@ -102,12 +108,54 @@ namespace YemenBooking.Application.Features.Chat.Commands.Conversation
                 }
 
                 // للمحادثات الفردية: تحقق إن كانت موجودة مسبقًا
+                // When the conversation is property-scoped, prefer an exact property
+                // match and only backfill a legacy direct conversation that has no
+                // PropertyId yet.
                 if (string.Equals(request.ConversationType, "direct", StringComparison.OrdinalIgnoreCase) && participantIds.Count == 2)
                 {
-                    var existing = await _conversationRepository.GetDirectConversationAsync(participantIds[0], participantIds[1], cancellationToken);
+                    var baseQuery = _conversationRepository.GetQueryable()
+                        .Include(c => c.Participants)
+                        .Include(c => c.Messages)
+                        .ThenInclude(m => m.Sender)
+                        .Where(c => c.ConversationType == "direct"
+                                    && c.Participants.Any(p => p.Id == participantIds[0])
+                                    && c.Participants.Any(p => p.Id == participantIds[1]));
+
+                    ChatConversation? existing = null;
+
+                    if (request.PropertyId.HasValue)
+                    {
+                        existing = await baseQuery
+                            .Where(c => c.PropertyId == request.PropertyId.Value)
+                            .OrderByDescending(c => c.UpdatedAt)
+                            .FirstOrDefaultAsync(cancellationToken);
+
+                        if (existing == null)
+                        {
+                            var legacyConversation = await baseQuery
+                                .Where(c => !c.PropertyId.HasValue)
+                                .OrderByDescending(c => c.UpdatedAt)
+                                .FirstOrDefaultAsync(cancellationToken);
+
+                            if (legacyConversation != null)
+                            {
+                                legacyConversation.PropertyId = request.PropertyId.Value;
+                                legacyConversation.UpdatedAt = DateTime.UtcNow;
+                                await _conversationRepository.UpdateConversationAsync(legacyConversation, cancellationToken);
+                                await _conversationRepository.SaveChangesAsync(cancellationToken);
+                                existing = await _conversationRepository.GetByIdWithDetailsAsync(legacyConversation.Id, cancellationToken);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        existing = await baseQuery
+                            .OrderByDescending(c => c.UpdatedAt)
+                            .FirstOrDefaultAsync(cancellationToken);
+                    }
+
                     if (existing != null)
                     {
-                        // أعد المحادثة الحالية بكامل تفاصيلها
                         var dtoExisting = _mapper.Map<ChatConversationDto>(existing);
                         return ResultDto<ChatConversationDto>.Ok(dtoExisting, "المحادثة موجودة بالفعل");
                     }
@@ -195,15 +243,29 @@ namespace YemenBooking.Application.Features.Chat.Commands.Conversation
                 {
                     try
                     {
+                        var participantSettings = await _chatSettingsRepository.GetByUserIdAsync(participant.Id, cancellationToken);
+                        if (!(participantSettings?.NotificationsEnabled ?? true))
+                        {
+                            continue;
+                        }
+
+                        var payload = new System.Collections.Generic.Dictionary<string, string>
+                        {
+                            { "type", "conversation_created" },
+                            { "conversation_id", conversation.Id.ToString() }
+                        };
+
+                        if (!(participantSettings?.SoundEnabled ?? true))
+                        {
+                            payload["channel_id"] = "hggzk_chat_silent";
+                            payload["sound_enabled"] = "false";
+                        }
+
                         await _firebaseService.SendNotificationAsync(
                             $"user_{participant.Id}", 
                             "محادثة جديدة", 
                             conversation.Title ?? $"محادثة مع {users.FirstOrDefault(u => u.Id == currentUserId)?.Name ?? "مستخدم"}", 
-                            new System.Collections.Generic.Dictionary<string, string>
-                            {
-                                { "type", "conversation_created" },
-                                { "conversation_id", conversation.Id.ToString() }
-                            }, 
+                            payload, 
                             cancellationToken);
                     }
                     catch (Exception ex)
@@ -227,6 +289,11 @@ namespace YemenBooking.Application.Features.Chat.Commands.Conversation
                 {
                     dto.LastMessageTime = await _currentUserService.ConvertFromUtcToUserLocalAsync(dto.LastMessageTime.Value);
                 }
+                await _chatRealtimeNotifier.NotifyConversationUpdatedAsync(
+                    conversation.Id,
+                    "conversation_created",
+                    currentUserId,
+                    cancellationToken);
                 return ResultDto<ChatConversationDto>.Ok(dto, "تم إنشاء المحادثة بنجاح");
             }
             catch (Exception ex)

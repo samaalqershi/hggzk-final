@@ -23,6 +23,7 @@ namespace YemenBooking.Application.Features.Chat.Commands.UnarchiveConversation
         private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
         private readonly IFirebaseService _firebaseService;
+        private readonly IChatSettingsRepository _chatSettingsRepository;
         private readonly ILogger<UnarchiveConversationCommandHandler> _logger;
 
         /// <summary>
@@ -34,12 +35,14 @@ namespace YemenBooking.Application.Features.Chat.Commands.UnarchiveConversation
             ICurrentUserService currentUserService,
             IMapper mapper,
             IFirebaseService firebaseService,
+            IChatSettingsRepository chatSettingsRepository,
             ILogger<UnarchiveConversationCommandHandler> logger)
         {
             _conversationRepo = conversationRepo;
             _currentUserService = currentUserService;
             _mapper = mapper;
             _firebaseService = firebaseService;
+            _chatSettingsRepository = chatSettingsRepository;
             _logger = logger;
         }
 
@@ -62,11 +65,30 @@ namespace YemenBooking.Application.Features.Chat.Commands.UnarchiveConversation
                 var userId = _currentUserService.UserId;
                 foreach (var participant in conversation.Participants.Where(p => p.Id != userId))
                 {
-                    await _firebaseService.SendNotificationAsync($"user_{participant.Id}", "تم تحديث المحادثة", "تم إلغاء الأرشفة", new System.Collections.Generic.Dictionary<string, string>
+                    var participantSettings = await _chatSettingsRepository.GetByUserIdAsync(participant.Id, cancellationToken);
+                    if (!(participantSettings?.NotificationsEnabled ?? true))
+                    {
+                        continue;
+                    }
+
+                    var payload = new System.Collections.Generic.Dictionary<string, string>
                     {
                         { "type", "conversation_updated" },
                         { "conversation_id", conversation.Id.ToString() }
-                    }, cancellationToken);
+                    };
+
+                    if (!(participantSettings?.SoundEnabled ?? true))
+                    {
+                        payload["channel_id"] = "hggzk_chat_silent";
+                        payload["sound_enabled"] = "false";
+                    }
+
+                    await _firebaseService.SendNotificationAsync(
+                        $"user_{participant.Id}",
+                        "تم تحديث المحادثة",
+                        "تم إلغاء الأرشفة",
+                        payload,
+                        cancellationToken);
                 }
 
                 return ResultDto.Ok("تم إلغاء أرشفة المحادثة");

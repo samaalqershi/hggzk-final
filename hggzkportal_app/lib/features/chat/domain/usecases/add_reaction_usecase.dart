@@ -4,19 +4,15 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/chat_repository.dart';
 
-/// يعرّف الكلاس `AddReactionUseCase`.
-/// Describes the `AddReactionUseCase` class.
+/// العربية: ينفذ حالة الاستخدام `AddReactionUseCase`.
 class AddReactionUseCase implements UseCase<void, AddReactionParams> {
-  /// Holds the `repository` value.
   /// العربية: يخزن القيمة `repository`.
   final ChatRepository repository;
 
-  /// ينشئ مثيلاً من `AddReactionUseCase`.
-  /// Builds an instance of `AddReactionUseCase`.
+  /// العربية: ينشئ مثيلًا جديدًا من `AddReactionUseCase`.
   AddReactionUseCase(this.repository);
 
-  /// ينفذ العملية `call`.
-  /// Runs the `call` operation.
+  /// العربية: ينفذ السلوك الرئيسي الذي يقدمه هذا الكائن القابل للاستدعاء.
   @override
   Future<Either<Failure, void>> call(AddReactionParams params) async {
     return await repository.addReaction(
@@ -26,26 +22,21 @@ class AddReactionUseCase implements UseCase<void, AddReactionParams> {
   }
 }
 
-/// يعرّف الكلاس `AddReactionParams`.
-/// Describes the `AddReactionParams` class.
+/// العربية: يمثل `AddReactionParams`.
 class AddReactionParams extends Equatable {
-  /// Holds the `messageId` value.
   /// العربية: يخزن القيمة `messageId`.
   final String messageId;
 
-  /// يخزن العضو `reactionType`.
-  /// Holds the `reactionType` member.
+  /// العربية: يخزن القيمة `reactionType`.
   final String reactionType;
 
-  /// ينشئ مثيلاً من `AddReactionParams`.
-  /// Builds an instance of `AddReactionParams`.
+  /// العربية: ينشئ مثيلًا جديدًا من `AddReactionParams`.
   const AddReactionParams({
     required this.messageId,
     required this.reactionType,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object> get props => [messageId, reactionType];
 }

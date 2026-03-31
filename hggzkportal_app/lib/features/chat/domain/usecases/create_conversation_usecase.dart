@@ -1,24 +1,24 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hggzkportal/features/chat/domain/entities/conversation.dart';
+import '../entities/conversation.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/chat_repository.dart';
 
-/// يعرّف الكلاس `CreateConversationUseCase`.
-/// Describes the `CreateConversationUseCase` class.
+/// Creates a new conversation thread through the repository boundary.
+/// ينشئ محادثة جديدة عبر حدود المستودع.
 class CreateConversationUseCase
     implements UseCase<Conversation, CreateConversationParams> {
-  /// يخزن العضو `repository`.
-  /// Holds the `repository` member.
+  /// Repository used to create the conversation on the data layer.
+  /// المستودع المستخدم لإنشاء المحادثة في طبقة البيانات.
   final ChatRepository repository;
 
-  /// ينشئ مثيلاً من `CreateConversationUseCase`.
-  /// Builds an instance of `CreateConversationUseCase`.
+  /// Builds the create-conversation use case with the required repository.
+  /// ينشئ حالة استخدام إنشاء المحادثة مع المستودع المطلوب.
   CreateConversationUseCase(this.repository);
 
-  /// ينفذ العملية `call`.
-  /// Runs the `call` operation.
+  /// Sends the request to the repository and returns the resulting thread.
+  /// يرسل الطلب إلى المستودع ثم يعيد السلسلة الناتجة.
   @override
   Future<Either<Failure, Conversation>> call(
       CreateConversationParams params) async {
@@ -32,31 +32,31 @@ class CreateConversationUseCase
   }
 }
 
-/// يعرّف الكلاس `CreateConversationParams`.
-/// Describes the `CreateConversationParams` class.
+/// Parameters used to seed a new conversation thread.
+/// المعاملات المستخدمة لتجهيز سلسلة محادثة جديدة.
 class CreateConversationParams extends Equatable {
-  /// Holds the `participantIds` value.
-  /// العربية: يخزن القيمة `participantIds`.
+  /// Participants that should join the new conversation.
+  /// المشاركون الذين يجب أن ينضموا إلى المحادثة الجديدة.
   final List<String> participantIds;
 
-  /// يخزن العضو `conversationType`.
-  /// Holds the `conversationType` member.
+  /// Backend thread type such as direct or group.
+  /// نوع السلسلة لدى الخادم مثل direct أو group.
   final String conversationType;
 
-  /// يخزن العضو `title`.
-  /// Holds the `title` member.
+  /// Optional display title for the new thread.
+  /// عنوان عرض اختياري للسلسلة الجديدة.
   final String? title;
 
-  /// يخزن العضو `description`.
-  /// Holds the `description` member.
+  /// Optional description used as group context.
+  /// وصف اختياري يستخدم كسياق للمجموعة.
   final String? description;
 
-  /// يخزن العضو `propertyId`.
-  /// Holds the `propertyId` member.
+  /// Optional property context attached to the conversation.
+  /// سياق العقار الاختياري المرفق بالمحادثة.
   final String? propertyId;
 
-  /// ينشئ مثيلاً من `CreateConversationParams`.
-  /// Builds an instance of `CreateConversationParams`.
+  /// Builds the payload required to start a new chat thread.
+  /// ينشئ الحمولة المطلوبة لبدء سلسلة دردشة جديدة.
   const CreateConversationParams({
     required this.participantIds,
     required this.conversationType,
@@ -65,8 +65,8 @@ class CreateConversationParams extends Equatable {
     this.propertyId,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// Equality is based on the seeded conversation payload.
+  /// تُبنى المساواة على حمولة تجهيز المحادثة.
   @override
   List<Object?> get props => [
         participantIds,

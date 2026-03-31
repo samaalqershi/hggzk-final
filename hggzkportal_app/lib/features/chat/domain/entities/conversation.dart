@@ -1,62 +1,65 @@
 import 'package:equatable/equatable.dart';
-import 'package:hggzkportal/features/chat/domain/entities/message.dart';
+import 'message.dart';
 
-/// يعرّف الكلاس `Conversation`.
-/// Describes the `Conversation` class.
+/// Immutable conversation thread that groups participants, the latest
+/// message, and unread state.
+/// سلسلة محادثة غير قابلة للتعديل تجمع المشاركين وآخر رسالة وحالة غير
+/// المقروء.
 class Conversation extends Equatable {
-  /// Holds the `id` value.
-  /// العربية: يخزن القيمة `id`.
+  /// Stable identifier for the conversation thread.
+  /// المعرّف الثابت لسلسلة المحادثة.
   final String id;
 
-  /// يخزن العضو `conversationType`.
-  /// Holds the `conversationType` member.
-  final String conversationType; // "direct" or "group"
-  /// يخزن العضو `title`.
-  /// Holds the `title` member.
+  /// Backend classification such as `direct` or `group`.
+  /// تصنيف الخادم مثل `direct` أو `group`.
+  final String conversationType;
+
+  /// Display title for the conversation when available.
+  /// عنوان العرض للمحادثة عندما يكون متاحًا.
   final String? title;
 
-  /// يخزن العضو `description`.
-  /// Holds the `description` member.
+  /// Optional description or group context.
+  /// وصف اختياري أو سياق للمجموعة.
   final String? description;
 
-  /// يخزن العضو `avatar`.
-  /// Holds the `avatar` member.
+  /// Conversation avatar or fallback identity image.
+  /// صورة المحادثة أو صورة الهوية البديلة.
   final String? avatar;
 
-  /// يخزن العضو `createdAt`.
-  /// Holds the `createdAt` member.
+  /// Time when the conversation was created.
+  /// وقت إنشاء المحادثة.
   final DateTime createdAt;
 
-  /// يخزن العضو `updatedAt`.
-  /// Holds the `updatedAt` member.
+  /// Time when the conversation was last active.
+  /// وقت آخر نشاط للمحادثة.
   final DateTime updatedAt;
 
-  /// يخزن العضو `lastMessage`.
-  /// Holds the `lastMessage` member.
+  /// Most recent message used for inbox previews.
+  /// آخر رسالة تُستخدم في معاينات الصندوق الوارد.
   final Message? lastMessage;
 
-  /// يخزن العضو `unreadCount`.
-  /// Holds the `unreadCount` member.
+  /// Number of unread messages in the thread.
+  /// عدد الرسائل غير المقروءة داخل السلسلة.
   final int unreadCount;
 
-  /// يخزن العضو `isArchived`.
-  /// Holds the `isArchived` member.
+  /// Whether the conversation has been moved to the archive.
+  /// يحدد ما إذا كانت المحادثة نُقلت إلى الأرشيف.
   final bool isArchived;
 
-  /// يخزن العضو `isMuted`.
-  /// Holds the `isMuted` member.
+  /// Whether notifications for this conversation are muted.
+  /// يحدد ما إذا كانت إشعارات هذه المحادثة مكتومة.
   final bool isMuted;
 
-  /// يخزن العضو `propertyId`.
-  /// Holds the `propertyId` member.
+  /// Optional property context attached to the thread.
+  /// سياق العقار الاختياري المرتبط بالسلسلة.
   final String? propertyId;
 
-  /// يخزن العضو `participants`.
-  /// Holds the `participants` member.
+  /// Participants involved in the conversation.
+  /// المشاركون في المحادثة.
   final List<ChatUser> participants;
 
-  /// ينشئ مثيلاً من `Conversation`.
-  /// Builds an instance of `Conversation`.
+  /// Builds an immutable conversation snapshot for the inbox and detail view.
+  /// ينشئ لقطة غير قابلة للتعديل للمحادثة في الصندوق الوارد وصفحة التفاصيل.
   const Conversation({
     required this.id,
     required this.conversationType,
@@ -73,8 +76,8 @@ class Conversation extends Equatable {
     required this.participants,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// Equality is based on the full conversation snapshot.
+  /// تُبنى المساواة على اللقطة الكاملة للمحادثة.
   @override
   List<Object?> get props => [
         id,
@@ -92,71 +95,71 @@ class Conversation extends Equatable {
         participants,
       ];
 
-  // Helper methods
-  /// يعيد قيمة `isDirectChat`.
-  /// Exposes the `isDirectChat` value.
+  /// True when the thread contains exactly two participants.
+  /// تكون صحيحة عندما تضم السلسلة مشاركين فقط.
   bool get isDirectChat => conversationType == 'direct';
 
-  /// يعيد قيمة `isGroupChat`.
-  /// Exposes the `isGroupChat` value.
+  /// True when the thread is a group conversation.
+  /// تكون صحيحة عندما تكون المحادثة جماعية.
   bool get isGroupChat => conversationType == 'group';
 
-  /// يعيد قيمة `hasUnreadMessages`.
-  /// Exposes the `hasUnreadMessages` value.
+  /// True when the inbox should highlight the thread as unread.
+  /// تكون صحيحة عندما يجب تمييز المحادثة بأنها غير مقروءة.
   bool get hasUnreadMessages => unreadCount > 0;
 
-  // Get other participant in direct chat
-  /// ينفذ العملية `getOtherParticipant`.
-  /// Runs the `getOtherParticipant` operation.
+  /// Returns the other participant in a direct thread.
+  /// يعيد الطرف الآخر في المحادثة الثنائية.
   ChatUser? getOtherParticipant(String currentUserId) {
     if (!isDirectChat || participants.length != 2) return null;
     return participants.firstWhere((p) => p.id != currentUserId);
   }
 }
 
-/// يعرّف الكلاس `ChatUser`.
-/// Describes the `ChatUser` class.
+/// User profile data shown inside chat threads and participant pickers.
+/// بيانات ملف المستخدم المعروضة داخل سلاسل الدردشة وقوائم الاختيار.
 class ChatUser extends Equatable {
-  /// Holds the `id` value.
-  /// العربية: يخزن القيمة `id`.
+  /// Stable identifier for the user.
+  /// المعرّف الثابت للمستخدم.
   final String id;
 
-  /// يخزن العضو `name`.
-  /// Holds the `name` member.
+  /// Display name used across chat UI.
+  /// اسم العرض المستخدم في واجهة الدردشة.
   final String name;
 
-  /// يخزن العضو `email`.
-  /// Holds the `email` member.
+  /// Primary email address for the account.
+  /// البريد الإلكتروني الأساسي للحساب.
   final String email;
 
-  /// يخزن العضو `phone`.
-  /// Holds the `phone` member.
+  /// Optional phone number displayed in admin flows.
+  /// رقم الهاتف الاختياري المعروض في مسارات الإدارة.
   final String? phone;
 
-  /// يخزن العضو `profileImage`.
-  /// Holds the `profileImage` member.
+  /// Avatar or profile image shown in conversation lists.
+  /// صورة الحساب التي تظهر في قوائم المحادثات.
   final String? profileImage;
 
-  /// يخزن العضو `userType`.
-  /// Holds the `userType` member.
-  final String userType; // "admin", "property_owner", "customer"
-  /// يخزن العضو `status`.
-  /// Holds the `status` member.
-  final String status; // "online", "offline", "away", "busy"
-  /// يخزن العضو `lastSeen`.
-  /// Holds the `lastSeen` member.
+  /// User category used for chat routing and permissions.
+  /// فئة المستخدم المستخدمة في توجيه الدردشة والصلاحيات.
+  final String userType;
+
+  /// Current availability state such as online, offline, away, or busy.
+  /// حالة التوفر الحالية مثل online أو offline أو away أو busy.
+  final String status;
+
+  /// Last known activity time when the user is not online.
+  /// آخر وقت نشاط معروف عندما لا يكون المستخدم متصلًا.
   final DateTime? lastSeen;
 
-  /// يخزن العضو `propertyId`.
-  /// Holds the `propertyId` member.
+  /// Optional property context used to limit or group chat participants.
+  /// سياق العقار الاختياري المستخدم لتجميع أو تضييق المشاركين.
   final String? propertyId;
 
-  /// يخزن العضو `isOnline`.
-  /// Holds the `isOnline` member.
+  /// Whether the user is currently connected.
+  /// يحدد ما إذا كان المستخدم متصلًا الآن.
   final bool isOnline;
 
-  /// ينشئ مثيلاً من `ChatUser`.
-  /// Builds an instance of `ChatUser`.
+  /// Builds the user snapshot used in chat selection and presence displays.
+  /// ينشئ لقطة المستخدم المستخدمة في الاختيار والحضور داخل الدردشة.
   const ChatUser({
     required this.id,
     required this.name,
@@ -170,8 +173,8 @@ class ChatUser extends Equatable {
     required this.isOnline,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// Equality is based on the rendered user snapshot.
+  /// تُبنى المساواة على لقطة المستخدم المعروضة.
   @override
   List<Object?> get props => [
         id,

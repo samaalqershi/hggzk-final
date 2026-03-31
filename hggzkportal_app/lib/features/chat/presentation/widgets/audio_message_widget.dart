@@ -439,8 +439,7 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
   double _resolveUploadProgress(Attachment attachment) {
     final progress = attachment.downloadProgress;
     final fileUrl = attachment.fileUrl.trim();
-    final fallbackUrl = attachment.url.trim();
-    final hasRemoteUrl = fileUrl.isNotEmpty || fallbackUrl.isNotEmpty;
+    final hasRemoteUrl = fileUrl.isNotEmpty;
 
     if (progress != null) {
       if (progress >= 1.0) {
@@ -503,11 +502,6 @@ class _AudioMessageWidgetState extends State<AudioMessageWidget>
     final fileUrl = widget.attachment.fileUrl.trim();
     if (fileUrl.isNotEmpty) {
       return fileUrl;
-    }
-
-    final url = widget.attachment.url.trim();
-    if (url.isNotEmpty) {
-      return url;
     }
 
     final filePath = widget.attachment.filePath.trim();

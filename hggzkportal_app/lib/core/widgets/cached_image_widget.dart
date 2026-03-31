@@ -59,6 +59,10 @@ class CachedImageWidget extends StatelessWidget {
   /// Optional tint color applied to the image.
   final Color? color;
 
+  /// ترويسات HTTP اختيارية تستخدم عند تحميل وسائط محمية.
+  /// Optional HTTP headers used when loading protected media.
+  final Map<String, String>? httpHeaders;
+
   /// Creates a cached image surface with graceful loading and failure fallbacks.
   /// ينشئ صورة مخزنة مع بدائل واضحة أثناء التحميل أو عند الفشل.
   const CachedImageWidget({
@@ -76,6 +80,7 @@ class CachedImageWidget extends StatelessWidget {
     this.gradient,
     this.colorBlendMode,
     this.color,
+    this.httpHeaders,
   });
 
   /// Builds the image container and layers optional overlays on top of the cached asset.
@@ -95,16 +100,27 @@ class CachedImageWidget extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            CachedNetworkImage(
-              imageUrl: ImageUtils.resolveUrl(imageUrl),
-              fit: fit,
-              width: width,
-              height: height,
-              color: color,
-              colorBlendMode: colorBlendMode,
-              placeholder: (context, url) => placeholder ?? _buildPlaceholder(),
-              errorWidget: (context, url, error) =>
-                  errorWidget ?? _buildErrorWidget(),
+            Builder(
+              builder: (context) {
+                final resolvedUrl = ImageUtils.resolveUrl(imageUrl);
+                if (resolvedUrl.isEmpty) {
+                  return errorWidget ?? _buildErrorWidget();
+                }
+
+                return CachedNetworkImage(
+                  imageUrl: resolvedUrl,
+                  httpHeaders: httpHeaders,
+                  fit: fit,
+                  width: width,
+                  height: height,
+                  color: color,
+                  colorBlendMode: colorBlendMode,
+                  placeholder: (context, url) =>
+                      placeholder ?? _buildPlaceholder(),
+                  errorWidget: (context, url, error) =>
+                      errorWidget ?? _buildErrorWidget(),
+                );
+              },
             ),
             if (gradient != null)
               Container(
@@ -139,6 +155,7 @@ class CachedImageWidget extends StatelessWidget {
           : const SizedBox.shrink(),
     );
   }
+
   Widget _buildErrorWidget() {
     return Container(
       color: AppTheme.darkCard,

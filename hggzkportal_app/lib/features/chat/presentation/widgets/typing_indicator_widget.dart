@@ -1,52 +1,53 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/conversation.dart';
 
-/// يعرّف الكلاس `TypingIndicatorWidget`.
-/// Describes the `TypingIndicatorWidget` class.
+/// Shows who is currently composing a reply inside a conversation.
+/// يعرض من يكتب ردًا حاليًا داخل المحادثة.
 class TypingIndicatorWidget extends StatefulWidget {
-  /// Holds the `typingUserIds` value.
-  /// العربية: يخزن القيمة `typingUserIds`.
+  /// Identifiers of the users who are typing right now.
+  /// معرّفات المستخدمين الذين يكتبون الآن.
   final List<String> typingUserIds;
 
-  /// يخزن العضو `conversation`.
-  /// Holds the `conversation` member.
+  /// Conversation used to resolve names and avatars for the indicator text.
+  /// المحادثة المستخدمة لاستخراج الأسماء والصور في نص المؤشر.
   final Conversation conversation;
 
-  /// ينشئ مثيلاً من `TypingIndicatorWidget`.
-  /// Builds an instance of `TypingIndicatorWidget`.
+  /// Builds the live typing banner for the active conversation.
+  /// ينشئ شريط الكتابة الحي للمحادثة النشطة.
   const TypingIndicatorWidget({
     super.key,
     required this.typingUserIds,
     required this.conversation,
   });
 
-  /// ينفذ العملية `createState`.
-  /// Runs the `createState` operation.
+  /// Sets up the animation state that drives the typing dots and fade-in.
+  /// يهيئ حالة الحركة التي تقود نقاط الكتابة والظهور التدريجي.
   @override
   State<TypingIndicatorWidget> createState() => _TypingIndicatorWidgetState();
 }
 
-/// يعرّف الكلاس `_TypingIndicatorWidgetState`.
-/// Describes the `_TypingIndicatorWidgetState` class.
+/// Animates the typing dots and keeps the banner in sync with the user list.
+/// يحرك نقاط الكتابة ويُبقي الشريط متزامنًا مع قائمة المستخدمين.
 class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
     with SingleTickerProviderStateMixin {
-  /// يخزن العضو `_animationController`.
-  /// Holds the `_animationController` member.
+  /// Drives the repeating typing animation.
+  /// يقود حركة الكتابة المتكررة.
   late AnimationController _animationController;
 
-  /// يخزن العضو `_dotAnimations`.
-  /// Holds the `_dotAnimations` member.
+  /// Staggers the three dots so the typing hint feels lively.
+  /// يوزع حركة النقاط الثلاث بتتابع يجعل الإشارة أكثر حيوية.
   late List<Animation<double>> _dotAnimations;
 
-  /// يخزن العضو `_fadeAnimation`.
-  /// Holds the `_fadeAnimation` member.
+  /// Fades the banner in when the typing state becomes active.
+  /// يُظهر الشريط تدريجيًا عند تفعيل حالة الكتابة.
   late Animation<double> _fadeAnimation;
 
-  /// ينفذ العملية `initState`.
-  /// Runs the `initState` operation.
+  /// Starts the looping dot animation as soon as the widget is inserted.
+  /// يبدأ حركة النقاط المتكررة فور إدراج العنصر.
   @override
   void initState() {
     super.initState();
@@ -80,16 +81,16 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
     });
   }
 
-  /// ينفذ العملية `dispose`.
-  /// Runs the `dispose` operation.
+  /// Disposes the animation controller used by the banner.
+  /// يحرر متحكم الحركة المستخدم بالشريط.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// Renders the typing text and animated dots for the active participants.
+  /// يرسم نص الكتابة والنقاط المتحركة للمشاركين النشطين.
   @override
   Widget build(BuildContext context) {
     if (widget.typingUserIds.isEmpty) {
@@ -100,7 +101,7 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
         .where((p) => widget.typingUserIds.contains(p.id))
         .toList();
 
-    final typingText = _getTypingText(typingUsers);
+    final typingText = _getTypingText(context, typingUsers);
 
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -125,13 +126,13 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkCard.withValues(alpha: 0.7),
-                        AppTheme.darkCard.withValues(alpha: 0.5),
+                        AppTheme.darkCard.withOpacity(0.7),
+                        AppTheme.darkCard.withOpacity(0.5),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withValues(alpha: 0.1),
+                      color: AppTheme.darkBorder.withOpacity(0.1),
                       width: 0.5,
                     ),
                   ),
@@ -143,7 +144,7 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
                       Text(
                         typingText,
                         style: AppTextStyles.caption.copyWith(
-                          color: AppTheme.textMuted.withValues(alpha: 0.7),
+                          color: AppTheme.textMuted.withOpacity(0.7),
                           fontStyle: FontStyle.italic,
                           fontSize: 11,
                         ),
@@ -159,8 +160,7 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
     );
   }
 
-  /// ينفذ العملية `_buildMinimalDots`.
-  /// Runs the `_buildMinimalDots` operation.
+  /// العربية: يبني minimal dots.
   Widget _buildMinimalDots() {
     return SizedBox(
       width: 24, // Reduced from 30
@@ -179,19 +179,19 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.primaryBlue.withValues(
-                          alpha: 0.3 + 0.5 * _dotAnimations[index].value,
+                        AppTheme.primaryBlue.withOpacity(
+                          0.3 + 0.5 * _dotAnimations[index].value,
                         ),
-                        AppTheme.primaryPurple.withValues(
-                          alpha: 0.2 + 0.4 * _dotAnimations[index].value,
+                        AppTheme.primaryPurple.withOpacity(
+                          0.2 + 0.4 * _dotAnimations[index].value,
                         ),
                       ],
                     ),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withValues(
-                          alpha: 0.2 * _dotAnimations[index].value,
+                        color: AppTheme.primaryBlue.withOpacity(
+                          0.2 * _dotAnimations[index].value,
                         ),
                         blurRadius: 4,
                         spreadRadius: 0.5,
@@ -207,17 +207,28 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
     );
   }
 
-  /// ينفذ العملية `_getTypingText`.
-  /// Runs the `_getTypingText` operation.
-  String _getTypingText(List<ChatUser> typingUsers) {
+  /// Builds the localized label shown beneath the typing dots.
+  /// ينشئ النص المحلي الظاهر أسفل نقاط الكتابة.
+  String _getTypingText(BuildContext context, List<ChatUser> typingUsers) {
     if (typingUsers.isEmpty) return '';
 
     if (typingUsers.length == 1) {
-      return '${typingUsers.first.name} يكتب';
+      return context.tr(
+        'chat.thread.typingSingle',
+        params: {'name': typingUsers.first.name},
+      );
     } else if (typingUsers.length == 2) {
-      return '${typingUsers.first.name} و${typingUsers.last.name} يكتبان';
+      return context.tr(
+        'chat.thread.typingDual',
+        params: {
+          'first': typingUsers.first.name,
+          'second': typingUsers.last.name,
+        },
+      );
     } else {
-      return 'عدة أشخاص يكتبون';
+      return context.tr(
+        'chat.thread.typingMultiple',
+      );
     }
   }
 }

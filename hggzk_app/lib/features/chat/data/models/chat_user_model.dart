@@ -1,4 +1,4 @@
-import 'package:hggzk/features/chat/domain/entities/conversation.dart';
+import '../../domain/entities/conversation.dart';
 
 /// العربية: يمثل نموذج البيانات `ChatUserModel`.
 class ChatUserModel extends ChatUser {
@@ -23,7 +23,23 @@ class ChatUserModel extends ChatUser {
       name: json['name'] ?? '',
       email: json['email'] ?? '',
       phone: json['phone'],
-      profileImage: json['profile_image'] ?? json['profileImage'],
+      profileImage: _readFirstString(
+        json,
+        const [
+          'profile_image',
+          'profileImage',
+          'profile_image_url',
+          'profileImageUrl',
+          'avatar',
+          'avatar_url',
+          'avatarUrl',
+          'photo_url',
+          'photoUrl',
+          'image',
+          'image_url',
+          'imageUrl',
+        ],
+      ),
       userType: json['user_type'] ?? json['userType'] ?? 'customer',
       status: json['status'] ?? 'offline',
       lastSeen: json['last_seen'] != null || json['lastSeen'] != null
@@ -49,4 +65,14 @@ class ChatUserModel extends ChatUser {
       'is_online': isOnline,
     };
   }
+}
+
+String? _readFirstString(Map<String, dynamic> json, List<String> keys) {
+  for (final key in keys) {
+    final value = json[key];
+    if (value is String && value.trim().isNotEmpty) {
+      return value.trim();
+    }
+  }
+  return null;
 }

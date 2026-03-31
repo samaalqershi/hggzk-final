@@ -1,142 +1,335 @@
-import 'package:hggzkportal/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:hggzkportal/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:io';
 import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../app/dependency_injection/injection_container.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../domain/entities/attachment.dart';
 import '../../domain/entities/conversation.dart';
+import '../../domain/entities/message.dart';
+import '../../domain/repositories/chat_repository.dart';
+import '../../domain/usecases/get_messages_usecase.dart';
+import '../../domain/usecases/search_chats_usecase.dart';
 import '../bloc/chat_bloc.dart';
+import '../utils/chat_presence_presentation.dart';
+import '../utils/chat_settings_presentation.dart';
 import '../widgets/media_grid_widget.dart';
 import '../widgets/participant_item_widget.dart';
 
-/// يعرّف الكلاس `ChatSettingsPage`.
-/// Describes the `ChatSettingsPage` class.
+/// Conversation settings screen for participants, media, and chat preferences.
+/// شاشة إعدادات المحادثة للمشاركين والوسائط وتفضيلات الدردشة.
 class ChatSettingsPage extends StatefulWidget {
-  /// Holds the `conversation` value.
-  /// العربية: يخزن القيمة `conversation`.
+  /// Conversation whose settings are being viewed.
+  /// المحادثة التي تُعرض إعداداتها.
   final Conversation conversation;
 
-  /// ينشئ مثيلاً من `ChatSettingsPage`.
-  /// Builds an instance of `ChatSettingsPage`.
+  /// Builds the settings screen for a single conversation.
+  /// ينشئ شاشة الإعدادات لمحادثة واحدة.
   const ChatSettingsPage({
     super.key,
     required this.conversation,
   });
 
-  /// ينفذ العملية `createState`.
-  /// Runs the `createState` operation.
+  /// Builds the state object for this widget.
+  /// ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<ChatSettingsPage> createState() => _ChatSettingsPageState();
 }
 
-/// يعرّف الكلاس `_ChatSettingsPageState`.
-/// Describes the `_ChatSettingsPageState` class.
+/// Controls tabs, header animations, and the loaded conversation metadata.
+/// يدير الألسنة وحركات الترويسة وبيانات المحادثة المحملة.
 class _ChatSettingsPageState extends State<ChatSettingsPage>
     with TickerProviderStateMixin {
   // Controllers
-  /// يخزن العضو `_tabController`.
-  /// Holds the `_tabController` member.
+  /// العربية: يخزن القيمة `tabController`.
   late TabController _tabController;
 
-  /// يخزن العضو `_fadeController`.
-  /// Holds the `_fadeController` member.
+  /// العربية: يخزن القيمة `fadeController`.
   late AnimationController _fadeController;
 
-  /// يخزن العضو `_slideController`.
-  /// Holds the `_slideController` member.
+  /// العربية: يخزن القيمة `slideController`.
   late AnimationController _slideController;
 
-  /// يخزن العضو `_glowController`.
-  /// Holds the `_glowController` member.
+  /// العربية: يخزن القيمة `glowController`.
   late AnimationController _glowController;
 
-  /// يخزن العضو `_headerController`.
-  /// Holds the `_headerController` member.
+  /// العربية: يخزن القيمة `headerController`.
   late AnimationController _headerController;
 
-  /// يخزن العضو `_floatingController`.
-  /// Holds the `_floatingController` member.
+  /// العربية: يخزن القيمة `floatingController`.
   late AnimationController _floatingController;
 
   // Animations
-  /// يخزن العضو `_fadeAnimation`.
-  /// Holds the `_fadeAnimation` member.
+  /// العربية: يخزن القيمة `fadeAnimation`.
   late Animation<double> _fadeAnimation;
 
-  /// يخزن العضو `_slideAnimation`.
-  /// Holds the `_slideAnimation` member.
+  /// العربية: يخزن القيمة `slideAnimation`.
   late Animation<Offset> _slideAnimation;
 
-  /// يخزن العضو `_glowAnimation`.
-  /// Holds the `_glowAnimation` member.
+  /// العربية: يخزن القيمة `glowAnimation`.
   late Animation<double> _glowAnimation;
 
-  /// يخزن العضو `_headerAnimation`.
-  /// Holds the `_headerAnimation` member.
+  /// العربية: يخزن القيمة `headerAnimation`.
   late Animation<double> _headerAnimation;
 
-  /// يخزن العضو `_floatingAnimation`.
-  /// Holds the `_floatingAnimation` member.
+  /// العربية: يخزن القيمة `floatingAnimation`.
   late Animation<double> _floatingAnimation;
 
   // Scroll Controller
   final ScrollController _scrollController = ScrollController();
 
   // Data
-  /// يعيد قيمة `currentUserId`.
-  /// Exposes the `currentUserId` value.
-  String get currentUserId {
-    final authState = context.read<AuthBloc>().state;
-    if (authState is AuthAuthenticated && authState.user.userId.isNotEmpty) {
-      return authState.user.userId;
-    }
-    return 'current_user';
-  }
+  /// العربية: يخزن القيمة `currentUserId`.
+  String? _currentUserId;
 
-  /// يخزن العضو `_notificationsEnabled`.
-  /// Holds the `_notificationsEnabled` member.
+  /// العربية: يخزن رسائل المحادثة المكتملة المستخدمة في الميديا والإحصاءات.
+  List<Message> _conversationMessages = const [];
+
+  /// العربية: يحدد ما إذا كانت القيمة `isLoadingConversationInsights` مفعلة.
+  bool _isLoadingConversationInsights = false;
+
+  /// العربية: يخزن القيمة `notificationsEnabled`.
   bool _notificationsEnabled = true;
 
-  /// يخزن العضو `_showReadReceipts`.
-  /// Holds the `_showReadReceipts` member.
+  /// العربية: يخزن القيمة `soundEnabled`.
+  bool _soundEnabled = true;
+
+  /// العربية: يخزن القيمة `showReadReceipts`.
   bool _showReadReceipts = true;
 
-  /// يخزن العضو `_theme`.
-  /// Holds the `_theme` member.
+  /// العربية: يخزن القيمة `showTypingIndicator`.
+  bool _showTypingIndicator = true;
+
+  /// العربية: يخزن القيمة `theme`.
   String _theme = 'default';
 
+  /// العربية: يخزن القيمة `fontSize`.
+  String _fontSize = 'medium';
+
+  /// العربية: يخزن القيمة `autoDownloadMedia`.
+  bool _autoDownloadMedia = true;
+
   // UI State
-  /// يخزن العضو `_headerOpacity`.
-  /// Holds the `_headerOpacity` member.
+  /// العربية: يخزن القيمة `headerOpacity`.
   double _headerOpacity = 1.0;
 
-  /// يخزن العضو `_isHeaderExpanded`.
-  /// Holds the `_isHeaderExpanded` member.
+  /// العربية: يحدد ما إذا كانت القيمة `isHeaderExpanded` مفعلة.
   bool _isHeaderExpanded = true;
 
   // Background elements
-  /// يخزن العضو `_floatingOrbs`.
-  /// Holds the `_floatingOrbs` member.
+  /// العربية: يخزن القيمة `floatingOrbs`.
   final List<_FloatingOrb> _floatingOrbs = [];
 
-  /// ينفذ العملية `initState`.
-  /// Runs the `initState` operation.
+  /// Initializes the tab controller and page animations.
+  /// يهيئ متحكم الألسنة وحركات الصفحة.
   @override
   void initState() {
     super.initState();
     _initializeControllers();
     _initializeAnimations();
     _generateFloatingOrbs();
+    _hydrateCurrentUser();
     _loadSettings();
+    _loadConversationInsights();
     _scrollController.addListener(_onScroll);
   }
 
-  /// ينفذ العملية `_initializeControllers`.
-  /// Runs the `_initializeControllers` operation.
+  String get _resolvedCurrentUserId => _currentUserId ?? '';
+
+  ChatUser? get _directConversationParticipant {
+    if (!widget.conversation.isDirectChat) {
+      return null;
+    }
+
+    if (_resolvedCurrentUserId.isNotEmpty) {
+      return widget.conversation.getOtherParticipant(_resolvedCurrentUserId);
+    }
+
+    if (widget.conversation.participants.isNotEmpty) {
+      return widget.conversation.participants.first;
+    }
+
+    return null;
+  }
+
+  void _hydrateCurrentUser() {
+    final chatState = context.read<ChatBloc>().state;
+    if (chatState is ChatLoaded &&
+        (chatState.currentUserId?.isNotEmpty ?? false)) {
+      _currentUserId = chatState.currentUserId;
+      return;
+    }
+
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      _currentUserId = authState.user.userId;
+    }
+  }
+
+  List<Message> _seedConversationMessages() {
+    final chatState = context.read<ChatBloc>().state;
+    if (chatState is! ChatLoaded) {
+      return const [];
+    }
+
+    return List<Message>.from(chatState.messages[widget.conversation.id] ?? []);
+  }
+
+  List<Message> _mergeMessagesById(Iterable<Message> messages) {
+    final mergedById = <String, Message>{};
+
+    for (final message in messages) {
+      final existing = mergedById[message.id];
+      if (existing == null) {
+        mergedById[message.id] = message;
+        continue;
+      }
+
+      mergedById[message.id] = _pickRicherMessage(existing, message);
+    }
+
+    final merged = mergedById.values.toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return merged;
+  }
+
+  Message _pickRicherMessage(Message current, Message candidate) {
+    final currentScore = _messageRichnessScore(current);
+    final candidateScore = _messageRichnessScore(candidate);
+
+    if (candidateScore != currentScore) {
+      return candidateScore > currentScore ? candidate : current;
+    }
+
+    return candidate.updatedAt.isAfter(current.updatedAt) ? candidate : current;
+  }
+
+  int _messageRichnessScore(Message message) {
+    var score = 0;
+
+    if ((message.content?.trim().isNotEmpty ?? false)) {
+      score += 1;
+    }
+
+    if (message.location != null) {
+      score += 1;
+    }
+
+    if (message.status.trim().toLowerCase() == 'sent') {
+      score += 1;
+    }
+
+    for (final attachment in message.attachments) {
+      if (attachment.thumbnailUrl?.trim().isNotEmpty ?? false) {
+        score += 2;
+      }
+      if (attachment.metadata?['localThumbnailPath'] is String) {
+        score += 2;
+      }
+      if (attachment.fileUrl.trim().isNotEmpty) {
+        score += 1;
+      }
+    }
+
+    return score;
+  }
+
+  Future<void> _loadConversationInsights() async {
+    final seededMessages = _seedConversationMessages();
+
+    if (mounted) {
+      setState(() {
+        _conversationMessages = _mergeMessagesById(seededMessages);
+        _isLoadingConversationInsights = true;
+      });
+    }
+
+    final allMessages = List<Message>.from(_conversationMessages);
+    String? beforeMessageId;
+    var pageNumber = 1;
+    const pageSize = 100;
+
+    while (true) {
+      final result = await sl<GetMessagesUseCase>()(
+        GetMessagesParams(
+          conversationId: widget.conversation.id,
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          beforeMessageId: beforeMessageId,
+        ),
+      );
+
+      var shouldStop = false;
+
+      await result.fold(
+        (_) async {
+          shouldStop = true;
+        },
+        (messages) async {
+          allMessages.addAll(messages);
+
+          if (mounted) {
+            setState(() {
+              _conversationMessages = _mergeMessagesById(allMessages);
+            });
+          }
+
+          if (messages.length < pageSize || messages.isEmpty) {
+            shouldStop = true;
+            return;
+          }
+
+          beforeMessageId = messages.last.id;
+          pageNumber += 1;
+        },
+      );
+
+      if (shouldStop) {
+        break;
+      }
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _conversationMessages = _mergeMessagesById(allMessages);
+      _isLoadingConversationInsights = false;
+    });
+  }
+
+  List<Message> _effectiveConversationMessages(ChatState state) {
+    final seededMessages = state is ChatLoaded
+        ? List<Message>.from(state.messages[widget.conversation.id] ?? [])
+        : const <Message>[];
+
+    return _mergeMessagesById([
+      ..._conversationMessages,
+      ...seededMessages,
+    ]);
+  }
+
+  List<Attachment> _mediaAttachmentsFromMessages(List<Message> messages) {
+    return messages
+        .expand((message) => message.attachments)
+        .where((attachment) => attachment.isImage || attachment.isVideo)
+        .toList();
+  }
+
+  List<Attachment> _fileAttachmentsFromMessages(List<Message> messages) {
+    return messages
+        .expand((message) => message.attachments)
+        .where((attachment) => attachment.isDocument)
+        .toList();
+  }
+
+  /// العربية: يهيئ controllers.
   void _initializeControllers() {
     _tabController = TabController(length: 3, vsync: this);
 
@@ -166,8 +359,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     )..repeat();
   }
 
-  /// ينفذ العملية `_initializeAnimations`.
-  /// Runs the `_initializeAnimations` operation.
+  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     _fadeAnimation = CurvedAnimation(
       parent: _fadeController,
@@ -209,16 +401,14 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     _headerController.forward();
   }
 
-  /// ينفذ العملية `_generateFloatingOrbs`.
-  /// Runs the `_generateFloatingOrbs` operation.
+  /// العربية: ينشئ floating orbs.
   void _generateFloatingOrbs() {
     for (int i = 0; i < 5; i++) {
       _floatingOrbs.add(_FloatingOrb());
     }
   }
 
-  /// ينفذ العملية `_onScroll`.
-  /// Runs the `_onScroll` operation.
+  /// العربية: يعالج `onScroll`.
   void _onScroll() {
     final offset = _scrollController.offset;
     setState(() {
@@ -227,8 +417,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     });
   }
 
-  /// ينفذ العملية `dispose`.
-  /// Runs the `dispose` operation.
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _tabController.dispose();
@@ -241,14 +430,72 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     super.dispose();
   }
 
-  /// ينفذ العملية `_loadSettings`.
-  /// Runs the `_loadSettings` operation.
+  /// العربية: يحمل settings.
   void _loadSettings() {
     context.read<ChatBloc>().add(const LoadChatSettingsEvent());
   }
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  void _applySettingsSnapshot(ChatSettings settings) {
+    _notificationsEnabled = settings.notificationsEnabled;
+    _soundEnabled = settings.soundEnabled;
+    _showReadReceipts = settings.showReadReceipts;
+    _showTypingIndicator = settings.showTypingIndicator;
+    _theme = normalizeChatTheme(settings.theme);
+    _fontSize = settings.fontSize;
+    _autoDownloadMedia = settings.autoDownloadMedia;
+  }
+
+  void _showSnackBar(
+    String message, {
+    bool isError = false,
+  }) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: isError ? AppTheme.error : AppTheme.primaryBlue,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+  }
+
+  Future<bool> _showConfirmationDialog({
+    required String title,
+    required String message,
+    bool isDestructive = false,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: AppTheme.darkCard,
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(context.tr('common.cancel')),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor:
+                    isDestructive ? AppTheme.error : AppTheme.primaryBlue,
+              ),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(context.tr('common.confirm')),
+            ),
+          ],
+        );
+      },
+    );
+
+    return result ?? false;
+  }
+
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -297,8 +544,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
-  /// ينفذ العملية `_buildPremiumBackground`.
-  /// Runs the `_buildPremiumBackground` operation.
+  /// العربية: يبني premium background.
   Widget _buildPremiumBackground() {
     return AnimatedBuilder(
       animation: _floatingAnimation,
@@ -326,8 +572,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
-  /// ينفذ العملية `_buildFloatingOrbs`.
-  /// Runs the `_buildFloatingOrbs` operation.
+  /// العربية: يبني floating orbs.
   Widget _buildFloatingOrbs() {
     return AnimatedBuilder(
       animation: _floatingController,
@@ -343,14 +588,21 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
-  /// ينفذ العملية `_buildPremiumSliverAppBar`.
-  /// Runs the `_buildPremiumSliverAppBar` operation.
+  /// العربية: يبني premium sliver app bar.
   Widget _buildPremiumSliverAppBar() {
     final displayImage = widget.conversation.avatar ??
-        widget.conversation.getOtherParticipant(currentUserId)?.profileImage;
-    final displayName = widget.conversation.title ??
-        widget.conversation.getOtherParticipant(currentUserId)?.name ??
-        'معلومات المحادثة';
+        _directConversationParticipant?.profileImage;
+    final hasDisplayImage =
+        displayImage != null && displayImage.trim().isNotEmpty;
+    final displayName = widget.conversation.isDirectChat &&
+            (_directConversationParticipant?.name.trim().isNotEmpty == true)
+        ? _directConversationParticipant!.name.trim()
+        : (widget.conversation.title?.trim().isNotEmpty == true
+            ? widget.conversation.title!.trim()
+            : _directConversationParticipant?.name ??
+                context.tr(
+                  'chat.settings.title',
+                ));
 
     return SliverAppBar(
       expandedHeight: 180, // Reduced from 200
@@ -369,7 +621,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
           fit: StackFit.expand,
           children: [
             // Image or gradient background
-            if (displayImage != null)
+            if (hasDisplayImage)
               CachedImageWidget(
                 imageUrl: displayImage,
                 fit: BoxFit.cover,
@@ -397,7 +649,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withValues(alpha: 0.8),
+                    Colors.black.withOpacity(0.8),
                   ],
                 ),
               ),
@@ -416,9 +668,9 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        AppTheme.darkBackground.withValues(alpha: 0.0),
+                        AppTheme.darkBackground.withOpacity(0.0),
                         AppTheme.darkBackground
-                            .withValues(alpha: _headerOpacity * 0.9),
+                            .withOpacity(_headerOpacity * 0.9),
                       ],
                     ),
                   ),
@@ -447,20 +699,19 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.3),
+                                color: Colors.white.withOpacity(0.3),
                                 width: 2,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppTheme.primaryBlue
-                                      .withValues(alpha: 0.5),
+                                  color: AppTheme.primaryBlue.withOpacity(0.5),
                                   blurRadius: 20,
                                   spreadRadius: 2,
                                 ),
                               ],
                             ),
                             child: ClipOval(
-                              child: displayImage != null
+                              child: hasDisplayImage
                                   ? CachedImageWidget(
                                       imageUrl: displayImage,
                                       fit: BoxFit.cover,
@@ -477,8 +728,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                                       child: Center(
                                         child: Text(
                                           _getInitials(displayName),
-                                          style:
-                                              AppTextStyles.heading2.copyWith(
+                                          style: AppTextStyles.h2.copyWith(
                                             color: Colors.white,
                                             fontSize: 24,
                                           ),
@@ -497,7 +747,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                                   return LinearGradient(
                                     colors: [
                                       Colors.white,
-                                      Colors.white.withValues(alpha: 0.8),
+                                      Colors.white.withOpacity(0.8),
                                       Colors.white,
                                     ],
                                     stops: [
@@ -509,7 +759,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                                 },
                                 child: Text(
                                   displayName,
-                                  style: AppTextStyles.heading3.copyWith(
+                                  style: AppTextStyles.h3.copyWith(
                                     color: Colors.white,
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
@@ -537,8 +787,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
-  /// ينفذ العملية `_buildGlassIconButton`.
-  /// Runs the `_buildGlassIconButton` operation.
+  /// العربية: يبني glass icon button.
   Widget _buildGlassIconButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -557,19 +806,19 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.white.withValues(alpha: 0.1),
-                    Colors.white.withValues(alpha: 0.05),
+                    Colors.white.withOpacity(0.1),
+                    Colors.white.withOpacity(0.05),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withOpacity(0.2),
                   width: 0.5,
                 ),
               ),
               child: Icon(
                 icon,
-                color: Colors.white.withValues(alpha: 0.9),
+                color: Colors.white.withOpacity(0.9),
                 size: 18, // Reduced from 20
               ),
             ),
@@ -579,9 +828,15 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
-  /// ينفذ العملية `_buildPremiumInfoSection`.
-  /// Runs the `_buildPremiumInfoSection` operation.
+  /// العربية: يبني premium info section.
   Widget _buildPremiumInfoSection() {
+    final chatState = context.watch<ChatBloc>().state;
+    final messages = _effectiveConversationMessages(chatState);
+    final mediaAttachments = _mediaAttachmentsFromMessages(messages);
+    final fileAttachments = _fileAttachmentsFromMessages(messages);
+    final visibleMessagesCount =
+        messages.where((message) => !message.isDeleted).length;
+
     return Container(
       margin: const EdgeInsets.all(12),
       child: ClipRRect(
@@ -593,13 +848,13 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withValues(alpha: 0.6),
-                  AppTheme.darkCard.withValues(alpha: 0.4),
+                  AppTheme.darkCard.withOpacity(0.6),
+                  AppTheme.darkCard.withOpacity(0.4),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppTheme.darkBorder.withValues(alpha: 0.1),
+                color: AppTheme.darkBorder.withOpacity(0.1),
                 width: 0.5,
               ),
             ),
@@ -609,43 +864,85 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                   Text(
                     widget.conversation.description!,
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppTheme.textMuted.withValues(alpha: 0.7),
+                      color: AppTheme.textMuted.withOpacity(0.7),
                       fontSize: 12,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
                 ],
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _PremiumInfoItem(
-                      icon: Icons.message_rounded,
-                      label: 'رسائل',
-                      value: '1.2k',
-                      animation: _glowAnimation,
-                    ),
-                    _PremiumInfoItem(
-                      icon: Icons.image_rounded,
-                      label: 'وسائط',
-                      value: '89',
-                      animation: _glowAnimation,
-                    ),
-                    _PremiumInfoItem(
-                      icon: Icons.attach_file_rounded,
-                      label: 'ملفات',
-                      value: '12',
-                      animation: _glowAnimation,
-                    ),
-                    if (widget.conversation.isGroupChat)
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final infoItems = <Widget>[
                       _PremiumInfoItem(
-                        icon: Icons.group_rounded,
-                        label: 'أعضاء',
-                        value:
-                            widget.conversation.participants.length.toString(),
+                        icon: Icons.message_rounded,
+                        label: context.tr(
+                          'chat.settings.info.messages',
+                        ),
+                        value: visibleMessagesCount.toString(),
                         animation: _glowAnimation,
                       ),
-                  ],
+                      _PremiumInfoItem(
+                        icon: Icons.image_rounded,
+                        label: context.tr(
+                          'chat.settings.info.media',
+                        ),
+                        value: mediaAttachments.length.toString(),
+                        animation: _glowAnimation,
+                      ),
+                      _PremiumInfoItem(
+                        icon: Icons.attach_file_rounded,
+                        label: context.tr(
+                          'chat.settings.info.files',
+                        ),
+                        value: fileAttachments.length.toString(),
+                        animation: _glowAnimation,
+                      ),
+                      if (widget.conversation.isGroupChat)
+                        _PremiumInfoItem(
+                          icon: Icons.group_rounded,
+                          label: context.tr(
+                            'chat.settings.info.members',
+                          ),
+                          value: widget.conversation.participants.length
+                              .toString(),
+                          animation: _glowAnimation,
+                        ),
+                    ];
+
+                    final useGridLayout = constraints.maxWidth < 420;
+
+                    if (!useGridLayout) {
+                      return Row(
+                        children: infoItems
+                            .map(
+                              (item) => Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  child: item,
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      );
+                    }
+
+                    final itemWidth = (constraints.maxWidth - 8) / 2;
+                    return Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: infoItems
+                          .map(
+                            (item) => SizedBox(
+                              width: itemWidth,
+                              child: item,
+                            ),
+                          )
+                          .toList(),
+                    );
+                  },
                 ),
               ],
             ),
@@ -655,8 +952,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
-  /// ينفذ العملية `_buildPremiumTabBar`.
-  /// Runs the `_buildPremiumTabBar` operation.
+  /// العربية: يبني premium tab bar.
   Widget _buildPremiumTabBar() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12),
@@ -668,26 +964,26 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withValues(alpha: 0.5),
-                  AppTheme.darkCard.withValues(alpha: 0.3),
+                  AppTheme.darkCard.withOpacity(0.5),
+                  AppTheme.darkCard.withOpacity(0.3),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppTheme.darkBorder.withValues(alpha: 0.1),
+                color: AppTheme.darkBorder.withOpacity(0.1),
                 width: 0.5,
               ),
             ),
             child: TabBar(
               controller: _tabController,
               labelColor: AppTheme.primaryBlue,
-              unselectedLabelColor: AppTheme.textMuted.withValues(alpha: 0.5),
+              unselectedLabelColor: AppTheme.textMuted.withOpacity(0.5),
               indicatorSize: TabBarIndicatorSize.tab,
               indicator: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withValues(alpha: 0.1),
-                    AppTheme.primaryPurple.withValues(alpha: 0.05),
+                    AppTheme.primaryBlue.withOpacity(0.1),
+                    AppTheme.primaryPurple.withOpacity(0.05),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
@@ -696,10 +992,10 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                 fontWeight: FontWeight.w600,
                 fontSize: 12,
               ),
-              tabs: const [
-                Tab(text: 'الوسائط'),
-                Tab(text: 'الأعضاء'),
-                Tab(text: 'الإعدادات'),
+              tabs: [
+                Tab(text: context.tr('chat.settings.tab.media')),
+                Tab(text: context.tr('chat.settings.tab.members')),
+                Tab(text: context.tr('chat.settings.tab.settings')),
               ],
             ),
           ),
@@ -708,8 +1004,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
-  /// ينفذ العملية `_buildPremiumMediaTab`.
-  /// Runs the `_buildPremiumMediaTab` operation.
+  /// العربية: يبني premium media tab.
   Widget _buildPremiumMediaTab() {
     return BlocBuilder<ChatBloc, ChatState>(
       builder: (context, state) {
@@ -717,36 +1012,31 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
           return _buildPremiumLoadingState();
         }
 
-        final messages = state.messages[widget.conversation.id] ?? [];
-        final mediaMessages = messages.where((m) {
-          return ['image', 'video'].contains(m.messageType) ||
-              m.attachments.any((a) => a.isImage || a.isVideo);
-        }).toList();
+        final messages = _effectiveConversationMessages(state);
+        final mediaAttachments = _mediaAttachmentsFromMessages(messages);
 
-        if (mediaMessages.isEmpty) {
+        if (_isLoadingConversationInsights && mediaAttachments.isEmpty) {
+          return _buildPremiumLoadingState();
+        }
+
+        if (mediaAttachments.isEmpty) {
           return _buildPremiumEmptyMediaState();
         }
 
         return Container(
           padding: const EdgeInsets.all(8),
           child: MediaGridWidget(
-            messages: mediaMessages,
-            onMediaTap: (message) {
-              HapticFeedback.selectionClick();
-              // Open media viewer
-            },
+            attachments: mediaAttachments,
           ),
         );
       },
     );
   }
 
-  /// ينفذ العملية `_buildPremiumParticipantsTab`.
-  /// Runs the `_buildPremiumParticipantsTab` operation.
+  /// العربية: يبني premium participants tab.
   Widget _buildPremiumParticipantsTab() {
     if (widget.conversation.isDirectChat) {
-      final otherParticipant =
-          widget.conversation.getOtherParticipant(currentUserId);
+      final otherParticipant = _directConversationParticipant;
       if (otherParticipant == null) return const SizedBox.shrink();
 
       return SingleChildScrollView(
@@ -765,14 +1055,9 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
 
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      itemCount: widget.conversation.participants.length + 1,
+      itemCount: widget.conversation.participants.length,
       itemBuilder: (context, index) {
-        if (index == 0) {
-          return _buildAddParticipantButton();
-        }
-
-        final participant = widget.conversation.participants[index - 1];
-        final isAdmin = index == 1;
+        final participant = widget.conversation.participants[index];
 
         return TweenAnimationBuilder<double>(
           tween: Tween(begin: 0, end: 1),
@@ -790,12 +1075,9 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                   ),
                   child: ParticipantItemWidget(
                     participant: participant,
-                    isAdmin: isAdmin,
-                    isCurrentUser: participant.id == currentUserId,
+                    isAdmin: false,
+                    isCurrentUser: participant.id == _resolvedCurrentUserId,
                     onTap: () => _viewParticipantProfile(participant),
-                    onRemove: isAdmin && participant.id != currentUserId
-                        ? () => _removeParticipant(participant)
-                        : null,
                   ),
                 ),
               ),
@@ -806,118 +1088,74 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
-  /// ينفذ العملية `_buildAddParticipantButton`.
-  /// Runs the `_buildAddParticipantButton` operation.
-  Widget _buildAddParticipantButton() {
-    return Container(
-      margin: const EdgeInsets.all(12),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: GestureDetector(
-            onTap: _addParticipant,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.primaryBlue.withValues(alpha: 0.1),
-                    AppTheme.primaryPurple.withValues(alpha: 0.05),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppTheme.primaryBlue.withValues(alpha: 0.2),
-                  width: 0.5,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [AppTheme.primaryBlue, AppTheme.primaryPurple],
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.person_add_rounded,
-                      color: Colors.white,
-                      size: 16,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    'إضافة عضو',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppTheme.primaryBlue,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// ينفذ العملية `_buildPremiumSettingsTab`.
-  /// Runs the `_buildPremiumSettingsTab` operation.
+  /// العربية: يبني premium settings tab.
   Widget _buildPremiumSettingsTab() {
     return BlocBuilder<ChatBloc, ChatState>(
       builder: (context, state) {
-        if (state is ChatLoaded && state.settings != null) {
-          _notificationsEnabled = state.settings!.notificationsEnabled;
-          _showReadReceipts = state.settings!.showReadReceipts;
-          _theme = state.settings!.theme;
+        final settings = state is ChatLoaded ? state.settings : null;
+        if (settings != null) {
+          _applySettingsSnapshot(settings);
         }
 
         return ListView(
           padding: const EdgeInsets.all(12),
           children: [
             _buildPremiumSettingSection(
-              title: 'الإشعارات',
+              title: context.tr(
+                'chat.settings.notifications',
+              ),
               icon: Icons.notifications_rounded,
               children: [
                 _buildPremiumSwitch(
-                  title: 'تفعيل الإشعارات',
-                  subtitle: 'تلقي إشعارات للرسائل الجديدة',
+                  title: context.tr(
+                    'chat.settings.notificationsEnabled',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.notificationsSubtitle',
+                  ),
                   value: _notificationsEnabled,
                   onChanged: (value) {
                     setState(() {
                       _notificationsEnabled = value;
+                      if (!value) {
+                        _soundEnabled = false;
+                      }
                     });
                     _updateSettings();
                   },
                 ),
-                _buildPremiumListTile(
-                  icon: Icons.music_note_rounded,
-                  title: 'نغمة الإشعار',
-                  subtitle: 'افتراضي',
-                  onTap: _changeNotificationSound,
+                _buildPremiumSwitch(
+                  title: context.tr(
+                    'chat.settings.soundEnabled',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.soundEnabledSubtitle',
+                  ),
+                  value: _soundEnabled,
+                  onChanged: _notificationsEnabled
+                      ? (value) {
+                          setState(() {
+                            _soundEnabled = value;
+                          });
+                          _updateSettings();
+                        }
+                      : null,
                 ),
               ],
             ),
             _buildPremiumSettingSection(
-              title: 'الخصوصية',
+              title: context.tr(
+                'chat.settings.privacy',
+              ),
               icon: Icons.lock_rounded,
               children: [
                 _buildPremiumSwitch(
-                  title: 'إيصالات القراءة',
-                  subtitle: 'السماح للآخرين بمعرفة متى قرأت رسائلهم',
+                  title: context.tr(
+                    'chat.settings.readReceipts',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.readReceiptsSubtitle',
+                  ),
                   value: _showReadReceipts,
                   onChanged: (value) {
                     setState(() {
@@ -926,47 +1164,100 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                     _updateSettings();
                   },
                 ),
-                _buildPremiumListTile(
-                  icon: Icons.block_rounded,
-                  title: 'حظر المستخدم',
-                  subtitle: 'منع هذا المستخدم من مراسلتك',
-                  onTap: _blockUser,
-                  isDestructive: true,
+                _buildPremiumSwitch(
+                  title: context.tr(
+                    'chat.settings.typingIndicator',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.typingIndicatorSubtitle',
+                  ),
+                  value: _showTypingIndicator,
+                  onChanged: (value) {
+                    setState(() {
+                      _showTypingIndicator = value;
+                    });
+                    _updateSettings();
+                  },
                 ),
               ],
             ),
             _buildPremiumSettingSection(
-              title: 'المظهر',
+              title: context.tr(
+                'chat.settings.appearance',
+              ),
               icon: Icons.palette_rounded,
               children: [
                 _buildPremiumListTile(
                   icon: Icons.wallpaper_rounded,
-                  title: 'خلفية المحادثة',
-                  subtitle: _theme == 'default' ? 'افتراضي' : _theme,
+                  title: context.tr(
+                    'chat.settings.chatBackground',
+                  ),
+                  subtitle: context.tr(
+                    chatThemeLabelKey(_theme),
+                  ),
                   onTap: _changeChatTheme,
                 ),
                 _buildPremiumListTile(
                   icon: Icons.text_fields_rounded,
-                  title: 'حجم الخط',
-                  subtitle: 'متوسط',
+                  title: context.tr(
+                    'chat.settings.fontSize',
+                  ),
+                  subtitle: context.tr(
+                    chatFontSizeLabelKey(_fontSize),
+                  ),
                   onTap: _changeFontSize,
                 ),
               ],
             ),
             _buildPremiumSettingSection(
-              title: 'التخزين',
+              title: context.tr(
+                'chat.settings.storage',
+              ),
               icon: Icons.storage_rounded,
               children: [
+                _buildPremiumSwitch(
+                  title: context.tr(
+                    'chat.settings.autoDownload',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.autoDownloadSubtitle',
+                  ),
+                  value: _autoDownloadMedia,
+                  onChanged: (value) {
+                    setState(() {
+                      _autoDownloadMedia = value;
+                    });
+                    _updateSettings();
+                  },
+                ),
+                _buildPremiumListTile(
+                  icon: Icons.search_rounded,
+                  title: context.tr(
+                    'chat.settings.searchInChat',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.searchInChatSubtitle',
+                  ),
+                  onTap: _searchInChat,
+                ),
                 _buildPremiumListTile(
                   icon: Icons.download_rounded,
-                  title: 'تنزيل الوسائط تلقائياً',
-                  subtitle: 'عند استخدام WiFi',
-                  onTap: _configureAutoDownload,
+                  title: context.tr(
+                    'chat.settings.exportChat',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.exportChatSubtitle',
+                  ),
+                  onTap: _exportChat,
                 ),
                 _buildPremiumListTile(
                   icon: Icons.cleaning_services_rounded,
-                  title: 'مسح ذاكرة التخزين المؤقت',
-                  subtitle: 'حذف الملفات المؤقتة',
+                  title: context.tr(
+                    'chat.settings.clearCache',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.clearCacheSubtitle',
+                  ),
                   onTap: _clearCache,
                 ),
               ],
@@ -977,8 +1268,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
-  /// ينفذ العملية `_buildPremiumSettingSection`.
-  /// Runs the `_buildPremiumSettingSection` operation.
+  /// العربية: يبني premium setting section.
   Widget _buildPremiumSettingSection({
     required String title,
     required IconData icon,
@@ -1000,8 +1290,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.primaryBlue.withValues(alpha: 0.15),
-                        AppTheme.primaryPurple.withValues(alpha: 0.08),
+                        AppTheme.primaryBlue.withOpacity(0.15),
+                        AppTheme.primaryPurple.withOpacity(0.08),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(8),
@@ -1034,13 +1324,13 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.darkCard.withValues(alpha: 0.5),
-                      AppTheme.darkCard.withValues(alpha: 0.3),
+                      AppTheme.darkCard.withOpacity(0.5),
+                      AppTheme.darkCard.withOpacity(0.3),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.darkBorder.withValues(alpha: 0.1),
+                    color: AppTheme.darkBorder.withOpacity(0.1),
                     width: 0.5,
                   ),
                 ),
@@ -1053,13 +1343,12 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
-  /// ينفذ العملية `_buildPremiumSwitch`.
-  /// Runs the `_buildPremiumSwitch` operation.
+  /// العربية: يبني premium switch.
   Widget _buildPremiumSwitch({
     required String title,
     required String subtitle,
     required bool value,
-    required ValueChanged<bool> onChanged,
+    required ValueChanged<bool>? onChanged,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1080,7 +1369,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                 Text(
                   subtitle,
                   style: AppTextStyles.caption.copyWith(
-                    color: AppTheme.textMuted.withValues(alpha: 0.6),
+                    color: AppTheme.textMuted.withOpacity(0.6),
                     fontSize: 11,
                   ),
                 ),
@@ -1092,10 +1381,10 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
             child: Switch(
               value: value,
               onChanged: onChanged,
-              activeThumbColor: AppTheme.primaryBlue,
-              activeTrackColor: AppTheme.primaryBlue.withValues(alpha: 0.3),
-              inactiveThumbColor: AppTheme.textMuted.withValues(alpha: 0.5),
-              inactiveTrackColor: AppTheme.darkBorder.withValues(alpha: 0.2),
+              activeColor: AppTheme.primaryBlue,
+              activeTrackColor: AppTheme.primaryBlue.withOpacity(0.3),
+              inactiveThumbColor: AppTheme.textMuted.withOpacity(0.5),
+              inactiveTrackColor: AppTheme.darkBorder.withOpacity(0.2),
             ),
           ),
         ],
@@ -1103,8 +1392,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
-  /// ينفذ العملية `_buildPremiumListTile`.
-  /// Runs the `_buildPremiumListTile` operation.
+  /// العربية: يبني premium list tile.
   Widget _buildPremiumListTile({
     required IconData icon,
     required String title,
@@ -1129,12 +1417,12 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                 gradient: LinearGradient(
                   colors: isDestructive
                       ? [
-                          AppTheme.error.withValues(alpha: 0.15),
-                          AppTheme.error.withValues(alpha: 0.08),
+                          AppTheme.error.withOpacity(0.15),
+                          AppTheme.error.withOpacity(0.08),
                         ]
                       : [
-                          AppTheme.darkSurface.withValues(alpha: 0.5),
-                          AppTheme.darkSurface.withValues(alpha: 0.3),
+                          AppTheme.darkSurface.withOpacity(0.5),
+                          AppTheme.darkSurface.withOpacity(0.3),
                         ],
                 ),
                 borderRadius: BorderRadius.circular(8),
@@ -1144,7 +1432,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                 size: 16,
                 color: isDestructive
                     ? AppTheme.error
-                    : AppTheme.textMuted.withValues(alpha: 0.7),
+                    : AppTheme.textMuted.withOpacity(0.7),
               ),
             ),
             const SizedBox(width: 12),
@@ -1165,8 +1453,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                     subtitle,
                     style: AppTextStyles.caption.copyWith(
                       color: isDestructive
-                          ? AppTheme.error.withValues(alpha: 0.7)
-                          : AppTheme.textMuted.withValues(alpha: 0.6),
+                          ? AppTheme.error.withOpacity(0.7)
+                          : AppTheme.textMuted.withOpacity(0.6),
                       fontSize: 11,
                     ),
                   ),
@@ -1176,7 +1464,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
             Icon(
               Icons.chevron_right_rounded,
               size: 18,
-              color: AppTheme.textMuted.withValues(alpha: 0.3),
+              color: AppTheme.textMuted.withOpacity(0.3),
             ),
           ],
         ),
@@ -1184,8 +1472,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
-  /// ينفذ العملية `_buildPremiumLoadingState`.
-  /// Runs the `_buildPremiumLoadingState` operation.
+  /// العربية: يبني premium loading state.
   Widget _buildPremiumLoadingState() {
     return Center(
       child: Container(
@@ -1199,15 +1486,15 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  AppTheme.primaryBlue.withValues(alpha: 0.6),
+                  AppTheme.primaryBlue.withOpacity(0.6),
                 ),
               ),
             ),
             const SizedBox(height: 12),
             Text(
-              'جاري التحميل...',
+              context.tr('chat.settings.loading'),
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppTheme.textMuted.withValues(alpha: 0.6),
+                color: AppTheme.textMuted.withOpacity(0.6),
                 fontSize: 12,
               ),
             ),
@@ -1217,8 +1504,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
-  /// ينفذ العملية `_buildPremiumEmptyMediaState`.
-  /// Runs the `_buildPremiumEmptyMediaState` operation.
+  /// العربية: يبني premium empty media state.
   Widget _buildPremiumEmptyMediaState() {
     return Center(
       child: TweenAnimationBuilder<double>(
@@ -1234,13 +1520,13 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.darkCard.withValues(alpha: 0.5),
-                    AppTheme.darkCard.withValues(alpha: 0.3),
+                    AppTheme.darkCard.withOpacity(0.5),
+                    AppTheme.darkCard.withOpacity(0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: AppTheme.darkBorder.withValues(alpha: 0.1),
+                  color: AppTheme.darkBorder.withOpacity(0.1),
                   width: 0.5,
                 ),
               ),
@@ -1253,8 +1539,8 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppTheme.primaryBlue.withValues(alpha: 0.1),
-                          AppTheme.primaryPurple.withValues(alpha: 0.05),
+                          AppTheme.primaryBlue.withOpacity(0.1),
+                          AppTheme.primaryPurple.withOpacity(0.05),
                         ],
                       ),
                       shape: BoxShape.circle,
@@ -1262,21 +1548,25 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                     child: Icon(
                       Icons.photo_library_rounded,
                       size: 28,
-                      color: AppTheme.primaryBlue.withValues(alpha: 0.5),
+                      color: AppTheme.primaryBlue.withOpacity(0.5),
                     ),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'لا توجد وسائط',
+                    context.tr(
+                      'chat.settings.noMediaTitle',
+                    ),
                     style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 14,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'سيتم عرض الصور والفيديوهات هنا',
+                    context.tr(
+                      'chat.settings.noMediaSubtitle',
+                    ),
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.textMuted.withValues(alpha: 0.6),
+                      color: AppTheme.textMuted.withOpacity(0.6),
                       fontSize: 11,
                     ),
                   ),
@@ -1289,8 +1579,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
-  /// ينفذ العملية `_showMoreOptions`.
-  /// Runs the `_showMoreOptions` operation.
+  /// العربية: يعرض more options.
   void _showMoreOptions() {
     HapticFeedback.selectionClick();
     showModalBottomSheet(
@@ -1300,117 +1589,479 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
       builder: (context) => _PremiumOptionsSheet(
         onSearch: _searchInChat,
         onExport: _exportChat,
-        onLeave: widget.conversation.isGroupChat ? _leaveGroup : null,
-        onClear: _clearChat,
       ),
     );
   }
 
-  /// ينفذ العملية `_updateSettings`.
-  /// Runs the `_updateSettings` operation.
+  /// العربية: يحدّث settings.
   void _updateSettings() {
     context.read<ChatBloc>().add(
           UpdateChatSettingsEvent(
             notificationsEnabled: _notificationsEnabled,
+            soundEnabled: _soundEnabled,
             showReadReceipts: _showReadReceipts,
+            showTypingIndicator: _showTypingIndicator,
             theme: _theme,
+            fontSize: _fontSize,
+            autoDownloadMedia: _autoDownloadMedia,
           ),
         );
   }
 
-  /// ينفذ العملية `_viewParticipantProfile`.
-  /// Runs the `_viewParticipantProfile` operation.
+  /// العربية: يعالج `viewParticipantProfile`.
   void _viewParticipantProfile(ChatUser participant) {
     HapticFeedback.selectionClick();
-    // Navigate to participant profile
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        final hasImage = participant.profileImage?.trim().isNotEmpty ?? false;
+        final statusText = ChatPresencePresentation.presenceLabel(
+          context,
+          isOnline: participant.isOnline,
+          lastSeen: participant.lastSeen,
+          fallbackStatus: participant.status,
+        );
+
+        return Container(
+          margin: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppTheme.darkCard,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 34,
+                backgroundColor: AppTheme.primaryBlue.withOpacity(0.15),
+                backgroundImage:
+                    hasImage ? NetworkImage(participant.profileImage!) : null,
+                child: !hasImage
+                    ? Text(
+                        _getInitials(participant.name),
+                        style: AppTextStyles.h3.copyWith(color: Colors.white),
+                      )
+                    : null,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                participant.name,
+                style: AppTextStyles.h3.copyWith(fontSize: 18),
+                textAlign: TextAlign.center,
+              ),
+              if (participant.email.trim().isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Text(
+                  participant.email,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppTheme.textMuted,
+                  ),
+                ),
+              ],
+              if ((participant.phone ?? '').trim().isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Text(
+                  participant.phone!,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppTheme.textMuted,
+                  ),
+                ),
+              ],
+              if ((statusText ?? '').trim().isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Text(
+                  statusText!,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppTheme.primaryBlue,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
   }
 
-  /// ينفذ العملية `_addParticipant`.
-  /// Runs the `_addParticipant` operation.
-  void _addParticipant() {
+  /// العربية: يعالج `changeChatTheme`.
+  Future<void> _changeChatTheme() async {
     HapticFeedback.selectionClick();
-    // Show add participant dialog
+    final selectedTheme = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        const availableThemes = ['default', 'midnight', 'aurora', 'sunset'];
+
+        return Container(
+          margin: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppTheme.darkCard,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: availableThemes.length,
+            separatorBuilder: (_, __) => Divider(
+              height: 1,
+              color: Colors.white.withOpacity(0.06),
+            ),
+            itemBuilder: (context, index) {
+              final option = availableThemes[index];
+              final isSelected = option == normalizeChatTheme(_theme);
+              final colors = chatBackgroundGradient(option);
+
+              return ListTile(
+                onTap: () => Navigator.of(sheetContext).pop(option),
+                leading: Container(
+                  width: 22,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(colors: colors),
+                  ),
+                ),
+                title: Text(context.tr(chatThemeLabelKey(option))),
+                trailing: isSelected
+                    ? Icon(
+                        Icons.check_rounded,
+                        color: chatAccentColor(option),
+                      )
+                    : null,
+              );
+            },
+          ),
+        );
+      },
+    );
+
+    if (selectedTheme == null || selectedTheme == _theme) return;
+
+    setState(() {
+      _theme = selectedTheme;
+    });
+    _updateSettings();
   }
 
-  /// ينفذ العملية `_removeParticipant`.
-  /// Runs the `_removeParticipant` operation.
-  void _removeParticipant(ChatUser participant) {
+  /// العربية: يعالج `changeFontSize`.
+  Future<void> _changeFontSize() async {
     HapticFeedback.selectionClick();
-    // Show confirmation and remove participant
+    final selectedSize = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        const availableSizes = ['small', 'medium', 'large', 'extra_large'];
+
+        return Container(
+          margin: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppTheme.darkCard,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: availableSizes.length,
+            separatorBuilder: (_, __) => Divider(
+              height: 1,
+              color: Colors.white.withOpacity(0.06),
+            ),
+            itemBuilder: (context, index) {
+              final option = availableSizes[index];
+              final isSelected = option == _fontSize;
+
+              return ListTile(
+                onTap: () => Navigator.of(sheetContext).pop(option),
+                title: Text(context.tr(chatFontSizeLabelKey(option))),
+                trailing: isSelected
+                    ? Icon(
+                        Icons.check_rounded,
+                        color: AppTheme.primaryBlue,
+                      )
+                    : null,
+              );
+            },
+          ),
+        );
+      },
+    );
+
+    if (selectedSize == null || selectedSize == _fontSize) return;
+
+    setState(() {
+      _fontSize = selectedSize;
+    });
+    _updateSettings();
   }
 
-  /// ينفذ العملية `_changeNotificationSound`.
-  /// Runs the `_changeNotificationSound` operation.
-  void _changeNotificationSound() {
+  /// العربية: يعالج `clearCache`.
+  Future<void> _clearCache() async {
     HapticFeedback.selectionClick();
-    // Show notification sound picker
+    final confirmed = await _showConfirmationDialog(
+      title: context.tr('chat.settings.clearCache'),
+      message: context.tr('chat.settings.clearCacheConfirm'),
+      isDestructive: true,
+    );
+    if (!confirmed) return;
+
+    try {
+      await sl<ChatRepository>().clearChatCache();
+      if (!mounted) return;
+
+      context.read<ChatBloc>().add(
+            ClearConversationCacheEvent(
+              conversationId: widget.conversation.id,
+            ),
+          );
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.clearLiveImages();
+
+      _showSnackBar(context.tr('chat.settings.clearCacheSuccess'));
+    } catch (_) {
+      _showSnackBar(
+        context.tr('chat.settings.clearCacheFailed'),
+        isError: true,
+      );
+    }
   }
 
-  /// ينفذ العملية `_blockUser`.
-  /// Runs the `_blockUser` operation.
-  void _blockUser() {
+  /// العربية: يعالج `searchInChat`.
+  Future<void> _searchInChat() async {
     HapticFeedback.selectionClick();
-    // Show block user confirmation
+    String query = '';
+    var isSearching = false;
+    List<Message> results = const [];
+    String? errorMessage;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            Future<void> performSearch() async {
+              final trimmedQuery = query.trim();
+              if (trimmedQuery.isEmpty) return;
+
+              setSheetState(() {
+                isSearching = true;
+                errorMessage = null;
+              });
+
+              final response = await sl<SearchChatsUseCase>()(
+                SearchChatsParams(
+                  query: trimmedQuery,
+                  conversationId: widget.conversation.id,
+                  page: 1,
+                  limit: 30,
+                ),
+              );
+
+              response.fold(
+                (failure) {
+                  setSheetState(() {
+                    results = const [];
+                    isSearching = false;
+                    errorMessage = failure.message;
+                  });
+                },
+                (searchResult) {
+                  setSheetState(() {
+                    results = searchResult.messages;
+                    isSearching = false;
+                    errorMessage = null;
+                  });
+                },
+              );
+            }
+
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 12,
+                right: 12,
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 12,
+                top: 12,
+              ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(sheetContext).size.height * 0.75,
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppTheme.darkCard,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: TextField(
+                            autofocus: true,
+                            textInputAction: TextInputAction.search,
+                            onChanged: (value) => query = value,
+                            onSubmitted: (_) => performSearch(),
+                            decoration: InputDecoration(
+                              hintText: context.tr(
+                                'chat.settings.searchInChatHint',
+                              ),
+                              prefixIcon: const Icon(Icons.search_rounded),
+                              suffixIcon: IconButton(
+                                onPressed: performSearch,
+                                icon: const Icon(Icons.arrow_forward_rounded),
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (isSearching)
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 20),
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        else if (errorMessage != null)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                            child: Text(
+                              errorMessage!,
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppTheme.error,
+                              ),
+                            ),
+                          )
+                        else if (results.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                            child: Text(
+                              context.tr('chat.settings.searchInChatEmpty'),
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppTheme.textMuted,
+                              ),
+                            ),
+                          )
+                        else
+                          Flexible(
+                            child: ListView.separated(
+                              shrinkWrap: true,
+                              itemCount: results.length,
+                              separatorBuilder: (_, __) => Divider(
+                                height: 1,
+                                color: Colors.white.withOpacity(0.06),
+                              ),
+                              itemBuilder: (context, index) {
+                                final message = results[index];
+                                final preview = (message.content
+                                            ?.trim()
+                                            .isNotEmpty ??
+                                        false)
+                                    ? message.content!.trim()
+                                    : context.tr('chat.message.placeholder');
+
+                                return ListTile(
+                                  onTap: () {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                    Navigator.of(sheetContext).pop();
+                                    Navigator.of(this.context).pop(message.id);
+                                  },
+                                  title: Text(
+                                    preview,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  subtitle: Text(
+                                    AppLocalizations.of(context)
+                                            ?.formatDate(message.createdAt) ??
+                                        message.createdAt.toIso8601String(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
-  /// ينفذ العملية `_changeChatTheme`.
-  /// Runs the `_changeChatTheme` operation.
-  void _changeChatTheme() {
+  /// العربية: يعالج `exportChat`.
+  Future<void> _exportChat() async {
     HapticFeedback.selectionClick();
-    // Show theme picker
+    try {
+      final state = context.read<ChatBloc>().state;
+      final messages = _effectiveConversationMessages(state);
+      final buffer = StringBuffer()
+        ..writeln(widget.conversation.title ??
+            context.tr('chat.message.conversationFallback'))
+        ..writeln('=' * 48)
+        ..writeln();
+
+      final chronologicalMessages = List<Message>.from(messages)
+        ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+      for (final message in chronologicalMessages) {
+        final senderLabel = message.senderId == _resolvedCurrentUserId
+            ? context.tr('chat.message.you')
+            : message.senderId;
+        final timestamp = message.createdAt.toLocal().toIso8601String();
+        final content = (message.content ?? '').trim();
+        final locationLabel = message.location != null
+            ? (message.location!.address?.trim().isNotEmpty ?? false)
+                ? message.location!.address!
+                : '${message.location!.latitude}, ${message.location!.longitude}'
+            : null;
+        final attachmentSummary = message.attachments.isNotEmpty
+            ? message.attachments
+                .map((attachment) => attachment.fileName)
+                .where((name) => name.trim().isNotEmpty)
+                .join(', ')
+            : '';
+
+        buffer.writeln('[$timestamp] $senderLabel');
+        if (content.isNotEmpty) {
+          buffer.writeln(content);
+        }
+        if (locationLabel != null) {
+          buffer.writeln(
+              '${context.tr('chat.message.location')}: $locationLabel');
+        }
+        if (attachmentSummary.isNotEmpty) {
+          buffer.writeln(
+            '${context.tr('chat.settings.info.files')}: $attachmentSummary',
+          );
+        }
+        buffer.writeln();
+      }
+
+      final fileName =
+          'chat_export_${widget.conversation.id}_${DateTime.now().millisecondsSinceEpoch}.txt';
+      final exportFile = File('${Directory.systemTemp.path}/$fileName');
+      await exportFile.writeAsString(buffer.toString());
+      await Clipboard.setData(ClipboardData(text: exportFile.path));
+
+      _showSnackBar(
+        context.tr(
+          'chat.settings.exportChatSuccess',
+          params: {'path': exportFile.path},
+        ),
+      );
+    } catch (_) {
+      _showSnackBar(
+        context.tr('chat.settings.exportChatFailed'),
+        isError: true,
+      );
+    }
   }
 
-  /// ينفذ العملية `_changeFontSize`.
-  /// Runs the `_changeFontSize` operation.
-  void _changeFontSize() {
-    HapticFeedback.selectionClick();
-    // Show font size picker
-  }
-
-  /// ينفذ العملية `_configureAutoDownload`.
-  /// Runs the `_configureAutoDownload` operation.
-  void _configureAutoDownload() {
-    HapticFeedback.selectionClick();
-    // Show auto download settings
-  }
-
-  /// ينفذ العملية `_clearCache`.
-  /// Runs the `_clearCache` operation.
-  void _clearCache() {
-    HapticFeedback.selectionClick();
-    // Show clear cache confirmation
-  }
-
-  /// ينفذ العملية `_searchInChat`.
-  /// Runs the `_searchInChat` operation.
-  void _searchInChat() {
-    HapticFeedback.selectionClick();
-    // Navigate to search page
-  }
-
-  /// ينفذ العملية `_exportChat`.
-  /// Runs the `_exportChat` operation.
-  void _exportChat() {
-    HapticFeedback.selectionClick();
-    // Export chat history
-  }
-
-  /// ينفذ العملية `_leaveGroup`.
-  /// Runs the `_leaveGroup` operation.
-  void _leaveGroup() {
-    HapticFeedback.selectionClick();
-    // Show leave group confirmation
-  }
-
-  /// ينفذ العملية `_clearChat`.
-  /// Runs the `_clearChat` operation.
-  void _clearChat() {
-    HapticFeedback.selectionClick();
-    // Show clear chat confirmation
-  }
-
-  /// ينفذ العملية `_getInitials`.
-  /// Runs the `_getInitials` operation.
+  /// العربية: يعيد initials.
   String _getInitials(String name) {
     final parts = name.trim().split(' ');
     if (parts.isEmpty) return '';
@@ -1420,27 +2071,21 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
 }
 
 // Premium Info Item
-/// يعرّف الكلاس `_PremiumInfoItem`.
-/// Describes the `_PremiumInfoItem` class.
+/// العربية: يمثل `PremiumInfoItem`.
 class _PremiumInfoItem extends StatelessWidget {
-  /// Holds the `icon` value.
   /// العربية: يخزن القيمة `icon`.
   final IconData icon;
 
-  /// يخزن العضو `label`.
-  /// Holds the `label` member.
+  /// العربية: يخزن القيمة `label`.
   final String label;
 
-  /// يخزن العضو `value`.
-  /// Holds the `value` member.
+  /// العربية: يخزن القيمة `value`.
   final String value;
 
-  /// يخزن العضو `animation`.
-  /// Holds the `animation` member.
+  /// العربية: يخزن القيمة `animation`.
   final Animation<double> animation;
 
-  /// ينشئ مثيلاً من `_PremiumInfoItem`.
-  /// Builds an instance of `_PremiumInfoItem`.
+  /// العربية: ينشئ مثيلًا جديدًا من `PremiumInfoItem`.
   const _PremiumInfoItem({
     required this.icon,
     required this.label,
@@ -1448,8 +2093,7 @@ class _PremiumInfoItem extends StatelessWidget {
     required this.animation,
   });
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -1460,8 +2104,8 @@ class _PremiumInfoItem extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkSurface.withValues(alpha: 0.3 * animation.value),
-                AppTheme.darkSurface.withValues(alpha: 0.1 * animation.value),
+                AppTheme.darkSurface.withOpacity(0.3 * animation.value),
+                AppTheme.darkSurface.withOpacity(0.1 * animation.value),
               ],
             ),
             borderRadius: BorderRadius.circular(10),
@@ -1474,15 +2118,15 @@ class _PremiumInfoItem extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.primaryBlue.withValues(alpha: 0.1),
-                      AppTheme.primaryPurple.withValues(alpha: 0.05),
+                      AppTheme.primaryBlue.withOpacity(0.1),
+                      AppTheme.primaryPurple.withOpacity(0.05),
                     ],
                   ),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   icon,
-                  color: AppTheme.primaryBlue.withValues(alpha: 0.8),
+                  color: AppTheme.primaryBlue.withOpacity(0.8),
                   size: 18,
                 ),
               ),
@@ -1497,7 +2141,7 @@ class _PremiumInfoItem extends StatelessWidget {
               Text(
                 label,
                 style: AppTextStyles.caption.copyWith(
-                  color: AppTheme.textMuted.withValues(alpha: 0.6),
+                  color: AppTheme.textMuted.withOpacity(0.6),
                   fontSize: 10,
                 ),
               ),
@@ -1510,36 +2154,21 @@ class _PremiumInfoItem extends StatelessWidget {
 }
 
 // Premium Options Sheet
-/// يعرّف الكلاس `_PremiumOptionsSheet`.
-/// Describes the `_PremiumOptionsSheet` class.
+/// العربية: يمثل `PremiumOptionsSheet`.
 class _PremiumOptionsSheet extends StatelessWidget {
-  /// Holds the `onSearch` value.
   /// العربية: يخزن القيمة `onSearch`.
   final VoidCallback onSearch;
 
-  /// يخزن العضو `onExport`.
-  /// Holds the `onExport` member.
+  /// العربية: يخزن القيمة `onExport`.
   final VoidCallback onExport;
 
-  /// يخزن العضو `onLeave`.
-  /// Holds the `onLeave` member.
-  final VoidCallback? onLeave;
-
-  /// يخزن العضو `onClear`.
-  /// Holds the `onClear` member.
-  final VoidCallback onClear;
-
-  /// ينشئ مثيلاً من `_PremiumOptionsSheet`.
-  /// Builds an instance of `_PremiumOptionsSheet`.
+  /// العربية: ينشئ مثيلًا جديدًا من `PremiumOptionsSheet`.
   const _PremiumOptionsSheet({
     required this.onSearch,
     required this.onExport,
-    this.onLeave,
-    required this.onClear,
   });
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1552,13 +2181,13 @@ class _PremiumOptionsSheet extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withValues(alpha: 0.9),
-                  AppTheme.darkCard.withValues(alpha: 0.8),
+                  AppTheme.darkCard.withOpacity(0.9),
+                  AppTheme.darkCard.withOpacity(0.8),
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: AppTheme.darkBorder.withValues(alpha: 0.1),
+                color: AppTheme.darkBorder.withOpacity(0.1),
                 width: 0.5,
               ),
             ),
@@ -1572,8 +2201,8 @@ class _PremiumOptionsSheet extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkBorder.withValues(alpha: 0.3),
-                        AppTheme.darkBorder.withValues(alpha: 0.1),
+                        AppTheme.darkBorder.withOpacity(0.3),
+                        AppTheme.darkBorder.withOpacity(0.1),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(1.5),
@@ -1581,7 +2210,9 @@ class _PremiumOptionsSheet extends StatelessWidget {
                 ),
                 _buildOption(
                   icon: Icons.search_rounded,
-                  title: 'بحث في المحادثة',
+                  title: context.tr(
+                    'chat.settings.searchInChat',
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     onSearch();
@@ -1589,29 +2220,12 @@ class _PremiumOptionsSheet extends StatelessWidget {
                 ),
                 _buildOption(
                   icon: Icons.download_rounded,
-                  title: 'تصدير المحادثة',
+                  title: context.tr(
+                    'chat.settings.exportChat',
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     onExport();
-                  },
-                ),
-                if (onLeave != null)
-                  _buildOption(
-                    icon: Icons.exit_to_app_rounded,
-                    title: 'مغادرة المجموعة',
-                    color: AppTheme.error,
-                    onTap: () {
-                      Navigator.pop(context);
-                      onLeave!();
-                    },
-                  ),
-                _buildOption(
-                  icon: Icons.clear_all_rounded,
-                  title: 'مسح المحادثة',
-                  color: AppTheme.error,
-                  onTap: () {
-                    Navigator.pop(context);
-                    onClear();
                   },
                 ),
                 const SizedBox(height: 8),
@@ -1623,8 +2237,7 @@ class _PremiumOptionsSheet extends StatelessWidget {
     );
   }
 
-  /// ينفذ العملية `_buildOption`.
-  /// Runs the `_buildOption` operation.
+  /// العربية: يبني option.
   Widget _buildOption({
     required IconData icon,
     required String title,
@@ -1644,8 +2257,8 @@ class _PremiumOptionsSheet extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    (color ?? AppTheme.primaryBlue).withValues(alpha: 0.1),
-                    (color ?? AppTheme.primaryBlue).withValues(alpha: 0.05),
+                    (color ?? AppTheme.primaryBlue).withOpacity(0.1),
+                    (color ?? AppTheme.primaryBlue).withOpacity(0.05),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(8),
@@ -1672,17 +2285,13 @@ class _PremiumOptionsSheet extends StatelessWidget {
 }
 
 // Floating Orb Model
-/// يعرّف الكلاس `_FloatingOrb`.
-/// Describes the `_FloatingOrb` class.
+/// العربية: يمثل `FloatingOrb`.
 class _FloatingOrb {
   double x = math.Random().nextDouble();
   double y = math.Random().nextDouble();
   double radius = math.Random().nextDouble() * 50 + 30;
   double opacity = math.Random().nextDouble() * 0.03 + 0.01;
   double speed = math.Random().nextDouble() * 0.0001 + 0.00005;
-
-  /// يخزن العضو `color`.
-  /// Holds the `color` member.
   Color color = [
     AppTheme.primaryBlue,
     AppTheme.primaryPurple,
@@ -1691,25 +2300,21 @@ class _FloatingOrb {
 }
 
 // Painters
-/// يعرّف الكلاس `_PremiumBackgroundPainter`.
-/// Describes the `_PremiumBackgroundPainter` class.
+/// العربية: يمثل `PremiumBackgroundPainter`.
 class _PremiumBackgroundPainter extends CustomPainter {
-  /// Holds the `animation` value.
   /// العربية: يخزن القيمة `animation`.
   final double animation;
 
-  /// ينشئ مثيلاً من `_PremiumBackgroundPainter`.
-  /// Builds an instance of `_PremiumBackgroundPainter`.
+  /// العربية: ينشئ مثيلًا جديدًا من `PremiumBackgroundPainter`.
   _PremiumBackgroundPainter({required this.animation});
 
-  /// ينفذ العملية `paint`.
-  /// Runs the `paint` operation.
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.2
-      ..color = AppTheme.primaryBlue.withValues(alpha: 0.02);
+      ..color = AppTheme.primaryBlue.withOpacity(0.02);
 
     // Draw animated grid
     const spacing = 50.0;
@@ -1736,32 +2341,26 @@ class _PremiumBackgroundPainter extends CustomPainter {
     }
   }
 
-  /// ينفذ العملية `shouldRepaint`.
-  /// Runs the `shouldRepaint` operation.
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-/// يعرّف الكلاس `_FloatingOrbsPainter`.
-/// Describes the `_FloatingOrbsPainter` class.
+/// العربية: يمثل `FloatingOrbsPainter`.
 class _FloatingOrbsPainter extends CustomPainter {
-  /// Holds the `orbs` value.
   /// العربية: يخزن القيمة `orbs`.
   final List<_FloatingOrb> orbs;
 
-  /// يخزن العضو `animation`.
-  /// Holds the `animation` member.
+  /// العربية: يخزن القيمة `animation`.
   final double animation;
 
-  /// ينشئ مثيلاً من `_FloatingOrbsPainter`.
-  /// Builds an instance of `_FloatingOrbsPainter`.
+  /// العربية: ينشئ مثيلًا جديدًا من `FloatingOrbsPainter`.
   _FloatingOrbsPainter({
     required this.orbs,
     required this.animation,
   });
 
-  /// ينفذ العملية `paint`.
-  /// Runs the `paint` operation.
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     for (var orb in orbs) {
@@ -1772,7 +2371,7 @@ class _FloatingOrbsPainter extends CustomPainter {
       }
 
       final paint = Paint()
-        ..color = orb.color.withValues(alpha: orb.opacity)
+        ..color = orb.color.withOpacity(orb.opacity)
         ..style = PaintingStyle.fill
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 40);
 
@@ -1787,8 +2386,7 @@ class _FloatingOrbsPainter extends CustomPainter {
     }
   }
 
-  /// ينفذ العملية `shouldRepaint`.
-  /// Runs the `shouldRepaint` operation.
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

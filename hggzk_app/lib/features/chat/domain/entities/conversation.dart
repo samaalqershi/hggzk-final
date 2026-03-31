@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:hggzk/features/chat/domain/entities/message.dart';
+import 'message.dart';
 
 /// Immutable conversation thread that groups participants, the latest
 /// message, and unread state.

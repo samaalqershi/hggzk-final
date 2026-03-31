@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 using MediatR;
 using AutoMapper;
 using YemenBooking.Application.Common.Models;
@@ -44,6 +45,12 @@ namespace YemenBooking.Application.Features.Chat.Queries.GetConversationById
                 return ResultDto<ChatConversationDto>.Failure("المحادثة غير موجودة");
 
             var dto = _mapper.Map<ChatConversationDto>(conv);
+            var currentUserId = _currentUserService.UserId;
+            dto.UnreadCount = conv.Messages
+                .Where(m => m.SenderId != currentUserId)
+                .Count(m =>
+                    !string.Equals(m.Status, "read", System.StringComparison.OrdinalIgnoreCase) &&
+                    !m.ReadAt.HasValue);
             dto.CreatedAt = await _currentUserService.ConvertFromUtcToUserLocalAsync(dto.CreatedAt);
             dto.UpdatedAt = await _currentUserService.ConvertFromUtcToUserLocalAsync(dto.UpdatedAt);
             if (dto.LastMessage != null)

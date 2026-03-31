@@ -1,15 +1,22 @@
 import 'dart:async';
 import 'dart:ui';
 import 'dart:math' as math;
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../../app/dependency_injection/injection_container.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/services/location_service.dart';
+import '../../../../core/services/websocket_service.dart';
+import '../../domain/entities/attachment.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
 import '../bloc/chat_bloc.dart';
+import '../utils/chat_settings_presentation.dart';
 import '../widgets/message_bubble_widget.dart';
 import '../widgets/message_input_widget.dart';
 import '../widgets/typing_indicator_widget.dart';
@@ -39,6 +46,11 @@ class ChatPage extends StatefulWidget {
   /// ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<ChatPage> createState() => _ChatPageState();
+}
+
+enum _LocationShareMode {
+  current,
+  custom,
 }
 
 /// Keeps the message list, composer, scroll logic, and typing indicator in
@@ -114,10 +126,19 @@ class _ChatPageState extends State<ChatPage>
   /// Message currently being edited.
   /// الرسالة التي يجري تعديلها حاليًا.
   Message? _editingMessage;
+  final List<String> _selectedImagePaths = [];
+  final List<String> _selectedVideoPaths = [];
+  bool _isSharingLocation = false;
 
   String? _currentUserId; // سيتم ملؤه من AuthBloc
+  late final ChatBloc _chatBloc;
+  late final TypingIndicatorProvider _typingIndicatorProvider;
   StreamSubscription<AuthState>?
       _authSubscription; // للاشتراك في تغييرات حالة المصادقة
+  StreamSubscription<ChatState>? _chatSubscription;
+  StreamSubscription<TypingEvent>? _typingSubscription;
+  bool _hasRequestedInitialMessagesLoad = false;
+  String _lastUnreadSignature = '';
 
   /// Initializes animations, scroll listeners, and the current conversation
   /// context.
@@ -125,11 +146,18 @@ class _ChatPageState extends State<ChatPage>
   @override
   void initState() {
     super.initState();
+    _chatBloc = context.read<ChatBloc>();
+    _typingIndicatorProvider = context.read<TypingIndicatorProvider>();
     WidgetsBinding.instance.addObserver(this);
     _initializeAnimations();
     _generateParticles();
     _syncCurrentUser();
-    _loadMessages();
+    _subscribeToChatState();
+    _chatBloc.add(const LoadChatSettingsEvent());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _ensureInitialMessagesLoaded();
+    });
     _scrollController.addListener(_onScroll);
     _messageController.addListener(_onTypingChanged);
     _initializeTypingIndicator();
@@ -195,17 +223,44 @@ class _ChatPageState extends State<ChatPage>
 
   /// العربية: يهيئ typing indicator.
   void _initializeTypingIndicator() {
-    final typingProvider = context.read<TypingIndicatorProvider>();
+    _typingSubscription?.cancel();
+    _typingSubscription =
+        _chatBloc.webSocketService.typingEvents.listen((event) {
+      if (!mounted || event.conversationId != widget.conversation.id) {
+        return;
+      }
 
-    context.read<ChatBloc>().webSocketService.typingEvents.listen((event) {
+      if (!_isTypingIndicatorsEnabled()) {
+        _typingIndicatorProvider
+            .clearTypingUsersForConversation(widget.conversation.id);
+        return;
+      }
+
       for (final userId in event.typingUserIds) {
-        typingProvider.setUserTyping(
+        _typingIndicatorProvider.setUserTyping(
           conversationId: event.conversationId,
           userId: userId,
           isTyping: true,
         );
       }
     });
+  }
+
+  ChatSettings? _currentChatSettings() {
+    final currentState = _chatBloc.state;
+    if (currentState is ChatLoaded) {
+      return currentState.settings;
+    }
+
+    return null;
+  }
+
+  bool _isTypingIndicatorsEnabled() {
+    return _currentChatSettings()?.showTypingIndicator ?? true;
+  }
+
+  bool _isReadReceiptsEnabled() {
+    return _currentChatSettings()?.showReadReceipts ?? true;
   }
 
   /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
@@ -221,6 +276,8 @@ class _ChatPageState extends State<ChatPage>
     _glowController.dispose();
     _typingTimer?.cancel();
     _authSubscription?.cancel();
+    _chatSubscription?.cancel();
+    _typingSubscription?.cancel();
     super.dispose();
   }
 
@@ -234,11 +291,56 @@ class _ChatPageState extends State<ChatPage>
 
   /// العربية: يحمل messages.
   void _loadMessages() {
-    context.read<ChatBloc>().add(
-          LoadMessagesEvent(
-            conversationId: widget.conversation.id,
-          ),
-        );
+    if (_hasRequestedInitialMessagesLoad) return;
+    _hasRequestedInitialMessagesLoad = true;
+    _chatBloc.add(
+      LoadMessagesEvent(
+        conversationId: widget.conversation.id,
+      ),
+    );
+  }
+
+  void _subscribeToChatState() {
+    _chatSubscription = _chatBloc.stream.listen((state) {
+      if (!_hasRequestedInitialMessagesLoad && state is ChatLoaded) {
+        _loadMessages();
+      }
+
+      if (state is ChatLoaded) {
+        final hydratedUserId = state.currentUserId?.trim();
+        if (hydratedUserId != null &&
+            hydratedUserId.isNotEmpty &&
+            hydratedUserId != _currentUserId &&
+            mounted) {
+          setState(() {
+            _currentUserId = hydratedUserId;
+          });
+        }
+        _syncUnreadState(state);
+      }
+    });
+  }
+
+  void _ensureInitialMessagesLoaded() {
+    if (_hasRequestedInitialMessagesLoad) return;
+
+    final chatState = _chatBloc.state;
+    if (chatState is ChatLoaded) {
+      _loadMessages();
+      return;
+    }
+
+    if (chatState is ChatInitial || chatState is ChatError) {
+      _chatBloc.add(const InitializeChatEvent());
+      return;
+    }
+
+    if (chatState is ChatLoading) {
+      Future<void>.delayed(const Duration(milliseconds: 150), () {
+        if (!mounted || _hasRequestedInitialMessagesLoad) return;
+        _ensureInitialMessagesLoaded();
+      });
+    }
   }
 
   /// العربية: يعالج `onScroll`.
@@ -277,6 +379,20 @@ class _ChatPageState extends State<ChatPage>
 
   /// العربية: يعالج `onTypingChanged`.
   void _onTypingChanged() {
+    if (!_isTypingIndicatorsEnabled()) {
+      _typingTimer?.cancel();
+      if (_isTyping) {
+        _isTyping = false;
+        context.read<ChatBloc>().add(
+              SendTypingIndicatorEvent(
+                conversationId: widget.conversation.id,
+                isTyping: false,
+              ),
+            );
+      }
+      return;
+    }
+
     if (_messageController.text.isNotEmpty && !_isTyping) {
       _isTyping = true;
       context.read<ChatBloc>().add(
@@ -303,47 +419,75 @@ class _ChatPageState extends State<ChatPage>
 
   /// العربية: يعالج `markMessagesAsRead`.
   void _markMessagesAsRead() {
-    final userId = _currentUserId;
-    if (userId == null || userId.isEmpty) return;
-    final state = context.read<ChatBloc>().state;
+    final state = _chatBloc.state;
     if (state is ChatLoaded) {
-      // Strong cast to Message to avoid generic runtime issues
-      final List<Message> messages =
-          (state.messages[widget.conversation.id] ?? []).cast<Message>();
-      final unreadMessages = messages
-          .where((m) =>
-              m.senderId != userId &&
-              !((m.deliveryReceipt?.readBy.contains(userId)) ?? false))
-          .map((m) => m.id)
-          .toList();
-
-      if (unreadMessages.isNotEmpty) {
-        context.read<ChatBloc>().add(
-              MarkMessagesAsReadEvent(
-                conversationId: widget.conversation.id,
-                messageIds: unreadMessages,
-              ),
-            );
-      }
+      _syncUnreadState(state);
     }
+  }
+
+  void _syncUnreadState(ChatLoaded state) {
+    final userId = _resolvedCurrentUserId();
+    if (userId == null || userId.isEmpty) return;
+
+    final List<Message> messages =
+        (state.messages[widget.conversation.id] ?? []).cast<Message>();
+    final unreadMessages = messages
+        .where(
+          (m) =>
+              m.senderId != userId && !_isMessageReadForCurrentUser(m, userId),
+        )
+        .map((m) => m.id)
+        .toList();
+
+    final signature = unreadMessages.join('|');
+    if (signature == _lastUnreadSignature) {
+      return;
+    }
+    _lastUnreadSignature = signature;
+
+    if (unreadMessages.isNotEmpty) {
+      _chatBloc.add(
+        MarkMessagesAsReadEvent(
+          conversationId: widget.conversation.id,
+          messageIds: unreadMessages,
+        ),
+      );
+    }
+  }
+
+  bool _isMessageReadForCurrentUser(Message message, String userId) {
+    final receipt = message.deliveryReceipt;
+    if (message.status.trim().toLowerCase() == 'read') {
+      return true;
+    }
+
+    if (receipt?.readAt != null) {
+      return true;
+    }
+
+    return receipt?.readBy.contains(userId) ?? false;
   }
 
   // FIXED: Scroll to reply message
   /// العربية: يعالج `scrollToMessage`.
   void _scrollToMessage(String messageId) {
     final key = _messageKeys[messageId];
-    if (key?.currentContext != null) {
-      Scrollable.ensureVisible(
-        key!.currentContext!,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeOutExpo,
-        alignment: 0.5,
-      );
+    final targetContext = key?.currentContext;
+    if (targetContext == null || !targetContext.mounted) return;
 
-      // Highlight animation
-      HapticFeedback.lightImpact();
-      // You can add a highlight animation here
-    }
+    final renderObject = targetContext.findRenderObject();
+    if (renderObject is! RenderObject || !renderObject.attached) return;
+
+    Scrollable.ensureVisible(
+      targetContext,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutExpo,
+      alignment: 0.5,
+    );
+
+    // Highlight animation
+    HapticFeedback.lightImpact();
+    // You can add a highlight animation here
   }
 
   /// العربية: يعالج `syncCurrentUser`.
@@ -352,6 +496,13 @@ class _ChatPageState extends State<ChatPage>
     final authState = context.read<AuthBloc>().state;
     if (authState is AuthAuthenticated) {
       _currentUserId = authState.user.userId; // استخدام userId الصحيح
+    } else {
+      final hydratedUserId = _chatBloc.state is ChatLoaded
+          ? (_chatBloc.state as ChatLoaded).currentUserId?.trim()
+          : null;
+      if (hydratedUserId != null && hydratedUserId.isNotEmpty) {
+        _currentUserId = hydratedUserId;
+      }
     }
     // الاستماع للتغييرات المستقبلية مع إلغاء الاشتراك عند التخلص
     _authSubscription = context.read<AuthBloc>().stream.listen((state) {
@@ -366,11 +517,45 @@ class _ChatPageState extends State<ChatPage>
     });
   }
 
+  String? _resolvedCurrentUserId() {
+    final chatState = _chatBloc.state;
+    if (chatState is ChatLoaded) {
+      final hydratedUserId = chatState.currentUserId?.trim();
+      if (hydratedUserId != null && hydratedUserId.isNotEmpty) {
+        return hydratedUserId;
+      }
+    }
+
+    final localUserId = _currentUserId?.trim();
+    if (localUserId != null && localUserId.isNotEmpty) {
+      return localUserId;
+    }
+
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      final authUserId = authState.user.userId.trim();
+      if (authUserId.isNotEmpty) {
+        return authUserId;
+      }
+    }
+
+    return null;
+  }
+
   /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
+    final chatSettings = context.select<ChatBloc, ChatSettings?>((bloc) {
+      final currentState = bloc.state;
+      if (currentState is ChatLoaded) {
+        return currentState.settings;
+      }
+
+      return null;
+    });
     final effectiveUserId =
-        _currentUserId ?? ''; // fallback مؤقت حتى يتم تحميل المستخدم
+        _resolvedCurrentUserId() ?? ''; // fallback مؤقت حتى يتم تحميل المستخدم
+    final textScale = chatFontScale(chatSettings?.fontSize);
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
       body: Stack(
@@ -382,25 +567,30 @@ class _ChatPageState extends State<ChatPage>
           _buildFloatingParticles(),
 
           // Main content
-          SafeArea(
-            child: Column(
-              children: [
-                ChatAppBar(
-                  conversation: widget.conversation,
-                  currentUserId: effectiveUserId,
-                  onBackPressed: () => Navigator.pop(context),
-                  onInfoPressed: () => _openChatSettings(),
-                ),
-                Expanded(
-                  child: Stack(
-                    children: [
-                      _buildMessagesListWithEffects(userId: effectiveUserId),
-                      if (_showScrollToBottom) _buildFloatingScrollButton(),
-                    ],
+          MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: TextScaler.linear(textScale),
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  ChatAppBar(
+                    conversation: widget.conversation,
+                    currentUserId: effectiveUserId,
+                    onBackPressed: () => Navigator.pop(context),
+                    onInfoPressed: () => _openChatSettings(),
                   ),
-                ),
-                _buildPremiumBottomSection(),
-              ],
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        _buildMessagesListWithEffects(userId: effectiveUserId),
+                        if (_showScrollToBottom) _buildFloatingScrollButton(),
+                      ],
+                    ),
+                  ),
+                  _buildPremiumBottomSection(),
+                ],
+              ),
             ),
           ),
         ],
@@ -410,6 +600,9 @@ class _ChatPageState extends State<ChatPage>
 
   /// العربية: يبني premium background.
   Widget _buildPremiumBackground() {
+    final backgroundColors =
+        chatBackgroundGradient(_currentChatSettings()?.theme);
+
     return AnimatedBuilder(
       animation: Listenable.merge([_backgroundAnimation, _glowAnimation]),
       builder: (context, child) {
@@ -418,11 +611,7 @@ class _ChatPageState extends State<ChatPage>
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                AppTheme.darkBackground,
-                AppTheme.darkBackground.withOpacity(0.95),
-                AppTheme.darkSurface.withOpacity(0.9),
-              ],
+              colors: backgroundColors,
             ),
           ),
           child: CustomPaint(
@@ -461,14 +650,17 @@ class _ChatPageState extends State<ChatPage>
         scale: _scaleAnimation,
         child: Consumer<TypingIndicatorProvider>(
           builder: (context, typingProvider, child) {
-            final typingUsers = typingProvider.getTypingUsersForConversation(
-              widget.conversation.id,
-            );
             return BlocBuilder<ChatBloc, ChatState>(
               builder: (context, state) {
                 if (state is! ChatLoaded) {
                   return _buildPremiumLoadingState();
                 }
+
+                final typingUsers = state.settings?.showTypingIndicator ?? true
+                    ? typingProvider.getTypingUsersForConversation(
+                        widget.conversation.id,
+                      )
+                    : const <String>[];
 
                 // Strong cast to concrete Message list (underlying objects may be MessageModel)
                 final List<Message> messages =
@@ -476,6 +668,11 @@ class _ChatPageState extends State<ChatPage>
                         .cast<Message>();
 
                 if (messages.isEmpty) {
+                  final isInitialConversationLoad = state.isLoadingMessages &&
+                      state.loadingConversationId == widget.conversation.id;
+                  if (isInitialConversationLoad) {
+                    return _buildPremiumLoadingState();
+                  }
                   return _buildPremiumEmptyState();
                 }
 
@@ -526,17 +723,23 @@ class _ChatPageState extends State<ChatPage>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
+                      Container(
+                        width: 180,
+                        height: 6,
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: LinearProgressIndicator(
+                          minHeight: 6,
+                          backgroundColor:
+                              AppTheme.darkBorder.withOpacity(0.18),
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            AppTheme.primaryBlue.withOpacity(0.6),
+                            AppTheme.primaryBlue.withOpacity(0.75),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 14),
                       Text(
                         context.tr(
                           'chat.thread.loading',
@@ -544,6 +747,15 @@ class _ChatPageState extends State<ChatPage>
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppTheme.textWhite.withOpacity(0.7),
                           fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        context.tr('chat.newConversation.pleaseWait'),
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppTheme.textMuted.withOpacity(0.55),
+                          fontSize: 10,
                         ),
                       ),
                     ],
@@ -705,6 +917,9 @@ class _ChatPageState extends State<ChatPage>
                 onReplyTap: message.replyToMessageId != null
                     ? () => _scrollToMessage(message.replyToMessageId!)
                     : null,
+                onRetry: isMe && message.status.trim().toLowerCase() == 'failed'
+                    ? () => _retryMessage(message)
+                    : null,
               ),
             ),
           ],
@@ -843,7 +1058,18 @@ class _ChatPageState extends State<ChatPage>
           replyToMessageId: _replyToMessageId,
           editingMessage: _editingMessage,
           onSend: _sendMessage,
+          onSendSelectedImages: _sendSelectedImages,
+          onSendSelectedVideos: _sendSelectedVideos,
           onAttachment: _pickAttachment,
+          onPickGalleryImages: _pickAttachment,
+          onPickCameraImage: _captureImage,
+          onPickGalleryVideos: _pickVideoAttachments,
+          selectedImagePaths: List<String>.unmodifiable(_selectedImagePaths),
+          selectedVideoPaths: List<String>.unmodifiable(_selectedVideoPaths),
+          onRemoveSelectedImage: _removeSelectedImage,
+          onClearSelectedImages: _clearSelectedImages,
+          onRemoveSelectedVideo: _removeSelectedVideo,
+          onClearSelectedVideos: _clearSelectedVideos,
           onLocation: _shareLocation,
           onCancelReply: () {
             setState(() {
@@ -1069,9 +1295,22 @@ class _ChatPageState extends State<ChatPage>
   // Helper methods
   /// العربية: يرسل message.
   void _sendMessage(String content) {
+    if (_selectedImagePaths.isNotEmpty) {
+      _sendSelectedImages(content);
+      return;
+    }
+
+    if (_selectedVideoPaths.isNotEmpty) {
+      _sendSelectedVideos(content);
+      return;
+    }
+
     if (content.trim().isEmpty) return;
 
     HapticFeedback.lightImpact();
+    final blocState = context.read<ChatBloc>().state;
+    final resolvedCurrentUserId = _currentUserId ??
+        (blocState is ChatLoaded ? blocState.currentUserId : null);
 
     if (_editingMessage != null) {
       context.read<ChatBloc>().add(
@@ -1090,6 +1329,7 @@ class _ChatPageState extends State<ChatPage>
               messageType: 'text',
               content: content,
               replyToMessageId: _replyToMessageId,
+              currentUserId: resolvedCurrentUserId,
             ),
           );
       setState(() {
@@ -1102,15 +1342,422 @@ class _ChatPageState extends State<ChatPage>
   }
 
   /// العربية: يعالج `pickAttachment`.
-  void _pickAttachment() {
+  Future<void> _pickAttachment() async {
     HapticFeedback.lightImpact();
-    // Implement attachment picker
+    final picker = ImagePicker();
+    final images = await picker.pickMultiImage(
+      imageQuality: 88,
+      maxWidth: 2160,
+      maxHeight: 2160,
+    );
+
+    if (!mounted || images.isEmpty) return;
+
+    setState(() {
+      _selectedVideoPaths.clear();
+      for (final image in images) {
+        if (!_selectedImagePaths.contains(image.path)) {
+          _selectedImagePaths.add(image.path);
+        }
+      }
+      _editingMessage = null;
+    });
+    _messageFocusNode.requestFocus();
+  }
+
+  Future<void> _captureImage() async {
+    HapticFeedback.lightImpact();
+    final picker = ImagePicker();
+    final image = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 90,
+      maxWidth: 2160,
+      maxHeight: 2160,
+    );
+
+    if (!mounted || image == null) return;
+
+    setState(() {
+      _selectedVideoPaths.clear();
+      if (!_selectedImagePaths.contains(image.path)) {
+        _selectedImagePaths.add(image.path);
+      }
+      _editingMessage = null;
+    });
+    _messageFocusNode.requestFocus();
+  }
+
+  void _removeSelectedImage(String imagePath) {
+    setState(() {
+      _selectedImagePaths.remove(imagePath);
+    });
+  }
+
+  void _clearSelectedImages() {
+    setState(() {
+      _selectedImagePaths.clear();
+    });
+  }
+
+  Future<void> _pickVideoAttachments() async {
+    HapticFeedback.lightImpact();
+    final picker = ImagePicker();
+    final videos = await picker.pickMultiVideo(
+      maxDuration: const Duration(minutes: 5),
+      limit: 10,
+    );
+
+    if (!mounted || videos.isEmpty) return;
+
+    setState(() {
+      _selectedImagePaths.clear();
+      for (final video in videos) {
+        if (!_selectedVideoPaths.contains(video.path)) {
+          _selectedVideoPaths.add(video.path);
+        }
+      }
+      _editingMessage = null;
+    });
+    _messageFocusNode.requestFocus();
+  }
+
+  void _removeSelectedVideo(String videoPath) {
+    setState(() {
+      _selectedVideoPaths.remove(videoPath);
+    });
+  }
+
+  void _clearSelectedVideos() {
+    setState(() {
+      _selectedVideoPaths.clear();
+    });
+  }
+
+  void _sendSelectedImages(String caption) {
+    if (_selectedImagePaths.isEmpty) return;
+
+    HapticFeedback.lightImpact();
+    final blocState = context.read<ChatBloc>().state;
+    final resolvedCurrentUserId = _currentUserId ??
+        (blocState is ChatLoaded ? blocState.currentUserId : null);
+    final trimmedCaption = caption.trim();
+
+    context.read<ChatBloc>().add(
+          UploadMultipleAttachmentsEvent(
+            conversationId: widget.conversation.id,
+            filePaths: List<String>.from(_selectedImagePaths),
+            messageType: 'image',
+            content: trimmedCaption.isEmpty ? null : trimmedCaption,
+            replyToMessageId: _replyToMessageId,
+            currentUserId: resolvedCurrentUserId,
+          ),
+        );
+
+    setState(() {
+      _selectedImagePaths.clear();
+      _replyToMessageId = null;
+      _editingMessage = null;
+    });
+
+    _messageController.clear();
+    _messageFocusNode.requestFocus();
+    _scrollToBottom();
+  }
+
+  void _sendSelectedVideos(String caption) {
+    if (_selectedVideoPaths.isEmpty) return;
+
+    HapticFeedback.lightImpact();
+    final blocState = context.read<ChatBloc>().state;
+    final resolvedCurrentUserId = _currentUserId ??
+        (blocState is ChatLoaded ? blocState.currentUserId : null);
+    final trimmedCaption = caption.trim();
+
+    context.read<ChatBloc>().add(
+          UploadMultipleAttachmentsEvent(
+            conversationId: widget.conversation.id,
+            filePaths: List<String>.from(_selectedVideoPaths),
+            messageType: 'video',
+            content: trimmedCaption.isEmpty ? null : trimmedCaption,
+            replyToMessageId: _replyToMessageId,
+            currentUserId: resolvedCurrentUserId,
+          ),
+        );
+
+    setState(() {
+      _selectedVideoPaths.clear();
+      _replyToMessageId = null;
+      _editingMessage = null;
+    });
+
+    _messageController.clear();
+    _messageFocusNode.requestFocus();
+    _scrollToBottom();
   }
 
   /// العربية: يشارك location.
-  void _shareLocation() {
+  Future<void> _shareLocation() async {
     HapticFeedback.lightImpact();
-    // Implement location sharing
+    final mode = await _showLocationShareOptions();
+    if (!mounted || mode == null) return;
+
+    if (mode == _LocationShareMode.current) {
+      await _shareCurrentLocation();
+      return;
+    }
+
+    await _shareCustomAddress();
+  }
+
+  Future<_LocationShareMode?> _showLocationShareOptions() {
+    return showModalBottomSheet<_LocationShareMode>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+          decoration: BoxDecoration(
+            color: AppTheme.darkCard,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border.all(
+              color: AppTheme.darkBorder.withOpacity(0.18),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.tr('chat.composer.shareLocationTitle'),
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    color: AppTheme.textWhite,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _buildLocationOptionTile(
+                  icon: Icons.my_location_rounded,
+                  title: context.tr('chat.composer.currentLocation'),
+                  onTap: () => Navigator.of(sheetContext)
+                      .pop(_LocationShareMode.current),
+                ),
+                const SizedBox(height: 10),
+                _buildLocationOptionTile(
+                  icon: Icons.edit_location_alt_rounded,
+                  title: context.tr('chat.composer.otherAddress'),
+                  onTap: () =>
+                      Navigator.of(sheetContext).pop(_LocationShareMode.custom),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLocationOptionTile({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              colors: [
+                AppTheme.darkSurface.withOpacity(0.92),
+                AppTheme.darkSurface.withOpacity(0.74),
+              ],
+            ),
+            border: Border.all(
+              color: AppTheme.darkBorder.withOpacity(0.14),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [
+                      AppTheme.primaryBlue.withOpacity(0.86),
+                      AppTheme.primaryPurple.withOpacity(0.7),
+                    ],
+                  ),
+                ),
+                child: Icon(icon, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppTheme.textWhite,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: AppTheme.textMuted,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _shareCurrentLocation() async {
+    if (_isSharingLocation) return;
+
+    setState(() {
+      _isSharingLocation = true;
+    });
+
+    final locationService = sl<LocationService>();
+
+    try {
+      final currentLocation = await locationService.getCurrentLocation();
+      final address = await locationService.getAddressFromCoordinates(
+        currentLocation.latitude,
+        currentLocation.longitude,
+      );
+
+      await _dispatchLocationMessage(
+        Location(
+          latitude: currentLocation.latitude,
+          longitude: currentLocation.longitude,
+          address: address?.formattedAddress,
+        ),
+      );
+    } on LocationServiceException catch (error) {
+      if (!mounted) return;
+      _showLocationFailure(locationService, error);
+    } catch (_) {
+      if (!mounted) return;
+      _showChatSnackBar(context.tr('core.location.unknownError'));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSharingLocation = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _shareCustomAddress() async {
+    final selectedLocation = await _showLocationPicker();
+    if (!mounted || selectedLocation == null) return;
+
+    if (_isSharingLocation) return;
+
+    setState(() {
+      _isSharingLocation = true;
+    });
+
+    try {
+      await _dispatchLocationMessage(selectedLocation);
+    } catch (_) {
+      if (!mounted) return;
+      _showChatSnackBar(context.tr('core.location.unknownError'));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSharingLocation = false;
+        });
+      }
+    }
+  }
+
+  Future<Location?> _showLocationPicker() {
+    return showModalBottomSheet<Location>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) {
+        return const FractionallySizedBox(
+          heightFactor: 0.9,
+          child: _ChatLocationPickerSheet(),
+        );
+      },
+    );
+  }
+
+  Future<void> _dispatchLocationMessage(Location location) async {
+    if (!mounted) return;
+
+    final blocState = context.read<ChatBloc>().state;
+    final resolvedCurrentUserId = _currentUserId ??
+        (blocState is ChatLoaded ? blocState.currentUserId : null);
+
+    context.read<ChatBloc>().add(
+          SendMessageEvent(
+            conversationId: widget.conversation.id,
+            messageType: 'location',
+            location: location,
+            replyToMessageId: _replyToMessageId,
+            currentUserId: resolvedCurrentUserId,
+          ),
+        );
+
+    setState(() {
+      _replyToMessageId = null;
+      _editingMessage = null;
+    });
+
+    _messageController.clear();
+    _messageFocusNode.requestFocus();
+    _scrollToBottom();
+  }
+
+  void _showLocationFailure(
+    LocationService locationService,
+    LocationServiceException error,
+  ) {
+    SnackBarAction? action;
+
+    if (error.type == LocationErrorType.permissionDeniedForever) {
+      action = SnackBarAction(
+        label: context.tr('common.settings'),
+        onPressed: () {
+          unawaited(locationService.openAppSettings());
+        },
+      );
+    } else if (error.type == LocationErrorType.serviceDisabled) {
+      action = SnackBarAction(
+        label: context.tr('common.settings'),
+        onPressed: () {
+          unawaited(locationService.openLocationSettings());
+        },
+      );
+    }
+
+    _showChatSnackBar(error.message, action: action);
+  }
+
+  void _showChatSnackBar(String message, {SnackBarAction? action}) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+          action: action,
+        ),
+      );
   }
 
   /// العربية: يضبط reply to.
@@ -1172,6 +1819,16 @@ class _ChatPageState extends State<ChatPage>
     }
   }
 
+  void _retryMessage(Message message) {
+    HapticFeedback.lightImpact();
+    context.read<ChatBloc>().add(
+          RetryFailedMessageEvent(
+            conversationId: message.conversationId,
+            messageId: message.id,
+          ),
+        );
+  }
+
   /// العربية: يعالج `scrollToBottom`.
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
@@ -1184,8 +1841,8 @@ class _ChatPageState extends State<ChatPage>
   }
 
   /// العربية: يفتح chat settings.
-  void _openChatSettings() {
-    Navigator.push(
+  Future<void> _openChatSettings() async {
+    final targetMessageId = await Navigator.push<String?>(
       context,
       MaterialPageRoute(
         builder: (context) => ChatSettingsPage(
@@ -1193,6 +1850,12 @@ class _ChatPageState extends State<ChatPage>
         ),
       ),
     );
+
+    if (!mounted || targetMessageId == null || targetMessageId.isEmpty) {
+      return;
+    }
+
+    _scrollToMessage(targetMessageId);
   }
 
   /// العربية: يعالج `isSameDay`.
@@ -1402,6 +2065,327 @@ class _ChatParticle {
     y += vy;
     if (x < 0 || x > 1) vx = -vx;
     if (y < 0 || y > 1) vy = -vy;
+  }
+}
+
+class _ChatLocationPickerSheet extends StatefulWidget {
+  const _ChatLocationPickerSheet();
+
+  @override
+  State<_ChatLocationPickerSheet> createState() =>
+      _ChatLocationPickerSheetState();
+}
+
+class _ChatLocationPickerSheetState extends State<_ChatLocationPickerSheet> {
+  static const LatLng _fallbackCenter = LatLng(15.3694, 44.1910);
+
+  final LocationService _locationService = sl<LocationService>();
+  GoogleMapController? _mapController;
+
+  LatLng _initialCenter = _fallbackCenter;
+  LatLng? _selectedLatLng;
+  String? _selectedAddress;
+  bool _isResolvingAddress = false;
+  bool _myLocationEnabled = false;
+  int _selectionToken = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _prepareInitialCenter();
+  }
+
+  @override
+  void dispose() {
+    _mapController?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _prepareInitialCenter() async {
+    LatLng initialCenter = _fallbackCenter;
+    var myLocationEnabled = false;
+
+    try {
+      final permissionStatus = await _locationService.checkLocationPermission();
+
+      if (permissionStatus == LocationPermissionStatus.granted) {
+        final currentLocation = await _locationService.getCurrentLocation();
+        initialCenter = LatLng(
+          currentLocation.latitude,
+          currentLocation.longitude,
+        );
+        myLocationEnabled = true;
+      } else {
+        final lastKnownLocation = await _locationService.getLastKnownLocation();
+        if (lastKnownLocation != null) {
+          initialCenter = LatLng(
+            lastKnownLocation.latitude,
+            lastKnownLocation.longitude,
+          );
+        }
+      }
+    } catch (_) {
+      final lastKnownLocation = await _locationService.getLastKnownLocation();
+      if (lastKnownLocation != null) {
+        initialCenter = LatLng(
+          lastKnownLocation.latitude,
+          lastKnownLocation.longitude,
+        );
+      }
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _initialCenter = initialCenter;
+      _myLocationEnabled = myLocationEnabled;
+    });
+
+    await _mapController?.animateCamera(
+      CameraUpdate.newLatLngZoom(_initialCenter, 14),
+    );
+  }
+
+  Future<void> _onMapTapped(LatLng latLng) async {
+    final token = ++_selectionToken;
+
+    setState(() {
+      _selectedLatLng = latLng;
+      _selectedAddress = null;
+      _isResolvingAddress = true;
+    });
+
+    final address = await _locationService.getAddressFromCoordinates(
+      latLng.latitude,
+      latLng.longitude,
+    );
+
+    if (!mounted || token != _selectionToken) return;
+
+    setState(() {
+      _selectedAddress = address?.formattedAddress;
+      _isResolvingAddress = false;
+    });
+  }
+
+  String _buildCoordinateFallback(LatLng latLng) {
+    return '${latLng.latitude.toStringAsFixed(5)}, '
+        '${latLng.longitude.toStringAsFixed(5)}';
+  }
+
+  void _confirmSelection() {
+    final selectedLatLng = _selectedLatLng;
+    if (selectedLatLng == null) return;
+
+    Navigator.of(context).pop(
+      Location(
+        latitude: selectedLatLng.latitude,
+        longitude: selectedLatLng.longitude,
+        address: _selectedAddress ?? _buildCoordinateFallback(selectedLatLng),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedLatLng = _selectedLatLng;
+    final resolvedAddress = selectedLatLng == null
+        ? context.tr('chat.composer.pickLocationOnMapHint')
+        : (_selectedAddress ?? _buildCoordinateFallback(selectedLatLng));
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.darkBackground,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr('chat.composer.pickLocationOnMapTitle'),
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          color: AppTheme.textWhite,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        context.tr('chat.composer.pickLocationOnMapHint'),
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppTheme.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close_rounded),
+                  color: AppTheme.textWhite,
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
+              child: Stack(
+                children: [
+                  GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: _initialCenter,
+                      zoom: 14,
+                    ),
+                    onMapCreated: (controller) {
+                      _mapController = controller;
+                    },
+                    onTap: _onMapTapped,
+                    myLocationEnabled: _myLocationEnabled,
+                    myLocationButtonEnabled: _myLocationEnabled,
+                    zoomControlsEnabled: false,
+                    mapToolbarEnabled: false,
+                    compassEnabled: false,
+                    markers: selectedLatLng == null
+                        ? const <Marker>{}
+                        : {
+                            Marker(
+                              markerId: const MarkerId('selected_location'),
+                              position: selectedLatLng,
+                            ),
+                          },
+                  ),
+                  Positioned(
+                    top: 16,
+                    left: 16,
+                    right: 16,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: AppTheme.darkCard.withOpacity(0.92),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: AppTheme.darkBorder.withOpacity(0.22),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.touch_app_rounded,
+                              color: AppTheme.primaryBlue,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                context.tr(
+                                  'chat.composer.tapMapToSelectLocation',
+                                ),
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppTheme.textWhite,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.tr('chat.composer.selectedLocation'),
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppTheme.textMuted,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppTheme.darkCard,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: AppTheme.darkBorder.withOpacity(0.2),
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.place_rounded,
+                          color: AppTheme.primaryBlue,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            _isResolvingAddress
+                                ? context.tr(
+                                    'chat.composer.locationAddressLoading',
+                                  )
+                                : resolvedAddress,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: selectedLatLng == null
+                                  ? AppTheme.textMuted
+                                  : AppTheme.textWhite,
+                              fontWeight: selectedLatLng == null
+                                  ? FontWeight.w500
+                                  : FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed:
+                          selectedLatLng == null ? null : _confirmSelection,
+                      icon: const Icon(Icons.send_rounded),
+                      label: Text(
+                        context.tr('chat.composer.confirmLocation'),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

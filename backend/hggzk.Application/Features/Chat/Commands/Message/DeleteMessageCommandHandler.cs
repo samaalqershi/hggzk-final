@@ -5,6 +5,7 @@ using YemenBooking.Application.Features.Chat;
 using YemenBooking.Application.Common.Models;
 using YemenBooking.Core.Interfaces.Repositories;
 using System.Text.Json;
+using YemenBooking.Application.Common.Interfaces;
  
  namespace YemenBooking.Application.Features.Chat.Commands.Message
  {
@@ -17,16 +18,25 @@ using System.Text.Json;
         private readonly IChatMessageRepository _messageRepo;
         private readonly IChatConversationRepository _conversationRepo;
         private readonly IFirebaseService _firebaseService;
+        private readonly IChatRealtimeNotifier _chatRealtimeNotifier;
+        private readonly IChatSettingsRepository _chatSettingsRepository;
  
         /// <summary>
         /// يهيئ مثيلاً جديدًا من المعالج.
         /// Initializes a new handler instance.
         /// </summary>
-        public DeleteMessageCommandHandler(IChatMessageRepository messageRepo, IChatConversationRepository conversationRepo, IFirebaseService firebaseService)
+        public DeleteMessageCommandHandler(
+            IChatMessageRepository messageRepo,
+            IChatConversationRepository conversationRepo,
+            IFirebaseService firebaseService,
+            IChatRealtimeNotifier chatRealtimeNotifier,
+            IChatSettingsRepository chatSettingsRepository)
         {
             _messageRepo = messageRepo;
             _conversationRepo = conversationRepo;
             _firebaseService = firebaseService;
+            _chatRealtimeNotifier = chatRealtimeNotifier;
+            _chatSettingsRepository = chatSettingsRepository;
         }
  
     /// <summary>
@@ -48,14 +58,48 @@ using System.Text.Json;
             {
                 foreach (var participant in conversation.Participants)
                 {
-                    await _firebaseService.SendNotificationAsync($"user_{participant.Id}", "تم حذف رسالة", string.Empty, new System.Collections.Generic.Dictionary<string, string>
+                    var isSender = participant.Id == message.SenderId;
+                    var participantSettings = await _chatSettingsRepository.GetByUserIdAsync(participant.Id, cancellationToken);
+                    if (!isSender &&
+                        !(participantSettings?.NotificationsEnabled ?? true))
+                    {
+                        continue;
+                    }
+
+                    var payload = new System.Collections.Generic.Dictionary<string, string>
                     {
                         { "type", "message_deleted" },
                         { "conversation_id", message.ConversationId.ToString() },
-                        { "message_id", message.Id.ToString() }
-                    }, cancellationToken);
+                        { "message_id", message.Id.ToString() },
+                        { "silent", isSender ? "true" : "false" }
+                    };
+
+                    if (!isSender &&
+                        !(participantSettings?.SoundEnabled ?? true))
+                    {
+                        payload["channel_id"] = "hggzk_chat_silent";
+                        payload["sound_enabled"] = "false";
+                    }
+
+                    await _firebaseService.SendNotificationAsync(
+                        $"user_{participant.Id}",
+                        isSender ? string.Empty : "تم حذف رسالة",
+                        string.Empty,
+                        payload,
+                        cancellationToken);
                 }
             }
+
+            await _chatRealtimeNotifier.NotifyMessageDeletedAsync(
+                message.ConversationId,
+                message.Id,
+                message.SenderId,
+                cancellationToken);
+            await _chatRealtimeNotifier.NotifyConversationUpdatedAsync(
+                message.ConversationId,
+                "message_deleted",
+                message.SenderId,
+                cancellationToken);
 
             return ResultDto.Ok(null, "تم حذف الرسالة بنجاح");
         }

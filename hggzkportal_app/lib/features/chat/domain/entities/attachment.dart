@@ -1,91 +1,64 @@
 import 'package:equatable/equatable.dart';
-import 'dart:io';
 
-/// يعرّف الكلاس `Attachment`.
-/// Describes the `Attachment` class.
+/// Describes one uploaded chat attachment together with the metadata needed
+/// by the UI to present previews, sizes, and media-specific actions.
+/// يصف مرفق دردشة واحدًا مع البيانات الوصفية التي تحتاجها الواجهة لعرض
+/// المعاينات والأحجام والإجراءات الخاصة بالوسائط.
 class Attachment extends Equatable {
-  /// Holds the `id` value.
-  /// العربية: يخزن القيمة `id`.
+  /// Stable identifier for the attachment record.
+  /// المعرّف الثابت لسجل المرفق.
   final String id;
 
-  /// يخزن العضو `conversationId`.
-  /// Holds the `conversationId` member.
+  /// Conversation that owns this attachment.
+  /// المحادثة المالكة لهذا المرفق.
   final String conversationId;
 
-  /// يخزن العضو `fileName`.
-  /// Holds the `fileName` member.
+  /// Original file name shown in previews and download prompts.
+  /// اسم الملف الأصلي المعروض في المعاينات ومطالبات التنزيل.
   final String fileName;
 
-  /// يخزن العضو `contentType`.
-  /// Holds the `contentType` member.
-  final String contentType; // MIME type
-  /// يخزن العضو `fileSize`.
-  /// Holds the `fileSize` member.
+  /// MIME type that tells the UI how to render the attachment.
+  /// نوع MIME الذي يحدد كيفية عرض المرفق في الواجهة.
+  final String contentType;
+
+  /// File size in bytes.
+  /// حجم الملف بالبايت.
   final int fileSize;
 
-  /// يخزن العضو `filePath`.
-  /// Holds the `filePath` member.
+  /// Local or server-side path used to resolve the file.
+  /// المسار المحلي أو على الخادم المستخدم للوصول إلى الملف.
   final String filePath;
 
-  /// يخزن العضو `fileUrl`.
-  /// Holds the `fileUrl` member.
+  /// Public URL used when the attachment is displayed or downloaded.
+  /// الرابط العام المستخدم عند عرض المرفق أو تنزيله.
   final String fileUrl;
 
-  /// يخزن العضو `url`.
-  /// Holds the `url` member.
-  final String url;
-
-  /// يخزن العضو `uploadedBy`.
-  /// Holds the `uploadedBy` member.
+  /// User id or identifier of the uploader.
+  /// معرّف المستخدم أو الجهة التي رفعت الملف.
   final String uploadedBy;
 
-  /// يخزن العضو `createdAt`.
-  /// Holds the `createdAt` member.
+  /// Timestamp describing when the attachment became available.
+  /// الطابع الزمني الذي يوضح متى أصبح المرفق متاحًا.
   final DateTime createdAt;
 
-  /// يخزن العضو `thumbnailUrl`.
-  /// Holds the `thumbnailUrl` member.
+  /// Optional thumbnail used for videos or previewable documents.
+  /// صورة مصغرة اختيارية تستخدم للفيديو أو الملفات القابلة للمعاينة.
   final String? thumbnailUrl;
 
-  /// يخزن العضو `metadata`.
-  /// Holds the `metadata` member.
+  /// Extra backend metadata preserved for feature-specific rendering.
+  /// بيانات وصفية إضافية من الخادم تُحفظ لعرض مخصص حسب الميزة.
   final Map<String, dynamic>? metadata;
-  // New optional fields used by UI
-  /// يخزن العضو `duration`.
-  /// Holds the `duration` member.
-  final int? duration; // in seconds for audio/video
-  /// يخزن العضو `downloadProgress`.
-  /// Holds the `downloadProgress` member.
-  final double? downloadProgress; // 0.0 - 1.0 (transient, not from backend)
-  /// يخزن العضو `uploadProgress`.
-  /// Holds the `uploadProgress` member.
-  final double? uploadProgress; // 0.0 - 1.0 (transient)
-  /// يخزن العضو `isUploading`.
-  /// Holds the `isUploading` member.
-  final bool isUploading;
 
-  /// يخزن العضو `uploadError`.
-  /// Holds the `uploadError` member.
-  final String? uploadError;
+  /// Optional media duration in seconds for audio or video files.
+  /// مدة الوسائط الاختيارية بالثواني لملفات الصوت أو الفيديو.
+  final int? duration;
 
-  /// يخزن العضو `localFile`.
-  /// Holds the `localFile` member.
-  final File? localFile;
+  /// Transient download progress used only by the client UI.
+  /// تقدم تنزيل مؤقت يستخدمه تطبيق العميل فقط.
+  final double? downloadProgress;
 
-  /// يخزن العضو `width`.
-  /// Holds the `width` member.
-  final int? width;
-
-  /// يخزن العضو `height`.
-  /// Holds the `height` member.
-  final int? height;
-
-  /// يخزن العضو `blurhash`.
-  /// Holds the `blurhash` member.
-  final String? blurhash;
-
-  /// ينشئ مثيلاً من `Attachment`.
-  /// Builds an instance of `Attachment`.
+  /// Builds the domain attachment entity from normalized backend data.
+  /// ينشئ كيان المرفق من بيانات الخادم بعد تطبيعها.
   const Attachment({
     required this.id,
     required this.conversationId,
@@ -94,24 +67,16 @@ class Attachment extends Equatable {
     required this.fileSize,
     required this.filePath,
     required this.fileUrl,
-    required this.url,
     required this.uploadedBy,
     required this.createdAt,
     this.thumbnailUrl,
     this.metadata,
     this.duration,
     this.downloadProgress,
-    this.uploadProgress,
-    this.isUploading = false,
-    this.uploadError,
-    this.localFile,
-    this.width,
-    this.height,
-    this.blurhash,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// Equality is based on the attachment content and metadata snapshot.
+  /// تُبنى المساواة على محتوى المرفق ولقطة البيانات الوصفية.
   @override
   List<Object?> get props => [
         id,
@@ -121,98 +86,97 @@ class Attachment extends Equatable {
         fileSize,
         filePath,
         fileUrl,
-        url,
         uploadedBy,
         createdAt,
         thumbnailUrl,
         metadata,
         duration,
         downloadProgress,
-        uploadProgress,
-        isUploading,
-        uploadError,
-        localFile,
-        width,
-        height,
-        blurhash,
       ];
 
-  // Helper methods
-  /// يعيد قيمة `fileExtension`.
-  /// Exposes the `fileExtension` value.
+  /// Returns the lowercase file extension for presentation decisions.
+  /// يعيد امتداد الملف بحروف صغيرة لاستخدامه في قرارات العرض.
   String get fileExtension => fileName.split('.').last.toLowerCase();
 
-  /// يعيد قيمة `isImage`.
-  /// Exposes the `isImage` value.
+  /// True when the attachment is an image that can be previewed inline.
+  /// تكون صحيحة عندما يكون المرفق صورة قابلة للمعاينة داخل الواجهة.
   bool get isImage => contentType.startsWith('image/');
 
-  /// يعيد قيمة `isVideo`.
-  /// Exposes the `isVideo` value.
+  /// True when the attachment is a video file.
+  /// تكون صحيحة عندما يكون المرفق ملف فيديو.
   bool get isVideo => contentType.startsWith('video/');
 
-  /// يعيد قيمة `isAudio`.
-  /// Exposes the `isAudio` value.
+  /// True when the attachment is an audio file.
+  /// تكون صحيحة عندما يكون المرفق ملف صوت.
   bool get isAudio => contentType.startsWith('audio/');
 
-  /// يعيد قيمة `isDocument`.
-  /// Exposes the `isDocument` value.
+  /// True when the attachment is treated as a generic document.
+  /// تكون صحيحة عندما يُعامل المرفق كوثيقة عامة.
   bool get isDocument => !isImage && !isVideo && !isAudio;
 
-  /// يعيد قيمة `formattedFileSize`.
-  /// Exposes the `formattedFileSize` value.
+  /// Formats the file size into a readable unit for badges and captions.
+  /// ينسق حجم الملف إلى وحدة مقروءة للشارات والنصوص القصيرة.
   String get formattedFileSize {
-    if (fileSize < 1024) return '$fileSize B';
-    if (fileSize < 1024 * 1024)
+    if (fileSize < 1024) {
+      return '$fileSize B';
+    }
+    if (fileSize < 1024 * 1024) {
       return '${(fileSize / 1024).toStringAsFixed(1)} KB';
-    if (fileSize < 1024 * 1024 * 1024)
+    }
+    if (fileSize < 1024 * 1024 * 1024) {
       return '${(fileSize / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
     return '${(fileSize / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 }
 
-/// يعرّف الكلاس `ChatSettings`.
-/// Describes the `ChatSettings` class.
+/// Chat-specific preferences that control notifications, read receipts, and
+/// media behavior for one user.
+/// تفضيلات خاصة بالدردشة تتحكم في الإشعارات وإيصالات القراءة وسلوك
+/// الوسائط لمستخدم واحد.
 class ChatSettings extends Equatable {
-  /// Holds the `id` value.
-  /// العربية: يخزن القيمة `id`.
+  /// Stable identifier for the settings row.
+  /// المعرّف الثابت لسجل الإعدادات.
   final String id;
 
-  /// يخزن العضو `userId`.
-  /// Holds the `userId` member.
+  /// User that owns these preferences.
+  /// المستخدم الذي يملك هذه التفضيلات.
   final String userId;
 
-  /// يخزن العضو `notificationsEnabled`.
-  /// Holds the `notificationsEnabled` member.
+  /// Whether chat notifications should be delivered to the user.
+  /// يحدد ما إذا كانت إشعارات الدردشة يجب أن تصل للمستخدم.
   final bool notificationsEnabled;
 
-  /// يخزن العضو `soundEnabled`.
-  /// Holds the `soundEnabled` member.
+  /// Whether incoming chat sounds should be played.
+  /// يحدد ما إذا كان يجب تشغيل الأصوات عند وصول الرسائل.
   final bool soundEnabled;
 
-  /// يخزن العضو `showReadReceipts`.
-  /// Holds the `showReadReceipts` member.
+  /// Whether read receipts are visible to other participants.
+  /// يحدد ما إذا كانت إيصالات القراءة تظهر للمشاركين الآخرين.
   final bool showReadReceipts;
 
-  /// يخزن العضو `showTypingIndicator`.
-  /// Holds the `showTypingIndicator` member.
+  /// Whether the UI should expose typing indicators.
+  /// يحدد ما إذا كانت الواجهة تعرض مؤشرات الكتابة.
   final bool showTypingIndicator;
 
-  /// يخزن العضو `theme`.
-  /// Holds the `theme` member.
-  final String theme; // "light", "dark", "auto"
-  /// يخزن العضو `fontSize`.
-  /// Holds the `fontSize` member.
-  final String fontSize; // "small", "medium", "large"
-  /// يخزن العضو `autoDownloadMedia`.
-  /// Holds the `autoDownloadMedia` member.
+  /// Chat theme preference such as `light`, `dark`, or `auto`.
+  /// تفضيل سمة الدردشة مثل `light` أو `dark` أو `auto`.
+  final String theme;
+
+  /// Preferred message font size for the chat UI.
+  /// حجم الخط المفضل لرسائل واجهة الدردشة.
+  final String fontSize;
+
+  /// Whether media should download automatically when possible.
+  /// يحدد ما إذا كانت الوسائط تُنزّل تلقائيًا عند الإمكان.
   final bool autoDownloadMedia;
 
-  /// يخزن العضو `backupMessages`.
-  /// Holds the `backupMessages` member.
+  /// Whether chat history should be backed up by the client.
+  /// يحدد ما إذا كان سجل الدردشة يجب أن يُنسخ احتياطيًا من العميل.
   final bool backupMessages;
 
-  /// ينشئ مثيلاً من `ChatSettings`.
-  /// Builds an instance of `ChatSettings`.
+  /// Builds a settings snapshot for one chat user.
+  /// ينشئ لقطة إعدادات لمستخدم دردشة واحد.
   const ChatSettings({
     required this.id,
     required this.userId,
@@ -226,8 +190,8 @@ class ChatSettings extends Equatable {
     this.backupMessages = false,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// Equality is based on the full settings snapshot.
+  /// تُبنى المساواة على لقطة الإعدادات الكاملة.
   @override
   List<Object> get props => [
         id,

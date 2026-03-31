@@ -3,12 +3,15 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hggzk/core/localization/app_localizations.dart';
-import 'package:hggzk/core/localization/locale_manager.dart';
-import 'package:hggzk/core/services/websocket_service.dart';
-import 'package:hggzk/features/auth/domain/usecases/get_current_user_usecase.dart';
-import 'package:hggzk/features/chat/domain/usecases/get_messages_usecase.dart';
-import 'package:hggzk/features/chat/domain/usecases/search_chats_usecase.dart';
+import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/localization/locale_manager.dart';
+import '../../../../core/services/local_storage_service.dart';
+import '../../../../core/services/websocket_service.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import '../../../auth/domain/usecases/get_current_user_usecase.dart';
+import '../../chat_settings_keys.dart';
+import '../../domain/usecases/get_messages_usecase.dart';
+import '../../domain/usecases/search_chats_usecase.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../domain/entities/attachment.dart';
@@ -40,6 +43,8 @@ part 'chat_state.dart';
 /// ينسق تحميل الصندوق وسجل الرسائل والتحديثات اللحظية وأفعال المحرر في
 /// ميزة الدردشة.
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
+  static const String _localThumbnailMetadataKey = 'localThumbnailPath';
+
   /// Loads the paginated list of conversations.
   /// يحمل قائمة المحادثات المرقمة.
   final GetConversationsUseCase getConversationsUseCase;
@@ -124,6 +129,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   /// يربط تيارات websocket بأحداث الـ bloc.
   final ChatWebSocketService webSocketService;
 
+  /// Persists runtime chat preferences so other services can react immediately.
+  /// يحفظ تفضيلات الشات وقت التشغيل حتى تتفاعل الخدمات الأخرى مباشرة.
+  final LocalStorageService localStorageService;
+
   // Active websocket subscriptions.
   /// Subscription that forwards incoming chat messages.
   StreamSubscription? _webSocketMessagesSubscription;
@@ -155,6 +164,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   /// Temporarily staged messages that wait for server confirmation.
   final Map<String, List<Message>> _optimisticMessages = {};
 
+  /// Guards against the same local voice note being dispatched twice from the
+  /// recorder gesture lifecycle.
+  final Map<String, DateTime> _recentAudioDispatches = {};
+
   // Active attachment uploads.
   /// Upload tasks currently running for chat.
   final Map<String, UploadTask> _activeUploads = {};
@@ -183,6 +196,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     required this.updateChatSettingsUseCase,
     required this.getCurrentUserUseCase,
     required this.webSocketService,
+    required this.localStorageService,
   }) : super(const ChatInitial()) {
     // Register event handlers.
     on<InitializeChatEvent>(_onInitializeChat);
@@ -201,6 +215,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<MarkMessagesAsReadEvent>(_onMarkMessagesAsRead);
     on<UploadAttachmentEvent>(_onUploadAttachment);
     on<UploadMultipleAttachmentsEvent>(_onUploadMultipleAttachments);
+    on<SendAudioMessageEvent>(_onSendAudioMessage);
     on<SearchChatsEvent>(_onSearchChats);
     on<LoadAvailableUsersEvent>(_onLoadAvailableUsers);
     on<LoadAdminUsersEvent>(_onLoadAdminUsers);
@@ -267,7 +282,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     InitializeChatEvent event,
     Emitter<ChatState> emit,
   ) async {
-    emit(const ChatLoading());
+    final previousLoadedState =
+        state is ChatLoaded ? state as ChatLoaded : null;
+    if (previousLoadedState == null) {
+      emit(const ChatLoading());
+    }
 
     try {
       // جلب المحادثات
@@ -289,20 +308,41 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           ChatSettings? settings;
           await settingsResult.fold(
             (_) async {}, // تجاهل فشل الإعدادات
-            (s) async => settings = s,
+            (s) async {
+              settings = s;
+              await _persistChatSettings(s);
+            },
           );
 
           String? currentUserId;
+          String? currentUserName;
           await currentUserResult.fold(
             (_) async {},
-            (user) async => currentUserId = user.userId,
+            (user) async {
+              currentUserId = user.userId;
+              currentUserName = user.name;
+            },
           );
 
-          emit(ChatLoaded(
-            conversations: conversations,
-            settings: settings,
-            currentUserId: currentUserId,
-          ));
+          if (previousLoadedState != null) {
+            emit(previousLoadedState.copyWith(
+              conversations: _mergeConversations(
+                previousLoadedState.conversations,
+                conversations,
+              ),
+              settings: settings ?? previousLoadedState.settings,
+              currentUserId: currentUserId,
+              currentUserName: currentUserName,
+              error: null,
+            ));
+          } else {
+            emit(ChatLoaded(
+              conversations: conversations,
+              settings: settings,
+              currentUserId: currentUserId,
+              currentUserName: currentUserName,
+            ));
+          }
         },
       );
     } catch (e) {
@@ -511,13 +551,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ) async {
     final currentState = state;
     if (currentState is! ChatLoaded) return;
+    final resolvedCurrentUserId =
+        await _resolveCurrentUserId(event.currentUserId, currentState);
+    final resolvedCurrentUserName = await _resolveCurrentUserName(currentState);
 
     // إنشاء رسالة متفائلة
     final optimisticMessage = Message(
       id: 'temp_${DateTime.now().microsecondsSinceEpoch}',
       conversationId: event.conversationId,
-      senderId: event.currentUserId ?? currentState.currentUserId ?? '',
-      senderName: currentState.currentUserName,
+      senderId: resolvedCurrentUserId,
+      senderName: resolvedCurrentUserName,
       messageType: event.messageType,
       content: event.content,
       location: event.location,
@@ -549,6 +592,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       messages: updatedMessages,
       isSendingMessage: true,
       sendingConversationId: event.conversationId,
+      currentUserId: resolvedCurrentUserId.isEmpty
+          ? currentState.currentUserId
+          : resolvedCurrentUserId,
+      currentUserName: resolvedCurrentUserName,
     ));
 
     // إرسال الرسالة الفعلية
@@ -566,8 +613,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     await result.fold(
       (failure) async {
         // فشل الإرسال - تحديث حالة الرسالة المتفائلة
+        final liveState =
+            state is ChatLoaded ? state as ChatLoaded : currentState;
         final failedMessages =
-            Map<String, List<Message>>.from(currentState.messages);
+            Map<String, List<Message>>.from(liveState.messages);
         final messages = failedMessages[event.conversationId] ?? [];
         final failureReason = await _mapFailureToMessage(failure);
 
@@ -598,24 +647,27 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
         failedMessages[event.conversationId] = updatedMessagesList;
 
-        emit(currentState.copyWith(
+        emit(liveState.copyWith(
           messages: failedMessages,
           isSendingMessage: false,
+          sendingConversationId: null,
           error: await _tr('chat.errors.messageSendFailed'),
         ));
       },
       (sentMessage) async {
         // نجح الإرسال - استبدال الرسالة المتفائلة بالرسالة الفعلية
+        final liveState =
+            state is ChatLoaded ? state as ChatLoaded : currentState;
         final successMessages =
-            Map<String, List<Message>>.from(currentState.messages);
+            Map<String, List<Message>>.from(liveState.messages);
         final messages = successMessages[event.conversationId] ?? [];
-
-        // إزالة الرسالة المتفائلة وإضافة الرسالة الفعلية
-        final updatedMessagesList =
-            messages.where((msg) => msg.id != optimisticMessage.id).toList();
-
-        // إضافة الرسالة الفعلية في المقدمة
-        updatedMessagesList.insert(0, sentMessage);
+        final mergedSentMessage =
+            _mergeMessageWithReference(sentMessage, optimisticMessage);
+        final updatedMessagesList = _replaceOptimisticWithConfirmed(
+          messages,
+          optimisticMessage,
+          mergedSentMessage,
+        );
         successMessages[event.conversationId] = updatedMessagesList;
 
         // إزالة من قائمة الرسائل المتفائلة
@@ -624,7 +676,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         );
 
         // تحديث آخر رسالة في المحادثة
-        final updatedConversations = currentState.conversations.map((conv) {
+        final updatedConversations = liveState.conversations.map((conv) {
           if (conv.id == event.conversationId) {
             return Conversation(
               id: conv.id,
@@ -634,7 +686,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               avatar: conv.avatar,
               createdAt: conv.createdAt,
               updatedAt: DateTime.now(),
-              lastMessage: sentMessage,
+              lastMessage: mergedSentMessage,
               unreadCount: conv.unreadCount,
               isArchived: conv.isArchived,
               isMuted: conv.isMuted,
@@ -645,7 +697,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           return conv;
         }).toList();
 
-        emit(currentState.copyWith(
+        emit(liveState.copyWith(
           messages: successMessages,
           conversations: updatedConversations,
           isSendingMessage: false,
@@ -663,122 +715,294 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     UploadMultipleAttachmentsEvent event,
     Emitter<ChatState> emit,
   ) async {
+    const maxParallelUploads = 2;
     final currentState = state;
     if (currentState is! ChatLoaded) return;
+    if (event.filePaths.isEmpty) return;
 
+    final now = DateTime.now();
+    final resolvedCurrentUserId =
+        await _resolveCurrentUserId(event.currentUserId, currentState);
+    final resolvedCurrentUserName = await _resolveCurrentUserName(currentState);
     final uploadTasks = <ImageUploadInfo>[];
-    final attachmentIds = <String>[];
+    final optimisticAttachments = <Attachment>[];
+    final uploadedAttachmentsByIndex =
+        List<Attachment?>.filled(event.filePaths.length, null);
+    final attachmentIdsByIndex =
+        List<String?>.filled(event.filePaths.length, null);
+    final optimisticMessageId = 'temp_media_${now.microsecondsSinceEpoch}';
+    String? failureReason;
+    var hasFailure = false;
 
-    // Create local upload tasks for every selected file.
     for (int i = 0; i < event.filePaths.length; i++) {
       final filePath = event.filePaths[i];
-      final uploadId = 'upload_${DateTime.now().microsecondsSinceEpoch}_$i';
+      final uploadId = 'temp_attachment_${now.microsecondsSinceEpoch}_$i';
+      final file = File(filePath);
+      final fileName = file.uri.pathSegments.isNotEmpty
+          ? file.uri.pathSegments.last
+          : 'attachment_${i + 1}';
+      final fileSize = await file.exists() ? await file.length() : 0;
+      final optimisticThumbnailUrl = event.messageType == 'video'
+          ? await _buildOptimisticVideoThumbnail(filePath, uploadId)
+          : null;
 
       uploadTasks.add(ImageUploadInfo(
         id: uploadId,
-        file: File(filePath),
+        file: file,
         progress: 0.0,
         isCompleted: false,
         isFailed: false,
       ));
+
+      optimisticAttachments.add(Attachment(
+        id: uploadId,
+        conversationId: event.conversationId,
+        fileName: fileName,
+        contentType: _inferAttachmentContentType(fileName, event.messageType),
+        fileSize: fileSize,
+        filePath: filePath,
+        fileUrl: filePath,
+        uploadedBy: resolvedCurrentUserId,
+        createdAt: now,
+        thumbnailUrl: optimisticThumbnailUrl,
+        metadata: optimisticThumbnailUrl == null
+            ? null
+            : {
+                _localThumbnailMetadataKey: optimisticThumbnailUrl,
+              },
+        downloadProgress: 0.0,
+      ));
     }
 
-    // Publish the new upload queue to the UI.
+    final optimisticMessage = Message(
+      id: optimisticMessageId,
+      conversationId: event.conversationId,
+      senderId: resolvedCurrentUserId,
+      senderName: resolvedCurrentUserName,
+      messageType: event.messageType,
+      content: event.content,
+      replyToMessageId: event.replyToMessageId,
+      attachments: optimisticAttachments,
+      reactions: const [],
+      createdAt: now,
+      updatedAt: now,
+      status: 'sending',
+      isEdited: false,
+      isDeleted: false,
+      deliveryReceipt: null,
+    );
+
+    final updatedMessages =
+        Map<String, List<Message>>.from(currentState.messages);
+    final conversationMessages = List<Message>.from(
+      updatedMessages[event.conversationId] ?? [],
+    );
+    conversationMessages.insert(0, optimisticMessage);
+    updatedMessages[event.conversationId] = conversationMessages;
+    _optimisticMessages.putIfAbsent(event.conversationId, () => []);
+    _optimisticMessages[event.conversationId]!.add(optimisticMessage);
+
     final updatedUploads = Map<String, List<ImageUploadInfo>>.from(
       currentState.uploadingImages,
     );
     updatedUploads[event.conversationId] = uploadTasks;
 
-    emit(currentState.copyWith(uploadingImages: updatedUploads));
+    emit(currentState.copyWith(
+      messages: updatedMessages,
+      uploadingImages: updatedUploads,
+      isSendingMessage: true,
+      sendingConversationId: event.conversationId,
+      currentUserId: resolvedCurrentUserId.isEmpty
+          ? currentState.currentUserId
+          : resolvedCurrentUserId,
+      currentUserName: resolvedCurrentUserName,
+    ));
 
-    // Upload each file sequentially so progress stays easy to follow.
-    for (int i = 0; i < event.filePaths.length; i++) {
-      final filePath = event.filePaths[i];
-      final uploadTask = uploadTasks[i];
+    for (int start = 0;
+        start < event.filePaths.length;
+        start += maxParallelUploads) {
+      if (hasFailure) break;
 
-      try {
-        // Create a cancellable upload task for this file.
-        final uploadController = UploadController();
-        _activeUploads[uploadTask.id] = UploadTask(
-          controller: uploadController,
-          filePath: filePath,
-        );
+      final end = (start + maxParallelUploads > event.filePaths.length)
+          ? event.filePaths.length
+          : start + maxParallelUploads;
+      final batch = <Future<void>>[];
 
-        final result = await uploadAttachmentUseCase(
-          UploadAttachmentParams(
-            conversationId: event.conversationId,
-            filePath: filePath,
-            messageType: event.messageType,
-            onSendProgress: (sent, total) {
-              // Keep the visible upload progress in sync.
-              final progress = total > 0 ? sent / total : 0.0;
-              _updateUploadProgress(
-                emit,
-                currentState,
-                event.conversationId,
-                uploadTask.id,
-                progress,
-              );
-              event.onProgress?.call(i, sent, total);
-            },
-          ),
-        );
+      for (int i = start; i < end; i++) {
+        final filePath = event.filePaths[i];
+        final uploadTask = uploadTasks[i];
 
-        await result.fold(
-          (failure) async {
-            // Mark the file as failed when the upload request fails.
+        batch.add(() async {
+          try {
+            final uploadController = UploadController();
+            _activeUploads[uploadTask.id] = UploadTask(
+              controller: uploadController,
+              filePath: filePath,
+            );
+
+            final result = await uploadAttachmentUseCase(
+              UploadAttachmentParams(
+                conversationId: event.conversationId,
+                filePath: filePath,
+                messageType: event.messageType,
+                onSendProgress: (sent, total) {
+                  final progress = total > 0 ? sent / total : 0.0;
+                  _updateUploadProgress(
+                    emit,
+                    currentState,
+                    event.conversationId,
+                    uploadTask.id,
+                    progress,
+                    optimisticMessageId: optimisticMessage.id,
+                  );
+                  event.onProgress?.call(i, sent, total);
+                },
+              ),
+            );
+
+            await result.fold(
+              (failure) async {
+                hasFailure = true;
+                failureReason = await _mapFailureToMessage(failure);
+                _updateUploadStatus(
+                  emit,
+                  currentState,
+                  event.conversationId,
+                  uploadTask.id,
+                  isFailed: true,
+                  error: failureReason,
+                  optimisticMessageId: optimisticMessage.id,
+                );
+              },
+              (attachment) async {
+                attachmentIdsByIndex[i] = attachment.id;
+                uploadedAttachmentsByIndex[i] = attachment;
+                _updateUploadStatus(
+                  emit,
+                  currentState,
+                  event.conversationId,
+                  uploadTask.id,
+                  isCompleted: true,
+                  optimisticMessageId: optimisticMessage.id,
+                  hydratedAttachment: attachment,
+                );
+              },
+            );
+          } catch (_) {
+            hasFailure = true;
+            failureReason = await _tr('chat.errors.unknown');
             _updateUploadStatus(
               emit,
               currentState,
               event.conversationId,
               uploadTask.id,
               isFailed: true,
-              error: await _mapFailureToMessage(failure),
+              error: failureReason,
+              optimisticMessageId: optimisticMessage.id,
             );
-          },
-          (attachment) async {
-            // Mark the file as completed and collect its attachment id.
-            attachmentIds.add(attachment.id);
-            _updateUploadStatus(
-              emit,
-              currentState,
-              event.conversationId,
-              uploadTask.id,
-              isCompleted: true,
-            );
-          },
-        );
-      } catch (e) {
-        // Convert any unexpected exception into a failed upload state.
-        _updateUploadStatus(
-          emit,
-          currentState,
-          event.conversationId,
-          uploadTask.id,
-          isFailed: true,
-          error: await _tr('chat.errors.unknown'),
-        );
-      } finally {
-        _activeUploads.remove(uploadTask.id);
+          } finally {
+            _activeUploads.remove(uploadTask.id);
+          }
+        }());
       }
+
+      await Future.wait(batch);
     }
 
-    // Send a single message after every attachment finishes successfully.
-    if (attachmentIds.isNotEmpty) {
-      add(SendMessageEvent(
-        conversationId: event.conversationId,
-        messageType: event.messageType,
-        attachmentIds: attachmentIds,
-        currentUserId: currentState.currentUserId,
-      ));
-    }
+    final attachmentIds = attachmentIdsByIndex.whereType<String>().toList();
 
-    // Remove the upload queue from the visible state once the batch ends.
+    final liveAfterUploads =
+        state is ChatLoaded ? state as ChatLoaded : currentState;
     final finalUploads = Map<String, List<ImageUploadInfo>>.from(
-      currentState.uploadingImages,
+      liveAfterUploads.uploadingImages,
     );
     finalUploads.remove(event.conversationId);
-    emit(currentState.copyWith(uploadingImages: finalUploads));
+    emit(liveAfterUploads.copyWith(uploadingImages: finalUploads));
+
+    if (hasFailure || attachmentIds.length != event.filePaths.length) {
+      await _markOptimisticMessageFailed(
+        emit,
+        optimisticMessage: optimisticMessage,
+        currentState:
+            state is ChatLoaded ? state as ChatLoaded : liveAfterUploads,
+        failureReason: failureReason ?? await _tr('chat.errors.unknown'),
+      );
+      return;
+    }
+
+    final sendResult = await sendMessageUseCase(
+      SendMessageParams(
+        conversationId: event.conversationId,
+        messageType: event.messageType,
+        content: event.content,
+        replyToMessageId: event.replyToMessageId,
+        attachmentIds: attachmentIds,
+      ),
+    );
+
+    await sendResult.fold(
+      (failure) async {
+        await _markOptimisticMessageFailed(
+          emit,
+          optimisticMessage: optimisticMessage,
+          currentState:
+              state is ChatLoaded ? state as ChatLoaded : liveAfterUploads,
+          failureReason: await _mapFailureToMessage(failure),
+        );
+      },
+      (sentMessage) async {
+        final liveState =
+            state is ChatLoaded ? state as ChatLoaded : liveAfterUploads;
+        final successMessages =
+            Map<String, List<Message>>.from(liveState.messages);
+        final messages = successMessages[event.conversationId] ?? [];
+        final hydratedOptimisticMessage = _hydrateOptimisticMessageAttachments(
+          optimisticMessage,
+          uploadedAttachmentsByIndex,
+        );
+        final mergedSentMessage =
+            _mergeMessageWithReference(sentMessage, hydratedOptimisticMessage);
+        final updatedMessagesList = _replaceOptimisticWithConfirmed(
+          messages,
+          optimisticMessage,
+          mergedSentMessage,
+        );
+        successMessages[event.conversationId] = updatedMessagesList;
+
+        _optimisticMessages[event.conversationId]?.removeWhere(
+          (msg) => msg.id == optimisticMessage.id,
+        );
+
+        final updatedConversations = liveState.conversations.map((conv) {
+          if (conv.id == event.conversationId) {
+            return Conversation(
+              id: conv.id,
+              conversationType: conv.conversationType,
+              title: conv.title,
+              description: conv.description,
+              avatar: conv.avatar,
+              createdAt: conv.createdAt,
+              updatedAt: DateTime.now(),
+              lastMessage: mergedSentMessage,
+              unreadCount: conv.unreadCount,
+              isArchived: conv.isArchived,
+              isMuted: conv.isMuted,
+              propertyId: conv.propertyId,
+              participants: conv.participants,
+            );
+          }
+          return conv;
+        }).toList();
+
+        emit(liveState.copyWith(
+          messages: successMessages,
+          conversations: updatedConversations,
+          isSendingMessage: false,
+          sendingConversationId: null,
+          error: null,
+        ));
+      },
+    );
   }
 
   /// Uploads a single attachment by delegating to the batch upload path.
@@ -787,10 +1011,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     UploadAttachmentEvent event,
     Emitter<ChatState> emit,
   ) async {
+    final currentState = state;
     add(UploadMultipleAttachmentsEvent(
       conversationId: event.conversationId,
       filePaths: [event.filePath],
       messageType: event.messageType,
+      currentUserId:
+          currentState is ChatLoaded ? currentState.currentUserId : null,
       onProgress: event.onProgress != null
           ? (index, sent, total) {
               if (index == 0) event.onProgress!(sent, total);
@@ -799,17 +1026,198 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ));
   }
 
+  /// Uploads one recorded voice note and sends it as an audio chat message
+  /// with optimistic rendering.
+  /// يرفع ملاحظة صوتية مسجلة ويرسلها كرسالة صوتية مع عرض تفاؤلي.
+  Future<void> _onSendAudioMessage(
+    SendAudioMessageEvent event,
+    Emitter<ChatState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is! ChatLoaded) return;
+
+    final normalizedPath = event.filePath.trim();
+    final now = DateTime.now();
+    _recentAudioDispatches.removeWhere(
+      (_, timestamp) => now.difference(timestamp).inSeconds >= 15,
+    );
+
+    final previousDispatchAt = _recentAudioDispatches[normalizedPath];
+    if (previousDispatchAt != null &&
+        now.difference(previousDispatchAt).inSeconds < 15) {
+      return;
+    }
+    _recentAudioDispatches[normalizedPath] = now;
+
+    final resolvedCurrentUserId =
+        await _resolveCurrentUserId(null, currentState);
+    final resolvedCurrentUserName = await _resolveCurrentUserName(currentState);
+    final file = File(normalizedPath);
+    final tempMessageId = 'temp_voice_${now.microsecondsSinceEpoch}';
+    final tempAttachmentId = 'temp_attachment_${now.microsecondsSinceEpoch}';
+    final fileName = file.uri.pathSegments.isNotEmpty
+        ? file.uri.pathSegments.last
+        : 'voice_note.m4a';
+    final fileSize = await file.exists() ? await file.length() : 0;
+
+    final optimisticAttachment = Attachment(
+      id: tempAttachmentId,
+      conversationId: event.conversationId,
+      fileName: fileName,
+      contentType: 'audio/m4a',
+      fileSize: fileSize,
+      filePath: normalizedPath,
+      fileUrl: normalizedPath,
+      uploadedBy: resolvedCurrentUserId,
+      createdAt: now,
+      duration: event.durationSeconds,
+    );
+
+    final optimisticMessage = Message(
+      id: tempMessageId,
+      conversationId: event.conversationId,
+      senderId: resolvedCurrentUserId,
+      senderName: resolvedCurrentUserName,
+      messageType: 'audio',
+      replyToMessageId: event.replyToMessageId,
+      attachments: [optimisticAttachment],
+      reactions: const [],
+      createdAt: now,
+      updatedAt: now,
+      status: 'sending',
+      isEdited: false,
+      isDeleted: false,
+      deliveryReceipt: null,
+    );
+
+    final updatedMessages =
+        Map<String, List<Message>>.from(currentState.messages);
+    final conversationMessages = List<Message>.from(
+      updatedMessages[event.conversationId] ?? [],
+    );
+    conversationMessages.insert(0, optimisticMessage);
+    updatedMessages[event.conversationId] = conversationMessages;
+
+    _optimisticMessages.putIfAbsent(event.conversationId, () => []);
+    _optimisticMessages[event.conversationId]!.add(optimisticMessage);
+
+    emit(currentState.copyWith(
+      messages: updatedMessages,
+      isSendingMessage: true,
+      sendingConversationId: event.conversationId,
+      currentUserId: resolvedCurrentUserId.isEmpty
+          ? currentState.currentUserId
+          : resolvedCurrentUserId,
+      currentUserName: resolvedCurrentUserName,
+    ));
+
+    final uploadResult = await uploadAttachmentUseCase(
+      UploadAttachmentParams(
+        conversationId: event.conversationId,
+        filePath: normalizedPath,
+        messageType: 'audio',
+        durationSeconds: event.durationSeconds,
+      ),
+    );
+
+    await uploadResult.fold(
+      (failure) async {
+        _recentAudioDispatches.remove(normalizedPath);
+        await _markOptimisticMessageFailed(
+          emit,
+          optimisticMessage: optimisticMessage,
+          currentState:
+              state is ChatLoaded ? state as ChatLoaded : currentState,
+          failureReason: await _mapFailureToMessage(failure),
+        );
+      },
+      (attachment) async {
+        final sendResult = await sendMessageUseCase(
+          SendMessageParams(
+            conversationId: event.conversationId,
+            messageType: 'audio',
+            replyToMessageId: event.replyToMessageId,
+            attachmentIds: [attachment.id],
+          ),
+        );
+
+        await sendResult.fold(
+          (failure) async {
+            _recentAudioDispatches.remove(normalizedPath);
+            await _markOptimisticMessageFailed(
+              emit,
+              optimisticMessage: optimisticMessage,
+              currentState:
+                  state is ChatLoaded ? state as ChatLoaded : currentState,
+              failureReason: await _mapFailureToMessage(failure),
+            );
+          },
+          (sentMessage) async {
+            _recentAudioDispatches.remove(normalizedPath);
+            final liveState =
+                state is ChatLoaded ? state as ChatLoaded : currentState;
+            final successMessages =
+                Map<String, List<Message>>.from(liveState.messages);
+            final messages = successMessages[event.conversationId] ?? [];
+            final mergedSentMessage =
+                _mergeMessageWithReference(sentMessage, optimisticMessage);
+            final updatedMessagesList = _collapseTransientAudioDuplicates(
+              _replaceOptimisticWithConfirmed(
+                messages,
+                optimisticMessage,
+                mergedSentMessage,
+              ),
+              mergedSentMessage,
+              optimisticMessage: optimisticMessage,
+            );
+            successMessages[event.conversationId] = updatedMessagesList;
+
+            _optimisticMessages[event.conversationId]?.removeWhere(
+              (msg) => msg.id == optimisticMessage.id,
+            );
+
+            final updatedConversations = liveState.conversations.map((conv) {
+              if (conv.id == event.conversationId) {
+                return Conversation(
+                  id: conv.id,
+                  conversationType: conv.conversationType,
+                  title: conv.title,
+                  description: conv.description,
+                  avatar: conv.avatar,
+                  createdAt: conv.createdAt,
+                  updatedAt: DateTime.now(),
+                  lastMessage: mergedSentMessage,
+                  unreadCount: conv.unreadCount,
+                  isArchived: conv.isArchived,
+                  isMuted: conv.isMuted,
+                  propertyId: conv.propertyId,
+                  participants: conv.participants,
+                );
+              }
+              return conv;
+            }).toList();
+
+            emit(liveState.copyWith(
+              messages: successMessages,
+              conversations: updatedConversations,
+              isSendingMessage: false,
+              sendingConversationId: null,
+              error: null,
+            ));
+          },
+        );
+      },
+    );
+  }
+
   /// Updates the visible progress value for one in-flight upload.
   /// يحدّث قيمة التقدم المرئية لعملية رفع جارية.
-  void _updateUploadProgress(
-    Emitter<ChatState> emit,
-    ChatLoaded currentState,
-    String conversationId,
-    String uploadId,
-    double progress,
-  ) {
+  void _updateUploadProgress(Emitter<ChatState> emit, ChatLoaded currentState,
+      String conversationId, String uploadId, double progress,
+      {String? optimisticMessageId}) {
+    final liveState = state is ChatLoaded ? state as ChatLoaded : currentState;
     final updatedUploads = Map<String, List<ImageUploadInfo>>.from(
-      currentState.uploadingImages,
+      liveState.uploadingImages,
     );
 
     final uploads = updatedUploads[conversationId] ?? [];
@@ -821,7 +1229,18 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }).toList();
 
     updatedUploads[conversationId] = updatedTasks;
-    emit(currentState.copyWith(uploadingImages: updatedUploads));
+    emit(liveState.copyWith(
+      uploadingImages: updatedUploads,
+      messages: optimisticMessageId == null
+          ? liveState.messages
+          : _updateOptimisticAttachmentAfterUpload(
+              liveState.messages,
+              conversationId: conversationId,
+              messageId: optimisticMessageId,
+              attachmentId: uploadId,
+              progress: progress,
+            ),
+    ));
   }
 
   /// Updates the completion or failure state for one upload task.
@@ -834,12 +1253,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     bool? isCompleted,
     bool? isFailed,
     String? error,
+    String? optimisticMessageId,
+    Attachment? hydratedAttachment,
   }) {
+    final liveState = state is ChatLoaded ? state as ChatLoaded : currentState;
     final updatedUploads = Map<String, List<ImageUploadInfo>>.from(
-      currentState.uploadingImages,
+      liveState.uploadingImages,
     );
 
     final uploads = updatedUploads[conversationId] ?? [];
+    final previousTask = uploads.firstWhere(
+      (task) => task.id == uploadId,
+      orElse: () => ImageUploadInfo(id: uploadId, file: File('')),
+    );
     final updatedTasks = uploads.map((task) {
       if (task.id == uploadId) {
         return task.copyWith(
@@ -853,7 +1279,210 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }).toList();
 
     updatedUploads[conversationId] = updatedTasks;
-    emit(currentState.copyWith(uploadingImages: updatedUploads));
+    emit(liveState.copyWith(
+      uploadingImages: updatedUploads,
+      messages: optimisticMessageId == null
+          ? liveState.messages
+          : _updateOptimisticAttachmentAfterUpload(
+              liveState.messages,
+              conversationId: conversationId,
+              messageId: optimisticMessageId,
+              attachmentId: uploadId,
+              progress: isCompleted == true ? 1.0 : previousTask.progress,
+              hydratedAttachment: hydratedAttachment,
+            ),
+    ));
+  }
+
+  String _inferAttachmentContentType(String fileName, String messageType) {
+    final extension =
+        fileName.contains('.') ? fileName.split('.').last.toLowerCase() : '';
+
+    if (messageType == 'image') {
+      switch (extension) {
+        case 'png':
+          return 'image/png';
+        case 'gif':
+          return 'image/gif';
+        case 'webp':
+          return 'image/webp';
+        default:
+          return 'image/jpeg';
+      }
+    }
+
+    if (messageType == 'video') {
+      switch (extension) {
+        case 'mov':
+          return 'video/quicktime';
+        case 'mkv':
+          return 'video/x-matroska';
+        case 'webm':
+          return 'video/webm';
+        default:
+          return 'video/mp4';
+      }
+    }
+
+    if (messageType == 'audio') {
+      return 'audio/m4a';
+    }
+
+    return 'application/octet-stream';
+  }
+
+  Map<String, List<Message>> _updateOptimisticAttachmentAfterUpload(
+    Map<String, List<Message>> sourceMessages, {
+    required String conversationId,
+    required String messageId,
+    required String attachmentId,
+    required double progress,
+    Attachment? hydratedAttachment,
+  }) {
+    final updatedMessages = Map<String, List<Message>>.from(sourceMessages);
+    final conversationMessages = List<Message>.from(
+      updatedMessages[conversationId] ?? const <Message>[],
+    );
+
+    final updatedConversationMessages = conversationMessages.map((message) {
+      if (message.id != messageId) {
+        return message;
+      }
+
+      final updatedAttachments = message.attachments.map((attachment) {
+        if (attachment.id != attachmentId) {
+          return attachment;
+        }
+
+        return Attachment(
+          id: hydratedAttachment?.id ?? attachment.id,
+          conversationId:
+              hydratedAttachment?.conversationId ?? attachment.conversationId,
+          fileName: (hydratedAttachment?.fileName.isNotEmpty ?? false)
+              ? hydratedAttachment!.fileName
+              : attachment.fileName,
+          contentType: (hydratedAttachment?.contentType.isNotEmpty ?? false)
+              ? hydratedAttachment!.contentType
+              : attachment.contentType,
+          fileSize: (hydratedAttachment?.fileSize ?? 0) > 0
+              ? hydratedAttachment!.fileSize
+              : attachment.fileSize,
+          filePath: attachment.filePath,
+          fileUrl: (hydratedAttachment?.fileUrl.isNotEmpty ?? false)
+              ? hydratedAttachment!.fileUrl
+              : attachment.fileUrl,
+          uploadedBy: (hydratedAttachment?.uploadedBy.isNotEmpty ?? false)
+              ? hydratedAttachment!.uploadedBy
+              : attachment.uploadedBy,
+          createdAt: hydratedAttachment?.createdAt ?? attachment.createdAt,
+          thumbnailUrl:
+              hydratedAttachment?.thumbnailUrl ?? attachment.thumbnailUrl,
+          metadata: _mergeAttachmentMetadata(
+            attachment.metadata,
+            hydratedAttachment?.metadata,
+            attachment.thumbnailUrl,
+          ),
+          duration: hydratedAttachment?.duration ?? attachment.duration,
+          downloadProgress: progress,
+        );
+      }).toList();
+
+      return Message(
+        id: message.id,
+        conversationId: message.conversationId,
+        senderId: message.senderId,
+        senderName: message.senderName,
+        messageType: message.messageType,
+        content: message.content,
+        location: message.location,
+        replyToMessageId: message.replyToMessageId,
+        reactions: message.reactions,
+        attachments: updatedAttachments,
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt,
+        status: message.status,
+        isEdited: message.isEdited,
+        editedAt: message.editedAt,
+        deliveryReceipt: message.deliveryReceipt,
+        isDeleted: message.isDeleted,
+        failureReason: message.failureReason,
+      );
+    }).toList();
+
+    updatedMessages[conversationId] = updatedConversationMessages;
+    return updatedMessages;
+  }
+
+  Message _hydrateOptimisticMessageAttachments(
+    Message optimisticMessage,
+    List<Attachment?> uploadedAttachmentsByIndex,
+  ) {
+    if (uploadedAttachmentsByIndex.every((attachment) => attachment == null)) {
+      return optimisticMessage;
+    }
+
+    final mergedAttachments = List<Attachment>.generate(
+      optimisticMessage.attachments.length,
+      (index) {
+        final fallback = optimisticMessage.attachments[index];
+        final uploaded = index < uploadedAttachmentsByIndex.length
+            ? uploadedAttachmentsByIndex[index]
+            : null;
+
+        if (uploaded == null) {
+          return fallback;
+        }
+
+        return Attachment(
+          id: uploaded.id,
+          conversationId: uploaded.conversationId,
+          fileName: uploaded.fileName.isNotEmpty
+              ? uploaded.fileName
+              : fallback.fileName,
+          contentType: uploaded.contentType.isNotEmpty
+              ? uploaded.contentType
+              : fallback.contentType,
+          fileSize:
+              uploaded.fileSize > 0 ? uploaded.fileSize : fallback.fileSize,
+          filePath: fallback.filePath,
+          fileUrl:
+              uploaded.fileUrl.isNotEmpty ? uploaded.fileUrl : fallback.fileUrl,
+          uploadedBy: uploaded.uploadedBy.isNotEmpty
+              ? uploaded.uploadedBy
+              : fallback.uploadedBy,
+          createdAt: uploaded.createdAt,
+          thumbnailUrl: uploaded.thumbnailUrl ?? fallback.thumbnailUrl,
+          metadata: _mergeAttachmentMetadata(
+            fallback.metadata,
+            uploaded.metadata,
+            fallback.thumbnailUrl,
+          ),
+          duration: uploaded.duration ?? fallback.duration,
+          downloadProgress: 1.0,
+        );
+      },
+    );
+
+    return Message(
+      id: optimisticMessage.id,
+      conversationId: optimisticMessage.conversationId,
+      senderId: optimisticMessage.senderId,
+      senderName: optimisticMessage.senderName,
+      messageType: optimisticMessage.messageType,
+      content: optimisticMessage.content,
+      location: optimisticMessage.location,
+      replyToMessageId: optimisticMessage.replyToMessageId,
+      reactions: optimisticMessage.reactions,
+      attachments: mergedAttachments,
+      createdAt: optimisticMessage.createdAt,
+      updatedAt: optimisticMessage.updatedAt,
+      status: optimisticMessage.status,
+      isEdited: optimisticMessage.isEdited,
+      editedAt: optimisticMessage.editedAt,
+      isDeleted: optimisticMessage.isDeleted,
+      deliveryReceipt: optimisticMessage.deliveryReceipt,
+      failureReason: optimisticMessage.failureReason,
+    );
   }
 
   /// Cancels a running upload and reflects the cancellation in state.
@@ -1508,8 +2137,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     UpdateUserStatusEvent event,
     Emitter<ChatState> emit,
   ) async {
-    final currentState = state;
-    if (currentState is! ChatLoaded) return;
+    final currentState = state is ChatLoaded ? state as ChatLoaded : null;
 
     final result = await updateUserStatusUseCase(
       UpdateUserStatusParams(status: event.status),
@@ -1517,9 +2145,15 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
+        if (currentState == null) {
+          return;
+        }
         emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (_) async {
+        if (currentState == null) {
+          return;
+        }
         // Reflect the presence change locally as well.
         final updatedPresence =
             Map<String, UserPresence>.from(currentState.userPresence);
@@ -1552,6 +2186,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (settings) async {
+        await _persistChatSettings(settings);
         emit(currentState.copyWith(
           settings: settings,
           error: null,
@@ -1614,6 +2249,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         ));
       },
       (settings) async {
+        await _persistChatSettings(settings);
         // Replace the optimistic settings with the server response.
         emit(currentState.copyWith(
           settings: settings,
@@ -1671,7 +2307,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ChatLoaded currentState,
     Emitter<ChatState> emit,
   ) async {
-    if (event.message == null) return;
+    if (event.message == null) {
+      // FCM-driven chat updates may only contain ids. Refresh the inbox
+      // snapshot so unread counters and previews stay accurate.
+      await webSocketService.emitConversationById(
+        conversationId: event.conversationId,
+      );
+
+      // If this thread is already loaded locally, fetch the latest first page
+      // so the timeline also catches up with the server copy.
+      if (currentState.messages.containsKey(event.conversationId)) {
+        add(RefreshConversationEvent(conversationId: event.conversationId));
+      }
+      return;
+    }
 
     final newMessage = event.message!;
     final conversationId = event.conversationId;
@@ -1681,10 +2330,33 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         Map<String, List<Message>>.from(currentState.messages);
     final messages = List<Message>.from(updatedMessages[conversationId] ?? []);
 
-    // Avoid duplicating the same message when websocket and cache overlap.
-    if (!messages.any((msg) => msg.id == newMessage.id)) {
-      messages.insert(0, newMessage);
+    final sameIdIndex = messages.indexWhere((msg) => msg.id == newMessage.id);
+
+    if (sameIdIndex != -1) {
+      messages[sameIdIndex] =
+          _mergeMessageWithReference(newMessage, messages[sameIdIndex]);
       updatedMessages[conversationId] = messages;
+    } else {
+      final matchingIndex = messages.indexWhere(
+        (msg) =>
+            _isTransientMessage(msg) && _isRenderableDuplicate(msg, newMessage),
+      );
+
+      if (matchingIndex != -1) {
+        final previousId = messages[matchingIndex].id;
+        messages[matchingIndex] =
+            _mergeMessageWithReference(newMessage, messages[matchingIndex]);
+        _optimisticMessages[conversationId]?.removeWhere(
+          (msg) => msg.id == previousId,
+        );
+      } else {
+        messages.insert(0, newMessage);
+      }
+
+      updatedMessages[conversationId] = _collapseTransientAudioDuplicates(
+        messages,
+        newMessage,
+      );
     }
 
     // Refresh the conversation preview and unread count.
@@ -1835,6 +2507,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       final messageIndex = messages.indexWhere((msg) => msg.id == messageId);
       if (messageIndex != -1) {
         final message = messages[messageIndex];
+        final currentReceipt =
+            message.deliveryReceipt ?? const DeliveryReceipt();
         messages[messageIndex] = Message(
           id: message.id,
           conversationId: message.conversationId,
@@ -1852,12 +2526,70 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           isEdited: message.isEdited,
           editedAt: message.editedAt,
           isDeleted: message.isDeleted,
-          deliveryReceipt: message.deliveryReceipt,
+          deliveryReceipt: DeliveryReceipt(
+            deliveredAt: event.deliveredAt ?? currentReceipt.deliveredAt,
+            readAt: event.readAt ??
+                currentReceipt.readAt ??
+                (status == 'read' ? DateTime.now() : null),
+            readBy: currentReceipt.readBy,
+          ),
         );
       }
     });
 
-    emit(currentState.copyWith(messages: updatedMessages));
+    final updatedConversations = currentState.conversations.map((conv) {
+      final lastMessage = conv.lastMessage;
+      if (lastMessage == null || lastMessage.id != messageId) {
+        return conv;
+      }
+
+      final currentReceipt =
+          lastMessage.deliveryReceipt ?? const DeliveryReceipt();
+      return Conversation(
+        id: conv.id,
+        conversationType: conv.conversationType,
+        title: conv.title,
+        description: conv.description,
+        avatar: conv.avatar,
+        createdAt: conv.createdAt,
+        updatedAt: conv.updatedAt,
+        lastMessage: Message(
+          id: lastMessage.id,
+          conversationId: lastMessage.conversationId,
+          senderId: lastMessage.senderId,
+          senderName: lastMessage.senderName,
+          messageType: lastMessage.messageType,
+          content: lastMessage.content,
+          location: lastMessage.location,
+          replyToMessageId: lastMessage.replyToMessageId,
+          attachments: lastMessage.attachments,
+          reactions: lastMessage.reactions,
+          createdAt: lastMessage.createdAt,
+          updatedAt: lastMessage.updatedAt,
+          status: status,
+          isEdited: lastMessage.isEdited,
+          editedAt: lastMessage.editedAt,
+          isDeleted: lastMessage.isDeleted,
+          deliveryReceipt: DeliveryReceipt(
+            deliveredAt: event.deliveredAt ?? currentReceipt.deliveredAt,
+            readAt: event.readAt ??
+                currentReceipt.readAt ??
+                (status == 'read' ? DateTime.now() : null),
+            readBy: currentReceipt.readBy,
+          ),
+        ),
+        unreadCount: conv.unreadCount,
+        isArchived: conv.isArchived,
+        isMuted: conv.isMuted,
+        propertyId: conv.propertyId,
+        participants: conv.participants,
+      );
+    }).toList();
+
+    emit(currentState.copyWith(
+      messages: updatedMessages,
+      conversations: updatedConversations,
+    ));
   }
 
   /// Syncs a conversation-level websocket update into the inbox list.
@@ -2037,6 +2769,45 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ));
   }
 
+  /// Mirrors chat settings into shared preferences for non-chat services.
+  /// ينسخ إعدادات الشات إلى التفضيلات المشتركة كي تراها الخدمات خارج الشات.
+  Future<void> _persistChatSettings(ChatSettings settings) async {
+    await Future.wait([
+      localStorageService.saveData(
+        ChatSettingsKeys.notificationsEnabled,
+        settings.notificationsEnabled,
+      ),
+      localStorageService.saveData(
+        ChatSettingsKeys.soundEnabled,
+        settings.soundEnabled,
+      ),
+      localStorageService.saveData(
+        ChatSettingsKeys.showReadReceipts,
+        settings.showReadReceipts,
+      ),
+      localStorageService.saveData(
+        ChatSettingsKeys.showTypingIndicator,
+        settings.showTypingIndicator,
+      ),
+      localStorageService.saveData(
+        ChatSettingsKeys.theme,
+        settings.theme,
+      ),
+      localStorageService.saveData(
+        ChatSettingsKeys.fontSize,
+        settings.fontSize,
+      ),
+      localStorageService.saveData(
+        ChatSettingsKeys.autoDownloadMedia,
+        settings.autoDownloadMedia,
+      ),
+      localStorageService.saveData(
+        ChatSettingsKeys.backupMessages,
+        settings.backupMessages,
+      ),
+    ]);
+  }
+
   /// Retries a failed message by staging it again and sending a fresh copy.
   /// يعيد محاولة رسالة فاشلة عبر تجهيزها من جديد وإرسال نسخة جديدة.
   Future<void> _onRetryFailedMessage(
@@ -2056,48 +2827,88 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     if (failedMessage == null) return;
 
-    // Mark the message as sending again before retrying.
-    final updatedMessages =
-        Map<String, List<Message>>.from(currentState.messages);
-    final messages = updatedMessages[event.conversationId] ?? [];
+    final normalizedMessageType =
+        failedMessage!.messageType.trim().toLowerCase();
+    final stableAttachmentIds = failedMessage!.attachments
+        .where((attachment) => !attachment.id.startsWith('temp_'))
+        .map((attachment) => attachment.id)
+        .toList();
+    final localFilePaths = failedMessage!.attachments
+        .map((attachment) => attachment.filePath.trim())
+        .where((path) => path.isNotEmpty && File(path).existsSync())
+        .toList();
+    final hasAllStableAttachmentIds = failedMessage!.attachments.isNotEmpty &&
+        stableAttachmentIds.length == failedMessage!.attachments.length;
+    final hasAllLocalFiles = failedMessage!.attachments.isNotEmpty &&
+        localFilePaths.length == failedMessage!.attachments.length;
 
-    final updatedList = messages.map((msg) {
-      if (msg.id == event.messageId) {
-        return Message(
-          id: msg.id,
-          conversationId: msg.conversationId,
-          senderId: msg.senderId,
-          senderName: msg.senderName,
-          messageType: msg.messageType,
-          content: msg.content,
-          location: msg.location,
-          replyToMessageId: msg.replyToMessageId,
-          attachments: msg.attachments,
-          reactions: msg.reactions,
-          createdAt: msg.createdAt,
-          updatedAt: DateTime.now(),
-          status: 'sending',
-          isEdited: msg.isEdited,
-          isDeleted: msg.isDeleted,
-          deliveryReceipt: msg.deliveryReceipt,
+    ChatEvent? retryEvent;
+
+    if (failedMessage!.attachments.isEmpty) {
+      retryEvent = SendMessageEvent(
+        conversationId: failedMessage!.conversationId,
+        messageType: failedMessage!.messageType,
+        content: failedMessage!.content,
+        location: failedMessage!.location,
+        replyToMessageId: failedMessage!.replyToMessageId,
+        currentUserId: currentState.currentUserId,
+      );
+    } else if (normalizedMessageType == 'audio') {
+      if (hasAllLocalFiles) {
+        retryEvent = SendAudioMessageEvent(
+          conversationId: failedMessage!.conversationId,
+          filePath: localFilePaths.first,
+          replyToMessageId: failedMessage!.replyToMessageId,
+          durationSeconds: failedMessage!.attachments.first.duration,
+        );
+      } else if (hasAllStableAttachmentIds) {
+        retryEvent = SendMessageEvent(
+          conversationId: failedMessage!.conversationId,
+          messageType: failedMessage!.messageType,
+          replyToMessageId: failedMessage!.replyToMessageId,
+          attachmentIds: stableAttachmentIds,
+          currentUserId: currentState.currentUserId,
         );
       }
-      return msg;
-    }).toList();
+    } else if (hasAllLocalFiles) {
+      retryEvent = UploadMultipleAttachmentsEvent(
+        conversationId: failedMessage!.conversationId,
+        filePaths: List<String>.from(localFilePaths),
+        messageType: normalizedMessageType,
+        content: failedMessage!.content,
+        replyToMessageId: failedMessage!.replyToMessageId,
+        currentUserId: currentState.currentUserId,
+      );
+    } else if (hasAllStableAttachmentIds) {
+      retryEvent = SendMessageEvent(
+        conversationId: failedMessage!.conversationId,
+        messageType: failedMessage!.messageType,
+        content: failedMessage!.content,
+        location: failedMessage!.location,
+        replyToMessageId: failedMessage!.replyToMessageId,
+        attachmentIds: stableAttachmentIds,
+        currentUserId: currentState.currentUserId,
+      );
+    }
 
-    updatedMessages[event.conversationId] = updatedList;
+    if (retryEvent == null) {
+      emit(currentState.copyWith(
+        error: await _tr('chat.errors.messageSendFailed'),
+      ));
+      return;
+    }
+
+    final updatedMessages =
+        Map<String, List<Message>>.from(currentState.messages);
+    final messages =
+        List<Message>.from(updatedMessages[event.conversationId] ?? []);
+    messages.removeWhere((msg) => msg.id == event.messageId);
+    updatedMessages[event.conversationId] = messages;
+    _optimisticMessages[event.conversationId]
+        ?.removeWhere((msg) => msg.id == event.messageId);
+
     emit(currentState.copyWith(messages: updatedMessages));
-
-    // Dispatch the resend request using the original payload.
-    add(SendMessageEvent(
-      conversationId: failedMessage!.conversationId,
-      messageType: failedMessage!.messageType,
-      content: failedMessage!.content,
-      location: failedMessage!.location,
-      replyToMessageId: failedMessage!.replyToMessageId,
-      attachmentIds: failedMessage!.attachments.map((a) => a.id).toList(),
-      currentUserId: currentState.currentUserId,
-    ));
+    add(retryEvent);
   }
 
   /// Merges incoming conversations into the existing inbox without losing
@@ -2117,7 +2928,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     // Overwrite or insert newer versions from the incoming page.
     for (final conv in newConversations) {
-      conversationMap[conv.id] = conv;
+      final current = conversationMap[conv.id];
+      conversationMap[conv.id] =
+          current == null ? conv : _pickPreferredConversation(current, conv);
     }
 
     // Keep the inbox sorted by most recent activity.
@@ -2125,6 +2938,431 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
     return merged;
+  }
+
+  Conversation _pickPreferredConversation(
+    Conversation current,
+    Conversation incoming,
+  ) {
+    final mergedLastMessage = current.lastMessage == null
+        ? incoming.lastMessage
+        : incoming.lastMessage == null
+            ? current.lastMessage
+            : _pickRicherMessage(current.lastMessage!, incoming.lastMessage!);
+
+    final shouldPreserveClearedUnread = current.unreadCount == 0 &&
+        incoming.unreadCount > 0 &&
+        _isSameConversationPreview(current, incoming);
+
+    return Conversation(
+      id: incoming.id,
+      conversationType: incoming.conversationType,
+      title: (incoming.title?.trim().isNotEmpty ?? false)
+          ? incoming.title
+          : current.title,
+      description: (incoming.description?.trim().isNotEmpty ?? false)
+          ? incoming.description
+          : current.description,
+      avatar: (incoming.avatar?.trim().isNotEmpty ?? false)
+          ? incoming.avatar
+          : current.avatar,
+      createdAt: current.createdAt,
+      updatedAt: incoming.updatedAt.isAfter(current.updatedAt)
+          ? incoming.updatedAt
+          : current.updatedAt,
+      lastMessage: mergedLastMessage,
+      unreadCount: shouldPreserveClearedUnread ? 0 : incoming.unreadCount,
+      isArchived: incoming.isArchived,
+      isMuted: incoming.isMuted,
+      propertyId: incoming.propertyId ?? current.propertyId,
+      participants: incoming.participants.length >= current.participants.length
+          ? incoming.participants
+          : current.participants,
+    );
+  }
+
+  bool _isSameConversationPreview(Conversation current, Conversation incoming) {
+    final currentLastMessage = current.lastMessage;
+    final incomingLastMessage = incoming.lastMessage;
+
+    if (currentLastMessage == null || incomingLastMessage == null) {
+      return false;
+    }
+
+    if (currentLastMessage.id == incomingLastMessage.id) {
+      return true;
+    }
+
+    return currentLastMessage.senderId == incomingLastMessage.senderId &&
+        currentLastMessage.messageType == incomingLastMessage.messageType &&
+        _normalizedText(currentLastMessage.content) ==
+            _normalizedText(incomingLastMessage.content);
+  }
+
+  /// Matches optimistic attachment messages such as audio notes with their
+  /// definitive websocket payload even when the textual content is empty.
+  bool _isOptimisticAttachmentMatch(Message optimistic, Message incoming) {
+    if (optimistic.attachments.isEmpty || incoming.attachments.isEmpty) {
+      return false;
+    }
+
+    if (optimistic.attachments.length != incoming.attachments.length) {
+      return false;
+    }
+
+    for (var index = 0; index < optimistic.attachments.length; index++) {
+      final optimisticAttachment = optimistic.attachments[index];
+      final incomingAttachment = incoming.attachments[index];
+
+      final fileNameMatches =
+          _normalizedText(optimisticAttachment.fileName).isNotEmpty &&
+              _normalizedText(optimisticAttachment.fileName) ==
+                  _normalizedText(incomingAttachment.fileName);
+
+      final fileSizeMatches = optimisticAttachment.fileSize > 0 &&
+          incomingAttachment.fileSize > 0 &&
+          optimisticAttachment.fileSize == incomingAttachment.fileSize;
+
+      final audioDurationMatches =
+          optimistic.messageType == 'audio' && incoming.messageType == 'audio'
+              ? optimisticAttachment.duration != null &&
+                  incomingAttachment.duration != null &&
+                  optimisticAttachment.duration == incomingAttachment.duration
+              : false;
+
+      if (!fileNameMatches && !fileSizeMatches && !audioDurationMatches) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /// Detects visually duplicate messages even when transport layers assign
+  /// different ids during the optimistic/send/realtime lifecycle.
+  bool _isRenderableDuplicate(Message existing, Message incoming) {
+    final existingSender = _normalizedText(existing.senderId);
+    final incomingSender = _normalizedText(incoming.senderId);
+    final senderMatches = existingSender.isEmpty ||
+        incomingSender.isEmpty ||
+        existingSender == incomingSender;
+
+    if (!senderMatches ||
+        existing.messageType != incoming.messageType ||
+        existing.replyToMessageId != incoming.replyToMessageId) {
+      return false;
+    }
+
+    if (_normalizedText(existing.content) != '' &&
+        _normalizedText(existing.content) ==
+            _normalizedText(incoming.content)) {
+      return true;
+    }
+
+    if (_isOptimisticAttachmentMatch(existing, incoming)) {
+      return true;
+    }
+
+    final existingAttachment =
+        existing.attachments.isNotEmpty ? existing.attachments.first : null;
+    final incomingAttachment =
+        incoming.attachments.isNotEmpty ? incoming.attachments.first : null;
+
+    if (existingAttachment == null ||
+        incomingAttachment == null ||
+        existing.attachments.length != incoming.attachments.length) {
+      return false;
+    }
+
+    final ageDiff =
+        existing.createdAt.difference(incoming.createdAt).inSeconds.abs();
+    return ageDiff <= 10 &&
+        existingAttachment.contentType == incomingAttachment.contentType &&
+        ((existingAttachment.fileSize > 0 &&
+                existingAttachment.fileSize == incomingAttachment.fileSize) ||
+            (_normalizedText(existingAttachment.fileName).isNotEmpty &&
+                _normalizedText(existingAttachment.fileName) ==
+                    _normalizedText(incomingAttachment.fileName)));
+  }
+
+  bool _isTransientMessage(Message message) {
+    final normalizedStatus = _normalizedText(message.status);
+    return message.id.startsWith('temp_') ||
+        normalizedStatus == 'sending' ||
+        normalizedStatus == 'failed';
+  }
+
+  /// Preserves optimistic audio metadata such as duration when the server
+  /// payload is incomplete or delayed.
+  Message _mergeMessageWithReference(Message incoming, Message? reference) {
+    if (reference == null) return incoming;
+
+    final mergedAttachments = _mergeAttachmentsWithReference(
+        incoming.attachments, reference.attachments);
+    final mergedStatus =
+        _pickPreferredStatus(incoming.status, reference.status);
+    final mergedReceipt = _mergeDeliveryReceipt(
+      incoming.deliveryReceipt,
+      reference.deliveryReceipt,
+    );
+
+    return Message(
+      id: incoming.id,
+      conversationId: incoming.conversationId,
+      senderId: incoming.senderId,
+      senderName: incoming.senderName ?? reference.senderName,
+      messageType: incoming.messageType,
+      content: incoming.content ?? reference.content,
+      location: incoming.location ?? reference.location,
+      replyToMessageId: incoming.replyToMessageId ?? reference.replyToMessageId,
+      reactions: incoming.reactions,
+      attachments: mergedAttachments,
+      createdAt: incoming.createdAt,
+      updatedAt: incoming.updatedAt,
+      status: mergedStatus,
+      isEdited: incoming.isEdited,
+      editedAt: incoming.editedAt,
+      deliveryReceipt: mergedReceipt,
+      isDeleted: incoming.isDeleted,
+      failureReason: incoming.failureReason ?? reference.failureReason,
+    );
+  }
+
+  List<Attachment> _mergeAttachmentsWithReference(
+    List<Attachment> incoming,
+    List<Attachment> reference,
+  ) {
+    if (incoming.isEmpty) return reference;
+    if (reference.isEmpty) return incoming;
+
+    final merged = <Attachment>[];
+    final maxCount =
+        incoming.length > reference.length ? incoming.length : reference.length;
+
+    for (var index = 0; index < maxCount; index++) {
+      final primary = index < incoming.length ? incoming[index] : null;
+      final fallback = index < reference.length ? reference[index] : null;
+
+      if (primary == null && fallback != null) {
+        merged.add(fallback);
+        continue;
+      }
+
+      if (primary == null) {
+        continue;
+      }
+
+      if (fallback == null) {
+        merged.add(primary);
+        continue;
+      }
+
+      merged.add(Attachment(
+        id: primary.id,
+        conversationId: primary.conversationId,
+        fileName:
+            primary.fileName.isNotEmpty ? primary.fileName : fallback.fileName,
+        contentType: primary.contentType.isNotEmpty
+            ? primary.contentType
+            : fallback.contentType,
+        fileSize: primary.fileSize > 0 ? primary.fileSize : fallback.fileSize,
+        filePath:
+            primary.filePath.isNotEmpty ? primary.filePath : fallback.filePath,
+        fileUrl:
+            primary.fileUrl.isNotEmpty ? primary.fileUrl : fallback.fileUrl,
+        uploadedBy: primary.uploadedBy.isNotEmpty
+            ? primary.uploadedBy
+            : fallback.uploadedBy,
+        createdAt: primary.createdAt,
+        thumbnailUrl: primary.thumbnailUrl ?? fallback.thumbnailUrl,
+        metadata: _mergeAttachmentMetadata(
+          fallback.metadata,
+          primary.metadata,
+          fallback.thumbnailUrl,
+        ),
+        duration: (primary.duration != null && primary.duration! > 0)
+            ? primary.duration
+            : fallback.duration,
+        downloadProgress: primary.downloadProgress ?? fallback.downloadProgress,
+      ));
+    }
+
+    return merged;
+  }
+
+  List<Message> _replaceOptimisticWithConfirmed(
+    List<Message> messages,
+    Message optimisticMessage,
+    Message confirmedMessage,
+  ) {
+    final updated = List<Message>.from(messages);
+    final replaceIndex = updated.indexWhere(
+      (msg) =>
+          msg.id == optimisticMessage.id ||
+          msg.id == confirmedMessage.id ||
+          (_isTransientMessage(msg) &&
+              _isRenderableDuplicate(msg, confirmedMessage)),
+    );
+
+    if (replaceIndex != -1) {
+      updated[replaceIndex] = confirmedMessage;
+    } else {
+      updated.insert(0, confirmedMessage);
+    }
+
+    return updated.whereIndexed((index, msg) {
+      if (replaceIndex != -1 && index == replaceIndex) {
+        return true;
+      }
+
+      if (msg.id == optimisticMessage.id || msg.id == confirmedMessage.id) {
+        return false;
+      }
+
+      if (_isStaleOptimisticAudio(msg, confirmedMessage)) {
+        return false;
+      }
+
+      if (_isTransientMessage(msg) &&
+          _isRenderableDuplicate(msg, confirmedMessage)) {
+        return false;
+      }
+
+      return true;
+    }).toList();
+  }
+
+  bool _isStaleOptimisticAudio(Message existing, Message confirmed) {
+    if (!existing.id.startsWith('temp_') ||
+        existing.messageType != 'audio' ||
+        confirmed.messageType != 'audio') {
+      return false;
+    }
+
+    if (existing.conversationId != confirmed.conversationId) {
+      return false;
+    }
+
+    if (_normalizedText(existing.status) == 'failed') {
+      return false;
+    }
+
+    final existingSender = _normalizedText(existing.senderId);
+    final confirmedSender = _normalizedText(confirmed.senderId);
+    if (existingSender.isNotEmpty &&
+        confirmedSender.isNotEmpty &&
+        existingSender != confirmedSender) {
+      return false;
+    }
+
+    if (existing.replyToMessageId != confirmed.replyToMessageId) {
+      return false;
+    }
+
+    if (_isOptimisticAttachmentMatch(existing, confirmed)) {
+      return true;
+    }
+
+    final ageDiff =
+        existing.createdAt.difference(confirmed.createdAt).inSeconds;
+    return ageDiff.abs() <= 45;
+  }
+
+  List<Message> _collapseTransientAudioDuplicates(
+    List<Message> messages,
+    Message confirmedMessage, {
+    Message? optimisticMessage,
+  }) {
+    if (confirmedMessage.messageType != 'audio') {
+      return messages;
+    }
+
+    final collapsed = <Message>[];
+    var keptConfirmed = false;
+
+    for (final message in messages) {
+      final isConfirmedMessage = message.id == confirmedMessage.id;
+
+      if (isConfirmedMessage && !keptConfirmed) {
+        collapsed.add(message);
+        keptConfirmed = true;
+        continue;
+      }
+
+      if (_isStaleOptimisticAudio(message, confirmedMessage)) {
+        continue;
+      }
+
+      if (_isRenderableDuplicate(message, confirmedMessage)) {
+        if (!keptConfirmed) {
+          collapsed.add(
+            _mergeMessageWithReference(confirmedMessage, optimisticMessage),
+          );
+          keptConfirmed = true;
+        }
+        continue;
+      }
+
+      collapsed.add(message);
+    }
+
+    if (!keptConfirmed) {
+      collapsed.insert(
+        0,
+        _mergeMessageWithReference(confirmedMessage, optimisticMessage),
+      );
+    }
+
+    return collapsed;
+  }
+
+  String _normalizedText(String? value) => value?.trim().toLowerCase() ?? '';
+
+  Future<String?> _buildOptimisticVideoThumbnail(
+    String videoPath,
+    String uploadId,
+  ) async {
+    final file = File(videoPath);
+    if (!file.existsSync()) {
+      return null;
+    }
+
+    try {
+      return await VideoThumbnail.thumbnailFile(
+        video: videoPath,
+        imageFormat: ImageFormat.JPEG,
+        maxWidth: 320,
+        quality: 72,
+        thumbnailPath: Directory.systemTemp.path,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Map<String, dynamic>? _mergeAttachmentMetadata(
+    Map<String, dynamic>? baseMetadata,
+    Map<String, dynamic>? incomingMetadata,
+    String? localThumbnailCandidate,
+  ) {
+    final merged = <String, dynamic>{};
+
+    if (baseMetadata != null) {
+      merged.addAll(baseMetadata);
+    }
+
+    if (incomingMetadata != null) {
+      merged.addAll(incomingMetadata);
+    }
+
+    final candidate = localThumbnailCandidate?.trim() ?? '';
+    if (candidate.isNotEmpty && File(candidate).existsSync()) {
+      merged[_localThumbnailMetadataKey] = candidate;
+    } else if (!merged.containsKey(_localThumbnailMetadataKey)) {
+      merged.remove(_localThumbnailMetadataKey);
+    }
+
+    return merged.isEmpty ? null : merged;
   }
 
   /// Merges a fresh message page with the existing thread while skipping
@@ -2145,9 +3383,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       }
     }
 
-    // Insert the new page on top of the existing timeline.
+    // Keep the richer copy when the same message arrives again from another
+    // source such as pagination, refresh, or websocket reconciliation.
     for (final msg in newMessages) {
-      messageMap[msg.id] = msg;
+      final existingMessage = messageMap[msg.id];
+      messageMap[msg.id] = existingMessage == null
+          ? msg
+          : _pickRicherMessage(existingMessage, msg);
     }
 
     // Keep the newest message first in the rendered list.
@@ -2155,6 +3397,137 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     return merged;
+  }
+
+  Message _pickRicherMessage(Message current, Message incoming) {
+    final merged = _mergeMessageWithReference(incoming, current);
+    final currentScore = _messageRichnessScore(current);
+    final incomingScore = _messageRichnessScore(merged);
+
+    if (_messageStatusRank(merged.status) >
+        _messageStatusRank(current.status)) {
+      return merged;
+    }
+
+    final mergedReceipt = merged.deliveryReceipt;
+    final currentReceipt = current.deliveryReceipt;
+    if (mergedReceipt?.readAt != null && currentReceipt?.readAt == null) {
+      return merged;
+    }
+
+    if (mergedReceipt?.deliveredAt != null &&
+        currentReceipt?.deliveredAt == null) {
+      return merged;
+    }
+
+    if (incomingScore > currentScore) {
+      return merged;
+    }
+
+    if (incoming.updatedAt.isAfter(current.updatedAt)) {
+      return merged;
+    }
+
+    return current;
+  }
+
+  int _messageRichnessScore(Message message) {
+    var score = 0;
+
+    if ((message.content?.trim().isNotEmpty ?? false)) {
+      score += 2;
+    }
+
+    if (message.location != null) {
+      score += 2;
+    }
+
+    score += _messageStatusRank(message.status) * 2;
+
+    final receipt = message.deliveryReceipt;
+    if (receipt?.deliveredAt != null) {
+      score += 2;
+    }
+
+    if (receipt?.readAt != null) {
+      score += 4;
+    }
+
+    if (message.attachments.isNotEmpty) {
+      score += message.attachments.length * 4;
+    }
+
+    for (final attachment in message.attachments) {
+      if (attachment.thumbnailUrl?.trim().isNotEmpty ?? false) {
+        score += 5;
+      }
+
+      final localThumbnailPath =
+          attachment.metadata?[_localThumbnailMetadataKey];
+      if (localThumbnailPath is String &&
+          localThumbnailPath.trim().isNotEmpty) {
+        score += 4;
+      }
+
+      if (attachment.fileUrl.trim().isNotEmpty) {
+        score += 2;
+      }
+
+      if (attachment.filePath.trim().isNotEmpty) {
+        score += 1;
+      }
+
+      if ((attachment.duration ?? 0) > 0) {
+        score += 1;
+      }
+    }
+
+    return score;
+  }
+
+  int _messageStatusRank(String? status) {
+    switch (_normalizedText(status)) {
+      case 'read':
+        return 3;
+      case 'delivered':
+        return 2;
+      case 'sent':
+        return 1;
+      default:
+        return 0;
+    }
+  }
+
+  String _pickPreferredStatus(String incomingStatus, String referenceStatus) {
+    final incomingRank = _messageStatusRank(incomingStatus);
+    final referenceRank = _messageStatusRank(referenceStatus);
+
+    if (incomingRank > referenceRank) {
+      return incomingStatus;
+    }
+
+    if (referenceRank > incomingRank) {
+      return referenceStatus;
+    }
+
+    return incomingStatus.trim().isNotEmpty ? incomingStatus : referenceStatus;
+  }
+
+  DeliveryReceipt? _mergeDeliveryReceipt(
+    DeliveryReceipt? incoming,
+    DeliveryReceipt? reference,
+  ) {
+    if (incoming == null) return reference;
+    if (reference == null) return incoming;
+
+    return DeliveryReceipt(
+      deliveredAt: incoming.deliveredAt ?? reference.deliveredAt,
+      readAt: incoming.readAt ?? reference.readAt,
+      readBy: <String>{
+        ...reference.readBy.where((id) => id.trim().isNotEmpty),
+        ...incoming.readBy.where((id) => id.trim().isNotEmpty),
+      }.toList(),
+    );
   }
 
   /// Adds or removes a reaction from a message and returns updated threads.
@@ -2215,7 +3588,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   /// context.
   Future<String> _tr(
     String key, {
-    String? fallback,
     Map<String, Object?> params = const {},
   }) {
     return AppLocalizations.translate(
@@ -2223,6 +3595,95 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       locale: LocaleManager.getCurrentLocale(),
       params: params,
     );
+  }
+
+  /// Resolves the current user id for optimistic rendering even when the
+  /// send action fires before the bloc has fully hydrated its user context.
+  Future<String> _resolveCurrentUserId(
+    String? eventCurrentUserId,
+    ChatLoaded currentState,
+  ) async {
+    final explicit = eventCurrentUserId?.trim();
+    if (explicit != null && explicit.isNotEmpty) {
+      return explicit;
+    }
+
+    final hydrated = currentState.currentUserId?.trim();
+    if (hydrated != null && hydrated.isNotEmpty) {
+      return hydrated;
+    }
+
+    final currentUserResult = await getCurrentUserUseCase(NoParams());
+    String resolved = '';
+    await currentUserResult.fold(
+      (_) async {},
+      (user) async => resolved = user.userId,
+    );
+    return resolved;
+  }
+
+  /// Resolves the current user display name so optimistic bubbles look like
+  /// final messages instead of anonymous placeholders.
+  Future<String?> _resolveCurrentUserName(ChatLoaded currentState) async {
+    final hydrated = currentState.currentUserName?.trim();
+    if (hydrated != null && hydrated.isNotEmpty) {
+      return hydrated;
+    }
+
+    final currentUserResult = await getCurrentUserUseCase(NoParams());
+    String? resolved;
+    await currentUserResult.fold(
+      (_) async {},
+      (user) async => resolved = user.name,
+    );
+    return resolved;
+  }
+
+  /// Marks one optimistic message as failed while preserving its local media
+  /// preview so the user can understand what failed to send.
+  Future<void> _markOptimisticMessageFailed(
+    Emitter<ChatState> emit, {
+    required Message optimisticMessage,
+    required ChatLoaded currentState,
+    required String failureReason,
+  }) async {
+    final failedMessages =
+        Map<String, List<Message>>.from(currentState.messages);
+    final messages = failedMessages[optimisticMessage.conversationId] ?? [];
+
+    final updatedMessagesList = messages.map((msg) {
+      if (msg.id == optimisticMessage.id) {
+        return Message(
+          id: msg.id,
+          conversationId: msg.conversationId,
+          senderId: msg.senderId,
+          senderName: msg.senderName,
+          messageType: msg.messageType,
+          content: msg.content,
+          location: msg.location,
+          replyToMessageId: msg.replyToMessageId,
+          attachments: msg.attachments,
+          reactions: msg.reactions,
+          createdAt: msg.createdAt,
+          updatedAt: msg.updatedAt,
+          status: 'failed',
+          isEdited: msg.isEdited,
+          isDeleted: msg.isDeleted,
+          deliveryReceipt: msg.deliveryReceipt,
+          failureReason: failureReason,
+        );
+      }
+      return msg;
+    }).toList();
+
+    failedMessages[optimisticMessage.conversationId] = updatedMessagesList;
+
+    emit(currentState.copyWith(
+      messages: failedMessages,
+      isSendingMessage: false,
+      sendingConversationId: null,
+      error: await _tr('chat.errors.messageSendFailed'),
+    ));
   }
 
   /// Maps repository failures to user-facing copy that the UI can display.

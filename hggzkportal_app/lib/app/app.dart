@@ -11,6 +11,10 @@ import 'package:hggzkportal/core/localization/locale_manager.dart';
 import 'package:hggzkportal/app/router/app_router.dart';
 import 'package:hggzkportal/core/bloc/app_bloc.dart';
 import 'package:hggzkportal/core/theme/app_theme.dart';
+import 'package:hggzkportal/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:hggzkportal/features/auth/presentation/bloc/auth_state.dart';
+import 'package:hggzkportal/features/chat/presentation/bloc/chat_bloc.dart';
+import 'package:hggzkportal/features/chat/presentation/providers/typing_indicator_provider.dart';
 import 'package:hggzkportal/services/message_service.dart';
 
 /// نقطة تركيب التطبيق العليا التي تجمع الـ blocs والـ router والـ theme.
@@ -26,37 +30,41 @@ class HggzkPortalApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // TypingIndicatorProvider removed; ChatBloc maintains typingUsers state
+        ChangeNotifierProvider(
+          create: (_) => TypingIndicatorProvider(),
+        ),
         ...AppBloc.providers,
       ],
       child: BlocBuilder<ThemeBloc, ThemeState>(
         bloc: AppBloc.theme,
         builder: (context, themeState) {
-          return BlocBuilder<LocaleCubit, Locale>(
-            bloc: AppBloc.locale,
-            builder: (context, localeState) {
-              return MaterialApp.router(
-                title: 'hggzkportal',
-                debugShowCheckedModeBanner: false,
-                theme: _buildAppTheme(Brightness.light),
-                darkTheme: _buildAppTheme(Brightness.dark),
-                themeMode: themeState.themeMode,
-                locale: localeState,
-                scaffoldMessengerKey: MessageService.scaffoldMessengerKey,
-                localizationsDelegates: const [
-                  AppLocalizations.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-                supportedLocales: LocaleManager.supportedLocales,
-                routerConfig: AppRouter.build(context),
-                builder: (context, child) {
-                  AppTheme.init(context, mode: themeState.themeMode);
-                  return child!;
-                },
-              );
-            },
+          return _ChatPresenceCoordinator(
+            child: BlocBuilder<LocaleCubit, Locale>(
+              bloc: AppBloc.locale,
+              builder: (context, localeState) {
+                return MaterialApp.router(
+                  title: 'hggzkportal',
+                  debugShowCheckedModeBanner: false,
+                  theme: _buildAppTheme(Brightness.light),
+                  darkTheme: _buildAppTheme(Brightness.dark),
+                  themeMode: themeState.themeMode,
+                  locale: localeState,
+                  scaffoldMessengerKey: MessageService.scaffoldMessengerKey,
+                  localizationsDelegates: const [
+                    AppLocalizations.delegate,
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                  ],
+                  supportedLocales: LocaleManager.supportedLocales,
+                  routerConfig: AppRouter.build(context),
+                  builder: (context, child) {
+                    AppTheme.init(context, mode: themeState.themeMode);
+                    return child!;
+                  },
+                );
+              },
+            ),
           );
         },
       ),
@@ -85,6 +93,91 @@ class HggzkPortalApp extends StatelessWidget {
     return base.copyWith(
       textTheme: textTheme,
       primaryTextTheme: textTheme,
+    );
+  }
+}
+
+class _ChatPresenceCoordinator extends StatefulWidget {
+  const _ChatPresenceCoordinator({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_ChatPresenceCoordinator> createState() =>
+      _ChatPresenceCoordinatorState();
+}
+
+class _ChatPresenceCoordinatorState extends State<_ChatPresenceCoordinator>
+    with WidgetsBindingObserver {
+  String? _lastPublishedStatus;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _publishPresenceForAuthState(AppBloc.authBloc.state, force: true);
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!_canPublishPresence(AppBloc.authBloc.state)) {
+      return;
+    }
+
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _publishPresence('online');
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        _publishPresence('offline');
+        break;
+    }
+  }
+
+  bool _canPublishPresence(AuthState state) {
+    return state is AuthAuthenticated ||
+        state is AuthLoginSuccess ||
+        state is AuthProfileUpdateSuccess ||
+        state is AuthProfileImageUploadSuccess;
+  }
+
+  void _publishPresenceForAuthState(AuthState state, {bool force = false}) {
+    if (_canPublishPresence(state)) {
+      _publishPresence('online', force: force);
+    } else {
+      _lastPublishedStatus = null;
+    }
+  }
+
+  void _publishPresence(String status, {bool force = false}) {
+    if (!force && _lastPublishedStatus == status) {
+      return;
+    }
+
+    _lastPublishedStatus = status;
+    AppBloc.chatBloc.add(UpdateUserStatusEvent(status: status));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<AuthBloc, AuthState>(
+      bloc: AppBloc.authBloc,
+      listener: (context, state) {
+        _publishPresenceForAuthState(state, force: true);
+      },
+      child: widget.child,
     );
   }
 }

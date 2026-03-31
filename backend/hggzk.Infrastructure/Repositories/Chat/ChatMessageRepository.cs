@@ -48,6 +48,7 @@ namespace YemenBooking.Infrastructure.Repositories.Chat
         public async Task<(IEnumerable<ChatMessage> Items, int TotalCount)> GetMessagesByConversationAsync(Guid conversationId, int page, int pageSize, string? beforeMessageId = null, CancellationToken cancellationToken = default)
         {
             var query = _context.Set<ChatMessage>()
+                .AsSplitQuery()
                 .Include(m => m.Reactions)
                 .Include(m => m.Attachments)
                 .Where(m => m.ConversationId == conversationId);

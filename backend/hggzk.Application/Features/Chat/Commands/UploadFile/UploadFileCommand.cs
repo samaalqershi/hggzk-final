@@ -39,5 +39,11 @@ namespace YemenBooking.Application.Features.Chat.Commands.UploadFile
         /// Conversation identifier associated with the attachment.
         /// </summary>
         public Guid ConversationId { get; set; }
+
+        /// <summary>
+        /// مدة المرفق الصوتي القادمة من العميل عندما تكون معروفة.
+        /// Client-reported audio duration when the recorder already knows it.
+        /// </summary>
+        public int? DurationSeconds { get; set; }
     }
 }

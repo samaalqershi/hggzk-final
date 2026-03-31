@@ -24,6 +24,8 @@ using YemenBooking.Application.Features.Chat.DTOs;
         private readonly IMapper _mapper;
         private readonly IFirebaseService _firebaseService;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IChatRealtimeNotifier _chatRealtimeNotifier;
+        private readonly IChatSettingsRepository _chatSettingsRepository;
  
         /// <summary>
         /// يهيئ مثيلاً جديدًا من المعالج.
@@ -34,13 +36,17 @@ using YemenBooking.Application.Features.Chat.DTOs;
             IChatConversationRepository conversationRepo,
             IMapper mapper,
             IFirebaseService firebaseService,
-            ICurrentUserService currentUserService)
+            ICurrentUserService currentUserService,
+            IChatRealtimeNotifier chatRealtimeNotifier,
+            IChatSettingsRepository chatSettingsRepository)
         {
             _messageRepo = messageRepo;
             _conversationRepo = conversationRepo;
             _mapper = mapper;
             _firebaseService = firebaseService;
             _currentUserService = currentUserService;
+            _chatRealtimeNotifier = chatRealtimeNotifier;
+            _chatSettingsRepository = chatSettingsRepository;
         }
  
     /// <summary>
@@ -74,14 +80,43 @@ using YemenBooking.Application.Features.Chat.DTOs;
             {
                 foreach (var participant in conversation.Participants.Where(p => p.Id != message.SenderId))
                 {
-                    await _firebaseService.SendNotificationAsync($"user_{participant.Id}", "تم تعديل رسالة", dto.Content ?? string.Empty, new System.Collections.Generic.Dictionary<string, string>
+                    var participantSettings = await _chatSettingsRepository.GetByUserIdAsync(participant.Id, cancellationToken);
+                    if (!(participantSettings?.NotificationsEnabled ?? true))
+                    {
+                        continue;
+                    }
+
+                    var payload = new System.Collections.Generic.Dictionary<string, string>
                     {
                         { "type", "message_updated" },
                         { "conversation_id", message.ConversationId.ToString() },
                         { "message_id", message.Id.ToString() }
-                    }, cancellationToken);
+                    };
+
+                    if (!(participantSettings?.SoundEnabled ?? true))
+                    {
+                        payload["channel_id"] = "hggzk_chat_silent";
+                        payload["sound_enabled"] = "false";
+                    }
+
+                    await _firebaseService.SendNotificationAsync(
+                        $"user_{participant.Id}",
+                        "تم تعديل رسالة",
+                        dto.Content ?? string.Empty,
+                        payload,
+                        cancellationToken);
                 }
             }
+            await _chatRealtimeNotifier.NotifyMessageUpdatedAsync(
+                message.ConversationId,
+                dto,
+                message.SenderId,
+                cancellationToken);
+            await _chatRealtimeNotifier.NotifyConversationUpdatedAsync(
+                message.ConversationId,
+                "message_edited",
+                message.SenderId,
+                cancellationToken);
             return ResultDto<ChatMessageDto>.Ok(dto, "تم تعديل المحتوى بنجاح");
         }
     }

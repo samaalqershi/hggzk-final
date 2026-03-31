@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text.Json;
 using AutoMapper;
 using YemenBooking.Application.Common.Models;
 using YemenBooking.Application.Features.Amenities;
@@ -265,6 +266,7 @@ namespace YemenBooking.Application.Mappings
 
             // Updated chat message mapping with status, edit info, and delivery receipt
             CreateMap<ChatMessage, ChatMessageDto>()
+                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => DeserializeChatLocation(src.LocationJson)))
                 .ForMember(dest => dest.Reactions, opt => opt.MapFrom(src => src.Reactions))
                 .ForMember(dest => dest.Attachments, opt => opt.MapFrom(src => src.Attachments))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
@@ -292,6 +294,7 @@ namespace YemenBooking.Application.Mappings
 
             // Chat attachment mapping
             CreateMap<ChatAttachment, ChatAttachmentDto>()
+                .ForMember(dest => dest.ThumbnailUrl, opt => opt.MapFrom(src => NormalizeChatAttachmentUrl(src.ThumbnailUrl)))
                 .ForMember(dest => dest.DurationSeconds, opt => opt.MapFrom(src => src.DurationSeconds))
                 .ForMember(dest => dest.MessageId, opt => opt.MapFrom(src => src.MessageId));
 
@@ -318,6 +321,52 @@ namespace YemenBooking.Application.Mappings
             if (normalized.Any(r => r.Contains("owner"))) return "Owner";
             if (normalized.Any(r => r.Contains("receptionist") || r.Contains("manager") || r.Contains("staff"))) return "Staff";
             return "Client";
+        }
+
+        private static LocationDto? DeserializeChatLocation(string? locationJson)
+        {
+            if (string.IsNullOrWhiteSpace(locationJson))
+            {
+                return null;
+            }
+
+            try
+            {
+                return JsonSerializer.Deserialize<LocationDto>(
+                    locationJson,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static string? NormalizeChatAttachmentUrl(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+
+            var normalized = value.Replace('\\', '/');
+            const string uploadsMarker = "/Uploads/";
+            var uploadsIndex = normalized.IndexOf(uploadsMarker, StringComparison.OrdinalIgnoreCase);
+            if (uploadsIndex >= 0)
+            {
+                var relative = normalized.Substring(uploadsIndex + uploadsMarker.Length).TrimStart('/');
+                return $"/uploads/{relative}";
+            }
+
+            if (normalized.StartsWith("Uploads/", StringComparison.OrdinalIgnoreCase))
+            {
+                return $"/uploads/{normalized.Substring("Uploads/".Length)}";
+            }
+
+            return normalized;
         }
     }
 }

@@ -4,6 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using FirebaseAdmin.Messaging;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using YemenBooking.Core.Settings;
 
 namespace YemenBooking.Infrastructure.Services.Notifications
 {
@@ -14,16 +16,32 @@ namespace YemenBooking.Infrastructure.Services.Notifications
     public class FirebaseService : IFirebaseService
     {
         private static readonly TimeSpan NotificationTimeout = TimeSpan.FromSeconds(3);
+        private static readonly HashSet<string> ChatRealtimeTypes = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "new_message",
+            "message_updated",
+            "message_deleted",
+            "message_status_updated",
+            "reaction_added",
+            "reaction_removed",
+            "conversation_created",
+            "conversation_updated",
+            "user_status_changed"
+        };
 
         private readonly ILogger<FirebaseService> _logger;
+        private readonly ChatMessagingSettings _chatMessagingSettings;
 
         /// <summary>
         /// ينشئ مثيلًا جديدًا من خدمة Firebase.
         /// Creates a new instance of the Firebase service.
         /// </summary>
-        public FirebaseService(ILogger<FirebaseService> logger)
+        public FirebaseService(
+            ILogger<FirebaseService> logger,
+            IOptions<ChatMessagingSettings> chatMessagingSettings)
         {
             _logger = logger;
+            _chatMessagingSettings = chatMessagingSettings.Value;
         }
 
         /// <summary>
@@ -34,6 +52,30 @@ namespace YemenBooking.Infrastructure.Services.Notifications
         {
             try
             {
+                var payload = data != null
+                    ? new Dictionary<string, string>(data, StringComparer.Ordinal)
+                    : null;
+                var isChatRealtimePayload = IsChatRealtimePayload(payload);
+
+                if (isChatRealtimePayload && !_chatMessagingSettings.IsFcmEnabled)
+                {
+                    _logger.LogInformation(
+                        "تم تجاوز إرسال FCM للشات بسبب الإعدادات. Target={Target}, Type={Type}",
+                        topicOrToken,
+                        payload != null && payload.TryGetValue("type", out var typeValue) ? typeValue : null);
+                    return true;
+                }
+
+                if (isChatRealtimePayload &&
+                    IsIncomingChatMessagePayload(payload) &&
+                    !_chatMessagingSettings.EnableMessagePushNotifications)
+                {
+                    payload ??= new Dictionary<string, string>(StringComparer.Ordinal);
+                    payload["silent"] = "true";
+                    title = string.Empty;
+                    body = string.Empty;
+                }
+
                 // Determine if we are sending to a topic or a token
                 // Treat the following as topics:
                 // - Strings starting with "/topics/" or "topic:"
@@ -81,7 +123,7 @@ namespace YemenBooking.Infrastructure.Services.Notifications
 
                 // Determine if this is a silent (data-only) push
                 bool isSilent = false;
-                if (data != null && data.TryGetValue("silent", out var silentFlag))
+                if (payload != null && payload.TryGetValue("silent", out var silentFlag))
                 {
                     if (string.Equals(silentFlag, "true", StringComparison.OrdinalIgnoreCase))
                     {
@@ -93,13 +135,29 @@ namespace YemenBooking.Infrastructure.Services.Notifications
                     isSilent = true;
                 }
 
+                var channelId = "hggzk_channel";
+                if (payload != null &&
+                    payload.TryGetValue("channel_id", out var customChannelId) &&
+                    !string.IsNullOrWhiteSpace(customChannelId))
+                {
+                    channelId = customChannelId;
+                }
+
+                var shouldPlaySound = !isSilent;
+                if (payload != null &&
+                    payload.TryGetValue("sound_enabled", out var soundEnabledValue) &&
+                    string.Equals(soundEnabledValue, "false", StringComparison.OrdinalIgnoreCase))
+                {
+                    shouldPlaySound = false;
+                }
+
                 var androidConfig = new AndroidConfig
                 {
                     Priority = Priority.High,
                     Notification = isSilent ? null : new AndroidNotification
                     {
                         // Must match app's AndroidNotificationDetails channel id
-                        ChannelId = "hggzk_channel",
+                        ChannelId = channelId,
                     },
                 };
 
@@ -119,7 +177,7 @@ namespace YemenBooking.Infrastructure.Services.Notifications
                                 Title = title,
                                 Body = body
                             },
-                            Sound = "default",
+                            Sound = shouldPlaySound ? "default" : null,
                         },
                     Headers = new Dictionary<string, string>
                     {
@@ -136,7 +194,7 @@ namespace YemenBooking.Infrastructure.Services.Notifications
                         Body = body
                     },
                     // Ensure a stable payload for deduplication on client-side
-                    Data = BuildDataPayload(data, title, body),
+                    Data = BuildDataPayload(payload, title, body),
                     Android = androidConfig,
                     Apns = apnsConfig,
                 };
@@ -206,6 +264,21 @@ namespace YemenBooking.Infrastructure.Services.Notifications
                 }
             }
             return dict;
+        }
+
+        private static bool IsChatRealtimePayload(IReadOnlyDictionary<string, string>? data)
+        {
+            return data != null &&
+                   data.TryGetValue("type", out var type) &&
+                   !string.IsNullOrWhiteSpace(type) &&
+                   ChatRealtimeTypes.Contains(type);
+        }
+
+        private static bool IsIncomingChatMessagePayload(IReadOnlyDictionary<string, string>? data)
+        {
+            return data != null &&
+                   data.TryGetValue("type", out var type) &&
+                   string.Equals(type, "new_message", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

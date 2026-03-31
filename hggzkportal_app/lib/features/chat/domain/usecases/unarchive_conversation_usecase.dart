@@ -4,39 +4,31 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/chat_repository.dart';
 
-/// يعرّف الكلاس `UnarchiveConversationUseCase`.
-/// Describes the `UnarchiveConversationUseCase` class.
+/// العربية: ينفذ حالة الاستخدام `UnarchiveConversationUseCase`.
 class UnarchiveConversationUseCase
     implements UseCase<void, UnarchiveConversationParams> {
-  /// يخزن العضو `repository`.
-  /// Holds the `repository` member.
+  /// العربية: يخزن القيمة `repository`.
   final ChatRepository repository;
 
-  /// ينشئ مثيلاً من `UnarchiveConversationUseCase`.
-  /// Builds an instance of `UnarchiveConversationUseCase`.
+  /// العربية: ينشئ مثيلًا جديدًا من `UnarchiveConversationUseCase`.
   UnarchiveConversationUseCase(this.repository);
 
-  /// ينفذ العملية `call`.
-  /// Runs the `call` operation.
+  /// العربية: ينفذ السلوك الرئيسي الذي يقدمه هذا الكائن القابل للاستدعاء.
   @override
   Future<Either<Failure, void>> call(UnarchiveConversationParams params) async {
     return await repository.unarchiveConversation(params.conversationId);
   }
 }
 
-/// يعرّف الكلاس `UnarchiveConversationParams`.
-/// Describes the `UnarchiveConversationParams` class.
+/// العربية: يمثل `UnarchiveConversationParams`.
 class UnarchiveConversationParams extends Equatable {
-  /// Holds the `conversationId` value.
   /// العربية: يخزن القيمة `conversationId`.
   final String conversationId;
 
-  /// ينشئ مثيلاً من `UnarchiveConversationParams`.
-  /// Builds an instance of `UnarchiveConversationParams`.
+  /// العربية: ينشئ مثيلًا جديدًا من `UnarchiveConversationParams`.
   const UnarchiveConversationParams({required this.conversationId});
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object> get props => [conversationId];
 }

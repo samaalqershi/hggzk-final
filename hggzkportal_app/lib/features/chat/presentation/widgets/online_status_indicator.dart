@@ -1,27 +1,21 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 
-/// يعرّف الكلاس `OnlineStatusIndicator`.
-/// Describes the `OnlineStatusIndicator` class.
+/// Small presence dot with optional pulse for active users.
 class OnlineStatusIndicator extends StatefulWidget {
-  /// Indicates whether `isOnline` is enabled.
-  /// العربية: يحدد ما إذا كانت القيمة `isOnline` مفعلة.
+  /// Indicates whether the user is currently online.
   final bool isOnline;
 
-  /// يخزن العضو `size`.
-  /// Holds the `size` member.
+  /// Controls the rendered diameter of the indicator.
   final double size;
 
-  /// يخزن العضو `showBorder`.
-  /// Holds the `showBorder` member.
+  /// Adds a thin border that separates the dot from the background.
   final bool showBorder;
 
-  /// يخزن العضو `animate`.
-  /// Holds the `animate` member.
+  /// Enables the soft pulse when the user is online.
   final bool animate;
 
-  /// ينشئ مثيلاً من `OnlineStatusIndicator`.
-  /// Builds an instance of `OnlineStatusIndicator`.
+  /// Builds a presence indicator that can pulse when online.
   const OnlineStatusIndicator({
     super.key,
     required this.isOnline,
@@ -30,26 +24,21 @@ class OnlineStatusIndicator extends StatefulWidget {
     this.animate = true,
   });
 
-  /// ينفذ العملية `createState`.
-  /// Runs the `createState` operation.
+  /// Creates the animation state for the pulse effect.
   @override
   State<OnlineStatusIndicator> createState() => _OnlineStatusIndicatorState();
 }
 
-/// يعرّف الكلاس `_OnlineStatusIndicatorState`.
-/// Describes the `_OnlineStatusIndicatorState` class.
+/// Manages the repeating pulse animation for the online dot.
 class _OnlineStatusIndicatorState extends State<OnlineStatusIndicator>
     with SingleTickerProviderStateMixin {
-  /// يخزن العضو `_controller`.
-  /// Holds the `_controller` member.
+  /// Drives the pulse animation.
   late AnimationController _controller;
 
-  /// يخزن العضو `_pulseAnimation`.
-  /// Holds the `_pulseAnimation` member.
+  /// Expands and fades the halo around the indicator.
   late Animation<double> _pulseAnimation;
 
-  /// ينفذ العملية `initState`.
-  /// Runs the `initState` operation.
+  /// Starts the pulse only when the widget should animate.
   @override
   void initState() {
     super.initState();
@@ -71,8 +60,7 @@ class _OnlineStatusIndicatorState extends State<OnlineStatusIndicator>
     }
   }
 
-  /// ينفذ العملية `didUpdateWidget`.
-  /// Runs the `didUpdateWidget` operation.
+  /// Starts or stops the pulse when the online state changes.
   @override
   void didUpdateWidget(OnlineStatusIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -85,16 +73,14 @@ class _OnlineStatusIndicatorState extends State<OnlineStatusIndicator>
     }
   }
 
-  /// ينفذ العملية `dispose`.
-  /// Runs the `dispose` operation.
+  /// Releases the pulse animation controller.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// Builds the indicator and its optional pulse halo.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -109,8 +95,8 @@ class _OnlineStatusIndicatorState extends State<OnlineStatusIndicator>
                 width: widget.size + 6 * _pulseAnimation.value,
                 height: widget.size + 6 * _pulseAnimation.value,
                 decoration: BoxDecoration(
-                  color: AppTheme.success.withValues(
-                    alpha: 0.3 * (1 - _pulseAnimation.value),
+                  color: AppTheme.success.withOpacity(
+                    0.3 * (1 - _pulseAnimation.value),
                   ),
                   shape: BoxShape.circle,
                 ),
@@ -129,7 +115,7 @@ class _OnlineStatusIndicatorState extends State<OnlineStatusIndicator>
                       )
                     : null,
                 color: !widget.isOnline
-                    ? AppTheme.textMuted.withValues(alpha: 0.3)
+                    ? AppTheme.textMuted.withOpacity(0.3)
                     : null,
                 shape: BoxShape.circle,
                 border: widget.showBorder
@@ -141,7 +127,7 @@ class _OnlineStatusIndicatorState extends State<OnlineStatusIndicator>
                 boxShadow: widget.isOnline
                     ? [
                         BoxShadow(
-                          color: AppTheme.success.withValues(alpha: 0.4),
+                          color: AppTheme.success.withOpacity(0.4),
                           blurRadius: 4,
                           spreadRadius: 0.5,
                         ),

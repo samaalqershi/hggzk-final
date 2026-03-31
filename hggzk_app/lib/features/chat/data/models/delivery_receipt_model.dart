@@ -1,4 +1,4 @@
-import 'package:hggzk/features/chat/domain/entities/message.dart';
+import '../../domain/entities/message.dart';
 
 /// العربية: يمثل نموذج البيانات `DeliveryReceiptModel`.
 class DeliveryReceiptModel extends DeliveryReceipt {

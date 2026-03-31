@@ -9,6 +9,7 @@ import 'package:hggzkportal/core/bloc/locale/locale_cubit.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_event.dart';
 import '../../features/settings/presentation/bloc/settings_bloc.dart';
+import '../../services/notification_service.dart';
 // Removed notifications, payment
 
 // Feature Blocs
@@ -76,7 +77,7 @@ class AppBloc {
       editMessageUseCase: sl(),
       addReactionUseCase: sl(),
       removeReactionUseCase: sl(),
-      markMessagesAsReadUseCase: sl(),
+      markAsReadUseCase: sl(),
       uploadAttachmentUseCase: sl(),
       searchChatsUseCase: sl(),
       getAvailableUsersUseCase: sl(),
@@ -84,11 +85,14 @@ class AppBloc {
       updateUserStatusUseCase: sl(),
       getChatSettingsUseCase: sl(),
       updateChatSettingsUseCase: sl(),
-      sendTypingIndicatorUseCase: sl(),
       getCurrentUserUseCase: sl(),
       webSocketService: sl(),
-      mediaPipeline: sl(),
+      localStorageService: sl(),
     );
+    try {
+      sl<NotificationService>()
+          .bindChatEventSink((event) => chatBloc.add(event));
+    } catch (_) {}
   }
 
   /// Exposes the blocs to the widget tree through a stable provider list.

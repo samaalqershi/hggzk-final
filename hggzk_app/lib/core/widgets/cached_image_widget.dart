@@ -59,6 +59,10 @@ class CachedImageWidget extends StatelessWidget {
   /// Tint color applied when the image needs a consistent overlay.
   final Color? color;
 
+  /// Optional request headers used by protected media endpoints.
+  /// ترويسات طلب اختيارية تستخدم مع مسارات الوسائط المحمية.
+  final Map<String, String>? httpHeaders;
+
   /// ينشئ الصورة المخزنة مع placeholder وerror state قابلين للتخصيص.
   /// Creates the cached image with customizable loading and error fallbacks.
   const CachedImageWidget({
@@ -76,6 +80,7 @@ class CachedImageWidget extends StatelessWidget {
     this.gradient,
     this.colorBlendMode,
     this.color,
+    this.httpHeaders,
   });
 
   /// يبني الحاوية التي تجمع الصورة مع بدائلها البصرية في مكان واحد.
@@ -103,6 +108,7 @@ class CachedImageWidget extends StatelessWidget {
                 }
                 return CachedNetworkImage(
                   imageUrl: resolvedUrl,
+                  httpHeaders: httpHeaders,
                   fit: fit,
                   width: width,
                   height: height,

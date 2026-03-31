@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hggzk/features/chat/presentation/widgets/online_status_indicator.dart';
-import 'dart:ui';
+import 'online_status_indicator.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/conversation.dart';
+import '../utils/chat_presence_presentation.dart';
 
 /// Compact row used to render one chat participant in lists and sheets.
 class ParticipantItemWidget extends StatelessWidget {
@@ -78,6 +77,9 @@ class ParticipantItemWidget extends StatelessWidget {
 
   /// Builds the avatar area with online badge when applicable.
   Widget _buildCompactAvatar() {
+    final hasImage = participant.profileImage != null &&
+        participant.profileImage!.trim().isNotEmpty;
+
     return Stack(
       children: [
         Container(
@@ -98,7 +100,7 @@ class ParticipantItemWidget extends StatelessWidget {
               width: 0.5,
             ),
           ),
-          child: participant.profileImage != null
+          child: hasImage
               ? ClipOval(
                   child: CachedImageWidget(
                     imageUrl: participant.profileImage!,
@@ -206,16 +208,15 @@ class ParticipantItemWidget extends StatelessWidget {
     Color statusColor;
 
     if (participant.isOnline) {
-      statusText = context.tr(
-        'chat.participant.onlineNow',
-      );
+      statusText = ChatPresencePresentation.onlineNow(context);
       statusColor = AppTheme.success;
     } else if (participant.lastSeen != null) {
-      final lastSeen = _formatLastSeen(context, participant.lastSeen!);
-      statusText = context.tr(
-        'chat.participant.lastSeen',
-        params: {'value': lastSeen},
-      );
+      statusText = ChatPresencePresentation.presenceLabel(
+            context,
+            isOnline: false,
+            lastSeen: participant.lastSeen,
+          ) ??
+          '';
       statusColor = AppTheme.textMuted.withOpacity(0.6);
     } else {
       return const SizedBox.shrink();
@@ -270,29 +271,4 @@ class ParticipantItemWidget extends StatelessWidget {
   }
 
   /// العربية: ينسق last seen.
-  String _formatLastSeen(BuildContext context, DateTime lastSeen) {
-    final now = DateTime.now();
-    final difference = now.difference(lastSeen);
-
-    if (difference.inMinutes < 1) {
-      return context.tr('chat.participant.now');
-    } else if (difference.inMinutes < 60) {
-      return context.tr(
-        'chat.participant.minuteAgo',
-        params: {'value': difference.inMinutes},
-      );
-    } else if (difference.inHours < 24) {
-      return context.tr(
-        'chat.participant.hourAgo',
-        params: {'value': difference.inHours},
-      );
-    } else if (difference.inDays == 1) {
-      return context.tr('chat.thread.yesterday');
-    } else {
-      return context.tr(
-        'chat.participant.dayAgo',
-        params: {'value': difference.inDays},
-      );
-    }
-  }
 }

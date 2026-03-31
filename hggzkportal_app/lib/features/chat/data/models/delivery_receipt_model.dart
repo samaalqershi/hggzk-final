@@ -1,9 +1,7 @@
-import 'package:hggzkportal/features/chat/domain/entities/message.dart';
+import '../../domain/entities/message.dart';
 
-/// يعرّف الكلاس `DeliveryReceiptModel`.
-/// Describes the `DeliveryReceiptModel` class.
+/// العربية: يمثل نموذج البيانات `DeliveryReceiptModel`.
 class DeliveryReceiptModel extends DeliveryReceipt {
-  /// Initializes a new `DeliveryReceiptModel` instance.
   /// العربية: ينشئ مثيلًا جديدًا من `DeliveryReceiptModel`.
   const DeliveryReceiptModel({
     super.deliveredAt,
@@ -11,8 +9,7 @@ class DeliveryReceiptModel extends DeliveryReceipt {
     super.readBy,
   });
 
-  /// ينشئ مثيلاً من `DeliveryReceiptModel`.
-  /// Builds an instance of `DeliveryReceiptModel`.
+  /// العربية: ينشئ مثيلًا جديدًا من `DeliveryReceiptModel.fromJson`.
   factory DeliveryReceiptModel.fromJson(Map<String, dynamic> json) {
     return DeliveryReceiptModel(
       deliveredAt: json['deliveredAt'] != null || json['delivered_at'] != null
@@ -29,8 +26,7 @@ class DeliveryReceiptModel extends DeliveryReceipt {
     );
   }
 
-  /// ينفذ العملية `toJson`.
-  /// Runs the `toJson` operation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       if (deliveredAt != null) 'delivered_at': deliveredAt!.toIso8601String(),

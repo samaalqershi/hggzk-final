@@ -12,12 +12,20 @@ import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/localization/locale_manager.dart';
 import 'package:hggzk/core/network/api_client.dart';
 import 'package:hggzk/core/services/local_storage_service.dart';
+import 'package:hggzk/core/services/websocket_service.dart';
 import 'package:hggzk/features/auth/data/datasources/auth_local_datasource.dart';
+import 'package:hggzk/features/chat/domain/entities/message.dart';
+import 'package:hggzk/features/chat/presentation/bloc/chat_bloc.dart';
+import 'package:hggzk/app/dependency_injection/injection_container.dart' as di;
 import 'package:go_router/go_router.dart';
 
 /// يدير دورة الإشعارات كاملة: الأذونات، القنوات، FCM، والتعامل مع النقرات.
 /// Orchestrates the full notification lifecycle: permissions, channels, FCM, and tap handling.
 class NotificationService {
+  static const String _mainChatChannelId = 'hggzk_channel';
+  static const String _silentChatChannelId = 'hggzk_chat_silent';
+  static const String _scheduledChannelId = 'hggzk_scheduled';
+
   /// واجهة Firebase Messaging التي نستقبل عبرها الرموز والرسائل الجديدة.
   /// Firebase Messaging entry point used for tokens and incoming pushes.
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -35,6 +43,17 @@ class NotificationService {
   /// مصدر محلي نقرأ منه هوية المستخدم وأدواره للاشتراك في القنوات المناسبة.
   /// Local auth source used to resolve the current user and its topic subscriptions.
   final AuthLocalDataSource? _authLocalDataSource;
+
+  void Function(WebSocketMessageReceivedEvent event)? _chatEventSink;
+
+  void bindChatEventSink(
+      void Function(WebSocketMessageReceivedEvent event) sink) {
+    _chatEventSink = sink;
+  }
+
+  void unbindChatEventSink() {
+    _chatEventSink = null;
+  }
 
   /// يربط الخدمة باعتمادياتها مع إبقاء التنفيذ قابلاً للاختبار والاستبدال.
   /// Receives dependencies explicitly so the service stays testable and replaceable.
@@ -128,13 +147,26 @@ class NotificationService {
 
     // Android: create notification channels up front
     final androidChannel = AndroidNotificationChannel(
-      'hggzk_channel',
+      _mainChatChannelId,
       await _tr('core.notifications.channel.main.name'),
       description: await _tr('core.notifications.channel.main.description'),
       importance: Importance.high,
     );
+    final androidSilentChatChannel = AndroidNotificationChannel(
+      _silentChatChannelId,
+      await _tr(
+        'core.notifications.channel.main.name',
+        fallback: 'Chat notifications (silent)',
+      ),
+      description: await _tr(
+        'core.notifications.channel.main.description',
+        fallback: 'Silent chat notifications without sound',
+      ),
+      importance: Importance.high,
+      playSound: false,
+    );
     final androidScheduledChannel = AndroidNotificationChannel(
-      'hggzk_scheduled',
+      _scheduledChannelId,
       await _tr('core.notifications.channel.scheduled.name'),
       description:
           await _tr('core.notifications.channel.scheduled.description'),
@@ -144,6 +176,7 @@ class NotificationService {
         _localNotifications.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
     await androidPlugin?.createNotificationChannel(androidChannel);
+    await androidPlugin?.createNotificationChannel(androidSilentChatChannel);
     await androidPlugin?.createNotificationChannel(androidScheduledChannel);
   }
 
@@ -353,14 +386,144 @@ class NotificationService {
     final data = message.data;
     final type = (data['type'] ?? data['event_type'] ?? '').toString();
 
-    // Silent types (chat updates etc.)
-    if (type == 'new_message' ||
-        type == 'chat.new_message' ||
-        type == 'conversation_created' ||
-        type == 'reaction_added' ||
-        type == 'reaction_removed' ||
-        type == 'message_status_updated' ||
-        (data['silent']?.toString() == 'true')) {
+    if (type == 'new_message' || type == 'chat.new_message') {
+      final conversationId =
+          (data['conversation_id'] ?? data['conversationId'] ?? '').toString();
+      final messageId =
+          (data['message_id'] ?? data['messageId'] ?? '').toString();
+      final silent = (data['silent'] ?? '').toString() == 'true';
+
+      if (conversationId.isNotEmpty && messageId.isNotEmpty) {
+        try {
+          if (_chatEventSink != null) {
+            _chatEventSink!.call(WebSocketMessageReceivedEvent(
+              MessageEvent(
+                type: MessageEventType.newMessage,
+                conversationId: conversationId,
+                messageId: messageId,
+              ),
+            ));
+          } else {
+            di.sl<ChatWebSocketService>().emitNewMessageById(
+                  conversationId: conversationId,
+                  messageId: messageId,
+                );
+          }
+        } catch (e) {
+          debugPrint('Dispatch in-app chat update failed: $e');
+        }
+      }
+
+      if (silent) {
+        return;
+      }
+    }
+
+    if (type == 'conversation_created' || type == 'chat.conversation_created') {
+      final conversationId =
+          (data['conversation_id'] ?? data['conversationId'] ?? '').toString();
+      if (conversationId.isNotEmpty) {
+        try {
+          await di.sl<ChatWebSocketService>().emitConversationById(
+                conversationId: conversationId,
+              );
+        } catch (_) {}
+      }
+      return;
+    }
+
+    if (type == 'reaction_added' || type == 'reaction_removed') {
+      final conversationId =
+          (data['conversation_id'] ?? data['conversationId'] ?? '').toString();
+      final messageId =
+          (data['message_id'] ?? data['messageId'] ?? '').toString();
+      final userId = (data['user_id'] ?? data['userId'] ?? '').toString();
+      final reactionType =
+          (data['reaction_type'] ?? data['reactionType'] ?? '').toString();
+
+      if (conversationId.isNotEmpty &&
+          messageId.isNotEmpty &&
+          userId.isNotEmpty &&
+          reactionType.isNotEmpty) {
+        try {
+          final isAdded = type == 'reaction_added';
+          if (_chatEventSink != null) {
+            _chatEventSink!.call(WebSocketMessageReceivedEvent(
+              MessageEvent(
+                type: isAdded
+                    ? MessageEventType.reactionAdded
+                    : MessageEventType.reactionRemoved,
+                conversationId: conversationId,
+                messageId: messageId,
+                reaction: MessageReaction(
+                  id: 'temp_${DateTime.now().microsecondsSinceEpoch}',
+                  messageId: messageId,
+                  userId: userId,
+                  reactionType: reactionType,
+                ),
+              ),
+            ));
+          } else {
+            di.sl<ChatWebSocketService>().emitReactionUpdate(
+                  conversationId: conversationId,
+                  messageId: messageId,
+                  userId: userId,
+                  reactionType: reactionType,
+                  isAdded: isAdded,
+                );
+          }
+        } catch (e) {
+          debugPrint('Silent reaction update handling failed: $e');
+        }
+      }
+      return;
+    }
+
+    if (type == 'message_status_updated') {
+      final conversationId =
+          (data['conversation_id'] ?? data['conversationId'] ?? '').toString();
+      final messageId =
+          (data['message_id'] ?? data['messageId'] ?? '').toString();
+      final status = (data['status'] ?? '').toString();
+      final deliveredAt = DateTime.tryParse(
+        (data['delivered_at'] ?? data['deliveredAt'] ?? '').toString(),
+      );
+      final readAt = DateTime.tryParse(
+        (data['read_at'] ?? data['readAt'] ?? '').toString(),
+      );
+
+      if (conversationId.isNotEmpty &&
+          messageId.isNotEmpty &&
+          status.isNotEmpty) {
+        try {
+          if (_chatEventSink != null) {
+            _chatEventSink!.call(WebSocketMessageReceivedEvent(
+              MessageEvent(
+                type: MessageEventType.statusUpdated,
+                conversationId: conversationId,
+                messageId: messageId,
+                status: status,
+                deliveredAt: deliveredAt,
+                readAt: readAt,
+              ),
+            ));
+          } else {
+            di.sl<ChatWebSocketService>().emitMessageStatusUpdate(
+                  conversationId: conversationId,
+                  messageId: messageId,
+                  status: status,
+                  deliveredAt: deliveredAt,
+                  readAt: readAt,
+                );
+          }
+        } catch (e) {
+          debugPrint('Silent status update handling failed: $e');
+        }
+      }
+      return;
+    }
+
+    if ((data['silent']?.toString() == 'true')) {
       return;
     }
 
@@ -801,7 +964,7 @@ class NotificationService {
     Map<String, dynamic>? payload,
   }) async {
     final androidDetails = AndroidNotificationDetails(
-      'hggzk_scheduled',
+      _scheduledChannelId,
       await _tr('notifications.service.scheduledChannelName'),
       channelDescription:
           await _tr('notifications.service.scheduledChannelDescription'),

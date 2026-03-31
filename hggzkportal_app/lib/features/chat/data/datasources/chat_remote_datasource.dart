@@ -1,11 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:hggzkportal/features/chat/data/models/chat_settings_model.dart';
-import 'package:hggzkportal/features/chat/data/models/chat_user_model.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import '../../../../core/localization/app_localizations.dart';
+import '../models/chat_settings_model.dart';
+import '../models/chat_user_model.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exceptions.dart';
 import '../../../../core/error/exceptions.dart' hide ApiException;
-import '../../../../core/utils/media_file_safety.dart';
 import '../../../../core/utils/request_logger.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/repositories/chat_repository.dart';
@@ -13,11 +15,11 @@ import '../models/attachment_model.dart';
 import '../models/conversation_model.dart';
 import '../models/message_model.dart';
 
-/// يعرّف الكلاس المجرد `ChatRemoteDataSource`.
-/// Describes the abstract `ChatRemoteDataSource` class.
+/// Remote contract for chat conversations, messages, users, and settings.
+/// العقدة البعيدة للمحادثات والرسائل والمستخدمين والإعدادات.
 abstract class ChatRemoteDataSource {
-  /// Builds the conversation.
-  /// العربية: ينشئ conversation.
+  /// Creates a conversation on the server.
+  /// ينشئ محادثة على الخادم.
   Future<ConversationModel> createConversation({
     required List<String> participantIds,
     required String conversationType,
@@ -26,31 +28,31 @@ abstract class ChatRemoteDataSource {
     String? propertyId,
   });
 
-  /// ينفذ العملية `getConversations`.
-  /// Runs the `getConversations` operation.
+  /// Loads a page of conversations from the backend.
+  /// يحمل صفحة من المحادثات من الخادم.
   Future<List<ConversationModel>> getConversations({
     required int pageNumber,
     required int pageSize,
   });
 
-  /// ينفذ العملية `getConversationById`.
-  /// Runs the `getConversationById` operation.
+  /// Fetches one conversation snapshot by id.
+  /// يجلب لقطة محادثة واحدة بواسطة المعرّف.
   Future<ConversationModel> getConversationById(String conversationId);
 
-  /// ينفذ العملية `archiveConversation`.
-  /// Runs the `archiveConversation` operation.
+  /// Archives one conversation on the server.
+  /// يؤرشف محادثة واحدة على الخادم.
   Future<void> archiveConversation(String conversationId);
 
-  /// ينفذ العملية `unarchiveConversation`.
-  /// Runs the `unarchiveConversation` operation.
+  /// Restores an archived conversation on the server.
+  /// يعيد محادثة مؤرشفة على الخادم.
   Future<void> unarchiveConversation(String conversationId);
 
-  /// ينفذ العملية `deleteConversation`.
-  /// Runs the `deleteConversation` operation.
+  /// Deletes one conversation on the server.
+  /// يحذف محادثة واحدة على الخادم.
   Future<void> deleteConversation(String conversationId);
 
-  /// ينفذ العملية `getMessages`.
-  /// Runs the `getMessages` operation.
+  /// Loads a page of messages for one conversation.
+  /// يحمل صفحة من الرسائل لمحادثة واحدة.
   Future<List<MessageModel>> getMessages({
     required String conversationId,
     required int pageNumber,
@@ -58,8 +60,8 @@ abstract class ChatRemoteDataSource {
     String? beforeMessageId,
   });
 
-  /// ينفذ العملية `sendMessage`.
-  /// Runs the `sendMessage` operation.
+  /// Sends one outbound message.
+  /// يرسل رسالة واحدة صادرة.
   Future<MessageModel> sendMessage({
     required String conversationId,
     required String messageType,
@@ -69,57 +71,50 @@ abstract class ChatRemoteDataSource {
     List<String>? attachmentIds,
   });
 
-  /// ينفذ العملية `editMessage`.
-  /// Runs the `editMessage` operation.
+  /// Updates an existing message on the server.
+  /// يحدّث رسالة موجودة على الخادم.
   Future<MessageModel> editMessage({
     required String messageId,
     required String content,
   });
 
-  /// ينفذ العملية `deleteMessage`.
-  /// Runs the `deleteMessage` operation.
+  /// Deletes one message from the server.
+  /// يحذف رسالة واحدة من الخادم.
   Future<void> deleteMessage(String messageId);
 
-  /// ينفذ العملية `markAsRead`.
-  /// Runs the `markAsRead` operation.
+  /// Marks the provided messages as read.
+  /// يعلّم الرسائل المقدمة كمقروءة.
   Future<void> markAsRead({
     required String conversationId,
     required List<String> messageIds,
   });
 
-  /// ينفذ العملية `addReaction`.
-  /// Runs the `addReaction` operation.
+  /// Adds a reaction to a message on the server.
+  /// يضيف تفاعلًا إلى رسالة على الخادم.
   Future<void> addReaction({
     required String messageId,
     required String reactionType,
   });
 
-  /// ينفذ العملية `removeReaction`.
-  /// Runs the `removeReaction` operation.
+  /// Removes a reaction from a message on the server.
+  /// يزيل تفاعلًا من رسالة على الخادم.
   Future<void> removeReaction({
     required String messageId,
     required String reactionType,
   });
 
-  /// ينفذ العملية `updateMessageStatus`.
-  /// Runs the `updateMessageStatus` operation.
-  Future<void> updateMessageStatus({
-    required String messageId,
-    required String status,
-  });
-
-  /// ينفذ العملية `uploadAttachment`.
-  /// Runs the `uploadAttachment` operation.
+  /// Uploads one attachment for the given conversation.
+  /// يرفع مرفقًا واحدًا للمحادثة المحددة.
   Future<AttachmentModel> uploadAttachment({
     required String conversationId,
     required String filePath,
     required String messageType,
-    String? thumbnailPath,
+    int? durationSeconds,
     ProgressCallback? onSendProgress,
   });
 
-  /// ينفذ العملية `searchChats`.
-  /// Runs the `searchChats` operation.
+  /// Searches chats and messages on the backend.
+  /// يبحث في المحادثات والرسائل على الخادم.
   Future<SearchResult> searchChats({
     required String query,
     String? conversationId,
@@ -131,27 +126,27 @@ abstract class ChatRemoteDataSource {
     required int limit,
   });
 
-  /// ينفذ العملية `getAvailableUsers`.
-  /// Runs the `getAvailableUsers` operation.
+  /// Loads users that can join a conversation.
+  /// يحمل المستخدمين الذين يمكنهم الانضمام إلى محادثة.
   Future<List<ChatUserModel>> getAvailableUsers({
     String? userType,
     String? propertyId,
   });
 
-  /// ينفذ العملية `getAdminUsers`.
-  /// Runs the `getAdminUsers` operation.
+  /// Loads users with administrative permissions.
+  /// يحمل المستخدمين ذوي الصلاحيات الإدارية.
   Future<List<ChatUserModel>> getAdminUsers();
 
-  /// ينفذ العملية `updateUserStatus`.
-  /// Runs the `updateUserStatus` operation.
+  /// Updates the current user's presence status.
+  /// يحدّث حالة حضور المستخدم الحالي.
   Future<void> updateUserStatus(String status);
 
-  /// ينفذ العملية `getChatSettings`.
-  /// Runs the `getChatSettings` operation.
+  /// Loads the current chat preference snapshot.
+  /// يحمل لقطة تفضيلات الدردشة الحالية.
   Future<ChatSettingsModel> getChatSettings();
 
-  /// ينفذ العملية `updateChatSettings`.
-  /// Runs the `updateChatSettings` operation.
+  /// Persists one or more chat preferences.
+  /// يحفظ تفضيلًا واحدًا أو أكثر من تفضيلات الدردشة.
   Future<ChatSettingsModel> updateChatSettings({
     bool? notificationsEnabled,
     bool? soundEnabled,
@@ -164,19 +159,25 @@ abstract class ChatRemoteDataSource {
   });
 }
 
-/// يعرّف الكلاس `ChatRemoteDataSourceImpl`.
-/// Describes the `ChatRemoteDataSourceImpl` class.
+/// HTTP implementation of the chat remote data source.
+/// تنفيذ HTTP لمصدر بيانات الدردشة البعيد.
 class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
-  /// Holds the `apiClient` value.
-  /// العربية: يخزن القيمة `apiClient`.
+  /// Network client used for all chat API requests.
+  /// عميل الشبكة المستخدم لجميع طلبات واجهة الدردشة.
   final ApiClient apiClient;
 
-  /// ينشئ مثيلاً من `ChatRemoteDataSourceImpl`.
-  /// Builds an instance of `ChatRemoteDataSourceImpl`.
+  /// Builds the remote data source around the shared API client.
+  /// يبني مصدر البيانات البعيد حول عميل الـ API المشترك.
   ChatRemoteDataSourceImpl({required this.apiClient});
 
-  /// ينفذ العملية `createConversation`.
-  /// Runs the `createConversation` operation.
+  ServerException _unexpectedChatException() {
+    return ServerException(
+      AppLocalizations.translateSync('common.unexpectedError'),
+    );
+  }
+
+  /// Creates a conversation on the server and returns the new snapshot.
+  /// ينشئ محادثة على الخادم ويعيد اللقطة الجديدة.
   @override
   Future<ConversationModel> createConversation({
     required List<String> participantIds,
@@ -194,7 +195,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         .toList();
 
     if (cleanParticipantIds.isEmpty) {
-      throw const ServerException('قائمة المشاركين فارغة');
+      throw ServerException(
+          AppLocalizations.translateSync('chat.errors.validation'));
     }
 
     logRequestStart(requestName, details: {
@@ -224,7 +226,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             response.data['data'] as Map<String, dynamic>);
       }
 
-      final errorMessage = response.data['message'] ?? 'فشل إنشاء المحادثة';
+      final errorMessage = response.data['message'] ??
+          AppLocalizations.translateSync('chat.errors.unknown');
       throw ServerException(errorMessage);
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -238,11 +241,18 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
         if (statusCode == 400) {
           throw ServerException(
-              message.isNotEmpty ? message : 'بيانات غير صحيحة');
+            message.isNotEmpty
+                ? message
+                : AppLocalizations.translateSync('chat.errors.validation'),
+          );
         } else if (statusCode == 404) {
-          throw const ServerException('المستخدم المطلوب غير موجود');
+          throw ServerException(
+            AppLocalizations.translateSync('chat.errors.notFound'),
+          );
         } else if (statusCode == 500) {
-          throw const ServerException('خطأ في الخادم، يرجى المحاولة لاحقاً');
+          throw ServerException(
+            AppLocalizations.translateSync('chat.errors.server'),
+          );
         }
       }
 
@@ -250,12 +260,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `getConversations`.
-  /// Runs the `getConversations` operation.
+  /// العربية: يعيد conversations.
   @override
   Future<List<ConversationModel>> getConversations({
     required int pageNumber,
@@ -278,10 +287,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.data['conversations'] != null) {
-        final list = (response.data['conversations'] as List)
+        return (response.data['conversations'] as List)
             .map((json) => ConversationModel.fromJson(json))
             .toList();
-        return list;
       }
       return [];
     } on DioException catch (e, s) {
@@ -290,12 +298,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `getConversationById`.
-  /// Runs the `getConversationById` operation.
+  /// العربية: يعيد conversation by id.
   @override
   Future<ConversationModel> getConversationById(String conversationId) async {
     const requestName = 'chat.getConversationById';
@@ -312,19 +319,21 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       if (response.data['success'] == true && response.data['data'] != null) {
         return ConversationModel.fromJson(response.data['data']);
       }
-      throw ServerException(response.data['message'] ?? 'المحادثة غير موجودة');
+      throw ServerException(
+        response.data['message'] ??
+            AppLocalizations.translateSync('chat.system.conversationNotFound'),
+      );
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `archiveConversation`.
-  /// Runs the `archiveConversation` operation.
+  /// العربية: يعالج `archiveConversation`.
   @override
   Future<void> archiveConversation(String conversationId) async {
     const requestName = 'chat.archiveConversation';
@@ -337,7 +346,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.data['success'] != true) {
-        throw ServerException(response.data['message'] ?? 'فشل أرشفة المحادثة');
+        throw ServerException(
+          response.data['message'] ??
+              AppLocalizations.translateSync('chat.errors.unknown'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -345,12 +357,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `unarchiveConversation`.
-  /// Runs the `unarchiveConversation` operation.
+  /// العربية: يعالج `unarchiveConversation`.
   @override
   Future<void> unarchiveConversation(String conversationId) async {
     const requestName = 'chat.unarchiveConversation';
@@ -364,7 +375,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       if (response.data['success'] != true) {
         throw ServerException(
-            response.data['message'] ?? 'فشل إلغاء أرشفة المحادثة');
+          response.data['message'] ??
+              AppLocalizations.translateSync('chat.errors.unknown'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -372,12 +385,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `deleteConversation`.
-  /// Runs the `deleteConversation` operation.
+  /// العربية: يحذف conversation.
   @override
   Future<void> deleteConversation(String conversationId) async {
     const requestName = 'chat.deleteConversation';
@@ -389,35 +401,23 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
-      // Some APIs may return 204 No Content or plain string. Accept those as success.
-      final status = response.statusCode ?? 200;
-      if (status == 204) return;
-
-      final data = response.data;
-      if (data == null) return;
-      if (data is String) return; // treat plain string as OK
-      if (data is Map &&
-          (data['success'] == true || data['isSuccess'] == true)) {
-        return;
+      if (response.data['success'] != true) {
+        throw ServerException(
+          response.data['message'] ??
+              AppLocalizations.translateSync('chat.errors.unknown'),
+        );
       }
-
-      if (data is Map) {
-        throw ServerException(data['message'] ?? 'فشل حذف المحادثة');
-      }
-      // Fallback: assume success if we reached here without explicit failure
-      return;
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `getMessages`.
-  /// Runs the `getMessages` operation.
+  /// العربية: يعيد messages.
   @override
   Future<List<MessageModel>> getMessages({
     required String conversationId,
@@ -456,12 +456,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `sendMessage`.
-  /// Runs the `sendMessage` operation.
+  /// العربية: يرسل message.
   @override
   Future<MessageModel> sendMessage({
     required String conversationId,
@@ -480,7 +479,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     try {
       // تحقق من صحة البيانات
       if (messageType == 'text' && (content == null || content.isEmpty)) {
-        throw const ServerException('محتوى الرسالة مطلوب للرسائل النصية');
+        throw ServerException(
+          AppLocalizations.translateSync('chat.errors.validation'),
+        );
       }
 
       // استخدم FormData لأن الـ backend يتوقع [FromForm]
@@ -533,34 +534,18 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           data['status'] = 'sent';
         }
 
-        // إذا لم يُرجع الخادم قائمة المرفقات لكننا أرسلنا attachmentIds،
-        // نقوم بإنشاء مصفوفة مرفقات مبسطة لعرض الصور مباشرة في الواجهة
-        final hasNoAttachments = (data['attachments'] == null) ||
-            ((data['attachments'] is List) &&
-                (data['attachments'] as List).isEmpty);
-        if (hasNoAttachments &&
-            attachmentIds != null &&
-            attachmentIds.isNotEmpty) {
-          data['attachments'] = attachmentIds
-              .where((id) => id.isNotEmpty)
-              .map((id) => {
-                    'id': id,
-                    'attachment_id': id,
-                    // توفير مسار يمكن لـ ImageUtils.resolveUrl تحويله إلى رابط كامل
-                    'file_url': '/api/common/chat/attachments/$id',
-                  })
-              .toList();
-        }
-
         return MessageModel.fromJson(data);
       }
 
-      throw const ServerException('صيغة الاستجابة غير صحيحة');
+      throw ServerException(
+        AppLocalizations.translateSync('chat.errors.unknown'),
+      );
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
 
       if (e.response?.statusCode == 400) {
-        final message = e.response?.data?['message'] ?? 'بيانات غير صحيحة';
+        final message = e.response?.data?['message'] ??
+            AppLocalizations.translateSync('chat.errors.validation');
         throw ServerException(message);
       }
 
@@ -568,12 +553,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `editMessage`.
-  /// Runs the `editMessage` operation.
+  /// العربية: يعالج `editMessage`.
   @override
   Future<MessageModel> editMessage({
     required String messageId,
@@ -594,19 +578,21 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       if (response.data['success'] == true && response.data['data'] != null) {
         return MessageModel.fromJson(response.data['data']);
       }
-      throw ServerException(response.data['message'] ?? 'فشل تعديل الرسالة');
+      throw ServerException(
+        response.data['message'] ??
+            AppLocalizations.translateSync('chat.errors.messageSendFailed'),
+      );
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `deleteMessage`.
-  /// Runs the `deleteMessage` operation.
+  /// العربية: يحذف message.
   @override
   Future<void> deleteMessage(String messageId) async {
     const requestName = 'chat.deleteMessage';
@@ -619,7 +605,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.data['success'] != true) {
-        throw ServerException(response.data['message'] ?? 'فشل حذف الرسالة');
+        throw ServerException(
+          response.data['message'] ??
+              AppLocalizations.translateSync('chat.errors.unknown'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -627,12 +616,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `markAsRead`.
-  /// Runs the `markAsRead` operation.
+  /// العربية: يعالج `markAsRead`.
   @override
   Future<void> markAsRead({
     required String conversationId,
@@ -659,12 +647,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `addReaction`.
-  /// Runs the `addReaction` operation.
+  /// العربية: يعالج `addReaction`.
   @override
   Future<void> addReaction({
     required String messageId,
@@ -686,7 +673,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.data['success'] != true) {
-        throw ServerException(response.data['message'] ?? 'فشل إضافة التفاعل');
+        throw ServerException(
+          response.data['message'] ??
+              AppLocalizations.translateSync('chat.errors.reactionAddFailed'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -694,12 +684,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `removeReaction`.
-  /// Runs the `removeReaction` operation.
+  /// العربية: يزيل reaction.
   @override
   Future<void> removeReaction({
     required String messageId,
@@ -718,7 +707,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.data['success'] != true) {
-        throw ServerException(response.data['message'] ?? 'فشل إزالة التفاعل');
+        throw ServerException(
+          response.data['message'] ??
+              AppLocalizations.translateSync(
+                  'chat.errors.reactionRemoveFailed'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -726,47 +719,17 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `updateMessageStatus`.
-  /// Runs the `updateMessageStatus` operation.
-  @override
-  Future<void> updateMessageStatus({
-    required String messageId,
-    required String status,
-  }) async {
-    const requestName = 'chat.updateMessageStatus';
-    logRequestStart(requestName, details: {
-      'messageId': messageId,
-      'status': status,
-    });
-    try {
-      final response = await apiClient.put(
-        '/api/common/chat/messages/$messageId/status',
-        data: {
-          'status': status,
-        },
-      );
-      logRequestSuccess(requestName, statusCode: response.statusCode);
-    } on DioException catch (e, s) {
-      logRequestError(requestName, e, stackTrace: s);
-      throw ApiException.fromDioError(e);
-    } catch (e, s) {
-      logRequestError(requestName, e, stackTrace: s);
-      throw ServerException(e.toString());
-    }
-  }
-
-  /// ينفذ العملية `uploadAttachment`.
-  /// Runs the `uploadAttachment` operation.
+  /// العربية: يعالج `uploadAttachment`.
   @override
   Future<AttachmentModel> uploadAttachment({
     required String conversationId,
     required String filePath,
     required String messageType,
-    String? thumbnailPath,
+    int? durationSeconds,
     ProgressCallback? onSendProgress,
   }) async {
     const requestName = 'chat.uploadAttachment';
@@ -774,35 +737,30 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       'conversationId': conversationId,
       'filePath': filePath,
       'messageType': messageType,
+      if (durationSeconds != null) 'durationSeconds': durationSeconds,
     });
+    String? fileName;
+    int? fileSize;
     try {
-      final file = await MediaFileSafety.resolveReadableFile(filePath);
-      if (file == null) {
-        throw const ServerException('تعذر الوصول إلى الملف المحدد للرفع');
-      }
+      final file = File(filePath);
+      fileName = file.path.split('/').last;
+      fileSize = await file.length();
+      final thumbnailPath = messageType.toLowerCase() == 'video'
+          ? await _generateVideoThumbnailForUpload(filePath)
+          : null;
 
-      final fileName = MediaFileSafety.basename(file.path);
-
-      final formData = FormData();
-      formData.fields
-        ..add(MapEntry('messageType', messageType))
-        ..add(MapEntry('conversationId', conversationId));
-      formData.files.add(MapEntry(
-        'file',
-        await MultipartFile.fromFile(file.path, filename: fileName),
-      ));
-      if (thumbnailPath != null && thumbnailPath.isNotEmpty) {
-        final thumbFile = await MediaFileSafety.resolveReadableFile(
-          thumbnailPath,
-        );
-        if (thumbFile != null) {
-          final thumbName = MediaFileSafety.basename(thumbFile.path);
-          formData.files.add(MapEntry(
-            'thumbnail',
-            await MultipartFile.fromFile(thumbFile.path, filename: thumbName),
-          ));
-        }
-      }
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(file.path, filename: fileName),
+        if (thumbnailPath != null)
+          'thumbnail': await MultipartFile.fromFile(
+            thumbnailPath,
+            filename:
+                '${file.uri.pathSegments.isNotEmpty ? file.uri.pathSegments.last.split('.').first : 'video'}_thumb.jpg',
+          ),
+        'messageType': messageType,
+        'conversationId': conversationId,
+        if (durationSeconds != null) 'durationSeconds': durationSeconds,
+      });
 
       final response = await apiClient.upload(
         '/api/common/chat/upload',
@@ -811,32 +769,71 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
+          extra: {
+            'suppressErrorToast': true,
+          },
         ),
         onSendProgress: onSendProgress,
       );
 
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
-      if (response.data is Map<String, dynamic>) {
-        final map = response.data as Map<String, dynamic>;
-        final dynamic payload = map['data'] ?? map['attachment'];
-        if (payload != null) {
-          return AttachmentModel.fromJson(payload as Map<String, dynamic>);
+      final responseData = response.data;
+      if (responseData is Map<String, dynamic> &&
+          responseData['success'] == true) {
+        final attachmentPayload =
+            responseData['data'] ?? responseData['attachment'];
+        if (attachmentPayload is Map<String, dynamic>) {
+          return AttachmentModel.fromJson(attachmentPayload);
         }
       }
-      throw ServerException(response.data['message'] ?? 'فشل رفع المرفق');
+      throw ServerException(
+        (responseData is Map<String, dynamic>
+                ? responseData['message']
+                : null) ??
+            AppLocalizations.translateSync('chat.errors.unknown'),
+      );
+    } on ApiException catch (e, s) {
+      logRequestError(
+          requestName,
+          {
+            'message': e.message,
+            'statusCode': e.statusCode,
+            'type': e.type?.name,
+            'data': e.data,
+            'conversationId': conversationId,
+            'filePath': filePath,
+            'fileName': fileName,
+            'fileSize': fileSize,
+            'messageType': messageType,
+          },
+          stackTrace: s);
+      throw ServerException(e.message);
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       throw ApiException.fromDioError(e);
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `searchChats`.
-  /// Runs the `searchChats` operation.
+  Future<String?> _generateVideoThumbnailForUpload(String videoPath) async {
+    try {
+      return await VideoThumbnail.thumbnailFile(
+        video: videoPath,
+        imageFormat: ImageFormat.JPEG,
+        maxWidth: 640,
+        quality: 70,
+        thumbnailPath: Directory.systemTemp.path,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// العربية: يعالج `searchChats`.
   @override
   Future<SearchResult> searchChats({
     required String query,
@@ -900,12 +897,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `getAvailableUsers`.
-  /// Runs the `getAvailableUsers` operation.
+  /// العربية: يعيد available users.
   @override
   Future<List<ChatUserModel>> getAvailableUsers({
     String? userType,
@@ -940,12 +936,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `getAdminUsers`.
-  /// Runs the `getAdminUsers` operation.
+  /// العربية: يعيد admin users.
   @override
   Future<List<ChatUserModel>> getAdminUsers() async {
     const requestName = 'chat.getAdminUsers';
@@ -970,12 +965,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `updateUserStatus`.
-  /// Runs the `updateUserStatus` operation.
+  /// العربية: يحدّث user status.
   @override
   Future<void> updateUserStatus(String status) async {
     const requestName = 'chat.updateUserStatus';
@@ -991,7 +985,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
       if (response.data['success'] != true) {
-        throw ServerException(response.data['message'] ?? 'فشل تحديث الحالة');
+        throw ServerException(
+          response.data['message'] ??
+              AppLocalizations.translateSync('chat.errors.unknown'),
+        );
       }
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -999,12 +996,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `getChatSettings`.
-  /// Runs the `getChatSettings` operation.
+  /// العربية: يعيد chat settings.
   @override
   Future<ChatSettingsModel> getChatSettings() async {
     const requestName = 'chat.getChatSettings';
@@ -1046,7 +1042,14 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       final msg = e.response?.data is Map
           ? (e.response?.data['message']?.toString() ?? '')
           : '';
+      final normalizedMessage = msg.toLowerCase();
       final notFound = e.response?.statusCode == 404 || msg.contains('إعدادات');
+      final settingsMissing = normalizedMessage.contains('settings');
+      if (settingsMissing) {
+        logRequestSuccess('$requestName.not_found_fallback',
+            statusCode: e.response?.statusCode);
+        return const ChatSettingsModel(id: '', userId: '');
+      }
       if (notFound) {
         logRequestSuccess('$requestName.not_found_fallback',
             statusCode: e.response?.statusCode);
@@ -1055,7 +1058,14 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestError(requestName, e, stackTrace: s);
       throw ApiException.fromDioError(e);
     } on ApiException catch (e, s) {
+      final normalizedMessage = e.message.toLowerCase();
       final notFound = e.statusCode == 404 || e.message.contains('إعدادات');
+      final settingsMissing = normalizedMessage.contains('settings');
+      if (settingsMissing) {
+        logRequestSuccess('$requestName.not_found_fallback',
+            statusCode: e.statusCode);
+        return const ChatSettingsModel(id: '', userId: '');
+      }
       if (notFound) {
         logRequestSuccess('$requestName.not_found_fallback',
             statusCode: e.statusCode);
@@ -1066,12 +1076,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 
-  /// ينفذ العملية `updateChatSettings`.
-  /// Runs the `updateChatSettings` operation.
+  /// العربية: يحدّث chat settings.
   @override
   Future<ChatSettingsModel> updateChatSettings({
     bool? notificationsEnabled,
@@ -1128,8 +1137,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       }
 
       final errorMessage = (raw is Map<String, dynamic>)
-          ? (raw['message']?.toString() ?? 'فشل تحديث إعدادات الدردشة')
-          : 'فشل تحديث إعدادات الدردشة';
+          ? (raw['message']?.toString() ??
+              AppLocalizations.translateSync('chat.settings.updateFailed'))
+          : AppLocalizations.translateSync('chat.settings.updateFailed');
       throw ServerException(errorMessage);
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
@@ -1137,7 +1147,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
-      throw ServerException(e.toString());
+      throw _unexpectedChatException();
     }
   }
 }

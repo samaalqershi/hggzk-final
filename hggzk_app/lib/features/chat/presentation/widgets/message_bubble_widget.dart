@@ -1,12 +1,24 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
-import '../../../../core/utils/image_utils.dart';
+import '../../../../app/dependency_injection/injection_container.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import '../../../../core/constants/storage_constants.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/services/local_storage_service.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/utils/image_utils.dart';
+import '../../../../core/widgets/cached_image_widget.dart';
+import '../../chat_settings_keys.dart';
+import '../../domain/entities/attachment.dart';
 import '../../domain/entities/message.dart';
+import '../bloc/chat_bloc.dart';
+import '../pages/chat_media_viewer_page.dart';
 import 'attachment_preview_widget.dart';
 import 'message_status_indicator.dart';
 import 'reaction_picker_widget.dart';
@@ -51,6 +63,10 @@ class MessageBubbleWidget extends StatefulWidget {
   /// يفتح الرد المشار إليه عندما ينقر المستخدم على المعاينة المقتبسة.
   final VoidCallback? onReplyTap;
 
+  /// Retries a failed outgoing message.
+  /// يعيد محاولة الرسالة الصادرة عند فشلها.
+  final VoidCallback? onRetry;
+
   /// Builds one message bubble with optional reaction support.
   /// ينشئ فقاعة رسالة واحدة مع دعم اختياري للتفاعلات.
   const MessageBubbleWidget({
@@ -64,6 +80,7 @@ class MessageBubbleWidget extends StatefulWidget {
     this.onDelete,
     this.onReaction,
     this.onReplyTap,
+    this.onRetry,
   });
 
   /// Creates the state object for this widget.
@@ -76,6 +93,9 @@ class MessageBubbleWidget extends StatefulWidget {
 /// يحرك ظهور الرسالة ويدير ظهور درج التفاعلات المضمّن.
 class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     with SingleTickerProviderStateMixin {
+  final Map<String, String> _remoteVideoCachePaths = {};
+  final Map<String, String> _videoThumbnailCachePaths = {};
+
   /// Drives the bubble entrance animation.
   /// يقود حركة ظهور الفقاعة.
   late AnimationController _animationController;
@@ -91,6 +111,21 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
   /// Tracks whether the reaction tray is visible.
   /// يتتبع ما إذا كان درج التفاعلات ظاهرًا.
   bool _showReactions = false;
+
+  bool get _autoDownloadEnabled {
+    final state = context.read<ChatBloc>().state;
+    if (state is ChatLoaded) {
+      return state.settings?.autoDownloadMedia ?? true;
+    }
+
+    final persisted =
+        sl<LocalStorageService>().getData(ChatSettingsKeys.autoDownloadMedia);
+    if (persisted is bool) {
+      return persisted;
+    }
+
+    return true;
+  }
 
   /// Starts the entrance animation when the widget mounts.
   /// يبدأ حركة الظهور عند تركيب العنصر.
@@ -132,6 +167,9 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
   Widget build(BuildContext context) {
     final showTail = _shouldShowTail();
     final borderRadius = _getBorderRadius(showTail);
+    final showAttachmentsFirst = _shouldRenderAttachmentsFirst();
+    final hasAttachments = widget.message.attachments.isNotEmpty;
+    final hasTextContent = _hasTextContent;
 
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -215,9 +253,13 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
                               children: [
                                 if (widget.message.replyToMessageId != null)
                                   _buildMinimalReplySection(),
-                                _buildMessageContent(),
-                                if (widget.message.attachments.isNotEmpty)
-                                  _buildAttachments(),
+                                if (!showAttachmentsFirst)
+                                  _buildMessageContent(),
+                                if (hasAttachments) _buildAttachments(),
+                                if (showAttachmentsFirst && hasTextContent)
+                                  _buildMessageContent(isCaption: true),
+                                if (_showsAttachmentUploadProgress)
+                                  _buildAttachmentUploadProgress(),
                                 _buildMinimalFooter(),
                               ],
                             ),
@@ -229,6 +271,7 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
                   ],
                 ),
               ),
+              if (_shouldShowRetryState()) _buildFailureState(),
               if (widget.message.reactions.isNotEmpty) _buildMinimalReactions(),
               if (_showReactions)
                 Padding(
@@ -341,16 +384,43 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
 
   /// Renders the message body or the special location payload for the bubble.
   /// يرسم نص الرسالة أو حمولة الموقع الخاصة بالفقاعة.
-  Widget _buildMessageContent() {
-    if (widget.message.messageType == 'text' &&
-        widget.message.content != null) {
+  Widget _buildMessageContent({
+    bool isCaption = false,
+  }) {
+    final normalizedMessageType = widget.message.messageType.toLowerCase();
+
+    if (widget.message.content != null &&
+        widget.message.content!.trim().isNotEmpty) {
       return Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: 5,
+        padding: EdgeInsets.fromLTRB(
+          8,
+          isCaption ? 6 : 5,
+          8,
+          isCaption ? 2 : 5,
         ),
         child: Text(
           widget.message.content!,
+          style: AppTextStyles.bodySmall.copyWith(
+            color: widget.isMe
+                ? Colors.white
+                : AppTheme.textWhite.withOpacity(0.85),
+            height: 1.35,
+            fontSize: isCaption ? 11.5 : 12,
+          ),
+        ),
+      );
+    }
+
+    if (normalizedMessageType == 'location' &&
+        widget.message.location != null) {
+      return _buildMinimalLocationMessage();
+    }
+
+    if (normalizedMessageType == 'location') {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+        child: Text(
+          context.tr('chat.message.location'),
           style: AppTextStyles.bodySmall.copyWith(
             color: widget.isMe
                 ? Colors.white
@@ -362,128 +432,736 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
       );
     }
 
-    if (widget.message.messageType == 'location' &&
-        widget.message.location != null) {
-      return _buildMinimalLocationMessage();
-    }
-
     return const SizedBox.shrink();
   }
 
   /// Renders the compact location card used for map-style chat messages.
   /// يرسم بطاقة الموقع المدمجة المستخدمة لرسائل المواقع.
   Widget _buildMinimalLocationMessage() {
-    return Container(
-      margin: const EdgeInsets.all(5),
-      height: 100,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(6),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(6),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Map placeholder
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.darkCard.withOpacity(0.8),
-                    AppTheme.darkCard.withOpacity(0.6),
-                  ],
+    return GestureDetector(
+      onTap: _openLocationInMaps,
+      child: Container(
+        margin: const EdgeInsets.all(5),
+        height: 100,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Map placeholder
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppTheme.darkCard.withOpacity(0.8),
+                      AppTheme.darkCard.withOpacity(0.6),
+                    ],
+                  ),
+                ),
+                child: Icon(
+                  Icons.map_rounded,
+                  size: 32,
+                  color: AppTheme.textMuted,
                 ),
               ),
-              child: Icon(
-                Icons.map_rounded,
-                size: 32,
-                color: AppTheme.textMuted,
-              ),
-            ),
 
-            // Glass overlay with location info
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: ClipRRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.black.withOpacity(0.3),
-                          Colors.black.withOpacity(0.15),
-                        ],
-                      ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.12),
                     ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppTheme.primaryBlue.withOpacity(0.8),
-                                AppTheme.primaryPurple.withOpacity(0.6),
-                              ],
-                            ),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.location_on_rounded,
-                            color: Colors.white,
-                            size: 12,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        Expanded(
-                          child: Text(
-                            widget.message.location!.address ??
-                                context.tr(
-                                  'chat.message.location',
-                                ),
-                            style: AppTextStyles.caption.copyWith(
-                              color: Colors.white.withOpacity(0.9),
-                              fontSize: 10,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+                  ),
+                  child: Text(
+                    context.tr('chat.message.location'),
+                    style: AppTextStyles.caption.copyWith(
+                      color: Colors.white.withOpacity(0.92),
+                      fontSize: 9.5,
                     ),
                   ),
                 ),
               ),
+
+              // Glass overlay with location info
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: ClipRRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.black.withOpacity(0.3),
+                            Colors.black.withOpacity(0.15),
+                          ],
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  AppTheme.primaryBlue.withOpacity(0.8),
+                                  AppTheme.primaryPurple.withOpacity(0.6),
+                                ],
+                              ),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.location_on_rounded,
+                              color: Colors.white,
+                              size: 12,
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          Expanded(
+                            child: Text(
+                              widget.message.location!.address ??
+                                  context.tr(
+                                    'chat.message.location',
+                                  ),
+                              style: AppTextStyles.caption.copyWith(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 10,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openLocationInMaps() async {
+    final location = widget.message.location;
+    if (location == null) return;
+
+    final uri = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}',
+    );
+
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(context.tr('chat.errors.unknown')),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+    }
+  }
+
+  /// Renders all attachments that belong to the message.
+  /// يرسم كل المرفقات التابعة للرسالة.
+  Widget _buildAttachments() {
+    final visualAttachments = widget.message.attachments
+        .where((attachment) => attachment.isImage || attachment.isVideo)
+        .toList();
+    final allVisual =
+        visualAttachments.length == widget.message.attachments.length;
+
+    if (allVisual) {
+      return _buildMediaGallery(visualAttachments);
+    }
+
+    return Column(
+      children: widget.message.attachments.asMap().entries.map((entry) {
+        final index = entry.key;
+        final attachment = entry.value;
+        return AttachmentPreviewWidget(
+          attachment: attachment,
+          isMe: widget.isMe,
+          autoDownloadEnabled: _autoDownloadEnabled,
+          onTap: () => _openMediaViewer(
+            attachments: widget.message.attachments,
+            initialIndex: index,
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  bool get _showsAttachmentUploadProgress {
+    if (widget.message.status != 'sending') {
+      return false;
+    }
+    return widget.message.attachments.any(
+      (attachment) =>
+          attachment.downloadProgress != null &&
+          attachment.downloadProgress! < 1.0,
+    );
+  }
+
+  double? get _aggregateAttachmentUploadProgress {
+    final tracked = widget.message.attachments
+        .where((attachment) => attachment.downloadProgress != null)
+        .toList();
+    if (tracked.isEmpty) {
+      return null;
+    }
+
+    final total = tracked.fold<double>(
+      0,
+      (sum, attachment) => sum + attachment.downloadProgress!.clamp(0.0, 1.0),
+    );
+    return (total / tracked.length).clamp(0.0, 1.0);
+  }
+
+  Widget _buildAttachmentUploadProgress() {
+    final progress = _aggregateAttachmentUploadProgress;
+    if (progress == null) {
+      return const SizedBox.shrink();
+    }
+
+    final trackColor = widget.isMe
+        ? Colors.white.withOpacity(0.18)
+        : AppTheme.darkBorder.withOpacity(0.22);
+    final fillColor =
+        widget.isMe ? Colors.white : AppTheme.primaryBlue.withOpacity(0.95);
+    final labelColor = widget.isMe
+        ? Colors.white.withOpacity(0.82)
+        : AppTheme.textWhite.withOpacity(0.76);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 4,
+              backgroundColor: trackColor,
+              valueColor: AlwaysStoppedAnimation<Color>(fillColor),
             ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${(progress * 100).round()}%',
+            style: AppTextStyles.caption.copyWith(
+              color: labelColor,
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Uses a media-first layout for image messages so the caption sits below
+  /// the gallery, matching familiar messaging apps.
+  bool _shouldRenderAttachmentsFirst() {
+    return widget.message.attachments.isNotEmpty &&
+        _hasTextContent &&
+        widget.message.attachments
+            .every((attachment) => attachment.isImage || attachment.isVideo);
+  }
+
+  /// Whether the bubble currently has visible text content.
+  bool get _hasTextContent =>
+      (widget.message.content?.trim().isNotEmpty ?? false);
+
+  /// Renders one or many photos in a compact gallery layout inspired by
+  /// mainstream messaging apps.
+  Widget _buildMediaGallery(List<Attachment> attachments) {
+    if (attachments.length == 1) {
+      return AttachmentPreviewWidget(
+        attachment: attachments.first,
+        isMe: widget.isMe,
+        autoDownloadEnabled: _autoDownloadEnabled,
+        onTap: () => _openMediaViewer(
+          attachments: attachments,
+          initialIndex: 0,
+        ),
+      );
+    }
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(6, 6, 6, 2),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final spacing = 4.0;
+          final maxWidth = constraints.maxWidth;
+          final tileWidth = (maxWidth - spacing) / 2;
+
+          if (attachments.length == 2) {
+            return Row(
+              children: [
+                Expanded(
+                  child: _buildGalleryTile(
+                    attachments[0],
+                    galleryAttachments: attachments,
+                    index: 0,
+                    height: 164,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      bottomLeft: Radius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: _buildGalleryTile(
+                    attachments[1],
+                    galleryAttachments: attachments,
+                    index: 1,
+                    height: 164,
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(12),
+                      bottomRight: Radius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          if (attachments.length == 3) {
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: tileWidth,
+                  child: _buildGalleryTile(
+                    attachments[0],
+                    galleryAttachments: attachments,
+                    index: 0,
+                    height: 188,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      bottomLeft: Radius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                SizedBox(
+                  width: tileWidth,
+                  child: Column(
+                    children: [
+                      _buildGalleryTile(
+                        attachments[1],
+                        galleryAttachments: attachments,
+                        index: 1,
+                        height: 92,
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(12),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      _buildGalleryTile(
+                        attachments[2],
+                        galleryAttachments: attachments,
+                        index: 2,
+                        height: 92,
+                        borderRadius: const BorderRadius.only(
+                          bottomRight: Radius.circular(12),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }
+
+          final visibleAttachments = attachments.take(4).toList();
+          final extraCount = attachments.length - visibleAttachments.length;
+
+          return Wrap(
+            spacing: spacing,
+            runSpacing: spacing,
+            children: List.generate(visibleAttachments.length, (index) {
+              final isTopLeft = index == 0;
+              final isTopRight = index == 1;
+              final isBottomLeft = index == 2;
+              final isBottomRight = index == 3;
+              final overlayText =
+                  index == 3 && extraCount > 0 ? '+$extraCount' : null;
+
+              return SizedBox(
+                width: tileWidth,
+                child: _buildGalleryTile(
+                  visibleAttachments[index],
+                  galleryAttachments: attachments,
+                  index: index,
+                  height: 104,
+                  overlayText: overlayText,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(isTopLeft ? 12 : 4),
+                    topRight: Radius.circular(isTopRight ? 12 : 4),
+                    bottomLeft: Radius.circular(isBottomLeft ? 12 : 4),
+                    bottomRight: Radius.circular(isBottomRight ? 12 : 4),
+                  ),
+                ),
+              );
+            }),
+          );
+        },
+      ),
+    );
+  }
+
+  /// Builds one image or video tile inside a media gallery.
+  Widget _buildGalleryTile(
+    Attachment attachment, {
+    required List<Attachment> galleryAttachments,
+    required int index,
+    required double height,
+    required BorderRadius borderRadius,
+    String? overlayText,
+  }) {
+    return GestureDetector(
+      onTap: () => _openMediaViewer(
+        attachments: galleryAttachments,
+        initialIndex: index,
+      ),
+      child: Container(
+        height: height,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          borderRadius: borderRadius,
+          color: widget.isMe
+              ? Colors.white.withOpacity(0.04)
+              : AppTheme.darkCard.withOpacity(0.28),
+        ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            _buildGalleryTileMedia(attachment),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                height: 32,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.32),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            if (attachment.isVideo)
+              Center(
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.28),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.12),
+                      width: 0.5,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.play_arrow_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+              ),
+            if (attachment.downloadProgress != null &&
+                attachment.downloadProgress! < 1.0)
+              Container(
+                color: Colors.black.withOpacity(0.26),
+                alignment: Alignment.center,
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    value: attachment.downloadProgress,
+                    strokeWidth: 2,
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Colors.white,
+                    ),
+                    backgroundColor: Colors.white24,
+                  ),
+                ),
+              ),
+            if (overlayText != null)
+              Container(
+                color: Colors.black.withOpacity(0.34),
+                alignment: Alignment.center,
+                child: Text(
+                  overlayText,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 20,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  /// Renders all attachments that belong to the message.
-  /// يرسم كل المرفقات التابعة للرسالة.
-  Widget _buildAttachments() {
-    return Column(
-      children: widget.message.attachments.map((attachment) {
-        return AttachmentPreviewWidget(
-          attachment: attachment,
-          isMe: widget.isMe,
+  Widget _buildGalleryTileMedia(Attachment attachment) {
+    final autoDownloadEnabled = _autoDownloadEnabled;
+
+    if (attachment.isImage) {
+      final localPath = attachment.filePath.trim();
+      if (localPath.isNotEmpty && File(localPath).existsSync()) {
+        return Image.file(
+          File(localPath),
+          fit: BoxFit.cover,
         );
-      }).toList(),
+      }
+
+      if (!autoDownloadEnabled) {
+        return _buildDeferredMediaPlaceholder(
+          icon: Icons.image_outlined,
+        );
+      }
+
+      return CachedImageWidget(
+        imageUrl: attachment.fileUrl,
+        fit: BoxFit.cover,
+        httpHeaders: _buildAttachmentHeaders(),
+      );
+    }
+
+    final localThumbnailPath = _resolveLocalThumbnailPath(attachment);
+    if (localThumbnailPath != null) {
+      return Image.file(
+        File(localThumbnailPath),
+        fit: BoxFit.cover,
+      );
+    }
+
+    if (attachment.thumbnailUrl != null &&
+        attachment.thumbnailUrl!.isNotEmpty) {
+      final resolvedThumbnailUrl =
+          ImageUtils.resolveUrl(attachment.thumbnailUrl!);
+      if (resolvedThumbnailUrl.isNotEmpty) {
+        return Image.network(
+          resolvedThumbnailUrl,
+          fit: BoxFit.cover,
+          headers: _buildAttachmentHeaders(),
+          errorBuilder: (_, __, ___) =>
+              _buildGeneratedVideoGalleryFallback(attachment),
+        );
+      }
+
+      return _buildGeneratedVideoGalleryFallback(attachment);
+    }
+
+    return _buildGeneratedVideoGalleryFallback(attachment);
+  }
+
+  Widget _buildGeneratedVideoGalleryFallback(Attachment attachment) {
+    return FutureBuilder<String?>(
+      future: _buildVideoThumbnailForAttachment(attachment),
+      builder: (context, snapshot) {
+        final thumbPath = snapshot.data;
+        if (thumbPath != null && File(thumbPath).existsSync()) {
+          return Image.file(
+            File(thumbPath),
+            fit: BoxFit.cover,
+          );
+        }
+
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppTheme.darkCard.withOpacity(0.8),
+                AppTheme.darkSurface.withOpacity(0.6),
+              ],
+            ),
+          ),
+          child: Icon(
+            Icons.videocam_rounded,
+            size: 28,
+            color: AppTheme.textMuted.withOpacity(0.55),
+          ),
+        );
+      },
     );
+  }
+
+  Widget _buildDeferredMediaPlaceholder({required IconData icon}) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.darkCard.withOpacity(0.82),
+            AppTheme.darkSurface.withOpacity(0.64),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          icon,
+          size: 28,
+          color: AppTheme.textMuted.withOpacity(0.55),
+        ),
+      ),
+    );
+  }
+
+  Future<String?> _buildVideoThumbnailForAttachment(
+      Attachment attachment) async {
+    final cachedThumbnailPath = _videoThumbnailCachePaths[attachment.id];
+    if (cachedThumbnailPath != null && File(cachedThumbnailPath).existsSync()) {
+      return cachedThumbnailPath;
+    }
+
+    final localPath = attachment.filePath.trim();
+    if (localPath.isNotEmpty && File(localPath).existsSync()) {
+      try {
+        final generated = await VideoThumbnail.thumbnailFile(
+          video: localPath,
+          imageFormat: ImageFormat.JPEG,
+          maxWidth: 640,
+          quality: 70,
+          thumbnailPath: Directory.systemTemp.path,
+        );
+        if (generated != null) {
+          _videoThumbnailCachePaths[attachment.id] = generated;
+        }
+        return generated;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    try {
+      final cachedVideoPath = await _cacheProtectedVideoToTempFile(attachment);
+      final generated = await VideoThumbnail.thumbnailFile(
+        video: cachedVideoPath,
+        imageFormat: ImageFormat.JPEG,
+        maxWidth: 640,
+        quality: 70,
+        thumbnailPath: Directory.systemTemp.path,
+      );
+      if (generated != null) {
+        _videoThumbnailCachePaths[attachment.id] = generated;
+      }
+      return generated;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<String> _cacheProtectedVideoToTempFile(Attachment attachment) async {
+    final existingPath = _remoteVideoCachePaths[attachment.id];
+    if (existingPath != null && File(existingPath).existsSync()) {
+      return existingPath;
+    }
+
+    final extension =
+        attachment.fileExtension.isNotEmpty ? attachment.fileExtension : 'mp4';
+    final targetPath =
+        '${Directory.systemTemp.path}/chat_video_${attachment.id}.$extension';
+    final targetFile = File(targetPath);
+    if (targetFile.existsSync()) {
+      _remoteVideoCachePaths[attachment.id] = targetPath;
+      return targetPath;
+    }
+
+    final client = HttpClient();
+    try {
+      final resolvedVideoUrl = ImageUtils.resolveUrl(attachment.fileUrl);
+      if (resolvedVideoUrl.isEmpty) {
+        throw const HttpException('Video URL is empty');
+      }
+
+      final request = await client.getUrl(Uri.parse(resolvedVideoUrl));
+      final headers = _buildAttachmentHeaders();
+      headers?.forEach(request.headers.add);
+      final response = await request.close();
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw HttpException(
+          'Media download failed with status ${response.statusCode}',
+          uri: Uri.parse(resolvedVideoUrl),
+        );
+      }
+
+      final bytes = await consolidateHttpClientResponseBytes(response);
+      await targetFile.writeAsBytes(bytes, flush: true);
+      _remoteVideoCachePaths[attachment.id] = targetPath;
+      return targetPath;
+    } finally {
+      client.close(force: true);
+    }
+  }
+
+  void _openMediaViewer({
+    required List<Attachment> attachments,
+    required int initialIndex,
+  }) {
+    if (attachments.isEmpty) {
+      return;
+    }
+
+    HapticFeedback.selectionClick();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ChatMediaViewerPage(
+          attachments: attachments,
+          initialIndex: initialIndex,
+        ),
+      ),
+    );
+  }
+
+  Map<String, String>? _buildAttachmentHeaders() {
+    final token = sl<LocalStorageService>()
+        .getData(StorageConstants.accessToken) as String?;
+    if (token == null || token.isEmpty) {
+      return null;
+    }
+    return {
+      'Authorization': 'Bearer $token',
+    };
   }
 
   /// Renders timestamp, edit state, and delivery status for the bubble.
@@ -526,6 +1204,7 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
             const SizedBox(width: 2),
             MessageStatusIndicator(
               status: widget.message.status,
+              deliveryReceipt: widget.message.deliveryReceipt,
               color: Colors.white.withOpacity(0.5),
               size: 10,
             ),
@@ -533,6 +1212,101 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
         ],
       ),
     );
+  }
+
+  bool _shouldShowRetryState() {
+    return widget.isMe &&
+        widget.message.status.trim().toLowerCase() == 'failed' &&
+        (widget.message.failureReason?.trim().isNotEmpty == true ||
+            widget.onRetry != null);
+  }
+
+  Widget _buildFailureState() {
+    final failureReason = widget.message.failureReason?.trim();
+
+    return Padding(
+      padding: EdgeInsets.only(
+        top: 6,
+        left: widget.isMe ? 0 : 8,
+        right: widget.isMe ? 8 : 0,
+      ),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 6,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        alignment: widget.isMe ? WrapAlignment.end : WrapAlignment.start,
+        children: [
+          if (failureReason != null && failureReason.isNotEmpty)
+            Text(
+              failureReason,
+              style: AppTextStyles.caption.copyWith(
+                color: AppTheme.error.withOpacity(0.9),
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          if (widget.onRetry != null)
+            GestureDetector(
+              onTap: widget.onRetry,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.error.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: AppTheme.error.withOpacity(0.3),
+                    width: 0.8,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.refresh_rounded,
+                      size: 14,
+                      color: AppTheme.error.withOpacity(0.92),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      context.tr('common.retry'),
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppTheme.error.withOpacity(0.96),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  String? _resolveLocalThumbnailPath(Attachment attachment) {
+    final metadataPath = attachment.metadata?['localThumbnailPath'];
+    if (metadataPath is String && metadataPath.trim().isNotEmpty) {
+      final metadataFile = File(metadataPath.trim());
+      if (metadataFile.existsSync()) {
+        return metadataPath.trim();
+      }
+    }
+
+    final normalizedPath = attachment.thumbnailUrl?.trim() ?? '';
+    if (normalizedPath.isEmpty) {
+      return null;
+    }
+
+    final file = File(normalizedPath);
+    if (!file.existsSync()) {
+      return null;
+    }
+
+    return normalizedPath;
   }
 
   /// Renders the grouped reaction chips shown under the message.

@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 import '../../../../core/localization/app_localizations.dart';
-import 'package:hggzk/features/chat/data/models/chat_settings_model.dart';
-import 'package:hggzk/features/chat/data/models/chat_user_model.dart';
+import '../models/chat_settings_model.dart';
+import '../models/chat_user_model.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exceptions.dart';
 import '../../../../core/error/exceptions.dart' hide ApiException;
@@ -108,6 +109,7 @@ abstract class ChatRemoteDataSource {
     required String conversationId,
     required String filePath,
     required String messageType,
+    int? durationSeconds,
     ProgressCallback? onSendProgress,
   });
 
@@ -727,6 +729,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     required String conversationId,
     required String filePath,
     required String messageType,
+    int? durationSeconds,
     ProgressCallback? onSendProgress,
   }) async {
     const requestName = 'chat.uploadAttachment';
@@ -734,23 +737,40 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       'conversationId': conversationId,
       'filePath': filePath,
       'messageType': messageType,
+      if (durationSeconds != null) 'durationSeconds': durationSeconds,
     });
+    String? fileName;
+    int? fileSize;
     try {
       final file = File(filePath);
-      final fileName = file.path.split('/').last;
+      fileName = file.path.split('/').last;
+      fileSize = await file.length();
+      final thumbnailPath = messageType.toLowerCase() == 'video'
+          ? await _generateVideoThumbnailForUpload(filePath)
+          : null;
 
       final formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(file.path, filename: fileName),
+        if (thumbnailPath != null)
+          'thumbnail': await MultipartFile.fromFile(
+            thumbnailPath,
+            filename:
+                '${file.uri.pathSegments.isNotEmpty ? file.uri.pathSegments.last.split('.').first : 'video'}_thumb.jpg',
+          ),
         'messageType': messageType,
         'conversationId': conversationId,
+        if (durationSeconds != null) 'durationSeconds': durationSeconds,
       });
 
       final response = await apiClient.upload(
-        '/api/common/chat/attachments',
+        '/api/common/chat/upload',
         formData: formData,
         options: Options(
           headers: {
             'Content-Type': 'multipart/form-data',
+          },
+          extra: {
+            'suppressErrorToast': true,
           },
         ),
         onSendProgress: onSendProgress,
@@ -758,13 +778,37 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
-      if (response.data['success'] == true && response.data['data'] != null) {
-        return AttachmentModel.fromJson(response.data['data']);
+      final responseData = response.data;
+      if (responseData is Map<String, dynamic> &&
+          responseData['success'] == true) {
+        final attachmentPayload =
+            responseData['data'] ?? responseData['attachment'];
+        if (attachmentPayload is Map<String, dynamic>) {
+          return AttachmentModel.fromJson(attachmentPayload);
+        }
       }
       throw ServerException(
-        response.data['message'] ??
+        (responseData is Map<String, dynamic>
+                ? responseData['message']
+                : null) ??
             AppLocalizations.translateSync('chat.errors.unknown'),
       );
+    } on ApiException catch (e, s) {
+      logRequestError(
+          requestName,
+          {
+            'message': e.message,
+            'statusCode': e.statusCode,
+            'type': e.type?.name,
+            'data': e.data,
+            'conversationId': conversationId,
+            'filePath': filePath,
+            'fileName': fileName,
+            'fileSize': fileSize,
+            'messageType': messageType,
+          },
+          stackTrace: s);
+      throw ServerException(e.message);
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       throw ApiException.fromDioError(e);
@@ -772,6 +816,20 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       logRequestError(requestName, e, stackTrace: s);
       if (e is ServerException) rethrow;
       throw _unexpectedChatException();
+    }
+  }
+
+  Future<String?> _generateVideoThumbnailForUpload(String videoPath) async {
+    try {
+      return await VideoThumbnail.thumbnailFile(
+        video: videoPath,
+        imageFormat: ImageFormat.JPEG,
+        maxWidth: 640,
+        quality: 70,
+        thumbnailPath: Directory.systemTemp.path,
+      );
+    } catch (_) {
+      return null;
     }
   }
 

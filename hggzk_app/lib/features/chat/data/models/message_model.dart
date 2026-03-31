@@ -1,4 +1,6 @@
-import 'package:hggzk/features/chat/data/models/delivery_receipt_model.dart';
+import 'dart:convert';
+
+import 'delivery_receipt_model.dart';
 import 'message_reaction_model.dart';
 
 import '../../domain/entities/message.dart';
@@ -27,22 +29,25 @@ class MessageModel extends Message {
 
   /// العربية: ينشئ مثيلًا جديدًا من `MessageModel.fromJson`.
   factory MessageModel.fromJson(Map<String, dynamic> json) {
+    final parsedAttachments = (json['attachments'] as List? ?? [])
+        .map((a) => AttachmentModel.fromJson(a))
+        .toList();
+    final parsedLocation = _parseLocation(json);
+    final rawMessageType =
+        json['messageType'] ?? json['message_type'] ?? 'text';
+
     return MessageModel(
       id: json['id'] ?? json['message_id'] ?? '',
       conversationId: json['conversationId'] ?? json['conversation_id'] ?? '',
       senderId: json['senderId'] ?? json['sender_id'] ?? '',
-      messageType: json['messageType'] ?? json['message_type'] ?? 'text',
+      messageType: rawMessageType.toString().toLowerCase(),
       content: json['content'],
-      location: json['location'] != null
-          ? LocationModel.fromJson(json['location'])
-          : null,
+      location: parsedLocation,
       replyToMessageId: json['replyToMessageId'] ?? json['reply_to_message_id'],
       reactions: (json['reactions'] as List? ?? [])
           .map((r) => MessageReactionModel.fromJson(r))
           .toList(),
-      attachments: (json['attachments'] as List? ?? [])
-          .map((a) => AttachmentModel.fromJson(a))
-          .toList(),
+      attachments: _dedupeAttachments(parsedAttachments),
       createdAt: DateTime.parse(json['createdAt'] ?? json['created_at']),
       updatedAt: DateTime.parse(json['updatedAt'] ?? json['updated_at']),
       status: json['status'] ?? 'sent',
@@ -66,12 +71,23 @@ class MessageModel extends Message {
       'sender_id': senderId,
       'message_type': messageType,
       if (content != null) 'content': content,
-      if (location != null) 'location': (location as LocationModel).toJson(),
+      if (location != null) 'location': location!.toJson(),
       if (replyToMessageId != null) 'reply_to_message_id': replyToMessageId,
-      'reactions':
-          reactions.map((r) => (r as MessageReactionModel).toJson()).toList(),
-      'attachments':
-          attachments.map((a) => (a as AttachmentModel).toJson()).toList(),
+      'reactions': reactions
+          .map((reaction) => reaction is MessageReactionModel
+              ? reaction.toJson()
+              : MessageReactionModel(
+                  id: reaction.id,
+                  messageId: reaction.messageId,
+                  userId: reaction.userId,
+                  reactionType: reaction.reactionType,
+                ).toJson())
+          .toList(),
+      'attachments': attachments
+          .map((attachment) => attachment is AttachmentModel
+              ? attachment.toJson()
+              : AttachmentModel.fromEntity(attachment).toJson())
+          .toList(),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
       'status': status,
@@ -104,6 +120,67 @@ class MessageModel extends Message {
   }
 }
 
+LocationModel? _parseLocation(Map<String, dynamic> json) {
+  final rawLocation = json['location'] ??
+      json['Location'] ??
+      json['locationData'] ??
+      json['location_data'] ??
+      json['LocationData'];
+
+  if (rawLocation is Map<String, dynamic>) {
+    return LocationModel.fromJson(rawLocation);
+  }
+
+  if (rawLocation is Map) {
+    return LocationModel.fromJson(Map<String, dynamic>.from(rawLocation));
+  }
+
+  if (rawLocation is String && rawLocation.trim().isNotEmpty) {
+    try {
+      final decoded = jsonDecode(rawLocation);
+      if (decoded is Map<String, dynamic>) {
+        return LocationModel.fromJson(decoded);
+      }
+      if (decoded is Map) {
+        return LocationModel.fromJson(Map<String, dynamic>.from(decoded));
+      }
+    } catch (_) {}
+  }
+
+  final latitude = json['latitude'] ?? json['Latitude'] ?? json['lat'];
+  final longitude =
+      json['longitude'] ?? json['Longitude'] ?? json['lng'] ?? json['lon'];
+
+  if (latitude is num && longitude is num) {
+    return LocationModel(
+      latitude: latitude.toDouble(),
+      longitude: longitude.toDouble(),
+      address: json['address'] ?? json['Address'],
+    );
+  }
+
+  return null;
+}
+
+List<AttachmentModel> _dedupeAttachments(List<AttachmentModel> attachments) {
+  final seenIds = <String>{};
+  final deduped = <AttachmentModel>[];
+
+  for (final attachment in attachments) {
+    final normalizedId = attachment.id.trim();
+    if (normalizedId.isNotEmpty) {
+      if (seenIds.add(normalizedId)) {
+        deduped.add(attachment);
+      }
+      continue;
+    }
+
+    deduped.add(attachment);
+  }
+
+  return deduped;
+}
+
 /// العربية: يمثل نموذج البيانات `LocationModel`.
 class LocationModel extends Location {
   /// العربية: ينشئ مثيلًا جديدًا من `LocationModel`.
@@ -115,10 +192,13 @@ class LocationModel extends Location {
 
   /// العربية: ينشئ مثيلًا جديدًا من `LocationModel.fromJson`.
   factory LocationModel.fromJson(Map<String, dynamic> json) {
+    final latitude = json['latitude'] ?? json['Latitude'];
+    final longitude = json['longitude'] ?? json['Longitude'];
+
     return LocationModel(
-      latitude: (json['latitude'] as num).toDouble(),
-      longitude: (json['longitude'] as num).toDouble(),
-      address: json['address'],
+      latitude: (latitude as num).toDouble(),
+      longitude: (longitude as num).toDouble(),
+      address: json['address'] ?? json['Address'] ?? json['placeName'],
     );
   }
 

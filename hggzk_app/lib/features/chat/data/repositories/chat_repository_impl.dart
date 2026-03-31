@@ -368,6 +368,7 @@ class ChatRepositoryImpl implements ChatRepository {
     required String conversationId,
     required String filePath,
     required String messageType,
+    int? durationSeconds,
     ProgressCallback? onSendProgress,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
@@ -381,6 +382,7 @@ class ChatRepositoryImpl implements ChatRepository {
         conversationId: conversationId,
         filePath: filePath,
         messageType: messageType,
+        durationSeconds: durationSeconds,
         onSendProgress: onSendProgress,
       );
       return Right(attachment);
@@ -516,27 +518,30 @@ class ChatRepositoryImpl implements ChatRepository {
   @override
   Future<Either<Failure, ChatSettings>> getChatSettings() async {
     try {
-      // Try to get from cache first
       final cachedSettings = await localDataSource.getCachedSettings();
-      if (cachedSettings != null) {
-        if (await internetConnectionChecker.hasConnection) {
-          // Fetch fresh settings in background
-          remoteDataSource.getChatSettings().then((settings) {
-            localDataSource.cacheSettings(settings);
-          }).catchError((_) {});
-        }
-        return Right(cachedSettings);
-      }
+      final hasValidCachedSettings =
+          cachedSettings != null && cachedSettings.userId.trim().isNotEmpty;
 
-      if (!await internetConnectionChecker.hasConnection) {
+      final hasConnection = await internetConnectionChecker.hasConnection;
+      if (!hasConnection) {
+        if (hasValidCachedSettings) {
+          return Right(cachedSettings);
+        }
         return Left(
           NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
         );
       }
 
-      final settings = await remoteDataSource.getChatSettings();
-      await localDataSource.cacheSettings(settings);
-      return Right(settings);
+      try {
+        final settings = await remoteDataSource.getChatSettings();
+        await localDataSource.cacheSettings(settings);
+        return Right(settings);
+      } catch (_) {
+        if (hasValidCachedSettings) {
+          return Right(cachedSettings);
+        }
+        rethrow;
+      }
     } catch (e) {
       return ErrorHandler.handle(e);
     }

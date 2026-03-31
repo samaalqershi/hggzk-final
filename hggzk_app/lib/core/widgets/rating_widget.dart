@@ -257,7 +257,10 @@ class _RatingStarsInputState extends State<RatingStarsInput> {
       children: List.generate(5, (index) {
         return GestureDetector(
           onTapDown: (details) {
-            final RenderBox box = context.findRenderObject() as RenderBox;
+            final renderObject = context.findRenderObject();
+            if (renderObject is! RenderBox || !renderObject.attached) return;
+
+            final RenderBox box = renderObject;
             final localPosition = box.globalToLocal(details.globalPosition);
             final starWidth = widget.starSize;
             final starIndex = localPosition.dx / starWidth;

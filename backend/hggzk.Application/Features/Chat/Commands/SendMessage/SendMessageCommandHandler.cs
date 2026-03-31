@@ -16,6 +16,7 @@ using YemenBooking.Core.Interfaces;
 using YemenBooking.Core.Settings;
 using YemenBooking.Application.Common.Interfaces;
 using YemenBooking.Application.Features.Chat.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace YemenBooking.Application.Features.Chat.Commands.SendMessage
 {
@@ -34,6 +35,9 @@ namespace YemenBooking.Application.Features.Chat.Commands.SendMessage
         private readonly IMapper _mapper;
         private readonly IFirebaseService _firebaseService;
         private readonly ChatAttachmentSettings _attachmentSettings;
+        private readonly IChatRealtimeNotifier _chatRealtimeNotifier;
+        private readonly IUserRepository _userRepository;
+        private readonly IChatSettingsRepository _chatSettingsRepository;
         private readonly ILogger<SendMessageCommandHandler> _logger;
 
         /// <summary>
@@ -50,6 +54,9 @@ namespace YemenBooking.Application.Features.Chat.Commands.SendMessage
             IMapper mapper,
             IFirebaseService firebaseService,
             IOptions<ChatAttachmentSettings> attachmentSettings,
+            IChatRealtimeNotifier chatRealtimeNotifier,
+            IUserRepository userRepository,
+            IChatSettingsRepository chatSettingsRepository,
             ILogger<SendMessageCommandHandler> logger)
         {
             _conversationRepository = conversationRepository;
@@ -61,6 +68,9 @@ namespace YemenBooking.Application.Features.Chat.Commands.SendMessage
             _mapper = mapper;
             _firebaseService = firebaseService;
             _attachmentSettings = attachmentSettings.Value;
+            _chatRealtimeNotifier = chatRealtimeNotifier;
+            _userRepository = userRepository;
+            _chatSettingsRepository = chatSettingsRepository;
             _logger = logger;
         }
 
@@ -100,6 +110,21 @@ namespace YemenBooking.Application.Features.Chat.Commands.SendMessage
                     conversation = convWithDetails ?? conversation;
                 }
 
+                var otherParticipantIds = (conversation.Participants ?? Enumerable.Empty<User>())
+                    .Where(p => p.Id != userId)
+                    .Select(p => p.Id)
+                    .Distinct()
+                    .ToList();
+
+                var otherUsers = await _userRepository.GetQueryable()
+                    .AsNoTracking()
+                    .Include(u => u.UserRoles)
+                        .ThenInclude(ur => ur.Role)
+                    .Include(u => u.Properties)
+                    .Include(u => u.StaffPositions)
+                    .Where(u => otherParticipantIds.Contains(u.Id))
+                    .ToListAsync(cancellationToken);
+
                 // تحقق من صلاحيات الإرسال وفق القيود المطلوبة
                 // Admin: يستطيع مراسلة الجميع
                 // Owner/Staff: مراسلة Admin أو العملاء الذين سبق مراسلتهُم للعقار
@@ -121,12 +146,11 @@ namespace YemenBooking.Application.Features.Chat.Commands.SendMessage
                         }
 
                         // الطرف الآخر Admin أو عميل سبق مراسلة العقار
-                        var otherParticipants = (conversation.Participants ?? Enumerable.Empty<User>()).Where(p => p.Id != userId).ToList();
-                        if (otherParticipants.Count != 1)
+                        if (otherUsers.Count != 1)
                         {
                             return ResultDto<ChatMessageDto>.Failed("محادثات المالك/الموظف يجب أن تكون ثنائية", errorCode: "invalid_conversation_participants");
                         }
-                        var other = otherParticipants[0];
+                        var other = otherUsers[0];
                         var otherRoles = (other.UserRoles ?? new List<UserRole>()).Select(ur => ur.Role?.Name?.ToLowerInvariant() ?? string.Empty).ToList();
                         var otherIsAdmin = otherRoles.Contains("admin") || otherRoles.Contains("super_admin");
                         var otherIsClient = otherRoles.Contains("client") || otherRoles.Contains("customer");
@@ -142,12 +166,25 @@ namespace YemenBooking.Application.Features.Chat.Commands.SendMessage
                     else if (isClient)
                     {
                         // عميل: يستطيع الإرسال في محادثة مع Admin أو مع محادثة لعقار
-                        // إذا كانت المحادثة بدون PropertyId وليست مع Admin، نمنع
-                        var otherParticipants = (conversation.Participants ?? Enumerable.Empty<User>()).Where(p => p.Id != userId).ToList();
-                        var otherRoles = otherParticipants.SelectMany(p => (p.UserRoles ?? new List<UserRole>()).Select(ur => ur.Role?.Name?.ToLowerInvariant() ?? string.Empty)).ToList();
+                        // إذا كانت المحادثة بدون PropertyId وليست مع Admin، نسمح أيضًا
+                        // بالمحادثة مع حساب مالك/موظف عقار حتى لو كانت المحادثة legacy
+                        // ولم يُربط بها PropertyId في الإصدارات الأقدم.
+                        var otherRoles = otherUsers
+                            .SelectMany(p => (p.UserRoles ?? new List<UserRole>())
+                                .Select(ur => ur.Role?.Name?.ToLowerInvariant() ?? string.Empty))
+                            .ToList();
                         var anyAdmin = otherRoles.Contains("admin") || otherRoles.Contains("super_admin");
                         var isPropertyChat = conversation.PropertyId.HasValue;
-                        if (!anyAdmin && !isPropertyChat)
+                        var anyPropertySideParticipant = otherUsers.Any(u =>
+                            (u.Properties?.Any() ?? false) ||
+                            (u.StaffPositions?.Any() ?? false) ||
+                            otherRoles.Contains("owner") ||
+                            otherRoles.Contains("hotel_owner") ||
+                            otherRoles.Contains("staff") ||
+                            otherRoles.Contains("hotel_manager") ||
+                            otherRoles.Contains("receptionist"));
+
+                        if (!anyAdmin && !isPropertyChat && !anyPropertySideParticipant)
                         {
                             return ResultDto<ChatMessageDto>.Failed("لا يمكنك الإرسال إلا لمحادثات مع الإدارة أو مع عقار", errorCode: "client_restriction");
                         }
@@ -188,7 +225,7 @@ namespace YemenBooking.Application.Features.Chat.Commands.SendMessage
                             {
                                 Id = Guid.NewGuid(),
                                 ConversationId = request.ConversationId,
-                                FileName = result.FileName ?? file.FileName,
+                                FileName = file.FileName,
                                 ContentType = result.ContentType ?? string.Empty,
                                 FileSize = result.FileSizeBytes,
                                 FilePath = result.FilePath ?? string.Empty,
@@ -232,7 +269,6 @@ namespace YemenBooking.Application.Features.Chat.Commands.SendMessage
                             attachment.MessageId = message.Id;
                             // ensure EF tracks update
                             await _attachmentRepository.UpdateAsync(attachment, cancellationToken);
-                            message.Attachments.Add(attachment);
                         }
                     }
                 }
@@ -243,7 +279,15 @@ namespace YemenBooking.Application.Features.Chat.Commands.SendMessage
 
                 await _messageRepository.SaveChangesAsync(cancellationToken);
 
-                var messageDto = _mapper.Map<ChatMessageDto>(message);
+                var persistedMessage = await _messageRepository
+                    .GetQueryable()
+                    .AsSplitQuery()
+                    .Include(m => m.Reactions)
+                    .Include(m => m.Attachments)
+                    .FirstOrDefaultAsync(m => m.Id == message.Id, cancellationToken)
+                    ?? message;
+
+                var messageDto = _mapper.Map<ChatMessageDto>(persistedMessage);
                 // Convert timestamps from UTC to user's local time for client display
                 messageDto.CreatedAt = await _currentUserService.ConvertFromUtcToUserLocalAsync(messageDto.CreatedAt);
                 messageDto.UpdatedAt = await _currentUserService.ConvertFromUtcToUserLocalAsync(messageDto.UpdatedAt);
@@ -260,6 +304,11 @@ namespace YemenBooking.Application.Features.Chat.Commands.SendMessage
                 }
                 if (messageDto.Attachments != null)
                 {
+                    messageDto.Attachments = messageDto.Attachments
+                        .GroupBy(att => att.Id)
+                        .Select(group => group.First())
+                        .ToList();
+
                     foreach (var att in messageDto.Attachments)
                     {
                         att.CreatedAt = await _currentUserService.ConvertFromUtcToUserLocalAsync(att.CreatedAt);
@@ -276,13 +325,32 @@ namespace YemenBooking.Application.Features.Chat.Commands.SendMessage
                 foreach (var participant in conversationWithDetails.Participants)
                 {
                     var isSender = participant.Id == userId;
-                    notificationTasks.Add(_firebaseService.SendNotificationAsync($"user_{participant.Id}", isSender ? string.Empty : "رسالة جديدة", isSender ? string.Empty : (message.Content ?? string.Empty), new Dictionary<string, string>
+                    var participantSettings = await _chatSettingsRepository.GetByUserIdAsync(participant.Id, cancellationToken);
+                    if (!isSender && !(participantSettings?.NotificationsEnabled ?? true))
+                    {
+                        continue;
+                    }
+
+                    var payload = new Dictionary<string, string>
                     {
                         { "type", "new_message" },
                         { "conversation_id", request.ConversationId.ToString() },
                         { "message_id", message.Id.ToString() },
                         { "silent", isSender ? "true" : "false" }
-                    }, cancellationToken));
+                    };
+
+                    if (!isSender && !(participantSettings?.SoundEnabled ?? true))
+                    {
+                        payload["channel_id"] = "hggzk_chat_silent";
+                        payload["sound_enabled"] = "false";
+                    }
+
+                    notificationTasks.Add(_firebaseService.SendNotificationAsync(
+                        $"user_{participant.Id}",
+                        isSender ? string.Empty : "رسالة جديدة",
+                        isSender ? string.Empty : (message.Content ?? string.Empty),
+                        payload,
+                        cancellationToken));
                 }
 
                 if (notificationTasks.Count > 0)
@@ -293,6 +361,17 @@ namespace YemenBooking.Application.Features.Chat.Commands.SendMessage
                         _logger.LogWarning("تعذر إرسال بعض إشعارات Firebase للمحادثة {ConversationId}", request.ConversationId);
                     }
                 }
+
+                await _chatRealtimeNotifier.NotifyMessageCreatedAsync(
+                    request.ConversationId,
+                    messageDto,
+                    userId,
+                    cancellationToken);
+                await _chatRealtimeNotifier.NotifyConversationUpdatedAsync(
+                    request.ConversationId,
+                    "message_sent",
+                    userId,
+                    cancellationToken);
 
                 return ResultDto<ChatMessageDto>.Ok(messageDto, "تم إرسال الرسالة بنجاح");
             }

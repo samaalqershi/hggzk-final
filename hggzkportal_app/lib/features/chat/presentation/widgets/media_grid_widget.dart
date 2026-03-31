@@ -1,30 +1,37 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io';
 import 'dart:ui';
+import '../../../../app/dependency_injection/injection_container.dart';
+import '../../../../core/constants/storage_constants.dart';
+import '../../../../core/services/local_storage_service.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/image_utils.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
-import '../../domain/entities/message.dart';
+import '../../chat_settings_keys.dart';
+import '../pages/chat_media_viewer_page.dart';
+import '../../domain/entities/attachment.dart';
 
-/// يعرّف الكلاس `MediaGridWidget`.
-/// Describes the `MediaGridWidget` class.
+/// Grid of visual chat attachments that lets the user open images or videos
+/// from the conversation media gallery.
+/// شبكة لمرفقات الدردشة المرئية تتيح فتح الصور أو الفيديوهات من معرض
+/// وسائط المحادثة.
 class MediaGridWidget extends StatelessWidget {
-  /// Holds the `messages` value.
-  /// العربية: يخزن القيمة `messages`.
-  final List<Message> messages;
+  /// All image and video attachments that should appear in the gallery.
+  /// جميع مرفقات الصور والفيديو التي يجب أن تظهر داخل المعرض.
+  final List<Attachment> attachments;
 
-  /// ينفذ العملية `Function`.
-  /// Runs the `Function` operation.
-  final Function(Message) onMediaTap;
-
-  /// ينشئ مثيلاً من `MediaGridWidget`.
-  /// Builds an instance of `MediaGridWidget`.
+  /// Builds the compact attachment gallery for a chat thread.
+  /// ينشئ معرض المرفقات المضغوط لسلسلة المحادثة.
   const MediaGridWidget({
     super.key,
-    required this.messages,
-    required this.onMediaTap,
+    required this.attachments,
   });
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// Renders the 3-column gallery of conversation media.
+  /// يرسم معرض وسائط المحادثة المكوّن من ثلاثة أعمدة.
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
@@ -34,67 +41,79 @@ class MediaGridWidget extends StatelessWidget {
         crossAxisSpacing: 4, // Reduced from 8
         mainAxisSpacing: 4,
       ),
-      itemCount: messages.length,
+      itemCount: attachments.length,
       physics: const BouncingScrollPhysics(),
       itemBuilder: (context, index) {
-        final message = messages[index];
         return _MediaItem(
-          message: message,
+          attachment: attachments[index],
+          galleryAttachments: attachments,
           index: index,
-          onTap: () => onMediaTap(message),
         );
       },
     );
   }
 }
 
-/// يعرّف الكلاس `_MediaItem`.
-/// Describes the `_MediaItem` class.
+/// Single tile inside the media gallery.
+/// بطاقة منفصلة داخل معرض الوسائط.
 class _MediaItem extends StatefulWidget {
-  /// Holds the `message` value.
-  /// العربية: يخزن القيمة `message`.
-  final Message message;
+  /// Attachment represented by this tile.
+  /// المرفق الذي تمثله هذه البطاقة.
+  final Attachment attachment;
 
-  /// يخزن العضو `index`.
-  /// Holds the `index` member.
+  /// Full attachment collection so the viewer can open the whole gallery.
+  /// المجموعة الكاملة للمرفقات حتى يفتح العارض كل المعرض.
+  final List<Attachment> galleryAttachments;
+
+  /// Tile index used to stagger the entrance animation.
+  /// فهرس البطاقة المستخدم لتدرّج حركة الظهور.
   final int index;
 
-  /// يخزن العضو `onTap`.
-  /// Holds the `onTap` member.
-  final VoidCallback onTap;
-
-  /// ينشئ مثيلاً من `_MediaItem`.
-  /// Builds an instance of `_MediaItem`.
+  /// Builds one animated media thumbnail.
+  /// ينشئ صورة مصغرة متحركة واحدة للوسائط.
   const _MediaItem({
-    required this.message,
+    required this.attachment,
+    required this.galleryAttachments,
     required this.index,
-    required this.onTap,
   });
 
-  /// ينفذ العملية `createState`.
-  /// Runs the `createState` operation.
+  /// Creates the animated tile state.
+  /// ينشئ حالة البطاقة المتحركة.
   @override
   State<_MediaItem> createState() => _MediaItemState();
 }
 
-/// يعرّف الكلاس `_MediaItemState`.
-/// Describes the `_MediaItemState` class.
+/// Animates the tile entrance and press feedback for a media preview.
+/// يدير حركة الظهور وتغذية الضغط لمعاينة الوسائط.
 class _MediaItemState extends State<_MediaItem>
     with SingleTickerProviderStateMixin {
-  /// يخزن العضو `_controller`.
-  /// Holds the `_controller` member.
+  String? _cachedRemoteVideoPath;
+  String? _cachedVideoThumbnailPath;
+
+  bool get _autoDownloadEnabled {
+    final persisted =
+        sl<LocalStorageService>().getData(ChatSettingsKeys.autoDownloadMedia);
+    if (persisted is bool) {
+      return persisted;
+    }
+
+    return true;
+  }
+
+  /// Animation controller for the tile entrance.
+  /// متحكم الحركة الخاص بظهور البطاقة.
   late AnimationController _controller;
 
-  /// يخزن العضو `_scaleAnimation`.
-  /// Holds the `_scaleAnimation` member.
+  /// Scale curve used while the tile appears.
+  /// منحنى التكبير المستخدم أثناء ظهور البطاقة.
   late Animation<double> _scaleAnimation;
 
-  /// يخزن العضو `_isPressed`.
-  /// Holds the `_isPressed` member.
+  /// Tracks whether the tile is currently pressed.
+  /// يتتبع ما إذا كانت البطاقة مضغوطة الآن.
   bool _isPressed = false;
 
-  /// ينفذ العملية `initState`.
-  /// Runs the `initState` operation.
+  /// Prepares the entry animation for the tile.
+  /// يهيئ حركة الظهور للبطاقة.
   @override
   void initState() {
     super.initState();
@@ -114,31 +133,23 @@ class _MediaItemState extends State<_MediaItem>
     _controller.forward();
   }
 
-  /// ينفذ العملية `dispose`.
-  /// Runs the `dispose` operation.
+  /// Releases the tile animation controller.
+  /// يحرر متحكم حركة البطاقة.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// Resolves the attachment type and renders the thumbnail or video badge.
+  /// يحدد نوع المرفق ثم يرسم الصورة المصغرة أو علامة الفيديو.
   @override
   Widget build(BuildContext context) {
-    String? imageUrl;
-    bool isVideo = false;
-
-    if (widget.message.messageType == 'image' &&
-        widget.message.attachments.isNotEmpty) {
-      imageUrl = widget.message.attachments.first.fileUrl;
-    } else if (widget.message.messageType == 'video' &&
-        widget.message.attachments.isNotEmpty) {
-      imageUrl = widget.message.attachments.first.thumbnailUrl;
-      isVideo = true;
-    }
-
-    if (imageUrl == null) return const SizedBox.shrink();
+    final attachment = widget.attachment;
+    final isVideo = attachment.isVideo;
+    final autoDownloadEnabled = _autoDownloadEnabled;
+    final thumbnailUrl = attachment.thumbnailUrl?.trim();
+    final localPath = attachment.filePath.trim();
 
     return ScaleTransition(
       scale: _scaleAnimation,
@@ -146,7 +157,14 @@ class _MediaItemState extends State<_MediaItem>
         onTapDown: (_) => setState(() => _isPressed = true),
         onTapUp: (_) {
           setState(() => _isPressed = false);
-          widget.onTap();
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => ChatMediaViewerPage(
+                attachments: widget.galleryAttachments,
+                initialIndex: widget.index,
+              ),
+            ),
+          );
         },
         onTapCancel: () => setState(() => _isPressed = false),
         child: AnimatedScale(
@@ -157,7 +175,7 @@ class _MediaItemState extends State<_MediaItem>
               borderRadius: BorderRadius.circular(8), // Reduced from 10
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.shadowDark.withValues(alpha: 0.1),
+                  color: AppTheme.shadowDark.withOpacity(0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -169,10 +187,59 @@ class _MediaItemState extends State<_MediaItem>
                 fit: StackFit.expand,
                 children: [
                   // Image
-                  CachedImageWidget(
-                    imageUrl: imageUrl,
-                    fit: BoxFit.cover,
-                  ),
+                  if (!isVideo)
+                    localPath.isNotEmpty && File(localPath).existsSync()
+                        ? Image.file(
+                            File(localPath),
+                            fit: BoxFit.cover,
+                          )
+                        : autoDownloadEnabled
+                            ? CachedImageWidget(
+                                imageUrl: attachment.fileUrl,
+                                fit: BoxFit.cover,
+                                httpHeaders: _buildAttachmentHeaders(),
+                              )
+                            : _buildDeferredMediaPlaceholder(
+                                icon: Icons.image_outlined,
+                              )
+                  else if (thumbnailUrl != null && thumbnailUrl.isNotEmpty)
+                    _buildRemoteThumbnailWithFallback(thumbnailUrl)
+                  else if (localPath.isNotEmpty && File(localPath).existsSync())
+                    Image.file(
+                      File(localPath),
+                      fit: BoxFit.cover,
+                    )
+                  else
+                    FutureBuilder<String?>(
+                      future: _ensureVideoThumbnail(),
+                      builder: (context, snapshot) {
+                        final thumbPath = snapshot.data;
+                        if (thumbPath != null && File(thumbPath).existsSync()) {
+                          return Image.file(
+                            File(thumbPath),
+                            fit: BoxFit.cover,
+                          );
+                        }
+
+                        return Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                AppTheme.darkCard.withOpacity(0.8),
+                                AppTheme.darkSurface.withOpacity(0.6),
+                              ],
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.videocam_rounded,
+                            size: 28,
+                            color: AppTheme.textMuted.withOpacity(0.55),
+                          ),
+                        );
+                      },
+                    ),
 
                   // Gradient overlay for video
                   if (isVideo)
@@ -183,7 +250,7 @@ class _MediaItemState extends State<_MediaItem>
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            Colors.black.withValues(alpha: 0.3),
+                            Colors.black.withOpacity(0.3),
                           ],
                         ),
                       ),
@@ -202,13 +269,13 @@ class _MediaItemState extends State<_MediaItem>
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  Colors.white.withValues(alpha: 0.2),
-                                  Colors.white.withValues(alpha: 0.1),
+                                  Colors.white.withOpacity(0.2),
+                                  Colors.white.withOpacity(0.1),
                                 ],
                               ),
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.3),
+                                color: Colors.white.withOpacity(0.3),
                                 width: 0.5,
                               ),
                             ),
@@ -230,9 +297,9 @@ class _MediaItemState extends State<_MediaItem>
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            Colors.white.withValues(alpha: 0.0),
-                            Colors.white.withValues(alpha: 0.1),
-                            Colors.white.withValues(alpha: 0.0),
+                            Colors.white.withOpacity(0.0),
+                            Colors.white.withOpacity(0.1),
+                            Colors.white.withOpacity(0.0),
                           ],
                           stops: const [0.0, 0.5, 1.0],
                         ),
@@ -245,5 +312,195 @@ class _MediaItemState extends State<_MediaItem>
         ),
       ),
     );
+  }
+
+  Widget _buildDeferredMediaPlaceholder({required IconData icon}) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.darkCard.withOpacity(0.82),
+            AppTheme.darkSurface.withOpacity(0.64),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          icon,
+          size: 28,
+          color: AppTheme.textMuted.withOpacity(0.55),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRemoteThumbnailWithFallback(String thumbnailUrl) {
+    final localThumbnailPath = _resolveLocalThumbnailPath(thumbnailUrl);
+    if (localThumbnailPath != null) {
+      return Image.file(
+        File(localThumbnailPath),
+        fit: BoxFit.cover,
+      );
+    }
+
+    final resolvedThumbnailUrl = ImageUtils.resolveUrl(thumbnailUrl);
+    if (resolvedThumbnailUrl.isEmpty) {
+      return _buildGeneratedVideoThumbnailFallback();
+    }
+
+    return Image.network(
+      resolvedThumbnailUrl,
+      fit: BoxFit.cover,
+      headers: _buildAttachmentHeaders(),
+      errorBuilder: (_, __, ___) => _buildGeneratedVideoThumbnailFallback(),
+    );
+  }
+
+  Widget _buildGeneratedVideoThumbnailFallback() {
+    return FutureBuilder<String?>(
+      future: _ensureVideoThumbnail(),
+      builder: (context, snapshot) {
+        final thumbPath = snapshot.data;
+        if (thumbPath != null && File(thumbPath).existsSync()) {
+          return Image.file(
+            File(thumbPath),
+            fit: BoxFit.cover,
+          );
+        }
+
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppTheme.darkCard.withOpacity(0.8),
+                AppTheme.darkSurface.withOpacity(0.6),
+              ],
+            ),
+          ),
+          child: Icon(
+            Icons.videocam_rounded,
+            size: 28,
+            color: AppTheme.textMuted.withOpacity(0.55),
+          ),
+        );
+      },
+    );
+  }
+
+  Map<String, String>? _buildAttachmentHeaders() {
+    final token = sl<LocalStorageService>()
+        .getData(StorageConstants.accessToken) as String?;
+    if (token == null || token.isEmpty) {
+      return null;
+    }
+
+    return {
+      'Authorization': 'Bearer $token',
+    };
+  }
+
+  Future<String?> _ensureVideoThumbnail() async {
+    if (!widget.attachment.isVideo) return null;
+
+    final existingThumbnail = _cachedVideoThumbnailPath;
+    if (existingThumbnail != null && File(existingThumbnail).existsSync()) {
+      return existingThumbnail;
+    }
+
+    final localPath = widget.attachment.filePath.trim();
+    if (localPath.isNotEmpty && File(localPath).existsSync()) {
+      return _generateThumbnail(localPath);
+    }
+
+    try {
+      final cachedVideoPath = await _ensureRemoteVideoCached();
+      return _generateThumbnail(cachedVideoPath);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<String?> _generateThumbnail(String videoPath) async {
+    final generated = await VideoThumbnail.thumbnailFile(
+      video: videoPath,
+      imageFormat: ImageFormat.JPEG,
+      maxWidth: 640,
+      quality: 70,
+      thumbnailPath: Directory.systemTemp.path,
+    );
+    if (generated != null) {
+      _cachedVideoThumbnailPath = generated;
+    }
+    return generated;
+  }
+
+  Future<String> _ensureRemoteVideoCached() async {
+    final existingPath = _cachedRemoteVideoPath;
+    if (existingPath != null && File(existingPath).existsSync()) {
+      return existingPath;
+    }
+
+    final extension = widget.attachment.fileExtension.isNotEmpty
+        ? widget.attachment.fileExtension
+        : 'mp4';
+    final targetPath =
+        '${Directory.systemTemp.path}/chat_media_${widget.attachment.id}.$extension';
+    final targetFile = File(targetPath);
+    if (targetFile.existsSync()) {
+      _cachedRemoteVideoPath = targetPath;
+      return targetPath;
+    }
+
+    final client = HttpClient();
+    try {
+      final resolvedVideoUrl = ImageUtils.resolveUrl(widget.attachment.fileUrl);
+      if (resolvedVideoUrl.isEmpty) {
+        throw const HttpException('Video URL is empty');
+      }
+
+      final request = await client.getUrl(Uri.parse(resolvedVideoUrl));
+      final headers = _buildAttachmentHeaders();
+      headers?.forEach(request.headers.add);
+      final response = await request.close();
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw HttpException(
+          'Media download failed with status ${response.statusCode}',
+          uri: Uri.parse(resolvedVideoUrl),
+        );
+      }
+
+      final bytes = await consolidateHttpClientResponseBytes(response);
+      await targetFile.writeAsBytes(bytes, flush: true);
+      _cachedRemoteVideoPath = targetPath;
+      return targetPath;
+    } finally {
+      client.close(force: true);
+    }
+  }
+
+  String? _resolveLocalThumbnailPath(String thumbnailUrl) {
+    final metadataPath = widget.attachment.metadata?['localThumbnailPath'];
+    if (metadataPath is String && metadataPath.trim().isNotEmpty) {
+      final metadataFile = File(metadataPath.trim());
+      if (metadataFile.existsSync()) {
+        return metadataPath.trim();
+      }
+    }
+
+    final normalizedPath = thumbnailUrl.trim();
+    if (normalizedPath.isEmpty) {
+      return null;
+    }
+
+    final file = File(normalizedPath);
+    if (!file.existsSync()) {
+      return null;
+    }
+
+    return normalizedPath;
   }
 }

@@ -43,8 +43,26 @@ class ApiConstants {
   /// English: WebSocket endpoint used by the real-time communication layer.
   static const String socketUrl = String.fromEnvironment(
     'SOCKET_URL',
-    defaultValue: 'wss://ws.api.hggzk.com',
+    defaultValue: '',
   );
+
+  /// Arabic: عنوان WebSocket النهائي بعد استخدام المتغير البيئي أو اشتقاقه من عنوان الخادم الأساسي.
+  /// English: Final WebSocket URL after using the environment override or deriving it from the base URL.
+  static String get resolvedSocketUrl {
+    final configured = socketUrl.trim();
+    if (configured.isNotEmpty) {
+      return _stripTrailingSlash(configured);
+    }
+
+    final base = _stripTrailingSlash(baseUrl);
+    if (base.startsWith('https://')) {
+      return 'wss://${base.substring('https://'.length)}';
+    }
+    if (base.startsWith('http://')) {
+      return 'ws://${base.substring('http://'.length)}';
+    }
+    return base;
+  }
 
   /// Arabic: مفتاح Google Places الذي يُستخرج أولًا من البيئة ثم من القيم الاحتياطية الخاصة بالمنصة.
   /// English: Google Places key resolved from the environment first, then from platform-specific fallbacks.

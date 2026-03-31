@@ -1,105 +1,89 @@
-import 'dart:math' as math;
-import 'dart:ui';
-
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:just_audio/just_audio.dart';
+import 'dart:async';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hggzkportal/injection_container.dart';
-import 'package:hggzkportal/services/local_storage_service.dart';
+import 'dart:ui';
+import 'package:just_audio/just_audio.dart';
+import '../../../../app/dependency_injection/injection_container.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:video_player/video_player.dart';
+import '../../../../core/constants/storage_constants.dart';
+import '../../../../core/services/local_storage_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/widgets/cached_image_widget.dart';
-import '../../../../core/constants/storage_constants.dart';
 import '../../../../core/utils/image_utils.dart';
+import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/attachment.dart';
-import '../../data/datasources/chat_local_datasource.dart';
-import 'dart:io';
 
-/// يعرّف الكلاس `AttachmentPreviewWidget`.
-/// Describes the `AttachmentPreviewWidget` class.
+/// Renders a chat attachment as an image, video, audio control, or document
+/// card depending on the attachment type.
+/// يرسم مرفق الدردشة كصورة أو فيديو أو عنصر صوت أو بطاقة مستند حسب النوع.
 class AttachmentPreviewWidget extends StatefulWidget {
-  /// Holds the `attachment` value.
-  /// العربية: يخزن القيمة `attachment`.
+  /// Attachment being previewed in the message bubble.
+  /// المرفق الذي تتم معاينته داخل فقاعة الرسالة.
   final Attachment attachment;
 
-  /// يخزن العضو `isMe`.
-  /// Holds the `isMe` member.
+  /// Whether the preview belongs to the current user's outgoing message.
+  /// يحدد ما إذا كانت المعاينة تخص رسالة صادرة من المستخدم الحالي.
   final bool isMe;
 
-  /// يخزن العضو `onTap`.
-  /// Holds the `onTap` member.
+  /// Opens the full preview or viewer when the user taps the attachment.
+  /// يفتح المعاينة الكاملة أو العارض عند النقر على المرفق.
   final VoidCallback? onTap;
 
-  /// يخزن العضو `onDownload`.
-  /// Holds the `onDownload` member.
+  /// Starts a download flow for document-like attachments.
+  /// يبدأ مسار التنزيل للمرفقات الشبيهة بالمستندات.
   final VoidCallback? onDownload;
-  // Optional override to force audio UI when server MIME is generic
-  /// يخزن العضو `forceAudio`.
-  /// Holds the `forceAudio` member.
-  final bool forceAudio;
 
-  /// ينشئ مثيلاً من `AttachmentPreviewWidget`.
-  /// Builds an instance of `AttachmentPreviewWidget`.
+  /// Whether remote media previews may download automatically.
+  /// يحدد ما إذا كان مسموحًا بتحميل معاينات الوسائط البعيدة تلقائيًا.
+  final bool autoDownloadEnabled;
+
+  /// Builds the attachment preview card shown inside a chat bubble.
+  /// ينشئ بطاقة معاينة المرفق التي تظهر داخل فقاعة الدردشة.
   const AttachmentPreviewWidget({
     super.key,
     required this.attachment,
     required this.isMe,
     this.onTap,
     this.onDownload,
-    this.forceAudio = false,
+    this.autoDownloadEnabled = true,
   });
 
-  /// ينفذ العملية `createState`.
-  /// Runs the `createState` operation.
+  /// Creates the animated state used by the preview card.
+  /// ينشئ الحالة المتحركة المستخدمة لبطاقة المعاينة.
   @override
   State<AttachmentPreviewWidget> createState() =>
       _AttachmentPreviewWidgetState();
 }
 
-/// يعرّف الكلاس `_AttachmentPreviewWidgetState`.
-/// Describes the `_AttachmentPreviewWidgetState` class.
+/// Handles preview animations and type-specific rendering for attachments.
+/// يدير حركات المعاينة والرسم الخاص بكل نوع من المرفقات.
 class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     with SingleTickerProviderStateMixin {
-  /// يخزن العضو `_shimmerController`.
-  /// Holds the `_shimmerController` member.
+  /// Controller used to animate loading shimmer overlays.
+  /// متحكم الحركة المستخدم لتمرير تأثير اللمعان.
   late AnimationController _shimmerController;
 
-  /// يخزن العضو `_shimmerAnimation`.
-  /// Holds the `_shimmerAnimation` member.
+  /// Animation value that moves the shimmer highlight across the card.
+  /// قيمة حركة تنقل اللمعة عبر البطاقة.
   late Animation<double> _shimmerAnimation;
-
-  /// يخزن العضو `_imageStream`.
-  /// Holds the `_imageStream` member.
-  ImageStream? _imageStream;
-
-  /// يخزن العضو `_imageStreamListener`.
-  /// Holds the `_imageStreamListener` member.
-  ImageStreamListener? _imageStreamListener;
-
-  /// يخزن العضو `_displaySize`.
-  /// Holds the `_displaySize` member.
-  Size? _displaySize;
-
-  // Audio player for voice messages
-  /// يخزن العضو `_audioPlayer`.
-  /// Holds the `_audioPlayer` member.
   AudioPlayer? _audioPlayer;
+  StreamSubscription<Duration?>? _durationSubscription;
+  StreamSubscription<Duration>? _positionSubscription;
+  StreamSubscription<PlayerState>? _playerStateSubscription;
+  Duration _audioDuration = Duration.zero;
+  Duration _audioPosition = Duration.zero;
+  bool _isPlaying = false;
+  bool _isPreparingAudio = false;
+  String? _cachedRemoteAudioPath;
+  String? _cachedRemoteVideoPath;
+  String? _cachedVideoThumbnailPath;
+  int? _resolvedVideoDurationSeconds;
 
-  /// يخزن العضو `_playerState`.
-  /// Holds the `_playerState` member.
-  PlayerState? _playerState;
-
-  /// يخزن العضو `_position`.
-  /// Holds the `_position` member.
-  Duration _position = Duration.zero;
-
-  /// يخزن العضو `_duration`.
-  /// Holds the `_duration` member.
-  Duration _duration = Duration.zero;
-
-  /// ينفذ العملية `initState`.
-  /// Runs the `initState` operation.
+  /// Prepares the shimmer animation when the card mounts.
+  /// يهيئ حركة اللمعان عند تركيب البطاقة.
   @override
   void initState() {
     super.initState();
@@ -120,165 +104,113 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
       _shimmerController.repeat();
     }
 
-    /// ينفذ العملية `_resolveImageDimensions`.
-    /// Runs the `_resolveImageDimensions` operation.
-    _resolveImageDimensions();
+    if (widget.attachment.isVideo) {
+      _resolvedVideoDurationSeconds = widget.attachment.duration;
+      if ((_resolvedVideoDurationSeconds ?? 0) <= 0) {
+        unawaited(_resolveVideoDuration());
+      }
+    }
 
-    // Lazy init audio only when needed
+    if (widget.attachment.isAudio) {
+      _audioPlayer = AudioPlayer();
+      _durationSubscription = _audioPlayer!.durationStream.listen((duration) {
+        if (!mounted || duration == null) return;
+        setState(() {
+          _audioDuration = duration;
+        });
+      });
+      _positionSubscription = _audioPlayer!.positionStream.listen((position) {
+        if (!mounted) return;
+        setState(() {
+          _audioPosition = position;
+        });
+      });
+      _playerStateSubscription =
+          _audioPlayer!.playerStateStream.listen((state) {
+        if (!mounted) return;
+        final completed = state.processingState == ProcessingState.completed;
+        setState(() {
+          _isPlaying = state.playing;
+          if (completed) {
+            _audioPosition = Duration.zero;
+            _isPlaying = false;
+          }
+        });
+        if (completed) {
+          _audioPlayer!.seek(Duration.zero);
+        }
+      });
+    }
   }
 
-  /// ينفذ العملية `dispose`.
-  /// Runs the `dispose` operation.
+  /// Releases the shimmer controller before disposal.
+  /// يحرر متحكم اللمعان قبل التخلص من الكائن.
   @override
   void dispose() {
-    _removeImageStreamListener();
-    _shimmerController.dispose();
+    _durationSubscription?.cancel();
+    _positionSubscription?.cancel();
+    _playerStateSubscription?.cancel();
     _audioPlayer?.dispose();
+    _shimmerController.dispose();
     super.dispose();
   }
 
-  /// ينفذ العملية `didUpdateWidget`.
-  /// Runs the `didUpdateWidget` operation.
-  @override
-  void didUpdateWidget(covariant AttachmentPreviewWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.attachment.fileUrl != widget.attachment.fileUrl) {
-      _resolveImageDimensions();
-    }
-  }
-
-  /// ينفذ العملية `_resolveImageDimensions`.
-  /// Runs the `_resolveImageDimensions` operation.
-  void _resolveImageDimensions() {
-    _removeImageStreamListener();
-    final resolvedUrl = ImageUtils.resolveUrl(widget.attachment.fileUrl);
-    if (resolvedUrl.isEmpty) {
-      setState(() {
-        _displaySize = const Size(180, 180);
-      });
-      return;
-    }
-
-    final headers = _buildAuthHeaders();
-    final provider = CachedNetworkImageProvider(resolvedUrl, headers: headers);
-    final stream = provider.resolve(const ImageConfiguration());
-    final listener = ImageStreamListener((imageInfo, _) {
-      final width = imageInfo.image.width / imageInfo.scale;
-      final height = imageInfo.image.height / imageInfo.scale;
-      final constrained = _constrainSize(Size(width, height));
-      if (mounted) {
-        setState(() {
-          _displaySize = constrained;
-        });
-      }
-      _removeImageStreamListener();
-    }, onError: (_, __) {
-      _removeImageStreamListener();
-    });
-
-    stream.addListener(listener);
-    _imageStream = stream;
-    _imageStreamListener = listener;
-  }
-
-  /// ينفذ العملية `_removeImageStreamListener`.
-  /// Runs the `_removeImageStreamListener` operation.
-  void _removeImageStreamListener() {
-    if (_imageStream != null && _imageStreamListener != null) {
-      _imageStream!.removeListener(_imageStreamListener!);
-    }
-    _imageStream = null;
-    _imageStreamListener = null;
-  }
-
-  /// ينفذ العملية `_constrainSize`.
-  /// Runs the `_constrainSize` operation.
-  Size _constrainSize(Size original) {
-    const maxWidth = 300.0;
-    const maxHeight = 300.0;
-    double width = original.width;
-    double height = original.height;
-
-    if (width <= 0 || height <= 0) {
-      return const Size(180, 180);
-    }
-
-    if (width > maxWidth || height > maxHeight) {
-      final widthScale = maxWidth / width;
-      final heightScale = maxHeight / height;
-      final scale = math.min(widthScale, heightScale);
-      width *= scale;
-      height *= scale;
-    }
-
-    return Size(width, height);
-  }
-
-  /// ينفذ العملية `_buildAuthHeaders`.
-  /// Runs the `_buildAuthHeaders` operation.
-  Map<String, String>? _buildAuthHeaders() {
-    try {
-      final local = sl<LocalStorageService>();
-      final token = local.getData(StorageConstants.accessToken) as String?;
-      if (token != null && token.isNotEmpty) {
-        return {'Authorization': 'Bearer $token'};
-      }
-    } catch (_) {}
-    return null;
-  }
-
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// Chooses the correct preview layout for the attachment type.
+  /// يختار تخطيط المعاينة المناسب حسب نوع المرفق.
   @override
   Widget build(BuildContext context) {
     if (widget.attachment.isImage) {
       return _buildImagePreview();
     } else if (widget.attachment.isVideo) {
       return _buildVideoPreview();
-    } else if (widget.forceAudio || widget.attachment.isAudio) {
+    } else if (widget.attachment.isAudio) {
       return _buildAudioPreview();
     } else {
       return _buildDocumentPreview();
     }
   }
 
-  /// ينفذ العملية `_buildImagePreview`.
-  /// Runs the `_buildImagePreview` operation.
+  /// Renders the image preview with optional progress overlay.
+  /// يرسم معاينة الصورة مع طبقة تقدم اختيارية.
   Widget _buildImagePreview() {
-    final size = _displaySize ?? const Size(180, 180);
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
         widget.onTap?.call();
       },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: SizedBox(
-          width: size.width,
-          height: size.height,
+      child: Container(
+        constraints: const BoxConstraints(
+          maxHeight: 220, // Reduced from 300
+          minHeight: 120, // Reduced from 150
+        ),
+        margin: const EdgeInsets.all(6), // Reduced from 8
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10), // Reduced from 12
           child: Stack(
             fit: StackFit.expand,
             children: [
+              // Glass effect background
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
                       widget.isMe
-                          ? AppTheme.primaryBlue.withValues(alpha: 0.05)
-                          : AppTheme.darkCard.withValues(alpha: 0.3),
+                          ? AppTheme.primaryBlue.withOpacity(0.05)
+                          : AppTheme.darkCard.withOpacity(0.3),
                       widget.isMe
-                          ? AppTheme.primaryPurple.withValues(alpha: 0.03)
-                          : AppTheme.darkSurface.withValues(alpha: 0.2),
+                          ? AppTheme.primaryPurple.withOpacity(0.03)
+                          : AppTheme.darkSurface.withOpacity(0.2),
                     ],
                   ),
                 ),
               ),
-              CachedImageWidget(
+              // Image
+              _buildProtectedMediaImage(
                 imageUrl: widget.attachment.fileUrl,
                 fit: BoxFit.cover,
-                width: size.width,
-                height: size.height,
+                localFallbackPath: widget.attachment.filePath,
               ),
+              // Progress overlay
               if (widget.attachment.downloadProgress != null &&
                   widget.attachment.downloadProgress! < 1.0)
                 _buildMinimalProgressOverlay(),
@@ -289,19 +221,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     );
   }
 
-  /// ينفذ العملية `_loadLocalVideoThumb`.
-  /// Runs the `_loadLocalVideoThumb` operation.
-  Future<String?> _loadLocalVideoThumb(String attachmentId) async {
-    try {
-      final local = sl<ChatLocalDataSource>();
-      return await local.getThumbnail('attachment_$attachmentId');
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// ينفذ العملية `_buildVideoPreview`.
-  /// Runs the `_buildVideoPreview` operation.
+  /// Renders the video thumbnail, play affordance, and duration badge.
+  /// يرسم صورة الفيديو المصغرة وزر التشغيل وشارة المدة.
   Widget _buildVideoPreview() {
     return GestureDetector(
       onTap: () {
@@ -316,41 +237,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // Prefer local cached thumbnail if available
-              FutureBuilder<String?>(
-                future: _loadLocalVideoThumb(widget.attachment.id),
-                builder: (context, snap) {
-                  final path = snap.data;
-                  if (path != null &&
-                      path.isNotEmpty &&
-                      File(path).existsSync()) {
-                    return Image.file(File(path), fit: BoxFit.cover);
-                  }
-                  if (widget.attachment.thumbnailUrl != null) {
-                    return CachedImageWidget(
-                      imageUrl: widget.attachment.thumbnailUrl!,
-                      fit: BoxFit.cover,
-                    );
-                  }
-                  return Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppTheme.darkCard.withValues(alpha: 0.8),
-                          AppTheme.darkSurface.withValues(alpha: 0.6),
-                        ],
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.videocam_rounded,
-                      size: 32, // Reduced from 48
-                      color: AppTheme.textMuted.withValues(alpha: 0.5),
-                    ),
-                  );
-                },
-              ),
+              // Thumbnail or placeholder
+              _buildVideoPoster(),
 
               // Glassmorphism play button
               Center(
@@ -364,13 +252,13 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            Colors.white.withValues(alpha: 0.15),
-                            Colors.white.withValues(alpha: 0.05),
+                            Colors.white.withOpacity(0.15),
+                            Colors.white.withOpacity(0.05),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(22),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Colors.white.withOpacity(0.2),
                           width: 0.5,
                         ),
                       ),
@@ -398,11 +286,11 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.4),
+                        color: Colors.black.withOpacity(0.4),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        _formatDuration(widget.attachment.duration),
+                        _formatDuration(_displayVideoDurationSeconds),
                         style: AppTextStyles.caption.copyWith(
                           color: Colors.white,
                           fontSize: 10,
@@ -423,68 +311,78 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     );
   }
 
-  /// ينفذ العملية `_buildAudioPreview`.
-  /// Runs the `_buildAudioPreview` operation.
+  /// Renders the audio attachment as a compact playback-style card.
+  /// يرسم المرفق الصوتي كبطاقة مضغوطة تشبه عناصر التشغيل.
   Widget _buildAudioPreview() {
-    _ensureAudioInitialized();
-    final totalSeconds = widget.attachment.duration ?? _duration.inSeconds;
-    final pos = _position;
-    final dur = _duration.inMilliseconds > 0
-        ? _duration
-        : Duration(seconds: totalSeconds);
-    final isPlaying = _playerState?.playing == true;
+    final accentColor = widget.isMe ? Colors.white : AppTheme.primaryBlue;
+    final primaryTextColor = widget.isMe ? Colors.white : AppTheme.textWhite;
+    final secondaryTextColor = widget.isMe
+        ? Colors.white.withOpacity(0.7)
+        : AppTheme.textMuted.withOpacity(0.85);
+    final waveformBackground = widget.isMe
+        ? Colors.white.withOpacity(0.07)
+        : AppTheme.darkBackground.withOpacity(0.28);
 
     return Container(
       margin: const EdgeInsets.all(6),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(18),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
           child: Container(
-            padding: const EdgeInsets.all(10), // Reduced from 12
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
             decoration: BoxDecoration(
               gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
                 colors: widget.isMe
                     ? [
-                        Colors.white.withValues(alpha: 0.08),
-                        Colors.white.withValues(alpha: 0.04),
+                        Colors.white.withOpacity(0.1),
+                        Colors.white.withOpacity(0.04),
                       ]
                     : [
-                        AppTheme.darkCard.withValues(alpha: 0.6),
-                        AppTheme.darkCard.withValues(alpha: 0.3),
+                        AppTheme.darkCard.withOpacity(0.78),
+                        AppTheme.darkSurface.withOpacity(0.58),
                       ],
               ),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(18),
               border: Border.all(
                 color: widget.isMe
-                    ? Colors.white.withValues(alpha: 0.1)
-                    : AppTheme.darkBorder.withValues(alpha: 0.3),
-                width: 0.5,
+                    ? Colors.white.withOpacity(0.14)
+                    : AppTheme.darkBorder.withOpacity(0.38),
+                width: 0.8,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: (widget.isMe ? Colors.black : AppTheme.primaryBlue)
+                      .withOpacity(0.08),
+                  blurRadius: 16,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Play button
                 GestureDetector(
-                  onTap: () async {
-                    HapticFeedback.selectionClick();
-                    if (isPlaying) {
-                      await _audioPlayer?.pause();
-                    } else {
-                      await _audioPlayer?.play();
-                    }
-                  },
-                  child: Container(
-                    width: 32, // Reduced from 40
-                    height: 32,
+                  onTap: _toggleAudioPlayback,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 220),
+                    width: 46,
+                    height: 46,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                         colors: widget.isMe
                             ? [
-                                Colors.white.withValues(alpha: 0.9),
-                                Colors.white.withValues(alpha: 0.7)
+                                Colors.white,
+                                Colors.white.withOpacity(0.84),
                               ]
-                            : [AppTheme.primaryBlue, AppTheme.primaryPurple],
+                            : [
+                                AppTheme.primaryBlue,
+                                AppTheme.primaryPurple,
+                              ],
                       ),
                       shape: BoxShape.circle,
                       boxShadow: [
@@ -492,84 +390,154 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
                           color: (widget.isMe
                                   ? Colors.white
                                   : AppTheme.primaryBlue)
-                              .withValues(alpha: 0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                              .withOpacity(_isPlaying ? 0.28 : 0.18),
+                          blurRadius: _isPlaying ? 18 : 12,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
-                    child: Icon(
-                      isPlaying
-                          ? Icons.pause_rounded
-                          : Icons.play_arrow_rounded,
-                      color: widget.isMe ? AppTheme.primaryBlue : Colors.white,
-                      size: 18, // Reduced from 24
+                    child: Center(
+                      child: _isPreparingAudio
+                          ? SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  widget.isMe
+                                      ? AppTheme.primaryBlue
+                                      : Colors.white,
+                                ),
+                              ),
+                            )
+                          : Icon(
+                              _isPlaying
+                                  ? Icons.pause_rounded
+                                  : Icons.play_arrow_rounded,
+                              color: widget.isMe
+                                  ? AppTheme.primaryBlue
+                                  : Colors.white,
+                              size: 24,
+                            ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
-
-                // Waveform
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildUploadAwareWaveform(
-                          widget.attachment.downloadProgress ?? 1.0),
-                      const SizedBox(height: 4),
                       Row(
                         children: [
-                          Text(
-                            _formatDuration(pos.inSeconds),
-                            style: AppTextStyles.caption.copyWith(
-                              color: widget.isMe
-                                  ? Colors.white.withValues(alpha: 0.6)
-                                  : AppTheme.textMuted.withValues(alpha: 0.7),
-                              fontSize: 10,
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 7,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: accentColor.withOpacity(
+                                widget.isMe ? 0.12 : 0.1,
+                              ),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.mic_rounded,
+                                  size: 12,
+                                  color: accentColor,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  _isPlaying
+                                      ? 'تشغيل الآن'
+                                      : (_isPreparingAudio
+                                          ? 'جاري التحضير'
+                                          : 'رسالة صوتية'),
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: accentColor,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Slider(
-                              value: (widget.attachment.downloadProgress !=
-                                          null &&
-                                      (widget.attachment.downloadProgress ??
-                                              0) <
-                                          1.0)
-                                  ? (widget.attachment.downloadProgress!
-                                      .clamp(0.0, 1.0))
-                                  : (dur.inMilliseconds == 0
-                                      ? 0
-                                      : (pos.inMilliseconds
-                                              .clamp(0, dur.inMilliseconds) /
-                                          dur.inMilliseconds)),
-                              onChanged: (v) async {
-                                // أثناء الرفع نمنع السحب (لأن الملف غير متاح بعد)
-                                if ((widget.attachment.downloadProgress ??
-                                        1.0) <
-                                    1.0) return;
-                                if (dur.inMilliseconds > 0) {
-                                  final target = Duration(
-                                      milliseconds:
-                                          (v * dur.inMilliseconds).toInt());
-                                  await _audioPlayer?.seek(target);
-                                }
-                              },
-                              min: 0,
-                              max: 1,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
+                          const Spacer(),
                           Text(
-                            _formatDuration(dur.inSeconds),
+                            _formatDuration(_resolvedAudioDurationSeconds),
                             style: AppTextStyles.caption.copyWith(
-                              color: widget.isMe
-                                  ? Colors.white.withValues(alpha: 0.6)
-                                  : AppTheme.textMuted.withValues(alpha: 0.7),
+                              color: secondaryTextColor,
+                              fontWeight: FontWeight.w700,
                               fontSize: 10,
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 9),
+                      Container(
+                        height: 34,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                          color: waveformBackground,
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: accentColor.withOpacity(
+                              widget.isMe ? 0.08 : 0.1,
+                            ),
+                            width: 0.6,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Stack(
+                                alignment: Alignment.centerLeft,
+                                children: [
+                                  Positioned.fill(
+                                    child: _buildMinimalWaveform(
+                                      progress: _audioProgress,
+                                    ),
+                                  ),
+                                  if (_audioProgress > 0)
+                                    Align(
+                                      alignment: Alignment(
+                                        (_audioProgress * 2).clamp(0.0, 2.0) -
+                                            1.0,
+                                        0,
+                                      ),
+                                      child: Container(
+                                        width: 9,
+                                        height: 9,
+                                        decoration: BoxDecoration(
+                                          color: accentColor,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  accentColor.withOpacity(0.22),
+                                              blurRadius: 8,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              _formatPlaybackClock(),
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: primaryTextColor,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -582,11 +550,11 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     );
   }
 
-  /// ينفذ العملية `_buildUploadAwareWaveform`.
-  /// Runs the `_buildUploadAwareWaveform` operation.
-  Widget _buildUploadAwareWaveform(double progress) {
+  /// Draws the lightweight waveform used to suggest audio content.
+  /// يرسم شكل الموجة الخفيف الذي يرمز إلى المحتوى الصوتي.
+  Widget _buildMinimalWaveform({double progress = 0.0}) {
     return SizedBox(
-      height: 24,
+      height: 18,
       child: AnimatedBuilder(
         animation: _shimmerAnimation,
         builder: (context, child) {
@@ -603,49 +571,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     );
   }
 
-  /// ينفذ العملية `_ensureAudioInitialized`.
-  /// Runs the `_ensureAudioInitialized` operation.
-  void _ensureAudioInitialized() {
-    if (_audioPlayer != null) return;
-    _audioPlayer = AudioPlayer();
-
-    // Build authenticated URL
-    final rawUrl = widget.attachment.fileUrl;
-    final resolvedUrl = rawUrl.startsWith('/api/')
-        ? ImageUtils.resolveApiUrl(rawUrl)
-        : ImageUtils.resolveUrl(rawUrl);
-    final headers = _buildAuthHeaders() ?? {};
-
-    // Set audio source with headers
-    _audioPlayer!
-        .setAudioSource(AudioSource.uri(Uri.parse(resolvedUrl),
-            headers: headers.isEmpty ? null : headers))
-        .then((_) async {
-      try {
-        final d = await _audioPlayer!.durationStream.firstWhere(
-          (d) => d != null,
-          orElse: () => null,
-        );
-        if (d != null && mounted) setState(() => _duration = d);
-      } catch (_) {}
-    }).catchError((_) {});
-
-    _audioPlayer!.playerStateStream.listen((s) {
-      if (!mounted) return;
-      setState(() => _playerState = s);
-    });
-    _audioPlayer!.positionStream.listen((p) {
-      if (!mounted) return;
-      setState(() => _position = p);
-    });
-    _audioPlayer!.durationStream.listen((d) {
-      if (!mounted) return;
-      if (d != null) setState(() => _duration = d);
-    });
-  }
-
-  /// ينفذ العملية `_buildDocumentPreview`.
-  /// Runs the `_buildDocumentPreview` operation.
+  /// Renders the document card with file metadata and download affordance.
+  /// يرسم بطاقة المستند مع بيانات الملف وإجراء التنزيل.
   Widget _buildDocumentPreview() {
     return GestureDetector(
       onTap: () {
@@ -664,19 +591,19 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
                 gradient: LinearGradient(
                   colors: widget.isMe
                       ? [
-                          Colors.white.withValues(alpha: 0.08),
-                          Colors.white.withValues(alpha: 0.04),
+                          Colors.white.withOpacity(0.08),
+                          Colors.white.withOpacity(0.04),
                         ]
                       : [
-                          AppTheme.darkCard.withValues(alpha: 0.6),
-                          AppTheme.darkCard.withValues(alpha: 0.3),
+                          AppTheme.darkCard.withOpacity(0.6),
+                          AppTheme.darkCard.withOpacity(0.3),
                         ],
                 ),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: widget.isMe
-                      ? Colors.white.withValues(alpha: 0.1)
-                      : AppTheme.darkBorder.withValues(alpha: 0.3),
+                      ? Colors.white.withOpacity(0.1)
+                      : AppTheme.darkBorder.withOpacity(0.3),
                   width: 0.5,
                 ),
               ),
@@ -689,8 +616,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          _getFileIconColor().withValues(alpha: 0.15),
-                          _getFileIconColor().withValues(alpha: 0.05),
+                          _getFileIconColor().withOpacity(0.15),
+                          _getFileIconColor().withOpacity(0.05),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(8),
@@ -724,8 +651,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
                           '${widget.attachment.fileExtension.toUpperCase()} • ${_formatFileSize(widget.attachment.fileSize)}',
                           style: AppTextStyles.caption.copyWith(
                             color: widget.isMe
-                                ? Colors.white.withValues(alpha: 0.5)
-                                : AppTheme.textMuted.withValues(alpha: 0.6),
+                                ? Colors.white.withOpacity(0.5)
+                                : AppTheme.textMuted.withOpacity(0.6),
                             fontSize: 10,
                           ),
                         ),
@@ -746,8 +673,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              AppTheme.primaryBlue.withValues(alpha: 0.1),
-                              AppTheme.primaryPurple.withValues(alpha: 0.05),
+                              AppTheme.primaryBlue.withOpacity(0.1),
+                              AppTheme.primaryPurple.withOpacity(0.05),
                             ],
                           ),
                           shape: BoxShape.circle,
@@ -769,12 +696,13 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     );
   }
 
-  /// ينفذ العملية `_buildMinimalProgressOverlay`.
-  /// Runs the `_buildMinimalProgressOverlay` operation.
+  /// Shows the download progress overlay while the attachment is still
+  /// transferring.
+  /// يعرض طبقة تقدم التنزيل أثناء انتقال المرفق.
   Widget _buildMinimalProgressOverlay() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.3),
+        color: Colors.black.withOpacity(0.3),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Center(
@@ -785,17 +713,17 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
             value: widget.attachment.downloadProgress,
             strokeWidth: 2,
             valueColor: AlwaysStoppedAnimation<Color>(
-              Colors.white.withValues(alpha: 0.9),
+              Colors.white.withOpacity(0.9),
             ),
-            backgroundColor: Colors.white.withValues(alpha: 0.2),
+            backgroundColor: Colors.white.withOpacity(0.2),
           ),
         ),
       ),
     );
   }
 
-  /// ينفذ العملية `_getFileIcon`.
-  /// Runs the `_getFileIcon` operation.
+  /// Resolves the icon that best matches the attachment file type.
+  /// يحدد الأيقونة الأنسب لنوع ملف المرفق.
   IconData _getFileIcon() {
     switch (widget.attachment.fileExtension.toLowerCase()) {
       case 'pdf':
@@ -817,8 +745,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     }
   }
 
-  /// ينفذ العملية `_getFileIconColor`.
-  /// Runs the `_getFileIconColor` operation.
+  /// Resolves the accent color associated with the attachment file type.
+  /// يحدد لون التمييز المرتبط بنوع ملف المرفق.
   Color _getFileIconColor() {
     switch (widget.attachment.fileExtension.toLowerCase()) {
       case 'pdf':
@@ -840,8 +768,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     }
   }
 
-  /// ينفذ العملية `_formatDuration`.
-  /// Runs the `_formatDuration` operation.
+  /// Formats the media duration into a compact `m:ss` label.
+  /// ينسق مدة الوسائط إلى تسمية مختصرة بصيغة `m:ss`.
   String _formatDuration(int? seconds) {
     if (seconds == null) return '0:00';
     final minutes = seconds ~/ 60;
@@ -849,8 +777,8 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  /// ينفذ العملية `_formatFileSize`.
-  /// Runs the `_formatFileSize` operation.
+  /// Formats file size into human-readable units for the preview card.
+  /// ينسق حجم الملف إلى وحدات مقروءة داخل بطاقة المعاينة.
   String _formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
@@ -859,47 +787,404 @@ class _AttachmentPreviewWidgetState extends State<AttachmentPreviewWidget>
     }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
+
+  int? get _resolvedAudioDurationSeconds {
+    if (_audioDuration.inMilliseconds > 0) {
+      return (_audioDuration.inMilliseconds / 1000).ceil();
+    }
+    return widget.attachment.duration;
+  }
+
+  String _formatPlaybackClock() {
+    if (_audioPosition.inMilliseconds > 0) {
+      return _formatSecondsClock(
+        (_audioPosition.inMilliseconds / 1000).floor(),
+      );
+    }
+
+    return _formatSecondsClock(_resolvedAudioDurationSeconds ?? 0);
+  }
+
+  String _formatSecondsClock(int seconds) {
+    final safeSeconds = seconds < 0 ? 0 : seconds;
+    final minutes = safeSeconds ~/ 60;
+    final remainingSeconds = safeSeconds % 60;
+    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
+  int? get _displayVideoDurationSeconds {
+    final resolved = _resolvedVideoDurationSeconds;
+    if (resolved != null && resolved > 0) {
+      return resolved;
+    }
+    return widget.attachment.duration;
+  }
+
+  double get _audioProgress {
+    final total = _audioDuration.inMilliseconds;
+    if (total <= 0) return 0;
+    final current = _audioPosition.inMilliseconds.clamp(0, total);
+    return current / total;
+  }
+
+  Future<void> _toggleAudioPlayback() async {
+    if (!widget.attachment.isAudio || _audioPlayer == null) return;
+
+    HapticFeedback.selectionClick();
+
+    try {
+      if (_isPlaying) {
+        await _audioPlayer!.pause();
+        return;
+      }
+
+      if (_audioPlayer!.audioSource == null) {
+        setState(() {
+          _isPreparingAudio = true;
+        });
+
+        final localPath = widget.attachment.filePath;
+        if (localPath.isNotEmpty && File(localPath).existsSync()) {
+          await _audioPlayer!.setFilePath(localPath);
+        } else {
+          final cachedPath = await _ensureRemoteAudioCached();
+          await _audioPlayer!.setFilePath(cachedPath);
+        }
+      }
+
+      await _audioPlayer!.play();
+    } catch (error) {
+      debugPrint('Audio playback failed for ${widget.attachment.id}: $error');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPreparingAudio = false;
+        });
+      }
+    }
+  }
+
+  Map<String, String>? _buildAudioHeaders() {
+    final token = sl<LocalStorageService>()
+        .getData(StorageConstants.accessToken) as String?;
+    if (token == null || token.isEmpty) {
+      return null;
+    }
+    return {
+      'Authorization': 'Bearer $token',
+    };
+  }
+
+  Widget _buildProtectedMediaImage({
+    required String imageUrl,
+    required BoxFit fit,
+    String? localFallbackPath,
+  }) {
+    final localPath = localFallbackPath?.trim() ?? '';
+    if (localPath.isNotEmpty && File(localPath).existsSync()) {
+      return Image.file(
+        File(localPath),
+        fit: fit,
+      );
+    }
+
+    if (!widget.autoDownloadEnabled) {
+      return _buildDeferredPreviewPlaceholder(
+        icon: widget.attachment.isVideo
+            ? Icons.video_library_rounded
+            : Icons.image_outlined,
+      );
+    }
+
+    return CachedImageWidget(
+      imageUrl: _resolveProtectedMediaUrl(imageUrl),
+      fit: fit,
+      httpHeaders: _buildAudioHeaders(),
+    );
+  }
+
+  Widget _buildVideoPoster() {
+    final thumbnailUrl = widget.attachment.thumbnailUrl?.trim() ?? '';
+    final localThumbnailPath = _resolveLocalThumbnailPath(thumbnailUrl);
+    final resolvedThumbnailUrl = ImageUtils.resolveUrl(thumbnailUrl);
+
+    if (localThumbnailPath != null) {
+      return Image.file(
+        File(localThumbnailPath),
+        fit: BoxFit.cover,
+      );
+    }
+
+    if (thumbnailUrl.isNotEmpty && resolvedThumbnailUrl.isNotEmpty) {
+      return Image.network(
+        resolvedThumbnailUrl,
+        fit: BoxFit.cover,
+        headers: _buildAudioHeaders(),
+        errorBuilder: (_, __, ___) => _buildGeneratedVideoPosterFallback(),
+      );
+    }
+
+    return _buildGeneratedVideoPosterFallback();
+  }
+
+  Widget _buildGeneratedVideoPosterFallback() {
+    return FutureBuilder<String?>(
+      future: _ensureVideoThumbnail(),
+      builder: (context, snapshot) {
+        final thumbPath = snapshot.data;
+        if (thumbPath != null && File(thumbPath).existsSync()) {
+          return Image.file(
+            File(thumbPath),
+            fit: BoxFit.cover,
+          );
+        }
+
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppTheme.darkCard.withOpacity(0.8),
+                AppTheme.darkSurface.withOpacity(0.6),
+              ],
+            ),
+          ),
+          child: Icon(
+            Icons.videocam_rounded,
+            size: 32,
+            color: AppTheme.textMuted.withOpacity(0.5),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDeferredPreviewPlaceholder({required IconData icon}) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.darkCard.withOpacity(0.82),
+            AppTheme.darkSurface.withOpacity(0.64),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          icon,
+          size: 28,
+          color: AppTheme.textMuted.withOpacity(0.6),
+        ),
+      ),
+    );
+  }
+
+  String _resolveProtectedMediaUrl(String fileUrl) {
+    return ImageUtils.resolveUrl(fileUrl);
+  }
+
+  String? _resolveLocalThumbnailPath(String thumbnailUrl) {
+    final metadataPath = widget.attachment.metadata?['localThumbnailPath'];
+    if (metadataPath is String && metadataPath.trim().isNotEmpty) {
+      final metadataFile = File(metadataPath.trim());
+      if (metadataFile.existsSync()) {
+        return metadataPath.trim();
+      }
+    }
+
+    if (thumbnailUrl.isEmpty) {
+      return null;
+    }
+
+    final file = File(thumbnailUrl);
+    if (!file.existsSync()) {
+      return null;
+    }
+
+    return thumbnailUrl;
+  }
+
+  Future<String> _ensureRemoteAudioCached() async {
+    final cachedPath = await _cacheProtectedMediaToTempFile(
+      cachedPath: _cachedRemoteAudioPath,
+      prefix: 'chat_audio',
+      fallbackExtension: 'm4a',
+    );
+    _cachedRemoteAudioPath = cachedPath;
+    return cachedPath;
+  }
+
+  Future<String> _ensureRemoteVideoCached() async {
+    final cachedPath = await _cacheProtectedMediaToTempFile(
+      cachedPath: _cachedRemoteVideoPath,
+      prefix: 'chat_video',
+      fallbackExtension: 'mp4',
+    );
+    _cachedRemoteVideoPath = cachedPath;
+    return cachedPath;
+  }
+
+  Future<String?> _ensureVideoThumbnail() async {
+    final existingPath = _cachedVideoThumbnailPath;
+    if (existingPath != null && File(existingPath).existsSync()) {
+      return existingPath;
+    }
+
+    final localPath = widget.attachment.filePath.trim();
+    if (localPath.isNotEmpty && File(localPath).existsSync()) {
+      return _generateVideoThumbnail(localPath);
+    }
+
+    try {
+      final cachedVideoPath = await _ensureRemoteVideoCached();
+      return _generateVideoThumbnail(cachedVideoPath);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _resolveVideoDuration() async {
+    VideoPlayerController? controller;
+    try {
+      final localPath = widget.attachment.filePath.trim();
+      if (localPath.isNotEmpty && File(localPath).existsSync()) {
+        controller = VideoPlayerController.file(File(localPath));
+      } else {
+        final cachedVideoPath = await _ensureRemoteVideoCached();
+        controller = VideoPlayerController.file(File(cachedVideoPath));
+      }
+
+      await controller.initialize();
+      final seconds = controller.value.duration.inSeconds;
+      if (!mounted || seconds <= 0) {
+        return;
+      }
+
+      setState(() {
+        _resolvedVideoDurationSeconds = seconds;
+      });
+    } catch (_) {
+      // Ignore and keep the backend-provided duration if resolution fails.
+    } finally {
+      await controller?.dispose();
+    }
+  }
+
+  Future<String?> _generateVideoThumbnail(String videoPath) async {
+    final generated = await VideoThumbnail.thumbnailFile(
+      video: videoPath,
+      imageFormat: ImageFormat.JPEG,
+      maxWidth: 720,
+      quality: 72,
+      thumbnailPath: Directory.systemTemp.path,
+    );
+    _cachedVideoThumbnailPath = generated;
+    return generated;
+  }
+
+  Future<String> _cacheProtectedMediaToTempFile({
+    required String? cachedPath,
+    required String prefix,
+    required String fallbackExtension,
+  }) async {
+    final existingPath = cachedPath;
+    if (existingPath != null && File(existingPath).existsSync()) {
+      return existingPath;
+    }
+
+    final extension = widget.attachment.fileExtension.isNotEmpty
+        ? widget.attachment.fileExtension
+        : fallbackExtension;
+    final targetPath =
+        '${Directory.systemTemp.path}/${prefix}_${widget.attachment.id}.$extension';
+    final targetFile = File(targetPath);
+    if (targetFile.existsSync()) {
+      return targetPath;
+    }
+
+    final resolvedUrl = _resolveProtectedMediaUrl(widget.attachment.fileUrl);
+    final client = HttpClient();
+    try {
+      final request = await client.getUrl(Uri.parse(resolvedUrl));
+      final headers = _buildAudioHeaders();
+      headers?.forEach(request.headers.add);
+      final response = await request.close();
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw HttpException(
+          'Media download failed with status ${response.statusCode}',
+          uri: Uri.parse(resolvedUrl),
+        );
+      }
+
+      final bytes = await consolidateHttpClientResponseBytes(response);
+      await targetFile.writeAsBytes(bytes, flush: true);
+      return targetPath;
+    } finally {
+      client.close(force: true);
+    }
+  }
 }
 
-/// يعرّف الكلاس `_MinimalWaveformPainter`.
-/// Describes the `_MinimalWaveformPainter` class.
+/// Paints the decorative waveform used by audio attachments.
+/// يرسم الموجة الزخرفية المستخدمة في المرفقات الصوتية.
 class _MinimalWaveformPainter extends CustomPainter {
-  /// Holds the `color` value.
-  /// العربية: يخزن القيمة `color`.
+  /// Base color used for the waveform bars.
+  /// اللون الأساسي لأعمدة الموجة.
   final Color color;
 
-  /// يخزن العضو `progress`.
-  /// Holds the `progress` member.
+  /// Playback or download progress used to emphasize the filled portion.
+  /// تقدم التشغيل أو التنزيل المستخدم لإبراز الجزء المكتمل.
   final double progress;
 
-  /// يخزن العضو `shimmerPosition`.
-  /// Holds the `shimmerPosition` member.
+  /// Position of the moving highlight effect.
+  /// موضع تأثير اللمعة المتحركة.
   final double shimmerPosition;
 
-  /// ينشئ مثيلاً من `_MinimalWaveformPainter`.
-  /// Builds an instance of `_MinimalWaveformPainter`.
+  /// Builds the waveform painter for one audio preview.
+  /// ينشئ رسّام الموجة لمعاينة صوتية واحدة.
   _MinimalWaveformPainter({
     required this.color,
     required this.progress,
     this.shimmerPosition = 0,
   });
 
-  /// ينفذ العملية `paint`.
-  /// Runs the `paint` operation.
+  /// Draws the waveform bars and the moving shimmer highlight.
+  /// يرسم أعمدة الموجة ولمعة الحركة المتنقلة.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color.withValues(alpha: 0.2)
-      ..strokeWidth = 1.5
+      ..color = color.withOpacity(0.18)
+      ..strokeWidth = 2.2
       ..strokeCap = StrokeCap.round;
 
     final progressPaint = Paint()
-      ..color = color.withValues(alpha: 0.8)
-      ..strokeWidth = 1.5
+      ..color = color.withOpacity(0.88)
+      ..strokeWidth = 2.2
       ..strokeCap = StrokeCap.round;
 
-    const barCount = 25; // Reduced from 30
+    const barCount = 32;
     final barWidth = size.width / barCount;
+    final amplitudes = <double>[
+      0.22,
+      0.48,
+      0.32,
+      0.72,
+      0.42,
+      0.28,
+      0.65,
+      0.36,
+      0.54,
+      0.24,
+      0.78,
+      0.34,
+      0.58,
+      0.26,
+      0.44,
+      0.70,
+    ];
 
     for (int i = 0; i < barCount; i++) {
       final x = i * barWidth + barWidth / 2;
@@ -907,13 +1192,7 @@ class _MinimalWaveformPainter extends CustomPainter {
       final shimmerOpacity =
           normalizedPosition < 0.2 ? 1.0 - (normalizedPosition * 5) : 0.0;
 
-      // Create more elegant wave pattern
-      final waveHeight = (i % 3 == 0
-              ? 0.2
-              : i % 2 == 0
-                  ? 0.4
-                  : 0.6) *
-          size.height;
+      final waveHeight = amplitudes[i % amplitudes.length] * size.height;
       final y1 = (size.height - waveHeight) / 2;
       final y2 = y1 + waveHeight;
 
@@ -922,8 +1201,8 @@ class _MinimalWaveformPainter extends CustomPainter {
 
       if (shimmerOpacity > 0) {
         final shimmerPaint = Paint()
-          ..color = color.withValues(alpha: 0.2 + shimmerOpacity * 0.3)
-          ..strokeWidth = 1.5
+          ..color = color.withOpacity(0.18 + shimmerOpacity * 0.32)
+          ..strokeWidth = 2.2
           ..strokeCap = StrokeCap.round;
         canvas.drawLine(Offset(x, y1), Offset(x, y2), shimmerPaint);
       } else {
@@ -932,8 +1211,8 @@ class _MinimalWaveformPainter extends CustomPainter {
     }
   }
 
-  /// ينفذ العملية `shouldRepaint`.
-  /// Runs the `shouldRepaint` operation.
+  /// The waveform animation changes continuously, so repainting is required.
+  /// تتغير حركة الموجة باستمرار، لذلك إعادة الرسم مطلوبة.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

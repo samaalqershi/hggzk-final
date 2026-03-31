@@ -9,6 +9,9 @@ import 'package:hggzk/core/bloc/theme/theme_bloc.dart';
 import 'package:hggzk/core/bloc/theme/theme_state.dart';
 import 'package:hggzk/core/localization/app_localizations.dart';
 import 'package:hggzk/core/theme/app_theme.dart';
+import 'package:hggzk/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:hggzk/features/auth/presentation/bloc/auth_state.dart';
+import 'package:hggzk/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:hggzk/features/chat/presentation/providers/typing_indicator_provider.dart';
 import 'package:hggzk/features/settings/presentation/bloc/settings_bloc.dart';
 import 'package:hggzk/features/settings/presentation/bloc/settings_state.dart';
@@ -31,53 +34,141 @@ class HggzkApp extends StatelessWidget {
         ),
         ...AppBloc.providers,
       ],
-      child: BlocBuilder<SettingsBloc, SettingsState>(
-          builder: (context, settingsState) {
-        final locale = _localeFrom(settingsState);
-        return BlocBuilder<ThemeBloc, ThemeState>(
-          bloc: AppBloc.theme,
-          builder: (context, themeState) {
-            return MaterialApp.router(
-              onGenerateTitle: (context) => context.tr('app.appName'),
-              debugShowCheckedModeBanner: false,
-              theme: _buildAppTheme(Brightness.light),
-              darkTheme: _buildAppTheme(Brightness.dark),
-              themeMode: themeState.themeMode,
-              locale: locale,
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              routerConfig: AppRouter.build(context),
-              builder: (context, child) {
-                AppTheme.init(context, mode: themeState.themeMode);
-                final systemBrightness =
-                    MediaQuery.of(context).platformBrightness;
-                final effectiveBrightness =
-                    themeState.themeMode == ThemeMode.system
-                        ? systemBrightness
-                        : (themeState.themeMode == ThemeMode.dark
-                            ? Brightness.dark
-                            : Brightness.light);
+      child: _ChatPresenceCoordinator(
+        child: BlocBuilder<SettingsBloc, SettingsState>(
+            builder: (context, settingsState) {
+          final locale = _localeFrom(settingsState);
+          return BlocBuilder<ThemeBloc, ThemeState>(
+            bloc: AppBloc.theme,
+            builder: (context, themeState) {
+              return MaterialApp.router(
+                onGenerateTitle: (context) => context.tr('app.appName'),
+                debugShowCheckedModeBanner: false,
+                theme: _buildAppTheme(Brightness.light),
+                darkTheme: _buildAppTheme(Brightness.dark),
+                themeMode: themeState.themeMode,
+                locale: locale,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                routerConfig: AppRouter.router,
+                builder: (context, child) {
+                  final systemBrightness = WidgetsBinding
+                      .instance.platformDispatcher.platformBrightness;
+                  AppTheme.init(
+                    mode: themeState.themeMode,
+                    systemBrightness: systemBrightness,
+                  );
+                  final effectiveBrightness =
+                      themeState.themeMode == ThemeMode.system
+                          ? systemBrightness
+                          : (themeState.themeMode == ThemeMode.dark
+                              ? Brightness.dark
+                              : Brightness.light);
 
-                final overlayStyle = SystemUiOverlayStyle(
-                  statusBarColor: Colors.transparent,
-                  statusBarIconBrightness:
-                      effectiveBrightness == Brightness.dark
-                          ? Brightness.light
-                          : Brightness.dark,
-                  statusBarBrightness: effectiveBrightness == Brightness.dark
-                      ? Brightness.dark
-                      : Brightness.light,
-                );
+                  final overlayStyle = SystemUiOverlayStyle(
+                    statusBarColor: Colors.transparent,
+                    statusBarIconBrightness:
+                        effectiveBrightness == Brightness.dark
+                            ? Brightness.light
+                            : Brightness.dark,
+                    statusBarBrightness: effectiveBrightness == Brightness.dark
+                        ? Brightness.dark
+                        : Brightness.light,
+                  );
 
-                return AnnotatedRegion<SystemUiOverlayStyle>(
-                  value: overlayStyle,
-                  child: child!,
-                );
-              },
-            );
-          },
-        );
-      }),
+                  SystemChrome.setSystemUIOverlayStyle(overlayStyle);
+                  return child ?? const SizedBox.shrink();
+                },
+              );
+            },
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class _ChatPresenceCoordinator extends StatefulWidget {
+  const _ChatPresenceCoordinator({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_ChatPresenceCoordinator> createState() =>
+      _ChatPresenceCoordinatorState();
+}
+
+class _ChatPresenceCoordinatorState extends State<_ChatPresenceCoordinator>
+    with WidgetsBindingObserver {
+  String? _lastPublishedStatus;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _publishPresenceForAuthState(AppBloc.authBloc.state, force: true);
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!_canPublishPresence(AppBloc.authBloc.state)) {
+      return;
+    }
+
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _publishPresence('online');
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        _publishPresence('offline');
+        break;
+    }
+  }
+
+  bool _canPublishPresence(AuthState state) {
+    return state is AuthAuthenticated ||
+        state is AuthLoginSuccess ||
+        state is AuthProfileUpdateSuccess ||
+        state is AuthProfileImageUploadSuccess;
+  }
+
+  void _publishPresenceForAuthState(AuthState state, {bool force = false}) {
+    if (_canPublishPresence(state)) {
+      _publishPresence('online', force: force);
+    } else {
+      _lastPublishedStatus = null;
+    }
+  }
+
+  void _publishPresence(String status, {bool force = false}) {
+    if (!force && _lastPublishedStatus == status) {
+      return;
+    }
+
+    _lastPublishedStatus = status;
+    AppBloc.chatBloc.add(UpdateUserStatusEvent(status: status));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<AuthBloc, AuthState>(
+      bloc: AppBloc.authBloc,
+      listener: (context, state) {
+        _publishPresenceForAuthState(state, force: true);
+      },
+      child: widget.child,
     );
   }
 }

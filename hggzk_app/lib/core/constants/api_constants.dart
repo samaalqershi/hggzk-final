@@ -23,8 +23,28 @@ class ApiConstants {
 
   static const String socketUrl = String.fromEnvironment(
     'SOCKET_URL',
-    defaultValue: 'wss://ws.api.hggzk.com',
+    defaultValue: '',
   );
+
+  static String get resolvedSocketUrl {
+    final configured = socketUrl.trim();
+    if (configured.isNotEmpty) {
+      return _normalizeSocketUrl(configured);
+    }
+
+    return _normalizeSocketUrl(baseUrl);
+  }
+
+  static String _normalizeSocketUrl(String value) {
+    final base = _stripTrailingSlash(value);
+    if (base.startsWith('https://')) {
+      return 'wss://${base.substring('https://'.length)}';
+    }
+    if (base.startsWith('http://')) {
+      return 'ws://${base.substring('http://'.length)}';
+    }
+    return base;
+  }
 
   // Timeouts
   static const Duration connectTimeout = Duration(seconds: 60);

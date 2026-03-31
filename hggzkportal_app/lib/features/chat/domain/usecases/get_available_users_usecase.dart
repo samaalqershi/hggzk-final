@@ -5,20 +5,16 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/conversation.dart';
 import '../repositories/chat_repository.dart';
 
-/// يعرّف الكلاس `GetAvailableUsersUseCase`.
-/// Describes the `GetAvailableUsersUseCase` class.
+/// العربية: ينفذ حالة الاستخدام `GetAvailableUsersUseCase`.
 class GetAvailableUsersUseCase
     implements UseCase<List<ChatUser>, GetAvailableUsersParams> {
-  /// يخزن العضو `repository`.
-  /// Holds the `repository` member.
+  /// العربية: يخزن القيمة `repository`.
   final ChatRepository repository;
 
-  /// ينشئ مثيلاً من `GetAvailableUsersUseCase`.
-  /// Builds an instance of `GetAvailableUsersUseCase`.
+  /// العربية: ينشئ مثيلًا جديدًا من `GetAvailableUsersUseCase`.
   GetAvailableUsersUseCase(this.repository);
 
-  /// ينفذ العملية `call`.
-  /// Runs the `call` operation.
+  /// العربية: ينفذ السلوك الرئيسي الذي يقدمه هذا الكائن القابل للاستدعاء.
   @override
   Future<Either<Failure, List<ChatUser>>> call(
       GetAvailableUsersParams params) async {
@@ -29,26 +25,21 @@ class GetAvailableUsersUseCase
   }
 }
 
-/// يعرّف الكلاس `GetAvailableUsersParams`.
-/// Describes the `GetAvailableUsersParams` class.
+/// العربية: يمثل `GetAvailableUsersParams`.
 class GetAvailableUsersParams extends Equatable {
-  /// Holds the `userType` value.
   /// العربية: يخزن القيمة `userType`.
   final String? userType;
 
-  /// يخزن العضو `propertyId`.
-  /// Holds the `propertyId` member.
+  /// العربية: يخزن القيمة `propertyId`.
   final String? propertyId;
 
-  /// ينشئ مثيلاً من `GetAvailableUsersParams`.
-  /// Builds an instance of `GetAvailableUsersParams`.
+  /// العربية: ينشئ مثيلًا جديدًا من `GetAvailableUsersParams`.
   const GetAvailableUsersParams({
     this.userType,
     this.propertyId,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object?> get props => [userType, propertyId];
 }

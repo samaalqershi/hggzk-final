@@ -4,38 +4,30 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/chat_repository.dart';
 
-/// يعرّف الكلاس `DeleteMessageUseCase`.
-/// Describes the `DeleteMessageUseCase` class.
+/// العربية: ينفذ حالة الاستخدام `DeleteMessageUseCase`.
 class DeleteMessageUseCase implements UseCase<void, DeleteMessageParams> {
-  /// Holds the `repository` value.
   /// العربية: يخزن القيمة `repository`.
   final ChatRepository repository;
 
-  /// ينشئ مثيلاً من `DeleteMessageUseCase`.
-  /// Builds an instance of `DeleteMessageUseCase`.
+  /// العربية: ينشئ مثيلًا جديدًا من `DeleteMessageUseCase`.
   DeleteMessageUseCase(this.repository);
 
-  /// ينفذ العملية `call`.
-  /// Runs the `call` operation.
+  /// العربية: ينفذ السلوك الرئيسي الذي يقدمه هذا الكائن القابل للاستدعاء.
   @override
   Future<Either<Failure, void>> call(DeleteMessageParams params) async {
     return await repository.deleteMessage(params.messageId);
   }
 }
 
-/// يعرّف الكلاس `DeleteMessageParams`.
-/// Describes the `DeleteMessageParams` class.
+/// العربية: يمثل `DeleteMessageParams`.
 class DeleteMessageParams extends Equatable {
-  /// Holds the `messageId` value.
   /// العربية: يخزن القيمة `messageId`.
   final String messageId;
 
-  /// ينشئ مثيلاً من `DeleteMessageParams`.
-  /// Builds an instance of `DeleteMessageParams`.
+  /// العربية: ينشئ مثيلًا جديدًا من `DeleteMessageParams`.
   const DeleteMessageParams({required this.messageId});
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object> get props => [messageId];
 }

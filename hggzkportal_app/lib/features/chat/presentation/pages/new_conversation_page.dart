@@ -2,71 +2,65 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hggzkportal/features/chat/presentation/pages/chat_page.dart';
-import 'package:hggzkportal/features/chat/presentation/widgets/pinned_admins_widget.dart';
+import '../../../../core/localization/app_localizations.dart';
+import '../widgets/pinned_admins_widget.dart';
+import 'chat_page.dart';
+import '../../domain/entities/conversation.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../domain/entities/conversation.dart';
 import '../bloc/chat_bloc.dart';
+import '../utils/chat_presence_presentation.dart';
+import '../widgets/online_status_indicator.dart';
+import '../widgets/participant_item_widget.dart';
 
-/// يعرّف الكلاس `NewConversationPage`.
-/// Describes the `NewConversationPage` class.
+/// العربية: يمثل عنصر الصفحة `NewConversationPage`.
 class NewConversationPage extends StatefulWidget {
-  /// Initializes a new `NewConversationPage` instance.
   /// العربية: ينشئ مثيلًا جديدًا من `NewConversationPage`.
   const NewConversationPage({super.key});
 
-  /// ينفذ العملية `createState`.
-  /// Runs the `createState` operation.
+  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<NewConversationPage> createState() => _NewConversationPageState();
 }
 
-/// يعرّف الكلاس `_NewConversationPageState`.
-/// Describes the `_NewConversationPageState` class.
+/// العربية: يمثل الحالة الخاصة بـ `NewConversationPageState`.
 class _NewConversationPageState extends State<NewConversationPage>
     with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _groupNameController = TextEditingController();
 
-  /// يخزن العضو `_selectedUsers`.
-  /// Holds the `_selectedUsers` member.
+  /// العربية: يخزن القيمة `selectedUsers`.
   final Set<ChatUser> _selectedUsers = {};
 
-  /// يخزن العضو `_isCreatingGroup`.
-  /// Holds the `_isCreatingGroup` member.
-  bool _isCreatingGroup = false; // المجموعات معطلة
-  /// يخزن العضو `_availableUsers`.
-  /// Holds the `_availableUsers` member.
+  /// العربية: يحدد ما إذا كانت القيمة `isCreatingGroup` مفعلة.
+  bool _isCreatingGroup = false;
+
+  /// العربية: يخزن القيمة `availableUsers`.
   List<ChatUser> _availableUsers = [];
 
-  /// يخزن العضو `_filteredUsers`.
-  /// Holds the `_filteredUsers` member.
+  /// العربية: يخزن القيمة `filteredUsers`.
   List<ChatUser> _filteredUsers = [];
 
   // Animation Controllers
-  /// يخزن العضو `_fadeController`.
-  /// Holds the `_fadeController` member.
+  /// العربية: يخزن القيمة `fadeController`.
   late AnimationController _fadeController;
 
-  /// يخزن العضو `_slideController`.
-  /// Holds the `_slideController` member.
+  /// العربية: يخزن القيمة `slideController`.
   late AnimationController _slideController;
 
-  /// يخزن العضو `_pulseController`.
-  /// Holds the `_pulseController` member.
+  /// العربية: يخزن القيمة `pulseController`.
   late AnimationController _pulseController;
 
-  /// يخزن العضو `_fadeAnimation`.
-  /// Holds the `_fadeAnimation` member.
+  /// العربية: يخزن القيمة `fadeAnimation`.
   late Animation<double> _fadeAnimation;
 
-  /// يخزن العضو `_slideAnimation`.
-  /// Holds the `_slideAnimation` member.
+  /// العربية: يخزن القيمة `slideAnimation`.
   late Animation<Offset> _slideAnimation;
 
-  /// ينفذ العملية `initState`.
-  /// Runs the `initState` operation.
+  /// العربية: يخزن القيمة `pulseAnimation`.
+  late Animation<double> _pulseAnimation;
+
+  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -75,8 +69,7 @@ class _NewConversationPageState extends State<NewConversationPage>
     _searchController.addListener(_filterUsers);
   }
 
-  /// ينفذ العملية `_initializeAnimations`.
-  /// Runs the `_initializeAnimations` operation.
+  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 500),
@@ -106,12 +99,19 @@ class _NewConversationPageState extends State<NewConversationPage>
       curve: Curves.easeOutQuart,
     ));
 
+    _pulseAnimation = Tween<double>(
+      begin: 0.95,
+      end: 1.05,
+    ).animate(CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    ));
+
     _fadeController.forward();
     _slideController.forward();
   }
 
-  /// ينفذ العملية `dispose`.
-  /// Runs the `dispose` operation.
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _searchController.dispose();
@@ -122,16 +122,14 @@ class _NewConversationPageState extends State<NewConversationPage>
     super.dispose();
   }
 
-  /// ينفذ العملية `_loadAvailableUsers`.
-  /// Runs the `_loadAvailableUsers` operation.
+  /// العربية: يحمل available users.
   void _loadAvailableUsers() {
     final bloc = context.read<ChatBloc>();
     bloc.add(const LoadAdminUsersEvent());
     bloc.add(const LoadAvailableUsersEvent());
   }
 
-  /// ينفذ العملية `_filterUsers`.
-  /// Runs the `_filterUsers` operation.
+  /// العربية: يعالج `filterUsers`.
   void _filterUsers() {
     final query = _searchController.text.toLowerCase();
     setState(() {
@@ -145,8 +143,7 @@ class _NewConversationPageState extends State<NewConversationPage>
     });
   }
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return BlocListener<ChatBloc, ChatState>(
@@ -186,7 +183,6 @@ class _NewConversationPageState extends State<NewConversationPage>
         } else if (state is ConversationCreating) {
           // إظهار loading dialog
           showDialog(
-            fullscreenDialog: true,
             context: context,
             barrierDismissible: false,
             barrierColor: Colors.black54,
@@ -203,7 +199,7 @@ class _NewConversationPageState extends State<NewConversationPage>
             SnackBar(
               content: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.error_outline_rounded,
                     color: Colors.white,
                     size: 20,
@@ -256,7 +252,9 @@ class _NewConversationPageState extends State<NewConversationPage>
                       opacity: _fadeAnimation,
                       child: SlideTransition(
                         position: _slideAnimation,
-                        child: _buildUserSelectionView(),
+                        child: _isCreatingGroup
+                            ? _buildGroupCreationView()
+                            : _buildUserSelectionView(),
                       ),
                     ),
                   ),
@@ -265,14 +263,13 @@ class _NewConversationPageState extends State<NewConversationPage>
             ),
           ],
         ),
-        floatingActionButton: null,
+        floatingActionButton: _buildPremiumFAB(),
       ),
     );
   }
 
 // أضف دالة بناء dialog التحميل الاحترافي
-  /// ينفذ العملية `_buildCreatingDialog`.
-  /// Runs the `_buildCreatingDialog` operation.
+  /// العربية: يبني creating dialog.
   Widget _buildCreatingDialog() {
     return Center(
       child: Container(
@@ -293,18 +290,18 @@ class _NewConversationPageState extends State<NewConversationPage>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppTheme.darkCard.withValues(alpha: 0.9),
-                          AppTheme.darkCard.withValues(alpha: 0.7),
+                          AppTheme.darkCard.withOpacity(0.9),
+                          AppTheme.darkCard.withOpacity(0.7),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: AppTheme.primaryBlue.withValues(alpha: 0.2),
+                        color: AppTheme.primaryBlue.withOpacity(0.2),
                         width: 0.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.primaryBlue.withValues(alpha: 0.2),
+                          color: AppTheme.primaryBlue.withOpacity(0.2),
                           blurRadius: 20,
                           spreadRadius: 2,
                         ),
@@ -329,8 +326,7 @@ class _NewConversationPageState extends State<NewConversationPage>
                                     value: value,
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppTheme.primaryBlue
-                                          .withValues(alpha: 0.3),
+                                      AppTheme.primaryBlue.withOpacity(0.3),
                                     ),
                                   );
                                 },
@@ -361,8 +357,12 @@ class _NewConversationPageState extends State<NewConversationPage>
                           ).createShader(bounds),
                           child: Text(
                             _isCreatingGroup
-                                ? 'إنشاء المجموعة...'
-                                : 'بدء المحادثة...',
+                                ? context.tr(
+                                    'chat.newConversation.creatingGroup',
+                                  )
+                                : context.tr(
+                                    'chat.newConversation.startingDirect',
+                                  ),
                             style: AppTextStyles.bodyMedium.copyWith(
                               color: Colors.white,
                               fontSize: 15,
@@ -372,9 +372,11 @@ class _NewConversationPageState extends State<NewConversationPage>
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'الرجاء الانتظار لحظات',
+                          context.tr(
+                            'chat.newConversation.pleaseWait',
+                          ),
                           style: AppTextStyles.caption.copyWith(
-                            color: AppTheme.textMuted.withValues(alpha: 0.6),
+                            color: AppTheme.textMuted.withOpacity(0.6),
                             fontSize: 11,
                           ),
                         ),
@@ -391,8 +393,7 @@ class _NewConversationPageState extends State<NewConversationPage>
   }
 
 // تحديث دالة _startDirectChat - إزالة Navigator.pop
-  /// ينفذ العملية `_startDirectChat`.
-  /// Runs the `_startDirectChat` operation.
+  /// العربية: يبدأ direct chat.
   void _startDirectChat(ChatUser user) {
     HapticFeedback.lightImpact();
 
@@ -406,8 +407,114 @@ class _NewConversationPageState extends State<NewConversationPage>
     // لا Navigator.pop هنا!
   }
 
-  /// ينفذ العملية `_buildPremiumBackground`.
-  /// Runs the `_buildPremiumBackground` operation.
+// أضف validation محسّن
+  /// العربية: يتحقق من صحة group creation.
+  bool _validateGroupCreation() {
+    if (_groupNameController.text.trim().isEmpty) {
+      _showValidationError(
+        context.tr(
+          'chat.newConversation.groupNameRequired',
+        ),
+      );
+      return false;
+    }
+
+    if (_groupNameController.text.trim().length < 3) {
+      _showValidationError(
+        context.tr(
+          'chat.newConversation.groupNameMin',
+        ),
+      );
+      return false;
+    }
+
+    if (_selectedUsers.length < 2) {
+      _showValidationError(
+        context.tr(
+          'chat.newConversation.groupMembersMin',
+        ),
+      );
+      return false;
+    }
+
+    if (_selectedUsers.length > 100) {
+      _showValidationError(
+        context.tr(
+          'chat.newConversation.groupMembersMax',
+        ),
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  /// العربية: يعرض validation error.
+  void _showValidationError(String message) {
+    HapticFeedback.mediumImpact();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                message,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: Colors.white,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppTheme.warning,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        duration: const Duration(seconds: 3),
+        action: SnackBarAction(
+          label: context.tr('common.ok'),
+          textColor: Colors.white,
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+
+  /// العربية: ينشئ group.
+  void _createGroup() {
+    if (!_validateGroupCreation()) {
+      return;
+    }
+
+    HapticFeedback.lightImpact();
+
+    // تنظيف اسم المجموعة
+    final cleanGroupName = _groupNameController.text.trim();
+
+    context.read<ChatBloc>().add(
+          CreateConversationEvent(
+            participantIds: _selectedUsers.map((u) => u.id).toList(),
+            conversationType: 'group',
+            title: cleanGroupName,
+            description: context.tr(
+              'chat.newConversation.groupDescription',
+              params: {'count': _selectedUsers.length},
+            ),
+          ),
+        );
+  }
+
+  /// العربية: يبني premium background.
   Widget _buildPremiumBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -428,8 +535,7 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
-  /// ينفذ العملية `_buildPremiumAppBar`.
-  /// Runs the `_buildPremiumAppBar` operation.
+  /// العربية: يبني premium app bar.
   Widget _buildPremiumAppBar() {
     return ClipRRect(
       child: BackdropFilter(
@@ -438,13 +544,13 @@ class _NewConversationPageState extends State<NewConversationPage>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.darkCard.withValues(alpha: 0.9),
-                AppTheme.darkCard.withValues(alpha: 0.85),
+                AppTheme.darkCard.withOpacity(0.9),
+                AppTheme.darkCard.withOpacity(0.85),
               ],
             ),
             border: Border(
               bottom: BorderSide(
-                color: AppTheme.darkBorder.withValues(alpha: 0.1),
+                color: AppTheme.darkBorder.withOpacity(0.1),
                 width: 0.5,
               ),
             ),
@@ -475,7 +581,13 @@ class _NewConversationPageState extends State<NewConversationPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _isCreatingGroup ? 'إنشاء مجموعة' : 'محادثة جديدة',
+                      _isCreatingGroup
+                          ? context.tr(
+                              'chat.newConversation.createGroupTitle',
+                            )
+                          : context.tr(
+                              'chat.newConversation.newConversationTitle',
+                            ),
                       style: AppTextStyles.bodyMedium.copyWith(
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
@@ -483,9 +595,12 @@ class _NewConversationPageState extends State<NewConversationPage>
                     ),
                     if (_selectedUsers.isNotEmpty && !_isCreatingGroup)
                       Text(
-                        '${_selectedUsers.length} محدد',
+                        context.tr(
+                          'chat.newConversation.selectedCount',
+                          params: {'count': _selectedUsers.length},
+                        ),
                         style: AppTextStyles.caption.copyWith(
-                          color: AppTheme.primaryBlue.withValues(alpha: 0.8),
+                          color: AppTheme.primaryBlue.withOpacity(0.8),
                           fontSize: 11,
                         ),
                       ),
@@ -493,7 +608,35 @@ class _NewConversationPageState extends State<NewConversationPage>
                 ),
               ),
 
-              // زر إنشاء مجموعة مُعطّل
+              // Next button for group creation
+              if (_selectedUsers.length > 1 && !_isCreatingGroup)
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _isCreatingGroup = true;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppTheme.primaryBlue, AppTheme.primaryPurple],
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      context.tr('chat.newConversation.next'),
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -501,8 +644,7 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
-  /// ينفذ العملية `_buildAppBarButton`.
-  /// Runs the `_buildAppBarButton` operation.
+  /// العربية: يبني app bar button.
   Widget _buildAppBarButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -515,27 +657,26 @@ class _NewConversationPageState extends State<NewConversationPage>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkSurface.withValues(alpha: 0.5),
-              AppTheme.darkSurface.withValues(alpha: 0.3),
+              AppTheme.darkSurface.withOpacity(0.5),
+              AppTheme.darkSurface.withOpacity(0.3),
             ],
           ),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: AppTheme.darkBorder.withValues(alpha: 0.1),
+            color: AppTheme.darkBorder.withOpacity(0.1),
             width: 0.5,
           ),
         ),
         child: Icon(
           icon,
-          color: AppTheme.textWhite.withValues(alpha: 0.8),
+          color: AppTheme.textWhite.withOpacity(0.8),
           size: 18,
         ),
       ),
     );
   }
 
-  /// ينفذ العملية `_buildUserSelectionView`.
-  /// Runs the `_buildUserSelectionView` operation.
+  /// العربية: يبني user selection view.
   Widget _buildUserSelectionView() {
     return Column(
       children: [
@@ -609,8 +750,7 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
-  /// ينفذ العملية `_buildRegularUsersList`.
-  /// Runs the `_buildRegularUsersList` operation.
+  /// العربية: يبني regular users list.
   Widget _buildRegularUsersList() {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -622,9 +762,164 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
-  // تم تعطيل واجهة إنشاء المجموعات
-  /// ينفذ العملية `_buildPremiumSearchBar`.
-  /// Runs the `_buildPremiumSearchBar` operation.
+  /// العربية: يبني group creation view.
+  Widget _buildGroupCreationView() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          // Group info card
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppTheme.darkCard.withOpacity(0.6),
+                  AppTheme.darkCard.withOpacity(0.4),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppTheme.darkBorder.withOpacity(0.1),
+                width: 0.5,
+              ),
+            ),
+            child: Column(
+              children: [
+                // Group avatar
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppTheme.primaryBlue, AppTheme.primaryPurple],
+                    ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                        blurRadius: 20,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.group_rounded,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Group name input
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppTheme.darkSurface.withOpacity(0.5),
+                        AppTheme.darkSurface.withOpacity(0.3),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppTheme.primaryBlue.withOpacity(0.2),
+                      width: 0.5,
+                    ),
+                  ),
+                  child: TextField(
+                    controller: _groupNameController,
+                    autofocus: true,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: 14,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: context.tr(
+                        'chat.newConversation.groupNameHint',
+                      ),
+                      hintStyle: AppTextStyles.bodySmall.copyWith(
+                        color: AppTheme.textMuted.withOpacity(0.4),
+                        fontSize: 13,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.edit_rounded,
+                        color: AppTheme.primaryBlue.withOpacity(0.6),
+                        size: 18,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Members section
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppTheme.darkCard.withOpacity(0.3),
+                    AppTheme.darkCard.withOpacity(0.2),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppTheme.darkBorder.withOpacity(0.05),
+                  width: 0.5,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.tr(
+                      'chat.newConversation.membersCount',
+                      params: {'count': _selectedUsers.length},
+                    ),
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppTheme.textMuted.withOpacity(0.6),
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _selectedUsers.length,
+                      itemBuilder: (context, index) {
+                        final user = _selectedUsers.elementAt(index);
+                        return ParticipantItemWidget(
+                          participant: user,
+                          onRemove: () {
+                            setState(() {
+                              _selectedUsers.remove(user);
+                              if (_selectedUsers.length < 2) {
+                                _isCreatingGroup = false;
+                              }
+                            });
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// العربية: يبني premium search bar.
   Widget _buildPremiumSearchBar() {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -633,13 +928,13 @@ class _NewConversationPageState extends State<NewConversationPage>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkSurface.withValues(alpha: 0.6),
-              AppTheme.darkSurface.withValues(alpha: 0.4),
+              AppTheme.darkSurface.withOpacity(0.6),
+              AppTheme.darkSurface.withOpacity(0.4),
             ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withValues(alpha: 0.1),
+            color: AppTheme.darkBorder.withOpacity(0.1),
             width: 0.5,
           ),
         ),
@@ -649,14 +944,16 @@ class _NewConversationPageState extends State<NewConversationPage>
             fontSize: 13,
           ),
           decoration: InputDecoration(
-            hintText: 'البحث عن جهات الاتصال...',
+            hintText: context.tr(
+              'chat.newConversation.searchHint',
+            ),
             hintStyle: AppTextStyles.bodySmall.copyWith(
-              color: AppTheme.textMuted.withValues(alpha: 0.4),
+              color: AppTheme.textMuted.withOpacity(0.4),
               fontSize: 13,
             ),
             prefixIcon: Icon(
               Icons.search_rounded,
-              color: AppTheme.textMuted.withValues(alpha: 0.5),
+              color: AppTheme.textMuted.withOpacity(0.5),
               size: 18,
             ),
             border: InputBorder.none,
@@ -670,8 +967,7 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
-  /// ينفذ العملية `_buildSelectedUsersChips`.
-  /// Runs the `_buildSelectedUsersChips` operation.
+  /// العربية: يبني selected users chips.
   Widget _buildSelectedUsersChips() {
     return Container(
       height: 90, // زيادة الارتفاع من 80 إلى 90 لحل مشكلة overflow
@@ -704,15 +1000,13 @@ class _NewConversationPageState extends State<NewConversationPage>
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  AppTheme.primaryBlue.withValues(alpha: 0.1),
-                                  AppTheme.primaryPurple
-                                      .withValues(alpha: 0.05),
+                                  AppTheme.primaryBlue.withOpacity(0.1),
+                                  AppTheme.primaryPurple.withOpacity(0.05),
                                 ],
                               ),
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color:
-                                    AppTheme.primaryBlue.withValues(alpha: 0.3),
+                                color: AppTheme.primaryBlue.withOpacity(0.3),
                                 width: 1,
                               ),
                             ),
@@ -743,8 +1037,8 @@ class _NewConversationPageState extends State<NewConversationPage>
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     colors: [
-                                      AppTheme.error.withValues(alpha: 0.8),
-                                      AppTheme.error.withValues(alpha: 0.6),
+                                      AppTheme.error.withOpacity(0.8),
+                                      AppTheme.error.withOpacity(0.6),
                                     ],
                                   ),
                                   shape: BoxShape.circle,
@@ -790,8 +1084,7 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
-  /// ينفذ العملية `_buildUserListTile`.
-  /// Runs the `_buildUserListTile` operation.
+  /// العربية: يبني user list tile.
   Widget _buildUserListTile(ChatUser user, {required int listIndex}) {
     final isSelected = _selectedUsers.contains(user);
     return TweenAnimationBuilder<double>(
@@ -812,15 +1105,15 @@ class _NewConversationPageState extends State<NewConversationPage>
                 gradient: isSelected
                     ? LinearGradient(
                         colors: [
-                          AppTheme.primaryBlue.withValues(alpha: 0.08),
-                          AppTheme.primaryPurple.withValues(alpha: 0.04),
+                          AppTheme.primaryBlue.withOpacity(0.08),
+                          AppTheme.primaryPurple.withOpacity(0.04),
                         ],
                       )
                     : null,
                 borderRadius: BorderRadius.circular(12),
                 border: isSelected
                     ? Border.all(
-                        color: AppTheme.primaryBlue.withValues(alpha: 0.3),
+                        color: AppTheme.primaryBlue.withOpacity(0.3),
                         width: 0.5,
                       )
                     : null,
@@ -876,8 +1169,7 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
-  /// ينفذ العملية `_buildUserAvatar`.
-  /// Runs the `_buildUserAvatar` operation.
+  /// العربية: يبني user avatar.
   Widget _buildUserAvatar(ChatUser user, bool isSelected) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -890,15 +1182,15 @@ class _NewConversationPageState extends State<NewConversationPage>
               )
             : LinearGradient(
                 colors: [
-                  AppTheme.darkCard.withValues(alpha: 0.6),
-                  AppTheme.darkCard.withValues(alpha: 0.4),
+                  AppTheme.darkCard.withOpacity(0.6),
+                  AppTheme.darkCard.withOpacity(0.4),
                 ],
               ),
         shape: BoxShape.circle,
         border: Border.all(
           color: isSelected
-              ? Colors.white.withValues(alpha: 0.2)
-              : AppTheme.darkBorder.withValues(alpha: 0.1),
+              ? Colors.white.withOpacity(0.2)
+              : AppTheme.darkBorder.withOpacity(0.1),
           width: 0.5,
         ),
       ),
@@ -906,9 +1198,8 @@ class _NewConversationPageState extends State<NewConversationPage>
         child: Text(
           _getInitials(user.name),
           style: AppTextStyles.bodySmall.copyWith(
-            color: isSelected
-                ? Colors.white
-                : AppTheme.textWhite.withValues(alpha: 0.8),
+            color:
+                isSelected ? Colors.white : AppTheme.textWhite.withOpacity(0.8),
             fontWeight: FontWeight.w600,
             fontSize: 14,
           ),
@@ -917,27 +1208,22 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
-  /// ينفذ العملية `_buildUserSubtitle`.
-  /// Runs the `_buildUserSubtitle` operation.
+  /// العربية: يبني user subtitle.
   Widget? _buildUserSubtitle(ChatUser user) {
     if (user.isOnline) {
       return Row(
         children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppTheme.success, AppTheme.neonGreen],
-              ),
-              shape: BoxShape.circle,
-            ),
+          const OnlineStatusIndicator(
+            isOnline: true,
+            size: 6,
+            showBorder: false,
+            animate: true,
           ),
           const SizedBox(width: 4),
           Text(
-            'متصل الآن',
+            ChatPresencePresentation.onlineNow(context),
             style: AppTextStyles.caption.copyWith(
-              color: AppTheme.success.withValues(alpha: 0.8),
+              color: AppTheme.success.withOpacity(0.8),
               fontSize: 11,
             ),
           ),
@@ -946,9 +1232,14 @@ class _NewConversationPageState extends State<NewConversationPage>
     }
     if (user.lastSeen != null) {
       return Text(
-        'آخر ظهور ${_formatLastSeen(user.lastSeen!)}',
+        ChatPresencePresentation.presenceLabel(
+              context,
+              isOnline: false,
+              lastSeen: user.lastSeen,
+            ) ??
+            '',
         style: AppTextStyles.caption.copyWith(
-          color: AppTheme.textMuted.withValues(alpha: 0.5),
+          color: AppTheme.textMuted.withOpacity(0.5),
           fontSize: 11,
         ),
       );
@@ -956,8 +1247,7 @@ class _NewConversationPageState extends State<NewConversationPage>
     return null;
   }
 
-  /// ينفذ العملية `_buildPremiumLoadingState`.
-  /// Runs the `_buildPremiumLoadingState` operation.
+  /// العربية: يبني premium loading state.
   Widget _buildPremiumLoadingState() {
     return Center(
       child: Column(
@@ -969,15 +1259,17 @@ class _NewConversationPageState extends State<NewConversationPage>
             child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(
-                AppTheme.primaryBlue.withValues(alpha: 0.6),
+                AppTheme.primaryBlue.withOpacity(0.6),
               ),
             ),
           ),
           const SizedBox(height: 16),
           Text(
-            'جاري تحميل جهات الاتصال...',
+            context.tr(
+              'chat.newConversation.loadingContacts',
+            ),
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppTheme.textMuted.withValues(alpha: 0.6),
+              color: AppTheme.textMuted.withOpacity(0.6),
               fontSize: 13,
             ),
           ),
@@ -986,8 +1278,7 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
-  /// ينفذ العملية `_buildPremiumEmptyState`.
-  /// Runs the `_buildPremiumEmptyState` operation.
+  /// العربية: يبني premium empty state.
   Widget _buildPremiumEmptyState() {
     return Center(
       child: Container(
@@ -996,13 +1287,13 @@ class _NewConversationPageState extends State<NewConversationPage>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withValues(alpha: 0.5),
-              AppTheme.darkCard.withValues(alpha: 0.3),
+              AppTheme.darkCard.withOpacity(0.5),
+              AppTheme.darkCard.withOpacity(0.3),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: AppTheme.darkBorder.withValues(alpha: 0.1),
+            color: AppTheme.darkBorder.withOpacity(0.1),
             width: 0.5,
           ),
         ),
@@ -1015,8 +1306,8 @@ class _NewConversationPageState extends State<NewConversationPage>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withValues(alpha: 0.1),
-                    AppTheme.primaryPurple.withValues(alpha: 0.05),
+                    AppTheme.primaryBlue.withOpacity(0.1),
+                    AppTheme.primaryPurple.withOpacity(0.05),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -1024,21 +1315,25 @@ class _NewConversationPageState extends State<NewConversationPage>
               child: Icon(
                 Icons.person_search_rounded,
                 size: 32,
-                color: AppTheme.primaryBlue.withValues(alpha: 0.6),
+                color: AppTheme.primaryBlue.withOpacity(0.6),
               ),
             ),
             const SizedBox(height: 16),
             Text(
-              'لا توجد جهات اتصال',
+              context.tr(
+                'chat.newConversation.noContactsTitle',
+              ),
               style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: 15,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'لم يتم العثور على جهات اتصال متاحة',
+              context.tr(
+                'chat.newConversation.noContactsSubtitle',
+              ),
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppTheme.textMuted.withValues(alpha: 0.6),
+                color: AppTheme.textMuted.withOpacity(0.6),
                 fontSize: 12,
               ),
             ),
@@ -1048,38 +1343,76 @@ class _NewConversationPageState extends State<NewConversationPage>
     );
   }
 
-  /// ينفذ العملية `_formatLastSeen`.
-  /// Runs the `_formatLastSeen` operation.
-  String _formatLastSeen(DateTime dt) {
-    final now = DateTime.now();
-    final diff = now.difference(dt);
-    if (diff.inMinutes < 1) return 'الآن';
-    if (diff.inMinutes < 60) return '${diff.inMinutes} دقيقة';
-    if (diff.inHours < 24) return '${diff.inHours} ساعة';
-    return '${diff.inDays} يوم';
+  /// العربية: يبني premium fab.
+  Widget? _buildPremiumFAB() {
+    if (!_isCreatingGroup || _groupNameController.text.isEmpty) {
+      return null;
+    }
+
+    return AnimatedBuilder(
+      animation: _pulseAnimation,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _pulseAnimation.value,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryBlue.withOpacity(0.4),
+                  blurRadius: 20,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: FloatingActionButton(
+              onPressed: _createGroup,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppTheme.primaryBlue, AppTheme.primaryPurple],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
-  /// ينفذ العملية `_getInitials`.
-  /// Runs the `_getInitials` operation.
+  /// العربية: يعيد initials.
   String _getInitials(String name) {
     final parts = name.trim().split(' ').where((e) => e.isNotEmpty).toList();
     if (parts.isEmpty) return '?';
-    if (parts.length == 1) return parts.first.characters.first.toUpperCase();
-    return (parts[0].characters.first + parts[1].characters.first)
-        .toUpperCase();
+    String firstLetter(String value) {
+      if (value.isEmpty) return '';
+      return String.fromCharCodes(value.runes.take(1));
+    }
+
+    if (parts.length == 1) return firstLetter(parts.first).toUpperCase();
+    return (firstLetter(parts[0]) + firstLetter(parts[1])).toUpperCase();
   }
 }
 
 // Subtle Pattern Painter
-/// يعرّف الكلاس `_SubtlePatternPainter`.
-/// Describes the `_SubtlePatternPainter` class.
+/// العربية: يمثل `SubtlePatternPainter`.
 class _SubtlePatternPainter extends CustomPainter {
-  /// ينفذ العملية `paint`.
-  /// Runs the `paint` operation.
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppTheme.primaryBlue.withValues(alpha: 0.02)
+      ..color = AppTheme.primaryBlue.withOpacity(0.02)
       ..style = PaintingStyle.fill;
 
     const radius = 100.0;
@@ -1096,8 +1429,7 @@ class _SubtlePatternPainter extends CustomPainter {
     }
   }
 
-  /// ينفذ العملية `shouldRepaint`.
-  /// Runs the `shouldRepaint` operation.
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

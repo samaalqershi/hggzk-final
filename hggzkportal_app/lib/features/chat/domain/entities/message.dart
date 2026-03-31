@@ -1,133 +1,95 @@
 import 'package:equatable/equatable.dart';
 import 'attachment.dart';
 
-/// يعرّف الكلاس `Message`.
-/// Describes the `Message` class.
+/// Immutable chat message that carries text, media, reactions, delivery
+/// status, and optional location data.
+/// رسالة دردشة غير قابلة للتعديل تحمل النص أو الوسائط أو التفاعلات أو حالة
+/// التسليم أو الموقع الاختياري.
 class Message extends Equatable {
-  /// Holds the `id` value.
-  /// العربية: يخزن القيمة `id`.
+  /// Stable identifier for the message.
+  /// المعرّف الثابت للرسالة.
   final String id;
 
-  /// يخزن العضو `conversationId`.
-  /// Holds the `conversationId` member.
+  /// Conversation that owns this message.
+  /// المحادثة التي تنتمي إليها هذه الرسالة.
   final String conversationId;
 
-  /// يخزن العضو `senderId`.
-  /// Holds the `senderId` member.
+  /// Sender id used for ownership, coloring, and permissions.
+  /// معرّف المرسل المستخدم للملكية والألوان والصلاحيات.
   final String senderId;
 
-  /// يخزن العضو `senderName`.
-  /// Holds the `senderName` member.
+  /// Display name shown next to the message when available.
+  /// اسم العرض الذي يظهر بجانب الرسالة عندما يكون متاحًا.
   final String? senderName;
 
-  /// يخزن العضو `senderAvatar`.
-  /// Holds the `senderAvatar` member.
-  final String? senderAvatar;
-
-  /// يخزن العضو `messageType`.
-  /// Holds the `messageType` member.
+  /// Message payload type such as text, image, video, location, or audio.
+  /// نوع حمولة الرسالة مثل النص أو الصورة أو الفيديو أو الموقع أو الصوت.
   final String messageType;
 
-  /// يخزن العضو `content`.
-  /// Holds the `content` member.
+  /// Text body for text-like messages.
+  /// النص الأساسي للرسائل النصية وما يشابهها.
   final String? content;
 
-  /// يخزن العضو `location`.
-  /// Holds the `location` member.
+  /// Optional geographic payload for location messages.
+  /// حمولة جغرافية اختيارية لرسائل الموقع.
   final Location? location;
 
-  /// يخزن العضو `replyToMessageId`.
-  /// Holds the `replyToMessageId` member.
+  /// Message id this one replies to, if the thread is a quoted reply.
+  /// معرّف الرسالة التي ترد عليها هذه الرسالة إن كانت مقتبسة.
   final String? replyToMessageId;
 
-  /// يخزن العضو `replyToMessage`.
-  /// Holds the `replyToMessage` member.
-  final Message? replyToMessage;
-
-  /// يخزن العضو `reactions`.
-  /// Holds the `reactions` member.
+  /// Reaction list applied to this message.
+  /// قائمة التفاعلات المضافة إلى هذه الرسالة.
   final List<MessageReaction> reactions;
 
-  /// يخزن العضو `attachments`.
-  /// Holds the `attachments` member.
+  /// Attachments linked to this message.
+  /// المرفقات المرتبطة بهذه الرسالة.
   final List<Attachment> attachments;
 
-  /// يخزن العضو `createdAt`.
-  /// Holds the `createdAt` member.
+  /// Time when the message was first created.
+  /// وقت إنشاء الرسالة أول مرة.
   final DateTime createdAt;
 
-  /// يخزن العضو `updatedAt`.
-  /// Holds the `updatedAt` member.
+  /// Time when the message was last updated.
+  /// وقت آخر تحديث للرسالة.
   final DateTime updatedAt;
 
-  /// يخزن العضو `status`.
-  /// Holds the `status` member.
+  /// Delivery lifecycle state such as sending, sent, delivered, read, or
+  /// failed.
+  /// حالة دورة التسليم مثل الإرسال أو الوصول أو القراءة أو الفشل.
   final String status;
 
-  /// يخزن العضو `isEdited`.
-  /// Holds the `isEdited` member.
+  /// Whether the user edited the message after sending it.
+  /// يحدد ما إذا كان المستخدم عدّل الرسالة بعد إرسالها.
   final bool isEdited;
 
-  /// يخزن العضو `editedAt`.
-  /// Holds the `editedAt` member.
+  /// Time when the last edit happened, if any.
+  /// وقت آخر تعديل إن وجد.
   final DateTime? editedAt;
 
-  /// يخزن العضو `deliveryReceipt`.
-  /// Holds the `deliveryReceipt` member.
+  /// Delivery receipt metadata for sent and read acknowledgements.
+  /// بيانات إيصال التسليم للتأكيدات الخاصة بالإرسال والقراءة.
   final DeliveryReceipt? deliveryReceipt;
 
-  /// يخزن العضو `isDeleted`.
-  /// Holds the `isDeleted` member.
+  /// Whether the message was deleted from the conversation timeline.
+  /// يحدد ما إذا كانت الرسالة حُذفت من خط المحادثة.
   final bool isDeleted;
 
-  /// يخزن العضو `deletedAt`.
-  /// Holds the `deletedAt` member.
-  final DateTime? deletedAt;
+  /// Human-readable reason when sending failed.
+  /// سبب قابل للقراءة عندما يفشل الإرسال.
+  final String? failureReason;
 
-  /// يخزن العضو `failureReason`.
-  /// Holds the `failureReason` member.
-  final String? failureReason; // إضافة سبب الفشل
-  /// يخزن العضو `isForwarded`.
-  /// Holds the `isForwarded` member.
-  final bool isForwarded;
-
-  /// يخزن العضو `forwardedFrom`.
-  /// Holds the `forwardedFrom` member.
-  final String? forwardedFrom;
-
-  /// يخزن العضو `mentions`.
-  /// Holds the `mentions` member.
-  final List<String> mentions;
-
-  /// يخزن العضو `isPinned`.
-  /// Holds the `isPinned` member.
-  final bool isPinned;
-
-  /// يخزن العضو `isStarred`.
-  /// Holds the `isStarred` member.
-  final bool isStarred;
-
-  /// يخزن العضو `readBy`.
-  /// Holds the `readBy` member.
-  final List<String> readBy;
-
-  /// يخزن العضو `metadata`.
-  /// Holds the `metadata` member.
-  final Map<String, dynamic>? metadata;
-
-  /// ينشئ مثيلاً من `Message`.
-  /// Builds an instance of `Message`.
+  /// Builds an immutable chat message snapshot.
+  /// ينشئ لقطة غير قابلة للتعديل لرسالة دردشة.
   const Message({
     required this.id,
     required this.conversationId,
     required this.senderId,
     this.senderName,
-    this.senderAvatar,
     required this.messageType,
     this.content,
     this.location,
     this.replyToMessageId,
-    this.replyToMessage,
     this.reactions = const [],
     this.attachments = const [],
     required this.createdAt,
@@ -137,31 +99,21 @@ class Message extends Equatable {
     this.editedAt,
     this.deliveryReceipt,
     this.isDeleted = false,
-    this.deletedAt,
     this.failureReason,
-    this.isForwarded = false,
-    this.forwardedFrom,
-    this.mentions = const [],
-    this.isPinned = false,
-    this.isStarred = false,
-    this.readBy = const [],
-    this.metadata,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// Equality is based on the full message snapshot.
+  /// تُبنى المساواة على اللقطة الكاملة للرسالة.
   @override
   List<Object?> get props => [
         id,
         conversationId,
         senderId,
         senderName,
-        senderAvatar,
         messageType,
         content,
         location,
         replyToMessageId,
-        replyToMessage,
         reactions,
         attachments,
         createdAt,
@@ -171,104 +123,60 @@ class Message extends Equatable {
         editedAt,
         deliveryReceipt,
         isDeleted,
-        deletedAt,
         failureReason,
-        isForwarded,
-        forwardedFrom,
-        mentions,
-        isPinned,
-        isStarred,
-        readBy,
-        metadata,
       ];
-
-  // Helper methods
-  /// يعيد قيمة `isTextMessage`.
-  /// Exposes the `isTextMessage` value.
-  bool get isTextMessage => messageType == 'text';
-
-  /// يعيد قيمة `isMediaMessage`.
-  /// Exposes the `isMediaMessage` value.
-  bool get isMediaMessage => ['image', 'video', 'audio'].contains(messageType);
-
-  /// يعيد قيمة `hasAttachments`.
-  /// Exposes the `hasAttachments` value.
-  bool get hasAttachments => attachments.isNotEmpty;
-
-  /// يعيد قيمة `isDelivered`.
-  /// Exposes the `isDelivered` value.
-  bool get isDelivered => status == 'delivered' || status == 'read';
-
-  /// يعيد قيمة `isRead`.
-  /// Exposes the `isRead` value.
-  bool get isRead => status == 'read';
-
-  /// يعيد قيمة `isFailed`.
-  /// Exposes the `isFailed` value.
-  bool get isFailed => status == 'failed';
 }
 
-/// يعرّف الكلاس `Location`.
-/// Describes the `Location` class.
+/// Geographic location payload attached to a chat message.
+/// حمولة موقع جغرافي مرفقة برسالة دردشة.
 class Location extends Equatable {
-  /// Holds the `latitude` value.
-  /// العربية: يخزن القيمة `latitude`.
+  /// Latitude component of the coordinate pair.
+  /// خط العرض في الزوج الإحداثي.
   final double latitude;
 
-  /// يخزن العضو `longitude`.
-  /// Holds the `longitude` member.
+  /// Longitude component of the coordinate pair.
+  /// خط الطول في الزوج الإحداثي.
   final double longitude;
 
-  /// يخزن العضو `address`.
-  /// Holds the `address` member.
+  /// Optional human-readable address for the location.
+  /// عنوان نصي اختياري للموقع.
   final String? address;
 
-  /// يخزن العضو `placeName`.
-  /// Holds the `placeName` member.
-  final String? placeName;
-
-  /// يخزن العضو `accuracy`.
-  /// Holds the `accuracy` member.
-  final double? accuracy;
-
-  /// ينشئ مثيلاً من `Location`.
-  /// Builds an instance of `Location`.
+  /// Builds a location payload for the message entity.
+  /// ينشئ حمولة موقع لكيان الرسالة.
   const Location({
     required this.latitude,
     required this.longitude,
     this.address,
-    this.placeName,
-    this.accuracy,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// Equality is based on the coordinate payload.
+  /// تُبنى المساواة على حمولة الإحداثيات.
   @override
-  List<Object?> get props =>
-      [latitude, longitude, address, placeName, accuracy];
+  List<Object?> get props => [latitude, longitude, address];
 }
 
-/// يعرّف الكلاس `MessageReaction`.
-/// Describes the `MessageReaction` class.
+/// Reaction attached to a message by a specific user.
+/// تفاعل يضيفه مستخدم محدد إلى رسالة.
 class MessageReaction extends Equatable {
-  /// Holds the `id` value.
-  /// العربية: يخزن القيمة `id`.
+  /// Stable identifier for the reaction record.
+  /// المعرّف الثابت لسجل التفاعل.
   final String id;
 
-  /// يخزن العضو `messageId`.
-  /// Holds the `messageId` member.
+  /// Message that received the reaction.
+  /// الرسالة التي استقبلت التفاعل.
   final String messageId;
 
-  /// يخزن العضو `userId`.
-  /// Holds the `userId` member.
+  /// User who sent the reaction.
+  /// المستخدم الذي أرسل التفاعل.
   final String userId;
 
-  /// يخزن العضو `reactionType`.
-  /// Holds the `reactionType` member.
-  final String reactionType; // "like", "love", "laugh", "sad", "angry", "wow"
+  /// Reaction label such as like, love, laugh, sad, angry, or wow.
+  /// تسمية التفاعل مثل like أو love أو laugh أو sad أو angry أو wow.
+  final String reactionType;
 
-  /// ينشئ مثيلاً من `MessageReaction`.
-  /// Builds an instance of `MessageReaction`.
+  /// Builds a reaction snapshot for one message and one user.
+  /// ينشئ لقطة تفاعل لرسالة واحدة ومستخدم واحد.
   const MessageReaction({
     required this.id,
     required this.messageId,
@@ -276,46 +184,47 @@ class MessageReaction extends Equatable {
     required this.reactionType,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// Equality is based on the reaction identity and owner.
+  /// تُبنى المساواة على هوية التفاعل وصاحبه.
   @override
   List<Object?> get props => [id, messageId, userId, reactionType];
 }
 
-/// يعرّف الكلاس `DeliveryReceipt`.
-/// Describes the `DeliveryReceipt` class.
+/// Delivery acknowledgements for a message, including delivered and read
+/// timestamps.
+/// تأكيدات تسليم الرسالة، بما في ذلك أوقات الوصول والقراءة.
 class DeliveryReceipt extends Equatable {
-  /// Holds the `deliveredAt` value.
-  /// العربية: يخزن القيمة `deliveredAt`.
+  /// Time when the message reached the recipient.
+  /// وقت وصول الرسالة إلى المستلم.
   final DateTime? deliveredAt;
 
-  /// يخزن العضو `readAt`.
-  /// Holds the `readAt` member.
+  /// Time when the recipient opened the message.
+  /// وقت فتح المستلم للرسالة.
   final DateTime? readAt;
 
-  /// يخزن العضو `readBy`.
-  /// Holds the `readBy` member.
+  /// Users who have read the message.
+  /// المستخدمون الذين قرأوا الرسالة.
   final List<String> readBy;
 
-  /// ينشئ مثيلاً من `DeliveryReceipt`.
-  /// Builds an instance of `DeliveryReceipt`.
+  /// Builds the delivery receipt snapshot for the message.
+  /// ينشئ لقطة إيصال التسليم للرسالة.
   const DeliveryReceipt({
     this.deliveredAt,
     this.readAt,
     this.readBy = const [],
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// Equality is based on the delivery timestamps and readers.
+  /// تُبنى المساواة على أوقات التسليم والقراءة والقارئين.
   @override
   List<Object?> get props => [deliveredAt, readAt, readBy];
 }
 
-/// يضيف الامتداد `LocationExtension` سلوكاً إضافياً.
-/// Adds extra behavior through the `LocationExtension` extension.
+/// JSON helpers for the location payload.
+/// مساعدات JSON لحمولة الموقع.
 extension LocationExtension on Location {
-  /// Converts this instance to a JSON representation.
-  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
+  /// Serializes the location into the backend payload shape.
+  /// يحول الموقع إلى الشكل الذي يتوقعه الخادم.
   Map<String, dynamic> toJson() {
     return {
       'latitude': latitude,

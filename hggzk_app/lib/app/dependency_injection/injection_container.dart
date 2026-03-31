@@ -634,6 +634,7 @@ void _initChat() {
       updateChatSettingsUseCase: sl(),
       getCurrentUserUseCase: sl(),
       webSocketService: sl(),
+      localStorageService: sl(),
     ),
   );
 
@@ -678,6 +679,7 @@ void _initChat() {
   // WebSocket Service
   sl.registerLazySingleton(() => ChatWebSocketService(
         authLocalDataSource: sl(),
+        remoteDataSource: sl(),
       ));
 }
 

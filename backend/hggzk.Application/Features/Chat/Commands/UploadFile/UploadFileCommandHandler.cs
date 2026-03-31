@@ -75,10 +75,17 @@ namespace YemenBooking.Application.Features.Chat.Commands.UploadFile
                 }
                 catch { /* non-fatal */ }
 
+                if ((!durationSeconds.HasValue || durationSeconds.Value <= 0) &&
+                    request.DurationSeconds.HasValue &&
+                    request.DurationSeconds.Value > 0)
+                {
+                    durationSeconds = request.DurationSeconds.Value;
+                }
+
                 var attachment = new ChatAttachment
                 {
                     ConversationId = request.ConversationId,
-                    FileName = uploadResult.FileName ?? file.FileName,
+                    FileName = file.FileName,
                     ContentType = uploadResult.ContentType ?? file.ContentType,
                     FileSize = uploadResult.FileSizeBytes,
                     FilePath = uploadResult.FilePath!,

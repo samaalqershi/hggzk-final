@@ -1,29 +1,33 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io';
 import 'dart:ui';
+import '../../../../app/dependency_injection/injection_container.dart';
+import '../../../../core/constants/storage_constants.dart';
+import '../../../../core/services/local_storage_service.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/utils/image_utils.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
-import '../../domain/entities/message.dart';
+import '../../chat_settings_keys.dart';
+import '../pages/chat_media_viewer_page.dart';
+import '../../domain/entities/attachment.dart';
 
 /// Grid of visual chat attachments that lets the user open images or videos
 /// from the conversation media gallery.
 /// شبكة لمرفقات الدردشة المرئية تتيح فتح الصور أو الفيديوهات من معرض
 /// وسائط المحادثة.
 class MediaGridWidget extends StatelessWidget {
-  /// Messages that contain image or video attachments to display.
-  /// الرسائل التي تحتوي على مرفقات صور أو فيديو لعرضها.
-  final List<Message> messages;
-
-  /// Called when the user taps one of the media tiles.
-  /// يُستدعى عند النقر على إحدى بطاقات الوسائط.
-  final Function(Message) onMediaTap;
+  /// All image and video attachments that should appear in the gallery.
+  /// جميع مرفقات الصور والفيديو التي يجب أن تظهر داخل المعرض.
+  final List<Attachment> attachments;
 
   /// Builds the compact attachment gallery for a chat thread.
   /// ينشئ معرض المرفقات المضغوط لسلسلة المحادثة.
   const MediaGridWidget({
     super.key,
-    required this.messages,
-    required this.onMediaTap,
+    required this.attachments,
   });
 
   /// Renders the 3-column gallery of conversation media.
@@ -37,14 +41,13 @@ class MediaGridWidget extends StatelessWidget {
         crossAxisSpacing: 4, // Reduced from 8
         mainAxisSpacing: 4,
       ),
-      itemCount: messages.length,
+      itemCount: attachments.length,
       physics: const BouncingScrollPhysics(),
       itemBuilder: (context, index) {
-        final message = messages[index];
         return _MediaItem(
-          message: message,
+          attachment: attachments[index],
+          galleryAttachments: attachments,
           index: index,
-          onTap: () => onMediaTap(message),
         );
       },
     );
@@ -54,24 +57,24 @@ class MediaGridWidget extends StatelessWidget {
 /// Single tile inside the media gallery.
 /// بطاقة منفصلة داخل معرض الوسائط.
 class _MediaItem extends StatefulWidget {
-  /// Message whose attachment is represented by this tile.
-  /// الرسالة التي تمثل مرفقها هذه البطاقة.
-  final Message message;
+  /// Attachment represented by this tile.
+  /// المرفق الذي تمثله هذه البطاقة.
+  final Attachment attachment;
+
+  /// Full attachment collection so the viewer can open the whole gallery.
+  /// المجموعة الكاملة للمرفقات حتى يفتح العارض كل المعرض.
+  final List<Attachment> galleryAttachments;
 
   /// Tile index used to stagger the entrance animation.
   /// فهرس البطاقة المستخدم لتدرّج حركة الظهور.
   final int index;
 
-  /// Called when the user opens the attachment preview.
-  /// يُستدعى عند فتح معاينة المرفق.
-  final VoidCallback onTap;
-
   /// Builds one animated media thumbnail.
   /// ينشئ صورة مصغرة متحركة واحدة للوسائط.
   const _MediaItem({
-    required this.message,
+    required this.attachment,
+    required this.galleryAttachments,
     required this.index,
-    required this.onTap,
   });
 
   /// Creates the animated tile state.
@@ -84,6 +87,19 @@ class _MediaItem extends StatefulWidget {
 /// يدير حركة الظهور وتغذية الضغط لمعاينة الوسائط.
 class _MediaItemState extends State<_MediaItem>
     with SingleTickerProviderStateMixin {
+  String? _cachedRemoteVideoPath;
+  String? _cachedVideoThumbnailPath;
+
+  bool get _autoDownloadEnabled {
+    final persisted =
+        sl<LocalStorageService>().getData(ChatSettingsKeys.autoDownloadMedia);
+    if (persisted is bool) {
+      return persisted;
+    }
+
+    return true;
+  }
+
   /// Animation controller for the tile entrance.
   /// متحكم الحركة الخاص بظهور البطاقة.
   late AnimationController _controller;
@@ -129,19 +145,11 @@ class _MediaItemState extends State<_MediaItem>
   /// يحدد نوع المرفق ثم يرسم الصورة المصغرة أو علامة الفيديو.
   @override
   Widget build(BuildContext context) {
-    String? imageUrl;
-    bool isVideo = false;
-
-    if (widget.message.messageType == 'image' &&
-        widget.message.attachments.isNotEmpty) {
-      imageUrl = widget.message.attachments.first.fileUrl;
-    } else if (widget.message.messageType == 'video' &&
-        widget.message.attachments.isNotEmpty) {
-      imageUrl = widget.message.attachments.first.thumbnailUrl;
-      isVideo = true;
-    }
-
-    if (imageUrl == null) return const SizedBox.shrink();
+    final attachment = widget.attachment;
+    final isVideo = attachment.isVideo;
+    final autoDownloadEnabled = _autoDownloadEnabled;
+    final thumbnailUrl = attachment.thumbnailUrl?.trim();
+    final localPath = attachment.filePath.trim();
 
     return ScaleTransition(
       scale: _scaleAnimation,
@@ -149,7 +157,14 @@ class _MediaItemState extends State<_MediaItem>
         onTapDown: (_) => setState(() => _isPressed = true),
         onTapUp: (_) {
           setState(() => _isPressed = false);
-          widget.onTap();
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => ChatMediaViewerPage(
+                attachments: widget.galleryAttachments,
+                initialIndex: widget.index,
+              ),
+            ),
+          );
         },
         onTapCancel: () => setState(() => _isPressed = false),
         child: AnimatedScale(
@@ -172,10 +187,59 @@ class _MediaItemState extends State<_MediaItem>
                 fit: StackFit.expand,
                 children: [
                   // Image
-                  CachedImageWidget(
-                    imageUrl: imageUrl,
-                    fit: BoxFit.cover,
-                  ),
+                  if (!isVideo)
+                    localPath.isNotEmpty && File(localPath).existsSync()
+                        ? Image.file(
+                            File(localPath),
+                            fit: BoxFit.cover,
+                          )
+                        : autoDownloadEnabled
+                            ? CachedImageWidget(
+                                imageUrl: attachment.fileUrl,
+                                fit: BoxFit.cover,
+                                httpHeaders: _buildAttachmentHeaders(),
+                              )
+                            : _buildDeferredMediaPlaceholder(
+                                icon: Icons.image_outlined,
+                              )
+                  else if (thumbnailUrl != null && thumbnailUrl.isNotEmpty)
+                    _buildRemoteThumbnailWithFallback(thumbnailUrl)
+                  else if (localPath.isNotEmpty && File(localPath).existsSync())
+                    Image.file(
+                      File(localPath),
+                      fit: BoxFit.cover,
+                    )
+                  else
+                    FutureBuilder<String?>(
+                      future: _ensureVideoThumbnail(),
+                      builder: (context, snapshot) {
+                        final thumbPath = snapshot.data;
+                        if (thumbPath != null && File(thumbPath).existsSync()) {
+                          return Image.file(
+                            File(thumbPath),
+                            fit: BoxFit.cover,
+                          );
+                        }
+
+                        return Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                AppTheme.darkCard.withOpacity(0.8),
+                                AppTheme.darkSurface.withOpacity(0.6),
+                              ],
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.videocam_rounded,
+                            size: 28,
+                            color: AppTheme.textMuted.withOpacity(0.55),
+                          ),
+                        );
+                      },
+                    ),
 
                   // Gradient overlay for video
                   if (isVideo)
@@ -248,5 +312,195 @@ class _MediaItemState extends State<_MediaItem>
         ),
       ),
     );
+  }
+
+  Widget _buildDeferredMediaPlaceholder({required IconData icon}) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.darkCard.withOpacity(0.82),
+            AppTheme.darkSurface.withOpacity(0.64),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          icon,
+          size: 28,
+          color: AppTheme.textMuted.withOpacity(0.55),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRemoteThumbnailWithFallback(String thumbnailUrl) {
+    final localThumbnailPath = _resolveLocalThumbnailPath(thumbnailUrl);
+    if (localThumbnailPath != null) {
+      return Image.file(
+        File(localThumbnailPath),
+        fit: BoxFit.cover,
+      );
+    }
+
+    final resolvedThumbnailUrl = ImageUtils.resolveUrl(thumbnailUrl);
+    if (resolvedThumbnailUrl.isEmpty) {
+      return _buildGeneratedVideoThumbnailFallback();
+    }
+
+    return Image.network(
+      resolvedThumbnailUrl,
+      fit: BoxFit.cover,
+      headers: _buildAttachmentHeaders(),
+      errorBuilder: (_, __, ___) => _buildGeneratedVideoThumbnailFallback(),
+    );
+  }
+
+  Widget _buildGeneratedVideoThumbnailFallback() {
+    return FutureBuilder<String?>(
+      future: _ensureVideoThumbnail(),
+      builder: (context, snapshot) {
+        final thumbPath = snapshot.data;
+        if (thumbPath != null && File(thumbPath).existsSync()) {
+          return Image.file(
+            File(thumbPath),
+            fit: BoxFit.cover,
+          );
+        }
+
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppTheme.darkCard.withOpacity(0.8),
+                AppTheme.darkSurface.withOpacity(0.6),
+              ],
+            ),
+          ),
+          child: Icon(
+            Icons.videocam_rounded,
+            size: 28,
+            color: AppTheme.textMuted.withOpacity(0.55),
+          ),
+        );
+      },
+    );
+  }
+
+  Map<String, String>? _buildAttachmentHeaders() {
+    final token = sl<LocalStorageService>()
+        .getData(StorageConstants.accessToken) as String?;
+    if (token == null || token.isEmpty) {
+      return null;
+    }
+
+    return {
+      'Authorization': 'Bearer $token',
+    };
+  }
+
+  Future<String?> _ensureVideoThumbnail() async {
+    if (!widget.attachment.isVideo) return null;
+
+    final existingThumbnail = _cachedVideoThumbnailPath;
+    if (existingThumbnail != null && File(existingThumbnail).existsSync()) {
+      return existingThumbnail;
+    }
+
+    final localPath = widget.attachment.filePath.trim();
+    if (localPath.isNotEmpty && File(localPath).existsSync()) {
+      return _generateThumbnail(localPath);
+    }
+
+    try {
+      final cachedVideoPath = await _ensureRemoteVideoCached();
+      return _generateThumbnail(cachedVideoPath);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<String?> _generateThumbnail(String videoPath) async {
+    final generated = await VideoThumbnail.thumbnailFile(
+      video: videoPath,
+      imageFormat: ImageFormat.JPEG,
+      maxWidth: 640,
+      quality: 70,
+      thumbnailPath: Directory.systemTemp.path,
+    );
+    if (generated != null) {
+      _cachedVideoThumbnailPath = generated;
+    }
+    return generated;
+  }
+
+  Future<String> _ensureRemoteVideoCached() async {
+    final existingPath = _cachedRemoteVideoPath;
+    if (existingPath != null && File(existingPath).existsSync()) {
+      return existingPath;
+    }
+
+    final extension = widget.attachment.fileExtension.isNotEmpty
+        ? widget.attachment.fileExtension
+        : 'mp4';
+    final targetPath =
+        '${Directory.systemTemp.path}/chat_media_${widget.attachment.id}.$extension';
+    final targetFile = File(targetPath);
+    if (targetFile.existsSync()) {
+      _cachedRemoteVideoPath = targetPath;
+      return targetPath;
+    }
+
+    final client = HttpClient();
+    try {
+      final resolvedVideoUrl = ImageUtils.resolveUrl(widget.attachment.fileUrl);
+      if (resolvedVideoUrl.isEmpty) {
+        throw const HttpException('Video URL is empty');
+      }
+
+      final request = await client.getUrl(Uri.parse(resolvedVideoUrl));
+      final headers = _buildAttachmentHeaders();
+      headers?.forEach(request.headers.add);
+      final response = await request.close();
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw HttpException(
+          'Media download failed with status ${response.statusCode}',
+          uri: Uri.parse(resolvedVideoUrl),
+        );
+      }
+
+      final bytes = await consolidateHttpClientResponseBytes(response);
+      await targetFile.writeAsBytes(bytes, flush: true);
+      _cachedRemoteVideoPath = targetPath;
+      return targetPath;
+    } finally {
+      client.close(force: true);
+    }
+  }
+
+  String? _resolveLocalThumbnailPath(String thumbnailUrl) {
+    final metadataPath = widget.attachment.metadata?['localThumbnailPath'];
+    if (metadataPath is String && metadataPath.trim().isNotEmpty) {
+      final metadataFile = File(metadataPath.trim());
+      if (metadataFile.existsSync()) {
+        return metadataPath.trim();
+      }
+    }
+
+    final normalizedPath = thumbnailUrl.trim();
+    if (normalizedPath.isEmpty) {
+      return null;
+    }
+
+    final file = File(normalizedPath);
+    if (!file.existsSync()) {
+      return null;
+    }
+
+    return normalizedPath;
   }
 }

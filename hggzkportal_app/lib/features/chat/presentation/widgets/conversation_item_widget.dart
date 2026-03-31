@@ -1,35 +1,42 @@
+// lib/features/chat/presentation/widgets/conversation_item_widget.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/conversation.dart';
+import 'online_status_indicator.dart';
 
-/// يعرّف الكلاس `ConversationItemWidget`.
-/// Describes the `ConversationItemWidget` class.
+/// Row item used in the conversation inbox to show identity, last message,
+/// unread state, and typing hints.
+/// صف عنصر يستخدم في صندوق المحادثات لعرض الهوية وآخر رسالة وحالة غير
+/// المقروء ومؤشر الكتابة.
 class ConversationItemWidget extends StatelessWidget {
-  /// Holds the `conversation` value.
-  /// العربية: يخزن القيمة `conversation`.
+  /// Conversation data shown in the inbox row.
+  /// بيانات المحادثة المعروضة في صف الصندوق الوارد.
   final Conversation conversation;
 
-  /// يخزن العضو `currentUserId`.
-  /// Holds the `currentUserId` member.
+  /// Current user id used to resolve the other participant and ownership.
+  /// معرّف المستخدم الحالي المستخدم لتحديد الطرف الآخر وملكية الرسائل.
   final String currentUserId;
 
-  /// يخزن العضو `typingUserIds`.
-  /// Holds the `typingUserIds` member.
+  /// Users currently typing in this conversation.
+  /// المستخدمون الذين يكتبون الآن داخل هذه المحادثة.
   final List<String> typingUserIds;
 
-  /// يخزن العضو `onTap`.
-  /// Holds the `onTap` member.
+  /// Opens the conversation when the row is selected.
+  /// يفتح المحادثة عند اختيار الصف.
   final VoidCallback onTap;
 
-  /// يخزن العضو `onLongPress`.
-  /// Holds the `onLongPress` member.
+  /// Opens contextual actions for the conversation when available.
+  /// يفتح إجراءات سياقية للمحادثة عندما تكون متاحة.
   final VoidCallback? onLongPress;
 
-  /// ينشئ مثيلاً من `ConversationItemWidget`.
-  /// Builds an instance of `ConversationItemWidget`.
+  /// Builds one inbox row for a conversation thread.
+  /// ينشئ صفًا واحدًا للمحادثة داخل الصندوق الوارد.
   const ConversationItemWidget({
     super.key,
     required this.conversation,
@@ -39,20 +46,24 @@ class ConversationItemWidget extends StatelessWidget {
     this.onLongPress,
   });
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// Renders the inbox row with avatar, status, preview, and timestamps.
+  /// يرسم صف الصندوق الوارد مع الصورة والحالة والمعاينة والوقت.
   @override
   Widget build(BuildContext context) {
     final otherParticipant = conversation.isDirectChat
         ? conversation.getOtherParticipant(currentUserId)
         : null;
 
-    final String displayName =
-        (conversation.isDirectChat && otherParticipant != null)
-            ? otherParticipant.name
-            : (conversation.title ?? 'محادثة');
+    final displayName = conversation.isDirectChat &&
+            (otherParticipant?.name.trim().isNotEmpty == true)
+        ? otherParticipant!.name.trim()
+        : (conversation.title?.trim().isNotEmpty == true
+            ? conversation.title!.trim()
+            : otherParticipant?.name ??
+                context.tr('chat.message.conversationFallback'));
 
     final displayImage = conversation.avatar ?? otherParticipant?.profileImage;
+
     final isTyping = typingUserIds.isNotEmpty;
 
     return Material(
@@ -75,25 +86,11 @@ class ConversationItemWidget extends StatelessWidget {
             vertical: 10,
           ),
           decoration: BoxDecoration(
-            gradient: conversation.hasUnreadMessages
-                ? LinearGradient(
-                    colors: [
-                      AppTheme.primaryBlue.withValues(alpha: 0.03),
-                      AppTheme.primaryPurple.withValues(alpha: 0.02),
-                    ],
-                  )
-                : null,
             border: Border(
               bottom: BorderSide(
-                color: AppTheme.darkBorder.withValues(alpha: 0.03),
+                color: AppTheme.darkBorder.withOpacity(0.03),
                 width: 0.5,
               ),
-              left: conversation.hasUnreadMessages
-                  ? BorderSide(
-                      color: AppTheme.primaryBlue.withValues(alpha: 0.6),
-                      width: 3,
-                    )
-                  : BorderSide.none,
             ),
           ),
           child: Row(
@@ -114,10 +111,8 @@ class ConversationItemWidget extends StatelessWidget {
                                   ? FontWeight.w600
                                   : FontWeight.w500,
                               fontSize: 13,
-                              color: AppTheme.textWhite.withValues(
-                                  alpha: conversation.hasUnreadMessages
-                                      ? 0.95
-                                      : 0.8),
+                              color: AppTheme.textWhite.withOpacity(
+                                  conversation.hasUnreadMessages ? 0.95 : 0.8),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -129,17 +124,20 @@ class ConversationItemWidget extends StatelessWidget {
                             child: Icon(
                               Icons.notifications_off,
                               size: 10,
-                              color: AppTheme.textMuted.withValues(alpha: 0.3),
+                              color: AppTheme.textMuted.withOpacity(0.3),
                             ),
                           ),
                         const SizedBox(width: 8),
                         Text(
-                          _formatTime(conversation.lastMessage?.createdAt ??
-                              conversation.updatedAt),
+                          _formatTime(
+                            context,
+                            conversation.lastMessage?.createdAt ??
+                                conversation.updatedAt,
+                          ),
                           style: AppTextStyles.caption.copyWith(
                             color: conversation.hasUnreadMessages
-                                ? AppTheme.primaryBlue.withValues(alpha: 0.7)
-                                : AppTheme.textMuted.withValues(alpha: 0.4),
+                                ? AppTheme.primaryBlue.withOpacity(0.7)
+                                : AppTheme.textMuted.withOpacity(0.4),
                             fontSize: 10,
                             fontWeight: conversation.hasUnreadMessages
                                 ? FontWeight.w600
@@ -157,8 +155,8 @@ class ConversationItemWidget extends StatelessWidget {
                               conversation.lastMessage!.status),
                         Expanded(
                           child: isTyping
-                              ? _buildUltraMinimalTyping()
-                              : _buildUltraMinimalLastMessage(),
+                              ? _buildUltraMinimalTyping(context)
+                              : _buildUltraMinimalLastMessage(context),
                         ),
                         if (conversation.hasUnreadMessages)
                           _buildUltraMinimalBadge(),
@@ -174,9 +172,11 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
-  /// ينفذ العملية `_buildUltraMinimalAvatar`.
-  /// Runs the `_buildUltraMinimalAvatar` operation.
+  /// Builds the compact avatar and presence badge for the thread.
+  /// ينشئ الصورة المدمجة وشارة الحضور الخاصة بالسلسلة.
   Widget _buildUltraMinimalAvatar(String? imageUrl, String name) {
+    final hasImage = imageUrl != null && imageUrl.trim().isNotEmpty;
+
     return Stack(
       children: [
         Container(
@@ -187,23 +187,23 @@ class ConversationItemWidget extends StatelessWidget {
             gradient: conversation.hasUnreadMessages
                 ? LinearGradient(
                     colors: [
-                      AppTheme.primaryBlue.withValues(alpha: 0.1),
-                      AppTheme.primaryPurple.withValues(alpha: 0.05),
+                      AppTheme.primaryBlue.withOpacity(0.1),
+                      AppTheme.primaryPurple.withOpacity(0.05),
                     ],
                   )
                 : null,
             color: !conversation.hasUnreadMessages
-                ? AppTheme.darkCard.withValues(alpha: 0.05)
+                ? AppTheme.darkCard.withOpacity(0.05)
                 : null,
             border: Border.all(
               color: conversation.hasUnreadMessages
-                  ? AppTheme.primaryBlue.withValues(alpha: 0.2)
-                  : AppTheme.darkBorder.withValues(alpha: 0.05),
+                  ? AppTheme.primaryBlue.withOpacity(0.2)
+                  : AppTheme.darkBorder.withOpacity(0.05),
               width: 0.5,
             ),
           ),
           child: ClipOval(
-            child: imageUrl != null
+            child: hasImage
                 ? CachedImageWidget(
                     imageUrl: imageUrl,
                     width: 42,
@@ -215,8 +215,8 @@ class ConversationItemWidget extends StatelessWidget {
                       _getInitials(name),
                       style: AppTextStyles.bodySmall.copyWith(
                         color: conversation.hasUnreadMessages
-                            ? AppTheme.primaryBlue.withValues(alpha: 0.7)
-                            : AppTheme.textMuted.withValues(alpha: 0.5),
+                            ? AppTheme.primaryBlue.withOpacity(0.7)
+                            : AppTheme.textMuted.withOpacity(0.5),
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -229,25 +229,18 @@ class ConversationItemWidget extends StatelessWidget {
           Positioned(
             bottom: 1,
             right: 1,
-            child: Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: AppTheme.success.withValues(alpha: 0.9),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppTheme.darkBackground,
-                  width: 1.5,
-                ),
-              ),
+            child: const OnlineStatusIndicator(
+              isOnline: true,
+              size: 8,
+              showBorder: true,
+              animate: true,
             ),
           ),
       ],
     );
   }
 
-  /// ينفذ العملية `_buildUltraMinimalStatus`.
-  /// Runs the `_buildUltraMinimalStatus` operation.
+  /// العربية: يبني ultra minimal status.
   Widget _buildUltraMinimalStatus(String status) {
     IconData icon;
     Color color;
@@ -256,24 +249,24 @@ class ConversationItemWidget extends StatelessWidget {
     switch (status) {
       case 'sent':
         icon = Icons.check;
-        color = AppTheme.textMuted.withValues(alpha: 0.3);
+        color = AppTheme.textMuted.withOpacity(0.3);
         break;
       case 'delivered':
         icon = Icons.done_all;
-        color = AppTheme.textMuted.withValues(alpha: 0.3);
+        color = AppTheme.textMuted.withOpacity(0.3);
         break;
       case 'read':
         icon = Icons.done_all;
-        color = AppTheme.primaryBlue.withValues(alpha: 0.6);
+        color = AppTheme.primaryBlue.withOpacity(0.6);
         break;
       case 'failed':
         icon = Icons.error_outline;
-        color = AppTheme.error.withValues(alpha: 0.6);
+        color = AppTheme.error.withOpacity(0.6);
         size = 11;
         break;
       default:
         icon = Icons.schedule;
-        color = AppTheme.textMuted.withValues(alpha: 0.2);
+        color = AppTheme.textMuted.withOpacity(0.2);
         size = 11;
     }
 
@@ -287,15 +280,13 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
-  // FIX المشكلة 3: عرض صورة مصغرة بدلاً من رابط
-  /// ينفذ العملية `_buildUltraMinimalLastMessage`.
-  /// Runs the `_buildUltraMinimalLastMessage` operation.
-  Widget _buildUltraMinimalLastMessage() {
+  /// العربية: يبني ultra minimal last message.
+  Widget _buildUltraMinimalLastMessage(BuildContext context) {
     if (conversation.lastMessage == null) {
       return Text(
-        'ابدأ المحادثة',
+        context.tr('chat.thread.start'),
         style: AppTextStyles.caption.copyWith(
-          color: AppTheme.textMuted.withValues(alpha: 0.3),
+          color: AppTheme.textMuted.withOpacity(0.3),
           fontStyle: FontStyle.italic,
           fontSize: 11,
         ),
@@ -304,145 +295,43 @@ class ConversationItemWidget extends StatelessWidget {
       );
     }
 
-    final lastMessage = conversation.lastMessage!;
     String messageText = '';
     Widget? prefix;
-    Widget? thumbnail;
 
-    // FIX: معالجة رسائل الصور بشكل صحيح
-    final isImageMessage = lastMessage.messageType == 'image';
-    final hasImageAttachments = lastMessage.attachments.isNotEmpty &&
-        lastMessage.attachments.any((att) => att.isImage);
-
-    if (isImageMessage || hasImageAttachments) {
-      String? thumbnailUrl;
-
-      // أولاً: حاول الحصول على الصورة من attachments
-      if (hasImageAttachments) {
-        final firstImage = lastMessage.attachments.firstWhere(
-          (att) => att.isImage,
-          orElse: () => lastMessage.attachments.first,
-        );
-        thumbnailUrl = firstImage.thumbnailUrl ?? firstImage.fileUrl;
-      }
-
-      // ثانياً: إذا لم توجد attachments، تحقق من content (قد يحتوي على URL مباشر)
-      if (thumbnailUrl == null &&
-          lastMessage.content != null &&
-          lastMessage.content!.isNotEmpty) {
-        final content = lastMessage.content!;
-        // تحقق إذا كان المحتوى يبدو كـ URL صورة
-        if (content.startsWith('http') &&
-            (content.contains('.jpg') ||
-                content.contains('.jpeg') ||
-                content.contains('.png') ||
-                content.contains('.gif') ||
-                content.contains('.webp') ||
-                content.contains('image'))) {
-          thumbnailUrl = content;
-        }
-      }
-
-      // عرض الصورة المصغرة إذا وُجدت
-      if (thumbnailUrl != null && thumbnailUrl.isNotEmpty) {
-        thumbnail = Container(
-          width: 32,
-          height: 32,
-          margin: const EdgeInsets.only(right: 4),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: conversation.hasUnreadMessages
-                  ? AppTheme.primaryBlue.withValues(alpha: 0.3)
-                  : AppTheme.darkBorder.withValues(alpha: 0.2),
-              width: 0.5,
-            ),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(5.5),
-            child: CachedImageWidget(
-              imageUrl: thumbnailUrl,
-              fit: BoxFit.cover,
-            ),
-          ),
-        );
-      }
-
-      // النص المرافق
-      messageText = lastMessage.attachments.length > 1
-          ? '${lastMessage.attachments.length} صور'
-          : 'صورة';
-
-      prefix = Icon(
-        Icons.image,
-        size: 12,
-        color: AppTheme.textMuted.withValues(alpha: 0.3),
-      );
-    } else {
-      // معالجة الأنواع الأخرى
-      switch (lastMessage.messageType) {
-        case 'text':
-          messageText = lastMessage.content ?? '';
-          // التحقق من وجود رد
-          if (lastMessage.replyToMessageId != null) {
-            prefix = Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              margin: const EdgeInsets.only(right: 4),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.reply,
-                    size: 10,
-                    color: AppTheme.primaryBlue.withValues(alpha: 0.7),
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    'رد',
-                    style: AppTextStyles.caption.copyWith(
-                      fontSize: 9,
-                      color: AppTheme.primaryBlue.withValues(alpha: 0.7),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-          break;
-        case 'video':
-          prefix = Icon(Icons.videocam,
-              size: 12, color: AppTheme.textMuted.withValues(alpha: 0.3));
-          messageText = 'فيديو';
-          break;
-        case 'audio':
-          prefix = Icon(Icons.mic,
-              size: 12, color: AppTheme.textMuted.withValues(alpha: 0.3));
-          messageText = 'رسالة صوتية';
-          break;
-        case 'document':
-          prefix = Icon(Icons.attach_file,
-              size: 12, color: AppTheme.textMuted.withValues(alpha: 0.3));
-          messageText = 'مستند';
-          break;
-        case 'location':
-          prefix = Icon(Icons.location_on,
-              size: 12, color: AppTheme.textMuted.withValues(alpha: 0.3));
-          messageText = 'موقع';
-          break;
-        default:
-          messageText = lastMessage.content ?? '';
-      }
+    switch (conversation.lastMessage!.messageType) {
+      case 'text':
+        messageText = conversation.lastMessage!.content ?? '';
+        break;
+      case 'image':
+        prefix = Icon(Icons.image,
+            size: 12, color: AppTheme.textMuted.withOpacity(0.3));
+        messageText = context.tr('chat.message.image');
+        break;
+      case 'video':
+        prefix = Icon(Icons.videocam,
+            size: 12, color: AppTheme.textMuted.withOpacity(0.3));
+        messageText = context.tr('chat.message.video');
+        break;
+      case 'audio':
+        prefix = Icon(Icons.mic,
+            size: 12, color: AppTheme.textMuted.withOpacity(0.3));
+        messageText = context.tr('chat.message.audio');
+        break;
+      case 'document':
+        prefix = Icon(Icons.attach_file,
+            size: 12, color: AppTheme.textMuted.withOpacity(0.3));
+        messageText = context.tr('chat.message.document');
+        break;
+      case 'location':
+        prefix = Icon(Icons.location_on,
+            size: 12, color: AppTheme.textMuted.withOpacity(0.3));
+        messageText = context.tr('chat.message.location');
+        break;
     }
 
     return Row(
       children: [
-        if (thumbnail != null) thumbnail,
-        if (prefix != null && thumbnail == null) ...[
+        if (prefix != null) ...[
           prefix,
           const SizedBox(width: 4),
         ],
@@ -451,12 +340,9 @@ class ConversationItemWidget extends StatelessWidget {
             messageText,
             style: AppTextStyles.caption.copyWith(
               color: conversation.hasUnreadMessages
-                  ? AppTheme.textWhite.withValues(alpha: 0.7)
-                  : AppTheme.textMuted.withValues(alpha: 0.4),
+                  ? AppTheme.textWhite.withOpacity(0.7)
+                  : AppTheme.textMuted.withOpacity(0.4),
               fontSize: 11,
-              fontWeight: conversation.hasUnreadMessages
-                  ? FontWeight.w500
-                  : FontWeight.w400,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -466,15 +352,14 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
-  /// ينفذ العملية `_buildUltraMinimalTyping`.
-  /// Runs the `_buildUltraMinimalTyping` operation.
-  Widget _buildUltraMinimalTyping() {
+  /// العربية: يبني ultra minimal typing.
+  Widget _buildUltraMinimalTyping(BuildContext context) {
     return Row(
       children: [
         Text(
-          'يكتب',
+          context.tr('chat.inbox.typing'),
           style: AppTextStyles.caption.copyWith(
-            color: AppTheme.primaryBlue.withValues(alpha: 0.6),
+            color: AppTheme.primaryBlue.withOpacity(0.6),
             fontStyle: FontStyle.italic,
             fontSize: 11,
           ),
@@ -495,8 +380,7 @@ class ConversationItemWidget extends StatelessWidget {
                     width: 2,
                     height: 2,
                     decoration: BoxDecoration(
-                      color:
-                          AppTheme.primaryBlue.withValues(alpha: value * 0.6),
+                      color: AppTheme.primaryBlue.withOpacity(value * 0.6),
                       shape: BoxShape.circle,
                     ),
                   );
@@ -510,8 +394,7 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
-  /// ينفذ العملية `_buildUltraMinimalBadge`.
-  /// Runs the `_buildUltraMinimalBadge` operation.
+  /// العربية: يبني ultra minimal badge.
   Widget _buildUltraMinimalBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -521,18 +404,11 @@ class ConversationItemWidget extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryBlue.withValues(alpha: 0.8),
-            AppTheme.primaryPurple.withValues(alpha: 0.6),
+            AppTheme.primaryBlue.withOpacity(0.8),
+            AppTheme.primaryPurple.withOpacity(0.6),
           ],
         ),
         borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
-            blurRadius: 4,
-            offset: const Offset(0, 1),
-          ),
-        ],
       ),
       constraints: const BoxConstraints(
         minWidth: 14,
@@ -553,9 +429,8 @@ class ConversationItemWidget extends StatelessWidget {
     );
   }
 
-  /// ينفذ العملية `_formatTime`.
-  /// Runs the `_formatTime` operation.
-  String _formatTime(DateTime dateTime) {
+  /// العربية: ينسق time.
+  String _formatTime(BuildContext context, DateTime dateTime) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
@@ -568,25 +443,30 @@ class ConversationItemWidget extends StatelessWidget {
     if (messageDate == today) {
       return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     } else if (messageDate == yesterday) {
-      return 'أمس';
+      return context.tr('chat.thread.yesterday');
     } else if (now.difference(dateTime).inDays < 7) {
-      final days = [
-        'الأحد',
-        'الإثنين',
-        'الثلاثاء',
-        'الأربعاء',
-        'الخميس',
-        'الجمعة',
-        'السبت'
-      ];
-      return days[dateTime.weekday % 7];
+      switch (dateTime.weekday) {
+        case DateTime.monday:
+          return context.tr('chat.thread.days.monday');
+        case DateTime.tuesday:
+          return context.tr('chat.thread.days.tuesday');
+        case DateTime.wednesday:
+          return context.tr('chat.thread.days.wednesday');
+        case DateTime.thursday:
+          return context.tr('chat.thread.days.thursday');
+        case DateTime.friday:
+          return context.tr('chat.thread.days.friday');
+        case DateTime.saturday:
+          return context.tr('chat.thread.days.saturday');
+        default:
+          return context.tr('chat.thread.days.sunday');
+      }
     } else {
       return '${dateTime.day}/${dateTime.month}';
     }
   }
 
-  /// ينفذ العملية `_getInitials`.
-  /// Runs the `_getInitials` operation.
+  /// العربية: يعيد initials.
   String _getInitials(String name) {
     final parts = name.trim().split(' ');
     if (parts.isEmpty) return '؟';

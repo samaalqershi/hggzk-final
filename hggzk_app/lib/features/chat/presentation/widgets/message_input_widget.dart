@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,8 +7,8 @@ import 'dart:ui';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/message.dart';
@@ -42,9 +43,55 @@ class MessageInputWidget extends StatefulWidget {
   /// يرسل الحمولة النصية المنظفة إلى bloc المحادثة.
   final Function(String) onSend;
 
+  /// Sends the currently selected image batch together with an optional
+  /// caption from the text field.
+  /// يرسل دفعة الصور المحددة حاليًا مع تعليق اختياري من حقل النص.
+  final Function(String)? onSendSelectedImages;
+
+  /// Sends the currently selected video batch together with an optional
+  /// caption from the text field.
+  /// يرسل دفعة الفيديوهات المحددة حاليًا مع تعليق اختياري من حقل النص.
+  final Function(String)? onSendSelectedVideos;
+
   /// Opens the attachment flow from the surrounding chat screen.
   /// يفتح مسار المرفقات من شاشة الدردشة المحيطة.
   final VoidCallback? onAttachment;
+
+  /// Opens the gallery picker for one or more images.
+  /// يفتح منتقي المعرض لصورة واحدة أو عدة صور.
+  final Future<void> Function()? onPickGalleryImages;
+
+  /// Opens the camera picker for a single image.
+  /// يفتح الكاميرا لاختيار صورة واحدة.
+  final Future<void> Function()? onPickCameraImage;
+
+  /// Opens the gallery picker for one or more videos.
+  /// يفتح منتقي المعرض لفيديو واحد أو عدة فيديوهات.
+  final Future<void> Function()? onPickGalleryVideos;
+
+  /// Image paths currently staged above the composer.
+  /// مسارات الصور المعلقة حاليًا فوق المحرر.
+  final List<String> selectedImagePaths;
+
+  /// Video paths currently staged above the composer.
+  /// مسارات الفيديوهات المعلقة حاليًا فوق المحرر.
+  final List<String> selectedVideoPaths;
+
+  /// Removes one staged image from the composer tray.
+  /// يزيل صورة واحدة معلقة من شريط المحرر.
+  final ValueChanged<String>? onRemoveSelectedImage;
+
+  /// Clears every staged image from the composer tray.
+  /// يزيل كل الصور المعلقة من شريط المحرر.
+  final VoidCallback? onClearSelectedImages;
+
+  /// Removes one staged video from the composer tray.
+  /// يزيل فيديو واحدًا معلقًا من شريط المحرر.
+  final ValueChanged<String>? onRemoveSelectedVideo;
+
+  /// Clears every staged video from the composer tray.
+  /// يزيل كل الفيديوهات المعلقة من شريط المحرر.
+  final VoidCallback? onClearSelectedVideos;
 
   /// Starts location sharing when the host screen supports it.
   /// يبدأ مشاركة الموقع عندما تدعم الشاشة المضيفة ذلك.
@@ -69,7 +116,18 @@ class MessageInputWidget extends StatefulWidget {
     this.replyToMessageId,
     this.editingMessage,
     required this.onSend,
+    this.onSendSelectedImages,
+    this.onSendSelectedVideos,
     this.onAttachment,
+    this.onPickGalleryImages,
+    this.onPickCameraImage,
+    this.onPickGalleryVideos,
+    this.selectedImagePaths = const [],
+    this.selectedVideoPaths = const [],
+    this.onRemoveSelectedImage,
+    this.onClearSelectedImages,
+    this.onRemoveSelectedVideo,
+    this.onClearSelectedVideos,
     this.onLocation,
     this.onCancelReply,
     this.onCancelEdit,
@@ -85,7 +143,18 @@ class MessageInputWidget extends StatefulWidget {
     String? replyToMessageId,
     Message? editingMessage,
     required Function(String) onSend,
+    Function(String)? onSendSelectedImages,
+    Function(String)? onSendSelectedVideos,
     VoidCallback? onAttachment,
+    Future<void> Function()? onPickGalleryImages,
+    Future<void> Function()? onPickCameraImage,
+    Future<void> Function()? onPickGalleryVideos,
+    List<String> selectedImagePaths = const [],
+    List<String> selectedVideoPaths = const [],
+    ValueChanged<String>? onRemoveSelectedImage,
+    VoidCallback? onClearSelectedImages,
+    ValueChanged<String>? onRemoveSelectedVideo,
+    VoidCallback? onClearSelectedVideos,
     VoidCallback? onLocation,
     VoidCallback? onCancelReply,
     VoidCallback? onCancelEdit,
@@ -98,7 +167,18 @@ class MessageInputWidget extends StatefulWidget {
       replyToMessageId: replyToMessageId,
       editingMessage: editingMessage,
       onSend: onSend,
+      onSendSelectedImages: onSendSelectedImages,
+      onSendSelectedVideos: onSendSelectedVideos,
       onAttachment: onAttachment,
+      onPickGalleryImages: onPickGalleryImages,
+      onPickCameraImage: onPickCameraImage,
+      onPickGalleryVideos: onPickGalleryVideos,
+      selectedImagePaths: selectedImagePaths,
+      selectedVideoPaths: selectedVideoPaths,
+      onRemoveSelectedImage: onRemoveSelectedImage,
+      onClearSelectedImages: onClearSelectedImages,
+      onRemoveSelectedVideo: onRemoveSelectedVideo,
+      onClearSelectedVideos: onClearSelectedVideos,
       onLocation: onLocation,
       onCancelReply: onCancelReply,
       onCancelEdit: onCancelEdit,
@@ -115,6 +195,10 @@ class MessageInputWidget extends StatefulWidget {
 /// يملك الحالة المؤقتة لواجهة محرر الرسائل.
 class _MessageInputWidgetState extends State<MessageInputWidget>
     with SingleTickerProviderStateMixin {
+  static const double _cancelSlideThreshold = 96;
+  static const Duration _minimumRecordingDuration = Duration(milliseconds: 700);
+  final Map<String, Future<String?>> _videoThumbnailFutures = {};
+
   /// Drives the send-button and recording hint transitions.
   /// يقود انتقالات زر الإرسال ومؤشر التسجيل.
   late AnimationController _animationController;
@@ -138,6 +222,25 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
 
   /// Measures the live recording length shown in the composer.
   Duration _recordingDuration = Duration.zero;
+
+  /// Tracks the recording ticker that refreshes the elapsed time.
+  Timer? _recordingTimer;
+
+  /// Horizontal drag distance while the finger slides to cancel.
+  double _recordingDragOffset = 0;
+
+  /// Whether the current gesture will cancel the recording when released.
+  bool _willCancelRecording = false;
+
+  /// Prevents duplicate finalize calls when both tap and gesture-end arrive.
+  bool _isFinalizingRecording = false;
+
+  /// Remembers the last recorded file dispatched so a single gesture does not
+  /// enqueue the same voice note twice.
+  String? _lastDispatchedRecordingPath;
+
+  /// Timestamp of the last dispatched voice note path.
+  DateTime? _lastDispatchedRecordingAt;
 
   /// Reads the chat bloc from the surrounding provider tree.
   ChatBloc? get _chatBloc => context.read<ChatBloc>();
@@ -166,22 +269,100 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     ));
 
     widget.controller.addListener(_onTextChanged);
+    _syncVideoThumbnailFutures();
+    _syncActionButtonState();
+  }
+
+  @override
+  void didUpdateWidget(covariant MessageInputWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_onTextChanged);
+      widget.controller.addListener(_onTextChanged);
+    }
+
+    final selectedImagesChanged = !_areListsEqual(
+      oldWidget.selectedImagePaths,
+      widget.selectedImagePaths,
+    );
+    final selectedVideosChanged = !_areListsEqual(
+      oldWidget.selectedVideoPaths,
+      widget.selectedVideoPaths,
+    );
+
+    if (selectedImagesChanged || selectedVideosChanged) {
+      _syncActionButtonState();
+    }
+
+    if (!_areListsEqual(
+      oldWidget.selectedVideoPaths,
+      widget.selectedVideoPaths,
+    )) {
+      _syncVideoThumbnailFutures();
+    }
   }
 
   /// Releases animation, recorder, and listener resources.
   @override
   void dispose() {
+    widget.controller.removeListener(_onTextChanged);
     _animationController.dispose();
     _audioRecorder.dispose();
+    _recordingTimer?.cancel();
     super.dispose();
+  }
+
+  bool _areListsEqual(List<String> a, List<String> b) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
+  void _syncVideoThumbnailFutures() {
+    final selected = widget.selectedVideoPaths.toSet();
+    _videoThumbnailFutures.removeWhere((path, _) => !selected.contains(path));
+    for (final path in widget.selectedVideoPaths) {
+      _videoThumbnailFutures.putIfAbsent(
+        path,
+        () => _buildVideoThumbnail(path),
+      );
+    }
+  }
+
+  Future<String?> _thumbnailFutureFor(String videoPath) {
+    return _videoThumbnailFutures.putIfAbsent(
+      videoPath,
+      () => _buildVideoThumbnail(videoPath),
+    );
   }
 
   /// Toggles the send animation based on whether the draft is empty.
   void _onTextChanged() {
-    if (widget.controller.text.isNotEmpty && _sendButtonAnimation.value == 0) {
-      _animationController.forward();
-    } else if (widget.controller.text.isEmpty &&
-        _sendButtonAnimation.value == 1) {
+    _syncActionButtonState();
+  }
+
+  /// Keeps the primary action button aligned with the real draft state after
+  /// text edits and after the recorder temporarily hijacks the same animation
+  /// controller for its pulse.
+  void _syncActionButtonState() {
+    if (_isRecording) return;
+
+    final hasDraftText = widget.controller.text.trim().isNotEmpty;
+    final hasPendingImages = widget.selectedImagePaths.isNotEmpty;
+    final hasPendingVideos = widget.selectedVideoPaths.isNotEmpty;
+    if (hasDraftText || hasPendingImages || hasPendingVideos) {
+      if (_animationController.status != AnimationStatus.forward &&
+          _sendButtonAnimation.value < 1) {
+        _animationController.forward();
+      }
+      return;
+    }
+
+    if (_animationController.status != AnimationStatus.reverse &&
+        _sendButtonAnimation.value > 0) {
       _animationController.reverse();
     }
   }
@@ -219,12 +400,19 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
             mainAxisSize: MainAxisSize.min,
             children: [
               if (_showAttachmentOptions) _buildMinimalAttachmentOptions(),
+              if (widget.selectedImagePaths.isNotEmpty ||
+                  widget.selectedVideoPaths.isNotEmpty)
+                _buildSelectedImagesTray(),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  _buildMinimalAttachmentButton(),
-                  const SizedBox(width: 5),
-                  Expanded(child: _buildMinimalInputField()),
+                  if (!_isRecording) _buildMinimalAttachmentButton(),
+                  if (!_isRecording) const SizedBox(width: 5),
+                  Expanded(
+                    child: _isRecording
+                        ? _buildRecordingComposer()
+                        : _buildMinimalInputField(),
+                  ),
                   const SizedBox(width: 5),
                   _buildMinimalActionButton(),
                 ],
@@ -298,6 +486,354 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
         ],
       ),
     );
+  }
+
+  Widget _buildSelectedImagesTray() {
+    final showingVideos = widget.selectedVideoPaths.isNotEmpty;
+    final stagedPaths =
+        showingVideos ? widget.selectedVideoPaths : widget.selectedImagePaths;
+    final count = stagedPaths.length;
+    final isSingle = count == 1;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.darkCard.withOpacity(0.6),
+            AppTheme.darkCard.withOpacity(0.38),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: AppTheme.darkBorder.withOpacity(0.1),
+          width: 0.5,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppTheme.primaryBlue.withOpacity(0.85),
+                      AppTheme.primaryPurple.withOpacity(0.75),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  showingVideos
+                      ? Icons.video_library_rounded
+                      : Icons.photo_library_rounded,
+                  color: Colors.white,
+                  size: 14,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  isSingle
+                      ? context.tr(showingVideos
+                          ? 'chat.composer.selectedSingleVideo'
+                          : 'chat.composer.selectedSinglePhoto')
+                      : context.tr(
+                          showingVideos
+                              ? 'chat.composer.selectedVideosCount'
+                              : 'chat.composer.selectedPhotosCount',
+                          params: {'count': '$count'},
+                        ),
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppTheme.textWhite.withOpacity(0.88),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+              if ((showingVideos
+                      ? widget.onClearSelectedVideos
+                      : widget.onClearSelectedImages) !=
+                  null)
+                GestureDetector(
+                  onTap: showingVideos
+                      ? widget.onClearSelectedVideos
+                      : widget.onClearSelectedImages,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppTheme.darkSurface.withOpacity(0.45),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      context.tr('chat.composer.clearAll'),
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppTheme.textWhite.withOpacity(0.72),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 86,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              itemCount: stagedPaths.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final mediaPath = stagedPaths[index];
+                return _buildSelectedImageChip(
+                  mediaPath,
+                  isVideo: showingVideos,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSelectedImageChip(
+    String imagePath, {
+    bool isVideo = false,
+  }) {
+    return Stack(
+      children: [
+        Container(
+          width: 86,
+          height: 86,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.08),
+              width: 0.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.14),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: isVideo
+              ? _buildSelectedVideoChipBody(imagePath)
+              : Image.file(
+                  File(imagePath),
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) {
+                    return Container(
+                      color: AppTheme.darkSurface.withOpacity(0.55),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.broken_image_rounded,
+                        color: AppTheme.textMuted.withOpacity(0.55),
+                        size: 22,
+                      ),
+                    );
+                  },
+                ),
+        ),
+        if ((isVideo
+                ? widget.onRemoveSelectedVideo
+                : widget.onRemoveSelectedImage) !=
+            null)
+          Positioned(
+            top: 6,
+            right: 6,
+            child: GestureDetector(
+              onTap: () {
+                if (isVideo) {
+                  widget.onRemoveSelectedVideo!(imagePath);
+                } else {
+                  widget.onRemoveSelectedImage!(imagePath);
+                }
+              },
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.46),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.15),
+                    width: 0.5,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.close_rounded,
+                  color: Colors.white,
+                  size: 14,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildSelectedVideoChipBody(String videoPath) {
+    final fileName = File(videoPath).uri.pathSegments.isNotEmpty
+        ? File(videoPath).uri.pathSegments.last
+        : 'video.mp4';
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.darkSurface.withOpacity(0.82),
+            AppTheme.darkCard.withOpacity(0.62),
+          ],
+        ),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          FutureBuilder<String?>(
+            future: _thumbnailFutureFor(videoPath),
+            builder: (context, snapshot) {
+              final thumbPath = snapshot.data;
+              if (thumbPath != null && File(thumbPath).existsSync()) {
+                return Image.file(
+                  File(thumbPath),
+                  fit: BoxFit.cover,
+                );
+              }
+
+              return Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppTheme.darkSurface.withOpacity(0.82),
+                      AppTheme.darkCard.withOpacity(0.62),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+          Container(
+            color: Colors.black.withOpacity(0.08),
+          ),
+          FutureBuilder<String?>(
+            future: _thumbnailFutureFor(videoPath),
+            builder: (context, snapshot) {
+              final isPreparing =
+                  snapshot.connectionState == ConnectionState.waiting &&
+                      (snapshot.data == null || snapshot.data!.isEmpty);
+              if (!isPreparing) {
+                return const SizedBox.shrink();
+              }
+
+              return Container(
+                color: Colors.black.withOpacity(0.22),
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.white.withOpacity(0.92),
+                        ),
+                        backgroundColor: Colors.white.withOpacity(0.18),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      context.tr('chat.composer.preparingVideo'),
+                      style: AppTextStyles.caption.copyWith(
+                        color: Colors.white.withOpacity(0.92),
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          Center(
+            child: Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.12),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.play_arrow_rounded,
+                color: Colors.white,
+                size: 22,
+              ),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.52),
+                  ],
+                ),
+              ),
+              child: Text(
+                fileName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.caption.copyWith(
+                  color: Colors.white.withOpacity(0.88),
+                  fontSize: 9,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<String?> _buildVideoThumbnail(String videoPath) async {
+    try {
+      return await VideoThumbnail.thumbnailFile(
+        video: videoPath,
+        imageFormat: ImageFormat.JPEG,
+        maxWidth: 280,
+        quality: 72,
+        thumbnailPath: Directory.systemTemp.path,
+      );
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Builds the button that opens or closes the attachment strip.
@@ -408,8 +944,10 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
                 isDense: true,
               ),
               onSubmitted: (text) {
-                if (text.trim().isNotEmpty) {
-                  widget.onSend(text);
+                if (text.trim().isNotEmpty ||
+                    widget.selectedImagePaths.isNotEmpty ||
+                    widget.selectedVideoPaths.isNotEmpty) {
+                  _sendMessage();
                 }
               },
             ),
@@ -438,19 +976,26 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
         final showSend = _sendButtonAnimation.value > 0.5;
 
         return GestureDetector(
-          onTap: showSend ? _sendMessage : null,
-          onLongPress: !showSend ? _startRecording : null,
-          onLongPressEnd: !showSend ? (_) => _stopRecording() : null,
+          onTap: _isRecording
+              ? () => _finishRecording(forceSend: true)
+              : (showSend ? _sendMessage : null),
+          onLongPressStart: !showSend ? (_) => _startRecording() : null,
+          onLongPressMoveUpdate: !showSend ? _handleRecordingDragUpdate : null,
+          onLongPressEnd: !showSend ? (_) => _finishRecording() : null,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            width: 32,
-            height: 32,
+            width: _isRecording ? 38 : 32,
+            height: _isRecording ? 38 : 32,
             decoration: BoxDecoration(
               gradient: showSend || _isRecording
                   ? LinearGradient(
                       colors: [
-                        AppTheme.primaryBlue.withOpacity(0.8),
-                        AppTheme.primaryPurple.withOpacity(0.7),
+                        _isRecording
+                            ? AppTheme.error.withOpacity(0.85)
+                            : AppTheme.primaryBlue.withOpacity(0.8),
+                        _isRecording
+                            ? const Color(0xFFFF6A6A)
+                            : AppTheme.primaryPurple.withOpacity(0.7),
                       ],
                     )
                   : null,
@@ -467,8 +1012,11 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
               boxShadow: showSend || _isRecording
                   ? [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.2),
-                        blurRadius: 6,
+                        color: (_isRecording
+                                ? AppTheme.error
+                                : AppTheme.primaryBlue)
+                            .withOpacity(0.22),
+                        blurRadius: _isRecording ? 10 : 6,
                         offset: const Offset(0, 1),
                       ),
                     ]
@@ -536,9 +1084,157 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
     );
   }
 
+  /// Builds a WhatsApp/Telegram-inspired inline recorder shell while the
+  /// finger is holding the mic button.
+  Widget _buildRecordingComposer() {
+    final hintColor = _willCancelRecording
+        ? AppTheme.error.withOpacity(0.95)
+        : AppTheme.textMuted.withOpacity(0.78);
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.darkCard.withOpacity(0.72),
+            AppTheme.darkCard.withOpacity(0.5),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: _willCancelRecording
+              ? AppTheme.error.withOpacity(0.28)
+              : AppTheme.primaryBlue.withOpacity(0.16),
+          width: 0.7,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              color: _willCancelRecording
+                  ? AppTheme.error
+                  : const Color(0xFFFF5A5F),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: (_willCancelRecording
+                          ? AppTheme.error
+                          : const Color(0xFFFF5A5F))
+                      .withOpacity(0.35),
+                  blurRadius: 10,
+                  spreadRadius: 0.5,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            _formatRecordingDuration(_recordingDuration),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: Colors.white.withOpacity(0.92),
+              fontWeight: FontWeight.w700,
+              fontSize: 12,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final showHint = constraints.maxHeight >= 40;
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildRecordingWaveform(),
+                    if (showHint) ...[
+                      const SizedBox(height: 2),
+                      Transform.translate(
+                        offset: Offset(_recordingDragOffset * 0.35, 0),
+                        child: Row(
+                          children: [
+                            Icon(
+                              _willCancelRecording
+                                  ? Icons.delete_outline_rounded
+                                  : Icons.keyboard_double_arrow_left_rounded,
+                              color: hintColor,
+                              size: 12,
+                            ),
+                            const SizedBox(width: 2),
+                            Expanded(
+                              child: Text(
+                                _willCancelRecording
+                                    ? context
+                                        .tr('chat.composer.releaseToCancel')
+                                    : context.tr('chat.composer.slideToCancel'),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.caption.copyWith(
+                                  color: hintColor,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 9,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Decorative bars that make the recording state feel alive.
+  Widget _buildRecordingWaveform() {
+    final bars = List.generate(18, (index) => index);
+    return Row(
+      children: bars.map((index) {
+        final baseHeight = 5 + ((index % 5) * 2);
+        final animatedHeight = _isRecording && !_willCancelRecording
+            ? baseHeight + (_recordAnimation.value * 2.5)
+            : baseHeight.toDouble();
+        return Container(
+          width: 3,
+          height: animatedHeight,
+          margin: const EdgeInsets.symmetric(horizontal: 1),
+          decoration: BoxDecoration(
+            color:
+                (_willCancelRecording ? AppTheme.error : AppTheme.primaryBlue)
+                    .withOpacity(index.isEven ? 0.18 : 0.28),
+            borderRadius: BorderRadius.circular(999),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   /// Sends the trimmed text draft through the chat bloc.
   void _sendMessage() {
     final text = widget.controller.text.trim();
+    if (widget.selectedImagePaths.isNotEmpty) {
+      HapticFeedback.lightImpact();
+      widget.onSendSelectedImages?.call(text);
+      return;
+    }
+
+    if (widget.selectedVideoPaths.isNotEmpty) {
+      HapticFeedback.lightImpact();
+      widget.onSendSelectedVideos?.call(text);
+      return;
+    }
+
     if (text.isNotEmpty) {
       HapticFeedback.lightImpact();
       widget.onSend(text);
@@ -548,9 +1244,24 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
   /// Starts microphone capture after checking runtime permission.
   Future<void> _startRecording() async {
     HapticFeedback.mediumImpact();
+    widget.focusNode.unfocus();
+    setState(() {
+      _showAttachmentOptions = false;
+    });
 
     final permission = await Permission.microphone.request();
-    if (!permission.isGranted) return;
+    if (!permission.isGranted) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              context.tr('chat.composer.microphonePermissionRequired'),
+            ),
+          ),
+        );
+      }
+      return;
+    }
 
     if (await _audioRecorder.hasPermission()) {
       final directory = Directory.systemTemp;
@@ -558,41 +1269,100 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
           '${directory.path}/audio_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
       await _audioRecorder.start(
-        const RecordConfig(),
+        const RecordConfig(
+          encoder: AudioEncoder.aacLc,
+          bitRate: 128000,
+          sampleRate: 44100,
+        ),
         path: _recordingPath,
       );
 
       setState(() {
         _isRecording = true;
+        _willCancelRecording = false;
+        _recordingDragOffset = 0;
+        _recordingDuration = Duration.zero;
+        _isFinalizingRecording = false;
       });
 
       _animationController.repeat(reverse: true);
+      _recordingTimer?.cancel();
+      _recordingTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (!mounted || !_isRecording) return;
+        setState(() {
+          _recordingDuration += const Duration(seconds: 1);
+        });
+      });
     }
   }
 
-  /// Stops microphone capture and hands the file path to the chat bloc.
-  Future<void> _stopRecording() async {
+  /// Tracks the drag distance during a hold-to-record gesture.
+  void _handleRecordingDragUpdate(LongPressMoveUpdateDetails details) {
     if (!_isRecording) return;
+
+    final dragDx = details.offsetFromOrigin.dx.clamp(-140.0, 0.0);
+    final shouldCancel = dragDx <= -_cancelSlideThreshold;
+    if (dragDx == _recordingDragOffset &&
+        shouldCancel == _willCancelRecording) {
+      return;
+    }
+
+    setState(() {
+      _recordingDragOffset = dragDx;
+      _willCancelRecording = shouldCancel;
+    });
+  }
+
+  /// Finalizes the recording gesture by either cancelling or sending.
+  Future<void> _finishRecording({bool forceSend = false}) async {
+    if (!_isRecording || _isFinalizingRecording) return;
+    _isFinalizingRecording = true;
 
     HapticFeedback.mediumImpact();
     _animationController.stop();
-
+    _recordingTimer?.cancel();
+    final capturedDuration = _recordingDuration;
+    final shouldCancel = !forceSend &&
+        (_willCancelRecording || capturedDuration < _minimumRecordingDuration);
     final path = await _audioRecorder.stop();
 
     setState(() {
       _isRecording = false;
+      _willCancelRecording = false;
+      _recordingDragOffset = 0;
+      _recordingDuration = Duration.zero;
+      _isFinalizingRecording = false;
     });
 
+    _syncActionButtonState();
+
+    if (shouldCancel) {
+      await _discardRecordingFile(path ?? _recordingPath);
+      return;
+    }
+
     if (path != null) {
-      _sendAudioMessage(path);
+      final normalizedDurationSeconds = capturedDuration.inMilliseconds <= 0
+          ? null
+          : ((capturedDuration.inMilliseconds + 999) ~/ 1000).clamp(1, 3600);
+      _sendAudioMessage(
+        path,
+        durationSeconds: normalizedDurationSeconds,
+      );
     }
   }
 
   /// Wraps the recorded file into the dedicated chat event.
-  void _sendAudioMessage(String path) async {
+  void _sendAudioMessage(
+    String path, {
+    int? durationSeconds,
+  }) async {
     try {
       // Upload the audio file as part of the message sending process
-      await _sendMessageWithAudioFile(path);
+      await _sendMessageWithAudioFile(
+        path,
+        durationSeconds: durationSeconds,
+      );
     } catch (e) {
       // Handle error appropriately
       print('Error sending audio message: $e');
@@ -601,6 +1371,22 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
 
   /// Picks a compressed image from the chosen source and closes the sheet.
   Future<void> _pickImage(ImageSource source) async {
+    if (source == ImageSource.gallery && widget.onPickGalleryImages != null) {
+      setState(() {
+        _showAttachmentOptions = false;
+      });
+      await widget.onPickGalleryImages!();
+      return;
+    }
+
+    if (source == ImageSource.camera && widget.onPickCameraImage != null) {
+      setState(() {
+        _showAttachmentOptions = false;
+      });
+      await widget.onPickCameraImage!();
+      return;
+    }
+
     final picker = ImagePicker();
     final image = await picker.pickImage(
       source: source,
@@ -619,6 +1405,14 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
 
   /// Picks a short video from the gallery and collapses the sheet.
   Future<void> _pickVideo() async {
+    if (widget.onPickGalleryVideos != null) {
+      setState(() {
+        _showAttachmentOptions = false;
+      });
+      await widget.onPickGalleryVideos!();
+      return;
+    }
+
     final picker = ImagePicker();
     final video = await picker.pickVideo(
       source: ImageSource.gallery,
@@ -648,22 +1442,54 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
   }
 
   /// Sends the recorded audio path through the chat bloc.
-  Future<void> _sendMessageWithAudioFile(String filePath) async {
+  Future<void> _sendMessageWithAudioFile(
+    String filePath, {
+    int? durationSeconds,
+  }) async {
     if (_chatBloc == null) {
       print('ChatBloc not available');
       return;
     }
 
     try {
+      final now = DateTime.now();
+      final normalizedPath = filePath.trim();
+      if (_lastDispatchedRecordingPath == normalizedPath &&
+          _lastDispatchedRecordingAt != null &&
+          now.difference(_lastDispatchedRecordingAt!).inSeconds < 8) {
+        return;
+      }
+
+      _lastDispatchedRecordingPath = normalizedPath;
+      _lastDispatchedRecordingAt = now;
+
       // Send the audio message using the new dedicated event
       _chatBloc!.add(SendAudioMessageEvent(
         conversationId: widget.conversationId,
-        filePath: filePath,
+        filePath: normalizedPath,
         replyToMessageId: widget.replyToMessageId,
+        durationSeconds: durationSeconds,
       ));
     } catch (e) {
       print('Error sending audio message: $e');
     }
+  }
+
+  /// Deletes a cancelled temporary recording so accidental notes do not pile
+  /// up in the temp directory.
+  Future<void> _discardRecordingFile(String? path) async {
+    if (path == null || path.isEmpty) return;
+    final file = File(path);
+    if (await file.exists()) {
+      await file.delete();
+    }
+  }
+
+  /// Formats the recorder timer using a compact minute-second layout.
+  String _formatRecordingDuration(Duration value) {
+    final minutes = value.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = value.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
   }
 }
 

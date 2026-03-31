@@ -17,15 +17,17 @@ using YemenBooking.Application.Common.Interfaces;
      {
         private readonly IFirebaseService _firebaseService;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IChatRealtimeNotifier _chatRealtimeNotifier;
 
         /// <summary>
         /// يهيئ مثيلاً جديدًا من المعالج.
         /// Initializes a new handler instance.
         /// </summary>
-        public UpdateUserStatusCommandHandler(IFirebaseService firebaseService, ICurrentUserService currentUserService)
+        public UpdateUserStatusCommandHandler(IFirebaseService firebaseService, ICurrentUserService currentUserService, IChatRealtimeNotifier chatRealtimeNotifier)
         {
             _firebaseService = firebaseService;
             _currentUserService = currentUserService;
+            _chatRealtimeNotifier = chatRealtimeNotifier;
         }
 
     /// <summary>
@@ -42,6 +44,7 @@ using YemenBooking.Application.Common.Interfaces;
                 { "user_id", userId.ToString() },
                 { "status", request.Status }
             }, cancellationToken);
+            await _chatRealtimeNotifier.NotifyPresenceAsync(userId, request.Status, request.Status == "offline" ? DateTime.UtcNow : null, cancellationToken);
             return ResultDto.Ok(null, "تم تحديث حالة المستخدم");
         }
     }

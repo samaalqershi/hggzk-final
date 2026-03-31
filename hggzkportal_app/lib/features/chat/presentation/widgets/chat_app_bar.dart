@@ -4,37 +4,43 @@ import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/conversation.dart';
+import 'online_status_indicator.dart';
+import '../utils/chat_presence_presentation.dart';
 
-/// يعرّف الكلاس `ChatAppBar`.
-/// Describes the `ChatAppBar` class.
+/// Top bar for a one-to-one or group chat. It combines navigation, identity,
+/// and high-value actions in a compact header.
+/// شريط علوي للمحادثة الفردية أو الجماعية. يجمع بين التنقل وهوية الطرف
+/// الآخر والإجراءات الأساسية في مساحة واحدة مضغوطة.
 class ChatAppBar extends StatefulWidget implements PreferredSizeWidget {
-  /// Holds the `conversation` value.
-  /// العربية: يخزن القيمة `conversation`.
+  /// Conversation currently shown in the chat screen.
+  /// المحادثة المعروضة حاليًا داخل شاشة الدردشة.
   final Conversation conversation;
 
-  /// يخزن العضو `currentUserId`.
-  /// Holds the `currentUserId` member.
+  /// Current user id used to resolve the other participant in direct chats.
+  /// معرّف المستخدم الحالي المستخدم لتحديد الطرف الآخر في المحادثات الثنائية.
   final String currentUserId;
 
-  /// يخزن العضو `onBackPressed`.
-  /// Holds the `onBackPressed` member.
+  /// Navigates back to the previous screen.
+  /// ينقل المستخدم إلى الشاشة السابقة.
   final VoidCallback onBackPressed;
 
-  /// يخزن العضو `onInfoPressed`.
-  /// Holds the `onInfoPressed` member.
+  /// Opens the conversation info or settings surface.
+  /// يفتح شاشة معلومات المحادثة أو إعداداتها.
   final VoidCallback onInfoPressed;
 
-  /// يخزن العضو `onCallPressed`.
-  /// Holds the `onCallPressed` member.
+  /// Starts an audio call when that action is supported for the thread.
+  /// يبدأ مكالمة صوتية عندما يدعمها هذا المسار.
   final VoidCallback? onCallPressed;
 
-  /// يخزن العضو `onVideoCallPressed`.
-  /// Holds the `onVideoCallPressed` member.
+  /// Starts a video call when that action is available.
+  /// يبدأ مكالمة فيديو عندما تكون متاحة.
   final VoidCallback? onVideoCallPressed;
 
-  /// ينشئ مثيلاً من `ChatAppBar`.
-  /// Builds an instance of `ChatAppBar`.
+  /// Builds the chat header with navigation and optional communication
+  /// shortcuts.
+  /// ينشئ رأس المحادثة مع التنقل واختصارات الاتصال الاختيارية.
   const ChatAppBar({
     super.key,
     required this.conversation,
@@ -45,31 +51,32 @@ class ChatAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.onVideoCallPressed,
   });
 
-  /// يعيد قيمة `preferredSize`.
-  /// Exposes the `preferredSize` value.
+  /// Exposes the height expected by `Scaffold.appBar`.
+  /// يحدد الارتفاع المتوقع من `Scaffold.appBar`.
   @override
-  Size get preferredSize => const Size.fromHeight(52); // Reduced from 56
+  Size get preferredSize => const Size.fromHeight(52);
 
-  /// ينفذ العملية `createState`.
-  /// Runs the `createState` operation.
+  /// Creates the state object that drives header animations.
+  /// ينشئ كائن الحالة الذي يدير حركات الرأس.
   @override
   State<ChatAppBar> createState() => _ChatAppBarState();
 }
 
-/// يعرّف الكلاس `_ChatAppBarState`.
-/// Describes the `_ChatAppBarState` class.
+/// Controls the animated avatar glow and the compact action buttons in the
+/// chat header.
+/// يدير توهج الصورة المتحركة وأزرار الإجراءات المدمجة داخل رأس المحادثة.
 class _ChatAppBarState extends State<ChatAppBar>
     with SingleTickerProviderStateMixin {
-  /// يخزن العضو `_glowController`.
-  /// Holds the `_glowController` member.
+  /// Animation controller for the avatar glow effect.
+  /// متحكم الحركة الخاص بتأثير التوهج حول الصورة.
   late AnimationController _glowController;
 
-  /// يخزن العضو `_glowAnimation`.
-  /// Holds the `_glowAnimation` member.
+  /// Drives the soft pulsing glow around the contact avatar.
+  /// يقود النبض الخفيف حول صورة الطرف الآخر.
   late Animation<double> _glowAnimation;
 
-  /// ينفذ العملية `initState`.
-  /// Runs the `initState` operation.
+  /// Prepares the glow animation before the header is rendered.
+  /// يهيئ حركة التوهج قبل رسم الرأس.
   @override
   void initState() {
     super.initState();
@@ -87,29 +94,34 @@ class _ChatAppBarState extends State<ChatAppBar>
     ));
   }
 
-  /// ينفذ العملية `dispose`.
-  /// Runs the `dispose` operation.
+  /// Releases the animation controller owned by the header.
+  /// يحرر متحكم الحركة المملوك لرأس المحادثة.
   @override
   void dispose() {
     _glowController.dispose();
     super.dispose();
   }
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// Renders the header content, optional status line, and compact actions.
+  /// يرسم محتوى الرأس، وسطر الحالة، والأزرار المضغوطة الاختيارية.
   @override
   Widget build(BuildContext context) {
     final otherParticipant = widget.conversation.isDirectChat
         ? widget.conversation.getOtherParticipant(widget.currentUserId)
         : null;
 
-    final displayName =
-        widget.conversation.title ?? otherParticipant?.name ?? 'محادثة';
+    final displayName = widget.conversation.isDirectChat &&
+            (otherParticipant?.name.trim().isNotEmpty == true)
+        ? otherParticipant!.name.trim()
+        : (widget.conversation.title?.trim().isNotEmpty == true
+            ? widget.conversation.title!.trim()
+            : otherParticipant?.name ??
+                context.tr('chat.message.conversationFallback'));
 
     final displayImage =
         widget.conversation.avatar ?? otherParticipant?.profileImage;
 
-    final statusText = _getStatusText();
+    final statusText = _getStatusText(context);
 
     return ClipRRect(
       child: BackdropFilter(
@@ -120,13 +132,13 @@ class _ChatAppBarState extends State<ChatAppBar>
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                AppTheme.darkCard.withValues(alpha: 0.85),
-                AppTheme.darkCard.withValues(alpha: 0.8),
+                AppTheme.darkCard.withOpacity(0.85),
+                AppTheme.darkCard.withOpacity(0.8),
               ],
             ),
             border: Border(
               bottom: BorderSide(
-                color: AppTheme.darkBorder.withValues(alpha: 0.05),
+                color: AppTheme.darkBorder.withOpacity(0.05),
                 width: 0.5,
               ),
             ),
@@ -168,8 +180,7 @@ class _ChatAppBarState extends State<ChatAppBar>
                                   style: AppTextStyles.bodyMedium.copyWith(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 13,
-                                    color: AppTheme.textWhite
-                                        .withValues(alpha: 0.9),
+                                    color: AppTheme.textWhite.withOpacity(0.9),
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -222,8 +233,8 @@ class _ChatAppBarState extends State<ChatAppBar>
     );
   }
 
-  /// ينفذ العملية `_buildMinimalIconButton`.
-  /// Runs the `_buildMinimalIconButton` operation.
+  /// Builds the compact icon button used by the header actions.
+  /// ينشئ زر الأيقونة المدمج المستخدم في إجراءات الرأس.
   Widget _buildMinimalIconButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -241,28 +252,30 @@ class _ChatAppBarState extends State<ChatAppBar>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.white.withValues(alpha: 0.03),
-              Colors.white.withValues(alpha: 0.01),
+              Colors.white.withOpacity(0.03),
+              Colors.white.withOpacity(0.01),
             ],
           ),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: Colors.white.withOpacity(0.05),
             width: 0.5,
           ),
         ),
         child: Icon(
           icon,
           size: size,
-          color: AppTheme.textWhite.withValues(alpha: 0.7),
+          color: AppTheme.textWhite.withOpacity(0.7),
         ),
       ),
     );
   }
 
-  /// ينفذ العملية `_buildPremiumAvatar`.
-  /// Runs the `_buildPremiumAvatar` operation.
+  /// Builds the animated avatar that represents the current conversation.
+  /// ينشئ الصورة المتحركة التي تمثل المحادثة الحالية.
   Widget _buildPremiumAvatar(String? imageUrl, String name) {
+    final hasImage = imageUrl != null && imageUrl.trim().isNotEmpty;
+
     return AnimatedBuilder(
       animation: _glowAnimation,
       builder: (context, child) {
@@ -275,25 +288,25 @@ class _ChatAppBarState extends State<ChatAppBar>
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withValues(alpha: 0.08),
-                    AppTheme.primaryPurple.withValues(alpha: 0.04),
+                    AppTheme.primaryBlue.withOpacity(0.08),
+                    AppTheme.primaryPurple.withOpacity(0.04),
                   ],
                 ),
                 border: Border.all(
-                  color: AppTheme.primaryBlue.withValues(alpha: 0.15),
+                  color: AppTheme.primaryBlue.withOpacity(0.15),
                   width: 0.5,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryBlue.withValues(
-                      alpha: 0.05 * _glowAnimation.value,
+                    color: AppTheme.primaryBlue.withOpacity(
+                      0.05 * _glowAnimation.value,
                     ),
                     blurRadius: 8,
                     spreadRadius: 0.5,
                   ),
                 ],
               ),
-              child: imageUrl != null
+              child: hasImage
                   ? ClipOval(
                       child: CachedImageWidget(
                         imageUrl: imageUrl,
@@ -306,7 +319,7 @@ class _ChatAppBarState extends State<ChatAppBar>
                       child: Text(
                         _getInitials(name),
                         style: AppTextStyles.caption.copyWith(
-                          color: AppTheme.primaryBlue.withValues(alpha: 0.8),
+                          color: AppTheme.primaryBlue.withOpacity(0.8),
                           fontWeight: FontWeight.w600,
                           fontSize: 11,
                         ),
@@ -325,8 +338,8 @@ class _ChatAppBarState extends State<ChatAppBar>
     );
   }
 
-  /// ينفذ العملية `_buildMinimalOnlineIndicator`.
-  /// Runs the `_buildMinimalOnlineIndicator` operation.
+  /// Builds the compact online indicator shown beside direct chats.
+  /// ينشئ مؤشر الاتصال المضغوط الذي يظهر بجانب المحادثات الثنائية.
   Widget _buildMinimalOnlineIndicator() {
     final otherParticipant =
         widget.conversation.getOtherParticipant(widget.currentUserId);
@@ -334,97 +347,60 @@ class _ChatAppBarState extends State<ChatAppBar>
       return const SizedBox.shrink();
     }
 
-    return AnimatedBuilder(
-      animation: _glowAnimation,
-      builder: (context, child) {
-        return Container(
-          width: 7, // Reduced from 8
-          height: 7,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppTheme.success.withValues(alpha: 0.9),
-                AppTheme.neonGreen.withValues(alpha: 0.7),
-              ],
-            ),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: AppTheme.darkCard,
-              width: 1.2,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.success.withValues(
-                  alpha: 0.3 + 0.1 * _glowAnimation.value,
-                ),
-                blurRadius: 3 + 2 * _glowAnimation.value,
-                spreadRadius: 0.3,
-              ),
-            ],
-          ),
-        );
-      },
+    return const OnlineStatusIndicator(
+      isOnline: true,
+      size: 7,
+      showBorder: true,
+      animate: true,
     );
   }
 
-  /// ينفذ العملية `_getStatusText`.
-  /// Runs the `_getStatusText` operation.
-  String? _getStatusText() {
+  /// Resolves the human-readable presence label for the active participant.
+  /// يحدد تسمية الحضور المقروءة للطرف النشط.
+  String? _getStatusText(BuildContext context) {
     if (widget.conversation.isDirectChat) {
       final otherParticipant =
           widget.conversation.getOtherParticipant(widget.currentUserId);
       if (otherParticipant == null) return null;
 
       if (otherParticipant.isOnline) {
-        return 'متصل';
+        return ChatPresencePresentation.onlineNow(context);
       } else if (otherParticipant.lastSeen != null) {
-        return _formatLastSeen(otherParticipant.lastSeen!);
+        return ChatPresencePresentation.presenceLabel(
+          context,
+          isOnline: false,
+          lastSeen: otherParticipant.lastSeen,
+        );
       }
     } else {
       final onlineCount = widget.conversation.participants
           .where((p) => p.isOnline && p.id != widget.currentUserId)
           .length;
       if (onlineCount > 0) {
-        return '$onlineCount متصل';
+        return context.tr(
+          'chat.thread.onlineCount',
+          params: {'count': onlineCount},
+        );
       }
     }
     return null;
   }
 
-  /// ينفذ العملية `_getStatusColor`.
-  /// Runs the `_getStatusColor` operation.
+  /// Resolves the color used to paint the presence label.
+  /// يحدد اللون المستخدم لعرض تسمية الحضور.
   Color _getStatusColor() {
     final otherParticipant = widget.conversation.isDirectChat
         ? widget.conversation.getOtherParticipant(widget.currentUserId)
         : null;
 
     if (otherParticipant?.isOnline == true) {
-      return AppTheme.success.withValues(alpha: 0.8);
+      return AppTheme.success.withOpacity(0.8);
     }
-    return AppTheme.textMuted.withValues(alpha: 0.6);
+    return AppTheme.textMuted.withOpacity(0.6);
   }
 
-  /// ينفذ العملية `_formatLastSeen`.
-  /// Runs the `_formatLastSeen` operation.
-  String _formatLastSeen(DateTime lastSeen) {
-    final now = DateTime.now();
-    final difference = now.difference(lastSeen);
-
-    if (difference.inMinutes < 1) {
-      return 'الآن';
-    } else if (difference.inMinutes < 60) {
-      return 'منذ ${difference.inMinutes}د';
-    } else if (difference.inHours < 24) {
-      return 'منذ ${difference.inHours}س';
-    } else if (difference.inDays == 1) {
-      return 'أمس';
-    } else {
-      return 'منذ ${difference.inDays}ي';
-    }
-  }
-
-  /// ينفذ العملية `_getInitials`.
-  /// Runs the `_getInitials` operation.
+  /// Returns initials for fallback avatar rendering.
+  /// يعيد الأحرف الأولى لاستخدامها عند غياب الصورة.
   String _getInitials(String name) {
     final parts = name.trim().split(' ');
     if (parts.isEmpty) return '';

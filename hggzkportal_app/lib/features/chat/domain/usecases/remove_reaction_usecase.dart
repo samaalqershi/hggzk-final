@@ -4,19 +4,15 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/chat_repository.dart';
 
-/// يعرّف الكلاس `RemoveReactionUseCase`.
-/// Describes the `RemoveReactionUseCase` class.
+/// العربية: ينفذ حالة الاستخدام `RemoveReactionUseCase`.
 class RemoveReactionUseCase implements UseCase<void, RemoveReactionParams> {
-  /// Holds the `repository` value.
   /// العربية: يخزن القيمة `repository`.
   final ChatRepository repository;
 
-  /// ينشئ مثيلاً من `RemoveReactionUseCase`.
-  /// Builds an instance of `RemoveReactionUseCase`.
+  /// العربية: ينشئ مثيلًا جديدًا من `RemoveReactionUseCase`.
   RemoveReactionUseCase(this.repository);
 
-  /// ينفذ العملية `call`.
-  /// Runs the `call` operation.
+  /// العربية: ينفذ السلوك الرئيسي الذي يقدمه هذا الكائن القابل للاستدعاء.
   @override
   Future<Either<Failure, void>> call(RemoveReactionParams params) async {
     return await repository.removeReaction(
@@ -26,26 +22,21 @@ class RemoveReactionUseCase implements UseCase<void, RemoveReactionParams> {
   }
 }
 
-/// يعرّف الكلاس `RemoveReactionParams`.
-/// Describes the `RemoveReactionParams` class.
+/// العربية: يمثل `RemoveReactionParams`.
 class RemoveReactionParams extends Equatable {
-  /// Holds the `messageId` value.
   /// العربية: يخزن القيمة `messageId`.
   final String messageId;
 
-  /// يخزن العضو `reactionType`.
-  /// Holds the `reactionType` member.
+  /// العربية: يخزن القيمة `reactionType`.
   final String reactionType;
 
-  /// ينشئ مثيلاً من `RemoveReactionParams`.
-  /// Builds an instance of `RemoveReactionParams`.
+  /// العربية: ينشئ مثيلًا جديدًا من `RemoveReactionParams`.
   const RemoveReactionParams({
     required this.messageId,
     required this.reactionType,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object> get props => [messageId, reactionType];
 }

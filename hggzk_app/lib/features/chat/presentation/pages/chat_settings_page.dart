@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:io';
 import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../app/dependency_injection/injection_container.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
-import '../../../../core/widgets/loading_widget.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../domain/entities/attachment.dart';
 import '../../domain/entities/conversation.dart';
+import '../../domain/entities/message.dart';
+import '../../domain/repositories/chat_repository.dart';
+import '../../domain/usecases/get_messages_usecase.dart';
+import '../../domain/usecases/search_chats_usecase.dart';
 import '../bloc/chat_bloc.dart';
+import '../utils/chat_presence_presentation.dart';
+import '../utils/chat_settings_presentation.dart';
 import '../widgets/media_grid_widget.dart';
 import '../widgets/participant_item_widget.dart';
 
@@ -78,16 +87,34 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
 
   // Data
   /// العربية: يخزن القيمة `currentUserId`.
-  final String currentUserId = 'current_user';
+  String? _currentUserId;
+
+  /// العربية: يخزن رسائل المحادثة المكتملة المستخدمة في الميديا والإحصاءات.
+  List<Message> _conversationMessages = const [];
+
+  /// العربية: يحدد ما إذا كانت القيمة `isLoadingConversationInsights` مفعلة.
+  bool _isLoadingConversationInsights = false;
 
   /// العربية: يخزن القيمة `notificationsEnabled`.
   bool _notificationsEnabled = true;
 
+  /// العربية: يخزن القيمة `soundEnabled`.
+  bool _soundEnabled = true;
+
   /// العربية: يخزن القيمة `showReadReceipts`.
   bool _showReadReceipts = true;
 
+  /// العربية: يخزن القيمة `showTypingIndicator`.
+  bool _showTypingIndicator = true;
+
   /// العربية: يخزن القيمة `theme`.
   String _theme = 'default';
+
+  /// العربية: يخزن القيمة `fontSize`.
+  String _fontSize = 'medium';
+
+  /// العربية: يخزن القيمة `autoDownloadMedia`.
+  bool _autoDownloadMedia = true;
 
   // UI State
   /// العربية: يخزن القيمة `headerOpacity`.
@@ -108,8 +135,198 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     _initializeControllers();
     _initializeAnimations();
     _generateFloatingOrbs();
+    _hydrateCurrentUser();
     _loadSettings();
+    _loadConversationInsights();
     _scrollController.addListener(_onScroll);
+  }
+
+  String get _resolvedCurrentUserId => _currentUserId ?? '';
+
+  ChatUser? get _directConversationParticipant {
+    if (!widget.conversation.isDirectChat) {
+      return null;
+    }
+
+    if (_resolvedCurrentUserId.isNotEmpty) {
+      return widget.conversation.getOtherParticipant(_resolvedCurrentUserId);
+    }
+
+    if (widget.conversation.participants.isNotEmpty) {
+      return widget.conversation.participants.first;
+    }
+
+    return null;
+  }
+
+  void _hydrateCurrentUser() {
+    final chatState = context.read<ChatBloc>().state;
+    if (chatState is ChatLoaded &&
+        (chatState.currentUserId?.isNotEmpty ?? false)) {
+      _currentUserId = chatState.currentUserId;
+      return;
+    }
+
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      _currentUserId = authState.user.userId;
+    }
+  }
+
+  List<Message> _seedConversationMessages() {
+    final chatState = context.read<ChatBloc>().state;
+    if (chatState is! ChatLoaded) {
+      return const [];
+    }
+
+    return List<Message>.from(chatState.messages[widget.conversation.id] ?? []);
+  }
+
+  List<Message> _mergeMessagesById(Iterable<Message> messages) {
+    final mergedById = <String, Message>{};
+
+    for (final message in messages) {
+      final existing = mergedById[message.id];
+      if (existing == null) {
+        mergedById[message.id] = message;
+        continue;
+      }
+
+      mergedById[message.id] = _pickRicherMessage(existing, message);
+    }
+
+    final merged = mergedById.values.toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return merged;
+  }
+
+  Message _pickRicherMessage(Message current, Message candidate) {
+    final currentScore = _messageRichnessScore(current);
+    final candidateScore = _messageRichnessScore(candidate);
+
+    if (candidateScore != currentScore) {
+      return candidateScore > currentScore ? candidate : current;
+    }
+
+    return candidate.updatedAt.isAfter(current.updatedAt) ? candidate : current;
+  }
+
+  int _messageRichnessScore(Message message) {
+    var score = 0;
+
+    if ((message.content?.trim().isNotEmpty ?? false)) {
+      score += 1;
+    }
+
+    if (message.location != null) {
+      score += 1;
+    }
+
+    if (message.status.trim().toLowerCase() == 'sent') {
+      score += 1;
+    }
+
+    for (final attachment in message.attachments) {
+      if (attachment.thumbnailUrl?.trim().isNotEmpty ?? false) {
+        score += 2;
+      }
+      if (attachment.metadata?['localThumbnailPath'] is String) {
+        score += 2;
+      }
+      if (attachment.fileUrl.trim().isNotEmpty) {
+        score += 1;
+      }
+    }
+
+    return score;
+  }
+
+  Future<void> _loadConversationInsights() async {
+    final seededMessages = _seedConversationMessages();
+
+    if (mounted) {
+      setState(() {
+        _conversationMessages = _mergeMessagesById(seededMessages);
+        _isLoadingConversationInsights = true;
+      });
+    }
+
+    final allMessages = List<Message>.from(_conversationMessages);
+    String? beforeMessageId;
+    var pageNumber = 1;
+    const pageSize = 100;
+
+    while (true) {
+      final result = await sl<GetMessagesUseCase>()(
+        GetMessagesParams(
+          conversationId: widget.conversation.id,
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          beforeMessageId: beforeMessageId,
+        ),
+      );
+
+      var shouldStop = false;
+
+      await result.fold(
+        (_) async {
+          shouldStop = true;
+        },
+        (messages) async {
+          allMessages.addAll(messages);
+
+          if (mounted) {
+            setState(() {
+              _conversationMessages = _mergeMessagesById(allMessages);
+            });
+          }
+
+          if (messages.length < pageSize || messages.isEmpty) {
+            shouldStop = true;
+            return;
+          }
+
+          beforeMessageId = messages.last.id;
+          pageNumber += 1;
+        },
+      );
+
+      if (shouldStop) {
+        break;
+      }
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _conversationMessages = _mergeMessagesById(allMessages);
+      _isLoadingConversationInsights = false;
+    });
+  }
+
+  List<Message> _effectiveConversationMessages(ChatState state) {
+    final seededMessages = state is ChatLoaded
+        ? List<Message>.from(state.messages[widget.conversation.id] ?? [])
+        : const <Message>[];
+
+    return _mergeMessagesById([
+      ..._conversationMessages,
+      ...seededMessages,
+    ]);
+  }
+
+  List<Attachment> _mediaAttachmentsFromMessages(List<Message> messages) {
+    return messages
+        .expand((message) => message.attachments)
+        .where((attachment) => attachment.isImage || attachment.isVideo)
+        .toList();
+  }
+
+  List<Attachment> _fileAttachmentsFromMessages(List<Message> messages) {
+    return messages
+        .expand((message) => message.attachments)
+        .where((attachment) => attachment.isDocument)
+        .toList();
   }
 
   /// العربية: يهيئ controllers.
@@ -218,6 +435,66 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     context.read<ChatBloc>().add(const LoadChatSettingsEvent());
   }
 
+  void _applySettingsSnapshot(ChatSettings settings) {
+    _notificationsEnabled = settings.notificationsEnabled;
+    _soundEnabled = settings.soundEnabled;
+    _showReadReceipts = settings.showReadReceipts;
+    _showTypingIndicator = settings.showTypingIndicator;
+    _theme = normalizeChatTheme(settings.theme);
+    _fontSize = settings.fontSize;
+    _autoDownloadMedia = settings.autoDownloadMedia;
+  }
+
+  void _showSnackBar(
+    String message, {
+    bool isError = false,
+  }) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: isError ? AppTheme.error : AppTheme.primaryBlue,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+  }
+
+  Future<bool> _showConfirmationDialog({
+    required String title,
+    required String message,
+    bool isDestructive = false,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: AppTheme.darkCard,
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(context.tr('common.cancel')),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor:
+                    isDestructive ? AppTheme.error : AppTheme.primaryBlue,
+              ),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(context.tr('common.confirm')),
+            ),
+          ],
+        );
+      },
+    );
+
+    return result ?? false;
+  }
+
   /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
@@ -314,12 +591,18 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
   /// العربية: يبني premium sliver app bar.
   Widget _buildPremiumSliverAppBar() {
     final displayImage = widget.conversation.avatar ??
-        widget.conversation.getOtherParticipant(currentUserId)?.profileImage;
-    final displayName = widget.conversation.title ??
-        widget.conversation.getOtherParticipant(currentUserId)?.name ??
-        context.tr(
-          'chat.settings.title',
-        );
+        _directConversationParticipant?.profileImage;
+    final hasDisplayImage =
+        displayImage != null && displayImage.trim().isNotEmpty;
+    final displayName = widget.conversation.isDirectChat &&
+            (_directConversationParticipant?.name.trim().isNotEmpty == true)
+        ? _directConversationParticipant!.name.trim()
+        : (widget.conversation.title?.trim().isNotEmpty == true
+            ? widget.conversation.title!.trim()
+            : _directConversationParticipant?.name ??
+                context.tr(
+                  'chat.settings.title',
+                ));
 
     return SliverAppBar(
       expandedHeight: 180, // Reduced from 200
@@ -338,7 +621,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
           fit: StackFit.expand,
           children: [
             // Image or gradient background
-            if (displayImage != null)
+            if (hasDisplayImage)
               CachedImageWidget(
                 imageUrl: displayImage,
                 fit: BoxFit.cover,
@@ -428,7 +711,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                               ],
                             ),
                             child: ClipOval(
-                              child: displayImage != null
+                              child: hasDisplayImage
                                   ? CachedImageWidget(
                                       imageUrl: displayImage,
                                       fit: BoxFit.cover,
@@ -547,6 +830,13 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
 
   /// العربية: يبني premium info section.
   Widget _buildPremiumInfoSection() {
+    final chatState = context.watch<ChatBloc>().state;
+    final messages = _effectiveConversationMessages(chatState);
+    final mediaAttachments = _mediaAttachmentsFromMessages(messages);
+    final fileAttachments = _fileAttachmentsFromMessages(messages);
+    final visibleMessagesCount =
+        messages.where((message) => !message.isDeleted).length;
+
     return Container(
       margin: const EdgeInsets.all(12),
       child: ClipRRect(
@@ -581,44 +871,78 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                   ),
                   const SizedBox(height: 12),
                 ],
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _PremiumInfoItem(
-                      icon: Icons.message_rounded,
-                      label: context.tr(
-                        'chat.settings.info.messages',
-                      ),
-                      value: '1.2k',
-                      animation: _glowAnimation,
-                    ),
-                    _PremiumInfoItem(
-                      icon: Icons.image_rounded,
-                      label: context.tr(
-                        'chat.settings.info.media',
-                      ),
-                      value: '89',
-                      animation: _glowAnimation,
-                    ),
-                    _PremiumInfoItem(
-                      icon: Icons.attach_file_rounded,
-                      label: context.tr(
-                        'chat.settings.info.files',
-                      ),
-                      value: '12',
-                      animation: _glowAnimation,
-                    ),
-                    if (widget.conversation.isGroupChat)
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final infoItems = <Widget>[
                       _PremiumInfoItem(
-                        icon: Icons.group_rounded,
+                        icon: Icons.message_rounded,
                         label: context.tr(
-                          'chat.settings.info.members',
+                          'chat.settings.info.messages',
                         ),
-                        value:
-                            widget.conversation.participants.length.toString(),
+                        value: visibleMessagesCount.toString(),
                         animation: _glowAnimation,
                       ),
-                  ],
+                      _PremiumInfoItem(
+                        icon: Icons.image_rounded,
+                        label: context.tr(
+                          'chat.settings.info.media',
+                        ),
+                        value: mediaAttachments.length.toString(),
+                        animation: _glowAnimation,
+                      ),
+                      _PremiumInfoItem(
+                        icon: Icons.attach_file_rounded,
+                        label: context.tr(
+                          'chat.settings.info.files',
+                        ),
+                        value: fileAttachments.length.toString(),
+                        animation: _glowAnimation,
+                      ),
+                      if (widget.conversation.isGroupChat)
+                        _PremiumInfoItem(
+                          icon: Icons.group_rounded,
+                          label: context.tr(
+                            'chat.settings.info.members',
+                          ),
+                          value: widget.conversation.participants.length
+                              .toString(),
+                          animation: _glowAnimation,
+                        ),
+                    ];
+
+                    final useGridLayout = constraints.maxWidth < 420;
+
+                    if (!useGridLayout) {
+                      return Row(
+                        children: infoItems
+                            .map(
+                              (item) => Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  child: item,
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      );
+                    }
+
+                    final itemWidth = (constraints.maxWidth - 8) / 2;
+                    return Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: infoItems
+                          .map(
+                            (item) => SizedBox(
+                              width: itemWidth,
+                              child: item,
+                            ),
+                          )
+                          .toList(),
+                    );
+                  },
                 ),
               ],
             ),
@@ -688,24 +1012,21 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
           return _buildPremiumLoadingState();
         }
 
-        final messages = state.messages[widget.conversation.id] ?? [];
-        final mediaMessages = messages.where((m) {
-          return ['image', 'video'].contains(m.messageType) ||
-              m.attachments.any((a) => a.isImage || a.isVideo);
-        }).toList();
+        final messages = _effectiveConversationMessages(state);
+        final mediaAttachments = _mediaAttachmentsFromMessages(messages);
 
-        if (mediaMessages.isEmpty) {
+        if (_isLoadingConversationInsights && mediaAttachments.isEmpty) {
+          return _buildPremiumLoadingState();
+        }
+
+        if (mediaAttachments.isEmpty) {
           return _buildPremiumEmptyMediaState();
         }
 
         return Container(
           padding: const EdgeInsets.all(8),
           child: MediaGridWidget(
-            messages: mediaMessages,
-            onMediaTap: (message) {
-              HapticFeedback.selectionClick();
-              // Open media viewer
-            },
+            attachments: mediaAttachments,
           ),
         );
       },
@@ -715,8 +1036,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
   /// العربية: يبني premium participants tab.
   Widget _buildPremiumParticipantsTab() {
     if (widget.conversation.isDirectChat) {
-      final otherParticipant =
-          widget.conversation.getOtherParticipant(currentUserId);
+      final otherParticipant = _directConversationParticipant;
       if (otherParticipant == null) return const SizedBox.shrink();
 
       return SingleChildScrollView(
@@ -735,14 +1055,9 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
 
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      itemCount: widget.conversation.participants.length + 1,
+      itemCount: widget.conversation.participants.length,
       itemBuilder: (context, index) {
-        if (index == 0) {
-          return _buildAddParticipantButton();
-        }
-
-        final participant = widget.conversation.participants[index - 1];
-        final isAdmin = index == 1;
+        final participant = widget.conversation.participants[index];
 
         return TweenAnimationBuilder<double>(
           tween: Tween(begin: 0, end: 1),
@@ -760,12 +1075,9 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                   ),
                   child: ParticipantItemWidget(
                     participant: participant,
-                    isAdmin: isAdmin,
-                    isCurrentUser: participant.id == currentUserId,
+                    isAdmin: false,
+                    isCurrentUser: participant.id == _resolvedCurrentUserId,
                     onTap: () => _viewParticipantProfile(participant),
-                    onRemove: isAdmin && participant.id != currentUserId
-                        ? () => _removeParticipant(participant)
-                        : null,
                   ),
                 ),
               ),
@@ -776,83 +1088,13 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     );
   }
 
-  /// العربية: يبني add participant button.
-  Widget _buildAddParticipantButton() {
-    return Container(
-      margin: const EdgeInsets.all(12),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: GestureDetector(
-            onTap: _addParticipant,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.primaryBlue.withOpacity(0.1),
-                    AppTheme.primaryPurple.withOpacity(0.05),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppTheme.primaryBlue.withOpacity(0.2),
-                  width: 0.5,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [AppTheme.primaryBlue, AppTheme.primaryPurple],
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryBlue.withOpacity(0.3),
-                          blurRadius: 8,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.person_add_rounded,
-                      color: Colors.white,
-                      size: 16,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    context.tr(
-                      'chat.settings.addMember',
-                    ),
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppTheme.primaryBlue,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   /// العربية: يبني premium settings tab.
   Widget _buildPremiumSettingsTab() {
     return BlocBuilder<ChatBloc, ChatState>(
       builder: (context, state) {
-        if (state is ChatLoaded && state.settings != null) {
-          _notificationsEnabled = state.settings!.notificationsEnabled;
-          _showReadReceipts = state.settings!.showReadReceipts;
-          _theme = state.settings!.theme;
+        final settings = state is ChatLoaded ? state.settings : null;
+        if (settings != null) {
+          _applySettingsSnapshot(settings);
         }
 
         return ListView(
@@ -875,19 +1117,29 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                   onChanged: (value) {
                     setState(() {
                       _notificationsEnabled = value;
+                      if (!value) {
+                        _soundEnabled = false;
+                      }
                     });
                     _updateSettings();
                   },
                 ),
-                _buildPremiumListTile(
-                  icon: Icons.music_note_rounded,
+                _buildPremiumSwitch(
                   title: context.tr(
-                    'chat.settings.notificationSound',
+                    'chat.settings.soundEnabled',
                   ),
                   subtitle: context.tr(
-                    'chat.settings.default',
+                    'chat.settings.soundEnabledSubtitle',
                   ),
-                  onTap: _changeNotificationSound,
+                  value: _soundEnabled,
+                  onChanged: _notificationsEnabled
+                      ? (value) {
+                          setState(() {
+                            _soundEnabled = value;
+                          });
+                          _updateSettings();
+                        }
+                      : null,
                 ),
               ],
             ),
@@ -912,16 +1164,20 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                     _updateSettings();
                   },
                 ),
-                _buildPremiumListTile(
-                  icon: Icons.block_rounded,
+                _buildPremiumSwitch(
                   title: context.tr(
-                    'chat.settings.blockUser',
+                    'chat.settings.typingIndicator',
                   ),
                   subtitle: context.tr(
-                    'chat.settings.blockUserSubtitle',
+                    'chat.settings.typingIndicatorSubtitle',
                   ),
-                  onTap: _blockUser,
-                  isDestructive: true,
+                  value: _showTypingIndicator,
+                  onChanged: (value) {
+                    setState(() {
+                      _showTypingIndicator = value;
+                    });
+                    _updateSettings();
+                  },
                 ),
               ],
             ),
@@ -936,9 +1192,9 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                   title: context.tr(
                     'chat.settings.chatBackground',
                   ),
-                  subtitle: _theme == 'default'
-                      ? context.tr('chat.settings.default')
-                      : _theme,
+                  subtitle: context.tr(
+                    chatThemeLabelKey(_theme),
+                  ),
                   onTap: _changeChatTheme,
                 ),
                 _buildPremiumListTile(
@@ -947,7 +1203,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
                     'chat.settings.fontSize',
                   ),
                   subtitle: context.tr(
-                    'chat.settings.fontSizeMedium',
+                    chatFontSizeLabelKey(_fontSize),
                   ),
                   onTap: _changeFontSize,
                 ),
@@ -959,15 +1215,40 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
               ),
               icon: Icons.storage_rounded,
               children: [
-                _buildPremiumListTile(
-                  icon: Icons.download_rounded,
+                _buildPremiumSwitch(
                   title: context.tr(
                     'chat.settings.autoDownload',
                   ),
                   subtitle: context.tr(
-                    'chat.settings.wifiOnly',
+                    'chat.settings.autoDownloadSubtitle',
                   ),
-                  onTap: _configureAutoDownload,
+                  value: _autoDownloadMedia,
+                  onChanged: (value) {
+                    setState(() {
+                      _autoDownloadMedia = value;
+                    });
+                    _updateSettings();
+                  },
+                ),
+                _buildPremiumListTile(
+                  icon: Icons.search_rounded,
+                  title: context.tr(
+                    'chat.settings.searchInChat',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.searchInChatSubtitle',
+                  ),
+                  onTap: _searchInChat,
+                ),
+                _buildPremiumListTile(
+                  icon: Icons.download_rounded,
+                  title: context.tr(
+                    'chat.settings.exportChat',
+                  ),
+                  subtitle: context.tr(
+                    'chat.settings.exportChatSubtitle',
+                  ),
+                  onTap: _exportChat,
                 ),
                 _buildPremiumListTile(
                   icon: Icons.cleaning_services_rounded,
@@ -1067,7 +1348,7 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     required String title,
     required String subtitle,
     required bool value,
-    required ValueChanged<bool> onChanged,
+    required ValueChanged<bool>? onChanged,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1308,8 +1589,6 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
       builder: (context) => _PremiumOptionsSheet(
         onSearch: _searchInChat,
         onExport: _exportChat,
-        onLeave: widget.conversation.isGroupChat ? _leaveGroup : null,
-        onClear: _clearChat,
       ),
     );
   }
@@ -1319,8 +1598,12 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
     context.read<ChatBloc>().add(
           UpdateChatSettingsEvent(
             notificationsEnabled: _notificationsEnabled,
+            soundEnabled: _soundEnabled,
             showReadReceipts: _showReadReceipts,
+            showTypingIndicator: _showTypingIndicator,
             theme: _theme,
+            fontSize: _fontSize,
+            autoDownloadMedia: _autoDownloadMedia,
           ),
         );
   }
@@ -1328,79 +1611,454 @@ class _ChatSettingsPageState extends State<ChatSettingsPage>
   /// العربية: يعالج `viewParticipantProfile`.
   void _viewParticipantProfile(ChatUser participant) {
     HapticFeedback.selectionClick();
-    // Navigate to participant profile
-  }
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        final hasImage = participant.profileImage?.trim().isNotEmpty ?? false;
+        final statusText = ChatPresencePresentation.presenceLabel(
+          context,
+          isOnline: participant.isOnline,
+          lastSeen: participant.lastSeen,
+          fallbackStatus: participant.status,
+        );
 
-  /// العربية: يعالج `addParticipant`.
-  void _addParticipant() {
-    HapticFeedback.selectionClick();
-    // Show add participant dialog
-  }
-
-  /// العربية: يزيل participant.
-  void _removeParticipant(ChatUser participant) {
-    HapticFeedback.selectionClick();
-    // Show confirmation and remove participant
-  }
-
-  /// العربية: يعالج `changeNotificationSound`.
-  void _changeNotificationSound() {
-    HapticFeedback.selectionClick();
-    // Show notification sound picker
-  }
-
-  /// العربية: يعالج `blockUser`.
-  void _blockUser() {
-    HapticFeedback.selectionClick();
-    // Show block user confirmation
+        return Container(
+          margin: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppTheme.darkCard,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 34,
+                backgroundColor: AppTheme.primaryBlue.withOpacity(0.15),
+                backgroundImage:
+                    hasImage ? NetworkImage(participant.profileImage!) : null,
+                child: !hasImage
+                    ? Text(
+                        _getInitials(participant.name),
+                        style: AppTextStyles.h3.copyWith(color: Colors.white),
+                      )
+                    : null,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                participant.name,
+                style: AppTextStyles.h3.copyWith(fontSize: 18),
+                textAlign: TextAlign.center,
+              ),
+              if (participant.email.trim().isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Text(
+                  participant.email,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppTheme.textMuted,
+                  ),
+                ),
+              ],
+              if ((participant.phone ?? '').trim().isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Text(
+                  participant.phone!,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppTheme.textMuted,
+                  ),
+                ),
+              ],
+              if ((statusText ?? '').trim().isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Text(
+                  statusText!,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppTheme.primaryBlue,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
   }
 
   /// العربية: يعالج `changeChatTheme`.
-  void _changeChatTheme() {
+  Future<void> _changeChatTheme() async {
     HapticFeedback.selectionClick();
-    // Show theme picker
+    final selectedTheme = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        const availableThemes = ['default', 'midnight', 'aurora', 'sunset'];
+
+        return Container(
+          margin: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppTheme.darkCard,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: availableThemes.length,
+            separatorBuilder: (_, __) => Divider(
+              height: 1,
+              color: Colors.white.withOpacity(0.06),
+            ),
+            itemBuilder: (context, index) {
+              final option = availableThemes[index];
+              final isSelected = option == normalizeChatTheme(_theme);
+              final colors = chatBackgroundGradient(option);
+
+              return ListTile(
+                onTap: () => Navigator.of(sheetContext).pop(option),
+                leading: Container(
+                  width: 22,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(colors: colors),
+                  ),
+                ),
+                title: Text(context.tr(chatThemeLabelKey(option))),
+                trailing: isSelected
+                    ? Icon(
+                        Icons.check_rounded,
+                        color: chatAccentColor(option),
+                      )
+                    : null,
+              );
+            },
+          ),
+        );
+      },
+    );
+
+    if (selectedTheme == null || selectedTheme == _theme) return;
+
+    setState(() {
+      _theme = selectedTheme;
+    });
+    _updateSettings();
   }
 
   /// العربية: يعالج `changeFontSize`.
-  void _changeFontSize() {
+  Future<void> _changeFontSize() async {
     HapticFeedback.selectionClick();
-    // Show font size picker
-  }
+    final selectedSize = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        const availableSizes = ['small', 'medium', 'large', 'extra_large'];
 
-  /// العربية: يعالج `configureAutoDownload`.
-  void _configureAutoDownload() {
-    HapticFeedback.selectionClick();
-    // Show auto download settings
+        return Container(
+          margin: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppTheme.darkCard,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: availableSizes.length,
+            separatorBuilder: (_, __) => Divider(
+              height: 1,
+              color: Colors.white.withOpacity(0.06),
+            ),
+            itemBuilder: (context, index) {
+              final option = availableSizes[index];
+              final isSelected = option == _fontSize;
+
+              return ListTile(
+                onTap: () => Navigator.of(sheetContext).pop(option),
+                title: Text(context.tr(chatFontSizeLabelKey(option))),
+                trailing: isSelected
+                    ? Icon(
+                        Icons.check_rounded,
+                        color: AppTheme.primaryBlue,
+                      )
+                    : null,
+              );
+            },
+          ),
+        );
+      },
+    );
+
+    if (selectedSize == null || selectedSize == _fontSize) return;
+
+    setState(() {
+      _fontSize = selectedSize;
+    });
+    _updateSettings();
   }
 
   /// العربية: يعالج `clearCache`.
-  void _clearCache() {
+  Future<void> _clearCache() async {
     HapticFeedback.selectionClick();
-    // Show clear cache confirmation
+    final confirmed = await _showConfirmationDialog(
+      title: context.tr('chat.settings.clearCache'),
+      message: context.tr('chat.settings.clearCacheConfirm'),
+      isDestructive: true,
+    );
+    if (!confirmed) return;
+
+    try {
+      await sl<ChatRepository>().clearChatCache();
+      if (!mounted) return;
+
+      context.read<ChatBloc>().add(
+            ClearConversationCacheEvent(
+              conversationId: widget.conversation.id,
+            ),
+          );
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.clearLiveImages();
+
+      _showSnackBar(context.tr('chat.settings.clearCacheSuccess'));
+    } catch (_) {
+      _showSnackBar(
+        context.tr('chat.settings.clearCacheFailed'),
+        isError: true,
+      );
+    }
   }
 
   /// العربية: يعالج `searchInChat`.
-  void _searchInChat() {
+  Future<void> _searchInChat() async {
     HapticFeedback.selectionClick();
-    // Navigate to search page
+    String query = '';
+    var isSearching = false;
+    List<Message> results = const [];
+    String? errorMessage;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            Future<void> performSearch() async {
+              final trimmedQuery = query.trim();
+              if (trimmedQuery.isEmpty) return;
+
+              setSheetState(() {
+                isSearching = true;
+                errorMessage = null;
+              });
+
+              final response = await sl<SearchChatsUseCase>()(
+                SearchChatsParams(
+                  query: trimmedQuery,
+                  conversationId: widget.conversation.id,
+                  page: 1,
+                  limit: 30,
+                ),
+              );
+
+              response.fold(
+                (failure) {
+                  setSheetState(() {
+                    results = const [];
+                    isSearching = false;
+                    errorMessage = failure.message;
+                  });
+                },
+                (searchResult) {
+                  setSheetState(() {
+                    results = searchResult.messages;
+                    isSearching = false;
+                    errorMessage = null;
+                  });
+                },
+              );
+            }
+
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 12,
+                right: 12,
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 12,
+                top: 12,
+              ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(sheetContext).size.height * 0.75,
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppTheme.darkCard,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: TextField(
+                            autofocus: true,
+                            textInputAction: TextInputAction.search,
+                            onChanged: (value) => query = value,
+                            onSubmitted: (_) => performSearch(),
+                            decoration: InputDecoration(
+                              hintText: context.tr(
+                                'chat.settings.searchInChatHint',
+                              ),
+                              prefixIcon: const Icon(Icons.search_rounded),
+                              suffixIcon: IconButton(
+                                onPressed: performSearch,
+                                icon: const Icon(Icons.arrow_forward_rounded),
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (isSearching)
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 20),
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        else if (errorMessage != null)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                            child: Text(
+                              errorMessage!,
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppTheme.error,
+                              ),
+                            ),
+                          )
+                        else if (results.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                            child: Text(
+                              context.tr('chat.settings.searchInChatEmpty'),
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppTheme.textMuted,
+                              ),
+                            ),
+                          )
+                        else
+                          Flexible(
+                            child: ListView.separated(
+                              shrinkWrap: true,
+                              itemCount: results.length,
+                              separatorBuilder: (_, __) => Divider(
+                                height: 1,
+                                color: Colors.white.withOpacity(0.06),
+                              ),
+                              itemBuilder: (context, index) {
+                                final message = results[index];
+                                final preview = (message.content
+                                            ?.trim()
+                                            .isNotEmpty ??
+                                        false)
+                                    ? message.content!.trim()
+                                    : context.tr('chat.message.placeholder');
+
+                                return ListTile(
+                                  onTap: () {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                    Navigator.of(sheetContext).pop();
+                                    Navigator.of(this.context).pop(message.id);
+                                  },
+                                  title: Text(
+                                    preview,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  subtitle: Text(
+                                    AppLocalizations.of(context)
+                                            ?.formatDate(message.createdAt) ??
+                                        message.createdAt.toIso8601String(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   /// العربية: يعالج `exportChat`.
-  void _exportChat() {
+  Future<void> _exportChat() async {
     HapticFeedback.selectionClick();
-    // Export chat history
-  }
+    try {
+      final state = context.read<ChatBloc>().state;
+      final messages = _effectiveConversationMessages(state);
+      final buffer = StringBuffer()
+        ..writeln(widget.conversation.title ??
+            context.tr('chat.message.conversationFallback'))
+        ..writeln('=' * 48)
+        ..writeln();
 
-  /// العربية: يعالج `leaveGroup`.
-  void _leaveGroup() {
-    HapticFeedback.selectionClick();
-    // Show leave group confirmation
-  }
+      final chronologicalMessages = List<Message>.from(messages)
+        ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
-  /// العربية: يعالج `clearChat`.
-  void _clearChat() {
-    HapticFeedback.selectionClick();
-    // Show clear chat confirmation
+      for (final message in chronologicalMessages) {
+        final senderLabel = message.senderId == _resolvedCurrentUserId
+            ? context.tr('chat.message.you')
+            : message.senderId;
+        final timestamp = message.createdAt.toLocal().toIso8601String();
+        final content = (message.content ?? '').trim();
+        final locationLabel = message.location != null
+            ? (message.location!.address?.trim().isNotEmpty ?? false)
+                ? message.location!.address!
+                : '${message.location!.latitude}, ${message.location!.longitude}'
+            : null;
+        final attachmentSummary = message.attachments.isNotEmpty
+            ? message.attachments
+                .map((attachment) => attachment.fileName)
+                .where((name) => name.trim().isNotEmpty)
+                .join(', ')
+            : '';
+
+        buffer.writeln('[$timestamp] $senderLabel');
+        if (content.isNotEmpty) {
+          buffer.writeln(content);
+        }
+        if (locationLabel != null) {
+          buffer.writeln(
+              '${context.tr('chat.message.location')}: $locationLabel');
+        }
+        if (attachmentSummary.isNotEmpty) {
+          buffer.writeln(
+            '${context.tr('chat.settings.info.files')}: $attachmentSummary',
+          );
+        }
+        buffer.writeln();
+      }
+
+      final fileName =
+          'chat_export_${widget.conversation.id}_${DateTime.now().millisecondsSinceEpoch}.txt';
+      final exportFile = File('${Directory.systemTemp.path}/$fileName');
+      await exportFile.writeAsString(buffer.toString());
+      await Clipboard.setData(ClipboardData(text: exportFile.path));
+
+      _showSnackBar(
+        context.tr(
+          'chat.settings.exportChatSuccess',
+          params: {'path': exportFile.path},
+        ),
+      );
+    } catch (_) {
+      _showSnackBar(
+        context.tr('chat.settings.exportChatFailed'),
+        isError: true,
+      );
+    }
   }
 
   /// العربية: يعيد initials.
@@ -1504,18 +2162,10 @@ class _PremiumOptionsSheet extends StatelessWidget {
   /// العربية: يخزن القيمة `onExport`.
   final VoidCallback onExport;
 
-  /// العربية: يخزن القيمة `onLeave`.
-  final VoidCallback? onLeave;
-
-  /// العربية: يخزن القيمة `onClear`.
-  final VoidCallback onClear;
-
   /// العربية: ينشئ مثيلًا جديدًا من `PremiumOptionsSheet`.
   const _PremiumOptionsSheet({
     required this.onSearch,
     required this.onExport,
-    this.onLeave,
-    required this.onClear,
   });
 
   /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
@@ -1576,29 +2226,6 @@ class _PremiumOptionsSheet extends StatelessWidget {
                   onTap: () {
                     Navigator.pop(context);
                     onExport();
-                  },
-                ),
-                if (onLeave != null)
-                  _buildOption(
-                    icon: Icons.exit_to_app_rounded,
-                    title: context.tr(
-                      'chat.settings.leaveGroup',
-                    ),
-                    color: AppTheme.error,
-                    onTap: () {
-                      Navigator.pop(context);
-                      onLeave!();
-                    },
-                  ),
-                _buildOption(
-                  icon: Icons.clear_all_rounded,
-                  title: context.tr(
-                    'chat.settings.clearChat',
-                  ),
-                  color: AppTheme.error,
-                  onTap: () {
-                    Navigator.pop(context);
-                    onClear();
                   },
                 ),
                 const SizedBox(height: 8),

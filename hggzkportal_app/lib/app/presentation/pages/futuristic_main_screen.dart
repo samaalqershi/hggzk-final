@@ -7,6 +7,7 @@ import 'dart:math' as math;
 import 'package:hggzkportal/core/theme/app_theme.dart';
 import 'package:hggzkportal/features/admin_hub/presentation/pages/admin_hub_page.dart';
 import 'package:hggzkportal/features/auth/presentation/pages/profile_page.dart';
+import 'package:hggzkportal/features/chat/presentation/pages/conversations_page.dart';
 
 /// غلاف تنقل رئيسي يثبت واجهة الإدارة والحساب ضمن هيكل واحد متحرك.
 /// Primary shell that keeps the admin hub and profile area inside one animated navigation scaffold.
@@ -84,6 +85,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   /// يثبت صفحات الغلاف بترتيب ثابت حتى يبقى ربط المؤشر بالصفحة واضحًا.
   List<Widget> get _pages => [
         const NavigationPage(child: AdminHubPage()),
+        const NavigationPage(child: ConversationsPage()),
         const NavigationPage(child: ProfilePage()),
       ];
 
@@ -96,6 +98,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       label: 'الإدارة',
       gradient: LinearGradient(
         colors: [AppTheme.neonBlue, AppTheme.neonPurple],
+      ),
+    ),
+    _NavItem(
+      icon: Icons.chat_bubble_outline_rounded,
+      activeIcon: Icons.chat_bubble_rounded,
+      label: 'المحادثات',
+      gradient: LinearGradient(
+        colors: [AppTheme.primaryBlue, AppTheme.neonBlue],
       ),
     ),
     _NavItem(

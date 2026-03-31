@@ -117,6 +117,7 @@ abstract class ChatRepository {
     required String conversationId,
     required String filePath,
     required String messageType,
+    int? durationSeconds,
     ProgressCallback? onSendProgress,
   });
 

@@ -834,7 +834,7 @@ class _ConversationsPageState extends State<ConversationsPage>
 
           final conversation = conversations[index];
           final typingUsers = state.typingUsers[conversation.id] ?? [];
-          const currentUserId = 'current_user';
+          final currentUserId = state.currentUserId ?? '';
 
           return TweenAnimationBuilder<double>(
             key: ValueKey(conversation.id),

@@ -4,19 +4,15 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/chat_repository.dart';
 
-/// يعرّف الكلاس `MarkAsReadUseCase`.
-/// Describes the `MarkAsReadUseCase` class.
+/// العربية: ينفذ حالة الاستخدام `MarkAsReadUseCase`.
 class MarkAsReadUseCase implements UseCase<void, MarkAsReadParams> {
-  /// Holds the `repository` value.
   /// العربية: يخزن القيمة `repository`.
   final ChatRepository repository;
 
-  /// ينشئ مثيلاً من `MarkAsReadUseCase`.
-  /// Builds an instance of `MarkAsReadUseCase`.
+  /// العربية: ينشئ مثيلًا جديدًا من `MarkAsReadUseCase`.
   MarkAsReadUseCase(this.repository);
 
-  /// ينفذ العملية `call`.
-  /// Runs the `call` operation.
+  /// العربية: ينفذ السلوك الرئيسي الذي يقدمه هذا الكائن القابل للاستدعاء.
   @override
   Future<Either<Failure, void>> call(MarkAsReadParams params) async {
     return await repository.markAsRead(
@@ -26,26 +22,21 @@ class MarkAsReadUseCase implements UseCase<void, MarkAsReadParams> {
   }
 }
 
-/// يعرّف الكلاس `MarkAsReadParams`.
-/// Describes the `MarkAsReadParams` class.
+/// العربية: يمثل `MarkAsReadParams`.
 class MarkAsReadParams extends Equatable {
-  /// Holds the `conversationId` value.
   /// العربية: يخزن القيمة `conversationId`.
   final String conversationId;
 
-  /// يخزن العضو `messageIds`.
-  /// Holds the `messageIds` member.
+  /// العربية: يخزن القيمة `messageIds`.
   final List<String> messageIds;
 
-  /// ينشئ مثيلاً من `MarkAsReadParams`.
-  /// Builds an instance of `MarkAsReadParams`.
+  /// العربية: ينشئ مثيلًا جديدًا من `MarkAsReadParams`.
   const MarkAsReadParams({
     required this.conversationId,
     required this.messageIds,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object> get props => [conversationId, messageIds];
 }

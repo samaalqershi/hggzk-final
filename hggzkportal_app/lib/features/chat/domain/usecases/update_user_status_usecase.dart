@@ -4,38 +4,30 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/chat_repository.dart';
 
-/// يعرّف الكلاس `UpdateUserStatusUseCase`.
-/// Describes the `UpdateUserStatusUseCase` class.
+/// العربية: ينفذ حالة الاستخدام `UpdateUserStatusUseCase`.
 class UpdateUserStatusUseCase implements UseCase<void, UpdateUserStatusParams> {
-  /// Holds the `repository` value.
   /// العربية: يخزن القيمة `repository`.
   final ChatRepository repository;
 
-  /// ينشئ مثيلاً من `UpdateUserStatusUseCase`.
-  /// Builds an instance of `UpdateUserStatusUseCase`.
+  /// العربية: ينشئ مثيلًا جديدًا من `UpdateUserStatusUseCase`.
   UpdateUserStatusUseCase(this.repository);
 
-  /// ينفذ العملية `call`.
-  /// Runs the `call` operation.
+  /// العربية: ينفذ السلوك الرئيسي الذي يقدمه هذا الكائن القابل للاستدعاء.
   @override
   Future<Either<Failure, void>> call(UpdateUserStatusParams params) async {
     return await repository.updateUserStatus(params.status);
   }
 }
 
-/// يعرّف الكلاس `UpdateUserStatusParams`.
-/// Describes the `UpdateUserStatusParams` class.
+/// العربية: يمثل `UpdateUserStatusParams`.
 class UpdateUserStatusParams extends Equatable {
-  /// Holds the `status` value.
   /// العربية: يخزن القيمة `status`.
   final String status;
 
-  /// ينشئ مثيلاً من `UpdateUserStatusParams`.
-  /// Builds an instance of `UpdateUserStatusParams`.
+  /// العربية: ينشئ مثيلًا جديدًا من `UpdateUserStatusParams`.
   const UpdateUserStatusParams({required this.status});
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object> get props => [status];
 }

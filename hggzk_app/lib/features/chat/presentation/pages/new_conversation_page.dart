@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hggzk/features/chat/presentation/pages/chat_page.dart';
-import 'package:hggzk/features/chat/presentation/widgets/pinned_admins_widget.dart';
-import 'package:hggzk/core/localization/app_localizations.dart';
+import '../../../../core/localization/app_localizations.dart';
+import '../widgets/pinned_admins_widget.dart';
+import 'chat_page.dart';
 import '../../domain/entities/conversation.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../bloc/chat_bloc.dart';
+import '../utils/chat_presence_presentation.dart';
+import '../widgets/online_status_indicator.dart';
 import '../widgets/participant_item_widget.dart';
 
 /// العربية: يمثل عنصر الصفحة `NewConversationPage`.
@@ -1211,21 +1213,15 @@ class _NewConversationPageState extends State<NewConversationPage>
     if (user.isOnline) {
       return Row(
         children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppTheme.success, AppTheme.neonGreen],
-              ),
-              shape: BoxShape.circle,
-            ),
+          const OnlineStatusIndicator(
+            isOnline: true,
+            size: 6,
+            showBorder: false,
+            animate: true,
           ),
           const SizedBox(width: 4),
           Text(
-            context.tr(
-              'chat.newConversation.onlineNow',
-            ),
+            ChatPresencePresentation.onlineNow(context),
             style: AppTextStyles.caption.copyWith(
               color: AppTheme.success.withOpacity(0.8),
               fontSize: 11,
@@ -1236,10 +1232,12 @@ class _NewConversationPageState extends State<NewConversationPage>
     }
     if (user.lastSeen != null) {
       return Text(
-        context.tr(
-          'chat.newConversation.lastSeen',
-          params: {'value': _formatLastSeen(user.lastSeen!)},
-        ),
+        ChatPresencePresentation.presenceLabel(
+              context,
+              isOnline: false,
+              lastSeen: user.lastSeen,
+            ) ??
+            '',
         style: AppTextStyles.caption.copyWith(
           color: AppTheme.textMuted.withOpacity(0.5),
           fontSize: 11,
@@ -1390,31 +1388,6 @@ class _NewConversationPageState extends State<NewConversationPage>
           ),
         );
       },
-    );
-  }
-
-  /// العربية: ينسق last seen.
-  String _formatLastSeen(DateTime dt) {
-    final now = DateTime.now();
-    final diff = now.difference(dt);
-    if (diff.inMinutes < 1) {
-      return context.tr('chat.thread.now');
-    }
-    if (diff.inMinutes < 60) {
-      return context.tr(
-        'chat.thread.minuteAgo',
-        params: {'value': diff.inMinutes},
-      );
-    }
-    if (diff.inHours < 24) {
-      return context.tr(
-        'chat.thread.hourAgo',
-        params: {'value': diff.inHours},
-      );
-    }
-    return context.tr(
-      'chat.thread.dayAgo',
-      params: {'value': diff.inDays},
     );
   }
 

@@ -15,6 +15,7 @@ import 'package:hggzk/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:hggzk/features/auth/presentation/bloc/auth_state.dart';
 import 'package:hggzk/features/auth/presentation/pages/profile_page.dart';
 import 'package:hggzk/features/booking/presentation/pages/my_bookings_page.dart';
+import 'package:hggzk/features/chat/presentation/pages/conversations_page.dart';
 import 'package:hggzk/features/favorites/presentation/pages/favorites_page.dart';
 import 'package:hggzk/features/home/presentation/pages/futuristic_home_page.dart';
 import 'package:hggzk/features/notifications/presentation/bloc/notification_bloc.dart';
@@ -98,6 +99,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         const NavigationPage(child: HomePage()),
         const NavigationPage(child: FavoritesPage()),
         const NavigationPage(child: MyBookingsPage()),
+        const NavigationPage(child: ConversationsPage()),
         const NavigationPage(child: ProfilePage()),
       ];
   List<_NavItem> get _navItems => [
@@ -123,6 +125,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           labelKey: 'nav.myBookings',
           gradient: LinearGradient(
             colors: [AppTheme.primaryPurple, AppTheme.neonPurple],
+          ),
+        ),
+        _NavItem(
+          icon: Icons.chat_bubble_outline_rounded,
+          activeIcon: Icons.chat_bubble_rounded,
+          labelKey: 'nav.chat',
+          gradient: LinearGradient(
+            colors: [AppTheme.primaryBlue, AppTheme.neonBlue],
           ),
         ),
         _NavItem(

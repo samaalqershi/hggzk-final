@@ -1,80 +1,104 @@
 part of 'chat_bloc.dart';
 
-/// يجمع أحداث المحادثة كلها في عقد واحد حتى يبقى تدفق الرسائل،
-/// المرفقات، والاتصال اللحظي متسقًا داخل الـ BLoC.
-/// Groups all chat actions behind one contract so messages,
-/// attachments, and realtime updates stay coordinated inside the BLoC.
+/// Base event for chat flows. Concrete events cover loading history, sending
+/// messages, mutating threads, and reacting to websocket updates.
+/// الحدث الأساسي لمسارات الدردشة. الأحداث المشتقة تغطي تحميل التاريخ وإرسال
+/// الرسائل وتعديل السلاسل والتفاعل مع تحديثات websocket.
 abstract class ChatEvent extends Equatable {
-  /// يضمن أن جميع أحداث الشات غير قابلة للتغيير، لأن التحديثات
-  /// يجب أن تعتمد على بيانات الحدث فقط.
-  /// Keeps chat events immutable so updates depend only on the event
-  /// data.
+  /// Builds the shared base for every chat event variant.
+  /// ينشئ الأساس المشترك لكل أنواع أحداث الدردشة.
   const ChatEvent();
 
-  /// القاعدة لا تحمل حقولًا مشتركة، لذلك تعتمد المساواة على النوع.
-  /// The base type has no shared fields, so equality falls back to
-  /// the type.
+  /// Chat events are compared by payload so repeated dispatches remain
+  /// deterministic.
+  /// تُقارن أحداث الدردشة بحسب الحمولة حتى تبقى الإرسالات المتكررة حتمية.
   @override
   List<Object?> get props => [];
 }
 
-/// يبدأ ربط الشات بالمصادر والخدمات اللازمة قبل تحميل المحادثات.
-/// Starts chat wiring with the required services before loading any
-/// conversations.
+/// Requests an older slice of messages for the current conversation.
+/// يطلب جزءًا أقدم من الرسائل للمحادثة الحالية.
+class LoadMoreMessagesEvent extends ChatEvent {
+  /// Conversation whose history should be extended.
+  /// المحادثة التي يجب تمديد سجلها.
+  final String conversationId;
+
+  /// Number of messages requested in one batch.
+  /// عدد الرسائل المطلوبة في دفعة واحدة.
+  final int pageSize;
+
+  /// Optional anchor message used to align pagination.
+  /// رسالة مرساة اختيارية تستخدم لمواءمة الترقيم.
+  final String? targetMessageId;
+
+  /// Starts pagination for older chat messages.
+  /// ينشئ حدث الترقيم للرسائل الأقدم.
+  const LoadMoreMessagesEvent({
+    required this.conversationId,
+    this.pageSize = 50,
+    this.targetMessageId,
+  });
+
+  /// Pagination requests are compared by their destination and batch size.
+  /// تُقارن طلبات الترقيم بحسب وجهتها وحجم الدفعة.
+  @override
+  List<Object?> get props => [conversationId, pageSize, targetMessageId];
+}
+
+/// Initializes chat caches, settings, and any startup state the bloc needs.
+/// يهيئ كاش الدردشة والإعدادات وأي حالة بدء يحتاجها الـ bloc.
 class InitializeChatEvent extends ChatEvent {
-  /// لا يحمل حقولًا لأنه مجرد إشارة لبدء التهيئة.
-  /// No fields are needed because this is only a start-up signal.
+  /// Starts the boot-time chat initialization request.
+  /// ينشئ طلب تهيئة الدردشة عند الإقلاع.
   const InitializeChatEvent();
 }
 
-/// يطلب تحميل قائمة المحادثات مع دعم التصفح الصفحي.
-/// Requests the conversation list with pagination support.
+/// Loads the paginated conversation inbox.
+/// يحمل صندوق المحادثات الوارد المرقم.
 class LoadConversationsEvent extends ChatEvent {
-  /// يحدد الصفحة المطلوبة من قائمة المحادثات.
-  /// Identifies the conversation page to load.
+  /// Requested inbox page.
+  /// صفحة الصندوق المطلوبة.
   final int pageNumber;
 
-  /// يخزن العضو `pageSize`.
-  /// Holds the `pageSize` member.
+  /// Number of conversations per page.
+  /// عدد المحادثات في كل صفحة.
   final int pageSize;
 
-  /// يجمع معطيات الصفحات حتى يبقى تحميل المحادثات متوقعًا.
-  /// Bundles paging inputs so conversation loading stays predictable.
+  /// Starts loading the conversation inbox.
+  /// ينشئ طلب تحميل الصندوق الوارد.
   const LoadConversationsEvent({
     this.pageNumber = 1,
     this.pageSize = 20,
   });
 
-  /// تعتمد المساواة على رقم الصفحة وحجمها لأنهما يحددان الطلب نفسه.
-  /// Equality depends on page number and size because they identify
-  /// the same request.
+  /// Conversation loads are compared by page settings.
+  /// تُقارن عمليات تحميل المحادثات بإعدادات الصفحة.
   @override
   List<Object> get props => [pageNumber, pageSize];
 }
 
-/// يطلب رسائل محادثة محددة مع إمكانية التحميل قبل رسالة مرجعية.
-/// Requests messages for one conversation and can load around a
-/// reference message.
+/// Loads the visible message history for a conversation and can resume from a
+/// specific anchor message.
+/// يحمل سجل الرسائل الظاهر لمحادثة ويمكنه الاستئناف من رسالة مرساة محددة.
 class LoadMessagesEvent extends ChatEvent {
-  /// يحدد المحادثة المستهدفة.
-  /// Identifies the target conversation.
+  /// Conversation whose history should be loaded.
+  /// المحادثة التي يجب تحميل سجلها.
   final String conversationId;
 
-  /// يخزن العضو `pageNumber`.
-  /// Holds the `pageNumber` member.
+  /// Requested message page number.
+  /// رقم صفحة الرسائل المطلوب.
   final int pageNumber;
 
-  /// يخزن العضو `pageSize`.
-  /// Holds the `pageSize` member.
+  /// Number of messages per page.
+  /// عدد الرسائل في كل صفحة.
   final int pageSize;
 
-  /// يخزن العضو `beforeMessageId`.
-  /// Holds the `beforeMessageId` member.
+  /// Optional boundary message used when loading older messages.
+  /// رسالة حد اختيارية تستخدم عند تحميل الرسائل الأقدم.
   final String? beforeMessageId;
 
-  /// يجمع معرف المحادثة مع إعدادات الصفحة والسجل المرجعي للرسائل.
-  /// Combines the conversation id with paging settings and an
-  /// optional anchor message.
+  /// Starts loading a conversation's message history.
+  /// ينشئ طلب سجل الرسائل.
   const LoadMessagesEvent({
     required this.conversationId,
     this.pageNumber = 1,
@@ -82,89 +106,47 @@ class LoadMessagesEvent extends ChatEvent {
     this.beforeMessageId,
   });
 
-  /// يعتمد الحدث على المحادثة والصفحة والرسالة المرجعية إذا وُجدت.
-  /// The event depends on the conversation, paging, and anchor
-  /// message when present.
+  /// Message-history loads are compared by the conversation and pagination
+  /// anchor.
+  /// تُقارن عمليات تحميل سجل الرسائل بالمحادثة ومرساة الترقيم.
   @override
   List<Object?> get props =>
       [conversationId, pageNumber, pageSize, beforeMessageId];
 }
 
-/// يطلب المزيد من الرسائل القديمة داخل نفس المحادثة.
-/// Requests older messages within the same conversation.
-class LoadMoreMessagesEvent extends ChatEvent {
-  /// يحدد المحادثة التي سيتم توسيع سجلها.
-  /// Identifies the conversation whose history should be expanded.
-  final String conversationId;
-
-  /// يخزن العضو `targetMessageId`.
-  /// Holds the `targetMessageId` member.
-  final String? targetMessageId;
-
-  /// يخزن العضو `pageSize`.
-  /// Holds the `pageSize` member.
-  final int pageSize;
-
-  /// يحمل مرجعًا للمحادثة وعدد العناصر الإضافية المطلوبة.
-  /// Carries the conversation reference and the number of additional
-  /// items requested.
-  const LoadMoreMessagesEvent({
-    required this.conversationId,
-    this.targetMessageId,
-    this.pageSize = 50,
-  });
-
-  /// يعتمد على المحادثة والرسالة المستهدفة وحجم الصفحة.
-  /// Depends on the conversation, target anchor, and page size.
-  @override
-  List<Object?> get props => [conversationId, targetMessageId, pageSize];
-}
-
-/// يصف الرسالة المراد إرسالها مع كل البيانات المرتبطة بها قبل
-/// بدء النقل أو التحديث المتفائل.
-/// Describes the message to send together with the data needed before
-/// transport or optimistic updates begin.
+/// Sends a new message with the payload required by the backend.
+/// يرسل رسالة جديدة بالحِمل الذي يتطلبه الخادم.
 class SendMessageEvent extends ChatEvent {
-  /// يحدد المحادثة التي ستستقبل الرسالة.
-  /// Identifies the conversation that will receive the message.
+  /// Conversation receiving the outgoing message.
+  /// المحادثة المستقبلة للرسالة الصادرة.
   final String conversationId;
 
-  /// يخزن العضو `messageType`.
-  /// Holds the `messageType` member.
+  /// Backend-recognized message type such as text or media.
+  /// نوع الرسالة المعتمد من الخادم مثل النص أو الوسائط.
   final String messageType;
 
-  /// يخزن العضو `content`.
-  /// Holds the `content` member.
+  /// Optional text body.
+  /// نص اختياري.
   final String? content;
 
-  /// يخزن العضو `location`.
-  /// Holds the `location` member.
+  /// Optional location payload.
+  /// حمولة موقع اختيارية.
   final Location? location;
 
-  /// يخزن العضو `replyToMessageId`.
-  /// Holds the `replyToMessageId` member.
+  /// Message being replied to, if any.
+  /// الرسالة التي يُرد عليها إن وجدت.
   final String? replyToMessageId;
 
-  /// يخزن العضو `attachmentIds`.
-  /// Holds the `attachmentIds` member.
+  /// Already-uploaded attachments to link to this message.
+  /// المرفقات التي تم رفعها بالفعل لربطها بهذه الرسالة.
   final List<String>? attachmentIds;
 
-  /// يخزن العضو `currentUserId`.
-  /// Holds the `currentUserId` member.
+  /// Current user id used for optimistic UI updates.
+  /// معرّف المستخدم الحالي المستخدم للتحديثات المتفائلة.
   final String? currentUserId;
 
-  /// يخزن العضو `skipOptimistic`.
-  /// Holds the `skipOptimistic` member.
-  final bool skipOptimistic;
-
-  /// يخزن العضو `optimisticMessageId`.
-  /// Holds the `optimisticMessageId` member.
-  final String? optimisticMessageId;
-
-  /// يجمع نص الرسالة أو موقعها أو مرفقاتها في حدث واحد حتى يتولى
-  /// الـ BLoC إرسالها بالطريقة المناسبة.
-  /// Bundles the message body, location, or attachments into one
-  /// event so the BLoC can send it in the appropriate way.
+  /// Starts the send-message flow.
+  /// ينشئ طلب إرسال الرسالة.
   const SendMessageEvent({
     required this.conversationId,
     required this.messageType,
@@ -173,14 +155,10 @@ class SendMessageEvent extends ChatEvent {
     this.replyToMessageId,
     this.attachmentIds,
     this.currentUserId,
-    this.skipOptimistic = false,
-    this.optimisticMessageId,
   });
 
-  /// تعتمد المقارنة على جميع الحقول التي تغيّر شكل الرسالة أو
-  /// طريقة إرسالها.
-  /// Equality depends on every field that changes message shape or
-  /// send behavior.
+  /// Send events are compared by destination and content payload.
+  /// تُقارن أحداث الإرسال بحسب الوجهة والحمولة النصية.
   @override
   List<Object?> get props => [
         conversationId,
@@ -190,39 +168,37 @@ class SendMessageEvent extends ChatEvent {
         replyToMessageId,
         attachmentIds,
         currentUserId,
-        skipOptimistic,
-        optimisticMessageId,
       ];
 }
 
-/// يصف طلب إنشاء محادثة جديدة بمجموعة المشاركين ونوعها وعنوانها
-/// الاختياري.
-/// Describes a request to create a new conversation with its
-/// participants, type, and optional title.
+/// Starts a conversation thread and optionally attaches property context so
+/// staff or participants can continue the same booking discussion.
+/// ينشئ محادثة جديدة ويمكنه إرفاق سياق العقار حتى يستمر فريق العمل أو
+/// المشاركون في نفس نقاش الحجز.
+/// ينشئ محادثة جديدة لمجموعة مشاركين مع سياق عقار اختياري.
 class CreateConversationEvent extends ChatEvent {
-  /// قائمة المعرفات التي ستدخل في المحادثة الجديدة.
-  /// The participant ids that will join the new conversation.
+  /// Users that should join the thread.
+  /// المستخدمون الذين يجب أن ينضموا إلى السلسلة.
   final List<String> participantIds;
 
-  /// يخزن العضو `conversationType`.
-  /// Holds the `conversationType` member.
+  /// Type used by the backend to route the conversation correctly.
+  /// النوع الذي يستخدمه الخادم لتوجيه المحادثة بشكل صحيح.
   final String conversationType;
 
-  /// يخزن العضو `title`.
-  /// Holds the `title` member.
+  /// Optional display title.
+  /// عنوان عرض اختياري.
   final String? title;
 
-  /// يخزن العضو `description`.
-  /// Holds the `description` member.
+  /// Optional description or context note.
+  /// وصف أو ملاحظة سياقية اختيارية.
   final String? description;
 
-  /// يخزن العضو `propertyId`.
-  /// Holds the `propertyId` member.
+  /// Property context attached to the thread when relevant.
+  /// سياق العقار المرفق بالمحادثة عند الحاجة.
   final String? propertyId;
 
-  /// يجمّع الأطراف ونوع المحادثة والبيانات المساعدة في طلب واحد.
-  /// Combines participants, conversation type, and helper metadata
-  /// into one request.
+  /// Starts the conversation-creation flow.
+  /// ينشئ طلب إنشاء المحادثة.
   const CreateConversationEvent({
     required this.participantIds,
     required this.conversationType,
@@ -231,10 +207,8 @@ class CreateConversationEvent extends ChatEvent {
     this.propertyId,
   });
 
-  /// تعتمد المساواة على جميع البيانات التي تغيّر هوية المحادثة
-  /// الجديدة.
-  /// Equality depends on everything that changes the identity of the
-  /// new conversation.
+  /// Creation requests are compared by participants and seed metadata.
+  /// تُقارن طلبات الإنشاء بالمشاركين وبيانات التهيئة.
   @override
   List<Object?> get props => [
         participantIds,
@@ -245,391 +219,293 @@ class CreateConversationEvent extends ChatEvent {
       ];
 }
 
-/// يطلب حذف محادثة معينة من الخادم ومن الحالة المحلية.
-/// Requests deletion of a specific conversation from both server and
-/// local state.
+/// Removes a conversation from the active chat list.
+/// يزيل محادثة من قائمة الدردشة النشطة.
 class DeleteConversationEvent extends ChatEvent {
-  /// يحدد المحادثة المطلوب حذفها.
-  /// Identifies the conversation to delete.
+  /// Conversation that should be deleted.
+  /// المحادثة التي يجب حذفها.
   final String conversationId;
 
-  /// لا يحمل سوى معرف المحادثة لأن الحذف يحتاج هذا المفتاح فقط.
-  /// Carries only the conversation id because deletion needs that
-  /// key alone.
+  /// Starts deletion for one conversation.
+  /// ينشئ طلب حذف لمحادثة واحدة.
   const DeleteConversationEvent({required this.conversationId});
 
-  /// يعتمد الحدث على معرف المحادثة فقط.
-  /// The event depends only on the conversation id.
+  /// Delete requests are compared by conversation id.
+  /// تُقارن طلبات الحذف بمعرّف المحادثة.
   @override
   List<Object> get props => [conversationId];
 }
 
-/// يعرّف الكلاس `ArchiveConversationEvent`.
-/// Describes the `ArchiveConversationEvent` class.
+/// Moves a conversation out of the inbox without deleting its history.
+/// ينقل محادثة خارج الصندوق الوارد دون حذف تاريخها.
 class ArchiveConversationEvent extends ChatEvent {
-  /// Holds the `conversationId` value.
-  /// العربية: يخزن القيمة `conversationId`.
+  /// Conversation that should be archived.
+  /// المحادثة التي يجب أرشفتها.
   final String conversationId;
 
-  /// ينشئ مثيلاً من `ArchiveConversationEvent`.
-  /// Builds an instance of `ArchiveConversationEvent`.
+  /// Starts archiving one conversation.
+  /// ينشئ طلب الأرشفة.
   const ArchiveConversationEvent({required this.conversationId});
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// Archive requests are compared by conversation id.
+  /// تُقارن طلبات الأرشفة بمعرّف المحادثة.
   @override
   List<Object> get props => [conversationId];
 }
 
-/// يطلب إعادة محادثة مؤرشفة إلى الوضع النشط.
-/// Requests that an archived conversation be restored to active
-/// status.
+/// Restores a previously archived conversation back into the inbox.
+/// يعيد محادثة مؤرشفة سابقًا إلى الصندوق الوارد.
 class UnarchiveConversationEvent extends ChatEvent {
-  /// يحدد المحادثة المطلوب إلغاء أرشفتها.
-  /// Identifies the conversation to unarchive.
+  /// Conversation that should be restored.
+  /// المحادثة التي يجب استعادتها.
   final String conversationId;
 
-  /// يحمل المعرف فقط لأن الإلغاء يعتمد على المحادثة المستهدفة.
-  /// Carries only the id because unarchiving acts on the target
-  /// conversation.
+  /// Starts restoring one archived conversation.
+  /// ينشئ طلب إلغاء الأرشفة.
   const UnarchiveConversationEvent({required this.conversationId});
 
-  /// يعتمد هذا الحدث على معرف المحادثة فقط.
-  /// This event depends only on the conversation id.
+  /// Unarchive requests are compared by conversation id.
+  /// تُقارن طلبات إلغاء الأرشفة بمعرّف المحادثة.
   @override
   List<Object> get props => [conversationId];
 }
 
-/// يطلب حذف رسالة واحدة من المحادثة.
-/// Requests deletion of one message from the conversation.
+/// Removes a single message from the visible timeline.
+/// يزيل رسالة واحدة من الخط الزمني المرئي.
 class DeleteMessageEvent extends ChatEvent {
-  /// يحدد الرسالة المطلوب حذفها.
-  /// Identifies the message to delete.
+  /// Message that should be deleted.
+  /// الرسالة التي يجب حذفها.
   final String messageId;
 
-  /// يحمل معرّف الرسالة فقط لأن الحذف يعتمد عليه وحده.
-  /// Carries only the message id because deletion depends on that
-  /// single key.
+  /// Starts deletion for one message.
+  /// ينشئ طلب حذف الرسالة.
   const DeleteMessageEvent({required this.messageId});
 
-  /// تعتمد المساواة على معرف الرسالة فقط.
-  /// Equality depends only on the message id.
+  /// Delete requests are compared by message id.
+  /// تُقارن طلبات الحذف بمعرّف الرسالة.
   @override
   List<Object> get props => [messageId];
 }
 
-/// يطلب تعديل نص رسالة موجودة دون تغيير هويتها.
-/// Requests that an existing message be edited without changing its
-/// identity.
+/// Updates the text content of an existing message.
+/// يحدّث المحتوى النصي لرسالة موجودة.
 class EditMessageEvent extends ChatEvent {
-  /// يحدد الرسالة المراد تعديلها.
-  /// Identifies the message to edit.
+  /// Message that should be edited.
+  /// الرسالة التي يجب تعديلها.
   final String messageId;
 
-  /// المحتوى الجديد الذي سيستبدل النص الحالي.
-  /// The new content that will replace the existing text.
+  /// Replacement text body.
+  /// نص بديل للرسالة.
   final String content;
 
-  /// يجمع المعرّف والمحتوى الجديد حتى يعالج الـ BLoC التعديل كعملية
-  /// واحدة.
-  /// Bundles the id and new content so the BLoC treats editing as one
-  /// operation.
+  /// Starts editing an existing message.
+  /// ينشئ طلب تعديل الرسالة.
   const EditMessageEvent({
     required this.messageId,
     required this.content,
   });
 
-  /// تعتمد المساواة على الرسالة والمحتوى الجديد.
-  /// Equality depends on the message id and the replacement content.
+  /// Edit requests are compared by message id and replacement content.
+  /// تُقارن طلبات التعديل بمعرّف الرسالة والمحتوى البديل.
   @override
   List<Object> get props => [messageId, content];
 }
 
-/// يضيف تفاعلًا إلى رسالة داخل المحادثة.
-/// Adds a reaction to a message in the conversation.
+/// Adds a reaction to one message and optionally mirrors the change in the
+/// local UI.
+/// يضيف تفاعلًا إلى رسالة واحدة ويمكنه عكس التغيير محليًا في الواجهة.
 class AddReactionEvent extends ChatEvent {
-  /// يحدد الرسالة المستهدفة.
-  /// Identifies the target message.
+  /// Message that receives the reaction.
+  /// الرسالة التي تستقبل التفاعل.
   final String messageId;
 
-  /// يخزن العضو `reactionType`.
-  /// Holds the `reactionType` member.
+  /// Reaction code or emoji identifier.
+  /// رمز التفاعل أو معرّف الإيموجي.
   final String reactionType;
 
-  /// معرف المستخدم الحالي يساعد على مطابقة التفاعل المتفائل مع
-  /// المرسل الحقيقي.
-  /// The current user id helps match optimistic reactions with the
-  /// actual sender.
+  /// Current user id used for optimistic rendering.
+  /// معرّف المستخدم الحالي المستخدم للعرض المتفائل.
   final String? currentUserId;
 
-  /// يحمل الرسالة ونوع التفاعل ومعرف المستخدم عند توفره.
-  /// Carries the message id, reaction type, and user id when
-  /// available.
+  /// Starts adding a reaction to a message.
+  /// ينشئ طلب إضافة التفاعل.
   const AddReactionEvent({
     required this.messageId,
     required this.reactionType,
     this.currentUserId,
   });
 
-  /// تعتمد المقارنة على الرسالة والتفاعل والمستخدم الحالي.
-  /// Equality depends on the message, reaction type, and current
-  /// user.
+  /// Reaction requests are compared by message, reaction type, and user.
+  /// تُقارن طلبات التفاعل بالرسالة ونوع التفاعل والمستخدم.
   @override
   List<Object?> get props => [messageId, reactionType, currentUserId];
 }
 
-/// يزيل تفاعلًا سابقًا من رسالة.
-/// Removes a previously added reaction from a message.
+/// Removes a reaction from one message.
+/// يزيل تفاعلًا من رسالة واحدة.
 class RemoveReactionEvent extends ChatEvent {
-  /// يحدد الرسالة المستهدفة.
-  /// Identifies the target message.
+  /// Message whose reaction should be removed.
+  /// الرسالة التي يجب إزالة تفاعلها.
   final String messageId;
 
-  /// يخزن العضو `reactionType`.
-  /// Holds the `reactionType` member.
+  /// Reaction code or emoji identifier.
+  /// رمز التفاعل أو معرّف الإيموجي.
   final String reactionType;
 
-  /// معرف المستخدم الحالي يساعد على عكس الإزالة المتفائلة بشكل
-  /// صحيح.
-  /// The current user id helps reverse the optimistic removal
-  /// correctly.
+  /// Current user id used when the UI mirrors the change immediately.
+  /// معرّف المستخدم الحالي المستخدم عند عكس التغيير فورًا في الواجهة.
   final String? currentUserId;
 
-  /// يجمع الرسالة ونوع التفاعل والمستخدم لتصبح عملية الإزالة واضحة.
-  /// Bundles the message, reaction type, and user so removal is
-  /// unambiguous.
+  /// Starts removing a reaction from a message.
+  /// ينشئ طلب إزالة التفاعل.
   const RemoveReactionEvent({
     required this.messageId,
     required this.reactionType,
     this.currentUserId,
   });
 
-  /// تعتمد المقارنة على الرسالة والتفاعل والمستخدم الحالي.
-  /// Equality depends on the message, reaction type, and current
-  /// user.
+  /// Removal requests are compared by message, reaction type, and user.
+  /// تُقارن طلبات الإزالة بالرسالة ونوع التفاعل والمستخدم.
   @override
-  List<Object?> get props => [messageId, reactionType, currentUserId];
+  List<Object> get props => [messageId, reactionType];
 }
 
-/// يعلّم مجموعة رسائل كمقروءة داخل محادثة محددة.
-/// Marks a group of messages as read within one conversation.
+/// Marks a set of messages as read so counters and delivery markers can be
+/// cleared.
+/// يعلّم مجموعة رسائل كمقروءة حتى يمكن تصفير العدادات ومؤشرات التسليم.
 class MarkMessagesAsReadEvent extends ChatEvent {
-  /// يحدد المحادثة التي ستتغير حالتها.
-  /// Identifies the conversation whose state will change.
+  /// Conversation whose messages were read.
+  /// المحادثة التي قُرئت رسائلها.
   final String conversationId;
 
-  /// يخزن العضو `messageIds`.
-  /// Holds the `messageIds` member.
+  /// Messages that should be marked as read.
+  /// الرسائل التي يجب تعليمها كمقروءة.
   final List<String> messageIds;
 
-  /// يحمل المحادثة مع قائمة الرسائل التي يجب اعتمادها كمقروءة.
-  /// Carries the conversation and the message ids that should be
-  /// acknowledged as read.
+  /// Starts marking messages as read.
+  /// ينشئ طلب التعليم كمقروء.
   const MarkMessagesAsReadEvent({
     required this.conversationId,
     required this.messageIds,
   });
 
-  /// تعتمد المساواة على المحادثة والرسائل نفسها.
-  /// Equality depends on the conversation and the message ids.
+  /// Mark-as-read requests are compared by conversation and message batch.
+  /// تُقارن طلبات التعليم بالمحادثة ودفعة الرسائل.
   @override
   List<Object> get props => [conversationId, messageIds];
 }
 
-/// يصف طلب رفع مرفق واحد ثم ربطه بالمحادثة المستهدفة.
-/// Describes uploading one attachment and linking it to the target
-/// conversation.
+/// Uploads a file attachment before the message is sent.
+/// يرفع مرفقًا ملفيًا قبل إرسال الرسالة.
 class UploadAttachmentEvent extends ChatEvent {
-  /// يحدد المحادثة التي ستستقبل المرفق.
-  /// Identifies the conversation that will receive the attachment.
+  /// Conversation that will receive the attachment.
+  /// المحادثة التي ستستقبل المرفق.
   final String conversationId;
 
-  /// يخزن العضو `filePath`.
-  /// Holds the `filePath` member.
+  /// Local path of the file selected by the user.
+  /// المسار المحلي للملف الذي اختاره المستخدم.
   final String filePath;
 
-  /// يخزن العضو `messageType`.
-  /// Holds the `messageType` member.
+  /// Message type that will own the uploaded attachment.
+  /// نوع الرسالة التي ستمتلك المرفق المرفوع.
   final String messageType;
 
-  /// يُستدعى هذا المعالج لتحديث نسبة التقدم أثناء الرفع.
-  /// This callback reports upload progress to the UI.
+  /// Optional progress callback used by the UI to mirror upload progress.
+  /// دالة تقدم اختيارية تستخدمها الواجهة لمزامنة تقدم الرفع.
   final Function(int, int)? onProgress;
 
-  /// يخزن العضو `replyToMessageId`.
-  /// Holds the `replyToMessageId` member.
-  final String? replyToMessageId;
-
-  /// يخزن العضو `optimisticMessageId`.
-  /// Holds the `optimisticMessageId` member.
-  final String? optimisticMessageId;
-
-  /// يجمع ملفًا واحدًا مع نوع الرسالة وخيارات الربط المساندة.
-  /// Bundles one file with the message type and supporting link
-  /// options.
+  /// Starts uploading a single attachment.
+  /// ينشئ طلب رفع لمرفق واحد.
   const UploadAttachmentEvent({
     required this.conversationId,
     required this.filePath,
     required this.messageType,
     this.onProgress,
-    this.replyToMessageId,
-    this.optimisticMessageId,
   });
 
-  /// تعتمد المساواة على المحادثة والمسار ونوع الرسالة.
-  /// Equality depends on the conversation, file path, and message
+  /// Upload requests are compared by conversation, file path, and message
   /// type.
+  /// تُقارن طلبات الرفع بالمحادثة ومسار الملف ونوع الرسالة.
+  @override
+  List<Object?> get props => [conversationId, filePath, messageType];
+}
+
+/// Sends a recorded audio file as a chat message.
+/// يرسل ملفًا صوتيًا مسجلاً كرسالة دردشة.
+class SendAudioMessageEvent extends ChatEvent {
+  /// Conversation receiving the audio message.
+  /// المحادثة المستقبلة للرسالة الصوتية.
+  final String conversationId;
+
+  /// Local path to the recorded audio file.
+  /// المسار المحلي لملف الصوت المسجل.
+  final String filePath;
+
+  /// Optional reply target for threaded audio responses.
+  /// هدف رد اختياري للردود الصوتية المتسلسلة.
+  final String? replyToMessageId;
+
+  /// Captured audio duration in seconds when known by the recorder UI.
+  /// مدة التسجيل الصوتي بالثواني عندما تكون معروفة من واجهة التسجيل.
+  final int? durationSeconds;
+
+  /// Starts the audio-message send flow.
+  /// ينشئ طلب إرسال الرسالة الصوتية.
+  const SendAudioMessageEvent({
+    required this.conversationId,
+    required this.filePath,
+    this.replyToMessageId,
+    this.durationSeconds,
+  });
+
+  /// Audio sends are compared by conversation, file path, and reply target.
+  /// تُقارن عمليات الإرسال الصوتي بالمحادثة ومسار الملف وهدف الرد.
   @override
   List<Object?> get props => [
         conversationId,
         filePath,
-        messageType,
         replyToMessageId,
-        optimisticMessageId
+        durationSeconds,
       ];
 }
 
-// Legacy SendImagesEvent and UpdateImageUploadProgressEvent removed. UI now
-// uploads attachments sequentially and shows local progress overlay.
-
-// Begin: In-bubble image upload events
-/// يهيئ رفع صور داخل المحادثة دفعة واحدة قبل بدء الإرسال الفعلي.
-/// Prepares a batch of in-chat image uploads before the actual send
-/// starts.
-class StartImageUploadsEvent extends ChatEvent {
-  /// يحدد المحادثة التي ستعرض الصور أثناء الرفع.
-  /// Identifies the conversation that will show the uploads.
-  final String conversationId;
-
-  /// قائمة عمليات الرفع التي ستدار داخل طبقة الشات.
-  /// The upload tasks that will be handled by the chat layer.
-  final List<ImageUploadInfo> uploads;
-
-  /// يجمع جميع عمليات الرفع في بداية واحدة حتى يمكن تتبعها
-  /// بشكل متماسك.
-  /// Bundles all uploads into one starting point so they can be
-  /// tracked coherently.
-  const StartImageUploadsEvent({
-    required this.conversationId,
-    required this.uploads,
-  });
-
-  /// تعتمد المساواة على المحادثة والعمليات المرفقة.
-  /// Equality depends on the conversation and the attached uploads.
-  @override
-  List<Object?> get props => [conversationId, uploads];
-}
-
-/// يحدّث حالة رفع صورة واحدة داخل العملية المتعددة.
-/// Updates the progress of one image inside a multi-upload flow.
-class UpdateImageUploadProgressEvent extends ChatEvent {
-  /// يحدد المحادثة التي تخص عملية الرفع.
-  /// Identifies the conversation for the upload flow.
-  final String conversationId;
-
-  /// يميز عملية الرفع المحددة داخل الدفعة.
-  /// Distinguishes the specific upload within the batch.
-  final String uploadId;
-
-  /// النسبة المنطقية للتقدم بين `0.0` و`1.0`.
-  /// Normalized progress between `0.0` and `1.0`.
-  final double? progress;
-  /// يشير إلى اكتمال الرفع أم لا.
-  /// Indicates whether the upload finished successfully.
-  final bool? isCompleted;
-
-  /// يوضح ما إذا كانت العملية انتهت بخطأ.
-  /// Indicates whether the upload failed.
-  final bool? isFailed;
-
-  /// يحمل الرسالة التي تشرح سبب الفشل عندما تتوقف العملية.
-  /// Carries the failure explanation when the upload stops.
-  final String? error;
-
-  /// يجمع مؤشرات الرفع في حدث واحد حتى ينعكس التقدم في الواجهة
-  /// بدقة.
-  /// Bundles upload markers into one event so progress is reflected in
-  /// the UI precisely.
-  const UpdateImageUploadProgressEvent({
-    required this.conversationId,
-    required this.uploadId,
-    this.progress,
-    this.isCompleted,
-    this.isFailed,
-    this.error,
-  });
-
-  /// تعتمد المساواة على كل ما يغير هوية عملية الرفع نفسها.
-  /// Equality depends on everything that changes the upload identity.
-  @override
-  List<Object?> get props => [
-        conversationId,
-        uploadId,
-        progress,
-        isCompleted,
-        isFailed,
-        error,
-      ];
-}
-
-/// يعلن انتهاء دفعة رفع الصور داخل المحادثة.
-/// Marks the end of the image-upload batch for the conversation.
-class FinishImageUploadsEvent extends ChatEvent {
-  /// يحدد المحادثة التي انتهت دفعة الرفع الخاصة بها.
-  /// Identifies the conversation whose upload batch finished.
-  final String conversationId;
-
-  /// يرسل إشارة نهائية حتى تنظف الواجهة حالة الرفع المؤقتة.
-  /// Sends a final signal so the UI can clear temporary upload state.
-  const FinishImageUploadsEvent({required this.conversationId});
-
-  /// يعتمد على المحادثة فقط لأن الحدث يخص دفعة محددة.
-  /// Depends only on the conversation because the event belongs to one
-  /// batch.
-  @override
-  List<Object?> get props => [conversationId];
-}
-// End: In-bubble image upload events
-
-/// يطلب البحث داخل المحادثات أو الرسائل مع مرشحات إضافية.
-/// Requests search across conversations or messages with optional
-/// filters.
+/// Searches message history using text and optional metadata filters.
+/// يبحث في سجل الرسائل باستخدام النص وفلاتر البيانات الوصفية الاختيارية.
 class SearchChatsEvent extends ChatEvent {
-  /// نص البحث الأساسي الذي يحدد النتائج.
-  /// The primary search query that drives the results.
+  /// Free-text search query.
+  /// نص الاستعلام الحر.
   final String query;
 
-  /// يخزن العضو `conversationId`.
-  /// Holds the `conversationId` member.
+  /// Optional conversation scope.
+  /// نطاق محادثة اختياري.
   final String? conversationId;
 
-  /// يخزن العضو `messageType`.
-  /// Holds the `messageType` member.
+  /// Optional message type filter.
+  /// فلتر نوع الرسالة الاختياري.
   final String? messageType;
 
-  /// يخزن العضو `senderId`.
-  /// Holds the `senderId` member.
+  /// Optional sender filter.
+  /// فلتر المرسل الاختياري.
   final String? senderId;
 
-  /// يخزن العضو `dateFrom`.
-  /// Holds the `dateFrom` member.
+  /// Lower bound for date-based filtering.
+  /// الحد الأدنى للتصفية بحسب التاريخ.
   final DateTime? dateFrom;
 
-  /// يخزن العضو `dateTo`.
-  /// Holds the `dateTo` member.
+  /// Upper bound for date-based filtering.
+  /// الحد الأعلى للتصفية بحسب التاريخ.
   final DateTime? dateTo;
 
-  /// يخزن العضو `page`.
-  /// Holds the `page` member.
+  /// Page number for search pagination.
+  /// رقم الصفحة لترقيم البحث.
   final int page;
 
-  /// يخزن العضو `limit`.
-  /// Holds the `limit` member.
+  /// Number of results to request per page.
+  /// عدد النتائج المطلوب في كل صفحة.
   final int limit;
 
-  /// يجمع نص البحث مع مرشحات السياق حتى تبقى النتائج دقيقة.
-  /// Combines the query with contextual filters so results stay
-  /// relevant.
+  /// Starts the chat-search flow.
+  /// ينشئ طلب البحث في الدردشة.
   const SearchChatsEvent({
     required this.query,
     this.conversationId,
@@ -641,8 +517,8 @@ class SearchChatsEvent extends ChatEvent {
     this.limit = 20,
   });
 
-  /// تعتمد المساواة على نص البحث وكل المرشحات المرتبطة به.
-  /// Equality depends on the query and all attached filters.
+  /// Search requests are compared by text and filter payload.
+  /// تُقارن طلبات البحث بالنص وحمولة الفلاتر.
   @override
   List<Object?> get props => [
         query,
@@ -656,108 +532,100 @@ class SearchChatsEvent extends ChatEvent {
       ];
 }
 
-/// يطلب المستخدمين المتاحين للاختيار في المحادثة الجديدة أو
-/// الإعدادات المرتبطة بها.
-/// Requests available users for selection in a new chat or related
-/// settings flow.
+/// Loads users that can be attached to a new or existing conversation.
+/// يحمل المستخدمين الذين يمكن إضافتهم إلى محادثة جديدة أو قائمة.
 class LoadAvailableUsersEvent extends ChatEvent {
-  /// يقيّد النتائج بنوع مستخدم معين عندما يلزم.
-  /// Restricts the results to a specific user type when needed.
+  /// Optional filter used to narrow the user list.
+  /// فلتر اختياري لتضييق قائمة المستخدمين.
   final String? userType;
 
-  /// يخزن العضو `propertyId`.
-  /// Holds the `propertyId` member.
+  /// Optional property context for property-linked threads.
+  /// سياق عقار اختياري للمحادثات المرتبطة بالعقارات.
   final String? propertyId;
 
-  /// يربط فلتر النوع بالعقار الحالي عند الحاجة.
-  /// Associates the type filter with the current property when
-  /// required.
+  /// Starts loading available users.
+  /// ينشئ طلب المستخدمين المتاحين.
   const LoadAvailableUsersEvent({
     this.userType,
     this.propertyId,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// User loading requests are compared by their filters.
+  /// تُقارن طلبات تحميل المستخدمين بحسب فلاترها.
   @override
   List<Object?> get props => [userType, propertyId];
 }
 
-  /// يطلب قائمة المستخدمين الإداريين لتعبئتها في شاشات الإدارة.
-  /// Requests the list of admin users for admin-facing screens.
+/// Loads admin-capable users for staff-focused conversation flows.
+/// يحمل المستخدمين ذوي الصلاحيات الإدارية لمسارات المحادثات الموجهة للطاقم.
 class LoadAdminUsersEvent extends ChatEvent {
-  /// لا يحمل حقولًا لأن الهدف هو جلب القائمة فقط.
-  /// No fields are needed because the event only loads a list.
+  /// Starts loading admin users.
+  /// ينشئ طلب المستخدمين الإداريين.
   const LoadAdminUsersEvent();
 }
 
-/// يغيّر حالة المستخدم الحالية مثل التفعيل أو التوقيف.
-/// Changes the current user status such as activation or suspension.
+/// Updates the current user's presence or availability status.
+/// يحدّث حالة الحضور أو التوفر للمستخدم الحالي.
 class UpdateUserStatusEvent extends ChatEvent {
-  /// الحالة الجديدة التي ستُطبق على المستخدم.
-  /// The new status to apply to the user.
+  /// New presence status to persist.
+  /// حالة الحضور الجديدة المطلوب حفظها.
   final String status;
 
-  /// يحمل قيمة الحالة فقط لأن التغيير يعتمد عليها وحدها.
-  /// Carries only the status value because the change depends on it
-  /// alone.
+  /// Starts updating the user's chat status.
+  /// ينشئ طلب تحديث الحالة.
   const UpdateUserStatusEvent({required this.status});
 
-  /// تعتمد المساواة على الحالة المستهدفة فقط.
-  /// Equality depends only on the target status.
+  /// Status updates are compared by the target status string.
+  /// تُقارن تحديثات الحالة بنص الحالة المستهدف.
   @override
   List<Object> get props => [status];
 }
 
-/// يطلب إعدادات الشات الحالية حتى تبني الواجهة القيم الافتراضية
-/// الصحيحة.
-/// Requests the current chat settings so the UI can build the right
-/// defaults.
+/// Loads the persisted chat settings for the current user.
+/// يحمل إعدادات الدردشة المخزنة للمستخدم الحالي.
 class LoadChatSettingsEvent extends ChatEvent {
-  /// هذا الحدث مجرد إشارة لجلب الإعدادات.
-  /// This event is only a signal to load the settings.
+  /// Starts loading chat settings.
+  /// ينشئ طلب تحميل الإعدادات.
   const LoadChatSettingsEvent();
 }
 
-/// يحمل التعديلات الجزئية على إعدادات الشات لتحديثها دفعة واحدة.
-/// Carries partial chat-settings changes so they can be updated in a
-/// single pass.
+/// Updates one or more chat preferences without resending unrelated values.
+/// يحدّث تفضيلات الدردشة دون إعادة إرسال القيم غير المرتبطة.
 class UpdateChatSettingsEvent extends ChatEvent {
-  /// يحدد ما إذا كانت الإشعارات مفعلة أم لا.
-  /// Indicates whether notifications are enabled.
+  /// Optional toggle for push notifications.
+  /// مفتاح اختياري لتفعيل الإشعارات.
   final bool? notificationsEnabled;
 
-  /// يخزن العضو `soundEnabled`.
-  /// Holds the `soundEnabled` member.
+  /// Optional toggle for notification sounds.
+  /// مفتاح اختياري لأصوات الإشعارات.
   final bool? soundEnabled;
 
-  /// يخزن العضو `showReadReceipts`.
-  /// Holds the `showReadReceipts` member.
+  /// Optional toggle for read receipts.
+  /// مفتاح اختياري لإيصالات القراءة.
   final bool? showReadReceipts;
 
-  /// يخزن العضو `showTypingIndicator`.
-  /// Holds the `showTypingIndicator` member.
+  /// Optional toggle for typing indicators.
+  /// مفتاح اختياري لمؤشرات الكتابة.
   final bool? showTypingIndicator;
 
-  /// يخزن العضو `theme`.
-  /// Holds the `theme` member.
+  /// Optional chat theme name.
+  /// اسم سمة الدردشة الاختياري.
   final String? theme;
 
-  /// يخزن العضو `fontSize`.
-  /// Holds the `fontSize` member.
+  /// Optional font size setting.
+  /// إعداد حجم الخط الاختياري.
   final String? fontSize;
 
-  /// يخزن العضو `autoDownloadMedia`.
-  /// Holds the `autoDownloadMedia` member.
+  /// Optional toggle for auto-downloading media.
+  /// مفتاح اختياري للتنزيل التلقائي للوسائط.
   final bool? autoDownloadMedia;
 
-  /// يخزن العضو `backupMessages`.
-  /// Holds the `backupMessages` member.
+  /// Optional toggle for message backup.
+  /// مفتاح اختياري لنسخ الرسائل احتياطيًا.
   final bool? backupMessages;
 
-  /// يجمع القيم المعدلة فقط حتى يبقى التحديث جزئيًا وآمنًا.
-  /// Bundles only the changed values so the update stays partial and
-  /// safe.
+  /// Starts a partial update of chat settings.
+  /// ينشئ طلب التحديث الجزئي لإعدادات الدردشة.
   const UpdateChatSettingsEvent({
     this.notificationsEnabled,
     this.soundEnabled,
@@ -769,8 +637,9 @@ class UpdateChatSettingsEvent extends ChatEvent {
     this.backupMessages,
   });
 
-  /// تعتمد المقارنة على كل إعداد قابل للتعديل.
-  /// Equality depends on every editable setting.
+  /// Settings updates are compared by the fields that were explicitly
+  /// requested.
+  /// تُقارن تحديثات الإعدادات بالحقول التي طُلب تغييرها صراحةً.
   @override
   List<Object?> get props => [
         notificationsEnabled,
@@ -784,242 +653,275 @@ class UpdateChatSettingsEvent extends ChatEvent {
       ];
 }
 
-/// يرسل مؤشر الكتابة للحظة الحالية داخل المحادثة.
-/// Sends the typing indicator for the current conversation moment.
+/// Broadcasts the local user's typing state to the conversation.
+/// يرسل حالة الكتابة للمستخدم المحلي إلى المحادثة.
 class SendTypingIndicatorEvent extends ChatEvent {
-  /// يحدد المحادثة التي يظهر فيها المؤشر.
-  /// Identifies the conversation that shows the indicator.
+  /// Conversation that should receive the indicator.
+  /// المحادثة التي يجب أن تستقبل المؤشر.
   final String conversationId;
 
-  /// يخزن العضو `isTyping`.
-  /// Holds the `isTyping` member.
+  /// True while the user is actively typing.
+  /// تكون صحيحة أثناء كتابة المستخدم فعليًا.
   final bool isTyping;
 
-  /// يجمع المحادثة وحالة الكتابة في حدث واحد.
-  /// Combines the conversation and typing flag into one event.
+  /// Starts broadcasting a typing indicator.
+  /// ينشئ طلب مؤشر الكتابة.
   const SendTypingIndicatorEvent({
     required this.conversationId,
     required this.isTyping,
   });
 
-  /// يعتمد على المحادثة وحالة الكتابة.
-  /// Depends on the conversation and typing state.
+  /// Typing updates are compared by target conversation and typing flag.
+  /// تُقارن تحديثات الكتابة بالمحادثة المستهدفة وعلم الكتابة.
   @override
   List<Object> get props => [conversationId, isTyping];
 }
 
-/// ينقل رسالة وصلت من WebSocket إلى طبقة الحالة حتى تظهر فورًا
-/// في الشاشة.
-/// Moves a message received from WebSocket into the state layer so it
-/// appears immediately on screen.
+/// Bridges a raw websocket message into the chat bloc so the stream can update
+/// the active conversation without waiting for a full reload.
+/// يمرر رسالة websocket خامة إلى الـ bloc كي يحدّث المحادثة النشطة مباشرة
+/// دون انتظار إعادة تحميل كاملة.
 class WebSocketMessageReceivedEvent extends ChatEvent {
-  /// يضم حدث الرسالة الخام القادم من البث اللحظي.
-  /// Holds the raw message event coming from the realtime stream.
+  /// Raw websocket message payload.
+  /// حمولة رسالة websocket الخام.
   final MessageEvent messageEvent;
 
-  /// يمرر حدث الرسالة كما ورد من الخادم من دون تعديل إضافي.
-  /// Passes through the message event as delivered by the server.
+  /// Wraps the server payload so the bloc can merge it with local state and
+  /// refresh unread counters or message ordering.
+  /// يغلف حمولة الخادم كي يدمجها الـ bloc مع الحالة المحلية ويحدّث العدادات
+  /// غير المقروءة أو ترتيب الرسائل.
   const WebSocketMessageReceivedEvent(this.messageEvent);
 
-  /// يعتمد هذا الحدث على الرسالة الخام نفسها.
-  /// This event depends on the raw message payload itself.
+  /// Websocket payloads are compared by the raw message event.
+  /// تُقارن حمولات websocket برسالة الحدث الخام.
   @override
   List<Object> get props => [messageEvent];
 }
 
-/// يحدّث لقطة المحادثة عندما يرسل WebSocket تغييرًا على مستوى
-/// المحادثة نفسها.
-/// Updates the conversation snapshot when WebSocket emits a
-/// conversation-level change.
+/// Applies a websocket conversation snapshot when another device or participant
+/// changes the thread metadata.
+/// يطبّق لقطة محادثة واردة من websocket عندما يغيّر جهاز آخر أو مشارك
+/// بيانات السلسلة.
 class WebSocketConversationUpdatedEvent extends ChatEvent {
-  /// المحادثة المحدثة كما وصلت من البث اللحظي.
-  /// The updated conversation as received from the realtime stream.
+  /// Updated conversation payload.
+  /// حمولة المحادثة المحدّثة.
   final Conversation conversation;
 
-  /// يمرر المحادثة الجديدة إلى الحالة دون إعادة صياغتها.
-  /// Passes the new conversation into state without reshaping it.
+  /// Passes the refreshed conversation snapshot through the same event stream
+  /// used by manual refresh actions.
+  /// يمرر لقطة المحادثة المحدّثة عبر مسار الأحداث نفسه المستخدم عند
+  /// التحديث اليدوي.
   const WebSocketConversationUpdatedEvent(this.conversation);
 
-  /// تعتمد المساواة على المحادثة نفسها.
-  /// Equality depends on the conversation itself.
+  /// Conversation updates are compared by the received snapshot.
+  /// تُقارن تحديثات المحادثة باللقطة المستلمة.
   @override
   List<Object> get props => [conversation];
 }
 
-/// يحمل مؤشرات الكتابة الواردة لكل محادثة.
-/// Carries incoming typing indicators for a conversation.
+/// Synchronizes the typing-indicator map with websocket notifications so the
+/// UI can show who is currently composing a reply.
+/// يزامن خريطة مؤشر الكتابة مع إشعارات websocket كي تعرض الواجهة من
+/// يكتب الرد حاليًا.
 class WebSocketTypingIndicatorEvent extends ChatEvent {
-  /// يحدد المحادثة التي تخص مؤشرات الكتابة.
-  /// Identifies the conversation for the typing indicator.
+  /// Conversation whose typing state changed.
+  /// المحادثة التي تغيّرت حالة الكتابة فيها.
   final String conversationId;
 
-  /// يخزن العضو `typingUserIds`.
-  /// Holds the `typingUserIds` member.
+  /// Users currently typing in that conversation.
+  /// المستخدمون الذين يكتبون حاليًا في تلك المحادثة.
   final List<String> typingUserIds;
 
-  /// يجمع المحادثة مع قائمة المستخدمين الذين يكتبون حاليًا.
-  /// Combines the conversation with the users who are typing now.
+  /// Carries the current set of active typers so the bloc can rebuild the
+  /// typing banner for the conversation.
+  /// يحمل مجموعة المستخدمين النشطين في الكتابة لكي يعيد الـ bloc بناء شريط
+  /// الكتابة في المحادثة.
   const WebSocketTypingIndicatorEvent({
     required this.conversationId,
     required this.typingUserIds,
   });
 
-  /// تعتمد المساواة على المحادثة والمستخدمين.
-  /// Equality depends on the conversation and typing users.
+  /// Typing updates are compared by conversation and active user ids.
+  /// تُقارن تحديثات الكتابة بالمحادثة ومعرّفات المستخدمين النشطين.
   @override
   List<Object> get props => [conversationId, typingUserIds];
 }
 
-/// يحمل تحديث حضور مستخدم من WebSocket إلى طبقة الحالة.
-/// Carries a presence update from WebSocket into state.
+/// Applies a live presence update so the conversation list can reflect whether
+/// a user is online, away, or offline.
+/// يطبّق تحديث حضور حيًا كي تظهر قائمة المحادثات حالة المستخدم متصلًا أو
+/// بعيدًا أو غير متصل.
 class WebSocketPresenceUpdateEvent extends ChatEvent {
-  /// يحدد المستخدم الذي تغيّرت حالته.
-  /// Identifies the user whose status changed.
+  /// User whose presence changed.
+  /// المستخدم الذي تغيّرت حالته.
   final String userId;
 
-  /// يخزن العضو `status`.
-  /// Holds the `status` member.
+  /// New presence status.
+  /// حالة الحضور الجديدة.
   final String status;
 
-  /// يخزن العضو `lastSeen`.
-  /// Holds the `lastSeen` member.
+  /// Optional last-seen time received from the server.
+  /// وقت آخر ظهور اختياري وارد من الخادم.
   final DateTime? lastSeen;
 
-  /// يجمع معرف المستخدم والحالة وآخر ظهور ليعكس التغيير اللحظي.
-  /// Bundles the user id, status, and last-seen time for a realtime
-  /// presence change.
+  /// Relays the presence payload to the bloc, including an optional
+  /// server-provided last-seen timestamp.
+  /// يمرر حمولة الحضور إلى الـ bloc مع وقت آخر ظهور اختياري من الخادم.
   const WebSocketPresenceUpdateEvent({
     required this.userId,
     required this.status,
     this.lastSeen,
   });
 
-  /// تعتمد المساواة على المستخدم والحالة وآخر ظهور.
-  /// Equality depends on the user id, status, and last seen.
+  /// Presence updates are compared by user, status, and last-seen value.
+  /// تُقارن تحديثات الحضور بالمستخدم والحالة ووقت آخر ظهور.
   @override
   List<Object?> get props => [userId, status, lastSeen];
 }
 
-/// يصف رفع عدة مرفقات متتالية داخل المحادثة نفسها.
-/// Describes uploading multiple attachments sequentially in the same
-/// conversation.
+/// Uploads several attachments together when the composer needs to send one
+/// message that depends on multiple local files.
+/// يرفع عدة مرفقات معًا عندما يحتاج المحرر إلى إرسال رسالة واحدة تعتمد على
+/// عدة ملفات محلية.
 class UploadMultipleAttachmentsEvent extends ChatEvent {
-  /// يحدد المحادثة التي ستستقبل المرفقات.
-  /// Identifies the conversation that will receive the attachments.
+  /// Conversation receiving the attachment batch.
+  /// المحادثة التي ستستقبل دفعة المرفقات.
   final String conversationId;
 
-  /// يخزن العضو `filePaths`.
-  /// Holds the `filePaths` member.
+  /// Local file paths queued for upload.
+  /// مسارات الملفات المحلية المصفوفة للرفع.
   final List<String> filePaths;
 
-  /// يخزن العضو `messageType`.
-  /// Holds the `messageType` member.
+  /// Message type that will own the uploaded assets.
+  /// نوع الرسالة التي ستملك الأصول المرفوعة.
   final String messageType;
 
-  /// callback يتابع التقدم على مستوى كل ملف وداخل الدفعة ككل.
-  /// Callback that tracks progress per file and across the whole
-  /// batch.
+  /// Optional caption or text sent together with the attachment batch.
+  /// نص أو تعليق اختياري يُرسل مع دفعة المرفقات.
+  final String? content;
+
+  /// Optional reply target that should be preserved for the outgoing message.
+  /// هدف الرد الاختياري الذي يجب الحفاظ عليه للرسالة الصادرة.
+  final String? replyToMessageId;
+
+  /// Current user id used to keep optimistic rendering aligned.
+  /// معرّف المستخدم الحالي المستخدم لمواءمة العرض التفاؤلي.
+  final String? currentUserId;
+
+  /// Optional progress callback used to mirror batch upload progress.
+  /// دالة تقدم اختيارية لمزامنة تقدم رفع الدفعة.
   final Function(int index, int sent, int total)? onProgress;
 
-  /// يحمل المسارات ونوع الرسالة حتى تتم عملية الرفع بشكل متسق.
-  /// Carries file paths and message type so the upload happens
-  /// consistently.
+  /// Starts the coordinated upload flow that reports progress for every file
+  /// in the batch.
+  /// يبدأ مسار الرفع المنسق الذي يبلّغ عن التقدم لكل ملف داخل الدفعة.
   const UploadMultipleAttachmentsEvent({
     required this.conversationId,
     required this.filePaths,
     required this.messageType,
+    this.content,
+    this.replyToMessageId,
+    this.currentUserId,
     this.onProgress,
   });
 
-  /// تعتمد المساواة على المحادثة والملفات ونوع الرسالة.
-  /// Equality depends on the conversation, files, and message type.
+  /// Batch uploads are compared by conversation, files, and message type.
+  /// تُقارن عمليات الرفع المجمعة بالمحادثة والملفات ونوع الرسالة.
   @override
-  List<Object?> get props => [conversationId, filePaths, messageType];
+  List<Object?> get props => [
+        conversationId,
+        filePaths,
+        messageType,
+        content,
+        replyToMessageId,
+        currentUserId,
+      ];
 }
 
-/// يمسح الذاكرة المؤقتة الخاصة بمحادثة واحدة.
-/// Clears the cached data for one conversation.
+/// Drops cached data for a single conversation when its local snapshot is no
+/// longer trustworthy.
+/// يحذف البيانات المخزنة لمحادثة واحدة عندما تصبح اللقطة المحلية غير موثوقة.
 class ClearConversationCacheEvent extends ChatEvent {
-  /// يحدد المحادثة التي يجب تنظيف ذاكرتها.
-  /// Identifies the conversation whose cache should be cleared.
+  /// Conversation whose cached data should be removed.
+  /// المحادثة التي يجب إزالة كاشها.
   final String conversationId;
 
-  /// يمرر معرف المحادثة فقط لأن التنظيف محلي ومحدد.
-  /// Carries only the conversation id because the cleanup is local
-  /// and targeted.
+  /// Forces the repository and cache layer to discard the stored thread state.
+  /// يفرض على المستودع وطبقة التخزين حذف حالة السلسلة المحفوظة.
   const ClearConversationCacheEvent({required this.conversationId});
 
-  /// يعتمد على معرف المحادثة فقط.
-  /// Depends only on the conversation id.
+  /// Cache-clear requests are compared by conversation id.
+  /// تُقارن طلبات مسح الكاش بمعرّف المحادثة.
   @override
   List<Object> get props => [conversationId];
 }
 
-/// يطلب إعادة جلب محادثة بعينها لتحديث محتواها.
-/// Requests a refresh of a specific conversation to update its
-/// contents.
+/// Re-reads one conversation from the source of truth so list views and detail
+/// pages converge after a local or remote change.
+/// يعيد قراءة محادثة واحدة من المصدر الموثوق كي تتطابق قائمة المحادثات
+/// وصفحة التفاصيل بعد تغيير محلي أو بعيد.
 class RefreshConversationEvent extends ChatEvent {
-  /// يحدد المحادثة المطلوب تحديثها.
-  /// Identifies the conversation to refresh.
+  /// Conversation that should be refreshed.
+  /// المحادثة التي يجب تحديثها.
   final String conversationId;
 
-  /// يحمل معرّف المحادثة فقط لأن المطلوب هو إعادة التحميل.
-  /// Carries only the conversation id because the operation is a
-  /// reload.
+  /// Requests a targeted refresh instead of reloading the entire inbox.
+  /// يطلب تحديثًا موجهًا بدل إعادة تحميل كل صندوق الوارد.
   const RefreshConversationEvent({required this.conversationId});
 
-  /// يعتمد على معرف المحادثة فقط.
-  /// Depends only on the conversation id.
+  /// Refresh requests are compared by conversation id.
+  /// تُقارن طلبات التحديث بمعرّف المحادثة.
   @override
   List<Object> get props => [conversationId];
 }
 
-/// يعيد محاولة إرسال رسالة فشلت سابقًا.
-/// Retries sending a message that failed earlier.
+/// Resubmits a failed message after the app regains connectivity or the user
+/// asks for another attempt.
+/// يعيد إرسال رسالة فشلت بعد عودة الاتصال أو عند طلب المستخدم محاولة
+/// جديدة.
 class RetryFailedMessageEvent extends ChatEvent {
-  /// يحدد المحادثة التي تنتمي إليها الرسالة الفاشلة.
-  /// Identifies the conversation that owns the failed message.
+  /// Conversation containing the failed message.
+  /// المحادثة التي تحتوي الرسالة الفاشلة.
   final String conversationId;
 
-  /// يحدد الرسالة التي ستُعاد محاولتها.
-  /// Identifies the message to retry.
+  /// Failed message that should be resent.
+  /// الرسالة الفاشلة التي يجب إعادة إرسالها.
   final String messageId;
 
-  /// يجمع المحادثة والرسالة الفاشلة حتى يستعيدها الـ BLoC بشكل
-  /// صحيح.
-  /// Bundles the conversation and failed message so the BLoC can
-  /// restore it correctly.
+  /// Replays the stored message payload through the normal send pipeline.
+  /// يعيد تمرير حمولة الرسالة المخزنة عبر مسار الإرسال المعتاد.
   const RetryFailedMessageEvent({
     required this.conversationId,
     required this.messageId,
   });
 
-  /// تعتمد المساواة على المحادثة والرسالة المستهدفة.
-  /// Equality depends on the conversation and target message.
+  /// Retry requests are compared by conversation and message id.
+  /// تُقارن طلبات إعادة المحاولة بالمحادثة ومعرّف الرسالة.
   @override
   List<Object> get props => [conversationId, messageId];
 }
 
-/// يلغي عملية رفع جارية لمرفق داخل محادثة محددة.
-/// Cancels an in-flight upload for an attachment in a specific
-/// conversation.
+/// Cancels an active attachment upload when the user backs out or replaces the
+/// file before completion.
+/// يلغي رفع مرفق جارٍ عندما يتراجع المستخدم أو يستبدل الملف قبل الاكتمال.
 class CancelUploadEvent extends ChatEvent {
-  /// يحدد عملية الرفع التي يجب إيقافها.
-  /// Identifies the upload operation to stop.
+  /// Upload operation identifier.
+  /// معرّف عملية الرفع.
   final String uploadId;
 
-  /// يحدد المحادثة التي تنتمي إليها العملية.
-  /// Identifies the conversation that owns the upload.
+  /// Conversation tied to the upload.
+  /// المحادثة المرتبطة بالرفع.
   final String conversationId;
 
-  /// يمرر معرف الرفع ومعرف المحادثة حتى يمكن إلغاء العملية بدقة.
-  /// Carries the upload id and conversation id so the operation can
-  /// be cancelled precisely.
+  /// Stops the upload session so progress listeners and UI state can reset
+  /// cleanly.
+  /// يوقف جلسة الرفع كي تعود مستمعات التقدم وحالة الواجهة إلى وضعها
+  /// النظيف.
   const CancelUploadEvent(
       {required this.uploadId, required this.conversationId});
 
-  /// تعتمد المساواة على الرفع والمحادثة المستهدفة.
-  /// Equality depends on the upload and target conversation.
+  /// Cancellation requests are compared by upload and conversation id.
+  /// تُقارن طلبات الإلغاء بمعرّف الرفع ومعرّف المحادثة.
   @override
   List<Object> get props => [uploadId, conversationId];
 }

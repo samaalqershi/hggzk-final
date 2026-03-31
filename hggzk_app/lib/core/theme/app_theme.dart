@@ -27,14 +27,18 @@ class AppTheme {
   static Brightness get brightness => _brightness;
 
   // Initialize theme based on system or manual setting
-  /// Initializes the active theme mode and brightness for the current context.
-  /// العربية: يهيئ وضع السمة والسطوع النشطين للسياق الحالي.
-  static void init(BuildContext context, {ThemeMode? mode}) {
+  /// Initializes the active theme mode and brightness without depending on
+  /// inherited widgets from the caller context.
+  /// العربية: يهيئ وضع السمة والسطوع النشطين دون الاعتماد على عناصر inherited.
+  static void init({
+    ThemeMode? mode,
+    Brightness? systemBrightness,
+  }) {
     _themeMode = mode ?? ThemeMode.system;
-    final systemBrightness = MediaQuery.of(context).platformBrightness;
+    final resolvedSystemBrightness = systemBrightness ?? Brightness.dark;
 
     if (_themeMode == ThemeMode.system) {
-      _brightness = systemBrightness;
+      _brightness = resolvedSystemBrightness;
     } else if (_themeMode == ThemeMode.light) {
       _brightness = Brightness.light;
     } else {

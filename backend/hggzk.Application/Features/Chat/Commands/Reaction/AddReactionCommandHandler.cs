@@ -24,6 +24,7 @@ namespace YemenBooking.Application.Features.Chat.Commands.Reaction
         private readonly IChatConversationRepository _conversationRepo;
         private readonly ICurrentUserService _currentUserService;
         private readonly IFirebaseService _firebaseService;
+        private readonly IChatRealtimeNotifier _chatRealtimeNotifier;
         private readonly IMapper _mapper;
         private readonly ILogger<AddReactionCommandHandler> _logger;
 
@@ -37,6 +38,7 @@ namespace YemenBooking.Application.Features.Chat.Commands.Reaction
             IChatConversationRepository conversationRepo,
             ICurrentUserService currentUserService,
             IFirebaseService firebaseService,
+            IChatRealtimeNotifier chatRealtimeNotifier,
             IMapper mapper,
             ILogger<AddReactionCommandHandler> logger)
         {
@@ -45,6 +47,7 @@ namespace YemenBooking.Application.Features.Chat.Commands.Reaction
             _conversationRepo = conversationRepo;
             _currentUserService = currentUserService;
             _firebaseService = firebaseService;
+            _chatRealtimeNotifier = chatRealtimeNotifier;
             _mapper = mapper;
             _logger = logger;
         }
@@ -93,6 +96,13 @@ namespace YemenBooking.Application.Features.Chat.Commands.Reaction
                             if (participant.Id == userId) continue;
                             await _firebaseService.SendNotificationAsync($"user_{participant.Id}", string.Empty, string.Empty, dataRemoved, cancellationToken);
                         }
+                        await _chatRealtimeNotifier.NotifyReactionRemovedAsync(
+                            chatMessage.ConversationId,
+                            chatMessage.Id,
+                            userId,
+                            existing.ReactionType,
+                            userId,
+                            cancellationToken);
                         return ResultDto.Ok("تم إلغاء التفاعل");
                     }
                     else
@@ -123,6 +133,13 @@ namespace YemenBooking.Application.Features.Chat.Commands.Reaction
                             if (participant.Id == userId) continue;
                             await _firebaseService.SendNotificationAsync($"user_{participant.Id}", string.Empty, string.Empty, switchPayload, cancellationToken);
                         }
+                        var switchedReactionDto = _mapper.Map<MessageReactionDto>(existing);
+                        await _chatRealtimeNotifier.NotifyReactionAddedAsync(
+                            chatMessage.ConversationId,
+                            chatMessage.Id,
+                            switchedReactionDto,
+                            userId,
+                            cancellationToken);
                         return ResultDto.Ok("تم تغيير التفاعل");
                     }
                 }
@@ -166,6 +183,13 @@ namespace YemenBooking.Application.Features.Chat.Commands.Reaction
                     if (participant.Id == userId) continue; // تم الإرسال له أعلاه
                     await _firebaseService.SendNotificationAsync($"user_{participant.Id}", string.Empty, string.Empty, dataPayload, cancellationToken);
                 }
+
+                await _chatRealtimeNotifier.NotifyReactionAddedAsync(
+                    chatMessageFinal.ConversationId,
+                    chatMessageFinal.Id,
+                    reactionDto,
+                    userId,
+                    cancellationToken);
 
                 return ResultDto.Ok("تم إضافة التفاعل بنجاح");
             }

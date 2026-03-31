@@ -1,9 +1,7 @@
-import 'package:hggzkportal/features/chat/domain/entities/message.dart';
+import '../../domain/entities/message.dart';
 
-/// يعرّف الكلاس `MessageReactionModel`.
-/// Describes the `MessageReactionModel` class.
+/// العربية: يمثل نموذج البيانات `MessageReactionModel`.
 class MessageReactionModel extends MessageReaction {
-  /// Initializes a new `MessageReactionModel` instance.
   /// العربية: ينشئ مثيلًا جديدًا من `MessageReactionModel`.
   const MessageReactionModel({
     required super.id,
@@ -12,8 +10,7 @@ class MessageReactionModel extends MessageReaction {
     required super.reactionType,
   });
 
-  /// ينشئ مثيلاً من `MessageReactionModel`.
-  /// Builds an instance of `MessageReactionModel`.
+  /// العربية: ينشئ مثيلًا جديدًا من `MessageReactionModel.fromJson`.
   factory MessageReactionModel.fromJson(Map<String, dynamic> json) {
     return MessageReactionModel(
       id: json['id'] ?? '',
@@ -23,8 +20,7 @@ class MessageReactionModel extends MessageReaction {
     );
   }
 
-  /// ينفذ العملية `toJson`.
-  /// Runs the `toJson` operation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,

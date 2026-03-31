@@ -1,133 +1,137 @@
 part of 'chat_bloc.dart';
 
-/// يمثل حالات الشات خلال التحميل والعرض والتحديث اللحظي حتى تتمكن
-/// الواجهة من التبديل بين هذه الأوضاع بسلاسة.
-/// Represents chat states during loading, display, and realtime
-/// updates so the UI can move between them smoothly.
+/// Base state for chat interactions. Concrete states expose the current
+/// conversation list, message timeline, loading flags, and transient send or
+/// search outcomes so the UI can react without re-deriving chat state from the
+/// repository layer.
+/// الحالة الأساسية لتفاعل الدردشة. الحالات المشتقة تنقل قائمة المحادثات
+/// وخط الرسائل وحالات التحميل والنتائج المؤقتة للإرسال أو البحث كي تتفاعل
+/// الواجهة معها مباشرة دون إعادة اشتقاقها من طبقة المستودع.
 abstract class ChatState extends Equatable {
-  /// تضمن القاعدة مقارنة ثابتة لحالات الشات حتى لا تُعاد بناء
-  /// الواجهة بلا سبب.
-  /// Keeps comparison stable across chat states so the UI does not
-  /// rebuild without reason.
+  /// Builds the shared base for every chat state variant.
+  /// ينشئ الأساس المشترك لكل حالة من حالات الدردشة.
   const ChatState();
 
-  /// لا توجد حقول مشتركة على مستوى القاعدة، لذلك تعتمد المساواة على
-  /// نوع الحالة.
-  /// The base has no shared fields, so equality depends on the state
-  /// type.
+  /// Chat states are compared by value so the bloc only rebuilds when the
+  /// visible chat data actually changes.
+  /// تُقارن حالات الدردشة بالقيمة حتى تعيد الـ bloc البناء فقط عندما تتغير
+  /// البيانات الظاهرة فعلًا.
   @override
   List<Object?> get props => [];
 }
 
-/// الحالة الأولى قبل أن يكتمل ربط الشات بالمصادر المطلوبة.
-/// The initial state before chat wiring is complete.
+/// Default idle state before any conversations or messages have been loaded.
+/// الحالة الهادئة الافتراضية قبل تحميل المحادثات أو الرسائل.
 class ChatInitial extends ChatState {
-  /// لا تحمل بيانات إضافية لأنها مجرد نقطة بدء.
-  /// No extra data is needed because this is only a starting point.
+  /// Builds the initial idle chat state.
+  /// ينشئ حالة الدردشة الابتدائية الهادئة.
   const ChatInitial();
 }
 
-/// تشير إلى أن قائمة المحادثات أو الرسائل ما زالت تُحمّل.
-/// Indicates that conversations or messages are still loading.
+/// Indicates that the bloc is fetching chat data or restoring the active
+/// conversation context.
+/// تشير إلى أن الـ bloc يجلب بيانات الدردشة أو يستعيد سياق المحادثة النشطة.
 class ChatLoading extends ChatState {
-  /// تستعمل أثناء انتظار البيانات قبل إظهار المحتوى.
-  /// Used while waiting for data before showing content.
+  /// Builds the loading state used while chat data is in flight.
+  /// ينشئ حالة التحميل المستخدمة أثناء جلب بيانات الدردشة.
   const ChatLoading();
 }
 
-/// تحمل بيانات المحادثات والرسائل وحالة الاتصال والتفاعل داخل
-/// الشاشة.
-/// Carries conversations, messages, presence, and interaction state
-/// for the chat screen.
+/// Holds the live chat workspace: conversations, message maps, typing and
+/// presence indicators, upload progress, search results, and per-conversation
+/// loading flags.
+/// تحفظ مساحة العمل الحية للدردشة: المحادثات، والرسائل، ومؤشرات الكتابة
+/// والحضور، وتقدم الرفع، ونتائج البحث، وحالات التحميل الخاصة بكل محادثة.
 class ChatLoaded extends ChatState {
-  /// المحادثات الحالية المعروضة للمستخدم.
-  /// The current conversations visible to the user.
+  static const Object _searchResultUnchanged = Object();
+
+  /// Conversation list shown by the inbox and side panels.
+  /// قائمة المحادثات التي تظهر في الصندوق الجانبي وشاشات المحادثات.
   final List<Conversation> conversations;
 
-  /// الرسائل الحالية مفصولة بحسب المحادثة حتى يمكن تحديث كل سلسلة
-  /// بشكل مستقل.
-  /// Current messages grouped by conversation so each thread can be
-  /// updated independently.
+  /// Cached messages keyed by conversation id so each thread can render
+  /// independently.
+  /// الرسائل المخزنة محليًا والمفهرسة بمعرّف المحادثة حتى تعرض كل سلسلة
+  /// محادثة بشكل مستقل.
   final Map<String, List<Message>> messages;
 
-  /// يضم المستخدمين الذين يكتبون الآن داخل كل محادثة.
-  /// Holds the users currently typing in each conversation.
+  /// Users currently typing inside each conversation.
+  /// المستخدمون الذين يكتبون الآن داخل كل محادثة.
   final Map<String, List<String>> typingUsers;
 
-  /// يحفظ حالة حضور المستخدمين حتى تعرضها الواجهة بجانب الأسماء.
-  /// Stores user presence so the UI can show it beside names.
+  /// Presence metadata used to show whether a participant is online or last
+  /// seen recently.
+  /// بيانات الحضور المستخدمة لإظهار ما إذا كان المستخدم متصلًا أو شوهد
+  /// مؤخرًا.
   final Map<String, UserPresence> userPresence;
 
-  /// المستخدمون المتاحون لبدء محادثات أو إضافة مشاركين.
-  /// Users available for starting conversations or adding
-  /// participants.
+  /// People available for starting a new conversation.
+  /// الأشخاص المتاحون لبدء محادثة جديدة معهم.
   final List<ChatUser> availableUsers;
 
-  /// قائمة المستخدمين الإداريين التي تستخدم في المسارات الخاصة.
-  /// The admin-user list used in privileged flows.
+  /// Admin accounts surfaced when the UI needs to start staff-facing threads.
+  /// حسابات الإدارة التي تُعرض عندما تحتاج الواجهة لبدء محادثات موجهة للطاقم.
   final List<ChatUser> adminUsers;
 
-  /// إعدادات الشات الحالية التي تتحكم في السلوك العام للواجهة.
-  /// Current chat settings that govern the overall UI behavior.
+  /// Conversation-level chat settings returned by the backend.
+  /// إعدادات الدردشة على مستوى المحادثة كما يعيدها الخادم.
   final ChatSettings? settings;
 
-  /// نتيجة البحث الأخيرة حتى تبقى شاشة النتائج مرتبطة بالسياق.
-  /// The last search result so the result screen remains in context.
+  /// Search result payload used by chat search and quick jump flows.
+  /// حمولة نتائج البحث المستخدمة في البحث داخل الدردشة والتبديل السريع.
   final SearchResult? searchResult;
 
-  /// يوضح أن الرسائل الخاصة بالمحادثة الحالية ما زالت تُحمّل.
-  /// Indicates that the current conversation messages are still
-  /// loading.
+  /// True while the current thread is loading its message history.
+  /// تكون صحيحة أثناء تحميل سجل الرسائل للمحادثة الحالية.
   final bool isLoadingMessages;
 
-  /// يميز تحميل الرسائل الأقدم عند التمرير.
-  /// Marks older-message loading during infinite scroll.
+  /// True while older messages are being paged in.
+  /// تكون صحيحة أثناء جلب الرسائل الأقدم على دفعات.
   final bool isLoadingMore;
 
-  /// يشير إلى أن عملية البحث قيد التنفيذ.
-  /// Indicates that a search operation is running.
+  /// True while the chat search pipeline is resolving a query.
+  /// تكون صحيحة أثناء معالجة البحث داخل الدردشة.
   final bool isSearching;
 
-  /// يوضح أن رسالة ما ما زالت تُرسل أو تُرفع.
-  /// Indicates that a message is currently being sent or uploaded.
+  /// True while a message send request is still pending.
+  /// تكون صحيحة أثناء انتظار إرسال رسالة.
   final bool isSendingMessage;
 
-  /// رسالة الخطأ الأخيرة المعروضة للمستخدم.
-  /// The latest error message shown to the user.
+  /// Last human-readable error reported by chat operations.
+  /// آخر رسالة خطأ قابلة للقراءة من المستخدم صادرة عن عمليات الدردشة.
   final String? error;
 
-  /// المرفق الذي يجري رفعه حاليًا.
-  /// The attachment currently being uploaded.
+  /// Attachment currently being uploaded, if any.
+  /// المرفق الجاري رفعه إن وجد.
   final Attachment? uploadingAttachment;
 
-  /// نسبة تقدم الرفع الحالية للمرفق النشط.
-  /// The current progress ratio for the active upload.
+  /// Progress value for the active attachment upload.
+  /// قيمة التقدم الخاصة برفع المرفق النشط.
   final double? uploadProgress;
 
-  /// تتبع رفع الصور داخل كل محادثة بشكل منفصل.
-  /// Tracks image uploads separately for each conversation.
+  /// Per-conversation image upload queue and progress metadata.
+  /// قائمة رفع الصور وبيانات التقدم لكل محادثة.
   final Map<String, List<ImageUploadInfo>> uploadingImages;
 
-  /// معرف المستخدم الحالي لتنسيق الرسائل المتفائلة والحضور.
-  /// The current user id used for optimistic messaging and presence.
+  /// Current user id used to colorize message ownership and actions.
+  /// معرّف المستخدم الحالي المستخدم لتمييز ملكية الرسائل والإجراءات.
   final String? currentUserId;
 
-  /// اسم المستخدم الحالي كما يظهر في واجهات الشات.
-  /// The current user's display name as shown in chat surfaces.
+  /// Current user display name used in composer and status labels.
+  /// اسم العرض للمستخدم الحالي في المحرر وتسميات الحالة.
   final String? currentUserName;
 
-  /// المحادثة التي يجري تحميلها الآن.
-  /// The conversation currently being loaded.
+  /// Conversation currently showing a thread-level loading indicator.
+  /// المحادثة التي تعرض الآن مؤشر تحميل خاصًا بها.
   final String? loadingConversationId;
 
-  /// المحادثة التي يتم إرسال رسالة إليها في هذه اللحظة.
-  /// The conversation currently receiving an outgoing message.
+  /// Conversation currently waiting for a send operation to finish.
+  /// المحادثة التي تنتظر الآن اكتمال عملية الإرسال.
   final String? sendingConversationId;
 
-  /// يجمع كل ما تحتاجه الشاشة حتى تعرض المحادثات والرسائل وحالات
-  /// الرفع والبحث من لقطة واحدة.
-  /// Bundles everything the screen needs to show conversations,
-  /// messages, uploads, and search from one snapshot.
+  /// Builds the fully populated chat state that the UI listens to during
+  /// normal operation.
+  /// ينشئ حالة الدردشة المكتملة التي تراقبها الواجهة أثناء التشغيل العادي.
   const ChatLoaded({
     this.conversations = const [],
     this.messages = const {},
@@ -151,10 +155,10 @@ class ChatLoaded extends ChatState {
     this.sendingConversationId,
   });
 
-  /// ينسخ الحالة مع السماح بتحديث الأجزاء المتغيرة فقط، حتى تبقى
-  /// بقية اللقطة ثابتة.
-  /// Copies the state while letting callers update only the changing
-  /// pieces, keeping the rest of the snapshot stable.
+  /// Produces a new chat state while preserving every field that did not
+  /// change, which keeps rebuilds narrow and predictable.
+  /// ينشئ حالة جديدة مع الإبقاء على كل الحقول غير المتغيرة، حتى تبقى إعادة
+  /// البناء محدودة ويمكن التنبؤ بها.
   ChatLoaded copyWith({
     List<Conversation>? conversations,
     Map<String, List<Message>>? messages,
@@ -163,7 +167,7 @@ class ChatLoaded extends ChatState {
     List<ChatUser>? availableUsers,
     List<ChatUser>? adminUsers,
     ChatSettings? settings,
-    SearchResult? searchResult,
+    Object? searchResult = _searchResultUnchanged,
     bool? isLoadingMessages,
     bool? isLoadingMore,
     bool? isSearching,
@@ -185,7 +189,9 @@ class ChatLoaded extends ChatState {
       availableUsers: availableUsers ?? this.availableUsers,
       adminUsers: adminUsers ?? this.adminUsers,
       settings: settings ?? this.settings,
-      searchResult: searchResult ?? this.searchResult,
+      searchResult: searchResult == _searchResultUnchanged
+          ? this.searchResult
+          : searchResult as SearchResult?,
       isLoadingMessages: isLoadingMessages ?? this.isLoadingMessages,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       isSearching: isSearching ?? this.isSearching,
@@ -201,10 +207,10 @@ class ChatLoaded extends ChatState {
     );
   }
 
-  /// تدخل كل البيانات المرئية وحالات التفاعل اللحظي في المقارنة
-  /// حتى لا يتجاهل Equatable أي تغيير حقيقي.
-  /// Every visible field and realtime interaction state participates
-  /// in equality so `Equatable` does not miss real changes.
+  /// The bloc compares chat snapshots by content so UI updates only happen
+  /// when the live conversation data really changes.
+  /// يقارن الـ bloc لقطات الدردشة بالمحتوى حتى تحدث تحديثات الواجهة فقط عند
+  /// تغير البيانات الحية فعلًا.
   @override
   List<Object?> get props => [
         conversations,
@@ -230,84 +236,170 @@ class ChatLoaded extends ChatState {
       ];
 }
 
-/// تمثل فشلًا يحتاج إلى عرضه للمستخدم أو تسجيله في الواجهة.
-/// Represents a failure that needs to be surfaced to the user or
-/// logged by the UI.
+/// Describes a message that could not be delivered and is still useful for
+/// retry, diagnostics, or user-facing failure banners.
+/// يصف الرسالة التي لم تصل بعد لكنها ما زالت مفيدة لإعادة المحاولة أو
+/// للتشخيص أو لعرض فشل الإرسال للمستخدم.
+class FailedMessage {
+  /// Local identifier for the failed message entry.
+  /// المعرف المحلي لمدخل الرسالة الفاشلة.
+  final String id;
+
+  /// Conversation that owns the failed message.
+  /// المحادثة المالكة لهذه الرسالة.
+  final String conversationId;
+
+  /// Reason captured when the send attempt failed.
+  /// سبب الفشل المسجّل عند تعذر الإرسال.
+  final String failureReason;
+
+  /// Time at which the send attempt was marked as failed.
+  /// الزمن الذي سُجلت فيه حالة الفشل.
+  final DateTime failedAt;
+
+  /// Captures the minimum data needed to retry or inspect a failed send.
+  /// يلتقط الحد الأدنى من البيانات اللازمة لإعادة المحاولة أو لفحص فشل الإرسال.
+  const FailedMessage({
+    required this.id,
+    required this.conversationId,
+    required this.failureReason,
+    required this.failedAt,
+  });
+}
+
+/// Surface-level failure state used when a chat operation cannot complete.
+/// حالة فشل سطحية تستخدم عندما تتعذر إحدى عمليات الدردشة.
 class ChatError extends ChatState {
-  /// رسالة الخطأ التي تعرض أو تسجل دون تحميل الحالة بيانات إضافية.
-  /// The error message to display or log without adding more state.
+  /// User-facing explanation for the chat failure.
+  /// رسالة موجّهة للمستخدم تشرح فشل الدردشة.
   final String message;
 
-  /// يحمل النص وحده لأن الخطأ يحتاج رسالة واحدة واضحة.
-  /// Carries only the text because this failure state needs one clear
-  /// message.
+  /// Builds the failure state for the chat bloc.
+  /// ينشئ حالة الفشل الخاصة بـ bloc الدردشة.
   const ChatError({required this.message});
 
-  /// تعتمد الحالة على الرسالة نفسها.
-  /// The state depends on the message itself.
+  /// Error states are compared by message so repeated failures remain stable.
+  /// تُقارن حالات الخطأ بالرسالة حتى تبقى الأخطاء المتكررة مستقرة.
   @override
   List<Object> get props => [message];
 }
 
-  /// يصف حضور المستخدم داخل الشات مع توقيت آخر ظهور إذا كان معروفًا.
-  /// Describes chat presence together with the last-seen timestamp
-  /// when it is known.
+/// Tracks whether a user is online and, if not, when they were last seen.
+/// يتتبع ما إذا كان المستخدم متصلًا أو متى شوهد آخر مرة.
 class UserPresence extends Equatable {
-  /// الحالة الظاهرة للمستخدم مثل online أو offline أو away.
-  /// The visible status for the user such as online, offline, or away.
+  /// Presence label such as online, offline, or away.
+  /// تسمية الحضور مثل متصل أو غير متصل أو بعيد.
   final String status;
 
-  /// وقت آخر ظهور إن كان متاحًا من مزود الحضور.
-  /// The last-seen time when the presence provider supplies it.
+  /// Timestamp for the last known activity, if available.
+  /// الطابع الزمني لآخر نشاط معروف إن وجد.
   final DateTime? lastSeen;
 
-  /// يربط الحالة بآخر ظهور حتى تعرض الواجهة الحضور بشكل موثوق.
-  /// Links the status to the last-seen time so the UI can present
-  /// presence reliably.
+  /// Creates a presence snapshot for one user.
+  /// ينشئ لقطة حضور لمستخدم واحد.
   const UserPresence({
     required this.status,
     this.lastSeen,
   });
 
-  /// تعتمد المقارنة على الحالة ووقت آخر ظهور.
-  /// Equality depends on the status and last-seen timestamp.
+  /// Presence snapshots are compared by status and last-seen time.
+  /// تُقارن لقطات الحضور بالحالة ووقت آخر ظهور.
   @override
   List<Object?> get props => [status, lastSeen];
 }
 
-  /// تؤكد نجاح إنشاء محادثة جديدة وتعيدها للواجهة مع رسالة نجاح
-  /// اختيارية.
-  /// Confirms that a new conversation was created and returns it to
-  /// the UI with an optional success message.
+/// Emitted when a new conversation is created and the inbox should reflect
+/// the newly available thread.
+/// تصدر عندما تنشأ محادثة جديدة ويجب أن يعكس الصندوق الوارد السلسلة الجديدة.
 class ConversationCreated extends ChatState {
-  /// المحادثة الجديدة التي يجب عرضها أو إضافتها للقائمة.
-  /// The newly created conversation to show or append to the list.
+  /// Newly created conversation payload.
+  /// حمولة المحادثة الجديدة.
   final Conversation conversation;
 
-  /// رسالة نجاح اختياريّة يمكن استخدامها في التنبيه أو الشريط
-  /// السفلي.
-  /// Optional success text that can be used in a toast or banner.
+  /// Optional confirmation message shown after creation.
+  /// رسالة تأكيد اختيارية تظهر بعد الإنشاء.
   final String? message;
 
-  /// يحمل المحادثة الجديدة مع رسالة نجاح افتراضية قابلة للتخصيص.
-  /// Carries the new conversation with a customizable success
-  /// message.
+  /// Builds the success state for conversation creation.
+  /// ينشئ حالة نجاح إنشاء المحادثة.
   const ConversationCreated({
     required this.conversation,
-    this.message = 'تم إنشاء المحادثة بنجاح',
+    this.message = '',
   });
 
-  /// تعتمد المساواة على المحادثة والرسالة المصاحبة لها.
-  /// Equality depends on the conversation and its accompanying
-  /// message.
+  /// Creation states are compared by the conversation and confirmation text.
+  /// تُقارن حالات الإنشاء بالمحادثة ونص التأكيد.
   @override
   List<Object?> get props => [conversation, message];
 }
 
-  /// تشير إلى أن عملية إنشاء المحادثة تعمل الآن.
-  /// Indicates that conversation creation is currently in progress.
+/// Indicates that the bloc is waiting for a create-conversation request to
+/// finish.
+/// تشير إلى أن الـ bloc ينتظر اكتمال طلب إنشاء المحادثة.
 class ConversationCreating extends ChatState {
-  /// لا تحمل حقولًا لأنها تمثل حالة انتظار بحتة.
-  /// No fields are needed because this is a pure waiting state.
+  /// Builds the in-flight creation state.
+  /// ينشئ حالة الإنشاء الجارية.
   const ConversationCreating();
+}
+
+/// Tracks the upload state for one image that is being attached to chat.
+/// يتتبع حالة رفع صورة واحدة تُرفق بالدردشة.
+class ImageUploadInfo extends Equatable {
+  /// Local upload identifier.
+  /// معرّف الرفع المحلي.
+  final String id;
+
+  /// File associated with this upload.
+  /// الملف المرتبط بعملية الرفع.
+  final File file;
+
+  /// Upload progress from `0.0` to `1.0`.
+  /// تقدم الرفع من `0.0` إلى `1.0`.
+  final double progress;
+
+  /// True once the upload finished successfully.
+  /// تكون صحيحة بعد اكتمال الرفع بنجاح.
+  final bool isCompleted;
+
+  /// True when the upload failed and should be retried or shown as failed.
+  /// تكون صحيحة عندما يفشل الرفع ويحتاج إلى إعادة محاولة أو عرض فشل.
+  final bool isFailed;
+
+  /// Optional upload error message.
+  /// رسالة خطأ اختيارية تخص الرفع.
+  final String? error;
+
+  /// Builds the upload-progress snapshot for one attachment.
+  /// ينشئ لقطة تقدم رفع لمرفق واحد.
+  const ImageUploadInfo({
+    required this.id,
+    required this.file,
+    this.progress = 0.0,
+    this.isCompleted = false,
+    this.isFailed = false,
+    this.error,
+  });
+
+  /// Produces a new upload snapshot while preserving unchanged values.
+  /// ينشئ لقطة رفع جديدة مع الإبقاء على القيم غير المتغيرة.
+  ImageUploadInfo copyWith({
+    double? progress,
+    bool? isCompleted,
+    bool? isFailed,
+    String? error,
+  }) {
+    return ImageUploadInfo(
+      id: id,
+      file: file,
+      progress: progress ?? this.progress,
+      isCompleted: isCompleted ?? this.isCompleted,
+      isFailed: isFailed ?? this.isFailed,
+      error: error ?? this.error,
+    );
+  }
+
+  /// Upload snapshots are compared by the tracked file and its state.
+  /// تُقارن لقطات الرفع بالملف المتابع وحالته.
+  @override
+  List<Object?> get props => [id, file, progress, isCompleted, isFailed, error];
 }

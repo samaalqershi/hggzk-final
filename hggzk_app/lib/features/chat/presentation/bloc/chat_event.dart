@@ -445,18 +445,28 @@ class SendAudioMessageEvent extends ChatEvent {
   /// هدف رد اختياري للردود الصوتية المتسلسلة.
   final String? replyToMessageId;
 
+  /// Captured audio duration in seconds when known by the recorder UI.
+  /// مدة التسجيل الصوتي بالثواني عندما تكون معروفة من واجهة التسجيل.
+  final int? durationSeconds;
+
   /// Starts the audio-message send flow.
   /// ينشئ طلب إرسال الرسالة الصوتية.
   const SendAudioMessageEvent({
     required this.conversationId,
     required this.filePath,
     this.replyToMessageId,
+    this.durationSeconds,
   });
 
   /// Audio sends are compared by conversation, file path, and reply target.
   /// تُقارن عمليات الإرسال الصوتي بالمحادثة ومسار الملف وهدف الرد.
   @override
-  List<Object?> get props => [conversationId, filePath, replyToMessageId];
+  List<Object?> get props => [
+        conversationId,
+        filePath,
+        replyToMessageId,
+        durationSeconds,
+      ];
 }
 
 /// Searches message history using text and optional metadata filters.
@@ -786,6 +796,18 @@ class UploadMultipleAttachmentsEvent extends ChatEvent {
   /// نوع الرسالة التي ستملك الأصول المرفوعة.
   final String messageType;
 
+  /// Optional caption or text sent together with the attachment batch.
+  /// نص أو تعليق اختياري يُرسل مع دفعة المرفقات.
+  final String? content;
+
+  /// Optional reply target that should be preserved for the outgoing message.
+  /// هدف الرد الاختياري الذي يجب الحفاظ عليه للرسالة الصادرة.
+  final String? replyToMessageId;
+
+  /// Current user id used to keep optimistic rendering aligned.
+  /// معرّف المستخدم الحالي المستخدم لمواءمة العرض التفاؤلي.
+  final String? currentUserId;
+
   /// Optional progress callback used to mirror batch upload progress.
   /// دالة تقدم اختيارية لمزامنة تقدم رفع الدفعة.
   final Function(int index, int sent, int total)? onProgress;
@@ -797,13 +819,23 @@ class UploadMultipleAttachmentsEvent extends ChatEvent {
     required this.conversationId,
     required this.filePaths,
     required this.messageType,
+    this.content,
+    this.replyToMessageId,
+    this.currentUserId,
     this.onProgress,
   });
 
   /// Batch uploads are compared by conversation, files, and message type.
   /// تُقارن عمليات الرفع المجمعة بالمحادثة والملفات ونوع الرسالة.
   @override
-  List<Object?> get props => [conversationId, filePaths, messageType];
+  List<Object?> get props => [
+        conversationId,
+        filePaths,
+        messageType,
+        content,
+        replyToMessageId,
+        currentUserId,
+      ];
 }
 
 /// Drops cached data for a single conversation when its local snapshot is no

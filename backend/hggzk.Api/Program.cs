@@ -43,6 +43,7 @@ using Serilog;
 using Serilog.Events;
 using YemenBooking.Api.Infrastructure.Logging;
 using YemenBooking.Api.Infrastructure.Localization;
+using YemenBooking.Api.Infrastructure.ChatRealtime;
 using Microsoft.AspNetCore.Localization;
 using System.Globalization;
 
@@ -120,7 +121,7 @@ if (builder.Environment.IsDevelopment())
     }
 }
 
-// WebSocket chat disabled: using FCM for real-time notifications
+// Chat realtime delivery is controlled by ChatMessaging settings
 
 // Register Dapper services.
 // تسجيل خدمات Dapper.
@@ -130,6 +131,9 @@ builder.Services.AddDapperRepository(builder.Configuration);
 // Configuring Swagger/OpenAPI with JWT security
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+builder.Services.Configure<ChatMessagingSettings>(builder.Configuration.GetSection("ChatMessaging"));
+builder.Services.AddSingleton<IChatRealtimeConnectionManager, ChatRealtimeConnectionManager>();
+builder.Services.AddScoped<IChatRealtimeNotifier, ChatRealtimeNotifier>();
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[]
@@ -369,6 +373,19 @@ builder.Services.AddAuthentication(options =>
     // Make sure expired tokens yield a 401 with a clear payload
     options.Events = new JwtBearerEvents
     {
+        OnMessageReceived = context =>
+        {
+            if (context.HttpContext.Request.Path.StartsWithSegments("/ws/chat"))
+            {
+                var accessToken = context.Request.Query["access_token"].ToString();
+                if (!string.IsNullOrWhiteSpace(accessToken))
+                {
+                    context.Token = accessToken;
+                }
+            }
+
+            return Task.CompletedTask;
+        },
         OnAuthenticationFailed = context =>
         {
             if (context.Exception is SecurityTokenExpiredException)

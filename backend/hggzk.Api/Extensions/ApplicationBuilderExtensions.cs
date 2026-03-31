@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.StaticFiles;
 using YemenBooking.Api.Middlewares;
+using YemenBooking.Api.Infrastructure.ChatRealtime;
 
 namespace YemenBooking.Api.Extensions
 {
@@ -42,6 +43,11 @@ namespace YemenBooking.Api.Extensions
                 {
                     if (context.Request.Path.StartsWithSegments("/uploads/ChatAttachments"))
                     {
+                        if (context.Request.Path.StartsWithSegments("/uploads/ChatAttachments/Thumbnails"))
+                        {
+                            await next();
+                            return;
+                        }
                         context.Response.StatusCode = StatusCodes.Status403Forbidden;
                         return;
                     }
@@ -80,6 +86,7 @@ namespace YemenBooking.Api.Extensions
             // تفعيل نظام التوجيه.
             // Enable routing.
             app.UseRouting();
+            app.UseWebSockets();
             app.UseRequestLocalization();
             app.UseLocalizedExceptions();
             // Log resolved endpoint for each request (helps detect routing issues)
@@ -104,7 +111,8 @@ namespace YemenBooking.Api.Extensions
             // Authorize the request.
             app.UseAuthorization();
 
-            // WebSockets disabled: chat now uses Firebase Cloud Messaging
+            // Chat realtime now uses authenticated WebSockets, while push
+            // notifications remain as a background fallback.
 
             // تفعيل Swagger UI في بيئة التطوير.
             // Enable Swagger UI in development.
@@ -124,6 +132,7 @@ namespace YemenBooking.Api.Extensions
             // ربط المتحكمات بنظام التوجيه.
             // Map controllers into the routing system.
             app.MapControllers();
+            app.Map("/ws/chat", ChatRealtimeEndpoint.HandleAsync);
 
             // لم يعد هناك أي SPA/React fallback؛ الواجهة الوحيدة هي Swagger وواجهات الـ API.
             // There is no SPA/React fallback; the only entry points are Swagger and the API.

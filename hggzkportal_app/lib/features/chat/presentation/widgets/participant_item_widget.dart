@@ -1,37 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hggzkportal/features/chat/presentation/widgets/online_status_indicator.dart';
-import 'dart:ui';
+import 'online_status_indicator.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/conversation.dart';
+import '../utils/chat_presence_presentation.dart';
 
-/// يعرّف الكلاس `ParticipantItemWidget`.
-/// Describes the `ParticipantItemWidget` class.
+/// Compact row used to render one chat participant in lists and sheets.
 class ParticipantItemWidget extends StatelessWidget {
-  /// Holds the `participant` value.
-  /// العربية: يخزن القيمة `participant`.
+  /// Participant record rendered by this row.
   final ChatUser participant;
 
-  /// يخزن العضو `isAdmin`.
-  /// Holds the `isAdmin` member.
+  /// Flags users who have admin privileges in the conversation.
   final bool isAdmin;
 
-  /// يخزن العضو `isCurrentUser`.
-  /// Holds the `isCurrentUser` member.
+  /// Marks the row when it refers to the current signed-in user.
   final bool isCurrentUser;
 
-  /// يخزن العضو `onTap`.
-  /// Holds the `onTap` member.
+  /// Optional action when the row is tapped.
   final VoidCallback? onTap;
 
-  /// يخزن العضو `onRemove`.
-  /// Holds the `onRemove` member.
+  /// Optional action for removing the participant from the list.
   final VoidCallback? onRemove;
 
-  /// ينشئ مثيلاً من `ParticipantItemWidget`.
-  /// Builds an instance of `ParticipantItemWidget`.
+  /// Builds the participant row used by participant pickers and member lists.
   const ParticipantItemWidget({
     super.key,
     required this.participant,
@@ -41,8 +35,7 @@ class ParticipantItemWidget extends StatelessWidget {
     this.onRemove,
   });
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// Builds the participant row with avatar, status, and optional actions.
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -68,9 +61,9 @@ class ParticipantItemWidget extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildNameRow(),
+                    _buildNameRow(context),
                     if (participant.isOnline || participant.lastSeen != null)
-                      _buildStatusText(),
+                      _buildStatusText(context),
                   ],
                 ),
               ),
@@ -82,9 +75,11 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
-  /// ينفذ العملية `_buildCompactAvatar`.
-  /// Runs the `_buildCompactAvatar` operation.
+  /// Builds the avatar area with online badge when applicable.
   Widget _buildCompactAvatar() {
+    final hasImage = participant.profileImage != null &&
+        participant.profileImage!.trim().isNotEmpty;
+
     return Stack(
       children: [
         Container(
@@ -94,18 +89,18 @@ class ParticipantItemWidget extends StatelessWidget {
             shape: BoxShape.circle,
             gradient: LinearGradient(
               colors: [
-                AppTheme.primaryBlue.withValues(alpha: 0.08),
-                AppTheme.primaryPurple.withValues(alpha: 0.04),
+                AppTheme.primaryBlue.withOpacity(0.08),
+                AppTheme.primaryPurple.withOpacity(0.04),
               ],
             ),
             border: Border.all(
               color: participant.isOnline
-                  ? AppTheme.success.withValues(alpha: 0.3)
-                  : AppTheme.darkBorder.withValues(alpha: 0.1),
+                  ? AppTheme.success.withOpacity(0.3)
+                  : AppTheme.darkBorder.withOpacity(0.1),
               width: 0.5,
             ),
           ),
-          child: participant.profileImage != null
+          child: hasImage
               ? ClipOval(
                   child: CachedImageWidget(
                     imageUrl: participant.profileImage!,
@@ -118,7 +113,7 @@ class ParticipantItemWidget extends StatelessWidget {
                   child: Text(
                     _getInitials(participant.name),
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppTheme.primaryBlue.withValues(alpha: 0.8),
+                      color: AppTheme.primaryBlue.withOpacity(0.8),
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
@@ -139,9 +134,8 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
-  /// ينفذ العملية `_buildNameRow`.
-  /// Runs the `_buildNameRow` operation.
-  Widget _buildNameRow() {
+  /// Builds the name row and role badges.
+  Widget _buildNameRow(BuildContext context) {
     return Row(
       children: [
         Expanded(
@@ -155,10 +149,10 @@ class ParticipantItemWidget extends StatelessWidget {
         ),
         if (isCurrentUser)
           _buildMinimalBadge(
-            label: 'أنت',
+            label: context.tr('chat.participant.me'),
             gradient: [
-              AppTheme.primaryBlue.withValues(alpha: 0.1),
-              AppTheme.primaryPurple.withValues(alpha: 0.05),
+              AppTheme.primaryBlue.withOpacity(0.1),
+              AppTheme.primaryPurple.withOpacity(0.05),
             ],
             textColor: AppTheme.primaryBlue,
           ),
@@ -166,10 +160,10 @@ class ParticipantItemWidget extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 4),
             child: _buildMinimalBadge(
-              label: 'مشرف',
+              label: context.tr('chat.participant.admin'),
               gradient: [
-                AppTheme.warning.withValues(alpha: 0.1),
-                const Color(0xFFF97316).withValues(alpha: 0.05),
+                AppTheme.warning.withOpacity(0.1),
+                const Color(0xFFF97316).withOpacity(0.05),
               ],
               textColor: AppTheme.warning,
             ),
@@ -178,8 +172,7 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
-  /// ينفذ العملية `_buildMinimalBadge`.
-  /// Runs the `_buildMinimalBadge` operation.
+  /// Builds a small badge for the user role or self marker.
   Widget _buildMinimalBadge({
     required String label,
     required List<Color> gradient,
@@ -194,7 +187,7 @@ class ParticipantItemWidget extends StatelessWidget {
         gradient: LinearGradient(colors: gradient),
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: textColor.withValues(alpha: 0.2),
+          color: textColor.withOpacity(0.2),
           width: 0.5,
         ),
       ),
@@ -209,18 +202,22 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
-  /// ينفذ العملية `_buildStatusText`.
-  /// Runs the `_buildStatusText` operation.
-  Widget _buildStatusText() {
+  /// Builds the online or last-seen status line.
+  Widget _buildStatusText(BuildContext context) {
     String statusText;
     Color statusColor;
 
     if (participant.isOnline) {
-      statusText = 'متصل الآن';
+      statusText = ChatPresencePresentation.onlineNow(context);
       statusColor = AppTheme.success;
     } else if (participant.lastSeen != null) {
-      statusText = 'آخر ظهور ${_formatLastSeen(participant.lastSeen!)}';
-      statusColor = AppTheme.textMuted.withValues(alpha: 0.6);
+      statusText = ChatPresencePresentation.presenceLabel(
+            context,
+            isOnline: false,
+            lastSeen: participant.lastSeen,
+          ) ??
+          '';
+      statusColor = AppTheme.textMuted.withOpacity(0.6);
     } else {
       return const SizedBox.shrink();
     }
@@ -237,8 +234,7 @@ class ParticipantItemWidget extends StatelessWidget {
     );
   }
 
-  /// ينفذ العملية `_buildRemoveButton`.
-  /// Runs the `_buildRemoveButton` operation.
+  /// العربية: يبني remove button.
   Widget _buildRemoveButton() {
     return GestureDetector(
       onTap: () {
@@ -251,46 +247,26 @@ class ParticipantItemWidget extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.error.withValues(alpha: 0.1),
-              AppTheme.error.withValues(alpha: 0.05),
+              AppTheme.error.withOpacity(0.1),
+              AppTheme.error.withOpacity(0.05),
             ],
           ),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
           Icons.remove_circle_outline_rounded,
-          color: AppTheme.error.withValues(alpha: 0.8),
+          color: AppTheme.error.withOpacity(0.8),
           size: 18,
         ),
       ),
     );
   }
 
-  /// ينفذ العملية `_getInitials`.
-  /// Runs the `_getInitials` operation.
+  /// العربية: يعيد initials.
   String _getInitials(String name) {
     final parts = name.trim().split(' ');
     if (parts.isEmpty) return '';
     if (parts.length == 1) return parts.first[0].toUpperCase();
     return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
-  }
-
-  /// ينفذ العملية `_formatLastSeen`.
-  /// Runs the `_formatLastSeen` operation.
-  String _formatLastSeen(DateTime lastSeen) {
-    final now = DateTime.now();
-    final difference = now.difference(lastSeen);
-
-    if (difference.inMinutes < 1) {
-      return 'الآن';
-    } else if (difference.inMinutes < 60) {
-      return 'منذ ${difference.inMinutes}د';
-    } else if (difference.inHours < 24) {
-      return 'منذ ${difference.inHours}س';
-    } else if (difference.inDays == 1) {
-      return 'أمس';
-    } else {
-      return 'منذ ${difference.inDays}ي';
-    }
   }
 }

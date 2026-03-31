@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hggzk/core/localization/app_localizations.dart';
-import 'package:hggzk/core/theme/app_theme.dart';
-import 'package:hggzk/core/theme/app_text_styles.dart';
-import 'package:hggzk/features/chat/presentation/bloc/chat_bloc.dart';
-import 'package:hggzk/features/chat/presentation/pages/chat_page.dart';
+import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../bloc/chat_bloc.dart';
+import '../pages/chat_page.dart';
 
 /// Temporary screen that resolves a conversation id into a loaded chat page.
 /// شاشة مؤقتة تحوّل معرّف المحادثة إلى صفحة دردشة محمّلة.

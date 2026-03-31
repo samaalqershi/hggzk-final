@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hggzk/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:hggzk/app/bloc/app_bloc.dart';
 import 'package:hggzk/features/auth/presentation/bloc/auth_state.dart';
 import 'package:hggzk/features/auth/presentation/bloc/auth_event.dart';
 import 'package:hggzk/features/auth/presentation/pages/login_page.dart';
@@ -60,11 +60,17 @@ import 'package:hggzk/features/ai_assistant/presentation/pages/ai_chat_page.dart
 /// Centralizes app routes, guards, and redirect rules so navigation
 /// stays consistent with onboarding and authentication state.
 class AppRouter {
+  static final GoRouter _router = _buildRouter();
+
+  /// يعيد نسخة الراوتر المشتركة بدل إعادة إنشائها مع كل rebuild للجذر.
+  /// Returns the shared router instance instead of recreating it on every root rebuild.
+  static GoRouter get router => _router;
+
   /// ينشئ الراوتر الفعلي مع ردود الفعل على تغيّر حالة المصادقة.
   /// Builds the actual `GoRouter` instance and ties it to auth state
   /// changes.
-  static GoRouter build(BuildContext context) {
-    final authBloc = context.read<AuthBloc>();
+  static GoRouter _buildRouter() {
+    final authBloc = AppBloc.authBloc;
     return GoRouter(
       navigatorKey: NavigationService.rootNavigatorKey,
       initialLocation: RouteConstants.splash,
@@ -77,11 +83,11 @@ class AppRouter {
           if (token != null &&
               token.isNotEmpty &&
               _isJwtExpiredRouter(token, skewSeconds: 10)) {
-            context.read<AuthBloc>().add(const LogoutEvent());
+            AppBloc.authBloc.add(const LogoutEvent());
           }
         } catch (_) {}
 
-        final authState = context.read<AuthBloc>().state;
+        final authState = AppBloc.authBloc.state;
         final localStorage = sl<LocalStorageService>();
         final isFirstRun = !localStorage.isOnboardingCompleted();
 

@@ -37,11 +37,12 @@ namespace YemenBooking.Infrastructure.Services.Media
                 if (!Directory.Exists(root)) Directory.CreateDirectory(root);
                 var folderPath = string.IsNullOrEmpty(folder) ? root : Path.Combine(root, folder);
                 if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-                var fullPath = Path.Combine(folderPath, fileName);
-                await using var fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                var storedFileName = BuildStoredFileName(fileName);
+                var fullPath = Path.Combine(folderPath, storedFileName);
+                await using var fs = new FileStream(fullPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
                 await fileStream.CopyToAsync(fs, cancellationToken);
                 // Build a safe URL by URL-encoding each path segment to support spaces/Arabic characters
-                var relativePath = string.IsNullOrEmpty(folder) ? fileName : ($"{folder}/{fileName}");
+                var relativePath = string.IsNullOrEmpty(folder) ? storedFileName : ($"{folder}/{storedFileName}");
                 var encoded = string.Join('/', relativePath
                     .Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries)
                     .Select(seg => Uri.EscapeDataString(seg)));
@@ -52,7 +53,7 @@ namespace YemenBooking.Infrastructure.Services.Media
                     IsSuccess = true,
                     FilePath = fullPath,
                     FileUrl = fileUrl,
-                    FileName = fileName,
+                    FileName = storedFileName,
                     FileSizeBytes = fs.Length,
                     ContentType = contentType
                 };
@@ -76,10 +77,11 @@ namespace YemenBooking.Infrastructure.Services.Media
                 if (!Directory.Exists(root)) Directory.CreateDirectory(root);
                 var folderPath = string.IsNullOrEmpty(folder) ? root : Path.Combine(root, folder);
                 if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-                var fullPath = Path.Combine(folderPath, fileName);
+                var storedFileName = BuildStoredFileName(fileName);
+                var fullPath = Path.Combine(folderPath, storedFileName);
                 await File.WriteAllBytesAsync(fullPath, fileBytes, cancellationToken);
                 // Build a safe URL by URL-encoding each path segment to support spaces/Arabic characters
-                var relativePath = string.IsNullOrEmpty(folder) ? fileName : ($"{folder}/{fileName}");
+                var relativePath = string.IsNullOrEmpty(folder) ? storedFileName : ($"{folder}/{storedFileName}");
                 var encoded = string.Join('/', relativePath
                     .Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries)
                     .Select(seg => Uri.EscapeDataString(seg)));
@@ -90,7 +92,7 @@ namespace YemenBooking.Infrastructure.Services.Media
                     IsSuccess = true,
                     FilePath = fullPath,
                     FileUrl = fileUrl,
-                    FileName = fileName,
+                    FileName = storedFileName,
                     FileSizeBytes = fileBytes.Length,
                     ContentType = contentType
                 };
@@ -177,6 +179,22 @@ namespace YemenBooking.Infrastructure.Services.Media
                 _logger.LogError(ex, "خطأ أثناء نقل الملف");
                 return Task.FromResult(false);
             }
+        }
+
+        private static string BuildStoredFileName(string? fileName)
+        {
+            var safeFileName = string.IsNullOrWhiteSpace(fileName)
+                ? "file"
+                : Path.GetFileName(fileName);
+
+            var extension = Path.GetExtension(safeFileName);
+            var baseName = Path.GetFileNameWithoutExtension(safeFileName);
+            if (string.IsNullOrWhiteSpace(baseName))
+            {
+                baseName = "file";
+            }
+
+            return $"{baseName}_{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid():N}{extension}";
         }
 
     }

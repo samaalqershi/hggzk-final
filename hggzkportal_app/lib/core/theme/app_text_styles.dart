@@ -210,4 +210,13 @@ class AppTextStyles {
       ],
     );
   }
+
+  // Client-chat compatibility aliases.
+  static const TextStyle h1 = heading1;
+  static const TextStyle h2 = heading2;
+  static const TextStyle h3 = heading3;
+  static const TextStyle body1 = bodyLarge;
+  static const TextStyle body2 = bodyMedium;
+  static const TextStyle label = buttonMedium;
+  static const TextStyle caption2 = caption;
 }

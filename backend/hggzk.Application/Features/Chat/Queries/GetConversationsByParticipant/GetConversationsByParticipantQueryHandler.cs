@@ -67,7 +67,9 @@ namespace YemenBooking.Application.Features.Chat.Queries.GetConversationsByParti
                 var conv = itemList[i];
                 var unread = conv.Messages
                     .Where(m => m.SenderId != userId)
-                    .Count(m => !string.Equals(m.Status, "read", System.StringComparison.OrdinalIgnoreCase));
+                    .Count(m =>
+                        !string.Equals(m.Status, "read", System.StringComparison.OrdinalIgnoreCase) &&
+                        !m.ReadAt.HasValue);
                 dtos[i].UnreadCount = unread;
             }
 

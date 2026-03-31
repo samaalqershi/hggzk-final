@@ -21,6 +21,7 @@ namespace YemenBooking.Application.Features.Chat.Commands.MessageStatus
         private readonly IChatMessageRepository _messageRepo;
         private readonly ICurrentUserService _currentUserService;
         private readonly IFirebaseService _firebaseService;
+        private readonly IChatRealtimeNotifier _chatRealtimeNotifier;
         private readonly IMapper _mapper;
         private readonly ILogger<UpdateMessageStatusCommandHandler> _logger;
 
@@ -32,12 +33,14 @@ namespace YemenBooking.Application.Features.Chat.Commands.MessageStatus
             IChatMessageRepository messageRepo,
             ICurrentUserService currentUserService,
             IFirebaseService firebaseService,
+            IChatRealtimeNotifier chatRealtimeNotifier,
             IMapper mapper,
             ILogger<UpdateMessageStatusCommandHandler> logger)
         {
             _messageRepo = messageRepo;
             _currentUserService = currentUserService;
             _firebaseService = firebaseService;
+            _chatRealtimeNotifier = chatRealtimeNotifier;
             _mapper = mapper;
             _logger = logger;
         }
@@ -54,12 +57,27 @@ namespace YemenBooking.Application.Features.Chat.Commands.MessageStatus
                 if (message == null)
                     return ResultDto.Failed("الرسالة غير موجودة", errorCode: "message_not_found");
 
-                message.Status = request.Status;
                 var now = DateTime.UtcNow;
-                if (request.Status.Equals("delivered", StringComparison.OrdinalIgnoreCase))
-                    message.DeliveredAt = now;
-                else if (request.Status.Equals("read", StringComparison.OrdinalIgnoreCase))
-                    message.ReadAt = now;
+                if (request.Status.Equals("read", StringComparison.OrdinalIgnoreCase))
+                {
+                    message.Status = "read";
+                    message.ReadAt ??= now;
+                    message.DeliveredAt ??= now;
+                }
+                else if (request.Status.Equals("delivered", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!string.Equals(message.Status, "read", StringComparison.OrdinalIgnoreCase))
+                    {
+                        message.Status = "delivered";
+                    }
+
+                    message.DeliveredAt ??= now;
+                }
+                else
+                {
+                    message.Status = request.Status;
+                }
+
                 message.UpdatedAt = now;
 
                 await _messageRepo.UpdateMessageAsync(message, cancellationToken);
@@ -80,6 +98,15 @@ namespace YemenBooking.Application.Features.Chat.Commands.MessageStatus
                     { "delivered_at", deliveredLocal },
                     { "silent", "true" }
                 }, cancellationToken);
+
+                await _chatRealtimeNotifier.NotifyMessageStatusAsync(
+                    message.ConversationId,
+                    message.Id,
+                    message.Status,
+                    message.DeliveredAt,
+                    message.ReadAt,
+                    request.ReadBy,
+                    cancellationToken);
 
                 return ResultDto.Ok(null, "تم تحديث حالة الرسالة");
             }

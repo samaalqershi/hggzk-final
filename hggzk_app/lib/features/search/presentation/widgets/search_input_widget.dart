@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'dart:async';
-import 'dart:math' as math;
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -238,6 +237,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
 
   /// Updates local state and pushes debounced search callbacks.
   void _onTextChanged() {
+    if (!mounted) return;
     setState(() {
       _showClearButton = _controller.text.isNotEmpty;
       _isTyping = true;
@@ -245,6 +245,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
 
     _typingTimer?.cancel();
     _typingTimer = Timer(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
       setState(() {
         _isTyping = false;
       });
@@ -253,6 +254,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
     if (widget.onChanged != null) {
       _debounceTimer?.cancel();
       _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+        if (!mounted) return;
         widget.onChanged!(_controller.text);
       });
     }
@@ -266,6 +268,7 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
 
   /// Opens or closes the suggestion surface as focus changes.
   void _onFocusChanged() {
+    if (!mounted) return;
     setState(() {
       _isFocused = _focusNode.hasFocus;
     });
@@ -300,12 +303,19 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
   /// Shows the filtered suggestions below the search field.
   void _showSuggestions() {
     _hideSuggestions();
+    if (!mounted) return;
 
     final suggestions = _getFilteredSuggestions(context);
     if (suggestions.isEmpty) return;
 
-    _overlayEntry = _createUltraOverlayEntry(suggestions);
-    Overlay.of(context).insert(_overlayEntry!);
+    final overlay = Overlay.maybeOf(context);
+    if (overlay == null) return;
+
+    final overlayEntry = _createUltraOverlayEntry(suggestions);
+    if (overlayEntry == null) return;
+
+    _overlayEntry = overlayEntry;
+    overlay.insert(overlayEntry);
   }
 
   /// Removes the suggestion overlay from the screen.
@@ -346,10 +356,14 @@ class _SearchInputWidgetState extends State<SearchInputWidget>
   }
 
   /// Creates the floating overlay that hosts the suggestion list.
-  OverlayEntry _createUltraOverlayEntry(List<String> suggestions) {
-    RenderBox renderBox = context.findRenderObject() as RenderBox;
-    var size = renderBox.size;
-    var offset = renderBox.localToGlobal(Offset.zero);
+  OverlayEntry? _createUltraOverlayEntry(List<String> suggestions) {
+    final renderObject = context.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.attached) {
+      return null;
+    }
+
+    final size = renderObject.size;
+    final offset = renderObject.localToGlobal(Offset.zero);
 
     return OverlayEntry(
       builder: (context) => Positioned(

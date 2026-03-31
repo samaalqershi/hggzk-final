@@ -420,6 +420,12 @@ class NotificationService {
       final messageId =
           (data['message_id'] ?? data['messageId'] ?? '').toString();
       final status = (data['status'] ?? '').toString();
+      final deliveredAt = DateTime.tryParse(
+        (data['delivered_at'] ?? data['deliveredAt'] ?? '').toString(),
+      );
+      final readAt = DateTime.tryParse(
+        (data['read_at'] ?? data['readAt'] ?? '').toString(),
+      );
       if (conversationId.isNotEmpty) {
         try {
           if (_chatEventSink != null &&
@@ -427,10 +433,13 @@ class NotificationService {
               status.isNotEmpty) {
             _chatEventSink!.call(WebSocketMessageReceivedEvent(
               MessageEvent(
-                  type: MessageEventType.statusUpdated,
-                  conversationId: conversationId,
-                  messageId: messageId,
-                  status: status),
+                type: MessageEventType.statusUpdated,
+                conversationId: conversationId,
+                messageId: messageId,
+                status: status,
+                deliveredAt: deliveredAt,
+                readAt: readAt,
+              ),
             ));
           } else if (messageId.isNotEmpty && status.isNotEmpty) {
             // Fallback via WebSocketService stream
@@ -439,6 +448,8 @@ class NotificationService {
                     conversationId: conversationId,
                     messageId: messageId,
                     status: status,
+                    deliveredAt: deliveredAt,
+                    readAt: readAt,
                   );
             } catch (_) {}
           }

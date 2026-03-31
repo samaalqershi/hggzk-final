@@ -5,6 +5,8 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/conversation.dart';
+import 'online_status_indicator.dart';
+import '../utils/chat_presence_presentation.dart';
 
 /// Horizontal admin strip shown when the chat screen needs to surface staff
 /// members or pinned moderators.
@@ -406,21 +408,31 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                         margin: const EdgeInsets.only(top: 2),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 6,
-                          vertical: 1,
+                          vertical: 2,
                         ),
                         decoration: BoxDecoration(
                           color: AppTheme.success.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(
-                          context.tr(
-                            'chat.participant.onlineNow',
-                          ),
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppTheme.success,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const OnlineStatusIndicator(
+                              isOnline: true,
+                              size: 6,
+                              showBorder: false,
+                              animate: true,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              ChatPresencePresentation.onlineNow(context),
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppTheme.success,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                   ],

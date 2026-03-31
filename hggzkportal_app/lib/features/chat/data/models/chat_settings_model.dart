@@ -1,9 +1,7 @@
 import '../../domain/entities/attachment.dart';
 
-/// يعرّف الكلاس `ChatSettingsModel`.
-/// Describes the `ChatSettingsModel` class.
+/// العربية: يمثل نموذج البيانات `ChatSettingsModel`.
 class ChatSettingsModel extends ChatSettings {
-  /// Initializes a new `ChatSettingsModel` instance.
   /// العربية: ينشئ مثيلًا جديدًا من `ChatSettingsModel`.
   const ChatSettingsModel({
     required super.id,
@@ -18,8 +16,7 @@ class ChatSettingsModel extends ChatSettings {
     super.backupMessages,
   });
 
-  /// ينشئ مثيلاً من `ChatSettingsModel`.
-  /// Builds an instance of `ChatSettingsModel`.
+  /// العربية: ينشئ مثيلًا جديدًا من `ChatSettingsModel.fromJson`.
   factory ChatSettingsModel.fromJson(Map<String, dynamic> json) {
     return ChatSettingsModel(
       id: json['id'] ?? '',
@@ -40,8 +37,7 @@ class ChatSettingsModel extends ChatSettings {
     );
   }
 
-  /// ينفذ العملية `toJson`.
-  /// Runs the `toJson` operation.
+  /// العربية: يحول هذا الكائن إلى تمثيل JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,

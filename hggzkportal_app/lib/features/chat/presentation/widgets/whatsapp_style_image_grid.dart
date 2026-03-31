@@ -5,8 +5,6 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/attachment.dart';
 import 'expandable_image_viewer.dart';
-import 'package:hggzkportal/injection_container.dart';
-import '../../data/datasources/chat_local_datasource.dart';
 
 /// يعرّف الكلاس `WhatsAppStyleImageGrid`.
 /// Describes the `WhatsAppStyleImageGrid` class.
@@ -301,10 +299,6 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
   /// ينفذ العملية `_buildImageSurface`.
   /// Runs the `_buildImageSurface` operation.
   Widget _buildImageSurface(Attachment image) {
-    // 1) Prefer local file (while uploading or recently cached in entity)
-    if (image.localFile != null && image.localFile!.existsSync()) {
-      return Image.file(image.localFile!, fit: BoxFit.cover);
-    }
     if (image.filePath.isNotEmpty) {
       final f = File(image.filePath);
       if (f.existsSync()) return Image.file(f, fit: BoxFit.cover);
@@ -334,12 +328,7 @@ class WhatsAppStyleImageGrid extends StatelessWidget {
   /// ينفذ العملية `_loadLocalThumb`.
   /// Runs the `_loadLocalThumb` operation.
   Future<String?> _loadLocalThumb(String attachmentId) async {
-    try {
-      final ds = sl<ChatLocalDataSource>();
-      return await ds.getThumbnail('attachment_$attachmentId');
-    } catch (_) {
-      return null;
-    }
+    return null;
   }
 
   /// ينفذ العملية `_hasOverlayFor`.

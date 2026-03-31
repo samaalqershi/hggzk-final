@@ -5,20 +5,21 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/conversation.dart';
 import '../repositories/chat_repository.dart';
 
-/// يعرّف الكلاس `GetConversationsUseCase`.
-/// Describes the `GetConversationsUseCase` class.
+/// Loads the paginated conversation list for the inbox screen.
+///
+/// This keeps paging concerns out of the UI layer and lets the repository
+/// decide how the inbox is fetched and ordered.
+/// يعزل هذا الكود تفاصيل الترقيم عن الواجهة ويترك للمستودع تحديد طريقة
+/// الجلب والترتيب.
 class GetConversationsUseCase
     implements UseCase<List<Conversation>, GetConversationsParams> {
-  /// يخزن العضو `repository`.
-  /// Holds the `repository` member.
+  /// Repository used to retrieve conversation pages.
   final ChatRepository repository;
 
-  /// ينشئ مثيلاً من `GetConversationsUseCase`.
-  /// Builds an instance of `GetConversationsUseCase`.
+  /// Creates the use case around the chat repository.
   GetConversationsUseCase(this.repository);
 
-  /// ينفذ العملية `call`.
-  /// Runs the `call` operation.
+  /// Requests one page of conversations using the supplied paging window.
   @override
   Future<Either<Failure, List<Conversation>>> call(
       GetConversationsParams params) async {
@@ -29,26 +30,21 @@ class GetConversationsUseCase
   }
 }
 
-/// يعرّف الكلاس `GetConversationsParams`.
-/// Describes the `GetConversationsParams` class.
+/// Paging controls for the inbox query.
 class GetConversationsParams extends Equatable {
-  /// Holds the `pageNumber` value.
-  /// العربية: يخزن القيمة `pageNumber`.
+  /// Page index expected by the repository contract.
   final int pageNumber;
 
-  /// يخزن العضو `pageSize`.
-  /// Holds the `pageSize` member.
+  /// Number of conversations requested per page.
   final int pageSize;
 
-  /// ينشئ مثيلاً من `GetConversationsParams`.
-  /// Builds an instance of `GetConversationsParams`.
+  /// Sets the initial page window for the inbox.
   const GetConversationsParams({
     this.pageNumber = 1,
     this.pageSize = 20,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// Compares requests by their active page window.
   @override
   List<Object> get props => [pageNumber, pageSize];
 }

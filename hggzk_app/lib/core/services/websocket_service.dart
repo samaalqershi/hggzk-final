@@ -1,102 +1,352 @@
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:hggzk/core/constants/api_constants.dart';
 import 'package:hggzk/features/auth/data/datasources/auth_local_datasource.dart';
+import 'package:hggzk/features/chat/data/datasources/chat_remote_datasource.dart';
+import 'package:hggzk/features/chat/data/models/message_model.dart';
+import 'package:hggzk/features/chat/data/models/message_reaction_model.dart';
 import 'package:hggzk/features/chat/domain/entities/conversation.dart';
 import 'package:hggzk/features/chat/domain/entities/message.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/status.dart' as status;
 
-/// غلاف مؤقت يحافظ على واجهة الشات حتى لو كان النقل الفوري معطلاً.
-/// Temporary chat transport façade that preserves the public API while realtime is limited.
+/// Real-time transport layer for chat using the backend websocket channel.
+/// طبقة النقل اللحظي للشات باستخدام قناة websocket الخاصة بالباك إند.
 class ChatWebSocketService {
-  /// يوضح ما إذا كانت الخدمة في وضع الجاهزية المنطقية أم لا.
-  /// Indicates whether the service is logically ready to emit events.
+  ChatWebSocketService({
+    AuthLocalDataSource? authLocalDataSource,
+    ChatRemoteDataSource? remoteDataSource,
+  })  : _authLocalDataSource = authLocalDataSource,
+        _chatRemoteDataSource = remoteDataSource;
+
+  final AuthLocalDataSource? _authLocalDataSource;
+  final ChatRemoteDataSource? _chatRemoteDataSource;
+
+  WebSocketChannel? _channel;
+  StreamSubscription? _subscription;
+  Timer? _reconnectTimer;
+  Timer? _heartbeatTimer;
+
   bool _isConnected = false;
+  bool get isConnected => _isConnected;
+  bool _disposed = false;
+
   final _conversationController = StreamController<Conversation>.broadcast();
   final _messageController = StreamController<MessageEvent>.broadcast();
   final _typingController = StreamController<TypingEvent>.broadcast();
   final _presenceController = StreamController<PresenceEvent>.broadcast();
 
-  /// يبث تحديثات المحادثات إلى واجهات الشات.
-  /// Emits conversation updates to chat consumers.
   Stream<Conversation> get conversationUpdates =>
       _conversationController.stream;
-
-  /// يبث أحداث الرسائل مثل الإضافة أو التعديل أو الحالة.
-  /// Emits message lifecycle events such as create, edit, delete, and status changes.
   Stream<MessageEvent> get messageEvents => _messageController.stream;
-
-  /// يبث حالات الكتابة من المشاركين في المحادثة.
-  /// Emits typing indicators for the active conversation.
   Stream<TypingEvent> get typingEvents => _typingController.stream;
-
-  /// يبث تواجد المستخدمين وحالة آخر ظهور لهم.
-  /// Emits user presence and last-seen updates.
   Stream<PresenceEvent> get presenceEvents => _presenceController.stream;
 
-  /// يربط الاعتمادات الاختيارية دون فتح اتصال فعلي لأن الخدمة حالية منطقية فقط.
-  /// Accepts optional dependencies without creating a real socket connection.
-  ChatWebSocketService({
-    AuthLocalDataSource? authLocalDataSource,
-  });
-
-  /// يفعّل حالة الاتصال المنطقية فقط لأن استقبال الرسائل الفعلي يعتمد على FCM.
-  /// Marks the logical connection as active while real-time delivery relies on FCM.
   Future<void> connect() async {
-    if (_isConnected) return;
-    _isConnected = true;
+    if (_disposed || _isConnected) return;
+
+    final token = await _authLocalDataSource?.getCachedAccessToken();
+    if (token == null || token.isEmpty) return;
+
+    try {
+      final uri = Uri.parse(
+        '${ApiConstants.resolvedSocketUrl}/ws/chat?access_token=${Uri.encodeQueryComponent(token)}',
+      );
+
+      _channel = WebSocketChannel.connect(uri);
+      _subscription = _channel!.stream.listen(
+        _handleIncomingEvent,
+        onDone: _handleDisconnected,
+        onError: (_) => _handleDisconnected(),
+        cancelOnError: true,
+      );
+
+      _isConnected = true;
+      _startHeartbeat();
+    } catch (_) {
+      _handleDisconnected();
+    }
   }
 
-  /// يغلق الحالة المنطقية للاتصال دون قناة WebSocket فعلية.
-  /// Resets the logical connection state without an active WebSocket channel.
   void disconnect() {
+    _reconnectTimer?.cancel();
+    _heartbeatTimer?.cancel();
+    _subscription?.cancel();
+    _subscription = null;
+    _channel?.sink.close(status.goingAway);
+    _channel = null;
     _isConnected = false;
   }
 
-  /// هذه العملية معطلة حاليًا لأن التزامن الفوري يعتمد على الباكند/FCM.
-  /// Kept as a no-op so chat flows do not break while WebSocket is disabled.
-  void sendTypingIndicator(String conversationId, bool isTyping) {
-    if (!_isConnected) return;
+  void emitNewMessageById({
+    required String conversationId,
+    required String messageId,
+  }) {
+    if (_messageController.isClosed) return;
+    _messageController.add(MessageEvent(
+      type: MessageEventType.newMessage,
+      messageId: messageId,
+      conversationId: conversationId,
+    ));
   }
 
-  /// يغلق التدفقات ويصفي الحالة الداخلية.
-  /// Closes the streams and clears the internal state.
+  void emitReactionUpdate({
+    required String conversationId,
+    required String messageId,
+    required String userId,
+    required String reactionType,
+    required bool isAdded,
+  }) {
+    if (_messageController.isClosed) return;
+    _messageController.add(MessageEvent(
+      type: isAdded
+          ? MessageEventType.reactionAdded
+          : MessageEventType.reactionRemoved,
+      messageId: messageId,
+      conversationId: conversationId,
+      reaction: MessageReaction(
+        id: 'temp_${DateTime.now().microsecondsSinceEpoch}',
+        messageId: messageId,
+        userId: userId,
+        reactionType: reactionType,
+      ),
+    ));
+  }
+
+  void emitMessageStatusUpdate({
+    required String conversationId,
+    required String messageId,
+    required String status,
+    DateTime? deliveredAt,
+    DateTime? readAt,
+  }) {
+    if (_messageController.isClosed) return;
+    _messageController.add(MessageEvent(
+      type: MessageEventType.statusUpdated,
+      messageId: messageId,
+      conversationId: conversationId,
+      status: status,
+      deliveredAt: deliveredAt,
+      readAt: readAt,
+    ));
+  }
+
+  Future<void> emitConversationById({
+    required String conversationId,
+  }) async {
+    if (_conversationController.isClosed) return;
+    if (_chatRemoteDataSource == null) return;
+
+    try {
+      final conversation =
+          await _chatRemoteDataSource!.getConversationById(conversationId);
+      _conversationController.add(conversation);
+    } catch (_) {}
+  }
+
+  void sendTypingIndicator(String conversationId, bool isTyping) {
+    _send({
+      'type': isTyping ? 'typing.start' : 'typing.stop',
+      'conversationId': conversationId,
+    });
+  }
+
+  void sendPresence(String statusText) {
+    _send({
+      'type': 'presence.update',
+      'status': statusText,
+    });
+  }
+
   void dispose() {
+    _disposed = true;
     disconnect();
     _conversationController.close();
     _messageController.close();
     _typingController.close();
     _presenceController.close();
   }
+
+  void _startHeartbeat() {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = Timer.periodic(const Duration(seconds: 20), (_) {
+      _send(const {'type': 'ping'});
+    });
+  }
+
+  void _send(Map<String, dynamic> payload) {
+    if (!_isConnected || _channel == null) return;
+    try {
+      _channel!.sink.add(jsonEncode(payload));
+    } catch (_) {
+      _handleDisconnected();
+    }
+  }
+
+  Future<void> _handleIncomingEvent(dynamic raw) async {
+    Map<String, dynamic>? event;
+    try {
+      if (raw is String) {
+        event = jsonDecode(raw) as Map<String, dynamic>;
+      } else if (raw is Map<String, dynamic>) {
+        event = raw;
+      }
+    } catch (_) {
+      return;
+    }
+
+    if (event == null) return;
+
+    final type = event['type']?.toString() ?? '';
+    final payload = (event['payload'] is Map<String, dynamic>)
+        ? event['payload'] as Map<String, dynamic>
+        : ((event['payload'] is Map)
+            ? Map<String, dynamic>.from(event['payload'] as Map)
+            : <String, dynamic>{});
+
+    switch (type) {
+      case 'connection.ready':
+        _isConnected = true;
+        break;
+      case 'conversation.updated':
+        await _emitConversationUpdate(payload);
+        break;
+      case 'message.new':
+        _emitMessageEvent(
+          MessageEventType.newMessage,
+          payload,
+        );
+        break;
+      case 'message.updated':
+        _emitMessageEvent(
+          MessageEventType.edited,
+          payload,
+        );
+        break;
+      case 'message.deleted':
+        _messageController.add(MessageEvent(
+          type: MessageEventType.deleted,
+          messageId: payload['messageId']?.toString(),
+          conversationId: payload['conversationId']?.toString() ?? '',
+        ));
+        break;
+      case 'message.status':
+        _messageController.add(MessageEvent(
+          type: MessageEventType.statusUpdated,
+          messageId: payload['messageId']?.toString(),
+          conversationId: payload['conversationId']?.toString() ?? '',
+          status: payload['status']?.toString(),
+          deliveredAt: payload['deliveredAt'] != null
+              ? DateTime.tryParse(payload['deliveredAt'].toString())
+              : null,
+          readAt: payload['readAt'] != null
+              ? DateTime.tryParse(payload['readAt'].toString())
+              : null,
+        ));
+        break;
+      case 'message.reaction_added':
+        _messageController.add(MessageEvent(
+          type: MessageEventType.reactionAdded,
+          messageId: payload['messageId']?.toString(),
+          conversationId: payload['conversationId']?.toString() ?? '',
+          reaction: _parseReaction(payload['reaction']),
+        ));
+        break;
+      case 'message.reaction_removed':
+        _messageController.add(MessageEvent(
+          type: MessageEventType.reactionRemoved,
+          messageId: payload['messageId']?.toString(),
+          conversationId: payload['conversationId']?.toString() ?? '',
+          reaction: _parseReaction(payload['reaction']),
+        ));
+        break;
+      case 'typing.updated':
+        _typingController.add(TypingEvent(
+          conversationId: payload['conversationId']?.toString() ?? '',
+          typingUserIds:
+              (payload['typingUserIds'] as List? ?? const <dynamic>[])
+                  .map((e) => e.toString())
+                  .toList(),
+        ));
+        break;
+      case 'presence.updated':
+        _presenceController.add(PresenceEvent(
+          userId: payload['userId']?.toString() ?? '',
+          status: payload['status']?.toString() ?? 'offline',
+          lastSeen: payload['lastSeen'] != null
+              ? DateTime.tryParse(payload['lastSeen'].toString())
+              : null,
+        ));
+        break;
+    }
+  }
+
+  void _emitMessageEvent(
+    MessageEventType type,
+    Map<String, dynamic> payload,
+  ) {
+    final messageJson = payload['message'];
+    if (messageJson is! Map) return;
+
+    final message =
+        MessageModel.fromJson(Map<String, dynamic>.from(messageJson));
+    _messageController.add(MessageEvent(
+      type: type,
+      conversationId:
+          payload['conversationId']?.toString() ?? message.conversationId,
+      messageId: message.id,
+      message: message,
+    ));
+  }
+
+  Future<void> _emitConversationUpdate(Map<String, dynamic> payload) async {
+    final conversationId = payload['conversationId']?.toString();
+    if (conversationId == null || conversationId.isEmpty) return;
+    if (_chatRemoteDataSource == null) return;
+
+    try {
+      final conversation =
+          await _chatRemoteDataSource!.getConversationById(conversationId);
+      if (!_conversationController.isClosed) {
+        _conversationController.add(conversation);
+      }
+    } catch (_) {}
+  }
+
+  MessageReaction? _parseReaction(dynamic raw) {
+    if (raw is Map) {
+      return MessageReactionModel.fromJson(Map<String, dynamic>.from(raw));
+    }
+    return null;
+  }
+
+  void _handleDisconnected() {
+    _isConnected = false;
+    _heartbeatTimer?.cancel();
+    _subscription?.cancel();
+    _subscription = null;
+    _channel = null;
+
+    if (_disposed) return;
+
+    _reconnectTimer?.cancel();
+    _reconnectTimer = Timer(const Duration(seconds: 3), () {
+      connect();
+    });
+  }
 }
 
-// Event Models
-/// وصف موحد للحدث الذي يخص الرسائل داخل الشات.
-/// Unified description for message-related chat events.
 class MessageEvent {
-  /// نوع الحدث الذي حدث على الرسالة.
-  /// Type of lifecycle event that occurred.
   final MessageEventType type;
-
-  /// الرسالة المرتبطة بالحدث عند توفرها.
-  /// The message payload when the event carries one.
   final Message? message;
-
-  /// معرف الرسالة إذا كان الحدث لا يحمل الكائن كاملًا.
-  /// Message identifier when the full object is not included.
   final String? messageId;
-
-  /// المحادثة التي ينتمي إليها الحدث.
-  /// Conversation that owns the event.
   final String conversationId;
-
-  /// حالة الرسالة عندما يتعلق الحدث بالتسليم أو القراءة.
-  /// Message delivery/read status when applicable.
   final String? status;
-
-  /// التفاعل المرتبط بالرسالة إن كان الحدث تفاعلًا.
-  /// Reaction payload when the event is reaction-related.
   final MessageReaction? reaction;
+  final DateTime? deliveredAt;
+  final DateTime? readAt;
 
-  /// يبني حدث الرسالة بالحد الأدنى من البيانات التي تحتاجها طبقة الشات.
-  /// Builds the message event with the minimum data the chat layer needs.
   MessageEvent({
     required this.type,
     this.message,
@@ -104,45 +354,26 @@ class MessageEvent {
     required this.conversationId,
     this.status,
     this.reaction,
+    this.deliveredAt,
+    this.readAt,
   });
 }
 
-/// يصف من يكتب الآن داخل محادثة محددة.
-/// Describes who is currently typing inside a conversation.
 class TypingEvent {
-  /// المحادثة التي يظهر فيها مؤشر الكتابة.
-  /// Conversation where the typing indicator belongs.
   final String conversationId;
-
-  /// المستخدمون الذين يكتبون في هذه اللحظة.
-  /// Users who are typing at the moment.
   final List<String> typingUserIds;
 
-  /// ينشئ حدث الكتابة مع قائمة المستخدمين الذين يكتبون الآن.
-  /// Builds the typing event with the currently active typers.
   TypingEvent({
     required this.conversationId,
     required this.typingUserIds,
   });
 }
 
-/// يصف حالة التواجد وآخر ظهور لمستخدم ما.
-/// Describes a user's presence state and last seen timestamp.
 class PresenceEvent {
-  /// المستخدم الذي تتحدث عنه حالة التواجد.
-  /// User that the presence state belongs to.
   final String userId;
-
-  /// الحالة الحالية مثل online أو offline أو away.
-  /// Current status such as online, offline, or away.
   final String status;
-
-  /// وقت آخر ظهور إذا كان معروفًا.
-  /// Timestamp for the last seen moment when available.
   final DateTime? lastSeen;
 
-  /// يبني حدث التواجد بالمعرف والحالة ووقت آخر ظهور إن توفر.
-  /// Builds the presence event used to mirror user availability in chat.
   PresenceEvent({
     required this.userId,
     required this.status,
@@ -150,8 +381,6 @@ class PresenceEvent {
   });
 }
 
-/// أنواع الأحداث التي يمكن أن تصدرها طبقة الشات.
-/// Event types emitted by the chat transport layer.
 enum MessageEventType {
   newMessage,
   edited,

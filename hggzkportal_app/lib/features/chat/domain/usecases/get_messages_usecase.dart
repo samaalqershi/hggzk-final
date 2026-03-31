@@ -5,19 +5,15 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/message.dart';
 import '../repositories/chat_repository.dart';
 
-/// يعرّف الكلاس `GetMessagesUseCase`.
-/// Describes the `GetMessagesUseCase` class.
+/// العربية: ينفذ حالة الاستخدام `GetMessagesUseCase`.
 class GetMessagesUseCase implements UseCase<List<Message>, GetMessagesParams> {
-  /// Holds the `repository` value.
   /// العربية: يخزن القيمة `repository`.
   final ChatRepository repository;
 
-  /// ينشئ مثيلاً من `GetMessagesUseCase`.
-  /// Builds an instance of `GetMessagesUseCase`.
+  /// العربية: ينشئ مثيلًا جديدًا من `GetMessagesUseCase`.
   GetMessagesUseCase(this.repository);
 
-  /// ينفذ العملية `call`.
-  /// Runs the `call` operation.
+  /// العربية: ينفذ السلوك الرئيسي الذي يقدمه هذا الكائن القابل للاستدعاء.
   @override
   Future<Either<Failure, List<Message>>> call(GetMessagesParams params) async {
     return await repository.getMessages(
@@ -29,27 +25,21 @@ class GetMessagesUseCase implements UseCase<List<Message>, GetMessagesParams> {
   }
 }
 
-/// يعرّف الكلاس `GetMessagesParams`.
-/// Describes the `GetMessagesParams` class.
+/// العربية: يمثل `GetMessagesParams`.
 class GetMessagesParams extends Equatable {
-  /// Holds the `conversationId` value.
   /// العربية: يخزن القيمة `conversationId`.
   final String conversationId;
 
-  /// يخزن العضو `pageNumber`.
-  /// Holds the `pageNumber` member.
+  /// العربية: يخزن القيمة `pageNumber`.
   final int pageNumber;
 
-  /// يخزن العضو `pageSize`.
-  /// Holds the `pageSize` member.
+  /// العربية: يخزن القيمة `pageSize`.
   final int pageSize;
 
-  /// يخزن العضو `beforeMessageId`.
-  /// Holds the `beforeMessageId` member.
+  /// العربية: يخزن القيمة `beforeMessageId`.
   final String? beforeMessageId;
 
-  /// ينشئ مثيلاً من `GetMessagesParams`.
-  /// Builds an instance of `GetMessagesParams`.
+  /// العربية: ينشئ مثيلًا جديدًا من `GetMessagesParams`.
   const GetMessagesParams({
     required this.conversationId,
     this.pageNumber = 1,
@@ -57,8 +47,7 @@ class GetMessagesParams extends Equatable {
     this.beforeMessageId,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object?> get props => [
         conversationId,

@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/attachment.dart';
 import '../../domain/entities/conversation.dart';
 import '../../domain/entities/message.dart';
@@ -12,31 +13,25 @@ import '../datasources/chat_remote_datasource.dart';
 import '../models/conversation_model.dart';
 import '../models/message_model.dart';
 
-/// يعرّف الكلاس `ChatRepositoryImpl`.
-/// Describes the `ChatRepositoryImpl` class.
+/// العربية: يوفر سلوك المستودع الخاص بـ `ChatRepositoryImpl`.
 class ChatRepositoryImpl implements ChatRepository {
-  /// Holds the `remoteDataSource` value.
   /// العربية: يخزن القيمة `remoteDataSource`.
   final ChatRemoteDataSource remoteDataSource;
 
-  /// يخزن العضو `localDataSource`.
-  /// Holds the `localDataSource` member.
+  /// العربية: يخزن القيمة `localDataSource`.
   final ChatLocalDataSource localDataSource;
 
-  /// يخزن العضو `internetConnectionChecker`.
-  /// Holds the `internetConnectionChecker` member.
+  /// العربية: يخزن القيمة `internetConnectionChecker`.
   final InternetConnectionChecker internetConnectionChecker;
 
-  /// ينشئ مثيلاً من `ChatRepositoryImpl`.
-  /// Builds an instance of `ChatRepositoryImpl`.
+  /// العربية: ينشئ مثيلًا جديدًا من `ChatRepositoryImpl`.
   ChatRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
     required this.internetConnectionChecker,
   });
 
-  /// ينفذ العملية `createConversation`.
-  /// Runs the `createConversation` operation.
+  /// العربية: ينشئ conversation.
   @override
   Future<Either<Failure, Conversation>> createConversation({
     required List<String> participantIds,
@@ -66,12 +61,12 @@ class ChatRepositoryImpl implements ChatRepository {
       // تحويل من Model إلى Entity
       return Right(conversationModel);
     } catch (e) {
-      return Left(ServerFailure());
+      return const Left(ServerFailure());
     }
   }
 
-  /// ينفذ العملية `getConversations`.
-  /// Runs the `getConversations` operation.
+  /// العربية: يعيد conversations.
+  @override
   Future<Either<Failure, List<Conversation>>> getConversations({
     required int pageNumber,
     required int pageSize,
@@ -90,15 +85,16 @@ class ChatRepositoryImpl implements ChatRepository {
         if (cachedConversations != null && cachedConversations.isNotEmpty) {
           return Right(cachedConversations);
         }
-        return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+        return Left(
+          NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+        );
       }
     } catch (e) {
       return ErrorHandler.handle(e);
     }
   }
 
-  /// ينفذ العملية `getConversationById`.
-  /// Runs the `getConversationById` operation.
+  /// العربية: يعيد conversation by id.
   @override
   Future<Either<Failure, Conversation>> getConversationById(
       String conversationId) async {
@@ -108,7 +104,9 @@ class ChatRepositoryImpl implements ChatRepository {
       if (cached != null) {
         return Right(cached);
       }
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -120,13 +118,14 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `archiveConversation`.
-  /// Runs the `archiveConversation` operation.
+  /// العربية: يعالج `archiveConversation`.
   @override
   Future<Either<Failure, void>> archiveConversation(
       String conversationId) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -137,13 +136,14 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `unarchiveConversation`.
-  /// Runs the `unarchiveConversation` operation.
+  /// العربية: يعالج `unarchiveConversation`.
   @override
   Future<Either<Failure, void>> unarchiveConversation(
       String conversationId) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -154,13 +154,14 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `deleteConversation`.
-  /// Runs the `deleteConversation` operation.
+  /// العربية: يحذف conversation.
   @override
   Future<Either<Failure, void>> deleteConversation(
       String conversationId) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -172,8 +173,7 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `getMessages`.
-  /// Runs the `getMessages` operation.
+  /// العربية: يعيد messages.
   @override
   Future<Either<Failure, List<Message>>> getMessages({
     required String conversationId,
@@ -201,15 +201,16 @@ class ChatRepositoryImpl implements ChatRepository {
         if (cachedMessages != null && cachedMessages.isNotEmpty) {
           return Right(cachedMessages);
         }
-        return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+        return Left(
+          NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+        );
       }
     } catch (e) {
       return ErrorHandler.handle(e);
     }
   }
 
-  /// ينفذ العملية `sendMessage`.
-  /// Runs the `sendMessage` operation.
+  /// العربية: يرسل message.
   @override
   Future<Either<Failure, Message>> sendMessage({
     required String conversationId,
@@ -229,8 +230,9 @@ class ChatRepositoryImpl implements ChatRepository {
         replyToMessageId: replyToMessageId,
         attachmentIds: attachmentIds,
       );
-      return const Left(NetworkFailure(
-          'الرسالة في قائمة الانتظار وسيتم إرسالها عند توفر الاتصال'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('chat.errors.network')),
+      );
     }
 
     try {
@@ -252,15 +254,16 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `editMessage`.
-  /// Runs the `editMessage` operation.
+  /// العربية: يعالج `editMessage`.
   @override
   Future<Either<Failure, Message>> editMessage({
     required String messageId,
     required String content,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -274,12 +277,13 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `deleteMessage`.
-  /// Runs the `deleteMessage` operation.
+  /// العربية: يحذف message.
   @override
   Future<Either<Failure, void>> deleteMessage(String messageId) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -290,15 +294,16 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `markAsRead`.
-  /// Runs the `markAsRead` operation.
+  /// العربية: يعالج `markAsRead`.
   @override
   Future<Either<Failure, void>> markAsRead({
     required String conversationId,
     required List<String> messageIds,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -312,15 +317,16 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `addReaction`.
-  /// Runs the `addReaction` operation.
+  /// العربية: يعالج `addReaction`.
   @override
   Future<Either<Failure, void>> addReaction({
     required String messageId,
     required String reactionType,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -334,15 +340,16 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `removeReaction`.
-  /// Runs the `removeReaction` operation.
+  /// العربية: يزيل reaction.
   @override
   Future<Either<Failure, void>> removeReaction({
     required String messageId,
     required String reactionType,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -356,18 +363,19 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `uploadAttachment`.
-  /// Runs the `uploadAttachment` operation.
+  /// العربية: يعالج `uploadAttachment`.
   @override
   Future<Either<Failure, Attachment>> uploadAttachment({
     required String conversationId,
     required String filePath,
     required String messageType,
-    String? thumbnailPath,
+    int? durationSeconds,
     ProgressCallback? onSendProgress,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -375,7 +383,7 @@ class ChatRepositoryImpl implements ChatRepository {
         conversationId: conversationId,
         filePath: filePath,
         messageType: messageType,
-        thumbnailPath: thumbnailPath,
+        durationSeconds: durationSeconds,
         onSendProgress: onSendProgress,
       );
       return Right(attachment);
@@ -384,8 +392,7 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `uploadMultipleAttachments`.
-  /// Runs the `uploadMultipleAttachments` operation.
+  /// العربية: يعالج `uploadMultipleAttachments`.
   @override
   Future<Either<Failure, List<Attachment>>> uploadMultipleAttachments({
     required String conversationId,
@@ -394,7 +401,9 @@ class ChatRepositoryImpl implements ChatRepository {
     ProgressCallback? onSendProgress,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -404,8 +413,6 @@ class ChatRepositoryImpl implements ChatRepository {
           conversationId: conversationId,
           filePath: filePath,
           messageType: messageType,
-          // In multi-upload path we currently don't pre-generate thumbnails per item here;
-          // If needed, pass a prepared path from caller.
           onSendProgress: onSendProgress,
         );
         attachments.add(attachment);
@@ -416,8 +423,7 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `searchChats`.
-  /// Runs the `searchChats` operation.
+  /// العربية: يعالج `searchChats`.
   @override
   Future<Either<Failure, SearchResult>> searchChats({
     required String query,
@@ -430,7 +436,9 @@ class ChatRepositoryImpl implements ChatRepository {
     required int limit,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -450,15 +458,16 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `getAvailableUsers`.
-  /// Runs the `getAvailableUsers` operation.
+  /// العربية: يعيد available users.
   @override
   Future<Either<Failure, List<ChatUser>>> getAvailableUsers({
     String? userType,
     String? propertyId,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -472,12 +481,13 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `getAdminUsers`.
-  /// Runs the `getAdminUsers` operation.
+  /// العربية: يعيد admin users.
   @override
   Future<Either<Failure, List<ChatUser>>> getAdminUsers() async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -488,12 +498,13 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `updateUserStatus`.
-  /// Runs the `updateUserStatus` operation.
+  /// العربية: يحدّث user status.
   @override
   Future<Either<Failure, void>> updateUserStatus(String status) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -504,37 +515,40 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `getChatSettings`.
-  /// Runs the `getChatSettings` operation.
+  /// العربية: يعيد chat settings.
   @override
   Future<Either<Failure, ChatSettings>> getChatSettings() async {
     try {
-      // Try to get from cache first
       final cachedSettings = await localDataSource.getCachedSettings();
-      if (cachedSettings != null) {
-        if (await internetConnectionChecker.hasConnection) {
-          // Fetch fresh settings in background
-          remoteDataSource.getChatSettings().then((settings) {
-            localDataSource.cacheSettings(settings);
-          }).catchError((_) {});
+      final hasValidCachedSettings =
+          cachedSettings != null && cachedSettings.userId.trim().isNotEmpty;
+
+      final hasConnection = await internetConnectionChecker.hasConnection;
+      if (!hasConnection) {
+        if (hasValidCachedSettings) {
+          return Right(cachedSettings);
         }
-        return Right(cachedSettings);
+        return Left(
+          NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+        );
       }
 
-      if (!await internetConnectionChecker.hasConnection) {
-        return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      try {
+        final settings = await remoteDataSource.getChatSettings();
+        await localDataSource.cacheSettings(settings);
+        return Right(settings);
+      } catch (_) {
+        if (hasValidCachedSettings) {
+          return Right(cachedSettings);
+        }
+        rethrow;
       }
-
-      final settings = await remoteDataSource.getChatSettings();
-      await localDataSource.cacheSettings(settings);
-      return Right(settings);
     } catch (e) {
       return ErrorHandler.handle(e);
     }
   }
 
-  /// ينفذ العملية `updateChatSettings`.
-  /// Runs the `updateChatSettings` operation.
+  /// العربية: يحدّث chat settings.
   @override
   Future<Either<Failure, ChatSettings>> updateChatSettings({
     bool? notificationsEnabled,
@@ -547,7 +561,9 @@ class ChatRepositoryImpl implements ChatRepository {
     bool? backupMessages,
   }) async {
     if (!await internetConnectionChecker.hasConnection) {
-      return const Left(NetworkFailure('لا يوجد اتصال بالإنترنت'));
+      return Left(
+        NetworkFailure(AppLocalizations.translateSync('common.noInternet')),
+      );
     }
 
     try {
@@ -568,8 +584,7 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
-  /// ينفذ العملية `cacheConversations`.
-  /// Runs the `cacheConversations` operation.
+  /// العربية: يعالج `cacheConversations`.
   @override
   Future<void> cacheConversations(List<Conversation> conversations) async {
     await localDataSource.cacheConversations(
@@ -577,15 +592,13 @@ class ChatRepositoryImpl implements ChatRepository {
     );
   }
 
-  /// ينفذ العملية `getCachedConversations`.
-  /// Runs the `getCachedConversations` operation.
+  /// العربية: يعيد cached conversations.
   @override
   Future<List<Conversation>?> getCachedConversations() async {
     return await localDataSource.getCachedConversations();
   }
 
-  /// ينفذ العملية `cacheMessages`.
-  /// Runs the `cacheMessages` operation.
+  /// العربية: يعالج `cacheMessages`.
   @override
   Future<void> cacheMessages(
       String conversationId, List<Message> messages) async {
@@ -595,15 +608,13 @@ class ChatRepositoryImpl implements ChatRepository {
     );
   }
 
-  /// ينفذ العملية `getCachedMessages`.
-  /// Runs the `getCachedMessages` operation.
+  /// العربية: يعيد cached messages.
   @override
   Future<List<Message>?> getCachedMessages(String conversationId) async {
     return await localDataSource.getCachedMessages(conversationId);
   }
 
-  /// ينفذ العملية `clearChatCache`.
-  /// Runs the `clearChatCache` operation.
+  /// العربية: يعالج `clearChatCache`.
   @override
   Future<void> clearChatCache() async {
     await localDataSource.clearAllCache();

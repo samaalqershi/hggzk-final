@@ -316,11 +316,14 @@ namespace YemenBooking.Api.Controllers.Common
         /// Uploads a file as a chat attachment.
         /// </summary>
         [HttpPost("upload")]
+        [HttpPost("attachments")]
+        [RequestSizeLimit(512 * 1024 * 1024)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 512 * 1024 * 1024)]
         public async Task<IActionResult> UploadFile([FromForm] UploadFileCommand command)
         {
             var result = await _mediator.Send(command);
             if (!result.Success) return BadRequest(result);
-            return Ok(new { attachment = result.Data, success = true });
+            return Ok(new { data = result.Data, attachment = result.Data, success = true });
         }
     }
 } 

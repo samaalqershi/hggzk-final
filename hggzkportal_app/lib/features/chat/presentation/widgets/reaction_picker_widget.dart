@@ -3,70 +3,48 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 
-/// يعرّف الكلاس `ReactionPickerWidget`.
-/// Describes the `ReactionPickerWidget` class.
+/// Floating reaction tray shown beneath a message bubble.
+///
+/// It gives the user a small, low-friction way to react without leaving the
+/// conversation flow.
+/// يتيح للمستخدم التفاعل بسرعة من دون الخروج من سياق المحادثة.
 class ReactionPickerWidget extends StatefulWidget {
-  /// Receives `Function`.
-  /// العربية: يعالج `Function`.
+  /// Called with the selected reaction type when the user taps an emoji.
   final Function(String) onReaction;
 
-  /// ينشئ مثيلاً من `ReactionPickerWidget`.
-  /// Builds an instance of `ReactionPickerWidget`.
+  /// Builds the animated picker that exposes quick message reactions.
   const ReactionPickerWidget({
     super.key,
     required this.onReaction,
   });
 
-  /// ينفذ العملية `createState`.
-  /// Runs the `createState` operation.
+  /// Creates the animation state used to stagger and scale the reactions.
   @override
   State<ReactionPickerWidget> createState() => _ReactionPickerWidgetState();
 }
 
-/// يعرّف الكلاس `_ReactionPickerWidgetState`.
-/// Describes the `_ReactionPickerWidgetState` class.
+/// Orchestrates the tray animation and the per-reaction entrance scale.
 class _ReactionPickerWidgetState extends State<ReactionPickerWidget>
     with SingleTickerProviderStateMixin {
-  /// يخزن العضو `_animationController`.
-  /// Holds the `_animationController` member.
+  /// Drives the overall tray entrance animation.
   late AnimationController _animationController;
 
-  /// يخزن العضو `_scaleAnimations`.
-  /// Holds the `_scaleAnimations` member.
+  /// Individual pop-in animations used for each reaction button.
   late List<Animation<double>> _scaleAnimations;
 
-  /// يخزن العضو `_containerAnimation`.
-  /// Holds the `_containerAnimation` member.
+  /// Scales the tray as a single unit when it appears.
   late Animation<double> _containerAnimation;
 
-  /// يخزن العضو `reactions`.
-  /// Holds the `reactions` member.
   final List<ReactionItem> reactions = [
     ReactionItem(emoji: '👍', type: 'like'),
-
-    /// ينفذ العملية `ReactionItem`.
-    /// Runs the `ReactionItem` operation.
     ReactionItem(emoji: '❤️', type: 'love'),
-
-    /// ينفذ العملية `ReactionItem`.
-    /// Runs the `ReactionItem` operation.
     ReactionItem(emoji: '😂', type: 'laugh'),
-
-    /// ينفذ العملية `ReactionItem`.
-    /// Runs the `ReactionItem` operation.
     ReactionItem(emoji: '😮', type: 'wow'),
-
-    /// ينفذ العملية `ReactionItem`.
-    /// Runs the `ReactionItem` operation.
     ReactionItem(emoji: '😢', type: 'sad'),
-
-    /// ينفذ العملية `ReactionItem`.
-    /// Runs the `ReactionItem` operation.
     ReactionItem(emoji: '😠', type: 'angry'),
   ];
 
-  /// ينفذ العملية `initState`.
-  /// Runs the `initState` operation.
+  /// Creates the tray and per-item animations as soon as the widget mounts.
   @override
   void initState() {
     super.initState();
@@ -99,16 +77,14 @@ class _ReactionPickerWidgetState extends State<ReactionPickerWidget>
     _animationController.forward();
   }
 
-  /// ينفذ العملية `dispose`.
-  /// Runs the `dispose` operation.
+  /// Releases the tray animation controller.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// Builds the floating tray and its reaction buttons.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -130,18 +106,18 @@ class _ReactionPickerWidgetState extends State<ReactionPickerWidget>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.darkCard.withValues(alpha: 0.7),
-                        AppTheme.darkCard.withValues(alpha: 0.5),
+                        AppTheme.darkCard.withOpacity(0.7),
+                        AppTheme.darkCard.withOpacity(0.5),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: AppTheme.darkBorder.withValues(alpha: 0.2),
+                      color: AppTheme.darkBorder.withOpacity(0.2),
                       width: 0.5,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.shadowDark.withValues(alpha: 0.15),
+                        color: AppTheme.shadowDark.withOpacity(0.15),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -177,48 +153,37 @@ class _ReactionPickerWidgetState extends State<ReactionPickerWidget>
   }
 }
 
-/// يعرّف الكلاس `_MinimalReactionButton`.
-/// Describes the `_MinimalReactionButton` class.
+/// Individual reaction button rendered inside the tray.
 class _MinimalReactionButton extends StatefulWidget {
-  /// Holds the `reaction` value.
-  /// العربية: يخزن القيمة `reaction`.
+  /// Emoji and metadata for the reaction option.
   final ReactionItem reaction;
 
-  /// يخزن العضو `onTap`.
-  /// Holds the `onTap` member.
+  /// Invoked when the reaction is selected.
   final VoidCallback onTap;
 
-  /// ينشئ مثيلاً من `_MinimalReactionButton`.
-  /// Builds an instance of `_MinimalReactionButton`.
+  /// Builds one compact reaction button.
   const _MinimalReactionButton({
     required this.reaction,
     required this.onTap,
   });
 
-  /// ينفذ العملية `createState`.
-  /// Runs the `createState` operation.
+  /// Creates the press feedback animation state for the reaction button.
   @override
   State<_MinimalReactionButton> createState() => _MinimalReactionButtonState();
 }
 
-/// يعرّف الكلاس `_MinimalReactionButtonState`.
-/// Describes the `_MinimalReactionButtonState` class.
 class _MinimalReactionButtonState extends State<_MinimalReactionButton>
     with SingleTickerProviderStateMixin {
-  /// يخزن العضو `_animationController`.
-  /// Holds the `_animationController` member.
+  /// Drives the press-scale animation.
   late AnimationController _animationController;
 
-  /// يخزن العضو `_scaleAnimation`.
-  /// Holds the `_scaleAnimation` member.
+  /// Expands the reaction slightly during press feedback.
   late Animation<double> _scaleAnimation;
 
-  /// يخزن العضو `_isPressed`.
-  /// Holds the `_isPressed` member.
+  /// Tracks the current pressed state for tactile feedback.
   bool _isPressed = false;
 
-  /// ينفذ العملية `initState`.
-  /// Runs the `initState` operation.
+  /// Prepares the press animation when the button enters the tree.
   @override
   void initState() {
     super.initState();
@@ -235,16 +200,14 @@ class _MinimalReactionButtonState extends State<_MinimalReactionButton>
     ));
   }
 
-  /// ينفذ العملية `dispose`.
-  /// Runs the `dispose` operation.
+  /// Releases the press animation controller.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// Builds the tappable reaction button surface.
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -272,8 +235,8 @@ class _MinimalReactionButtonState extends State<_MinimalReactionButton>
                   ? BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppTheme.primaryBlue.withValues(alpha: 0.1),
-                          AppTheme.primaryPurple.withValues(alpha: 0.05),
+                          AppTheme.primaryBlue.withOpacity(0.1),
+                          AppTheme.primaryPurple.withOpacity(0.05),
                         ],
                       ),
                       shape: BoxShape.circle,
@@ -291,19 +254,19 @@ class _MinimalReactionButtonState extends State<_MinimalReactionButton>
   }
 }
 
-/// يعرّف الكلاس `ReactionItem`.
-/// Describes the `ReactionItem` class.
+/// One reaction option rendered inside the tray.
+/// خيار تفاعل واحد يُعرض داخل الدرج.
 class ReactionItem {
-  /// Holds the `emoji` value.
-  /// العربية: يخزن القيمة `emoji`.
+  /// Emoji shown to the user.
+  /// الإيموجي الظاهر للمستخدم.
   final String emoji;
 
-  /// يخزن العضو `type`.
-  /// Holds the `type` member.
+  /// Backend-friendly reaction identifier.
+  /// معرّف التفاعل المناسب للخادم.
   final String type;
 
-  /// ينشئ مثيلاً من `ReactionItem`.
-  /// Builds an instance of `ReactionItem`.
+  /// Builds one reaction option with emoji and semantic type.
+  /// ينشئ خيار تفاعل واحدًا مع الإيموجي والنوع الدلالي.
   ReactionItem({
     required this.emoji,
     required this.type,

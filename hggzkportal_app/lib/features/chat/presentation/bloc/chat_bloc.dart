@@ -3,191 +3,177 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hggzkportal/core/error/failures.dart';
-import 'package:hggzkportal/core/usecases/usecase.dart';
-import 'package:hggzkportal/features/auth/domain/usecases/get_current_user_usecase.dart';
-import 'package:hggzkportal/features/chat/data/datasources/chat_local_datasource.dart';
-import 'package:hggzkportal/features/chat/domain/entities/attachment.dart';
-import 'package:hggzkportal/features/chat/domain/entities/conversation.dart';
-import 'package:hggzkportal/features/chat/domain/entities/message.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/add_reaction_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/archive_conversation_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/create_conversation_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/delete_conversation_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/delete_message_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/edit_message_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/get_admin_users_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/get_available_users_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/get_chat_settings_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/get_conversations_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/get_messages_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/mark_as_read_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/remove_reaction_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/search_chats_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/send_message_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/send_typing_indicator_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/unarchive_conversation_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/update_chat_settings_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/update_user_status_usecase.dart';
-import 'package:hggzkportal/features/chat/domain/usecases/upload_attachment_usecase.dart';
-import 'package:hggzkportal/features/chat/presentation/models/image_upload_info.dart';
-import 'package:hggzkportal/features/helpers/domain/entities/search_result.dart';
-import 'package:hggzkportal/services/notification_service.dart';
-import 'package:hggzkportal/injection_container.dart' as di;
-import 'package:hggzkportal/services/media_pipeline.dart';
-import 'package:hggzkportal/services/websocket_service.dart';
-
+import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/localization/locale_manager.dart';
+import '../../../../core/services/local_storage_service.dart';
+import '../../../../core/services/websocket_service.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import '../../../auth/domain/usecases/get_current_user_usecase.dart';
+import '../../chat_settings_keys.dart';
+import '../../domain/usecases/get_messages_usecase.dart';
+import '../../domain/usecases/search_chats_usecase.dart';
+import '../../../../core/error/failures.dart';
+import '../../../../core/usecases/usecase.dart';
+import '../../domain/entities/attachment.dart';
+import '../../domain/entities/conversation.dart';
+import '../../domain/entities/message.dart';
+import '../../domain/repositories/chat_repository.dart';
+import '../../domain/usecases/get_conversations_usecase.dart';
+import '../../domain/usecases/send_message_usecase.dart';
+import '../../domain/usecases/create_conversation_usecase.dart';
+import '../../domain/usecases/delete_conversation_usecase.dart';
+import '../../domain/usecases/archive_conversation_usecase.dart';
+import '../../domain/usecases/unarchive_conversation_usecase.dart';
+import '../../domain/usecases/delete_message_usecase.dart';
+import '../../domain/usecases/edit_message_usecase.dart';
+import '../../domain/usecases/add_reaction_usecase.dart';
+import '../../domain/usecases/remove_reaction_usecase.dart';
+import '../../domain/usecases/mark_as_read_usecase.dart';
+import '../../domain/usecases/upload_attachment_usecase.dart';
+import '../../domain/usecases/get_available_users_usecase.dart';
+import '../../domain/usecases/get_admin_users_usecase.dart';
+import '../../domain/usecases/update_user_status_usecase.dart';
+import '../../domain/usecases/get_chat_settings_usecase.dart';
+import '../../domain/usecases/update_chat_settings_usecase.dart';
 part 'chat_event.dart';
 part 'chat_state.dart';
 
-/// يدير دورة حياة الشات كاملة من تحميل المحادثات والرسائل إلى
-/// التفاعل اللحظي والرفع والبحث والإعدادات.
-/// Manages the full chat lifecycle from loading conversations and
-/// messages to realtime updates, uploads, search, and settings.
+/// Coordinates inbox loading, message history, realtime updates, and
+/// composer actions for the chat feature.
+/// ينسق تحميل الصندوق وسجل الرسائل والتحديثات اللحظية وأفعال المحرر في
+/// ميزة الدردشة.
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
-  /// يجلب قائمة المحادثات مع التصفح الصفحي.
-  /// Fetches the conversation list with pagination support.
+  static const String _localThumbnailMetadataKey = 'localThumbnailPath';
+
+  /// Loads the paginated list of conversations.
+  /// يحمل قائمة المحادثات المرقمة.
   final GetConversationsUseCase getConversationsUseCase;
 
-  /// يجلب رسائل محادثة محددة عند فتحها أو إعادة تحميلها.
-  /// Fetches messages for a specific conversation when it opens or
-  /// refreshes.
+  /// Loads the messages for a single conversation.
+  /// يحمل رسائل محادثة واحدة.
   final GetMessagesUseCase getMessagesUseCase;
 
-  /// يرسل الرسائل النصية أو الرسائل المرتبطة بالمرفقات والموقع.
-  /// Sends text messages or messages tied to attachments and
-  /// locations.
+  /// Sends outbound messages through the domain layer.
+  /// يرسل الرسائل الصادرة عبر طبقة المجال.
   final SendMessageUseCase sendMessageUseCase;
 
-  /// ينشئ محادثة جديدة مع المشاركين المحددين.
-  /// Initializes a new conversation with the selected participants.
+  /// Creates new conversations for selected participants.
+  /// ينشئ محادثات جديدة للمشاركين المختارين.
   final CreateConversationUseCase createConversationUseCase;
 
-  /// يحذف المحادثات عندما يطلب المستخدم أو الإدارة ذلك.
-  /// Deletes conversations when requested by the user or admin.
+  /// Deletes conversations from the active list.
+  /// يحذف المحادثات من القائمة النشطة.
   final DeleteConversationUseCase deleteConversationUseCase;
 
-  /// ينقل المحادثة إلى الأرشيف دون فقدان تاريخها.
-  /// Moves a conversation to the archive without losing history.
+  /// Archives conversations without deleting them.
+  /// يؤرشف المحادثات دون حذفها.
   final ArchiveConversationUseCase archiveConversationUseCase;
 
-  /// يعيد المحادثة من الأرشيف إلى الحالة النشطة.
-  /// Restores a conversation from the archive to active state.
+  /// Restores archived conversations back into the inbox.
+  /// يعيد المحادثات المؤرشفة إلى الصندوق الوارد.
   final UnarchiveConversationUseCase unarchiveConversationUseCase;
 
-  /// يحذف رسالة مفردة من سجل المحادثة.
-  /// Deletes a single message from the conversation history.
+  /// Deletes a single message from a conversation.
+  /// يحذف رسالة واحدة من المحادثة.
   final DeleteMessageUseCase deleteMessageUseCase;
 
-  /// يعدل نص الرسالة مع إبقاء هويتها وسياقها.
-  /// Edits a message while keeping its identity and context.
+  /// Updates the text of an existing message.
+  /// يحدّث نص رسالة موجودة.
   final EditMessageUseCase editMessageUseCase;
 
-  /// يضيف تفاعلًا إلى رسالة.
   /// Adds a reaction to a message.
+  /// يضيف تفاعلًا إلى رسالة.
   final AddReactionUseCase addReactionUseCase;
 
-  /// يزيل تفاعلًا سابقًا من رسالة.
-  /// Removes an existing reaction from a message.
+  /// Removes a reaction from a message.
+  /// يزيل تفاعلًا من رسالة.
   final RemoveReactionUseCase removeReactionUseCase;
 
-  /// يعلّم الرسائل كمقروءة حتى تتحدث مؤشرات غير المقروءة.
-  /// Marks messages as read so unread counters can update.
-  final MarkAsReadUseCase markMessagesAsReadUseCase;
+  /// Marks messages as read after the user views them.
+  /// يعلّم الرسائل كمقروءة بعد أن يراها المستخدم.
+  final MarkAsReadUseCase markAsReadUseCase;
 
-  /// يرفع الملفات ويربطها بالرسائل داخل المحادثة.
-  /// Uploads files and binds them to messages in the conversation.
+  /// Uploads media and file attachments before sending.
+  /// يرفع الوسائط والملفات قبل الإرسال.
   final UploadAttachmentUseCase uploadAttachmentUseCase;
 
-  /// يبحث في المحادثات والرسائل وفق النص والمرشحات.
-  /// Searches conversations and messages using text and filters.
+  /// Searches across conversations and messages.
+  /// يبحث عبر المحادثات والرسائل.
   final SearchChatsUseCase searchChatsUseCase;
 
-  /// يجلب المستخدمين المتاحين للبدء في محادثة جديدة.
-  /// Fetches users available for starting a new conversation.
+  /// Loads users that can be added to a thread.
+  /// يحمل المستخدمين الذين يمكن إضافتهم إلى سلسلة.
   final GetAvailableUsersUseCase getAvailableUsersUseCase;
 
-  /// يجلب المستخدمين الإداريين لإعدادات أو مسارات خاصة.
-  /// Fetches admin users for special settings or flows.
+  /// Loads admin-capable users for staff workflows.
+  /// يحمل المستخدمين ذوي الصلاحيات الإدارية لمسارات الطاقم.
   final GetAdminUsersUseCase getAdminUsersUseCase;
 
-  /// يحدث حالة المستخدم مثل online أو offline.
-  /// Updates a user's status such as online or offline.
+  /// Updates the local user's chat presence.
+  /// يحدّث حالة حضور المستخدم في الدردشة.
   final UpdateUserStatusUseCase updateUserStatusUseCase;
 
-  /// يجلب إعدادات الشات الحالية حتى تبني الواجهة قيمها الأولية.
-  /// Fetches the current chat settings so the UI can build defaults.
+  /// Loads the persisted chat preferences.
+  /// يحمل تفضيلات الدردشة المخزنة.
   final GetChatSettingsUseCase getChatSettingsUseCase;
 
-  /// يحفظ تغييرات إعدادات الشات.
-  /// Persists chat-settings changes.
+  /// Persists partial or full chat preference updates.
+  /// يحفظ تحديثات تفضيلات الدردشة الجزئية أو الكاملة.
   final UpdateChatSettingsUseCase updateChatSettingsUseCase;
 
-  /// يرسل مؤشر الكتابة إلى المحادثة المستهدفة.
-  /// Sends typing indicators to the target conversation.
-  final SendTypingIndicatorUseCase sendTypingIndicatorUseCase;
-
-  /// يحدد المستخدم الحالي لاستخدامه في الرسائل المتفائلة والحضور.
-  /// Resolves the current user for optimistic messaging and presence.
+  /// Resolves the active authenticated user.
+  /// يحدد المستخدم المصادق عليه الحالي.
   final GetCurrentUserUseCase getCurrentUserUseCase;
 
-  /// يغذي الـ BLoC برسائل الـ realtime القادمة من الخادم.
-  /// Streams realtime updates from the server into the BLoC.
+  /// Bridges websocket streams into bloc events.
+  /// يربط تيارات websocket بأحداث الـ bloc.
   final ChatWebSocketService webSocketService;
 
-  /// يدير معالجة الوسائط قبل الرفع أو الإرسال.
-  /// Receives media processing before upload or sending.
-  final MediaPipeline mediaPipeline;
+  /// Persists runtime chat preferences so other services can react immediately.
+  /// يحفظ تفضيلات الشات وقت التشغيل حتى تتفاعل الخدمات الأخرى مباشرة.
+  final LocalStorageService localStorageService;
 
-  /// يراقب تدفق الرسائل الصادرة من WebSocket.
-  /// Observes incoming message events from the WebSocket stream.
+  // Active websocket subscriptions.
+  /// Subscription that forwards incoming chat messages.
   StreamSubscription? _webSocketMessagesSubscription;
 
-  /// يراقب مؤشرات الكتابة الواردة.
-  /// Observes incoming typing indicators.
+  /// Subscription that forwards typing indicator updates.
   StreamSubscription? _webSocketTypingSubscription;
 
-  /// يراقب تحديثات حضور المستخدمين.
-  /// Observes user presence updates.
+  /// Subscription that forwards presence updates.
   StreamSubscription? _webSocketPresenceSubscription;
 
-  /// يراقب تحديثات المحادثات نفسها مثل التفعيل أو الأرشفة.
-  /// Observes conversation-level updates such as activation or
-  /// archiving.
+  /// Subscription that forwards conversation updates.
   StreamSubscription? _webSocketConversationSubscription;
 
-  /// يحتفظ بحالة التحميل لكل محادثة حتى لا تتكرر الطلبات نفسها.
-  /// Keeps per-conversation loading state so duplicate requests are
-  /// avoided.
+  // Loading state per conversation.
+  /// Tracks whether a conversation is currently fetching data.
   final Map<String, bool> _conversationLoadingStates = {};
 
-  /// يتتبع آخر صفحة رسالة محملة لكل محادثة.
-  /// Tracks the last loaded message page for each conversation.
+  /// Remembers the last loaded page number per conversation.
   final Map<String, int> _messagePages = {};
 
-  /// يحدد ما إذا كانت هناك رسائل أقدم قابلة للتحميل لكل محادثة.
-  /// Indicates whether older messages remain available per
-  /// conversation.
+  /// Tracks whether older messages still exist for a thread.
   final Map<String, bool> _hasMoreMessages = {};
 
-  /// يمنع تكرار الرسائل عبر تخزين المعرفات التي جرى تحميلها.
-  /// Prevents duplicate messages by caching the ids that were already
-  /// loaded.
+  // Deduplicates already loaded messages.
+  /// Message ids already seen by the bloc.
   final Map<String, Set<String>> _loadedMessageIds = {};
 
-  /// يحتفظ بالرسائل المتفائلة لحين وصول التأكيد من الخادم.
-  /// Stores optimistic messages until the server confirms them.
+  // Optimistic message queue.
+  /// Temporarily staged messages that wait for server confirmation.
   final Map<String, List<Message>> _optimisticMessages = {};
 
-  /// يتابع عمليات الرفع الجارية كي يمكن إلغاؤها أو تحديث تقدمها.
-  /// Tracks active uploads so they can be cancelled or updated.
+  /// Guards against the same local voice note being dispatched twice from the
+  /// recorder gesture lifecycle.
+  final Map<String, DateTime> _recentAudioDispatches = {};
+
+  // Active attachment uploads.
+  /// Upload tasks currently running for chat.
   final Map<String, UploadTask> _activeUploads = {};
 
-  /// يربط الشات بكل استخداماته الأساسية ثم يبدأ من حالة ابتدائية
-  /// نظيفة.
-  /// Wires chat to all of its core use cases and starts from a clean
-  /// initial state.
+  /// Builds the bloc with all chat use cases and websocket bridges wired in.
+  /// ينشئ الـ bloc مع ربط حالات الاستخدام وجسور الـ websocket الخاصة بالدردشة.
   ChatBloc({
     required this.getConversationsUseCase,
     required this.getMessagesUseCase,
@@ -200,7 +186,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     required this.editMessageUseCase,
     required this.addReactionUseCase,
     required this.removeReactionUseCase,
-    required this.markMessagesAsReadUseCase,
+    required this.markAsReadUseCase,
     required this.uploadAttachmentUseCase,
     required this.searchChatsUseCase,
     required this.getAvailableUsersUseCase,
@@ -208,12 +194,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     required this.updateUserStatusUseCase,
     required this.getChatSettingsUseCase,
     required this.updateChatSettingsUseCase,
-    required this.sendTypingIndicatorUseCase,
     required this.getCurrentUserUseCase,
     required this.webSocketService,
-    required this.mediaPipeline,
+    required this.localStorageService,
   }) : super(const ChatInitial()) {
-    // Register chat event handlers.
+    // Register event handlers.
     on<InitializeChatEvent>(_onInitializeChat);
     on<LoadConversationsEvent>(_onLoadConversations);
     on<LoadMessagesEvent>(_onLoadMessages);
@@ -230,10 +215,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<MarkMessagesAsReadEvent>(_onMarkMessagesAsRead);
     on<UploadAttachmentEvent>(_onUploadAttachment);
     on<UploadMultipleAttachmentsEvent>(_onUploadMultipleAttachments);
-    // UI-driven events for in-bubble image uploads.
-    on<StartImageUploadsEvent>(_onStartImageUploads);
-    on<UpdateImageUploadProgressEvent>(_onUpdateImageUploadProgress);
-    on<FinishImageUploadsEvent>(_onFinishImageUploads);
+    on<SendAudioMessageEvent>(_onSendAudioMessage);
     on<SearchChatsEvent>(_onSearchChats);
     on<LoadAvailableUsersEvent>(_onLoadAvailableUsers);
     on<LoadAdminUsersEvent>(_onLoadAdminUsers);
@@ -250,163 +232,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<RetryFailedMessageEvent>(_onRetryFailedMessage);
     on<CancelUploadEvent>(_onCancelUpload);
 
-    // Initialize realtime streams after the handlers are in place.
+    // Attach websocket listeners immediately.
     _initializeWebSocket();
   }
 
-  /// إعادة محاولة إرسال رسالة فاشلة (يدعم إعادة رفع المرفق المحلي)
-  /// يعيد محاولة رسالة فاشلة ويعيد ربط أي مرفق محلي إذا لزم.
-  /// Retries a failed message and reattaches any local media when
-  /// needed.
-  Future<void> _onRetryFailedMessage(
-    RetryFailedMessageEvent event,
-    Emitter<ChatState> emit,
-  ) async {
-    final currentState = state;
-    if (currentState is! ChatLoaded) return;
-
-    Message? failedMessage;
-    currentState.messages[event.conversationId]?.forEach((msg) {
-      if (msg.id == event.messageId && msg.status == 'failed') {
-        failedMessage = msg;
-      }
-    });
-
-    if (failedMessage == null) return;
-
-    // إذا كان المرفق محلياً (قبل الرفع) أعد الرفع ثم الإرسال
-    final needsReupload = failedMessage!.attachments.isNotEmpty &&
-        (failedMessage!.attachments.first.id.startsWith('local_') ||
-            failedMessage!.attachments.first.localFile != null);
-
-    if (needsReupload) {
-      // تحديث الحالة إلى 'sending' أولاً
-      final updatedMessages =
-          Map<String, List<Message>>.from(currentState.messages);
-      final msgs =
-          List<Message>.from(updatedMessages[event.conversationId] ?? const []);
-      final mapped = msgs.map((m) {
-        if (m.id == event.messageId) {
-          final att = m.attachments.isNotEmpty ? m.attachments.first : null;
-          if (att != null) {
-            final att2 = Attachment(
-              id: att.id,
-              conversationId: att.conversationId,
-              fileName: att.fileName,
-              contentType: att.contentType,
-              fileSize: att.fileSize,
-              filePath: att.filePath,
-              fileUrl: att.fileUrl,
-              url: att.url,
-              uploadedBy: att.uploadedBy,
-              createdAt: att.createdAt,
-              thumbnailUrl: att.thumbnailUrl,
-              metadata: att.metadata,
-              duration: att.duration,
-              downloadProgress: 0.0,
-              uploadProgress: att.uploadProgress,
-              isUploading: true,
-              uploadError: null,
-              localFile: att.localFile,
-              width: att.width,
-              height: att.height,
-              blurhash: att.blurhash,
-            );
-            return Message(
-              id: m.id,
-              conversationId: m.conversationId,
-              senderId: m.senderId,
-              senderName: m.senderName,
-              messageType: m.messageType,
-              content: m.content,
-              location: m.location,
-              replyToMessageId: m.replyToMessageId,
-              attachments: [att2],
-              reactions: m.reactions,
-              createdAt: m.createdAt,
-              updatedAt: DateTime.now(),
-              status: 'sending',
-              isEdited: m.isEdited,
-              isDeleted: m.isDeleted,
-              deliveryReceipt: m.deliveryReceipt,
-            );
-          }
-        }
-        return m;
-      }).toList();
-      updatedMessages[event.conversationId] = mapped;
-      emit(currentState.copyWith(messages: updatedMessages));
-
-      final att = failedMessage!.attachments.first;
-      final path =
-          att.filePath.isNotEmpty ? att.filePath : (att.localFile?.path ?? '');
-      if (path.isEmpty) return;
-      add(UploadAttachmentEvent(
-        conversationId: event.conversationId,
-        filePath: path,
-        messageType: failedMessage!.messageType,
-        replyToMessageId: failedMessage!.replyToMessageId,
-        optimisticMessageId: failedMessage!.id,
-      ));
-      return;
-    }
-
-    // وإلا: الإرسال مباشرة باستخدام نفس المرفقات (معرفات السيرفر)
-    final updatedMessages =
-        Map<String, List<Message>>.from(currentState.messages);
-    final msgs =
-        List<Message>.from(updatedMessages[event.conversationId] ?? const []);
-    final mapped = msgs.map((m) {
-      if (m.id == event.messageId) {
-        return Message(
-          id: m.id,
-          conversationId: m.conversationId,
-          senderId: m.senderId,
-          senderName: m.senderName,
-          messageType: m.messageType,
-          content: m.content,
-          location: m.location,
-          replyToMessageId: m.replyToMessageId,
-          attachments: m.attachments,
-          reactions: m.reactions,
-          createdAt: m.createdAt,
-          updatedAt: DateTime.now(),
-          status: 'sending',
-          isEdited: m.isEdited,
-          isDeleted: m.isDeleted,
-          deliveryReceipt: m.deliveryReceipt,
-        );
-      }
-      return m;
-    }).toList();
-    updatedMessages[event.conversationId] = mapped;
-    emit(currentState.copyWith(messages: updatedMessages));
-
-    add(SendMessageEvent(
-      conversationId: failedMessage!.conversationId,
-      messageType: failedMessage!.messageType,
-      content: failedMessage!.content,
-      location: failedMessage!.location,
-      replyToMessageId: failedMessage!.replyToMessageId,
-      attachmentIds: failedMessage!.attachments.map((a) => a.id).toList(),
-      currentUserId: currentState.currentUserId,
-      skipOptimistic: true,
-      optimisticMessageId: failedMessage!.id,
-    ));
-  }
-
-  /// تهيئة اتصال WebSocket والاستماع للأحداث
-  /// يربط بث الشات اللحظي ويستقبل تحديثات الرسائل والحضور.
-  /// Connects the realtime chat stream and receives message and
-  /// presence updates.
+  /// Hooks websocket streams into bloc events and opens the socket client.
+  /// يربط تيارات websocket بأحداث الـ bloc ثم يفتح الاتصال.
   void _initializeWebSocket() {
-    // الاستماع لرسائل WebSocket
+    // Forward incoming message events.
     _webSocketMessagesSubscription =
         webSocketService.messageEvents.listen((event) {
       add(WebSocketMessageReceivedEvent(event));
     });
 
-    // الاستماع لمؤشرات الكتابة
+    // Forward typing indicator events.
     _webSocketTypingSubscription =
         webSocketService.typingEvents.listen((event) {
       add(WebSocketTypingIndicatorEvent(
@@ -415,7 +254,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       ));
     });
 
-    // الاستماع لتحديثات الحضور
+    // Forward presence updates.
     _webSocketPresenceSubscription =
         webSocketService.presenceEvents.listen((event) {
       add(WebSocketPresenceUpdateEvent(
@@ -425,28 +264,29 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       ));
     });
 
-    // الاستماع لتحديثات المحادثات
+    // Forward conversation updates.
     _webSocketConversationSubscription =
-        webSocketService.conversationEvents.listen((event) {
-      if (event.conversation != null) {
-        add(WebSocketConversationUpdatedEvent(event.conversation!));
-      }
+        webSocketService.conversationUpdates.listen((conversation) {
+      add(WebSocketConversationUpdatedEvent(conversation));
     });
 
-    // الاتصال بـ WebSocket
+    // Open the websocket connection after listeners are attached.
     webSocketService.connect();
   }
 
-  /// تهيئة الشات
-  /// يجهز الشات للمرة الأولى عبر تحميل البيانات الأساسية وربط
-  /// المستمعين.
-  /// Prepares chat for first use by loading the core data and wiring
-  /// listeners.
+  /// Loads current-user context, cached preferences, and the initial inbox
+  /// snapshot before live chat interaction begins.
+  /// يحمل سياق المستخدم الحالي والتفضيلات المخزنة واللقطة الأولى للصندوق
+  /// قبل بدء التفاعل الحي.
   Future<void> _onInitializeChat(
     InitializeChatEvent event,
     Emitter<ChatState> emit,
   ) async {
-    emit(const ChatLoading());
+    final previousLoadedState =
+        state is ChatLoaded ? state as ChatLoaded : null;
+    if (previousLoadedState == null) {
+      emit(const ChatLoading());
+    }
 
     try {
       // جلب المحادثات
@@ -461,37 +301,61 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       final currentUserResult = await getCurrentUserUseCase(NoParams());
 
       await conversationsResult.fold(
-        (failure) async =>
-            emit(ChatError(message: _mapFailureToMessage(failure))),
+        (failure) async => emit(
+          ChatError(message: await _mapFailureToMessage(failure)),
+        ),
         (conversations) async {
           ChatSettings? settings;
           await settingsResult.fold(
             (_) async {}, // تجاهل فشل الإعدادات
-            (s) async => settings = s,
+            (s) async {
+              settings = s;
+              await _persistChatSettings(s);
+            },
           );
 
           String? currentUserId;
+          String? currentUserName;
           await currentUserResult.fold(
             (_) async {},
-            (user) async => currentUserId = user.userId,
+            (user) async {
+              currentUserId = user.userId;
+              currentUserName = user.name;
+            },
           );
 
-          emit(ChatLoaded(
-            conversations: conversations,
-            settings: settings,
-            currentUserId: currentUserId,
-          ));
+          if (previousLoadedState != null) {
+            emit(previousLoadedState.copyWith(
+              conversations: _mergeConversations(
+                previousLoadedState.conversations,
+                conversations,
+              ),
+              settings: settings ?? previousLoadedState.settings,
+              currentUserId: currentUserId,
+              currentUserName: currentUserName,
+              error: null,
+            ));
+          } else {
+            emit(ChatLoaded(
+              conversations: conversations,
+              settings: settings,
+              currentUserId: currentUserId,
+              currentUserName: currentUserName,
+            ));
+          }
         },
       );
     } catch (e) {
-      emit(ChatError(message: 'حدث خطأ في تهيئة الشات: ${e.toString()}'));
+      emit(
+        ChatError(
+          message: await _tr('chat.errors.init'),
+        ),
+      );
     }
   }
 
-  /// تحميل المحادثات
-  /// يحمّل قائمة المحادثات مع دعم التصفح الصفحي والتحميل الأولي.
-  /// Loads the conversation list with pagination and initial fetch
-  /// support.
+  /// Loads a paginated inbox slice and merges it into the live state.
+  /// يحمل جزءًا مرقمًا من الصندوق الوارد ويدمجه في الحالة الحية.
   Future<void> _onLoadConversations(
     LoadConversationsEvent event,
     Emitter<ChatState> emit,
@@ -512,10 +376,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       (failure) async {
         if (currentState is ChatLoaded) {
           emit(currentState.copyWith(
-            error: _mapFailureToMessage(failure),
+            error: await _mapFailureToMessage(failure),
           ));
         } else {
-          emit(ChatError(message: _mapFailureToMessage(failure)));
+          emit(ChatError(message: await _mapFailureToMessage(failure)));
         }
       },
       (conversations) async {
@@ -537,10 +401,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// تحميل الرسائل
-  /// يجلب رسائل محادثة واحدة ويهيئ مؤشرات التحميل الخاصة بها.
-  /// Fetches one conversation's messages and prepares its loading
-  /// indicators.
+  /// Loads a conversation timeline and updates pagination bookkeeping.
+  /// يحمل خط المحادثة ويحدّث بيانات الترقيم الخاصة به.
   Future<void> _onLoadMessages(
     LoadMessagesEvent event,
     Emitter<ChatState> emit,
@@ -574,7 +436,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         _conversationLoadingStates[event.conversationId] = false;
         emit(currentState.copyWith(
           isLoadingMessages: false,
-          error: _mapFailureToMessage(failure),
+          error: await _mapFailureToMessage(failure),
         ));
       },
       (messages) async {
@@ -609,10 +471,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// تحميل المزيد من الرسائل (التمرير اللانهائي)
-  /// يطلب الرسائل الأقدم عند التمرير داخل المحادثة.
-  /// Requests older messages while the user scrolls inside the
-  /// conversation.
+  /// Loads an older page of messages when the user scrolls upward.
+  /// يحمل صفحة أقدم من الرسائل عندما يمرر المستخدم إلى الأعلى.
   Future<void> _onLoadMoreMessages(
     LoadMoreMessagesEvent event,
     Emitter<ChatState> emit,
@@ -647,7 +507,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         _conversationLoadingStates[event.conversationId] = false;
         emit(currentState.copyWith(
           isLoadingMore: false,
-          error: _mapFailureToMessage(failure),
+          error: await _mapFailureToMessage(failure),
         ));
       },
       (messages) async {
@@ -683,59 +543,60 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// إرسال رسالة مع التحديث المتفائل
-  /// يرسل الرسالة ويضبط حالة الإرسال المتفائل والمرفقات المرتبطة بها.
-  /// Sends the message while managing optimistic state and its
-  /// attached media.
+  /// Sends a message with optimistic UI feedback until the backend responds.
+  /// يرسل الرسالة مع تحديث تفاؤلي في الواجهة حتى يرد الخادم.
   Future<void> _onSendMessage(
     SendMessageEvent event,
     Emitter<ChatState> emit,
   ) async {
     final currentState = state;
     if (currentState is! ChatLoaded) return;
-    Message? optimisticMessage;
-    if (!(event.skipOptimistic == true)) {
-      optimisticMessage = Message(
-        id: 'temp_${DateTime.now().microsecondsSinceEpoch}',
-        conversationId: event.conversationId,
-        senderId: event.currentUserId ?? currentState.currentUserId ?? '',
-        senderName: currentState.currentUserName,
-        messageType: event.messageType,
-        content: event.content,
-        location: event.location,
-        replyToMessageId: event.replyToMessageId,
-        attachments: const [],
-        reactions: const [],
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        status: 'sending',
-        isEdited: false,
-        isDeleted: false,
-        deliveryReceipt: null,
-      );
+    final resolvedCurrentUserId =
+        await _resolveCurrentUserId(event.currentUserId, currentState);
+    final resolvedCurrentUserName = await _resolveCurrentUserName(currentState);
 
-      final updatedMessages =
-          Map<String, List<Message>>.from(currentState.messages);
-      final conversationMessages = List<Message>.from(
-        updatedMessages[event.conversationId] ?? [],
-      );
-      conversationMessages.insert(0, optimisticMessage);
-      updatedMessages[event.conversationId] = conversationMessages;
+    // إنشاء رسالة متفائلة
+    final optimisticMessage = Message(
+      id: 'temp_${DateTime.now().microsecondsSinceEpoch}',
+      conversationId: event.conversationId,
+      senderId: resolvedCurrentUserId,
+      senderName: resolvedCurrentUserName,
+      messageType: event.messageType,
+      content: event.content,
+      location: event.location,
+      replyToMessageId: event.replyToMessageId,
+      attachments: const [],
+      reactions: const [],
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      status: 'sending',
+      isEdited: false,
+      isDeleted: false,
+      deliveryReceipt: null,
+    );
 
-      _optimisticMessages.putIfAbsent(event.conversationId, () => []);
-      _optimisticMessages[event.conversationId]!.add(optimisticMessage);
+    // إضافة الرسالة المتفائلة للقائمة
+    final updatedMessages =
+        Map<String, List<Message>>.from(currentState.messages);
+    final conversationMessages = List<Message>.from(
+      updatedMessages[event.conversationId] ?? [],
+    );
+    conversationMessages.insert(0, optimisticMessage);
+    updatedMessages[event.conversationId] = conversationMessages;
 
-      emit(currentState.copyWith(
-        messages: updatedMessages,
-        isSendingMessage: true,
-        sendingConversationId: event.conversationId,
-      ));
-    } else {
-      emit(currentState.copyWith(
-        isSendingMessage: true,
-        sendingConversationId: event.conversationId,
-      ));
-    }
+    // تتبع الرسالة المتفائلة
+    _optimisticMessages.putIfAbsent(event.conversationId, () => []);
+    _optimisticMessages[event.conversationId]!.add(optimisticMessage);
+
+    emit(currentState.copyWith(
+      messages: updatedMessages,
+      isSendingMessage: true,
+      sendingConversationId: event.conversationId,
+      currentUserId: resolvedCurrentUserId.isEmpty
+          ? currentState.currentUserId
+          : resolvedCurrentUserId,
+      currentUserName: resolvedCurrentUserName,
+    ));
 
     // إرسال الرسالة الفعلية
     final result = await sendMessageUseCase(
@@ -751,16 +612,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
+        // فشل الإرسال - تحديث حالة الرسالة المتفائلة
+        final liveState =
+            state is ChatLoaded ? state as ChatLoaded : currentState;
         final failedMessages =
-            Map<String, List<Message>>.from(currentState.messages);
+            Map<String, List<Message>>.from(liveState.messages);
         final messages = failedMessages[event.conversationId] ?? [];
+        final failureReason = await _mapFailureToMessage(failure);
 
         final updatedMessagesList = messages.map((msg) {
-          final bool isTarget = optimisticMessage != null
-              ? (msg.id == optimisticMessage.id)
-              : (event.optimisticMessageId != null &&
-                  msg.id == event.optimisticMessageId);
-          if (isTarget) {
+          if (msg.id == optimisticMessage.id) {
             return Message(
               id: msg.id,
               conversationId: msg.conversationId,
@@ -778,7 +639,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               isEdited: msg.isEdited,
               isDeleted: msg.isDeleted,
               deliveryReceipt: msg.deliveryReceipt,
-              failureReason: _mapFailureToMessage(failure),
+              failureReason: failureReason,
             );
           }
           return msg;
@@ -786,38 +647,36 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
         failedMessages[event.conversationId] = updatedMessagesList;
 
-        emit(currentState.copyWith(
+        emit(liveState.copyWith(
           messages: failedMessages,
           isSendingMessage: false,
-          error: 'فشل إرسال الرسالة',
+          sendingConversationId: null,
+          error: await _tr('chat.errors.messageSendFailed'),
         ));
       },
       (sentMessage) async {
+        // نجح الإرسال - استبدال الرسالة المتفائلة بالرسالة الفعلية
+        final liveState =
+            state is ChatLoaded ? state as ChatLoaded : currentState;
         final successMessages =
-            Map<String, List<Message>>.from(currentState.messages);
+            Map<String, List<Message>>.from(liveState.messages);
         final messages = successMessages[event.conversationId] ?? [];
-
-        List<Message> updatedMessagesList;
-        if (optimisticMessage != null) {
-          updatedMessagesList =
-              messages.where((m) => m.id != optimisticMessage!.id).toList();
-          _optimisticMessages[event.conversationId]?.removeWhere(
-            (m) => m.id == optimisticMessage!.id,
-          );
-        } else if (event.optimisticMessageId != null) {
-          updatedMessagesList =
-              messages.where((m) => m.id != event.optimisticMessageId).toList();
-          _optimisticMessages[event.conversationId]?.removeWhere(
-            (m) => m.id == event.optimisticMessageId,
-          );
-        } else {
-          updatedMessagesList = List<Message>.from(messages);
-        }
-
-        updatedMessagesList.insert(0, sentMessage);
+        final mergedSentMessage =
+            _mergeMessageWithReference(sentMessage, optimisticMessage);
+        final updatedMessagesList = _replaceOptimisticWithConfirmed(
+          messages,
+          optimisticMessage,
+          mergedSentMessage,
+        );
         successMessages[event.conversationId] = updatedMessagesList;
 
-        final updatedConversations = currentState.conversations.map((conv) {
+        // إزالة من قائمة الرسائل المتفائلة
+        _optimisticMessages[event.conversationId]?.removeWhere(
+          (msg) => msg.id == optimisticMessage.id,
+        );
+
+        // تحديث آخر رسالة في المحادثة
+        final updatedConversations = liveState.conversations.map((conv) {
           if (conv.id == event.conversationId) {
             return Conversation(
               id: conv.id,
@@ -827,7 +686,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               avatar: conv.avatar,
               createdAt: conv.createdAt,
               updatedAt: DateTime.now(),
-              lastMessage: sentMessage,
+              lastMessage: mergedSentMessage,
               unreadCount: conv.unreadCount,
               isArchived: conv.isArchived,
               isMuted: conv.isMuted,
@@ -838,7 +697,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           return conv;
         }).toList();
 
-        emit(currentState.copyWith(
+        emit(liveState.copyWith(
           messages: successMessages,
           conversations: updatedConversations,
           isSendingMessage: false,
@@ -849,1003 +708,516 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// رفع المرفقات المتعددة
-  /// يرفع دفعة مرفقات كاملة ثم يربط نتائجها بالمحادثة.
-  /// Uploads a full batch of attachments and binds the results back
-  /// to the conversation.
+  /// Uploads several files in sequence and keeps their progress visible in
+  /// the active conversation.
+  /// يرفع عدة ملفات بالتسلسل ويحافظ على ظهور تقدمها داخل المحادثة النشطة.
   Future<void> _onUploadMultipleAttachments(
     UploadMultipleAttachmentsEvent event,
     Emitter<ChatState> emit,
   ) async {
+    const maxParallelUploads = 2;
     final currentState = state;
     if (currentState is! ChatLoaded) return;
+    if (event.filePaths.isEmpty) return;
 
+    final now = DateTime.now();
+    final resolvedCurrentUserId =
+        await _resolveCurrentUserId(event.currentUserId, currentState);
+    final resolvedCurrentUserName = await _resolveCurrentUserName(currentState);
     final uploadTasks = <ImageUploadInfo>[];
-    final attachmentIds = <String>[];
+    final optimisticAttachments = <Attachment>[];
+    final uploadedAttachmentsByIndex =
+        List<Attachment?>.filled(event.filePaths.length, null);
+    final attachmentIdsByIndex =
+        List<String?>.filled(event.filePaths.length, null);
+    final optimisticMessageId = 'temp_media_${now.microsecondsSinceEpoch}';
+    String? failureReason;
+    var hasFailure = false;
 
-    // إنشاء مهام الرفع
     for (int i = 0; i < event.filePaths.length; i++) {
       final filePath = event.filePaths[i];
-      final uploadId = 'upload_${DateTime.now().microsecondsSinceEpoch}_$i';
+      final uploadId = 'temp_attachment_${now.microsecondsSinceEpoch}_$i';
+      final file = File(filePath);
+      final fileName = file.uri.pathSegments.isNotEmpty
+          ? file.uri.pathSegments.last
+          : 'attachment_${i + 1}';
+      final fileSize = await file.exists() ? await file.length() : 0;
+      final optimisticThumbnailUrl = event.messageType == 'video'
+          ? await _buildOptimisticVideoThumbnail(filePath, uploadId)
+          : null;
 
       uploadTasks.add(ImageUploadInfo(
         id: uploadId,
-        file: File(filePath),
+        file: file,
         progress: 0.0,
         isCompleted: false,
         isFailed: false,
       ));
+
+      optimisticAttachments.add(Attachment(
+        id: uploadId,
+        conversationId: event.conversationId,
+        fileName: fileName,
+        contentType: _inferAttachmentContentType(fileName, event.messageType),
+        fileSize: fileSize,
+        filePath: filePath,
+        fileUrl: filePath,
+        uploadedBy: resolvedCurrentUserId,
+        createdAt: now,
+        thumbnailUrl: optimisticThumbnailUrl,
+        metadata: optimisticThumbnailUrl == null
+            ? null
+            : {
+                _localThumbnailMetadataKey: optimisticThumbnailUrl,
+              },
+        downloadProgress: 0.0,
+      ));
     }
 
-    // تحديث الحالة مع مهام الرفع الجديدة
+    final optimisticMessage = Message(
+      id: optimisticMessageId,
+      conversationId: event.conversationId,
+      senderId: resolvedCurrentUserId,
+      senderName: resolvedCurrentUserName,
+      messageType: event.messageType,
+      content: event.content,
+      replyToMessageId: event.replyToMessageId,
+      attachments: optimisticAttachments,
+      reactions: const [],
+      createdAt: now,
+      updatedAt: now,
+      status: 'sending',
+      isEdited: false,
+      isDeleted: false,
+      deliveryReceipt: null,
+    );
+
+    final updatedMessages =
+        Map<String, List<Message>>.from(currentState.messages);
+    final conversationMessages = List<Message>.from(
+      updatedMessages[event.conversationId] ?? [],
+    );
+    conversationMessages.insert(0, optimisticMessage);
+    updatedMessages[event.conversationId] = conversationMessages;
+    _optimisticMessages.putIfAbsent(event.conversationId, () => []);
+    _optimisticMessages[event.conversationId]!.add(optimisticMessage);
+
     final updatedUploads = Map<String, List<ImageUploadInfo>>.from(
       currentState.uploadingImages,
     );
     updatedUploads[event.conversationId] = uploadTasks;
 
-    emit(currentState.copyWith(uploadingImages: updatedUploads));
+    emit(currentState.copyWith(
+      messages: updatedMessages,
+      uploadingImages: updatedUploads,
+      isSendingMessage: true,
+      sendingConversationId: event.conversationId,
+      currentUserId: resolvedCurrentUserId.isEmpty
+          ? currentState.currentUserId
+          : resolvedCurrentUserId,
+      currentUserName: resolvedCurrentUserName,
+    ));
 
-    // رفع كل ملف بشكل متتابع
-    for (int i = 0; i < event.filePaths.length; i++) {
-      final originalPath = event.filePaths[i];
-      // Preprocess media (e.g., generate thumbnails for videos)
-      final pre = await mediaPipeline.preprocess(
-        filePath: originalPath,
-        messageType: event.messageType,
-      );
-      final filePath = pre.uploadPath;
-      final uploadTask = uploadTasks[i];
+    for (int start = 0;
+        start < event.filePaths.length;
+        start += maxParallelUploads) {
+      if (hasFailure) break;
 
-      try {
-        // إنشاء مهمة رفع قابلة للإلغاء
-        final uploadController = UploadController();
-        _activeUploads[uploadTask.id] = UploadTask(
-          controller: uploadController,
-          filePath: filePath,
-        );
+      final end = (start + maxParallelUploads > event.filePaths.length)
+          ? event.filePaths.length
+          : start + maxParallelUploads;
+      final batch = <Future<void>>[];
 
-        final result = await uploadAttachmentUseCase(
-          UploadAttachmentParams(
-            conversationId: event.conversationId,
-            filePath: filePath,
-            messageType: event.messageType,
-            thumbnailPath: pre.thumbnailPath,
-            onSendProgress: (sent, total) {
-              // تحديث تقدم الرفع
-              final progress = total > 0 ? sent / total : 0.0;
-              _updateUploadProgress(
-                emit,
-                currentState,
-                event.conversationId,
-                uploadTask.id,
-                progress,
-              );
-              event.onProgress?.call(i, sent, total);
-            },
-            // CancelToken simulation removed from use case params; progress handled via onSendProgress
-          ),
-        );
+      for (int i = start; i < end; i++) {
+        final filePath = event.filePaths[i];
+        final uploadTask = uploadTasks[i];
 
-        await result.fold(
-          (failure) async {
-            // فشل الرفع
+        batch.add(() async {
+          try {
+            final uploadController = UploadController();
+            _activeUploads[uploadTask.id] = UploadTask(
+              controller: uploadController,
+              filePath: filePath,
+            );
+
+            final result = await uploadAttachmentUseCase(
+              UploadAttachmentParams(
+                conversationId: event.conversationId,
+                filePath: filePath,
+                messageType: event.messageType,
+                onSendProgress: (sent, total) {
+                  final progress = total > 0 ? sent / total : 0.0;
+                  _updateUploadProgress(
+                    emit,
+                    currentState,
+                    event.conversationId,
+                    uploadTask.id,
+                    progress,
+                    optimisticMessageId: optimisticMessage.id,
+                  );
+                  event.onProgress?.call(i, sent, total);
+                },
+              ),
+            );
+
+            await result.fold(
+              (failure) async {
+                hasFailure = true;
+                failureReason = await _mapFailureToMessage(failure);
+                _updateUploadStatus(
+                  emit,
+                  currentState,
+                  event.conversationId,
+                  uploadTask.id,
+                  isFailed: true,
+                  error: failureReason,
+                  optimisticMessageId: optimisticMessage.id,
+                );
+              },
+              (attachment) async {
+                attachmentIdsByIndex[i] = attachment.id;
+                uploadedAttachmentsByIndex[i] = attachment;
+                _updateUploadStatus(
+                  emit,
+                  currentState,
+                  event.conversationId,
+                  uploadTask.id,
+                  isCompleted: true,
+                  optimisticMessageId: optimisticMessage.id,
+                  hydratedAttachment: attachment,
+                );
+              },
+            );
+          } catch (_) {
+            hasFailure = true;
+            failureReason = await _tr('chat.errors.unknown');
             _updateUploadStatus(
               emit,
               currentState,
               event.conversationId,
               uploadTask.id,
               isFailed: true,
-              error: _mapFailureToMessage(failure),
+              error: failureReason,
+              optimisticMessageId: optimisticMessage.id,
             );
-          },
-          (attachment) async {
-            // نجح الرفع
-            attachmentIds.add(attachment.id);
-            // Persist generated local thumbnail (videos)
-            if (pre.thumbnailPath != null && pre.thumbnailPath!.isNotEmpty) {
-              try {
-                await di.sl<ChatLocalDataSource>().saveThumbnail(
-                      'attachment_${attachment.id}',
-                      pre.thumbnailPath!,
-                    );
-              } catch (_) {}
-            }
-            _updateUploadStatus(
-              emit,
-              currentState,
-              event.conversationId,
-              uploadTask.id,
-              isCompleted: true,
-            );
-          },
-        );
-      } catch (e) {
-        // خطأ في الرفع
-        _updateUploadStatus(
-          emit,
-          currentState,
-          event.conversationId,
-          uploadTask.id,
-          isFailed: true,
-          error: e.toString(),
-        );
-      } finally {
-        _activeUploads.remove(uploadTask.id);
+          } finally {
+            _activeUploads.remove(uploadTask.id);
+          }
+        }());
       }
+
+      await Future.wait(batch);
     }
 
-    // إرسال رسالة واحدة بجميع المرفقات
-    if (attachmentIds.isNotEmpty) {
-      add(SendMessageEvent(
-        conversationId: event.conversationId,
-        messageType: event.messageType,
-        attachmentIds: attachmentIds,
-        currentUserId: currentState.currentUserId,
-      ));
-    }
+    final attachmentIds = attachmentIdsByIndex.whereType<String>().toList();
 
-    // إزالة مهام الرفع من الحالة
+    final liveAfterUploads =
+        state is ChatLoaded ? state as ChatLoaded : currentState;
     final finalUploads = Map<String, List<ImageUploadInfo>>.from(
-      currentState.uploadingImages,
+      liveAfterUploads.uploadingImages,
     );
     finalUploads.remove(event.conversationId);
-    emit(currentState.copyWith(uploadingImages: finalUploads));
+    emit(liveAfterUploads.copyWith(uploadingImages: finalUploads));
+
+    if (hasFailure || attachmentIds.length != event.filePaths.length) {
+      await _markOptimisticMessageFailed(
+        emit,
+        optimisticMessage: optimisticMessage,
+        currentState:
+            state is ChatLoaded ? state as ChatLoaded : liveAfterUploads,
+        failureReason: failureReason ?? await _tr('chat.errors.unknown'),
+      );
+      return;
+    }
+
+    final sendResult = await sendMessageUseCase(
+      SendMessageParams(
+        conversationId: event.conversationId,
+        messageType: event.messageType,
+        content: event.content,
+        replyToMessageId: event.replyToMessageId,
+        attachmentIds: attachmentIds,
+      ),
+    );
+
+    await sendResult.fold(
+      (failure) async {
+        await _markOptimisticMessageFailed(
+          emit,
+          optimisticMessage: optimisticMessage,
+          currentState:
+              state is ChatLoaded ? state as ChatLoaded : liveAfterUploads,
+          failureReason: await _mapFailureToMessage(failure),
+        );
+      },
+      (sentMessage) async {
+        final liveState =
+            state is ChatLoaded ? state as ChatLoaded : liveAfterUploads;
+        final successMessages =
+            Map<String, List<Message>>.from(liveState.messages);
+        final messages = successMessages[event.conversationId] ?? [];
+        final hydratedOptimisticMessage = _hydrateOptimisticMessageAttachments(
+          optimisticMessage,
+          uploadedAttachmentsByIndex,
+        );
+        final mergedSentMessage =
+            _mergeMessageWithReference(sentMessage, hydratedOptimisticMessage);
+        final updatedMessagesList = _replaceOptimisticWithConfirmed(
+          messages,
+          optimisticMessage,
+          mergedSentMessage,
+        );
+        successMessages[event.conversationId] = updatedMessagesList;
+
+        _optimisticMessages[event.conversationId]?.removeWhere(
+          (msg) => msg.id == optimisticMessage.id,
+        );
+
+        final updatedConversations = liveState.conversations.map((conv) {
+          if (conv.id == event.conversationId) {
+            return Conversation(
+              id: conv.id,
+              conversationType: conv.conversationType,
+              title: conv.title,
+              description: conv.description,
+              avatar: conv.avatar,
+              createdAt: conv.createdAt,
+              updatedAt: DateTime.now(),
+              lastMessage: mergedSentMessage,
+              unreadCount: conv.unreadCount,
+              isArchived: conv.isArchived,
+              isMuted: conv.isMuted,
+              propertyId: conv.propertyId,
+              participants: conv.participants,
+            );
+          }
+          return conv;
+        }).toList();
+
+        emit(liveState.copyWith(
+          messages: successMessages,
+          conversations: updatedConversations,
+          isSendingMessage: false,
+          sendingConversationId: null,
+          error: null,
+        ));
+      },
+    );
   }
 
-  /// رفع مرفق واحد
-  /// يرفع مرفقًا منفردًا ويحدّث تقدم العملية على الواجهة.
-  /// Uploads a single attachment and updates progress in the UI.
+  /// Uploads a single attachment by delegating to the batch upload path.
+  /// يرفع مرفقًا واحدًا عبر مسار الرفع الدفعي نفسه.
   Future<void> _onUploadAttachment(
     UploadAttachmentEvent event,
     Emitter<ChatState> emit,
   ) async {
     final currentState = state;
-    if (currentState is! ChatLoaded) return;
-    final isImage = event.messageType == 'image';
-    final bool isRetryInline = !isImage &&
-        (event.optimisticMessageId != null &&
-            event.optimisticMessageId!.isNotEmpty);
-
-    final existingBatch = currentState.uploadingImages[event.conversationId];
-    final bool usingUiBatch =
-        (existingBatch != null && existingBatch.isNotEmpty);
-
-    String effectiveUploadId;
-    if (isImage && usingUiBatch) {
-      final pending = existingBatch.firstWhere(
-        (t) =>
-            !(t.isCompleted == true || t.isFailed == true) &&
-            (t.progress < 1.0),
-        orElse: () => ImageUploadInfo(
-          id: 'upload_${DateTime.now().microsecondsSinceEpoch}',
-          file: File(event.filePath),
-          progress: 0.0,
-          isCompleted: false,
-          isFailed: false,
-        ),
-      );
-      if (!existingBatch.any((t) => t.id == pending.id)) {
-        final cloned = Map<String, List<ImageUploadInfo>>.from(
-            currentState.uploadingImages);
-        final appended = List<ImageUploadInfo>.from(existingBatch)
-          ..add(pending);
-        cloned[event.conversationId] = appended;
-        emit(currentState.copyWith(uploadingImages: cloned));
-      }
-      effectiveUploadId = pending.id;
-    } else if (isImage && !usingUiBatch) {
-      effectiveUploadId = 'upload_${DateTime.now().microsecondsSinceEpoch}';
-      final task = ImageUploadInfo(
-        id: effectiveUploadId,
-        file: File(event.filePath),
-        progress: 0.0,
-        isCompleted: false,
-        isFailed: false,
-      );
-      final updatedUploads =
-          Map<String, List<ImageUploadInfo>>.from(currentState.uploadingImages);
-      final list = List<ImageUploadInfo>.from(
-          updatedUploads[event.conversationId] ?? const [])
-        ..add(task);
-      updatedUploads[event.conversationId] = list;
-      emit(currentState.copyWith(uploadingImages: updatedUploads));
-    } else if (!isImage && !isRetryInline) {
-      effectiveUploadId = 'upload_${DateTime.now().microsecondsSinceEpoch}';
-      final file = File(event.filePath);
-      final fileName = file.path.split('/').last;
-      final ext = fileName.toLowerCase().split('.').last;
-      String contentType;
-      if (event.messageType == 'audio') {
-        switch (ext) {
-          case 'm4a':
-            contentType = 'audio/mp4';
-            break;
-          case 'mp3':
-            contentType = 'audio/mpeg';
-            break;
-          case 'wav':
-            contentType = 'audio/wav';
-            break;
-          case 'ogg':
-          case 'opus':
-            contentType = 'audio/ogg';
-            break;
-          case 'aac':
-            contentType = 'audio/aac';
-            break;
-          case 'flac':
-            contentType = 'audio/flac';
-            break;
-          default:
-            contentType = 'audio/*';
-        }
-      } else if (event.messageType == 'video') {
-        contentType = 'video/mp4';
-      } else {
-        contentType = 'application/octet-stream';
-      }
-      int fileSize = 0;
-      try {
-        fileSize = file.lengthSync();
-      } catch (_) {}
-      final localAtt = Attachment(
-        id: 'local_$effectiveUploadId',
-        conversationId: event.conversationId,
-        fileName: fileName,
-        contentType: contentType,
-        fileSize: fileSize,
-        filePath: event.filePath,
-        fileUrl: '',
-        url: '',
-        uploadedBy: currentState.currentUserId ?? '',
-        createdAt: DateTime.now(),
-        thumbnailUrl: null,
-        metadata: null,
-        duration: null,
-        downloadProgress: 0.0,
-        uploadProgress: 0.0,
-        isUploading: true,
-        uploadError: null,
-        localFile: file,
-        width: null,
-        height: null,
-        blurhash: null,
-      );
-      emit(currentState.copyWith(
-        uploadingAttachment: localAtt,
-        uploadProgress: 0.0,
-      ));
-    } else {
-      // Inline retry: update existing failed message to reflect new upload progress
-      effectiveUploadId = 'upload_${DateTime.now().microsecondsSinceEpoch}';
-      final updated = Map<String, List<Message>>.from(currentState.messages);
-      final msgs =
-          List<Message>.from(updated[event.conversationId] ?? const []);
-      final mapped = msgs.map((m) {
-        if (m.id == event.optimisticMessageId) {
-          final att = m.attachments.isNotEmpty ? m.attachments.first : null;
-          Attachment updatedAtt = att != null
-              ? Attachment(
-                  id: att.id,
-                  conversationId: att.conversationId,
-                  fileName: att.fileName,
-                  contentType: att.contentType,
-                  fileSize: att.fileSize,
-                  filePath:
-                      att.filePath.isNotEmpty ? att.filePath : event.filePath,
-                  fileUrl: att.fileUrl,
-                  url: att.url,
-                  uploadedBy: att.uploadedBy,
-                  createdAt: att.createdAt,
-                  thumbnailUrl: att.thumbnailUrl,
-                  metadata: att.metadata,
-                  duration: att.duration,
-                  downloadProgress: 0.0,
-                  uploadProgress: att.uploadProgress,
-                  isUploading: true,
-                  uploadError: null,
-                  localFile: att.localFile ?? File(event.filePath),
-                  width: att.width,
-                  height: att.height,
-                  blurhash: att.blurhash,
-                )
-              : Attachment(
-                  id: 'local_$effectiveUploadId',
-                  conversationId: event.conversationId,
-                  fileName: File(event.filePath).path.split('/').last,
-                  contentType: 'audio/*',
-                  fileSize: 0,
-                  filePath: event.filePath,
-                  fileUrl: '',
-                  url: '',
-                  uploadedBy: currentState.currentUserId ?? '',
-                  createdAt: DateTime.now(),
-                  thumbnailUrl: null,
-                  metadata: null,
-                  duration: null,
-                  downloadProgress: 0.0,
-                  uploadProgress: 0.0,
-                  isUploading: true,
-                  uploadError: null,
-                  localFile: File(event.filePath),
-                  width: null,
-                  height: null,
-                  blurhash: null,
-                );
-
-          return Message(
-            id: m.id,
-            conversationId: m.conversationId,
-            senderId: m.senderId,
-            senderName: m.senderName,
-            messageType: m.messageType,
-            content: m.content,
-            location: m.location,
-            replyToMessageId: m.replyToMessageId,
-            attachments: [updatedAtt],
-            reactions: m.reactions,
-            createdAt: m.createdAt,
-            updatedAt: DateTime.now(),
-            status: 'sending',
-            isEdited: m.isEdited,
-            isDeleted: m.isDeleted,
-            deliveryReceipt: m.deliveryReceipt,
-          );
-        }
-        return m;
-      }).toList();
-      updated[event.conversationId] = mapped;
-      emit(currentState.copyWith(messages: updated));
-    }
-
-    try {
-      // Preprocess media before upload (e.g., generate video thumbnails)
-      final pre = await mediaPipeline.preprocess(
-        filePath: event.filePath,
-        messageType: event.messageType,
-      );
-      final uploadPath = pre.uploadPath;
-      final controller = UploadController();
-      _activeUploads[effectiveUploadId] = UploadTask(
-        controller: controller,
-        filePath: event.filePath,
-      );
-
-      final result = await uploadAttachmentUseCase(
-        UploadAttachmentParams(
-          conversationId: event.conversationId,
-          filePath: uploadPath,
-          messageType: event.messageType,
-          thumbnailPath: pre.thumbnailPath,
-          onSendProgress: (sent, total) {
-            final progress = total > 0 ? sent / total : 0.0;
-            if (isImage) {
-              _updateUploadProgress(
-                emit,
-                currentState,
-                event.conversationId,
-                effectiveUploadId,
-                progress,
-              );
-            } else if (!isRetryInline) {
-              final stNow = state;
-              if (stNow is ChatLoaded && stNow.uploadingAttachment != null) {
-                final a = stNow.uploadingAttachment!;
-                final updatedAtt = Attachment(
-                  id: a.id,
-                  conversationId: a.conversationId,
-                  fileName: a.fileName,
-                  contentType: a.contentType,
-                  fileSize: a.fileSize,
-                  filePath: a.filePath,
-                  fileUrl: a.fileUrl,
-                  url: a.url,
-                  uploadedBy: a.uploadedBy,
-                  createdAt: a.createdAt,
-                  thumbnailUrl: a.thumbnailUrl,
-                  metadata: a.metadata,
-                  duration: a.duration,
-                  downloadProgress: progress,
-                  uploadProgress: a.uploadProgress,
-                  isUploading: true,
-                  uploadError: null,
-                  localFile: a.localFile,
-                  width: a.width,
-                  height: a.height,
-                  blurhash: a.blurhash,
-                );
-                emit(stNow.copyWith(
-                  uploadingAttachment: updatedAtt,
-                  uploadProgress: progress,
-                ));
-              }
-            } else {
-              final stNow = state;
-              if (stNow is ChatLoaded) {
-                final updated = Map<String, List<Message>>.from(stNow.messages);
-                final msgs = List<Message>.from(
-                    updated[event.conversationId] ?? const []);
-                final mapped = msgs.map((m) {
-                  if (m.id == event.optimisticMessageId &&
-                      m.attachments.isNotEmpty) {
-                    final att = m.attachments.first;
-                    final att2 = Attachment(
-                      id: att.id,
-                      conversationId: att.conversationId,
-                      fileName: att.fileName,
-                      contentType: att.contentType,
-                      fileSize: att.fileSize,
-                      filePath: att.filePath.isNotEmpty
-                          ? att.filePath
-                          : event.filePath,
-                      fileUrl: att.fileUrl,
-                      url: att.url,
-                      uploadedBy: att.uploadedBy,
-                      createdAt: att.createdAt,
-                      thumbnailUrl: att.thumbnailUrl,
-                      metadata: att.metadata,
-                      duration: att.duration,
-                      downloadProgress: progress,
-                      uploadProgress: att.uploadProgress,
-                      isUploading: true,
-                      uploadError: null,
-                      localFile: att.localFile ?? File(event.filePath),
-                      width: att.width,
-                      height: att.height,
-                      blurhash: att.blurhash,
-                    );
-                    return Message(
-                      id: m.id,
-                      conversationId: m.conversationId,
-                      senderId: m.senderId,
-                      senderName: m.senderName,
-                      messageType: m.messageType,
-                      content: m.content,
-                      location: m.location,
-                      replyToMessageId: m.replyToMessageId,
-                      attachments: [att2],
-                      reactions: m.reactions,
-                      createdAt: m.createdAt,
-                      updatedAt: DateTime.now(),
-                      status: 'sending',
-                      isEdited: m.isEdited,
-                      isDeleted: m.isDeleted,
-                      deliveryReceipt: m.deliveryReceipt,
-                    );
-                  }
-                  return m;
-                }).toList();
-                updated[event.conversationId] = mapped;
-                emit(stNow.copyWith(messages: updated));
-              }
+    add(UploadMultipleAttachmentsEvent(
+      conversationId: event.conversationId,
+      filePaths: [event.filePath],
+      messageType: event.messageType,
+      currentUserId:
+          currentState is ChatLoaded ? currentState.currentUserId : null,
+      onProgress: event.onProgress != null
+          ? (index, sent, total) {
+              if (index == 0) event.onProgress!(sent, total);
             }
-            event.onProgress?.call(sent, total);
-          },
-        ),
-      );
-
-      await result.fold(
-        (failure) async {
-          if (isImage) {
-            _updateUploadStatus(
-              emit,
-              currentState,
-              event.conversationId,
-              effectiveUploadId,
-              isFailed: true,
-              error: _mapFailureToMessage(failure),
-            );
-          } else if (!isRetryInline) {
-            final stNow = state;
-            if (stNow is ChatLoaded) {
-              final a = stNow.uploadingAttachment;
-              final localFile = a?.localFile ?? File(event.filePath);
-              final failedAtt = Attachment(
-                id: a?.id ?? 'local_$effectiveUploadId',
-                conversationId: event.conversationId,
-                fileName:
-                    a?.fileName ?? File(event.filePath).path.split('/').last,
-                contentType: a?.contentType ??
-                    (event.messageType == 'audio'
-                        ? 'audio/*'
-                        : 'application/octet-stream'),
-                fileSize: a?.fileSize ?? 0,
-                filePath: a?.filePath ?? event.filePath,
-                fileUrl: '',
-                url: '',
-                uploadedBy: currentState.currentUserId ?? '',
-                createdAt: DateTime.now(),
-                thumbnailUrl: null,
-                metadata: null,
-                duration: null,
-                downloadProgress: a?.downloadProgress ?? 0.0,
-                uploadProgress: a?.uploadProgress ?? 0.0,
-                isUploading: false,
-                uploadError: _mapFailureToMessage(failure),
-                localFile: localFile,
-                width: null,
-                height: null,
-                blurhash: null,
-              );
-
-              final optimisticMsg = Message(
-                id: 'temp_${DateTime.now().microsecondsSinceEpoch}',
-                conversationId: event.conversationId,
-                senderId: currentState.currentUserId ?? '',
-                senderName: currentState.currentUserName,
-                messageType: event.messageType,
-                content: null,
-                location: null,
-                replyToMessageId: event.replyToMessageId,
-                attachments: [failedAtt],
-                reactions: const [],
-                createdAt: DateTime.now(),
-                updatedAt: DateTime.now(),
-                status: 'failed',
-                isEdited: false,
-                isDeleted: false,
-                deliveryReceipt: null,
-                failureReason: _mapFailureToMessage(failure),
-              );
-
-              final updatedMsgs =
-                  Map<String, List<Message>>.from(stNow.messages);
-              final list = List<Message>.from(
-                  updatedMsgs[event.conversationId] ?? const []);
-              list.insert(0, optimisticMsg);
-              updatedMsgs[event.conversationId] = list;
-              _optimisticMessages.putIfAbsent(event.conversationId, () => []);
-              _optimisticMessages[event.conversationId]!.add(optimisticMsg);
-
-              emit(stNow.copyWith(
-                messages: updatedMsgs,
-                uploadingAttachment: null,
-                uploadProgress: null,
-                error: _mapFailureToMessage(failure),
-              ));
-            }
-          } else {
-            // Inline retry failure: mark existing message failed
-            final stNow = state;
-            if (stNow is ChatLoaded) {
-              final updated = Map<String, List<Message>>.from(stNow.messages);
-              final msgs =
-                  List<Message>.from(updated[event.conversationId] ?? const []);
-              final mapped = msgs.map((m) {
-                if (m.id == event.optimisticMessageId &&
-                    m.attachments.isNotEmpty) {
-                  final att = m.attachments.first;
-                  final att2 = Attachment(
-                    id: att.id,
-                    conversationId: att.conversationId,
-                    fileName: att.fileName,
-                    contentType: att.contentType,
-                    fileSize: att.fileSize,
-                    filePath:
-                        att.filePath.isNotEmpty ? att.filePath : event.filePath,
-                    fileUrl: att.fileUrl,
-                    url: att.url,
-                    uploadedBy: att.uploadedBy,
-                    createdAt: att.createdAt,
-                    thumbnailUrl: att.thumbnailUrl,
-                    metadata: att.metadata,
-                    duration: att.duration,
-                    downloadProgress: att.downloadProgress,
-                    uploadProgress: att.uploadProgress,
-                    isUploading: false,
-                    uploadError: _mapFailureToMessage(failure),
-                    localFile: att.localFile ?? File(event.filePath),
-                    width: att.width,
-                    height: att.height,
-                    blurhash: att.blurhash,
-                  );
-                  return Message(
-                    id: m.id,
-                    conversationId: m.conversationId,
-                    senderId: m.senderId,
-                    senderName: m.senderName,
-                    messageType: m.messageType,
-                    content: m.content,
-                    location: m.location,
-                    replyToMessageId: m.replyToMessageId,
-                    attachments: [att2],
-                    reactions: m.reactions,
-                    createdAt: m.createdAt,
-                    updatedAt: DateTime.now(),
-                    status: 'failed',
-                    isEdited: m.isEdited,
-                    isDeleted: m.isDeleted,
-                    deliveryReceipt: m.deliveryReceipt,
-                    failureReason: _mapFailureToMessage(failure),
-                  );
-                }
-                return m;
-              }).toList();
-              updated[event.conversationId] = mapped;
-              emit(stNow.copyWith(messages: updated));
-            }
-          }
-        },
-        (attachment) async {
-          // Save generated thumbnail locally (for videos) for immediate UI preview
-          try {
-            // 'pre' is from preprocess above
-            // Persist only when available
-            if (pre.thumbnailPath != null && pre.thumbnailPath!.isNotEmpty) {
-              await di.sl<ChatLocalDataSource>().saveThumbnail(
-                    'attachment_${attachment.id}',
-                    pre.thumbnailPath!,
-                  );
-            }
-          } catch (_) {}
-          if (isImage) {
-            _updateUploadStatus(
-              emit,
-              currentState,
-              event.conversationId,
-              effectiveUploadId,
-              isCompleted: true,
-            );
-
-            add(SendMessageEvent(
-              conversationId: event.conversationId,
-              messageType: event.messageType,
-              attachmentIds: [attachment.id],
-              currentUserId: currentState.currentUserId,
-              replyToMessageId: event.replyToMessageId,
-            ));
-          } else if (!isRetryInline) {
-            final stNow = state;
-            if (stNow is ChatLoaded) {
-              final optimisticMsg = Message(
-                id: 'temp_${DateTime.now().microsecondsSinceEpoch}',
-                conversationId: event.conversationId,
-                senderId: currentState.currentUserId ?? '',
-                senderName: currentState.currentUserName,
-                messageType: event.messageType,
-                content: null,
-                location: null,
-                replyToMessageId: event.replyToMessageId,
-                attachments: [attachment],
-                reactions: const [],
-                createdAt: DateTime.now(),
-                updatedAt: DateTime.now(),
-                status: 'sending',
-                isEdited: false,
-                isDeleted: false,
-                deliveryReceipt: null,
-              );
-
-              final updatedMsgs =
-                  Map<String, List<Message>>.from(stNow.messages);
-              final list = List<Message>.from(
-                  updatedMsgs[event.conversationId] ?? const []);
-              list.insert(0, optimisticMsg);
-              updatedMsgs[event.conversationId] = list;
-              _optimisticMessages.putIfAbsent(event.conversationId, () => []);
-              _optimisticMessages[event.conversationId]!.add(optimisticMsg);
-
-              emit(stNow.copyWith(
-                messages: updatedMsgs,
-                uploadingAttachment: null,
-                uploadProgress: null,
-              ));
-
-              add(SendMessageEvent(
-                conversationId: event.conversationId,
-                messageType: event.messageType,
-                attachmentIds: [attachment.id],
-                currentUserId: currentState.currentUserId,
-                replyToMessageId: event.replyToMessageId,
-                skipOptimistic: true,
-                optimisticMessageId: optimisticMsg.id,
-              ));
-            }
-          } else {
-            // Inline retry success: replace attachment in the same message and send
-            final stNow = state;
-            if (stNow is ChatLoaded) {
-              final updated = Map<String, List<Message>>.from(stNow.messages);
-              final msgs =
-                  List<Message>.from(updated[event.conversationId] ?? const []);
-              final mapped = msgs.map((m) {
-                if (m.id == event.optimisticMessageId) {
-                  return Message(
-                    id: m.id,
-                    conversationId: m.conversationId,
-                    senderId: m.senderId,
-                    senderName: m.senderName,
-                    messageType: m.messageType,
-                    content: m.content,
-                    location: m.location,
-                    replyToMessageId: m.replyToMessageId,
-                    attachments: [attachment],
-                    reactions: m.reactions,
-                    createdAt: m.createdAt,
-                    updatedAt: DateTime.now(),
-                    status: 'sending',
-                    isEdited: m.isEdited,
-                    isDeleted: m.isDeleted,
-                    deliveryReceipt: m.deliveryReceipt,
-                  );
-                }
-                return m;
-              }).toList();
-              updated[event.conversationId] = mapped;
-              emit(stNow.copyWith(messages: updated));
-
-              add(SendMessageEvent(
-                conversationId: event.conversationId,
-                messageType: event.messageType,
-                attachmentIds: [attachment.id],
-                currentUserId: currentState.currentUserId,
-                replyToMessageId: event.replyToMessageId,
-                skipOptimistic: true,
-                optimisticMessageId: event.optimisticMessageId,
-              ));
-            }
-          }
-        },
-      );
-    } catch (e) {
-      if (isImage) {
-        _updateUploadStatus(
-          emit,
-          currentState,
-          event.conversationId,
-          effectiveUploadId,
-          isFailed: true,
-          error: e.toString(),
-        );
-      } else if (!isRetryInline) {
-        final stNow = state;
-        if (stNow is ChatLoaded) {
-          final a = stNow.uploadingAttachment;
-          final localFile = a?.localFile ?? File(event.filePath);
-          final failedAtt = Attachment(
-            id: a?.id ?? 'local_$effectiveUploadId',
-            conversationId: event.conversationId,
-            fileName: a?.fileName ?? File(event.filePath).path.split('/').last,
-            contentType: a?.contentType ??
-                (event.messageType == 'audio'
-                    ? 'audio/*'
-                    : 'application/octet-stream'),
-            fileSize: a?.fileSize ?? 0,
-            filePath: a?.filePath ?? event.filePath,
-            fileUrl: '',
-            url: '',
-            uploadedBy: currentState.currentUserId ?? '',
-            createdAt: DateTime.now(),
-            thumbnailUrl: null,
-            metadata: null,
-            duration: null,
-            downloadProgress: a?.downloadProgress ?? 0.0,
-            uploadProgress: a?.uploadProgress ?? 0.0,
-            isUploading: false,
-            uploadError: e.toString(),
-            localFile: localFile,
-            width: null,
-            height: null,
-            blurhash: null,
-          );
-
-          final optimisticMsg = Message(
-            id: 'temp_${DateTime.now().microsecondsSinceEpoch}',
-            conversationId: event.conversationId,
-            senderId: currentState.currentUserId ?? '',
-            senderName: currentState.currentUserName,
-            messageType: event.messageType,
-            content: null,
-            location: null,
-            replyToMessageId: event.replyToMessageId,
-            attachments: [failedAtt],
-            reactions: const [],
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-            status: 'failed',
-            isEdited: false,
-            isDeleted: false,
-            deliveryReceipt: null,
-            failureReason: e.toString(),
-          );
-
-          final updatedMsgs = Map<String, List<Message>>.from(stNow.messages);
-          final list =
-              List<Message>.from(updatedMsgs[event.conversationId] ?? const []);
-          list.insert(0, optimisticMsg);
-          updatedMsgs[event.conversationId] = list;
-          _optimisticMessages.putIfAbsent(event.conversationId, () => []);
-          _optimisticMessages[event.conversationId]!.add(optimisticMsg);
-
-          emit(stNow.copyWith(
-            messages: updatedMsgs,
-            uploadingAttachment: null,
-            uploadProgress: null,
-            error: e.toString(),
-          ));
-        }
-      } else {
-        final stNow = state;
-        if (stNow is ChatLoaded) {
-          final updated = Map<String, List<Message>>.from(stNow.messages);
-          final msgs =
-              List<Message>.from(updated[event.conversationId] ?? const []);
-          final mapped = msgs.map((m) {
-            if (m.id == event.optimisticMessageId && m.attachments.isNotEmpty) {
-              final att = m.attachments.first;
-              final att2 = Attachment(
-                id: att.id,
-                conversationId: att.conversationId,
-                fileName: att.fileName,
-                contentType: att.contentType,
-                fileSize: att.fileSize,
-                filePath:
-                    att.filePath.isNotEmpty ? att.filePath : event.filePath,
-                fileUrl: att.fileUrl,
-                url: att.url,
-                uploadedBy: att.uploadedBy,
-                createdAt: att.createdAt,
-                thumbnailUrl: att.thumbnailUrl,
-                metadata: att.metadata,
-                duration: att.duration,
-                downloadProgress: att.downloadProgress,
-                uploadProgress: att.uploadProgress,
-                isUploading: false,
-                uploadError: e.toString(),
-                localFile: att.localFile ?? File(event.filePath),
-                width: att.width,
-                height: att.height,
-                blurhash: att.blurhash,
-              );
-              return Message(
-                id: m.id,
-                conversationId: m.conversationId,
-                senderId: m.senderId,
-                senderName: m.senderName,
-                messageType: m.messageType,
-                content: m.content,
-                location: m.location,
-                replyToMessageId: m.replyToMessageId,
-                attachments: [att2],
-                reactions: m.reactions,
-                createdAt: m.createdAt,
-                updatedAt: DateTime.now(),
-                status: 'failed',
-                isEdited: m.isEdited,
-                isDeleted: m.isDeleted,
-                deliveryReceipt: m.deliveryReceipt,
-                failureReason: e.toString(),
-              );
-            }
-            return m;
-          }).toList();
-          updated[event.conversationId] = mapped;
-          emit(stNow.copyWith(messages: updated));
-        }
-      }
-    } finally {
-      _activeUploads.remove(effectiveUploadId);
-    }
-
-    if (isImage && !usingUiBatch) {
-      final finalUploads =
-          Map<String, List<ImageUploadInfo>>.from(currentState.uploadingImages);
-      finalUploads.remove(event.conversationId);
-      emit(currentState.copyWith(uploadingImages: finalUploads));
-    }
-  }
-
-  /// بدء دفعة رفع صور (تهيئة العناصر في الحالة)
-  /// يبدأ تتبع دفعة صور داخل المحادثة قبل بدء الرفع الفعلي.
-  /// Starts tracking an image batch in the conversation before the
-  /// actual upload begins.
-  Future<void> _onStartImageUploads(
-    StartImageUploadsEvent event,
-    Emitter<ChatState> emit,
-  ) async {
-    final currentState = state;
-    if (currentState is! ChatLoaded) return;
-
-    final updated = Map<String, List<ImageUploadInfo>>.from(
-      currentState.uploadingImages,
-    );
-    final existing = List<ImageUploadInfo>.from(
-      updated[event.conversationId] ?? const [],
-    );
-
-    // دمج بحسب المعرف لتفادي التكرار
-    final existingIds = existing.map((e) => e.id).toSet();
-    final merged = [
-      ...existing,
-      ...event.uploads.where((u) => !existingIds.contains(u.id)),
-    ];
-    updated[event.conversationId] = merged;
-    emit(currentState.copyWith(uploadingImages: updated));
-  }
-
-  /// تحديث تقدّم/حالة عنصر رفع واحد داخل الدفعة
-  /// يحدّث نسبة تقدم صورة واحدة داخل الدفعة الجارية.
-  /// Updates the progress of a single image inside the active batch.
-  Future<void> _onUpdateImageUploadProgress(
-    UpdateImageUploadProgressEvent event,
-    Emitter<ChatState> emit,
-  ) async {
-    final currentState = state;
-    if (currentState is! ChatLoaded) return;
-
-    final updated = Map<String, List<ImageUploadInfo>>.from(
-      currentState.uploadingImages,
-    );
-    final list = List<ImageUploadInfo>.from(
-      updated[event.conversationId] ?? const [],
-    );
-
-    final mapped = list.map((t) {
-      if (t.id == event.uploadId) {
-        return t.copyWith(
-          progress: event.progress ?? t.progress,
-          isCompleted: event.isCompleted ?? t.isCompleted,
-          isFailed: event.isFailed ?? t.isFailed,
-          error: event.error ?? t.error,
-        );
-      }
-      return t;
-    }).toList();
-
-    updated[event.conversationId] = mapped;
-    emit(currentState.copyWith(uploadingImages: updated));
-  }
-
-  /// إنهاء دفعة الرفع لمسح واجهة الرفع المؤقتة
-  /// ينهي تتبع دفعة الصور عندما تكتمل كل عمليات الرفع.
-  /// Ends image-batch tracking once all uploads finish.
-  Future<void> _onFinishImageUploads(
-    FinishImageUploadsEvent event,
-    Emitter<ChatState> emit,
-  ) async {
-    final currentState = state;
-    if (currentState is! ChatLoaded) return;
-
-    final updated = Map<String, List<ImageUploadInfo>>.from(
-      currentState.uploadingImages,
-    );
-    updated.remove(event.conversationId);
-    emit(currentState.copyWith(uploadingImages: updated));
-  }
-
-  // واجهة مساعدة عامة حتى تتمكن الواجهة من تتبع التقدم بدقة
-  /// يرفع مرفقًا مع بث التقدم خطوة بخطوة أثناء النقل.
-  /// Uploads an attachment while streaming progress updates during the
-  /// transfer.
-  Future<void> uploadAttachmentWithProgress({
-    required String conversationId,
-    required String filePath,
-    required String messageType,
-    String? replyToMessageId,
-    String? replyToAttachmentId,
-    void Function(int sent, int total)? onProgress,
-  }) async {
-    add(UploadAttachmentEvent(
-      conversationId: conversationId,
-      filePath: filePath,
-      messageType: messageType,
-      replyToMessageId: replyToMessageId,
-      onProgress: onProgress,
+          : null,
     ));
   }
 
-  /// تحديث تقدم الرفع
-  /// يضبط التقدم الداخلي لعملية رفع نشطة.
-  /// Adjusts the internal progress for an active upload.
-  void _updateUploadProgress(
+  /// Uploads one recorded voice note and sends it as an audio chat message
+  /// with optimistic rendering.
+  /// يرفع ملاحظة صوتية مسجلة ويرسلها كرسالة صوتية مع عرض تفاؤلي.
+  Future<void> _onSendAudioMessage(
+    SendAudioMessageEvent event,
     Emitter<ChatState> emit,
-    ChatLoaded currentState,
-    String conversationId,
-    String uploadId,
-    double progress,
-  ) {
+  ) async {
+    final currentState = state;
+    if (currentState is! ChatLoaded) return;
+
+    final normalizedPath = event.filePath.trim();
+    final now = DateTime.now();
+    _recentAudioDispatches.removeWhere(
+      (_, timestamp) => now.difference(timestamp).inSeconds >= 15,
+    );
+
+    final previousDispatchAt = _recentAudioDispatches[normalizedPath];
+    if (previousDispatchAt != null &&
+        now.difference(previousDispatchAt).inSeconds < 15) {
+      return;
+    }
+    _recentAudioDispatches[normalizedPath] = now;
+
+    final resolvedCurrentUserId =
+        await _resolveCurrentUserId(null, currentState);
+    final resolvedCurrentUserName = await _resolveCurrentUserName(currentState);
+    final file = File(normalizedPath);
+    final tempMessageId = 'temp_voice_${now.microsecondsSinceEpoch}';
+    final tempAttachmentId = 'temp_attachment_${now.microsecondsSinceEpoch}';
+    final fileName = file.uri.pathSegments.isNotEmpty
+        ? file.uri.pathSegments.last
+        : 'voice_note.m4a';
+    final fileSize = await file.exists() ? await file.length() : 0;
+
+    final optimisticAttachment = Attachment(
+      id: tempAttachmentId,
+      conversationId: event.conversationId,
+      fileName: fileName,
+      contentType: 'audio/m4a',
+      fileSize: fileSize,
+      filePath: normalizedPath,
+      fileUrl: normalizedPath,
+      uploadedBy: resolvedCurrentUserId,
+      createdAt: now,
+      duration: event.durationSeconds,
+    );
+
+    final optimisticMessage = Message(
+      id: tempMessageId,
+      conversationId: event.conversationId,
+      senderId: resolvedCurrentUserId,
+      senderName: resolvedCurrentUserName,
+      messageType: 'audio',
+      replyToMessageId: event.replyToMessageId,
+      attachments: [optimisticAttachment],
+      reactions: const [],
+      createdAt: now,
+      updatedAt: now,
+      status: 'sending',
+      isEdited: false,
+      isDeleted: false,
+      deliveryReceipt: null,
+    );
+
+    final updatedMessages =
+        Map<String, List<Message>>.from(currentState.messages);
+    final conversationMessages = List<Message>.from(
+      updatedMessages[event.conversationId] ?? [],
+    );
+    conversationMessages.insert(0, optimisticMessage);
+    updatedMessages[event.conversationId] = conversationMessages;
+
+    _optimisticMessages.putIfAbsent(event.conversationId, () => []);
+    _optimisticMessages[event.conversationId]!.add(optimisticMessage);
+
+    emit(currentState.copyWith(
+      messages: updatedMessages,
+      isSendingMessage: true,
+      sendingConversationId: event.conversationId,
+      currentUserId: resolvedCurrentUserId.isEmpty
+          ? currentState.currentUserId
+          : resolvedCurrentUserId,
+      currentUserName: resolvedCurrentUserName,
+    ));
+
+    final uploadResult = await uploadAttachmentUseCase(
+      UploadAttachmentParams(
+        conversationId: event.conversationId,
+        filePath: normalizedPath,
+        messageType: 'audio',
+        durationSeconds: event.durationSeconds,
+      ),
+    );
+
+    await uploadResult.fold(
+      (failure) async {
+        _recentAudioDispatches.remove(normalizedPath);
+        await _markOptimisticMessageFailed(
+          emit,
+          optimisticMessage: optimisticMessage,
+          currentState:
+              state is ChatLoaded ? state as ChatLoaded : currentState,
+          failureReason: await _mapFailureToMessage(failure),
+        );
+      },
+      (attachment) async {
+        final sendResult = await sendMessageUseCase(
+          SendMessageParams(
+            conversationId: event.conversationId,
+            messageType: 'audio',
+            replyToMessageId: event.replyToMessageId,
+            attachmentIds: [attachment.id],
+          ),
+        );
+
+        await sendResult.fold(
+          (failure) async {
+            _recentAudioDispatches.remove(normalizedPath);
+            await _markOptimisticMessageFailed(
+              emit,
+              optimisticMessage: optimisticMessage,
+              currentState:
+                  state is ChatLoaded ? state as ChatLoaded : currentState,
+              failureReason: await _mapFailureToMessage(failure),
+            );
+          },
+          (sentMessage) async {
+            _recentAudioDispatches.remove(normalizedPath);
+            final liveState =
+                state is ChatLoaded ? state as ChatLoaded : currentState;
+            final successMessages =
+                Map<String, List<Message>>.from(liveState.messages);
+            final messages = successMessages[event.conversationId] ?? [];
+            final mergedSentMessage =
+                _mergeMessageWithReference(sentMessage, optimisticMessage);
+            final updatedMessagesList = _collapseTransientAudioDuplicates(
+              _replaceOptimisticWithConfirmed(
+                messages,
+                optimisticMessage,
+                mergedSentMessage,
+              ),
+              mergedSentMessage,
+              optimisticMessage: optimisticMessage,
+            );
+            successMessages[event.conversationId] = updatedMessagesList;
+
+            _optimisticMessages[event.conversationId]?.removeWhere(
+              (msg) => msg.id == optimisticMessage.id,
+            );
+
+            final updatedConversations = liveState.conversations.map((conv) {
+              if (conv.id == event.conversationId) {
+                return Conversation(
+                  id: conv.id,
+                  conversationType: conv.conversationType,
+                  title: conv.title,
+                  description: conv.description,
+                  avatar: conv.avatar,
+                  createdAt: conv.createdAt,
+                  updatedAt: DateTime.now(),
+                  lastMessage: mergedSentMessage,
+                  unreadCount: conv.unreadCount,
+                  isArchived: conv.isArchived,
+                  isMuted: conv.isMuted,
+                  propertyId: conv.propertyId,
+                  participants: conv.participants,
+                );
+              }
+              return conv;
+            }).toList();
+
+            emit(liveState.copyWith(
+              messages: successMessages,
+              conversations: updatedConversations,
+              isSendingMessage: false,
+              sendingConversationId: null,
+              error: null,
+            ));
+          },
+        );
+      },
+    );
+  }
+
+  /// Updates the visible progress value for one in-flight upload.
+  /// يحدّث قيمة التقدم المرئية لعملية رفع جارية.
+  void _updateUploadProgress(Emitter<ChatState> emit, ChatLoaded currentState,
+      String conversationId, String uploadId, double progress,
+      {String? optimisticMessageId}) {
+    final liveState = state is ChatLoaded ? state as ChatLoaded : currentState;
     final updatedUploads = Map<String, List<ImageUploadInfo>>.from(
-      currentState.uploadingImages,
+      liveState.uploadingImages,
     );
 
     final uploads = updatedUploads[conversationId] ?? [];
@@ -1857,12 +1229,22 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }).toList();
 
     updatedUploads[conversationId] = updatedTasks;
-    emit(currentState.copyWith(uploadingImages: updatedUploads));
+    emit(liveState.copyWith(
+      uploadingImages: updatedUploads,
+      messages: optimisticMessageId == null
+          ? liveState.messages
+          : _updateOptimisticAttachmentAfterUpload(
+              liveState.messages,
+              conversationId: conversationId,
+              messageId: optimisticMessageId,
+              attachmentId: uploadId,
+              progress: progress,
+            ),
+    ));
   }
 
-  /// تحديث حالة الرفع
-  /// يغيّر حالة الرفع النشط عند النجاح أو الخطأ أو الإلغاء.
-  /// Changes the active upload state on success, failure, or cancel.
+  /// Updates the completion or failure state for one upload task.
+  /// يحدّث حالة الاكتمال أو الفشل لمهمة رفع واحدة.
   void _updateUploadStatus(
     Emitter<ChatState> emit,
     ChatLoaded currentState,
@@ -1871,12 +1253,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     bool? isCompleted,
     bool? isFailed,
     String? error,
+    String? optimisticMessageId,
+    Attachment? hydratedAttachment,
   }) {
+    final liveState = state is ChatLoaded ? state as ChatLoaded : currentState;
     final updatedUploads = Map<String, List<ImageUploadInfo>>.from(
-      currentState.uploadingImages,
+      liveState.uploadingImages,
     );
 
     final uploads = updatedUploads[conversationId] ?? [];
+    final previousTask = uploads.firstWhere(
+      (task) => task.id == uploadId,
+      orElse: () => ImageUploadInfo(id: uploadId, file: File('')),
+    );
     final updatedTasks = uploads.map((task) {
       if (task.id == uploadId) {
         return task.copyWith(
@@ -1890,12 +1279,214 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }).toList();
 
     updatedUploads[conversationId] = updatedTasks;
-    emit(currentState.copyWith(uploadingImages: updatedUploads));
+    emit(liveState.copyWith(
+      uploadingImages: updatedUploads,
+      messages: optimisticMessageId == null
+          ? liveState.messages
+          : _updateOptimisticAttachmentAfterUpload(
+              liveState.messages,
+              conversationId: conversationId,
+              messageId: optimisticMessageId,
+              attachmentId: uploadId,
+              progress: isCompleted == true ? 1.0 : previousTask.progress,
+              hydratedAttachment: hydratedAttachment,
+            ),
+    ));
   }
 
-  /// إلغاء عملية الرفع
-  /// يلغي رفعًا نشطًا ويزيل أثره من الحالة.
-  /// Cancels an active upload and clears it from state.
+  String _inferAttachmentContentType(String fileName, String messageType) {
+    final extension =
+        fileName.contains('.') ? fileName.split('.').last.toLowerCase() : '';
+
+    if (messageType == 'image') {
+      switch (extension) {
+        case 'png':
+          return 'image/png';
+        case 'gif':
+          return 'image/gif';
+        case 'webp':
+          return 'image/webp';
+        default:
+          return 'image/jpeg';
+      }
+    }
+
+    if (messageType == 'video') {
+      switch (extension) {
+        case 'mov':
+          return 'video/quicktime';
+        case 'mkv':
+          return 'video/x-matroska';
+        case 'webm':
+          return 'video/webm';
+        default:
+          return 'video/mp4';
+      }
+    }
+
+    if (messageType == 'audio') {
+      return 'audio/m4a';
+    }
+
+    return 'application/octet-stream';
+  }
+
+  Map<String, List<Message>> _updateOptimisticAttachmentAfterUpload(
+    Map<String, List<Message>> sourceMessages, {
+    required String conversationId,
+    required String messageId,
+    required String attachmentId,
+    required double progress,
+    Attachment? hydratedAttachment,
+  }) {
+    final updatedMessages = Map<String, List<Message>>.from(sourceMessages);
+    final conversationMessages = List<Message>.from(
+      updatedMessages[conversationId] ?? const <Message>[],
+    );
+
+    final updatedConversationMessages = conversationMessages.map((message) {
+      if (message.id != messageId) {
+        return message;
+      }
+
+      final updatedAttachments = message.attachments.map((attachment) {
+        if (attachment.id != attachmentId) {
+          return attachment;
+        }
+
+        return Attachment(
+          id: hydratedAttachment?.id ?? attachment.id,
+          conversationId:
+              hydratedAttachment?.conversationId ?? attachment.conversationId,
+          fileName: (hydratedAttachment?.fileName.isNotEmpty ?? false)
+              ? hydratedAttachment!.fileName
+              : attachment.fileName,
+          contentType: (hydratedAttachment?.contentType.isNotEmpty ?? false)
+              ? hydratedAttachment!.contentType
+              : attachment.contentType,
+          fileSize: (hydratedAttachment?.fileSize ?? 0) > 0
+              ? hydratedAttachment!.fileSize
+              : attachment.fileSize,
+          filePath: attachment.filePath,
+          fileUrl: (hydratedAttachment?.fileUrl.isNotEmpty ?? false)
+              ? hydratedAttachment!.fileUrl
+              : attachment.fileUrl,
+          uploadedBy: (hydratedAttachment?.uploadedBy.isNotEmpty ?? false)
+              ? hydratedAttachment!.uploadedBy
+              : attachment.uploadedBy,
+          createdAt: hydratedAttachment?.createdAt ?? attachment.createdAt,
+          thumbnailUrl:
+              hydratedAttachment?.thumbnailUrl ?? attachment.thumbnailUrl,
+          metadata: _mergeAttachmentMetadata(
+            attachment.metadata,
+            hydratedAttachment?.metadata,
+            attachment.thumbnailUrl,
+          ),
+          duration: hydratedAttachment?.duration ?? attachment.duration,
+          downloadProgress: progress,
+        );
+      }).toList();
+
+      return Message(
+        id: message.id,
+        conversationId: message.conversationId,
+        senderId: message.senderId,
+        senderName: message.senderName,
+        messageType: message.messageType,
+        content: message.content,
+        location: message.location,
+        replyToMessageId: message.replyToMessageId,
+        reactions: message.reactions,
+        attachments: updatedAttachments,
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt,
+        status: message.status,
+        isEdited: message.isEdited,
+        editedAt: message.editedAt,
+        deliveryReceipt: message.deliveryReceipt,
+        isDeleted: message.isDeleted,
+        failureReason: message.failureReason,
+      );
+    }).toList();
+
+    updatedMessages[conversationId] = updatedConversationMessages;
+    return updatedMessages;
+  }
+
+  Message _hydrateOptimisticMessageAttachments(
+    Message optimisticMessage,
+    List<Attachment?> uploadedAttachmentsByIndex,
+  ) {
+    if (uploadedAttachmentsByIndex.every((attachment) => attachment == null)) {
+      return optimisticMessage;
+    }
+
+    final mergedAttachments = List<Attachment>.generate(
+      optimisticMessage.attachments.length,
+      (index) {
+        final fallback = optimisticMessage.attachments[index];
+        final uploaded = index < uploadedAttachmentsByIndex.length
+            ? uploadedAttachmentsByIndex[index]
+            : null;
+
+        if (uploaded == null) {
+          return fallback;
+        }
+
+        return Attachment(
+          id: uploaded.id,
+          conversationId: uploaded.conversationId,
+          fileName: uploaded.fileName.isNotEmpty
+              ? uploaded.fileName
+              : fallback.fileName,
+          contentType: uploaded.contentType.isNotEmpty
+              ? uploaded.contentType
+              : fallback.contentType,
+          fileSize:
+              uploaded.fileSize > 0 ? uploaded.fileSize : fallback.fileSize,
+          filePath: fallback.filePath,
+          fileUrl:
+              uploaded.fileUrl.isNotEmpty ? uploaded.fileUrl : fallback.fileUrl,
+          uploadedBy: uploaded.uploadedBy.isNotEmpty
+              ? uploaded.uploadedBy
+              : fallback.uploadedBy,
+          createdAt: uploaded.createdAt,
+          thumbnailUrl: uploaded.thumbnailUrl ?? fallback.thumbnailUrl,
+          metadata: _mergeAttachmentMetadata(
+            fallback.metadata,
+            uploaded.metadata,
+            fallback.thumbnailUrl,
+          ),
+          duration: uploaded.duration ?? fallback.duration,
+          downloadProgress: 1.0,
+        );
+      },
+    );
+
+    return Message(
+      id: optimisticMessage.id,
+      conversationId: optimisticMessage.conversationId,
+      senderId: optimisticMessage.senderId,
+      senderName: optimisticMessage.senderName,
+      messageType: optimisticMessage.messageType,
+      content: optimisticMessage.content,
+      location: optimisticMessage.location,
+      replyToMessageId: optimisticMessage.replyToMessageId,
+      reactions: optimisticMessage.reactions,
+      attachments: mergedAttachments,
+      createdAt: optimisticMessage.createdAt,
+      updatedAt: optimisticMessage.updatedAt,
+      status: optimisticMessage.status,
+      isEdited: optimisticMessage.isEdited,
+      editedAt: optimisticMessage.editedAt,
+      isDeleted: optimisticMessage.isDeleted,
+      deliveryReceipt: optimisticMessage.deliveryReceipt,
+      failureReason: optimisticMessage.failureReason,
+    );
+  }
+
+  /// Cancels a running upload and reflects the cancellation in state.
+  /// يلغي عملية رفع جارية ويعكس الإلغاء داخل الحالة.
   Future<void> _onCancelUpload(
     CancelUploadEvent event,
     Emitter<ChatState> emit,
@@ -1905,7 +1496,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       uploadTask.controller.cancel();
       _activeUploads.remove(event.uploadId);
 
-      // تحديث حالة الرفع
+      // Reflect the cancellation in the upload state.
       final currentState = state;
       if (currentState is ChatLoaded) {
         _updateUploadStatus(
@@ -1914,19 +1505,15 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           event.conversationId,
           event.uploadId,
           isFailed: true,
-          error: 'تم إلغاء الرفع',
+          error: await _tr('chat.errors.uploadCancelled'),
         );
       }
     }
   }
 
-  /// إعادة محاولة إرسال رسالة فاشلة
-  // Duplicate older implementation removed to avoid duplicate definition
-
-  /// إنشاء محادثة جديدة
-  /// ينشئ محادثة جديدة ثم ينعكس ذلك مباشرة في قائمة المحادثات.
-  /// Initializes a new conversation and reflects it immediately in the
-  /// conversation list.
+  /// Creates a new conversation and inserts it into the inbox when the
+  /// request succeeds.
+  /// ينشئ محادثة جديدة ويضيفها إلى الصندوق الوارد عند نجاح الطلب.
   Future<void> _onCreateConversation(
     CreateConversationEvent event,
     Emitter<ChatState> emit,
@@ -1945,11 +1532,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async =>
-          emit(ChatError(message: _mapFailureToMessage(failure))),
+          emit(ChatError(message: await _mapFailureToMessage(failure))),
       (conversation) async {
         emit(ConversationCreated(conversation: conversation));
 
-        // تحديث قائمة المحادثات
+        // Prepend the new conversation so it appears immediately.
         final currentState = state;
         if (currentState is ChatLoaded) {
           final updatedConversations = [
@@ -1964,9 +1551,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// حذف محادثة
-  /// ينفذ العملية `_onDeleteConversation`.
-  /// Runs the `_onDeleteConversation` operation.
+  /// Deletes a conversation, removes its cached timeline, and clears local
+  /// bookkeeping.
+  /// يحذف المحادثة ويزيل خطها المخزن ويفرغ بيانات المتابعة المحلية.
   Future<void> _onDeleteConversation(
     DeleteConversationEvent event,
     Emitter<ChatState> emit,
@@ -1980,20 +1567,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (_) async {
-        // إزالة المحادثة من القائمة
+        // Remove the conversation from the visible inbox.
         final updatedConversations = currentState.conversations
             .where((conv) => conv.id != event.conversationId)
             .toList();
 
-        // إزالة الرسائل المرتبطة
+        // Remove every cached message that belongs to the deleted thread.
         final updatedMessages =
             Map<String, List<Message>>.from(currentState.messages);
         updatedMessages.remove(event.conversationId);
 
-        // تنظيف الذاكرة المؤقتة
+        // Clear any residual cache or loading flags for that thread.
         add(ClearConversationCacheEvent(conversationId: event.conversationId));
 
         emit(currentState.copyWith(
@@ -2005,9 +1592,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// أرشفة محادثة
-  /// ينفذ العملية `_onArchiveConversation`.
-  /// Runs the `_onArchiveConversation` operation.
+  /// Moves a conversation into the archived state without deleting history.
+  /// ينقل المحادثة إلى الأرشيف من دون حذف تاريخها.
   Future<void> _onArchiveConversation(
     ArchiveConversationEvent event,
     Emitter<ChatState> emit,
@@ -2021,10 +1607,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (_) async {
-        // تحديث حالة الأرشفة للمحادثة
+        // Mark the conversation as archived in the visible list.
         final updatedConversations = currentState.conversations.map((conv) {
           if (conv.id == event.conversationId) {
             return Conversation(
@@ -2054,9 +1640,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// إلغاء أرشفة محادثة
-  /// ينفذ العملية `_onUnarchiveConversation`.
-  /// Runs the `_onUnarchiveConversation` operation.
+  /// Restores an archived conversation back into the inbox view.
+  /// يعيد محادثة مؤرشفة إلى عرض الصندوق الوارد.
   Future<void> _onUnarchiveConversation(
     UnarchiveConversationEvent event,
     Emitter<ChatState> emit,
@@ -2070,10 +1655,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (_) async {
-        // تحديث حالة الأرشفة للمحادثة
+        // Mark the conversation as active again.
         final updatedConversations = currentState.conversations.map((conv) {
           if (conv.id == event.conversationId) {
             return Conversation(
@@ -2103,9 +1688,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// حذف رسالة
-  /// ينفذ العملية `_onDeleteMessage`.
-  /// Runs the `_onDeleteMessage` operation.
+  /// Deletes a message and keeps the thread visually consistent afterward.
+  /// يحذف رسالة ويُبقي السلسلة متسقة بصريًا بعد ذلك.
   Future<void> _onDeleteMessage(
     DeleteMessageEvent event,
     Emitter<ChatState> emit,
@@ -2119,12 +1703,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (_) async {
-        // تحديث الرسالة كمحذوفة
+        // Replace the message body with a deleted placeholder.
         final updatedMessages =
             Map<String, List<Message>>.from(currentState.messages);
+        final deletedPlaceholder = await _tr('chat.message.deletedPlaceholder');
 
         updatedMessages.forEach((conversationId, messages) {
           final updatedList = messages.map((msg) {
@@ -2135,7 +1720,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
                 senderId: msg.senderId,
                 senderName: msg.senderName,
                 messageType: msg.messageType,
-                content: '[رسالة محذوفة]',
+                content: deletedPlaceholder,
                 location: msg.location,
                 replyToMessageId: msg.replyToMessageId,
                 attachments: const [],
@@ -2162,9 +1747,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// تعديل رسالة
-  /// ينفذ العملية `_onEditMessage`.
-  /// Runs the `_onEditMessage` operation.
+  /// Applies an inline edit to a message and reconciles it with the server
+  /// response.
+  /// يطبّق تعديلًا مباشرًا على رسالة ثم يطابقه مع رد الخادم.
   Future<void> _onEditMessage(
     EditMessageEvent event,
     Emitter<ChatState> emit,
@@ -2172,7 +1757,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final currentState = state;
     if (currentState is! ChatLoaded) return;
 
-    // تحديث متفائل
+    // Apply the optimistic edit immediately.
     final updatedMessages =
         Map<String, List<Message>>.from(currentState.messages);
     String? targetConversationId;
@@ -2216,11 +1801,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        // فشل التعديل - إرجاع الرسالة الأصلية
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        // Restore the previous state when the edit fails.
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (editedMessage) async {
-        // نجح التعديل - تحديث بالرسالة المعدلة من الخادم
+        // Replace the optimistic copy with the server response.
         final finalMessages =
             Map<String, List<Message>>.from(currentState.messages);
 
@@ -2241,9 +1826,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// إضافة تفاعل
-  /// ينفذ العملية `_onAddReaction`.
-  /// Runs the `_onAddReaction` operation.
+  /// Adds a reaction optimistically and keeps the thread responsive while
+  /// the backend confirms it.
+  /// يضيف تفاعلًا بشكل تفاؤلي ويُبقي السلسلة سريعة الاستجابة حتى يؤكد
+  /// الخادم العملية.
   Future<void> _onAddReaction(
     AddReactionEvent event,
     Emitter<ChatState> emit,
@@ -2254,7 +1840,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final userId = event.currentUserId ?? currentState.currentUserId ?? '';
     if (userId.isEmpty) return;
 
-    // تحديث متفائل
+    // Apply the reaction locally before the network round-trip.
     final optimisticReaction = MessageReaction(
       id: 'temp_reaction_${DateTime.now().microsecondsSinceEpoch}',
       messageId: event.messageId,
@@ -2280,7 +1866,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        // فشل - إزالة التفاعل المتفائل
+        // Roll back the optimistic reaction when the request fails.
         final revertedMessages = _updateMessageReaction(
           currentState.messages,
           event.messageId,
@@ -2289,19 +1875,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         );
         emit(currentState.copyWith(
           messages: revertedMessages,
-          error: 'فشل في إضافة التفاعل',
+          error: await _tr('chat.errors.reactionAddFailed'),
         ));
       },
       (_) async {
-        // نجح - لا حاجة لاستبدال لأن API لا تُرجع معرف التفاعل؛ أبقِ التحديث المتفائل
+        // Keep the optimistic reaction because the backend accepted it.
         emit(currentState.copyWith(error: null));
       },
     );
   }
 
-  /// إزالة تفاعل
-  /// ينفذ العملية `_onRemoveReaction`.
-  /// Runs the `_onRemoveReaction` operation.
+  /// Removes a reaction optimistically and restores it if the backend call
+  /// fails.
+  /// يزيل تفاعلًا بشكل تفاؤلي ويعيده إذا فشل طلب الخادم.
   Future<void> _onRemoveReaction(
     RemoveReactionEvent event,
     Emitter<ChatState> emit,
@@ -2312,7 +1898,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final userId = event.currentUserId ?? currentState.currentUserId ?? '';
     if (userId.isEmpty) return;
 
-    // البحث عن التفاعل الحالي
+    // Find the existing reaction before mutating the message.
     MessageReaction? reactionToRemove;
     currentState.messages.forEach((_, messages) {
       for (final message in messages) {
@@ -2327,7 +1913,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     if (reactionToRemove == null) return;
 
-    // تحديث متفائل - إزالة التفاعل
+    // Remove the reaction locally first.
     final updatedMessages = _updateMessageReaction(
       currentState.messages,
       event.messageId,
@@ -2346,7 +1932,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        // فشل - إعادة التفاعل
+        // Put the reaction back if the backend rejects the request.
         final revertedMessages = _updateMessageReaction(
           currentState.messages,
           event.messageId,
@@ -2355,19 +1941,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         );
         emit(currentState.copyWith(
           messages: revertedMessages,
-          error: 'فشل في إزالة التفاعل',
+          error: await _tr('chat.errors.reactionRemoveFailed'),
         ));
       },
       (_) async {
-        // نجح - التحديث نهائي
+        // Keep the local removal because the backend accepted it.
         emit(currentState.copyWith(error: null));
       },
     );
   }
 
-  /// وضع علامة قراءة على الرسائل
-  /// ينفذ العملية `_onMarkMessagesAsRead`.
-  /// Runs the `_onMarkMessagesAsRead` operation.
+  /// Marks messages as read locally and then confirms the change with the
+  /// backend.
+  /// يعلّم الرسائل كمقروءة محليًا ثم يؤكد التغيير مع الخادم.
   Future<void> _onMarkMessagesAsRead(
     MarkMessagesAsReadEvent event,
     Emitter<ChatState> emit,
@@ -2375,7 +1961,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final currentState = state;
     if (currentState is! ChatLoaded) return;
 
-    // تحديث متفائل - وضع علامة قراءة محلياً
+    // Update the local read state immediately.
     final updatedMessages =
         Map<String, List<Message>>.from(currentState.messages);
     final messages = updatedMessages[event.conversationId] ?? [];
@@ -2415,7 +2001,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     updatedMessages[event.conversationId] = updatedList;
 
-    // تحديث عداد الرسائل غير المقروءة
+    // Reset the unread counter for the conversation.
     final updatedConversations = currentState.conversations.map((conv) {
       if (conv.id == event.conversationId) {
         return Conversation(
@@ -2442,18 +2028,17 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       conversations: updatedConversations,
     ));
 
-    // إرسال طلب القراءة للخادم
-    await markMessagesAsReadUseCase(
-      const MarkAsReadParams(
-        conversationId: '',
-        messageIds: [],
+    // Confirm the read state with the backend.
+    await markAsReadUseCase(
+      MarkAsReadParams(
+        conversationId: event.conversationId,
+        messageIds: event.messageIds,
       ),
     );
   }
 
-  /// البحث في الرسائل
-  /// ينفذ العملية `_onSearchChats`.
-  /// Runs the `_onSearchChats` operation.
+  /// Searches chat history and stores the combined result in state.
+  /// يبحث في سجل الدردشة ويخزن النتيجة المجمعة داخل الحالة.
   Future<void> _onSearchChats(
     SearchChatsEvent event,
     Emitter<ChatState> emit,
@@ -2480,12 +2065,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       (failure) async {
         emit(currentState.copyWith(
           isSearching: false,
-          error: _mapFailureToMessage(failure),
+          error: await _mapFailureToMessage(failure),
         ));
       },
       (searchResult) async {
         emit(currentState.copyWith(
-          searchResult: searchResult as SearchResult<dynamic>?,
+          searchResult: searchResult,
           isSearching: false,
           error: null,
         ));
@@ -2493,9 +2078,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// تحميل المستخدمين المتاحين
-  /// ينفذ العملية `_onLoadAvailableUsers`.
-  /// Runs the `_onLoadAvailableUsers` operation.
+  /// Loads users that the UI can add to a conversation.
+  /// يحمل المستخدمين الذين يمكن للواجهة إضافتهم إلى المحادثة.
   Future<void> _onLoadAvailableUsers(
     LoadAvailableUsersEvent event,
     Emitter<ChatState> emit,
@@ -2512,7 +2096,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (users) async {
         emit(currentState.copyWith(
@@ -2523,9 +2107,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// تحميل المشرفين
-  /// ينفذ العملية `_onLoadAdminUsers`.
-  /// Runs the `_onLoadAdminUsers` operation.
+  /// Loads admin-capable users for staff-facing chat flows.
+  /// يحمل مستخدمي الإدارة لمسارات الدردشة الموجهة للطاقم.
   Future<void> _onLoadAdminUsers(
     LoadAdminUsersEvent event,
     Emitter<ChatState> emit,
@@ -2537,7 +2120,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (admins) async {
         emit(currentState.copyWith(
@@ -2548,15 +2131,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// تحديث حالة المستخدم
-  /// ينفذ العملية `_onUpdateUserStatus`.
-  /// Runs the `_onUpdateUserStatus` operation.
+  /// Updates the current user's presence state in chat.
+  /// يحدّث حالة حضور المستخدم الحالي داخل الدردشة.
   Future<void> _onUpdateUserStatus(
     UpdateUserStatusEvent event,
     Emitter<ChatState> emit,
   ) async {
-    final currentState = state;
-    if (currentState is! ChatLoaded) return;
+    final currentState = state is ChatLoaded ? state as ChatLoaded : null;
 
     final result = await updateUserStatusUseCase(
       UpdateUserStatusParams(status: event.status),
@@ -2564,10 +2145,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        if (currentState == null) {
+          return;
+        }
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (_) async {
-        // تحديث حالة المستخدم الحالي
+        if (currentState == null) {
+          return;
+        }
+        // Reflect the presence change locally as well.
         final updatedPresence =
             Map<String, UserPresence>.from(currentState.userPresence);
         updatedPresence[currentState.currentUserId ?? ''] = UserPresence(
@@ -2583,9 +2170,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// تحميل إعدادات الشات
-  /// ينفذ العملية `_onLoadChatSettings`.
-  /// Runs the `_onLoadChatSettings` operation.
+  /// Loads the persisted chat preferences for the active user.
+  /// يحمل تفضيلات الدردشة المخزنة للمستخدم الحالي.
   Future<void> _onLoadChatSettings(
     LoadChatSettingsEvent event,
     Emitter<ChatState> emit,
@@ -2597,9 +2183,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        emit(currentState.copyWith(error: _mapFailureToMessage(failure)));
+        emit(currentState.copyWith(error: await _mapFailureToMessage(failure)));
       },
       (settings) async {
+        await _persistChatSettings(settings);
         emit(currentState.copyWith(
           settings: settings,
           error: null,
@@ -2608,9 +2195,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// تحديث إعدادات الشات
-  /// ينفذ العملية `_onUpdateChatSettings`.
-  /// Runs the `_onUpdateChatSettings` operation.
+  /// Persists partial chat settings changes and keeps the UI in sync.
+  /// يحفظ تغييرات إعدادات الدردشة الجزئية ويُبقي الواجهة متزامنة.
   Future<void> _onUpdateChatSettings(
     UpdateChatSettingsEvent event,
     Emitter<ChatState> emit,
@@ -2638,7 +2224,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       backupMessages: event.backupMessages ?? currentSettings.backupMessages,
     );
 
-    // تحديث متفائل
+    // Apply the settings change locally first.
     emit(currentState.copyWith(settings: updatedSettings));
 
     final result = await updateChatSettingsUseCase(
@@ -2656,14 +2242,15 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await result.fold(
       (failure) async {
-        // فشل - إرجاع الإعدادات السابقة
+        // Restore the previous settings when persistence fails.
         emit(currentState.copyWith(
           settings: currentSettings,
-          error: _mapFailureToMessage(failure),
+          error: await _mapFailureToMessage(failure),
         ));
       },
       (settings) async {
-        // نجح - تحديث بالإعدادات من الخادم
+        await _persistChatSettings(settings);
+        // Replace the optimistic settings with the server response.
         emit(currentState.copyWith(
           settings: settings,
           error: null,
@@ -2672,24 +2259,17 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  /// إرسال مؤشر الكتابة
-  /// ينفذ العملية `_onSendTypingIndicator`.
-  /// Runs the `_onSendTypingIndicator` operation.
+  /// Sends a typing indicator through the websocket layer.
+  /// يرسل مؤشر الكتابة عبر طبقة websocket.
   Future<void> _onSendTypingIndicator(
     SendTypingIndicatorEvent event,
     Emitter<ChatState> emit,
   ) async {
-    await sendTypingIndicatorUseCase(
-      SendTypingIndicatorParams(
-        conversationId: event.conversationId,
-        isTyping: event.isTyping,
-      ),
-    );
+    // The websocket service is the authoritative channel for typing events.
+    webSocketService.sendTypingIndicator(event.conversationId, event.isTyping);
   }
 
-  /// معالجة رسالة WebSocket
-  /// ينفذ العملية `_onWebSocketMessageReceived`.
-  /// Runs the `_onWebSocketMessageReceived` operation.
+  /// Routes websocket message events to the matching state update handler.
   Future<void> _onWebSocketMessageReceived(
     WebSocketMessageReceivedEvent event,
     Emitter<ChatState> emit,
@@ -2703,10 +2283,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       case MessageEventType.newMessage:
         await _handleNewMessage(messageEvent, currentState, emit);
         break;
-      case MessageEventType.messageUpdated:
+      case MessageEventType.edited:
         await _handleMessageUpdated(messageEvent, currentState, emit);
         break;
-      case MessageEventType.messageDeleted:
+      case MessageEventType.deleted:
         await _handleMessageDeleted(messageEvent, currentState, emit);
         break;
       case MessageEventType.reactionAdded:
@@ -2721,87 +2301,65 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }
   }
 
-  /// معالجة رسالة جديدة من WebSocket
-  /// ينفذ العملية `_handleNewMessage`.
-  /// Runs the `_handleNewMessage` operation.
+  /// Applies an incoming message event and updates the visible thread.
   Future<void> _handleNewMessage(
     MessageEvent event,
     ChatLoaded currentState,
     Emitter<ChatState> emit,
   ) async {
     if (event.message == null) {
-      // عند وصول معرف فقط من FCM/WS: اجلب أحدث صفحة وادمجها
-      final result = await getMessagesUseCase(
-        GetMessagesParams(
-          conversationId: event.conversationId,
-          pageNumber: 1,
-          pageSize: 20,
-          beforeMessageId: null,
-        ),
+      // FCM-driven chat updates may only contain ids. Refresh the inbox
+      // snapshot so unread counters and previews stay accurate.
+      await webSocketService.emitConversationById(
+        conversationId: event.conversationId,
       );
 
-      await result.fold(
-        (_) async {},
-        (fetched) async {
-          final updatedMessages =
-              Map<String, List<Message>>.from(currentState.messages);
-          final existing = List<Message>.from(
-              updatedMessages[event.conversationId] ?? const []);
-          final merged = _mergeMessages(existing, fetched);
-          updatedMessages[event.conversationId] = merged;
-
-          // حدث المحادثة بآخر رسالة إن توفرت
-          List<Conversation> updatedConversations = currentState.conversations;
-          final latest = fetched.isNotEmpty ? fetched.first : null;
-          if (latest != null) {
-            updatedConversations = currentState.conversations.map((conv) {
-              if (conv.id == event.conversationId) {
-                final isMyMessage =
-                    latest.senderId == currentState.currentUserId;
-                return Conversation(
-                  id: conv.id,
-                  conversationType: conv.conversationType,
-                  title: conv.title,
-                  description: conv.description,
-                  avatar: conv.avatar,
-                  createdAt: conv.createdAt,
-                  updatedAt: DateTime.now(),
-                  lastMessage: latest,
-                  unreadCount: isMyMessage ? 0 : conv.unreadCount + 1,
-                  isArchived: conv.isArchived,
-                  isMuted: conv.isMuted,
-                  propertyId: conv.propertyId,
-                  participants: conv.participants,
-                );
-              }
-              return conv;
-            }).toList();
-          }
-
-          emit(currentState.copyWith(
-            messages: updatedMessages,
-            conversations: updatedConversations,
-          ));
-        },
-      );
+      // If this thread is already loaded locally, fetch the latest first page
+      // so the timeline also catches up with the server copy.
+      if (currentState.messages.containsKey(event.conversationId)) {
+        add(RefreshConversationEvent(conversationId: event.conversationId));
+      }
       return;
     }
 
     final newMessage = event.message!;
     final conversationId = event.conversationId;
 
-    // تحديث قائمة الرسائل
+    // Insert the new message into the thread if it is not already present.
     final updatedMessages =
         Map<String, List<Message>>.from(currentState.messages);
     final messages = List<Message>.from(updatedMessages[conversationId] ?? []);
 
-    // تحقق من عدم وجود الرسالة بالفعل
-    if (!messages.any((msg) => msg.id == newMessage.id)) {
-      messages.insert(0, newMessage);
+    final sameIdIndex = messages.indexWhere((msg) => msg.id == newMessage.id);
+
+    if (sameIdIndex != -1) {
+      messages[sameIdIndex] =
+          _mergeMessageWithReference(newMessage, messages[sameIdIndex]);
       updatedMessages[conversationId] = messages;
+    } else {
+      final matchingIndex = messages.indexWhere(
+        (msg) =>
+            _isTransientMessage(msg) && _isRenderableDuplicate(msg, newMessage),
+      );
+
+      if (matchingIndex != -1) {
+        final previousId = messages[matchingIndex].id;
+        messages[matchingIndex] =
+            _mergeMessageWithReference(newMessage, messages[matchingIndex]);
+        _optimisticMessages[conversationId]?.removeWhere(
+          (msg) => msg.id == previousId,
+        );
+      } else {
+        messages.insert(0, newMessage);
+      }
+
+      updatedMessages[conversationId] = _collapseTransientAudioDuplicates(
+        messages,
+        newMessage,
+      );
     }
 
-    // تحديث آخر رسالة في المحادثة وزيادة العداد
+    // Refresh the conversation preview and unread count.
     final updatedConversations = currentState.conversations.map((conv) {
       if (conv.id == conversationId) {
         final isMyMessage = newMessage.senderId == currentState.currentUserId;
@@ -2830,9 +2388,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ));
   }
 
-  /// معالجة تحديث رسالة من WebSocket
-  /// ينفذ العملية `_handleMessageUpdated`.
-  /// Runs the `_handleMessageUpdated` operation.
+  /// Replaces an existing message with the updated websocket payload.
   Future<void> _handleMessageUpdated(
     MessageEvent event,
     ChatLoaded currentState,
@@ -2855,9 +2411,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     emit(currentState.copyWith(messages: updatedMessages));
   }
 
-  /// معالجة حذف رسالة من WebSocket
-  /// ينفذ العملية `_handleMessageDeleted`.
-  /// Runs the `_handleMessageDeleted` operation.
+  /// Marks the affected message as deleted while preserving thread context.
   Future<void> _handleMessageDeleted(
     MessageEvent event,
     ChatLoaded currentState,
@@ -2868,6 +2422,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     final updatedMessages =
         Map<String, List<Message>>.from(currentState.messages);
+    final deletedPlaceholder = await _tr('chat.message.deletedPlaceholder');
 
     updatedMessages.forEach((conversationId, messages) {
       final messageIndex = messages.indexWhere((msg) => msg.id == messageId);
@@ -2879,7 +2434,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           senderId: deletedMessage.senderId,
           senderName: deletedMessage.senderName,
           messageType: deletedMessage.messageType,
-          content: '[رسالة محذوفة]',
+          content: deletedPlaceholder,
           location: deletedMessage.location,
           replyToMessageId: deletedMessage.replyToMessageId,
           attachments: const [],
@@ -2897,9 +2452,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     emit(currentState.copyWith(messages: updatedMessages));
   }
 
-  /// معالجة إضافة تفاعل من WebSocket
-  /// ينفذ العملية `_handleReactionAdded`.
-  /// Runs the `_handleReactionAdded` operation.
+  /// Applies a reaction added elsewhere so all clients stay in sync.
   Future<void> _handleReactionAdded(
     MessageEvent event,
     ChatLoaded currentState,
@@ -2918,9 +2471,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     emit(currentState.copyWith(messages: updatedMessages));
   }
 
-  /// معالجة إزالة تفاعل من WebSocket
-  /// ينفذ العملية `_handleReactionRemoved`.
-  /// Runs the `_handleReactionRemoved` operation.
+  /// Applies a reaction removal event from another client or device.
   Future<void> _handleReactionRemoved(
     MessageEvent event,
     ChatLoaded currentState,
@@ -2939,9 +2490,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     emit(currentState.copyWith(messages: updatedMessages));
   }
 
-  /// معالجة تحديث حالة الرسالة من WebSocket
-  /// ينفذ العملية `_handleStatusUpdated`.
-  /// Runs the `_handleStatusUpdated` operation.
+  /// Applies a status update such as sent, delivered, or read.
   Future<void> _handleStatusUpdated(
     MessageEvent event,
     ChatLoaded currentState,
@@ -2958,6 +2507,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       final messageIndex = messages.indexWhere((msg) => msg.id == messageId);
       if (messageIndex != -1) {
         final message = messages[messageIndex];
+        final currentReceipt =
+            message.deliveryReceipt ?? const DeliveryReceipt();
         messages[messageIndex] = Message(
           id: message.id,
           conversationId: message.conversationId,
@@ -2975,18 +2526,73 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           isEdited: message.isEdited,
           editedAt: message.editedAt,
           isDeleted: message.isDeleted,
-          deliveryReceipt: message.deliveryReceipt,
+          deliveryReceipt: DeliveryReceipt(
+            deliveredAt: event.deliveredAt ?? currentReceipt.deliveredAt,
+            readAt: event.readAt ??
+                currentReceipt.readAt ??
+                (status == 'read' ? DateTime.now() : null),
+            readBy: currentReceipt.readBy,
+          ),
         );
       }
     });
 
-    emit(currentState.copyWith(messages: updatedMessages));
+    final updatedConversations = currentState.conversations.map((conv) {
+      final lastMessage = conv.lastMessage;
+      if (lastMessage == null || lastMessage.id != messageId) {
+        return conv;
+      }
+
+      final currentReceipt =
+          lastMessage.deliveryReceipt ?? const DeliveryReceipt();
+      return Conversation(
+        id: conv.id,
+        conversationType: conv.conversationType,
+        title: conv.title,
+        description: conv.description,
+        avatar: conv.avatar,
+        createdAt: conv.createdAt,
+        updatedAt: conv.updatedAt,
+        lastMessage: Message(
+          id: lastMessage.id,
+          conversationId: lastMessage.conversationId,
+          senderId: lastMessage.senderId,
+          senderName: lastMessage.senderName,
+          messageType: lastMessage.messageType,
+          content: lastMessage.content,
+          location: lastMessage.location,
+          replyToMessageId: lastMessage.replyToMessageId,
+          attachments: lastMessage.attachments,
+          reactions: lastMessage.reactions,
+          createdAt: lastMessage.createdAt,
+          updatedAt: lastMessage.updatedAt,
+          status: status,
+          isEdited: lastMessage.isEdited,
+          editedAt: lastMessage.editedAt,
+          isDeleted: lastMessage.isDeleted,
+          deliveryReceipt: DeliveryReceipt(
+            deliveredAt: event.deliveredAt ?? currentReceipt.deliveredAt,
+            readAt: event.readAt ??
+                currentReceipt.readAt ??
+                (status == 'read' ? DateTime.now() : null),
+            readBy: currentReceipt.readBy,
+          ),
+        ),
+        unreadCount: conv.unreadCount,
+        isArchived: conv.isArchived,
+        isMuted: conv.isMuted,
+        propertyId: conv.propertyId,
+        participants: conv.participants,
+      );
+    }).toList();
+
+    emit(currentState.copyWith(
+      messages: updatedMessages,
+      conversations: updatedConversations,
+    ));
   }
 
-  /// معالجة تحديث المحادثة من WebSocket
-  /// معالجة تحديث المحادثة من WebSocket
-  /// ينفذ العملية `_onWebSocketConversationUpdated`.
-  /// Runs the `_onWebSocketConversationUpdated` operation.
+  /// Syncs a conversation-level websocket update into the inbox list.
   Future<void> _onWebSocketConversationUpdated(
     WebSocketConversationUpdatedEvent event,
     Emitter<ChatState> emit,
@@ -2996,7 +2602,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     final updatedConversation = event.conversation;
 
-    // تحديث المحادثة في القائمة
+    // Replace the matching conversation entry in the inbox.
     final updatedConversations = currentState.conversations.map((conv) {
       if (conv.id == updatedConversation.id) {
         return updatedConversation;
@@ -3007,9 +2613,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     emit(currentState.copyWith(conversations: updatedConversations));
   }
 
-  /// معالجة مؤشر الكتابة من WebSocket
-  /// ينفذ العملية `_onWebSocketTypingIndicator`.
-  /// Runs the `_onWebSocketTypingIndicator` operation.
+  /// Syncs remote typing indicators while filtering the current user.
   Future<void> _onWebSocketTypingIndicator(
     WebSocketTypingIndicatorEvent event,
     Emitter<ChatState> emit,
@@ -3023,7 +2627,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     if (event.typingUserIds.isEmpty) {
       updatedTypingUsers.remove(event.conversationId);
     } else {
-      // فلترة معرف المستخدم الحالي من قائمة الكاتبين
+      // Remove the current user from the typing list before showing it.
       final filteredUsers = event.typingUserIds
           .where((id) => id != currentState.currentUserId)
           .toList();
@@ -3038,9 +2642,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     emit(currentState.copyWith(typingUsers: updatedTypingUsers));
   }
 
-  /// معالجة تحديث الحضور من WebSocket
-  /// ينفذ العملية `_onWebSocketPresenceUpdate`.
-  /// Runs the `_onWebSocketPresenceUpdate` operation.
+  /// Syncs presence changes into the active chat state and user lists.
   Future<void> _onWebSocketPresenceUpdate(
     WebSocketPresenceUpdateEvent event,
     Emitter<ChatState> emit,
@@ -3055,7 +2657,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       lastSeen: event.lastSeen,
     );
 
-    // تحديث حالة المستخدم في قائمة المستخدمين المتاحين
+    // Refresh the presence flags for the available-user list.
     final updatedAvailableUsers = currentState.availableUsers.map((user) {
       if (user.id == event.userId) {
         return ChatUser(
@@ -3074,7 +2676,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       return user;
     }).toList();
 
-    // تحديث حالة المستخدم في المحادثات
+    // Refresh the same presence data inside every conversation thread.
     final updatedConversations = currentState.conversations.map((conv) {
       final updatedParticipants = conv.participants.map((participant) {
         if (participant.id == event.userId) {
@@ -3118,9 +2720,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ));
   }
 
-  /// مسح ذاكرة التخزين المؤقت للمحادثة
-  /// ينفذ العملية `_onClearConversationCache`.
-  /// Runs the `_onClearConversationCache` operation.
+  /// Clears cached messages and local bookkeeping for one conversation.
+  /// يمسح الرسائل المخزنة محليًا وبيانات المتابعة الخاصة بمحادثة واحدة.
   Future<void> _onClearConversationCache(
     ClearConversationCacheEvent event,
     Emitter<ChatState> emit,
@@ -3128,19 +2729,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final currentState = state;
     if (currentState is! ChatLoaded) return;
 
-    // مسح الرسائل المحفوظة
+    // Remove the cached message timeline.
     final updatedMessages =
         Map<String, List<Message>>.from(currentState.messages);
     updatedMessages.remove(event.conversationId);
 
-    // مسح معلومات التحميل
+    // Drop pagination and loading state for the thread.
     _conversationLoadingStates.remove(event.conversationId);
     _messagePages.remove(event.conversationId);
     _hasMoreMessages.remove(event.conversationId);
     _loadedMessageIds.remove(event.conversationId);
     _optimisticMessages.remove(event.conversationId);
 
-    // مسح مؤشرات الكتابة
+    // Remove any typing indicators for that conversation.
     final updatedTypingUsers =
         Map<String, List<String>>.from(currentState.typingUsers);
     updatedTypingUsers.remove(event.conversationId);
@@ -3151,17 +2752,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ));
   }
 
-  /// تحديث المحادثة
-  /// ينفذ العملية `_onRefreshConversation`.
-  /// Runs the `_onRefreshConversation` operation.
+  /// Refreshes a conversation by clearing its cache and reloading messages.
+  /// ينعش المحادثة عبر مسح كاشها ثم إعادة تحميل الرسائل.
   Future<void> _onRefreshConversation(
     RefreshConversationEvent event,
     Emitter<ChatState> emit,
   ) async {
-    // مسح الذاكرة المؤقتة أولاً
+    // Clear the local cache before requesting fresh data.
     add(ClearConversationCacheEvent(conversationId: event.conversationId));
 
-    // إعادة تحميل الرسائل
+    // Request the initial page again after clearing the state.
     add(LoadMessagesEvent(
       conversationId: event.conversationId,
       pageNumber: 1,
@@ -3169,64 +2769,769 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ));
   }
 
-  /// دمج المحادثات الجديدة مع القديمة
-  /// ينفذ العملية `_mergeConversations`.
-  /// Runs the `_mergeConversations` operation.
+  /// Mirrors chat settings into shared preferences for non-chat services.
+  /// ينسخ إعدادات الشات إلى التفضيلات المشتركة كي تراها الخدمات خارج الشات.
+  Future<void> _persistChatSettings(ChatSettings settings) async {
+    await Future.wait([
+      localStorageService.saveData(
+        ChatSettingsKeys.notificationsEnabled,
+        settings.notificationsEnabled,
+      ),
+      localStorageService.saveData(
+        ChatSettingsKeys.soundEnabled,
+        settings.soundEnabled,
+      ),
+      localStorageService.saveData(
+        ChatSettingsKeys.showReadReceipts,
+        settings.showReadReceipts,
+      ),
+      localStorageService.saveData(
+        ChatSettingsKeys.showTypingIndicator,
+        settings.showTypingIndicator,
+      ),
+      localStorageService.saveData(
+        ChatSettingsKeys.theme,
+        settings.theme,
+      ),
+      localStorageService.saveData(
+        ChatSettingsKeys.fontSize,
+        settings.fontSize,
+      ),
+      localStorageService.saveData(
+        ChatSettingsKeys.autoDownloadMedia,
+        settings.autoDownloadMedia,
+      ),
+      localStorageService.saveData(
+        ChatSettingsKeys.backupMessages,
+        settings.backupMessages,
+      ),
+    ]);
+  }
+
+  /// Retries a failed message by staging it again and sending a fresh copy.
+  /// يعيد محاولة رسالة فاشلة عبر تجهيزها من جديد وإرسال نسخة جديدة.
+  Future<void> _onRetryFailedMessage(
+    RetryFailedMessageEvent event,
+    Emitter<ChatState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is! ChatLoaded) return;
+
+    // Find the failed draft that should be retried.
+    Message? failedMessage;
+    currentState.messages[event.conversationId]?.forEach((msg) {
+      if (msg.id == event.messageId && msg.status == 'failed') {
+        failedMessage = msg;
+      }
+    });
+
+    if (failedMessage == null) return;
+
+    final normalizedMessageType =
+        failedMessage!.messageType.trim().toLowerCase();
+    final stableAttachmentIds = failedMessage!.attachments
+        .where((attachment) => !attachment.id.startsWith('temp_'))
+        .map((attachment) => attachment.id)
+        .toList();
+    final localFilePaths = failedMessage!.attachments
+        .map((attachment) => attachment.filePath.trim())
+        .where((path) => path.isNotEmpty && File(path).existsSync())
+        .toList();
+    final hasAllStableAttachmentIds = failedMessage!.attachments.isNotEmpty &&
+        stableAttachmentIds.length == failedMessage!.attachments.length;
+    final hasAllLocalFiles = failedMessage!.attachments.isNotEmpty &&
+        localFilePaths.length == failedMessage!.attachments.length;
+
+    ChatEvent? retryEvent;
+
+    if (failedMessage!.attachments.isEmpty) {
+      retryEvent = SendMessageEvent(
+        conversationId: failedMessage!.conversationId,
+        messageType: failedMessage!.messageType,
+        content: failedMessage!.content,
+        location: failedMessage!.location,
+        replyToMessageId: failedMessage!.replyToMessageId,
+        currentUserId: currentState.currentUserId,
+      );
+    } else if (normalizedMessageType == 'audio') {
+      if (hasAllLocalFiles) {
+        retryEvent = SendAudioMessageEvent(
+          conversationId: failedMessage!.conversationId,
+          filePath: localFilePaths.first,
+          replyToMessageId: failedMessage!.replyToMessageId,
+          durationSeconds: failedMessage!.attachments.first.duration,
+        );
+      } else if (hasAllStableAttachmentIds) {
+        retryEvent = SendMessageEvent(
+          conversationId: failedMessage!.conversationId,
+          messageType: failedMessage!.messageType,
+          replyToMessageId: failedMessage!.replyToMessageId,
+          attachmentIds: stableAttachmentIds,
+          currentUserId: currentState.currentUserId,
+        );
+      }
+    } else if (hasAllLocalFiles) {
+      retryEvent = UploadMultipleAttachmentsEvent(
+        conversationId: failedMessage!.conversationId,
+        filePaths: List<String>.from(localFilePaths),
+        messageType: normalizedMessageType,
+        content: failedMessage!.content,
+        replyToMessageId: failedMessage!.replyToMessageId,
+        currentUserId: currentState.currentUserId,
+      );
+    } else if (hasAllStableAttachmentIds) {
+      retryEvent = SendMessageEvent(
+        conversationId: failedMessage!.conversationId,
+        messageType: failedMessage!.messageType,
+        content: failedMessage!.content,
+        location: failedMessage!.location,
+        replyToMessageId: failedMessage!.replyToMessageId,
+        attachmentIds: stableAttachmentIds,
+        currentUserId: currentState.currentUserId,
+      );
+    }
+
+    if (retryEvent == null) {
+      emit(currentState.copyWith(
+        error: await _tr('chat.errors.messageSendFailed'),
+      ));
+      return;
+    }
+
+    final updatedMessages =
+        Map<String, List<Message>>.from(currentState.messages);
+    final messages =
+        List<Message>.from(updatedMessages[event.conversationId] ?? []);
+    messages.removeWhere((msg) => msg.id == event.messageId);
+    updatedMessages[event.conversationId] = messages;
+    _optimisticMessages[event.conversationId]
+        ?.removeWhere((msg) => msg.id == event.messageId);
+
+    emit(currentState.copyWith(messages: updatedMessages));
+    add(retryEvent);
+  }
+
+  /// Merges incoming conversations into the existing inbox without losing
+  /// the freshest update per thread.
+  /// يدمج المحادثات الواردة في الصندوق الحالي من دون فقدان أحدث تحديث لكل
+  /// سلسلة.
   List<Conversation> _mergeConversations(
     List<Conversation> existing,
     List<Conversation> newConversations,
   ) {
     final conversationMap = <String, Conversation>{};
 
-    // إضافة المحادثات الموجودة
+    // Seed the map with the conversations already in memory.
     for (final conv in existing) {
       conversationMap[conv.id] = conv;
     }
 
-    // تحديث أو إضافة المحادثات الجديدة
+    // Overwrite or insert newer versions from the incoming page.
     for (final conv in newConversations) {
-      conversationMap[conv.id] = conv;
+      final current = conversationMap[conv.id];
+      conversationMap[conv.id] =
+          current == null ? conv : _pickPreferredConversation(current, conv);
     }
 
-    // ترتيب حسب آخر تحديث
+    // Keep the inbox sorted by most recent activity.
     final merged = conversationMap.values.toList()
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
     return merged;
   }
 
-  /// دمج الرسائل الجديدة مع القديمة
-  /// ينفذ العملية `_mergeMessages`.
-  /// Runs the `_mergeMessages` operation.
+  Conversation _pickPreferredConversation(
+    Conversation current,
+    Conversation incoming,
+  ) {
+    final mergedLastMessage = current.lastMessage == null
+        ? incoming.lastMessage
+        : incoming.lastMessage == null
+            ? current.lastMessage
+            : _pickRicherMessage(current.lastMessage!, incoming.lastMessage!);
+
+    final shouldPreserveClearedUnread = current.unreadCount == 0 &&
+        incoming.unreadCount > 0 &&
+        _isSameConversationPreview(current, incoming);
+
+    return Conversation(
+      id: incoming.id,
+      conversationType: incoming.conversationType,
+      title: (incoming.title?.trim().isNotEmpty ?? false)
+          ? incoming.title
+          : current.title,
+      description: (incoming.description?.trim().isNotEmpty ?? false)
+          ? incoming.description
+          : current.description,
+      avatar: (incoming.avatar?.trim().isNotEmpty ?? false)
+          ? incoming.avatar
+          : current.avatar,
+      createdAt: current.createdAt,
+      updatedAt: incoming.updatedAt.isAfter(current.updatedAt)
+          ? incoming.updatedAt
+          : current.updatedAt,
+      lastMessage: mergedLastMessage,
+      unreadCount: shouldPreserveClearedUnread ? 0 : incoming.unreadCount,
+      isArchived: incoming.isArchived,
+      isMuted: incoming.isMuted,
+      propertyId: incoming.propertyId ?? current.propertyId,
+      participants: incoming.participants.length >= current.participants.length
+          ? incoming.participants
+          : current.participants,
+    );
+  }
+
+  bool _isSameConversationPreview(Conversation current, Conversation incoming) {
+    final currentLastMessage = current.lastMessage;
+    final incomingLastMessage = incoming.lastMessage;
+
+    if (currentLastMessage == null || incomingLastMessage == null) {
+      return false;
+    }
+
+    if (currentLastMessage.id == incomingLastMessage.id) {
+      return true;
+    }
+
+    return currentLastMessage.senderId == incomingLastMessage.senderId &&
+        currentLastMessage.messageType == incomingLastMessage.messageType &&
+        _normalizedText(currentLastMessage.content) ==
+            _normalizedText(incomingLastMessage.content);
+  }
+
+  /// Matches optimistic attachment messages such as audio notes with their
+  /// definitive websocket payload even when the textual content is empty.
+  bool _isOptimisticAttachmentMatch(Message optimistic, Message incoming) {
+    if (optimistic.attachments.isEmpty || incoming.attachments.isEmpty) {
+      return false;
+    }
+
+    if (optimistic.attachments.length != incoming.attachments.length) {
+      return false;
+    }
+
+    for (var index = 0; index < optimistic.attachments.length; index++) {
+      final optimisticAttachment = optimistic.attachments[index];
+      final incomingAttachment = incoming.attachments[index];
+
+      final fileNameMatches =
+          _normalizedText(optimisticAttachment.fileName).isNotEmpty &&
+              _normalizedText(optimisticAttachment.fileName) ==
+                  _normalizedText(incomingAttachment.fileName);
+
+      final fileSizeMatches = optimisticAttachment.fileSize > 0 &&
+          incomingAttachment.fileSize > 0 &&
+          optimisticAttachment.fileSize == incomingAttachment.fileSize;
+
+      final audioDurationMatches =
+          optimistic.messageType == 'audio' && incoming.messageType == 'audio'
+              ? optimisticAttachment.duration != null &&
+                  incomingAttachment.duration != null &&
+                  optimisticAttachment.duration == incomingAttachment.duration
+              : false;
+
+      if (!fileNameMatches && !fileSizeMatches && !audioDurationMatches) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /// Detects visually duplicate messages even when transport layers assign
+  /// different ids during the optimistic/send/realtime lifecycle.
+  bool _isRenderableDuplicate(Message existing, Message incoming) {
+    final existingSender = _normalizedText(existing.senderId);
+    final incomingSender = _normalizedText(incoming.senderId);
+    final senderMatches = existingSender.isEmpty ||
+        incomingSender.isEmpty ||
+        existingSender == incomingSender;
+
+    if (!senderMatches ||
+        existing.messageType != incoming.messageType ||
+        existing.replyToMessageId != incoming.replyToMessageId) {
+      return false;
+    }
+
+    if (_normalizedText(existing.content) != '' &&
+        _normalizedText(existing.content) ==
+            _normalizedText(incoming.content)) {
+      return true;
+    }
+
+    if (_isOptimisticAttachmentMatch(existing, incoming)) {
+      return true;
+    }
+
+    final existingAttachment =
+        existing.attachments.isNotEmpty ? existing.attachments.first : null;
+    final incomingAttachment =
+        incoming.attachments.isNotEmpty ? incoming.attachments.first : null;
+
+    if (existingAttachment == null ||
+        incomingAttachment == null ||
+        existing.attachments.length != incoming.attachments.length) {
+      return false;
+    }
+
+    final ageDiff =
+        existing.createdAt.difference(incoming.createdAt).inSeconds.abs();
+    return ageDiff <= 10 &&
+        existingAttachment.contentType == incomingAttachment.contentType &&
+        ((existingAttachment.fileSize > 0 &&
+                existingAttachment.fileSize == incomingAttachment.fileSize) ||
+            (_normalizedText(existingAttachment.fileName).isNotEmpty &&
+                _normalizedText(existingAttachment.fileName) ==
+                    _normalizedText(incomingAttachment.fileName)));
+  }
+
+  bool _isTransientMessage(Message message) {
+    final normalizedStatus = _normalizedText(message.status);
+    return message.id.startsWith('temp_') ||
+        normalizedStatus == 'sending' ||
+        normalizedStatus == 'failed';
+  }
+
+  /// Preserves optimistic audio metadata such as duration when the server
+  /// payload is incomplete or delayed.
+  Message _mergeMessageWithReference(Message incoming, Message? reference) {
+    if (reference == null) return incoming;
+
+    final mergedAttachments = _mergeAttachmentsWithReference(
+        incoming.attachments, reference.attachments);
+    final mergedStatus =
+        _pickPreferredStatus(incoming.status, reference.status);
+    final mergedReceipt = _mergeDeliveryReceipt(
+      incoming.deliveryReceipt,
+      reference.deliveryReceipt,
+    );
+
+    return Message(
+      id: incoming.id,
+      conversationId: incoming.conversationId,
+      senderId: incoming.senderId,
+      senderName: incoming.senderName ?? reference.senderName,
+      messageType: incoming.messageType,
+      content: incoming.content ?? reference.content,
+      location: incoming.location ?? reference.location,
+      replyToMessageId: incoming.replyToMessageId ?? reference.replyToMessageId,
+      reactions: incoming.reactions,
+      attachments: mergedAttachments,
+      createdAt: incoming.createdAt,
+      updatedAt: incoming.updatedAt,
+      status: mergedStatus,
+      isEdited: incoming.isEdited,
+      editedAt: incoming.editedAt,
+      deliveryReceipt: mergedReceipt,
+      isDeleted: incoming.isDeleted,
+      failureReason: incoming.failureReason ?? reference.failureReason,
+    );
+  }
+
+  List<Attachment> _mergeAttachmentsWithReference(
+    List<Attachment> incoming,
+    List<Attachment> reference,
+  ) {
+    if (incoming.isEmpty) return reference;
+    if (reference.isEmpty) return incoming;
+
+    final merged = <Attachment>[];
+    final maxCount =
+        incoming.length > reference.length ? incoming.length : reference.length;
+
+    for (var index = 0; index < maxCount; index++) {
+      final primary = index < incoming.length ? incoming[index] : null;
+      final fallback = index < reference.length ? reference[index] : null;
+
+      if (primary == null && fallback != null) {
+        merged.add(fallback);
+        continue;
+      }
+
+      if (primary == null) {
+        continue;
+      }
+
+      if (fallback == null) {
+        merged.add(primary);
+        continue;
+      }
+
+      merged.add(Attachment(
+        id: primary.id,
+        conversationId: primary.conversationId,
+        fileName:
+            primary.fileName.isNotEmpty ? primary.fileName : fallback.fileName,
+        contentType: primary.contentType.isNotEmpty
+            ? primary.contentType
+            : fallback.contentType,
+        fileSize: primary.fileSize > 0 ? primary.fileSize : fallback.fileSize,
+        filePath:
+            primary.filePath.isNotEmpty ? primary.filePath : fallback.filePath,
+        fileUrl:
+            primary.fileUrl.isNotEmpty ? primary.fileUrl : fallback.fileUrl,
+        uploadedBy: primary.uploadedBy.isNotEmpty
+            ? primary.uploadedBy
+            : fallback.uploadedBy,
+        createdAt: primary.createdAt,
+        thumbnailUrl: primary.thumbnailUrl ?? fallback.thumbnailUrl,
+        metadata: _mergeAttachmentMetadata(
+          fallback.metadata,
+          primary.metadata,
+          fallback.thumbnailUrl,
+        ),
+        duration: (primary.duration != null && primary.duration! > 0)
+            ? primary.duration
+            : fallback.duration,
+        downloadProgress: primary.downloadProgress ?? fallback.downloadProgress,
+      ));
+    }
+
+    return merged;
+  }
+
+  List<Message> _replaceOptimisticWithConfirmed(
+    List<Message> messages,
+    Message optimisticMessage,
+    Message confirmedMessage,
+  ) {
+    final updated = List<Message>.from(messages);
+    final replaceIndex = updated.indexWhere(
+      (msg) =>
+          msg.id == optimisticMessage.id ||
+          msg.id == confirmedMessage.id ||
+          (_isTransientMessage(msg) &&
+              _isRenderableDuplicate(msg, confirmedMessage)),
+    );
+
+    if (replaceIndex != -1) {
+      updated[replaceIndex] = confirmedMessage;
+    } else {
+      updated.insert(0, confirmedMessage);
+    }
+
+    return updated.whereIndexed((index, msg) {
+      if (replaceIndex != -1 && index == replaceIndex) {
+        return true;
+      }
+
+      if (msg.id == optimisticMessage.id || msg.id == confirmedMessage.id) {
+        return false;
+      }
+
+      if (_isStaleOptimisticAudio(msg, confirmedMessage)) {
+        return false;
+      }
+
+      if (_isTransientMessage(msg) &&
+          _isRenderableDuplicate(msg, confirmedMessage)) {
+        return false;
+      }
+
+      return true;
+    }).toList();
+  }
+
+  bool _isStaleOptimisticAudio(Message existing, Message confirmed) {
+    if (!existing.id.startsWith('temp_') ||
+        existing.messageType != 'audio' ||
+        confirmed.messageType != 'audio') {
+      return false;
+    }
+
+    if (existing.conversationId != confirmed.conversationId) {
+      return false;
+    }
+
+    if (_normalizedText(existing.status) == 'failed') {
+      return false;
+    }
+
+    final existingSender = _normalizedText(existing.senderId);
+    final confirmedSender = _normalizedText(confirmed.senderId);
+    if (existingSender.isNotEmpty &&
+        confirmedSender.isNotEmpty &&
+        existingSender != confirmedSender) {
+      return false;
+    }
+
+    if (existing.replyToMessageId != confirmed.replyToMessageId) {
+      return false;
+    }
+
+    if (_isOptimisticAttachmentMatch(existing, confirmed)) {
+      return true;
+    }
+
+    final ageDiff =
+        existing.createdAt.difference(confirmed.createdAt).inSeconds;
+    return ageDiff.abs() <= 45;
+  }
+
+  List<Message> _collapseTransientAudioDuplicates(
+    List<Message> messages,
+    Message confirmedMessage, {
+    Message? optimisticMessage,
+  }) {
+    if (confirmedMessage.messageType != 'audio') {
+      return messages;
+    }
+
+    final collapsed = <Message>[];
+    var keptConfirmed = false;
+
+    for (final message in messages) {
+      final isConfirmedMessage = message.id == confirmedMessage.id;
+
+      if (isConfirmedMessage && !keptConfirmed) {
+        collapsed.add(message);
+        keptConfirmed = true;
+        continue;
+      }
+
+      if (_isStaleOptimisticAudio(message, confirmedMessage)) {
+        continue;
+      }
+
+      if (_isRenderableDuplicate(message, confirmedMessage)) {
+        if (!keptConfirmed) {
+          collapsed.add(
+            _mergeMessageWithReference(confirmedMessage, optimisticMessage),
+          );
+          keptConfirmed = true;
+        }
+        continue;
+      }
+
+      collapsed.add(message);
+    }
+
+    if (!keptConfirmed) {
+      collapsed.insert(
+        0,
+        _mergeMessageWithReference(confirmedMessage, optimisticMessage),
+      );
+    }
+
+    return collapsed;
+  }
+
+  String _normalizedText(String? value) => value?.trim().toLowerCase() ?? '';
+
+  Future<String?> _buildOptimisticVideoThumbnail(
+    String videoPath,
+    String uploadId,
+  ) async {
+    final file = File(videoPath);
+    if (!file.existsSync()) {
+      return null;
+    }
+
+    try {
+      return await VideoThumbnail.thumbnailFile(
+        video: videoPath,
+        imageFormat: ImageFormat.JPEG,
+        maxWidth: 320,
+        quality: 72,
+        thumbnailPath: Directory.systemTemp.path,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Map<String, dynamic>? _mergeAttachmentMetadata(
+    Map<String, dynamic>? baseMetadata,
+    Map<String, dynamic>? incomingMetadata,
+    String? localThumbnailCandidate,
+  ) {
+    final merged = <String, dynamic>{};
+
+    if (baseMetadata != null) {
+      merged.addAll(baseMetadata);
+    }
+
+    if (incomingMetadata != null) {
+      merged.addAll(incomingMetadata);
+    }
+
+    final candidate = localThumbnailCandidate?.trim() ?? '';
+    if (candidate.isNotEmpty && File(candidate).existsSync()) {
+      merged[_localThumbnailMetadataKey] = candidate;
+    } else if (!merged.containsKey(_localThumbnailMetadataKey)) {
+      merged.remove(_localThumbnailMetadataKey);
+    }
+
+    return merged.isEmpty ? null : merged;
+  }
+
+  /// Merges a fresh message page with the existing thread while skipping
+  /// temporary optimistic entries.
+  /// يدمج صفحة الرسائل الجديدة مع السجل الحالي مع تجاهل العناصر التفاؤلية
+  /// المؤقتة.
   List<Message> _mergeMessages(
     List<Message> existing,
     List<Message> newMessages,
   ) {
     final messageMap = <String, Message>{};
 
-    // إضافة الرسائل الموجودة
+    // Seed the map with already loaded messages.
     for (final msg in existing) {
-      // تخطي الرسائل المتفائلة المؤقتة
+      // Skip temporary optimistic messages until the server confirms them.
       if (!msg.id.startsWith('temp_')) {
         messageMap[msg.id] = msg;
       }
     }
 
-    // إضافة الرسائل الجديدة
+    // Keep the richer copy when the same message arrives again from another
+    // source such as pagination, refresh, or websocket reconciliation.
     for (final msg in newMessages) {
-      messageMap[msg.id] = msg;
+      final existingMessage = messageMap[msg.id];
+      messageMap[msg.id] = existingMessage == null
+          ? msg
+          : _pickRicherMessage(existingMessage, msg);
     }
 
-    // ترتيب حسب وقت الإنشاء (الأحدث أولاً)
+    // Keep the newest message first in the rendered list.
     final merged = messageMap.values.toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     return merged;
   }
 
-  /// تحديث تفاعل الرسالة
-  /// ينفذ العملية `_updateMessageReaction`.
-  /// Runs the `_updateMessageReaction` operation.
+  Message _pickRicherMessage(Message current, Message incoming) {
+    final merged = _mergeMessageWithReference(incoming, current);
+    final currentScore = _messageRichnessScore(current);
+    final incomingScore = _messageRichnessScore(merged);
+
+    if (_messageStatusRank(merged.status) >
+        _messageStatusRank(current.status)) {
+      return merged;
+    }
+
+    final mergedReceipt = merged.deliveryReceipt;
+    final currentReceipt = current.deliveryReceipt;
+    if (mergedReceipt?.readAt != null && currentReceipt?.readAt == null) {
+      return merged;
+    }
+
+    if (mergedReceipt?.deliveredAt != null &&
+        currentReceipt?.deliveredAt == null) {
+      return merged;
+    }
+
+    if (incomingScore > currentScore) {
+      return merged;
+    }
+
+    if (incoming.updatedAt.isAfter(current.updatedAt)) {
+      return merged;
+    }
+
+    return current;
+  }
+
+  int _messageRichnessScore(Message message) {
+    var score = 0;
+
+    if ((message.content?.trim().isNotEmpty ?? false)) {
+      score += 2;
+    }
+
+    if (message.location != null) {
+      score += 2;
+    }
+
+    score += _messageStatusRank(message.status) * 2;
+
+    final receipt = message.deliveryReceipt;
+    if (receipt?.deliveredAt != null) {
+      score += 2;
+    }
+
+    if (receipt?.readAt != null) {
+      score += 4;
+    }
+
+    if (message.attachments.isNotEmpty) {
+      score += message.attachments.length * 4;
+    }
+
+    for (final attachment in message.attachments) {
+      if (attachment.thumbnailUrl?.trim().isNotEmpty ?? false) {
+        score += 5;
+      }
+
+      final localThumbnailPath =
+          attachment.metadata?[_localThumbnailMetadataKey];
+      if (localThumbnailPath is String &&
+          localThumbnailPath.trim().isNotEmpty) {
+        score += 4;
+      }
+
+      if (attachment.fileUrl.trim().isNotEmpty) {
+        score += 2;
+      }
+
+      if (attachment.filePath.trim().isNotEmpty) {
+        score += 1;
+      }
+
+      if ((attachment.duration ?? 0) > 0) {
+        score += 1;
+      }
+    }
+
+    return score;
+  }
+
+  int _messageStatusRank(String? status) {
+    switch (_normalizedText(status)) {
+      case 'read':
+        return 3;
+      case 'delivered':
+        return 2;
+      case 'sent':
+        return 1;
+      default:
+        return 0;
+    }
+  }
+
+  String _pickPreferredStatus(String incomingStatus, String referenceStatus) {
+    final incomingRank = _messageStatusRank(incomingStatus);
+    final referenceRank = _messageStatusRank(referenceStatus);
+
+    if (incomingRank > referenceRank) {
+      return incomingStatus;
+    }
+
+    if (referenceRank > incomingRank) {
+      return referenceStatus;
+    }
+
+    return incomingStatus.trim().isNotEmpty ? incomingStatus : referenceStatus;
+  }
+
+  DeliveryReceipt? _mergeDeliveryReceipt(
+    DeliveryReceipt? incoming,
+    DeliveryReceipt? reference,
+  ) {
+    if (incoming == null) return reference;
+    if (reference == null) return incoming;
+
+    return DeliveryReceipt(
+      deliveredAt: incoming.deliveredAt ?? reference.deliveredAt,
+      readAt: incoming.readAt ?? reference.readAt,
+      readBy: <String>{
+        ...reference.readBy.where((id) => id.trim().isNotEmpty),
+        ...incoming.readBy.where((id) => id.trim().isNotEmpty),
+      }.toList(),
+    );
+  }
+
+  /// Adds or removes a reaction from a message and returns updated threads.
+  /// يضيف أو يزيل تفاعلًا من رسالة ثم يعيد السلاسل المحدثة.
   Map<String, List<Message>> _updateMessageReaction(
       Map<String, List<Message>> messages,
       String messageId,
@@ -3241,14 +3546,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         final updatedReactions = List<MessageReaction>.from(message.reactions);
 
         if (isAdding) {
-          // إضافة التفاعل إذا لم يكن موجوداً
+          // Add the reaction only once.
           if (!updatedReactions.any((r) =>
               r.userId == reaction.userId &&
               r.reactionType == reaction.reactionType)) {
             updatedReactions.add(reaction);
           }
         } else {
-          // إزالة التفاعل
+          // Remove the matching reaction.
           updatedReactions.removeWhere((r) =>
               r.userId == reaction.userId &&
               r.reactionType == reaction.reactionType);
@@ -3279,121 +3584,221 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     return updatedMessages;
   }
 
-  /// تحويل الفشل إلى رسالة
-  /// ينفذ العملية `_mapFailureToMessage`.
-  /// Runs the `_mapFailureToMessage` operation.
-  String _mapFailureToMessage(Failure failure) {
+  /// Resolves a localized bloc-side message without requiring a widget
+  /// context.
+  Future<String> _tr(
+    String key, {
+    Map<String, Object?> params = const {},
+  }) {
+    return AppLocalizations.translate(
+      key,
+      locale: LocaleManager.getCurrentLocale(),
+      params: params,
+    );
+  }
+
+  /// Resolves the current user id for optimistic rendering even when the
+  /// send action fires before the bloc has fully hydrated its user context.
+  Future<String> _resolveCurrentUserId(
+    String? eventCurrentUserId,
+    ChatLoaded currentState,
+  ) async {
+    final explicit = eventCurrentUserId?.trim();
+    if (explicit != null && explicit.isNotEmpty) {
+      return explicit;
+    }
+
+    final hydrated = currentState.currentUserId?.trim();
+    if (hydrated != null && hydrated.isNotEmpty) {
+      return hydrated;
+    }
+
+    final currentUserResult = await getCurrentUserUseCase(NoParams());
+    String resolved = '';
+    await currentUserResult.fold(
+      (_) async {},
+      (user) async => resolved = user.userId,
+    );
+    return resolved;
+  }
+
+  /// Resolves the current user display name so optimistic bubbles look like
+  /// final messages instead of anonymous placeholders.
+  Future<String?> _resolveCurrentUserName(ChatLoaded currentState) async {
+    final hydrated = currentState.currentUserName?.trim();
+    if (hydrated != null && hydrated.isNotEmpty) {
+      return hydrated;
+    }
+
+    final currentUserResult = await getCurrentUserUseCase(NoParams());
+    String? resolved;
+    await currentUserResult.fold(
+      (_) async {},
+      (user) async => resolved = user.name,
+    );
+    return resolved;
+  }
+
+  /// Marks one optimistic message as failed while preserving its local media
+  /// preview so the user can understand what failed to send.
+  Future<void> _markOptimisticMessageFailed(
+    Emitter<ChatState> emit, {
+    required Message optimisticMessage,
+    required ChatLoaded currentState,
+    required String failureReason,
+  }) async {
+    final failedMessages =
+        Map<String, List<Message>>.from(currentState.messages);
+    final messages = failedMessages[optimisticMessage.conversationId] ?? [];
+
+    final updatedMessagesList = messages.map((msg) {
+      if (msg.id == optimisticMessage.id) {
+        return Message(
+          id: msg.id,
+          conversationId: msg.conversationId,
+          senderId: msg.senderId,
+          senderName: msg.senderName,
+          messageType: msg.messageType,
+          content: msg.content,
+          location: msg.location,
+          replyToMessageId: msg.replyToMessageId,
+          attachments: msg.attachments,
+          reactions: msg.reactions,
+          createdAt: msg.createdAt,
+          updatedAt: msg.updatedAt,
+          status: 'failed',
+          isEdited: msg.isEdited,
+          isDeleted: msg.isDeleted,
+          deliveryReceipt: msg.deliveryReceipt,
+          failureReason: failureReason,
+        );
+      }
+      return msg;
+    }).toList();
+
+    failedMessages[optimisticMessage.conversationId] = updatedMessagesList;
+
+    emit(currentState.copyWith(
+      messages: failedMessages,
+      isSendingMessage: false,
+      sendingConversationId: null,
+      error: await _tr('chat.errors.messageSendFailed'),
+    ));
+  }
+
+  /// Maps repository failures to user-facing copy that the UI can display.
+  /// يحوّل أنواع الفشل إلى رسائل يمكن للواجهة عرضها للمستخدم.
+  Future<String> _mapFailureToMessage(Failure failure) async {
     switch (failure.runtimeType) {
       case ServerFailure:
-        return 'حدث خطأ في الخادم. يرجى المحاولة مرة أخرى.';
+        return await _tr('chat.errors.server');
       case NetworkFailure:
-        return 'لا يوجد اتصال بالإنترنت. تحقق من الاتصال وحاول مرة أخرى.';
+        return await _tr('chat.errors.network');
       case AuthenticationFailure:
-        return 'فشل التحقق من الهوية. يرجى تسجيل الدخول مرة أخرى.';
+        return await _tr('chat.errors.auth');
       case ValidationFailure:
-        return 'البيانات المدخلة غير صحيحة. تحقق وحاول مرة أخرى.';
+        return await _tr('chat.errors.validation');
       case NotFoundFailure:
-        return 'المحتوى المطلوب غير موجود.';
+        return await _tr('chat.errors.notFound');
       case PermissionDeniedFailure:
-        return 'ليس لديك صلاحيات لتنفيذ هذا الإجراء.';
+        return await _tr('chat.errors.permissionDenied');
       case TimeoutFailure:
-        return 'انتهت مهلة الاتصال. حاول مرة أخرى.';
+        return await _tr('chat.errors.timeout');
       case CacheFailure:
-        return 'حدث خطأ في الذاكرة المؤقتة.';
+        return await _tr('chat.errors.cache');
       default:
-        return 'حدث خطأ غير متوقع. يرجى المحاولة لاحقاً.';
+        return await _tr('chat.errors.unknown');
     }
   }
 
-  /// ينفذ العملية `close`.
-  /// Runs the `close` operation.
+  /// Cancels live subscriptions, stops uploads, and closes the websocket
+  /// connection before the bloc is disposed.
+  /// يلغي الاشتراكات الحية ويوقف عمليات الرفع ويغلق اتصال websocket قبل
+  /// التخلص من الـ bloc.
   @override
   Future<void> close() {
-    // إلغاء جميع الاشتراكات
+    // Cancel all active subscriptions.
     _webSocketMessagesSubscription?.cancel();
     _webSocketTypingSubscription?.cancel();
     _webSocketPresenceSubscription?.cancel();
     _webSocketConversationSubscription?.cancel();
 
-    // إلغاء جميع عمليات الرفع النشطة
+    // Cancel any in-flight upload tasks.
     for (final upload in _activeUploads.values) {
       upload.controller.cancel();
     }
     _activeUploads.clear();
 
-    // قطع اتصال WebSocket
+    // Tear down the websocket connection.
     webSocketService.disconnect();
-
-    // إلغاء ربط قناة FCM بهذا الـ Bloc
-    try {
-      di.sl<NotificationService>().unbindChatEventSink();
-    } catch (_) {}
 
     return super.close();
   }
 }
 
-/// تمثل مهمة رفع واحدة مرتبطة بملف محدد.
-/// Represents a single upload task tied to a file path.
+/// Tracks a single attachment upload so it can be cancelled or updated.
+/// يتتبع عملية رفع واحدة حتى يمكن إلغاؤها أو تحديثها.
 class UploadTask {
-  /// Holds the `controller` value.
-  /// العربية: يخزن القيمة `controller`.
+  /// Controller used to cancel the upload request.
+  /// متحكم يستخدم لإلغاء طلب الرفع.
   final UploadController controller;
 
-  /// يخزن العضو `filePath`.
-  /// Holds the `filePath` member.
+  /// Local file path associated with the upload task.
+  /// المسار المحلي المرتبط بمهمة الرفع.
   final String filePath;
 
-  /// ينشئ مثيلاً من `UploadTask`.
-  /// Builds an instance of `UploadTask`.
+  /// Builds a cancellable upload task for one file.
+  /// ينشئ مهمة رفع قابلة للإلغاء لملف واحد.
   UploadTask({
     required this.controller,
     required this.filePath,
   });
 }
 
-/// تتحكم في إلغاء عملية الرفع وتتابع حالتها.
-/// Controls upload cancellation and tracks its state.
+/// Minimal controller that exposes cancellation state for upload tasks.
+/// متحكم بسيط يوفّر حالة الإلغاء لمهام الرفع.
 class UploadController {
   final cancelToken = CancelToken();
 
-  /// يخزن العضو `_isCancelled`.
-  /// Holds the `_isCancelled` member.
+  /// Tracks whether cancellation has already been requested.
+  /// يتتبع ما إذا كان الإلغاء قد طُلِب بالفعل.
   bool _isCancelled = false;
 
-  /// يعيد قيمة `isCancelled`.
-  /// Exposes the `isCancelled` value.
+  /// Exposes the cancellation flag to the rest of the bloc.
+  /// يوضح حالة الإلغاء لبقية الـ bloc.
   bool get isCancelled => _isCancelled;
 
-  /// ينفذ العملية `cancel`.
-  /// Runs the `cancel` operation.
+  /// Cancels the upload and marks the task as no longer active.
+  /// يلغي الرفع ويجعل المهمة غير نشطة بعد الآن.
   void cancel() {
     _isCancelled = true;
     cancelToken.cancel('Upload cancelled by user');
   }
 }
 
-/// رمز إلغاء مبسط يحاكي `Dio CancelToken`.
-/// A lightweight cancellation token that mimics `Dio CancelToken`.
+/// Lightweight cancellation token used when `dio` cancellation is not
+/// available directly in this path.
+/// رمز إلغاء خفيف يستخدم عندما لا يكون إلغاء `dio` متاحًا مباشرة في هذا
+/// المسار.
 class CancelToken {
-  /// Indicates whether `isCancelled` is enabled.
-  /// العربية: يحدد ما إذا كانت القيمة `isCancelled` مفعلة.
+  /// Tracks whether the token has been cancelled.
+  /// يتتبع ما إذا كان الرمز قد أُلغي.
   bool _isCancelled = false;
 
-  /// يخزن العضو `_cancelReason`.
-  /// Holds the `_cancelReason` member.
+  /// Reason associated with the cancellation request.
+  /// سبب مرتبط بطلب الإلغاء.
   String? _cancelReason;
 
-  /// يعيد قيمة `isCancelled`.
-  /// Exposes the `isCancelled` value.
+  /// Exposes the cancellation flag.
+  /// يوضح حالة الإلغاء.
   bool get isCancelled => _isCancelled;
 
-  /// يعيد قيمة `cancelReason`.
-  /// Exposes the `cancelReason` value.
+  /// Exposes the last cancellation reason, if any.
+  /// يوضح آخر سبب للإلغاء إن وُجد.
   String? get cancelReason => _cancelReason;
 
-  /// ينفذ العملية `cancel`.
-  /// Runs the `cancel` operation.
+  /// Marks the token as cancelled and stores the reason.
+  /// يعلّم الرمز كملغى ويحفظ السبب.
   void cancel([String? reason]) {
     _isCancelled = true;
     _cancelReason = reason;

@@ -23,6 +23,7 @@ class UploadAttachmentUseCase
       conversationId: params.conversationId,
       filePath: params.filePath,
       messageType: params.messageType,
+      durationSeconds: params.durationSeconds,
       onSendProgress: params.onSendProgress,
     );
   }
@@ -39,6 +40,9 @@ class UploadAttachmentParams extends Equatable {
   /// العربية: يخزن القيمة `messageType`.
   final String messageType;
 
+  /// العربية: يخزن القيمة `durationSeconds`.
+  final int? durationSeconds;
+
   /// العربية: يخزن القيمة `onSendProgress`.
   final ProgressCallback? onSendProgress;
 
@@ -47,6 +51,7 @@ class UploadAttachmentParams extends Equatable {
     required this.conversationId,
     required this.filePath,
     required this.messageType,
+    this.durationSeconds,
     this.onSendProgress,
   });
 
@@ -56,5 +61,6 @@ class UploadAttachmentParams extends Equatable {
         conversationId,
         filePath,
         messageType,
+        durationSeconds,
       ];
 }

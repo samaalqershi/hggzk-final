@@ -4,19 +4,15 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../repositories/chat_repository.dart';
 
-/// يعرّف الكلاس `SearchChatsUseCase`.
-/// Describes the `SearchChatsUseCase` class.
+/// العربية: ينفذ حالة الاستخدام `SearchChatsUseCase`.
 class SearchChatsUseCase implements UseCase<SearchResult, SearchChatsParams> {
-  /// Holds the `repository` value.
   /// العربية: يخزن القيمة `repository`.
   final ChatRepository repository;
 
-  /// ينشئ مثيلاً من `SearchChatsUseCase`.
-  /// Builds an instance of `SearchChatsUseCase`.
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchChatsUseCase`.
   SearchChatsUseCase(this.repository);
 
-  /// ينفذ العملية `call`.
-  /// Runs the `call` operation.
+  /// العربية: ينفذ السلوك الرئيسي الذي يقدمه هذا الكائن القابل للاستدعاء.
   @override
   Future<Either<Failure, SearchResult>> call(SearchChatsParams params) async {
     return await repository.searchChats(
@@ -32,43 +28,33 @@ class SearchChatsUseCase implements UseCase<SearchResult, SearchChatsParams> {
   }
 }
 
-/// يعرّف الكلاس `SearchChatsParams`.
-/// Describes the `SearchChatsParams` class.
+/// العربية: يمثل `SearchChatsParams`.
 class SearchChatsParams extends Equatable {
-  /// Holds the `query` value.
   /// العربية: يخزن القيمة `query`.
   final String query;
 
-  /// يخزن العضو `conversationId`.
-  /// Holds the `conversationId` member.
+  /// العربية: يخزن القيمة `conversationId`.
   final String? conversationId;
 
-  /// يخزن العضو `messageType`.
-  /// Holds the `messageType` member.
+  /// العربية: يخزن القيمة `messageType`.
   final String? messageType;
 
-  /// يخزن العضو `senderId`.
-  /// Holds the `senderId` member.
+  /// العربية: يخزن القيمة `senderId`.
   final String? senderId;
 
-  /// يخزن العضو `dateFrom`.
-  /// Holds the `dateFrom` member.
+  /// العربية: يخزن القيمة `dateFrom`.
   final DateTime? dateFrom;
 
-  /// يخزن العضو `dateTo`.
-  /// Holds the `dateTo` member.
+  /// العربية: يخزن القيمة `dateTo`.
   final DateTime? dateTo;
 
-  /// يخزن العضو `page`.
-  /// Holds the `page` member.
+  /// العربية: يخزن القيمة `page`.
   final int page;
 
-  /// يخزن العضو `limit`.
-  /// Holds the `limit` member.
+  /// العربية: يخزن القيمة `limit`.
   final int limit;
 
-  /// ينشئ مثيلاً من `SearchChatsParams`.
-  /// Builds an instance of `SearchChatsParams`.
+  /// العربية: ينشئ مثيلًا جديدًا من `SearchChatsParams`.
   const SearchChatsParams({
     required this.query,
     this.conversationId,
@@ -80,8 +66,7 @@ class SearchChatsParams extends Equatable {
     this.limit = 20,
   });
 
-  /// يعيد قيمة `props`.
-  /// Exposes the `props` value.
+  /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
   @override
   List<Object?> get props => [
         query,

@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import 'package:hggzk/core/bloc/theme/theme_bloc.dart';
+import 'package:hggzk/core/services/notification_service.dart';
 import 'package:hggzk/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:hggzk/features/auth/presentation/bloc/auth_event.dart';
 import 'package:hggzk/features/auth/presentation/bloc/auth_state.dart';
@@ -179,7 +180,12 @@ class AppBloc {
       getCurrentUserUseCase: sl(),
       webSocketService: sl(),
       getAdminUsersUseCase: sl(),
+      localStorageService: sl(),
     );
+    try {
+      sl<NotificationService>()
+          .bindChatEventSink((event) => chatBloc.add(event));
+    } catch (_) {}
 
     propertyBloc = PropertyBloc(
       getPropertyDetailsUseCase: sl(),

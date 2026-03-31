@@ -1,48 +1,47 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:hggzkportal/features/chat/data/models/chat_settings_model.dart';
+import '../models/chat_settings_model.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/message.dart';
 import '../models/conversation_model.dart';
 import '../models/message_model.dart';
 
-/// يعرّف الكلاس المجرد `ChatLocalDataSource`.
-/// Describes the abstract `ChatLocalDataSource` class.
+/// Local persistence contract for cached conversations, messages, settings,
+/// and queued outbound messages.
+/// عقدة التخزين المحلي للمحادثات والرسائل والإعدادات والرسائل المعلقة.
 abstract class ChatLocalDataSource {
   // Conversations
-  /// ينفذ العملية `cacheConversations`.
-  /// Runs the `cacheConversations` operation.
+  /// يخزن أحدث قائمة محادثات لعرض الصندوق الوارد دون اتصال.
   Future<void> cacheConversations(List<ConversationModel> conversations);
 
-  /// ينفذ العملية `getCachedConversations`.
-  /// Runs the `getCachedConversations` operation.
+  /// Reads the cached conversation list in the same order it was stored.
+  /// يقرأ قائمة المحادثات المخزنة بنفس الترتيب الذي حُفظت به.
   Future<List<ConversationModel>?> getCachedConversations();
 
-  /// ينفذ العملية `getCachedConversationById`.
-  /// Runs the `getCachedConversationById` operation.
+  /// Reads one cached conversation by its identifier.
+  /// يقرأ محادثة مخزنة واحدة بواسطة معرّفها.
   Future<ConversationModel?> getCachedConversationById(String conversationId);
 
-  /// ينفذ العملية `deleteConversationCache`.
-  /// Runs the `deleteConversationCache` operation.
+  /// Removes one conversation from the local cache.
+  /// يزيل محادثة واحدة من الكاش المحلي.
   Future<void> deleteConversationCache(String conversationId);
 
   // Messages
-  /// ينفذ العملية `cacheMessages`.
-  /// Runs the `cacheMessages` operation.
+  /// يخزن أحدث صفحة رسائل لمحادثة.
   Future<void> cacheMessages(
       String conversationId, List<MessageModel> messages);
 
-  /// ينفذ العملية `getCachedMessages`.
-  /// Runs the `getCachedMessages` operation.
+  /// Reads the cached message list for a conversation.
+  /// يقرأ قائمة الرسائل المخزنة لمحادثة.
   Future<List<MessageModel>?> getCachedMessages(String conversationId);
 
-  /// ينفذ العملية `addMessageToCache`.
-  /// Runs the `addMessageToCache` operation.
+  /// Appends one message to the cached conversation timeline.
+  /// يضيف رسالة واحدة إلى الخط الزمني المخزن للمحادثة.
   Future<void> addMessageToCache(String conversationId, MessageModel message);
 
-  /// ينفذ العملية `queueMessage`.
-  /// Runs the `queueMessage` operation.
+  /// Stores an outbound message until the app can send it.
+  /// يخزن رسالة صادرة حتى يتمكن التطبيق من إرسالها.
   Future<void> queueMessage({
     required String conversationId,
     required String messageType,
@@ -52,117 +51,85 @@ abstract class ChatLocalDataSource {
     List<String>? attachmentIds,
   });
 
-  /// ينفذ العملية `getQueuedMessages`.
-  /// Runs the `getQueuedMessages` operation.
+  /// Returns queued outbound messages waiting for retry.
+  /// يعيد الرسائل الصادرة المعلقة بانتظار إعادة المحاولة.
   Future<List<Map<String, dynamic>>> getQueuedMessages();
 
-  /// ينفذ العملية `removeQueuedMessage`.
-  /// Runs the `removeQueuedMessage` operation.
+  /// Deletes one queued outbound message after it is sent or cancelled.
+  /// يحذف رسالة صادرة معلقة بعد إرسالها أو إلغائها.
   Future<void> removeQueuedMessage(String messageId);
 
-  // Settings
-  /// ينفذ العملية `cacheSettings`.
-  /// Runs the `cacheSettings` operation.
-  Future<void> cacheSettings(ChatSettingsModel settings);
-
-  /// ينفذ العملية `getCachedSettings`.
-  /// Runs the `getCachedSettings` operation.
-  Future<ChatSettingsModel?> getCachedSettings();
-
-  // Thumbnails (local preview cache for media)
-  /// ينفذ العملية `saveThumbnail`.
-  /// Runs the `saveThumbnail` operation.
-  Future<void> saveThumbnail(String key, String localPath);
-
-  /// ينفذ العملية `getThumbnail`.
-  /// Runs the `getThumbnail` operation.
-  Future<String?> getThumbnail(String key);
-
-  /// ينفذ العملية `deleteThumbnail`.
-  /// Runs the `deleteThumbnail` operation.
-  Future<void> deleteThumbnail(String key);
-
-  /// ينفذ العملية `pruneThumbnails`.
-  /// Runs the `pruneThumbnails` operation.
+  /// Best-effort thumbnail cache pruning hook kept for background sync jobs.
+  /// واجهة توافقية لتنظيف كاش المصغرات تستخدمها خدمات المزامنة الخلفية.
   Future<void> pruneThumbnails({int maxEntries = 300});
 
+  // Settings
+  /// يخزن أحدث لقطة لتفضيلات الدردشة.
+  Future<void> cacheSettings(ChatSettingsModel settings);
+
+  /// Reads the locally cached chat preferences.
+  /// يقرأ تفضيلات الدردشة المخزنة محليًا.
+  Future<ChatSettingsModel?> getCachedSettings();
+
   // Clear
-  /// ينفذ العملية `clearAllCache`.
-  /// Runs the `clearAllCache` operation.
+  /// Clears every cached chat artifact.
+  /// يمسح كل عناصر كاش الدردشة.
   Future<void> clearAllCache();
 
-  /// ينفذ العملية `clearConversationsCache`.
-  /// Runs the `clearConversationsCache` operation.
+  /// Clears only conversation cache entries.
+  /// يمسح فقط عناصر كاش المحادثات.
   Future<void> clearConversationsCache();
 
-  /// ينفذ العملية `clearMessagesCache`.
-  /// Runs the `clearMessagesCache` operation.
+  /// Clears only cached messages.
+  /// يمسح فقط الرسائل المخزنة.
   Future<void> clearMessagesCache();
-
-  /// ينفذ العملية `clearThumbnails`.
-  /// Runs the `clearThumbnails` operation.
-  Future<void> clearThumbnails();
 }
 
-/// يعرّف الكلاس `ChatLocalDataSourceImpl`.
-/// Describes the `ChatLocalDataSourceImpl` class.
+/// Hive-backed implementation of the chat local data source.
+/// تنفيذ معتمد على Hive لمصدر بيانات الدردشة المحلي.
 class ChatLocalDataSourceImpl implements ChatLocalDataSource {
-  /// Holds the `conversationsBoxName` value.
-  /// العربية: يخزن القيمة `conversationsBoxName`.
+  /// Hive box name used for conversation cache entries.
+  /// اسم صندوق Hive المستخدم لعناصر كاش المحادثات.
   static const String _conversationsBoxName = 'chat_conversations';
 
-  /// يخزن العضو `_messagesBoxName`.
-  /// Holds the `_messagesBoxName` member.
+  /// Hive box name used for cached messages.
+  /// اسم صندوق Hive المستخدم للرسائل المخزنة.
   static const String _messagesBoxName = 'chat_messages';
 
-  /// يخزن العضو `_settingsBoxName`.
-  /// Holds the `_settingsBoxName` member.
+  /// Hive box name used for stored chat settings.
+  /// اسم صندوق Hive المستخدم لإعدادات الدردشة المخزنة.
   static const String _settingsBoxName = 'chat_settings';
 
-  /// يخزن العضو `_queuedMessagesBoxName`.
-  /// Holds the `_queuedMessagesBoxName` member.
+  /// Hive box name used for outbound message retries.
+  /// اسم صندوق Hive المستخدم لرسائل الإرسال المؤجل.
   static const String _queuedMessagesBoxName = 'queued_messages';
 
-  /// يخزن العضو `_thumbnailsBoxName`.
-  /// Holds the `_thumbnailsBoxName` member.
-  static const String _thumbnailsBoxName = 'chat_thumbnails';
-
-  /// يخزن العضو `_conversationsBox`.
-  /// Holds the `_conversationsBox` member.
+  /// العربية: يخزن القيمة `conversationsBox`.
   late Box<String> _conversationsBox;
 
-  /// يخزن العضو `_messagesBox`.
-  /// Holds the `_messagesBox` member.
+  /// العربية: يخزن القيمة `messagesBox`.
   late Box<String> _messagesBox;
 
-  /// يخزن العضو `_settingsBox`.
-  /// Holds the `_settingsBox` member.
+  /// العربية: يخزن القيمة `settingsBox`.
   late Box<String> _settingsBox;
 
-  /// يخزن العضو `_queuedMessagesBox`.
-  /// Holds the `_queuedMessagesBox` member.
+  /// العربية: يخزن القيمة `queuedMessagesBox`.
   late Box<String> _queuedMessagesBox;
 
-  /// يخزن العضو `_thumbnailsBox`.
-  /// Holds the `_thumbnailsBox` member.
-  late Box<String> _thumbnailsBox;
-
-  /// يخزن العضو `_isInitialized`.
-  /// Holds the `_isInitialized` member.
+  /// العربية: يحدد ما إذا كانت القيمة `isInitialized` مفعلة.
   bool _isInitialized = false;
 
-  /// يخزن العضو `_initFuture`.
-  /// Holds the `_initFuture` member.
+  /// العربية: يخزن القيمة `initFuture`.
   Future<void>? _initFuture;
 
-  /// ينشئ مثيلاً من `ChatLocalDataSourceImpl`.
-  /// Builds an instance of `ChatLocalDataSourceImpl`.
+  /// Starts box initialization as soon as the data source is constructed.
+  /// يبدأ تهيئة الصناديق فور إنشاء مصدر البيانات.
   ChatLocalDataSourceImpl() {
     _initFuture = _initializeBoxes();
   }
 
-  /// ينفذ العملية `_initializeBoxes`.
-  /// Runs the `_initializeBoxes` operation.
+  /// Opens the Hive boxes used by the chat cache.
+  /// يفتح صناديق Hive المستخدمة في كاش الدردشة.
   Future<void> _initializeBoxes() async {
     try {
       if (!Hive.isBoxOpen(_conversationsBoxName)) {
@@ -185,19 +152,16 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
       } else {
         _queuedMessagesBox = Hive.box<String>(_queuedMessagesBoxName);
       }
-      if (!Hive.isBoxOpen(_thumbnailsBoxName)) {
-        _thumbnailsBox = await Hive.openBox<String>(_thumbnailsBoxName);
-      } else {
-        _thumbnailsBox = Hive.box<String>(_thumbnailsBoxName);
-      }
       _isInitialized = true;
     } catch (e) {
-      throw const CacheException('فشل في تهيئة التخزين المحلي');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
-  /// ينفذ العملية `_ensureInitialized`.
-  /// Runs the `_ensureInitialized` operation.
+  /// Waits for the Hive boxes to become available before any cache access.
+  /// ينتظر حتى تصبح صناديق Hive متاحة قبل أي وصول للكاش.
   Future<void> _ensureInitialized() async {
     if (_isInitialized) return;
     if (_initFuture != null) {
@@ -208,8 +172,7 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
     await _initFuture;
   }
 
-  /// ينفذ العملية `cacheConversations`.
-  /// Runs the `cacheConversations` operation.
+  /// العربية: يعالج `cacheConversations`.
   @override
   Future<void> cacheConversations(List<ConversationModel> conversations) async {
     await _ensureInitialized();
@@ -226,12 +189,13 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
         json.encode(conversations.map((c) => c.id).toList()),
       );
     } catch (e) {
-      throw const CacheException('فشل في حفظ المحادثات');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
-  /// ينفذ العملية `getCachedConversations`.
-  /// Runs the `getCachedConversations` operation.
+  /// العربية: يعيد cached conversations.
   @override
   Future<List<ConversationModel>?> getCachedConversations() async {
     await _ensureInitialized();
@@ -254,12 +218,22 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
 
       return conversations.isNotEmpty ? conversations : null;
     } catch (e) {
-      throw const CacheException('فشل في قراءة المحادثات المحفوظة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
-  /// ينفذ العملية `getCachedConversationById`.
-  /// Runs the `getCachedConversationById` operation.
+  /// Background sync still calls this hook, but the current cache layout no
+  /// longer stores standalone thumbnail entries, so pruning is a no-op.
+  /// ما زالت المزامنة الخلفية تستدعي هذه الواجهة، لكن البنية الحالية لا
+  /// تخزن المصغرات كسجلات منفصلة، لذلك يصبح التنظيف هنا بلا حاجة.
+  @override
+  Future<void> pruneThumbnails({int maxEntries = 300}) async {
+    await _ensureInitialized();
+  }
+
+  /// العربية: يعيد cached conversation by id.
   @override
   Future<ConversationModel?> getCachedConversationById(
       String conversationId) async {
@@ -270,12 +244,13 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
 
       return ConversationModel.fromJson(json.decode(conversationJson));
     } catch (e) {
-      throw const CacheException('فشل في قراءة المحادثة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
-  /// ينفذ العملية `deleteConversationCache`.
-  /// Runs the `deleteConversationCache` operation.
+  /// العربية: يحذف conversation cache.
   @override
   Future<void> deleteConversationCache(String conversationId) async {
     await _ensureInitialized();
@@ -297,12 +272,13 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
       // Delete messages
       await _messagesBox.delete('messages_$conversationId');
     } catch (e) {
-      throw const CacheException('فشل في حذف المحادثة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
-  /// ينفذ العملية `cacheMessages`.
-  /// Runs the `cacheMessages` operation.
+  /// العربية: يعالج `cacheMessages`.
   @override
   Future<void> cacheMessages(
       String conversationId, List<MessageModel> messages) async {
@@ -314,12 +290,13 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
         json.encode(messagesJson),
       );
     } catch (e) {
-      throw const CacheException('فشل في حفظ الرسائل');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
-  /// ينفذ العملية `getCachedMessages`.
-  /// Runs the `getCachedMessages` operation.
+  /// العربية: يعيد cached messages.
   @override
   Future<List<MessageModel>?> getCachedMessages(String conversationId) async {
     await _ensureInitialized();
@@ -330,12 +307,13 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
       final List<dynamic> messagesList = json.decode(messagesJson);
       return messagesList.map((json) => MessageModel.fromJson(json)).toList();
     } catch (e) {
-      throw const CacheException('فشل في قراءة الرسائل المحفوظة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
-  /// ينفذ العملية `addMessageToCache`.
-  /// Runs the `addMessageToCache` operation.
+  /// العربية: يعالج `addMessageToCache`.
   @override
   Future<void> addMessageToCache(
       String conversationId, MessageModel message) async {
@@ -351,12 +329,13 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
 
       await cacheMessages(conversationId, messages);
     } catch (e) {
-      throw const CacheException('فشل في إضافة الرسالة للذاكرة المؤقتة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
-  /// ينفذ العملية `queueMessage`.
-  /// Runs the `queueMessage` operation.
+  /// العربية: يعالج `queueMessage`.
   @override
   Future<void> queueMessage({
     required String conversationId,
@@ -387,12 +366,13 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
 
       await _queuedMessagesBox.put(messageId, json.encode(queuedMessage));
     } catch (e) {
-      throw const CacheException('فشل في إضافة الرسالة لقائمة الانتظار');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
-  /// ينفذ العملية `getQueuedMessages`.
-  /// Runs the `getQueuedMessages` operation.
+  /// العربية: يعيد queued messages.
   @override
   Future<List<Map<String, dynamic>>> getQueuedMessages() async {
     await _ensureInitialized();
@@ -406,36 +386,39 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
       }
       return messages;
     } catch (e) {
-      throw const CacheException('فشل في قراءة الرسائل في قائمة الانتظار');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
-  /// ينفذ العملية `removeQueuedMessage`.
-  /// Runs the `removeQueuedMessage` operation.
+  /// العربية: يزيل queued message.
   @override
   Future<void> removeQueuedMessage(String messageId) async {
     await _ensureInitialized();
     try {
       await _queuedMessagesBox.delete(messageId);
     } catch (e) {
-      throw const CacheException('فشل في حذف الرسالة من قائمة الانتظار');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
-  /// ينفذ العملية `cacheSettings`.
-  /// Runs the `cacheSettings` operation.
+  /// العربية: يعالج `cacheSettings`.
   @override
   Future<void> cacheSettings(ChatSettingsModel settings) async {
     await _ensureInitialized();
     try {
       await _settingsBox.put('settings', json.encode(settings.toJson()));
     } catch (e) {
-      throw const CacheException('فشل في حفظ الإعدادات');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
-  /// ينفذ العملية `getCachedSettings`.
-  /// Runs the `getCachedSettings` operation.
+  /// العربية: يعيد cached settings.
   @override
   Future<ChatSettingsModel?> getCachedSettings() async {
     await _ensureInitialized();
@@ -445,12 +428,13 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
 
       return ChatSettingsModel.fromJson(json.decode(settingsJson));
     } catch (e) {
-      throw const CacheException('فشل في قراءة الإعدادات المحفوظة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
-  /// ينفذ العملية `clearAllCache`.
-  /// Runs the `clearAllCache` operation.
+  /// العربية: يعالج `clearAllCache`.
   @override
   Future<void> clearAllCache() async {
     await _ensureInitialized();
@@ -460,152 +444,37 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
         _messagesBox.clear(),
         _settingsBox.clear(),
         _queuedMessagesBox.clear(),
-        _thumbnailsBox.clear(),
       ]);
     } catch (e) {
-      throw const CacheException('فشل في مسح الذاكرة المؤقتة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
-  /// ينفذ العملية `clearConversationsCache`.
-  /// Runs the `clearConversationsCache` operation.
+  /// العربية: يعالج `clearConversationsCache`.
   @override
   Future<void> clearConversationsCache() async {
     await _ensureInitialized();
     try {
       await _conversationsBox.clear();
     } catch (e) {
-      throw const CacheException('فشل في مسح المحادثات المحفوظة');
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 
-  /// ينفذ العملية `clearMessagesCache`.
-  /// Runs the `clearMessagesCache` operation.
+  /// العربية: يعالج `clearMessagesCache`.
   @override
   Future<void> clearMessagesCache() async {
     await _ensureInitialized();
     try {
       await _messagesBox.clear();
     } catch (e) {
-      throw const CacheException('فشل في مسح الرسائل المحفوظة');
-    }
-  }
-
-  /// ينفذ العملية `saveThumbnail`.
-  /// Runs the `saveThumbnail` operation.
-  @override
-  Future<void> saveThumbnail(String key, String localPath) async {
-    await _ensureInitialized();
-    try {
-      if (key.trim().isEmpty || localPath.trim().isEmpty) return;
-      await _thumbnailsBox.put(key, localPath);
-    } catch (e) {
-      throw const CacheException('فشل في حفظ الصورة المصغرة');
-    }
-  }
-
-  /// ينفذ العملية `getThumbnail`.
-  /// Runs the `getThumbnail` operation.
-  @override
-  Future<String?> getThumbnail(String key) async {
-    await _ensureInitialized();
-    try {
-      return _thumbnailsBox.get(key);
-    } catch (e) {
-      throw const CacheException('فشل في قراءة الصورة المصغرة');
-    }
-  }
-
-  /// ينفذ العملية `deleteThumbnail`.
-  /// Runs the `deleteThumbnail` operation.
-  @override
-  Future<void> deleteThumbnail(String key) async {
-    await _ensureInitialized();
-    try {
-      await _thumbnailsBox.delete(key);
-    } catch (e) {
-      throw const CacheException('فشل في حذف الصورة المصغرة');
-    }
-  }
-
-  /// ينفذ العملية `clearThumbnails`.
-  /// Runs the `clearThumbnails` operation.
-  @override
-  Future<void> clearThumbnails() async {
-    await _ensureInitialized();
-    try {
-      await _thumbnailsBox.clear();
-    } catch (e) {
-      throw const CacheException('فشل في مسح صور المعاينة');
-    }
-  }
-
-  /// ينفذ العملية `pruneThumbnails`.
-  /// Runs the `pruneThumbnails` operation.
-  @override
-  Future<void> pruneThumbnails({int maxEntries = 300}) async {
-    await _ensureInitialized();
-    try {
-      // Remove orphan entries (file missing on disk)
-      final toDelete = <dynamic>[];
-      for (final key in _thumbnailsBox.keys) {
-        final path = _thumbnailsBox.get(key);
-        if (path == null || path.trim().isEmpty) {
-          toDelete.add(key);
-          continue;
-        }
-        try {
-          final f = File(path);
-          if (!f.existsSync()) {
-            toDelete.add(key);
-          }
-        } catch (_) {
-          toDelete.add(key);
-        }
-      }
-      if (toDelete.isNotEmpty) {
-        await _thumbnailsBox.deleteAll(toDelete);
-      }
-
-      // Enforce max entries by last modified time on disk (best-effort)
-      final entries = <MapEntry<dynamic, String>>[];
-      for (final key in _thumbnailsBox.keys) {
-        final val = _thumbnailsBox.get(key);
-        if (val != null) entries.add(MapEntry(key, val));
-      }
-      if (entries.length <= maxEntries) return;
-
-      // Sort by file last modified descending (keep newest)
-      entries.sort((a, b) {
-        DateTime ma;
-        DateTime mb;
-        try {
-          ma = File(a.value).lastModifiedSync();
-        } catch (_) {
-          ma = DateTime.fromMillisecondsSinceEpoch(0);
-        }
-        try {
-          mb = File(b.value).lastModifiedSync();
-        } catch (_) {
-          mb = DateTime.fromMillisecondsSinceEpoch(0);
-        }
-        return mb.compareTo(ma);
-      });
-
-      final toRemove = entries.skip(maxEntries).toList();
-      for (final e in toRemove) {
-        try {
-          final f = File(e.value);
-          if (f.existsSync()) {
-            // Best-effort delete file
-            // ignore: discarded_futures
-            f.deleteSync();
-          }
-        } catch (_) {}
-        await _thumbnailsBox.delete(e.key);
-      }
-    } catch (e) {
-      // non-fatal: do not throw if pruning fails; keep cache as-is
+      throw CacheException(
+        AppLocalizations.translateSync('chat.errors.cache'),
+      );
     }
   }
 }

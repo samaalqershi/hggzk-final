@@ -49,7 +49,17 @@ namespace YemenBooking.Application.Features.Chat.Queries.GetChatSettings
             var userId = _currentUserService.UserId;
             var settings = await _settingsRepo.GetByUserIdAsync(userId, cancellationToken);
             if (settings == null)
-                return ResultDto<ChatSettingsDto>.Failure("لم يتم العثور على إعدادات الشات", errorCode: "not_found");
+            {
+                settings = new Core.Entities.ChatSettings
+                {
+                    UserId = userId,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                await _settingsRepo.SaveSettingsAsync(settings, cancellationToken);
+                await _settingsRepo.SaveChangesAsync(cancellationToken);
+            }
 
             var dto = _mapper.Map<ChatSettingsDto>(settings);
             return ResultDto<ChatSettingsDto>.Ok(dto);

@@ -7,7 +7,6 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/message.dart';
 import '../../domain/entities/attachment.dart';
-import '../models/image_upload_info.dart';
 import 'message_status_indicator.dart';
 import 'whatsapp_style_image_grid.dart';
 import 'expandable_image_viewer.dart';
@@ -519,7 +518,6 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
       fileSize: 0,
       filePath: '',
       fileUrl: url,
-      url: url,
       uploadedBy: widget.message.senderId,
       createdAt: widget.message.createdAt,
     );
@@ -584,13 +582,12 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
       child: Stack(
         fit: StackFit.expand,
         children: [
-          if (image.file != null)
-            Image.file(
-              image.file!,
-              fit: BoxFit.cover,
-              color: Colors.black.withValues(alpha: 0.2),
-              colorBlendMode: BlendMode.darken,
-            ),
+          Image.file(
+            image.file,
+            fit: BoxFit.cover,
+            color: Colors.black.withValues(alpha: 0.2),
+            colorBlendMode: BlendMode.darken,
+          ),
           if (image.progress < 1.0)
             Center(
               child: _buildCircularProgress(image.progress),
@@ -733,15 +730,13 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
     return Stack(
       fit: StackFit.expand,
       children: [
-        if (image.file != null)
-          Image.file(
-            image.file!,
-            fit: BoxFit.cover,
-            color: image.progress < 1.0
-                ? Colors.black.withValues(alpha: 0.3)
-                : null,
-            colorBlendMode: image.progress < 1.0 ? BlendMode.darken : null,
-          ),
+        Image.file(
+          image.file,
+          fit: BoxFit.cover,
+          color:
+              image.progress < 1.0 ? Colors.black.withValues(alpha: 0.3) : null,
+          colorBlendMode: image.progress < 1.0 ? BlendMode.darken : null,
+        ),
         if (image.progress < 1.0)
           Container(
             color: Colors.black.withValues(alpha: 0.3),
@@ -944,6 +939,7 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
             const SizedBox(width: 3),
             MessageStatusIndicator(
               status: widget.message.status,
+              deliveryReceipt: widget.message.deliveryReceipt,
               color: Colors.white.withValues(alpha: 0.8),
               size: 12,
             ),
@@ -985,48 +981,17 @@ class _ImageMessageBubbleState extends State<ImageMessageBubble>
   void _retryFailedUploads() {
     HapticFeedback.mediumImpact();
     final uploads = widget.uploadingImages ?? const <ImageUploadInfo>[];
-    final failed = uploads.where((u) => u.isFailed && u.file != null).toList();
+    final failed = uploads.where((u) => u.isFailed).toList();
     if (failed.isEmpty) return;
 
     for (final item in failed) {
-      final filePath = item.file!.path;
-      final uploadId = item.id;
-      context
-          .read<ChatBloc>()
-          .uploadAttachmentWithProgress(
-            conversationId: widget.message.conversationId,
-            filePath: filePath,
-            messageType: 'image',
-            onProgress: (sent, total) {
-              final ratio = total > 0 ? sent / total : 0.0;
-              context.read<ChatBloc>().add(
-                    UpdateImageUploadProgressEvent(
-                      conversationId: widget.message.conversationId,
-                      uploadId: uploadId,
-                      progress: ratio,
-                    ),
-                  );
-            },
-          )
-          .then((_) {
-        context.read<ChatBloc>().add(
-              UpdateImageUploadProgressEvent(
-                conversationId: widget.message.conversationId,
-                uploadId: uploadId,
-                progress: 1.0,
-                isCompleted: true,
-              ),
-            );
-      }).catchError((e) {
-        context.read<ChatBloc>().add(
-              UpdateImageUploadProgressEvent(
-                conversationId: widget.message.conversationId,
-                uploadId: uploadId,
-                isFailed: true,
-                error: e.toString(),
-              ),
-            );
-      });
+      context.read<ChatBloc>().add(
+            UploadAttachmentEvent(
+              conversationId: widget.message.conversationId,
+              filePath: item.file.path,
+              messageType: 'image',
+            ),
+          );
     }
   }
 

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
-import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../domain/entities/conversation.dart';
+import 'online_status_indicator.dart';
+import '../utils/chat_presence_presentation.dart';
 
 /// Top bar for a one-to-one or group chat. It combines navigation, identity,
 /// and high-value actions in a compact header.
@@ -110,9 +110,13 @@ class _ChatAppBarState extends State<ChatAppBar>
         ? widget.conversation.getOtherParticipant(widget.currentUserId)
         : null;
 
-    final displayName = widget.conversation.title ??
-        otherParticipant?.name ??
-        context.tr('chat.message.conversationFallback');
+    final displayName = widget.conversation.isDirectChat &&
+            (otherParticipant?.name.trim().isNotEmpty == true)
+        ? otherParticipant!.name.trim()
+        : (widget.conversation.title?.trim().isNotEmpty == true
+            ? widget.conversation.title!.trim()
+            : otherParticipant?.name ??
+                context.tr('chat.message.conversationFallback'));
 
     final displayImage =
         widget.conversation.avatar ?? otherParticipant?.profileImage;
@@ -270,6 +274,8 @@ class _ChatAppBarState extends State<ChatAppBar>
   /// Builds the animated avatar that represents the current conversation.
   /// ينشئ الصورة المتحركة التي تمثل المحادثة الحالية.
   Widget _buildPremiumAvatar(String? imageUrl, String name) {
+    final hasImage = imageUrl != null && imageUrl.trim().isNotEmpty;
+
     return AnimatedBuilder(
       animation: _glowAnimation,
       builder: (context, child) {
@@ -300,7 +306,7 @@ class _ChatAppBarState extends State<ChatAppBar>
                   ),
                 ],
               ),
-              child: imageUrl != null
+              child: hasImage
                   ? ClipOval(
                       child: CachedImageWidget(
                         imageUrl: imageUrl,
@@ -341,36 +347,11 @@ class _ChatAppBarState extends State<ChatAppBar>
       return const SizedBox.shrink();
     }
 
-    return AnimatedBuilder(
-      animation: _glowAnimation,
-      builder: (context, child) {
-        return Container(
-          width: 7, // Reduced from 8
-          height: 7,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppTheme.success.withOpacity(0.9),
-                AppTheme.neonGreen.withOpacity(0.7),
-              ],
-            ),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: AppTheme.darkCard,
-              width: 1.2,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.success.withOpacity(
-                  0.3 + 0.1 * _glowAnimation.value,
-                ),
-                blurRadius: 3 + 2 * _glowAnimation.value,
-                spreadRadius: 0.3,
-              ),
-            ],
-          ),
-        );
-      },
+    return const OnlineStatusIndicator(
+      isOnline: true,
+      size: 7,
+      showBorder: true,
+      animate: true,
     );
   }
 
@@ -383,11 +364,13 @@ class _ChatAppBarState extends State<ChatAppBar>
       if (otherParticipant == null) return null;
 
       if (otherParticipant.isOnline) {
-        return context.tr(
-          'chat.participant.onlineNow',
-        );
+        return ChatPresencePresentation.onlineNow(context);
       } else if (otherParticipant.lastSeen != null) {
-        return _formatLastSeen(context, otherParticipant.lastSeen!);
+        return ChatPresencePresentation.presenceLabel(
+          context,
+          isOnline: false,
+          lastSeen: otherParticipant.lastSeen,
+        );
       }
     } else {
       final onlineCount = widget.conversation.participants
@@ -414,34 +397,6 @@ class _ChatAppBarState extends State<ChatAppBar>
       return AppTheme.success.withOpacity(0.8);
     }
     return AppTheme.textMuted.withOpacity(0.6);
-  }
-
-  /// Formats last-seen time into a compact relative label.
-  /// ينسق وقت آخر ظهور إلى تسمية نسبية مختصرة.
-  String _formatLastSeen(BuildContext context, DateTime lastSeen) {
-    final now = DateTime.now();
-    final difference = now.difference(lastSeen);
-
-    if (difference.inMinutes < 1) {
-      return context.tr('chat.participant.now');
-    } else if (difference.inMinutes < 60) {
-      return context.tr(
-        'chat.participant.minuteAgo',
-        params: {'value': difference.inMinutes},
-      );
-    } else if (difference.inHours < 24) {
-      return context.tr(
-        'chat.participant.hourAgo',
-        params: {'value': difference.inHours},
-      );
-    } else if (difference.inDays == 1) {
-      return context.tr('chat.thread.yesterday');
-    } else {
-      return context.tr(
-        'chat.participant.dayAgo',
-        params: {'value': difference.inDays},
-      );
-    }
   }
 
   /// Returns initials for fallback avatar rendering.

@@ -1,12 +1,17 @@
-import 'package:hggzkportal/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:hggzkportal/features/auth/presentation/bloc/auth_state.dart';
+// lib/features/chat/presentation/pages/conversations_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/constants/route_constants.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../domain/entities/conversation.dart';
 import '../bloc/chat_bloc.dart';
 import '../widgets/conversation_item_widget.dart';
@@ -14,101 +19,80 @@ import '../widgets/chat_fab.dart';
 import 'chat_page.dart';
 import 'new_conversation_page.dart';
 
-/// يعرّف الكلاس `ConversationsPage`.
-/// Describes the `ConversationsPage` class.
+/// Inbox screen that lists conversations, search, and quick entry actions.
+/// شاشة الصندوق الوارد التي تعرض المحادثات والبحث وأفعال الدخول السريع.
 class ConversationsPage extends StatefulWidget {
-  /// Initializes a new `ConversationsPage` instance.
-  /// العربية: ينشئ مثيلًا جديدًا من `ConversationsPage`.
+  /// Builds the conversation inbox screen.
+  /// ينشئ شاشة صندوق المحادثات الوارد.
   const ConversationsPage({super.key});
 
-  /// ينفذ العملية `createState`.
-  /// Runs the `createState` operation.
+  /// Builds the state object for this widget.
+  /// ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<ConversationsPage> createState() => _ConversationsPageState();
 }
 
-/// يعرّف الكلاس `_ConversationsPageState`.
-/// Describes the `_ConversationsPageState` class.
+/// Keeps the inbox list, search overlay, and scroll-driven animations in sync.
+/// يبقي قائمة الصندوق الوارد والبحث والحوكات المتحركة متزامنة.
 class _ConversationsPageState extends State<ConversationsPage>
     with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
 
-  /// يخزن العضو `_fadeController`.
-  /// Holds the `_fadeController` member.
+  // Animation Controllers
+  /// العربية: يخزن القيمة `fadeController`.
   late AnimationController _fadeController;
 
-  /// يخزن العضو `_slideController`.
-  /// Holds the `_slideController` member.
+  /// العربية: يخزن القيمة `slideController`.
   late AnimationController _slideController;
 
-  /// يخزن العضو `_shimmerController`.
-  /// Holds the `_shimmerController` member.
+  /// العربية: يخزن القيمة `shimmerController`.
   late AnimationController _shimmerController;
 
-  /// يخزن العضو `_backgroundController`.
-  /// Holds the `_backgroundController` member.
+  /// العربية: يخزن القيمة `backgroundController`.
   late AnimationController _backgroundController;
 
-  /// يخزن العضو `_pulseController`.
-  /// Holds the `_pulseController` member.
+  /// العربية: يخزن القيمة `pulseController`.
   late AnimationController _pulseController;
 
-  /// يخزن العضو `_fadeAnimation`.
-  /// Holds the `_fadeAnimation` member.
+  /// العربية: يخزن القيمة `fadeAnimation`.
   late Animation<double> _fadeAnimation;
 
-  /// يخزن العضو `_slideAnimation`.
-  /// Holds the `_slideAnimation` member.
+  /// العربية: يخزن القيمة `slideAnimation`.
   late Animation<Offset> _slideAnimation;
 
-  /// يخزن العضو `_shimmerAnimation`.
-  /// Holds the `_shimmerAnimation` member.
+  /// العربية: يخزن القيمة `shimmerAnimation`.
   late Animation<double> _shimmerAnimation;
 
-  /// يخزن العضو `_backgroundAnimation`.
-  /// Holds the `_backgroundAnimation` member.
+  /// العربية: يخزن القيمة `backgroundAnimation`.
   late Animation<double> _backgroundAnimation;
 
-  /// يخزن العضو `_pulseAnimation`.
-  /// Holds the `_pulseAnimation` member.
+  /// العربية: يخزن القيمة `pulseAnimation`.
   late Animation<double> _pulseAnimation;
 
-  /// يخزن العضو `_isSearching`.
-  /// Holds the `_isSearching` member.
+  /// العربية: يحدد ما إذا كانت القيمة `isSearching` مفعلة.
   bool _isSearching = false;
 
-  /// يخزن العضو `_searchQuery`.
-  /// Holds the `_searchQuery` member.
+  /// العربية: يخزن القيمة `searchQuery`.
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
 
-  /// يخزن العضو `_particles`.
-  /// Holds the `_particles` member.
+  // Minimal background particles
+  /// العربية: يخزن القيمة `particles`.
   final List<_MinimalParticle> _particles = [];
 
-  /// ينفذ العملية `initState`.
-  /// Runs the `initState` operation.
+  /// Initializes animations, particle state, and the first conversation load.
+  /// يهيئ الحركات وحالة الجسيمات وأول تحميل للمحادثات.
   @override
   void initState() {
     super.initState();
-
-    /// ينفذ العملية `_initializeAnimations`.
-    /// Runs the `_initializeAnimations` operation.
     _initializeAnimations();
-
-    /// ينفذ العملية `_generateParticles`.
-    /// Runs the `_generateParticles` operation.
     _generateParticles();
-
-    /// ينفذ العملية `_loadConversations`.
-    /// Runs the `_loadConversations` operation.
     _loadConversations();
     _scrollController.addListener(_onScroll);
   }
 
-  /// ينفذ العملية `_initializeAnimations`.
-  /// Runs the `_initializeAnimations` operation.
+  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -173,16 +157,14 @@ class _ConversationsPageState extends State<ConversationsPage>
     _slideController.forward();
   }
 
-  /// ينفذ العملية `_generateParticles`.
-  /// Runs the `_generateParticles` operation.
+  /// العربية: ينشئ particles.
   void _generateParticles() {
     for (int i = 0; i < 5; i++) {
       _particles.add(_MinimalParticle());
     }
   }
 
-  /// ينفذ العملية `dispose`.
-  /// Runs the `dispose` operation.
+  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _scrollController.dispose();
@@ -196,14 +178,12 @@ class _ConversationsPageState extends State<ConversationsPage>
     super.dispose();
   }
 
-  /// ينفذ العملية `_loadConversations`.
-  /// Runs the `_loadConversations` operation.
+  /// العربية: يحمل conversations.
   void _loadConversations() {
     context.read<ChatBloc>().add(const InitializeChatEvent());
   }
 
-  /// ينفذ العملية `_onScroll`.
-  /// Runs the `_onScroll` operation.
+  /// العربية: يعالج `onScroll`.
   void _onScroll() {
     if (_isBottom) {
       final state = context.read<ChatBloc>().state;
@@ -217,8 +197,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     }
   }
 
-  /// يعيد قيمة `_isBottom`.
-  /// Exposes the `_isBottom` value.
+  /// العربية: يعيد القيمة `isBottom`.
   bool get _isBottom {
     if (!_scrollController.hasClients) return false;
     final maxScroll = _scrollController.position.maxScrollExtent;
@@ -226,42 +205,63 @@ class _ConversationsPageState extends State<ConversationsPage>
     return currentScroll >= (maxScroll * 0.9);
   }
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
-      body: Stack(
-        children: [
-          _buildUltraMinimalBackground(),
-          _buildSubtleParticles(),
-          SafeArea(
-            child: Column(
-              children: [
-                _buildUltraPremiumHeader(),
-                Expanded(
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: SlideTransition(
-                      position: _slideAnimation,
-                      child: _buildConversationsList(),
+      body: BlocBuilder<AuthBloc, AuthState>(
+        buildWhen: (previous, current) {
+          return current is! AuthLoading;
+        },
+        builder: (context, authState) {
+          if (authState is AuthUnauthenticated) {
+            return _buildUnauthenticatedView(context);
+          }
+
+          return Stack(
+            children: [
+              // Ultra minimal gradient background
+              _buildUltraMinimalBackground(),
+
+              // Subtle floating particles
+              _buildSubtleParticles(),
+
+              // Main content with glass overlay
+              SafeArea(
+                child: Column(
+                  children: [
+                    _buildUltraPremiumHeader(),
+                    Expanded(
+                      child: FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: SlideTransition(
+                          position: _slideAnimation,
+                          child: _buildConversationsList(),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ],
+              ),
+            ],
+          );
+        },
       ),
-      floatingActionButton: ChatFAB(
-        onPressed: _startNewConversation,
+      floatingActionButton: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, authState) {
+          if (authState is AuthUnauthenticated) {
+            return const SizedBox.shrink();
+          }
+          return ChatFAB(
+            onPressed: _startNewConversation,
+          );
+        },
       ),
     );
   }
 
-  /// ينفذ العملية `_buildUltraMinimalBackground`.
-  /// Runs the `_buildUltraMinimalBackground` operation.
+  /// العربية: يبني ultra minimal background.
   Widget _buildUltraMinimalBackground() {
     return Container(
       decoration: BoxDecoration(
@@ -290,8 +290,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
-  /// ينفذ العملية `_buildSubtleParticles`.
-  /// Runs the `_buildSubtleParticles` operation.
+  /// العربية: يبني subtle particles.
   Widget _buildSubtleParticles() {
     return AnimatedBuilder(
       animation: _backgroundController,
@@ -307,13 +306,13 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
-  /// ينفذ العملية `_buildUltraPremiumHeader`.
-  /// Runs the `_buildUltraPremiumHeader` operation.
+  /// العربية: يبني ultra premium header.
   Widget _buildUltraPremiumHeader() {
-    return SizedBox(
+    return Container(
       height: _isSearching ? 110 : 60,
       child: Stack(
         children: [
+          // Glass background
           ClipRect(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
@@ -323,13 +322,13 @@ class _ConversationsPageState extends State<ConversationsPage>
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      AppTheme.darkCard.withValues(alpha: 0.05),
-                      AppTheme.darkCard.withValues(alpha: 0.02),
+                      AppTheme.darkCard.withOpacity(0.05),
+                      AppTheme.darkCard.withOpacity(0.02),
                     ],
                   ),
                   border: Border(
                     bottom: BorderSide(
-                      color: AppTheme.darkBorder.withValues(alpha: 0.05),
+                      color: AppTheme.darkBorder.withOpacity(0.05),
                       width: 0.5,
                     ),
                   ),
@@ -337,6 +336,8 @@ class _ConversationsPageState extends State<ConversationsPage>
               ),
             ),
           ),
+
+          // Content
           Column(
             children: [
               _buildMinimalHeaderContent(),
@@ -353,14 +354,14 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
-  /// ينفذ العملية `_buildMinimalHeaderContent`.
-  /// Runs the `_buildMinimalHeaderContent` operation.
+  /// العربية: يبني minimal header content.
   Widget _buildMinimalHeaderContent() {
     return Container(
       height: 60,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
+          // Minimal logo
           AnimatedBuilder(
             animation: _pulseAnimation,
             builder: (context, child) {
@@ -371,36 +372,42 @@ class _ConversationsPageState extends State<ConversationsPage>
                   gradient: LinearGradient(
                     colors: [
                       AppTheme.primaryBlue
-                          .withValues(alpha: 0.1 * _pulseAnimation.value),
+                          .withOpacity(0.1 * _pulseAnimation.value),
                       AppTheme.primaryPurple
-                          .withValues(alpha: 0.05 * _pulseAnimation.value),
+                          .withOpacity(0.05 * _pulseAnimation.value),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+                    color: AppTheme.primaryBlue.withOpacity(0.1),
                     width: 0.5,
                   ),
                 ),
                 child: Icon(
                   Icons.forum_outlined,
-                  color: AppTheme.primaryBlue.withValues(alpha: 0.6),
+                  color: AppTheme.primaryBlue.withOpacity(0.6),
                   size: 16,
                 ),
               );
             },
           ),
+
           const SizedBox(width: 12),
+
+          // Minimal title
           Text(
-            'المحادثات',
-            style: AppTextStyles.heading3.copyWith(
+            context.tr('chat.inbox.title'),
+            style: AppTextStyles.h3.copyWith(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: AppTheme.textWhite.withValues(alpha: 0.9),
+              color: AppTheme.textWhite.withOpacity(0.9),
               letterSpacing: 0.5,
             ),
           ),
+
           const Spacer(),
+
+          // Minimal search toggle
           _buildMinimalIconButton(
             icon: _isSearching ? Icons.close : Icons.search,
             onTap: () {
@@ -419,7 +426,10 @@ class _ConversationsPageState extends State<ConversationsPage>
               });
             },
           ),
+
           const SizedBox(width: 8),
+
+          // Minimal menu
           _buildMinimalIconButton(
             icon: Icons.more_horiz,
             onTap: _showMinimalOptions,
@@ -429,8 +439,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
-  /// ينفذ العملية `_buildMinimalIconButton`.
-  /// Runs the `_buildMinimalIconButton` operation.
+  /// العربية: يبني minimal icon button.
   Widget _buildMinimalIconButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -441,34 +450,33 @@ class _ConversationsPageState extends State<ConversationsPage>
         width: 28,
         height: 28,
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withValues(alpha: 0.05),
+          color: AppTheme.darkCard.withOpacity(0.05),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: AppTheme.darkBorder.withValues(alpha: 0.05),
+            color: AppTheme.darkBorder.withOpacity(0.05),
             width: 0.5,
           ),
         ),
         child: Icon(
           icon,
-          color: AppTheme.textWhite.withValues(alpha: 0.6),
+          color: AppTheme.textWhite.withOpacity(0.6),
           size: 16,
         ),
       ),
     );
   }
 
-  /// ينفذ العملية `_buildUltraMinimalSearch`.
-  /// Runs the `_buildUltraMinimalSearch` operation.
+  /// العربية: يبني ultra minimal search.
   Widget _buildUltraMinimalSearch() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         height: 36,
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withValues(alpha: 0.03),
+          color: AppTheme.darkCard.withOpacity(0.03),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+            color: AppTheme.primaryBlue.withOpacity(0.1),
             width: 0.5,
           ),
         ),
@@ -486,17 +494,19 @@ class _ConversationsPageState extends State<ConversationsPage>
               },
               style: AppTextStyles.bodySmall.copyWith(
                 fontSize: 13,
-                color: AppTheme.textWhite.withValues(alpha: 0.9),
+                color: AppTheme.textWhite.withOpacity(0.9),
               ),
               decoration: InputDecoration(
-                hintText: 'البحث...',
+                hintText: context.tr(
+                  'chat.inbox.searchHint',
+                ),
                 hintStyle: AppTextStyles.caption.copyWith(
-                  color: AppTheme.textMuted.withValues(alpha: 0.3),
+                  color: AppTheme.textMuted.withOpacity(0.3),
                   fontSize: 12,
                 ),
                 prefixIcon: Icon(
                   Icons.search,
-                  color: AppTheme.primaryBlue.withValues(alpha: 0.3),
+                  color: AppTheme.primaryBlue.withOpacity(0.3),
                   size: 16,
                 ),
                 border: InputBorder.none,
@@ -512,13 +522,12 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
-  /// ينفذ العملية `_buildConversationsList`.
-  /// Runs the `_buildConversationsList` operation.
+  /// العربية: يبني conversations list.
   Widget _buildConversationsList() {
     return BlocBuilder<ChatBloc, ChatState>(
       builder: (context, state) {
         if (state is ChatLoading) {
-          return _buildUltraMinimalLoading(); // المهمة 6
+          return _buildUltraMinimalLoading();
         }
 
         if (state is ChatError) {
@@ -540,187 +549,86 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
-  // المهمة 6: Placeholders احترافية
-  /// ينفذ العملية `_buildUltraMinimalLoading`.
-  /// Runs the `_buildUltraMinimalLoading` operation.
+  /// العربية: يبني ultra minimal loading.
   Widget _buildUltraMinimalLoading() {
-    return ListView.builder(
-      padding: const EdgeInsets.only(top: 4, bottom: 80),
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return TweenAnimationBuilder<double>(
-          key: ValueKey('loading_$index'),
-          tween: Tween(begin: 0.0, end: 1.0),
-          duration: Duration(milliseconds: 300 + (index * 50)),
-          curve: Curves.easeOutCubic,
-          builder: (context, value, child) {
-            return Opacity(
-              opacity: value,
-              child: Transform.translate(
-                offset: Offset(30 * (1 - value), 0),
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 1),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: AppTheme.darkBorder.withValues(alpha: 0.03),
-                        width: 0.5,
-                      ),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      // Avatar placeholder
-                      Stack(
-                        children: [
-                          Container(
-                            width: 42,
-                            height: 42,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppTheme.darkCard.withValues(alpha: 0.3),
-                              border: Border.all(
-                                color:
-                                    AppTheme.darkBorder.withValues(alpha: 0.05),
-                                width: 0.5,
-                              ),
-                            ),
-                          ),
-                          // Shimmer effect
-                          Positioned.fill(
-                            child: AnimatedBuilder(
-                              animation: _shimmerAnimation,
-                              builder: (context, child) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [
-                                        Colors.white.withValues(alpha: 0.0),
-                                        Colors.white.withValues(
-                                            alpha:
-                                                0.05 * _shimmerAnimation.value),
-                                        Colors.white.withValues(alpha: 0.0),
-                                      ],
-                                      stops: [
-                                        (_shimmerAnimation.value - 0.3)
-                                            .clamp(0.0, 1.0),
-                                        _shimmerAnimation.value.clamp(0.0, 1.0),
-                                        (_shimmerAnimation.value + 0.3)
-                                            .clamp(0.0, 1.0),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildShimmerLine(
-                                    width: double.infinity,
-                                    height: 14,
-                                    maxWidth: 150 + (index % 3) * 30,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                _buildShimmerLine(width: 40, height: 10),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            _buildShimmerLine(
-                              width: double.infinity,
-                              height: 12,
-                              maxWidth: 200 + (index % 4) * 20,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  /// ينفذ العملية `_buildShimmerLine`.
-  /// Runs the `_buildShimmerLine` operation.
-  Widget _buildShimmerLine({
-    required double width,
-    required double height,
-    double? maxWidth,
-  }) {
-    return Stack(
-      children: [
-        Container(
-          width: maxWidth ?? width,
-          height: height,
-          decoration: BoxDecoration(
-            color: AppTheme.darkCard.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
-        Positioned.fill(
-          child: AnimatedBuilder(
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Ultra minimal loading animation
+          AnimatedBuilder(
             animation: _shimmerAnimation,
             builder: (context, child) {
               return Container(
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      Colors.white.withValues(alpha: 0.0),
-                      Colors.white
-                          .withValues(alpha: 0.05 * _shimmerAnimation.value),
-                      Colors.white.withValues(alpha: 0.0),
-                    ],
-                    stops: [
-                      (_shimmerAnimation.value - 0.3).clamp(0.0, 1.0),
-                      _shimmerAnimation.value.clamp(0.0, 1.0),
-                      (_shimmerAnimation.value + 0.3).clamp(0.0, 1.0),
-                    ],
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppTheme.primaryBlue.withOpacity(0.1),
+                    width: 1,
                   ),
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Rotating gradient border
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        gradient: SweepGradient(
+                          colors: [
+                            Colors.transparent,
+                            AppTheme.primaryBlue.withOpacity(0.2),
+                            AppTheme.primaryPurple.withOpacity(0.1),
+                            Colors.transparent,
+                          ],
+                          stops: const [0.0, 0.25, 0.5, 1.0],
+                          transform: GradientRotation(
+                              _shimmerAnimation.value * 2 * math.pi),
+                        ),
+                      ),
+                    ),
+
+                    // Icon
+                    Icon(
+                      Icons.forum_outlined,
+                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      size: 18,
+                    ),
+                  ],
                 ),
               );
             },
           ),
-        ),
-      ],
+
+          const SizedBox(height: 12),
+
+          Text(
+            context.tr('chat.inbox.loading'),
+            style: AppTextStyles.caption.copyWith(
+              color: AppTheme.textMuted.withOpacity(0.5),
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  /// ينفذ العملية `_buildUltraMinimalError`.
-  /// Runs the `_buildUltraMinimalError` operation.
+  /// العربية: يبني ultra minimal error.
   Widget _buildUltraMinimalError(String message) {
     return Center(
       child: Container(
         margin: const EdgeInsets.all(20),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.error.withValues(alpha: 0.03),
+          color: AppTheme.error.withOpacity(0.03),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.error.withValues(alpha: 0.1),
+            color: AppTheme.error.withOpacity(0.1),
             width: 0.5,
           ),
         ),
@@ -729,14 +637,14 @@ class _ConversationsPageState extends State<ConversationsPage>
           children: [
             Icon(
               Icons.error_outline,
-              color: AppTheme.error.withValues(alpha: 0.5),
+              color: AppTheme.error.withOpacity(0.5),
               size: 28,
             ),
             const SizedBox(height: 8),
             Text(
               message,
               style: AppTextStyles.caption.copyWith(
-                color: AppTheme.error.withValues(alpha: 0.7),
+                color: AppTheme.error.withOpacity(0.7),
                 fontSize: 12,
               ),
               textAlign: TextAlign.center,
@@ -750,17 +658,17 @@ class _ConversationsPageState extends State<ConversationsPage>
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.error.withValues(alpha: 0.05),
+                  color: AppTheme.error.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: AppTheme.error.withValues(alpha: 0.2),
+                    color: AppTheme.error.withOpacity(0.2),
                     width: 0.5,
                   ),
                 ),
                 child: Text(
-                  'إعادة المحاولة',
+                  context.tr('chat.inbox.retry'),
                   style: AppTextStyles.caption.copyWith(
-                    color: AppTheme.error.withValues(alpha: 0.8),
+                    color: AppTheme.error.withOpacity(0.8),
                     fontSize: 11,
                   ),
                 ),
@@ -772,8 +680,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
-  /// ينفذ العملية `_buildUltraMinimalEmpty`.
-  /// Runs the `_buildUltraMinimalEmpty` operation.
+  /// العربية: يبني ultra minimal empty.
   Widget _buildUltraMinimalEmpty() {
     return Center(
       child: TweenAnimationBuilder<double>(
@@ -796,8 +703,8 @@ class _ConversationsPageState extends State<ConversationsPage>
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            AppTheme.primaryBlue.withValues(alpha: 0.05),
-                            AppTheme.primaryPurple.withValues(alpha: 0.02),
+                            AppTheme.primaryBlue.withOpacity(0.05),
+                            AppTheme.primaryPurple.withOpacity(0.02),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -805,24 +712,34 @@ class _ConversationsPageState extends State<ConversationsPage>
                       child: Icon(
                         Icons.forum_outlined,
                         size: 24,
-                        color: AppTheme.primaryBlue.withValues(alpha: 0.3),
+                        color: AppTheme.primaryBlue.withOpacity(0.3),
                       ),
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      _isSearching ? 'لا توجد نتائج' : 'لا توجد محادثات',
+                      _isSearching
+                          ? context.tr(
+                              'chat.inbox.emptySearchTitle',
+                            )
+                          : context.tr(
+                              'chat.inbox.emptyTitle',
+                            ),
                       style: AppTextStyles.bodyMedium.copyWith(
                         fontSize: 14,
-                        color: AppTheme.textWhite.withValues(alpha: 0.7),
+                        color: AppTheme.textWhite.withOpacity(0.7),
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       _isSearching
-                          ? 'جرب البحث بكلمات أخرى'
-                          : 'ابدأ محادثة جديدة',
+                          ? context.tr(
+                              'chat.inbox.emptySearchSubtitle',
+                            )
+                          : context.tr(
+                              'chat.inbox.emptySubtitle',
+                            ),
                       style: AppTextStyles.caption.copyWith(
-                        color: AppTheme.textMuted.withValues(alpha: 0.4),
+                        color: AppTheme.textMuted.withOpacity(0.4),
                         fontSize: 11,
                       ),
                     ),
@@ -838,15 +755,14 @@ class _ConversationsPageState extends State<ConversationsPage>
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                AppTheme.primaryBlue.withValues(alpha: 0.8),
-                                AppTheme.primaryPurple.withValues(alpha: 0.6),
+                                AppTheme.primaryBlue.withOpacity(0.8),
+                                AppTheme.primaryPurple.withOpacity(0.6),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(8),
                             boxShadow: [
                               BoxShadow(
-                                color:
-                                    AppTheme.primaryBlue.withValues(alpha: 0.2),
+                                color: AppTheme.primaryBlue.withOpacity(0.2),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -862,7 +778,9 @@ class _ConversationsPageState extends State<ConversationsPage>
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                'محادثة جديدة',
+                                context.tr(
+                                  'chat.inbox.startConversation',
+                                ),
                                 style: AppTextStyles.caption.copyWith(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -884,8 +802,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
-  /// ينفذ العملية `_buildUltraPremiumList`.
-  /// Runs the `_buildUltraPremiumList` operation.
+  /// العربية: يبني ultra premium list.
   Widget _buildUltraPremiumList(
     List<Conversation> conversations,
     ChatLoaded state,
@@ -906,7 +823,7 @@ class _ConversationsPageState extends State<ConversationsPage>
         ),
         padding: const EdgeInsets.only(
           top: 4,
-          bottom: 80,
+          bottom: 80, // Space for FAB
         ),
         itemCount: conversations.length + (state.isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {
@@ -916,12 +833,7 @@ class _ConversationsPageState extends State<ConversationsPage>
 
           final conversation = conversations[index];
           final typingUsers = state.typingUsers[conversation.id] ?? [];
-          String currentUserId = 'current_user';
-          final authState = context.read<AuthBloc>().state;
-          if (authState is AuthAuthenticated &&
-              authState.user.userId.isNotEmpty) {
-            currentUserId = authState.user.userId;
-          }
+          final currentUserId = state.currentUserId ?? '';
 
           return TweenAnimationBuilder<double>(
             key: ValueKey(conversation.id),
@@ -949,8 +861,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
-  /// ينفذ العملية `_buildMinimalLoadMore`.
-  /// Runs the `_buildMinimalLoadMore` operation.
+  /// العربية: يبني minimal load more.
   Widget _buildMinimalLoadMore() {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -961,7 +872,7 @@ class _ConversationsPageState extends State<ConversationsPage>
           child: CircularProgressIndicator(
             strokeWidth: 1.5,
             valueColor: AlwaysStoppedAnimation<Color>(
-              AppTheme.primaryBlue.withValues(alpha: 0.3),
+              AppTheme.primaryBlue.withOpacity(0.3),
             ),
           ),
         ),
@@ -969,8 +880,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
-  /// ينفذ العملية `_filterConversations`.
-  /// Runs the `_filterConversations` operation.
+  /// العربية: يعالج `filterConversations`.
   List<Conversation> _filterConversations(List<Conversation> conversations) {
     if (_searchQuery.isEmpty) return conversations;
 
@@ -983,8 +893,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     }).toList();
   }
 
-  /// ينفذ العملية `_openChat`.
-  /// Runs the `_openChat` operation.
+  /// العربية: يفتح chat.
   void _openChat(Conversation conversation) {
     HapticFeedback.selectionClick();
     Navigator.push(
@@ -1015,8 +924,142 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
-  /// ينفذ العملية `_startNewConversation`.
-  /// Runs the `_startNewConversation` operation.
+  /// العربية: يبني unauthenticated view.
+  Widget _buildUnauthenticatedView(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppTheme.darkBackground,
+            AppTheme.darkSurface.withOpacity(0.95),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppTheme.darkCard.withOpacity(0.3),
+                      AppTheme.darkCard.withOpacity(0.15),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: AppTheme.primaryBlue.withOpacity(0.15),
+                    width: 0.5,
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: Center(
+                      child: Icon(
+                        Icons.forum_outlined,
+                        size: 48,
+                        color: AppTheme.textMuted,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 28),
+              Text(
+                context.tr(
+                  'chat.inbox.loginPromptTitle',
+                ),
+                style: AppTextStyles.h2.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textWhite,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                context.tr(
+                  'chat.inbox.loginPromptBody',
+                ),
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppTheme.textMuted,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 28),
+              _buildMinimalButton(
+                onPressed: () => context.push(RouteConstants.login),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.login_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      context.tr('common.login'),
+                      style: AppTextStyles.buttonMedium.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// العربية: يبني minimal button.
+  Widget _buildMinimalButton({
+    required VoidCallback onPressed,
+    required Widget child,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppTheme.primaryBlue.withOpacity(0.8),
+                AppTheme.primaryPurple.withOpacity(0.6),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppTheme.primaryBlue.withOpacity(0.2),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primaryBlue.withOpacity(0.2),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  /// العربية: يبدأ new conversation.
   void _startNewConversation() {
     HapticFeedback.lightImpact();
     Navigator.push(
@@ -1047,8 +1090,7 @@ class _ConversationsPageState extends State<ConversationsPage>
     );
   }
 
-  /// ينفذ العملية `_showMinimalOptions`.
-  /// Runs the `_showMinimalOptions` operation.
+  /// العربية: يعرض minimal options.
   void _showMinimalOptions() {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
@@ -1056,14 +1098,17 @@ class _ConversationsPageState extends State<ConversationsPage>
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black26,
       builder: (context) => _UltraMinimalOptionsSheet(
-        onArchiveAll: () {},
-        onSettings: () {},
+        onArchiveAll: () {
+          // Archive all conversations
+        },
+        onSettings: () {
+          // Open settings
+        },
       ),
     );
   }
 
-  /// ينفذ العملية `_showConversationOptions`.
-  /// Runs the `_showConversationOptions` operation.
+  /// العربية: يعرض conversation options.
   void _showConversationOptions(Conversation conversation) {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
@@ -1084,23 +1129,27 @@ class _ConversationsPageState extends State<ConversationsPage>
         onDelete: () {
           _confirmDelete(conversation);
         },
-        onMute: () {},
+        onMute: () {
+          // Toggle mute
+        },
       ),
     );
   }
 
-  /// ينفذ العملية `_confirmDelete`.
-  /// Runs the `_confirmDelete` operation.
+  /// العربية: يعالج `confirmDelete`.
   void _confirmDelete(Conversation conversation) {
     HapticFeedback.lightImpact();
     showDialog(
-      fullscreenDialog: true,
       context: context,
       barrierColor: Colors.black26,
       builder: (context) => _UltraMinimalDialog(
-        title: 'حذف المحادثة',
-        message: 'هل تريد حذف هذه المحادثة؟',
-        confirmText: 'حذف',
+        title: context.tr(
+          'chat.inbox.deleteConversationTitle',
+        ),
+        message: context.tr(
+          'chat.inbox.deleteConversationMessage',
+        ),
+        confirmText: context.tr('chat.inbox.action.delete'),
         isDestructive: true,
         onConfirm: () {
           context.read<ChatBloc>().add(
@@ -1113,26 +1162,22 @@ class _ConversationsPageState extends State<ConversationsPage>
   }
 }
 
-/// يعرّف الكلاس `_UltraMinimalOptionsSheet`.
-/// Describes the `_UltraMinimalOptionsSheet` class.
+// Ultra Minimal Options Sheet
+/// العربية: يمثل `UltraMinimalOptionsSheet`.
 class _UltraMinimalOptionsSheet extends StatelessWidget {
-  /// Holds the `onArchiveAll` value.
   /// العربية: يخزن القيمة `onArchiveAll`.
   final VoidCallback onArchiveAll;
 
-  /// يخزن العضو `onSettings`.
-  /// Holds the `onSettings` member.
+  /// العربية: يخزن القيمة `onSettings`.
   final VoidCallback onSettings;
 
-  /// ينشئ مثيلاً من `_UltraMinimalOptionsSheet`.
-  /// Builds an instance of `_UltraMinimalOptionsSheet`.
+  /// العربية: ينشئ مثيلًا جديدًا من `UltraMinimalOptionsSheet`.
   const _UltraMinimalOptionsSheet({
     required this.onArchiveAll,
     required this.onSettings,
   });
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1143,41 +1188,49 @@ class _UltraMinimalOptionsSheet extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
           child: Container(
             decoration: BoxDecoration(
-              color: AppTheme.darkCard.withValues(alpha: 0.1),
+              color: AppTheme.darkCard.withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppTheme.darkBorder.withValues(alpha: 0.05),
+                color: AppTheme.darkBorder.withOpacity(0.05),
                 width: 0.5,
               ),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Handle
                 Container(
                   width: 28,
                   height: 3,
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
-                    color: AppTheme.darkBorder.withValues(alpha: 0.2),
+                    color: AppTheme.darkBorder.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(1.5),
                   ),
                 ),
+
                 _buildMinimalOption(
                   icon: Icons.archive_outlined,
-                  title: 'أرشفة الكل',
+                  title: context.tr(
+                    'chat.inbox.action.archiveAll',
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     onArchiveAll();
                   },
                 ),
+
                 _buildMinimalOption(
                   icon: Icons.settings_outlined,
-                  title: 'الإعدادات',
+                  title: context.tr(
+                    'chat.inbox.action.settings',
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     onSettings();
                   },
                 ),
+
                 const SizedBox(height: 8),
               ],
             ),
@@ -1187,8 +1240,7 @@ class _UltraMinimalOptionsSheet extends StatelessWidget {
     );
   }
 
-  /// ينفذ العملية `_buildMinimalOption`.
-  /// Runs the `_buildMinimalOption` operation.
+  /// العربية: يبني minimal option.
   Widget _buildMinimalOption({
     required IconData icon,
     required String title,
@@ -1203,14 +1255,14 @@ class _UltraMinimalOptionsSheet extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: AppTheme.textMuted.withValues(alpha: 0.6),
+              color: AppTheme.textMuted.withOpacity(0.6),
               size: 18,
             ),
             const SizedBox(width: 12),
             Text(
               title,
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppTheme.textWhite.withValues(alpha: 0.8),
+                color: AppTheme.textWhite.withOpacity(0.8),
                 fontSize: 13,
               ),
             ),
@@ -1221,27 +1273,22 @@ class _UltraMinimalOptionsSheet extends StatelessWidget {
   }
 }
 
-/// يعرّف الكلاس `_UltraMinimalConversationSheet`.
-/// Describes the `_UltraMinimalConversationSheet` class.
+// Ultra Minimal Conversation Options
+/// العربية: يمثل `UltraMinimalConversationSheet`.
 class _UltraMinimalConversationSheet extends StatelessWidget {
-  /// Holds the `conversation` value.
   /// العربية: يخزن القيمة `conversation`.
   final Conversation conversation;
 
-  /// يخزن العضو `onArchive`.
-  /// Holds the `onArchive` member.
+  /// العربية: يخزن القيمة `onArchive`.
   final VoidCallback onArchive;
 
-  /// يخزن العضو `onDelete`.
-  /// Holds the `onDelete` member.
+  /// العربية: يخزن القيمة `onDelete`.
   final VoidCallback onDelete;
 
-  /// يخزن العضو `onMute`.
-  /// Holds the `onMute` member.
+  /// العربية: يخزن القيمة `onMute`.
   final VoidCallback onMute;
 
-  /// ينشئ مثيلاً من `_UltraMinimalConversationSheet`.
-  /// Builds an instance of `_UltraMinimalConversationSheet`.
+  /// العربية: ينشئ مثيلًا جديدًا من `UltraMinimalConversationSheet`.
   const _UltraMinimalConversationSheet({
     required this.conversation,
     required this.onArchive,
@@ -1249,8 +1296,7 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
     required this.onMute,
   });
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1261,10 +1307,10 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
           child: Container(
             decoration: BoxDecoration(
-              color: AppTheme.darkCard.withValues(alpha: 0.1),
+              color: AppTheme.darkCard.withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppTheme.darkBorder.withValues(alpha: 0.05),
+                color: AppTheme.darkBorder.withOpacity(0.05),
                 width: 0.5,
               ),
             ),
@@ -1276,7 +1322,7 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
                   height: 3,
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
-                    color: AppTheme.darkBorder.withValues(alpha: 0.2),
+                    color: AppTheme.darkBorder.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(1.5),
                   ),
                 ),
@@ -1284,7 +1330,13 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
                   icon: conversation.isMuted
                       ? Icons.notifications_active_outlined
                       : Icons.notifications_off_outlined,
-                  title: conversation.isMuted ? 'إلغاء الكتم' : 'كتم',
+                  title: conversation.isMuted
+                      ? context.tr(
+                          'chat.inbox.action.unmute',
+                        )
+                      : context.tr(
+                          'chat.inbox.action.mute',
+                        ),
                   onTap: () {
                     Navigator.pop(context);
                     onMute();
@@ -1294,7 +1346,13 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
                   icon: conversation.isArchived
                       ? Icons.unarchive_outlined
                       : Icons.archive_outlined,
-                  title: conversation.isArchived ? 'إلغاء الأرشفة' : 'أرشفة',
+                  title: conversation.isArchived
+                      ? context.tr(
+                          'chat.inbox.action.unarchive',
+                        )
+                      : context.tr(
+                          'chat.inbox.action.archive',
+                        ),
                   onTap: () {
                     Navigator.pop(context);
                     onArchive();
@@ -1302,8 +1360,8 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
                 ),
                 _buildOption(
                   icon: Icons.delete_outline,
-                  title: 'حذف',
-                  color: AppTheme.error.withValues(alpha: 0.7),
+                  title: context.tr('chat.inbox.action.delete'),
+                  color: AppTheme.error.withOpacity(0.7),
                   onTap: () {
                     Navigator.pop(context);
                     onDelete();
@@ -1318,8 +1376,7 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
     );
   }
 
-  /// ينفذ العملية `_buildOption`.
-  /// Runs the `_buildOption` operation.
+  /// العربية: يبني option.
   Widget _buildOption({
     required IconData icon,
     required String title,
@@ -1335,14 +1392,14 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: color ?? AppTheme.textMuted.withValues(alpha: 0.6),
+              color: color ?? AppTheme.textMuted.withOpacity(0.6),
               size: 18,
             ),
             const SizedBox(width: 12),
             Text(
               title,
               style: AppTextStyles.bodySmall.copyWith(
-                color: color ?? AppTheme.textWhite.withValues(alpha: 0.8),
+                color: color ?? AppTheme.textWhite.withOpacity(0.8),
                 fontSize: 13,
               ),
             ),
@@ -1353,31 +1410,25 @@ class _UltraMinimalConversationSheet extends StatelessWidget {
   }
 }
 
-/// يعرّف الكلاس `_UltraMinimalDialog`.
-/// Describes the `_UltraMinimalDialog` class.
+// Ultra Minimal Dialog
+/// العربية: يمثل `UltraMinimalDialog`.
 class _UltraMinimalDialog extends StatelessWidget {
-  /// Holds the `title` value.
   /// العربية: يخزن القيمة `title`.
   final String title;
 
-  /// يخزن العضو `message`.
-  /// Holds the `message` member.
+  /// العربية: يخزن القيمة `message`.
   final String message;
 
-  /// يخزن العضو `confirmText`.
-  /// Holds the `confirmText` member.
+  /// العربية: يخزن القيمة `confirmText`.
   final String confirmText;
 
-  /// يخزن العضو `isDestructive`.
-  /// Holds the `isDestructive` member.
+  /// العربية: يحدد ما إذا كانت القيمة `isDestructive` مفعلة.
   final bool isDestructive;
 
-  /// يخزن العضو `onConfirm`.
-  /// Holds the `onConfirm` member.
+  /// العربية: يخزن القيمة `onConfirm`.
   final VoidCallback onConfirm;
 
-  /// ينشئ مثيلاً من `_UltraMinimalDialog`.
-  /// Builds an instance of `_UltraMinimalDialog`.
+  /// العربية: ينشئ مثيلًا جديدًا من `UltraMinimalDialog`.
   const _UltraMinimalDialog({
     required this.title,
     required this.message,
@@ -1386,8 +1437,7 @@ class _UltraMinimalDialog extends StatelessWidget {
     this.isDestructive = false,
   });
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -1400,12 +1450,12 @@ class _UltraMinimalDialog extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppTheme.darkCard.withValues(alpha: 0.1),
+                color: AppTheme.darkCard.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isDestructive
-                      ? AppTheme.error.withValues(alpha: 0.1)
-                      : AppTheme.darkBorder.withValues(alpha: 0.05),
+                      ? AppTheme.error.withOpacity(0.1)
+                      : AppTheme.darkBorder.withOpacity(0.05),
                   width: 0.5,
                 ),
               ),
@@ -1418,12 +1468,12 @@ class _UltraMinimalDialog extends StatelessWidget {
                       height: 36,
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.error.withValues(alpha: 0.1),
+                        color: AppTheme.error.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
                         Icons.warning_amber_rounded,
-                        color: AppTheme.error.withValues(alpha: 0.7),
+                        color: AppTheme.error.withOpacity(0.7),
                         size: 20,
                       ),
                     ),
@@ -1438,7 +1488,7 @@ class _UltraMinimalDialog extends StatelessWidget {
                   Text(
                     message,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.textMuted.withValues(alpha: 0.6),
+                      color: AppTheme.textMuted.withOpacity(0.6),
                       fontSize: 12,
                     ),
                     textAlign: TextAlign.center,
@@ -1453,14 +1503,15 @@ class _UltraMinimalDialog extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color:
-                                    AppTheme.darkBorder.withValues(alpha: 0.1),
+                                color: AppTheme.darkBorder.withOpacity(0.1),
                                 width: 0.5,
                               ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              'إلغاء',
+                              context.tr(
+                                'chat.inbox.action.cancel',
+                              ),
                               style: AppTextStyles.caption.copyWith(
                                 fontSize: 12,
                               ),
@@ -1482,14 +1533,12 @@ class _UltraMinimalDialog extends StatelessWidget {
                               gradient: LinearGradient(
                                 colors: isDestructive
                                     ? [
-                                        AppTheme.error.withValues(alpha: 0.7),
-                                        AppTheme.error.withValues(alpha: 0.5),
+                                        AppTheme.error.withOpacity(0.7),
+                                        AppTheme.error.withOpacity(0.5),
                                       ]
                                     : [
-                                        AppTheme.primaryBlue
-                                            .withValues(alpha: 0.8),
-                                        AppTheme.primaryPurple
-                                            .withValues(alpha: 0.6),
+                                        AppTheme.primaryBlue.withOpacity(0.8),
+                                        AppTheme.primaryPurple.withOpacity(0.6),
                                       ],
                               ),
                               borderRadius: BorderRadius.circular(8),
@@ -1518,57 +1567,51 @@ class _UltraMinimalDialog extends StatelessWidget {
   }
 }
 
-/// يعرّف الكلاس `_MinimalParticle`.
-/// Describes the `_MinimalParticle` class.
+// Minimal Particle Model
+/// العربية: يمثل `MinimalParticle`.
 class _MinimalParticle {
   double x = math.Random().nextDouble();
   double y = math.Random().nextDouble();
   double size = math.Random().nextDouble() * 60 + 20;
   double opacity = math.Random().nextDouble() * 0.02 + 0.01;
   double speed = math.Random().nextDouble() * 0.00005 + 0.00001;
-
-  /// يخزن العضو `color`.
-  /// Holds the `color` member.
   Color color = [
     AppTheme.primaryBlue,
     AppTheme.primaryPurple,
   ][math.Random().nextInt(2)];
 }
 
-/// يعرّف الكلاس `_UltraMinimalGradientPainter`.
-/// Describes the `_UltraMinimalGradientPainter` class.
+// Painters
+/// العربية: يمثل `UltraMinimalGradientPainter`.
 class _UltraMinimalGradientPainter extends CustomPainter {
-  /// Holds the `animation` value.
   /// العربية: يخزن القيمة `animation`.
   final double animation;
 
-  /// يخزن العضو `pulseAnimation`.
-  /// Holds the `pulseAnimation` member.
+  /// العربية: يخزن القيمة `pulseAnimation`.
   final double pulseAnimation;
 
-  /// ينشئ مثيلاً من `_UltraMinimalGradientPainter`.
-  /// Builds an instance of `_UltraMinimalGradientPainter`.
+  /// العربية: ينشئ مثيلًا جديدًا من `UltraMinimalGradientPainter`.
   _UltraMinimalGradientPainter({
     required this.animation,
     required this.pulseAnimation,
   });
 
-  /// ينفذ العملية `paint`.
-  /// Runs the `paint` operation.
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..style = PaintingStyle.fill
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 80);
 
+    // Ultra subtle gradient circles
     final positions = [
       Offset(size.width * 0.8, size.height * 0.2),
       Offset(size.width * 0.2, size.height * 0.7),
     ];
 
     final colors = [
-      AppTheme.primaryBlue.withValues(alpha: 0.02 * pulseAnimation),
-      AppTheme.primaryPurple.withValues(alpha: 0.01 * pulseAnimation),
+      AppTheme.primaryBlue.withOpacity(0.02 * pulseAnimation),
+      AppTheme.primaryPurple.withOpacity(0.01 * pulseAnimation),
     ];
 
     for (int i = 0; i < positions.length; i++) {
@@ -1582,32 +1625,26 @@ class _UltraMinimalGradientPainter extends CustomPainter {
     }
   }
 
-  /// ينفذ العملية `shouldRepaint`.
-  /// Runs the `shouldRepaint` operation.
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-/// يعرّف الكلاس `_SubtleParticlePainter`.
-/// Describes the `_SubtleParticlePainter` class.
+/// العربية: يمثل `SubtleParticlePainter`.
 class _SubtleParticlePainter extends CustomPainter {
-  /// Holds the `particles` value.
   /// العربية: يخزن القيمة `particles`.
   final List<_MinimalParticle> particles;
 
-  /// يخزن العضو `animation`.
-  /// Holds the `animation` member.
+  /// العربية: يخزن القيمة `animation`.
   final double animation;
 
-  /// ينشئ مثيلاً من `_SubtleParticlePainter`.
-  /// Builds an instance of `_SubtleParticlePainter`.
+  /// العربية: ينشئ مثيلًا جديدًا من `SubtleParticlePainter`.
   _SubtleParticlePainter({
     required this.particles,
     required this.animation,
   });
 
-  /// ينفذ العملية `paint`.
-  /// Runs the `paint` operation.
+  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
@@ -1618,7 +1655,7 @@ class _SubtleParticlePainter extends CustomPainter {
       }
 
       final paint = Paint()
-        ..color = particle.color.withValues(alpha: particle.opacity)
+        ..color = particle.color.withOpacity(particle.opacity)
         ..style = PaintingStyle.fill
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 50);
 
@@ -1630,8 +1667,7 @@ class _SubtleParticlePainter extends CustomPainter {
     }
   }
 
-  /// ينفذ العملية `shouldRepaint`.
-  /// Runs the `shouldRepaint` operation.
+  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

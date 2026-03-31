@@ -1,32 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:ui';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/conversation.dart';
+import 'online_status_indicator.dart';
+import '../utils/chat_presence_presentation.dart';
 
-// في ملف pinned_admins_widget.dart، حدث callback onUserTap:
-
-/// يعرّف الكلاس `PinnedAdminsWidget`.
-/// Describes the `PinnedAdminsWidget` class.
+/// Horizontal admin strip shown when the chat screen needs to surface staff
+/// members or pinned moderators.
+/// شريط أفقي للمشرفين يظهر عندما تحتاج شاشة الدردشة إلى إبراز أفراد
+/// الطاقم أو المشرفين المثبتين.
 class PinnedAdminsWidget extends StatelessWidget {
-  /// Holds the `adminUsers` value.
-  /// العربية: يخزن القيمة `adminUsers`.
+  /// Admin accounts that should appear in the pinned strip.
+  /// حسابات الإدارة التي يجب أن تظهر في الشريط المثبت.
   final List<ChatUser> adminUsers;
 
-  /// يخزن العضو `selectedUsers`.
-  /// Holds the `selectedUsers` member.
+  /// Admins currently selected by the surrounding flow.
+  /// المشرفون المختارون حاليًا في المسار المحيط.
   final Set<ChatUser> selectedUsers;
 
-  /// ينفذ العملية `Function`.
-  /// Runs the `Function` operation.
+  /// Called when a user tile is tapped so the host screen can update the
+  /// selection state.
+  /// يُستدعى عند النقر على بطاقة مستخدم كي تحدّث الشاشة المضيفة حالة
+  /// الاختيار.
   final Function(ChatUser) onUserTap;
 
-  /// يخزن العضو `scrollController`.
-  /// Holds the `scrollController` member.
+  /// Optional controller used when the strip participates in a larger scroll
+  /// experience.
+  /// متحكم اختياري عندما يكون الشريط جزءًا من تجربة تمرير أكبر.
   final ScrollController? scrollController;
 
-  /// ينشئ مثيلاً من `PinnedAdminsWidget`.
-  /// Builds an instance of `PinnedAdminsWidget`.
+  /// Builds the pinned admin strip that sits above the chat composer.
+  /// ينشئ شريط المشرفين المثبت الذي يظهر فوق محرر الرسائل.
   const PinnedAdminsWidget({
     super.key,
     required this.adminUsers,
@@ -35,8 +42,8 @@ class PinnedAdminsWidget extends StatelessWidget {
     this.scrollController,
   });
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// Renders the admin strip or collapses it when no staff members exist.
+  /// يرسم الشريط أو يطويه عندما لا توجد حسابات طاقم.
   @override
   Widget build(BuildContext context) {
     if (adminUsers.isEmpty) {
@@ -49,13 +56,13 @@ class PinnedAdminsWidget extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.primaryBlue.withValues(alpha: 0.03),
-            AppTheme.primaryPurple.withValues(alpha: 0.02),
+            AppTheme.primaryBlue.withOpacity(0.03),
+            AppTheme.primaryPurple.withOpacity(0.02),
           ],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppTheme.darkBorder.withValues(alpha: 0.08),
+            color: AppTheme.darkBorder.withOpacity(0.08),
             width: 0.5,
           ),
         ),
@@ -73,8 +80,8 @@ class PinnedAdminsWidget extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.amber.withValues(alpha: 0.2),
-                        Colors.orange.withValues(alpha: 0.1),
+                        Colors.amber.withOpacity(0.2),
+                        Colors.orange.withOpacity(0.1),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(8),
@@ -87,7 +94,9 @@ class PinnedAdminsWidget extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'إدارة التطبيق',
+                  context.tr(
+                    'chat.thread.adminGroup',
+                  ),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppTheme.textMuted,
                     fontSize: 12,
@@ -101,7 +110,7 @@ class PinnedAdminsWidget extends StatelessWidget {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.amber.withValues(alpha: 0.1),
+                    color: Colors.amber.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -144,27 +153,27 @@ class PinnedAdminsWidget extends StatelessWidget {
   }
 }
 
-/// يعرّف الكلاس `_AdminItemWidget`.
-/// Describes the `_AdminItemWidget` class.
+/// Individual admin tile rendered inside the horizontal strip.
+/// بطاقة مشرف منفصلة داخل الشريط الأفقي.
 class _AdminItemWidget extends StatefulWidget {
-  /// Holds the `admin` value.
-  /// العربية: يخزن القيمة `admin`.
+  /// Admin user represented by this tile.
+  /// مستخدم الإدارة الذي تمثله هذه البطاقة.
   final ChatUser admin;
 
-  /// يخزن العضو `isSelected`.
-  /// Holds the `isSelected` member.
+  /// Whether the tile should render as selected.
+  /// يحدد ما إذا كانت البطاقة يجب أن تظهر كعنصر محدد.
   final bool isSelected;
 
-  /// يخزن العضو `onTap`.
-  /// Holds the `onTap` member.
+  /// Triggered when the user taps the tile.
+  /// يُستدعى عند النقر على البطاقة.
   final VoidCallback onTap;
 
-  /// يخزن العضو `index`.
-  /// Holds the `index` member.
+  /// Position in the strip used to stagger the entrance animation.
+  /// الموقع داخل الشريط ويُستخدم لتدرّج حركة الظهور.
   final int index;
 
-  /// ينشئ مثيلاً من `_AdminItemWidget`.
-  /// Builds an instance of `_AdminItemWidget`.
+  /// Builds one selectable admin tile.
+  /// ينشئ بطاقة مشرف قابلة للاختيار.
   const _AdminItemWidget({
     required this.admin,
     required this.isSelected,
@@ -172,30 +181,31 @@ class _AdminItemWidget extends StatefulWidget {
     required this.index,
   });
 
-  /// ينفذ العملية `createState`.
-  /// Runs the `createState` operation.
+  /// Creates the animated state for the admin tile.
+  /// ينشئ الحالة المتحركة لبطاقة المشرف.
   @override
   State<_AdminItemWidget> createState() => _AdminItemWidgetState();
 }
 
-/// يعرّف الكلاس `_AdminItemWidgetState`.
-/// Describes the `_AdminItemWidgetState` class.
+/// Animates the tile entry, scaling, and fade-in so the strip feels more
+/// deliberate.
+/// يدير ظهور البطاقة بالحركة والتكبير والتلاشي حتى يبدو الشريط مقصودًا.
 class _AdminItemWidgetState extends State<_AdminItemWidget>
     with SingleTickerProviderStateMixin {
-  /// يخزن العضو `_controller`.
-  /// Holds the `_controller` member.
+  /// Animation controller for the admin tile entrance.
+  /// متحكم الحركة الخاص بظهور بطاقة المشرف.
   late AnimationController _controller;
 
-  /// يخزن العضو `_scaleAnimation`.
-  /// Holds the `_scaleAnimation` member.
+  /// Controls the tile scale as it enters the strip.
+  /// يتحكم في تكبير البطاقة أثناء ظهورها.
   late Animation<double> _scaleAnimation;
 
-  /// يخزن العضو `_fadeAnimation`.
-  /// Holds the `_fadeAnimation` member.
+  /// Controls the opacity ramp for the same entrance animation.
+  /// يتحكم في تغير الشفافية أثناء حركة الظهور نفسها.
   late Animation<double> _fadeAnimation;
 
-  /// ينفذ العملية `initState`.
-  /// Runs the `initState` operation.
+  /// Prepares the staggered entrance animation.
+  /// يهيئ حركة الظهور المتدرجة.
   @override
   void initState() {
     super.initState();
@@ -223,16 +233,16 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
     _controller.forward();
   }
 
-  /// ينفذ العملية `dispose`.
-  /// Runs the `dispose` operation.
+  /// Releases the animation controller owned by the tile.
+  /// يحرر متحكم الحركة المملوك للبطاقة.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
-  /// ينفذ العملية `build`.
-  /// Runs the `build` operation.
+  /// Renders the selectable admin tile with avatar, labels, and highlight.
+  /// يرسم بطاقة المشرف القابلة للاختيار مع الصورة والعناوين والتأكيد البصري.
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -266,8 +276,7 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppTheme.primaryBlue
-                                      .withValues(alpha: 0.4),
+                                  color: AppTheme.primaryBlue.withOpacity(0.4),
                                   blurRadius: 16,
                                   spreadRadius: 2,
                                 ),
@@ -290,15 +299,15 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                                   )
                                 : LinearGradient(
                                     colors: [
-                                      Colors.amber.withValues(alpha: 0.2),
-                                      Colors.orange.withValues(alpha: 0.15),
+                                      Colors.amber.withOpacity(0.2),
+                                      Colors.orange.withOpacity(0.15),
                                     ],
                                   ),
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: widget.isSelected
-                                  ? Colors.white.withValues(alpha: 0.3)
-                                  : Colors.amber.withValues(alpha: 0.3),
+                                  ? Colors.white.withOpacity(0.3)
+                                  : Colors.amber.withOpacity(0.3),
                               width: 1.5,
                             ),
                           ),
@@ -334,7 +343,7 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.amber.withValues(alpha: 0.5),
+                                  color: Colors.amber.withOpacity(0.5),
                                   blurRadius: 8,
                                   spreadRadius: 1,
                                 ),
@@ -399,19 +408,31 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
                         margin: const EdgeInsets.only(top: 2),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 6,
-                          vertical: 1,
+                          vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.success.withValues(alpha: 0.1),
+                          color: AppTheme.success.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(
-                          'متصل',
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppTheme.success,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const OnlineStatusIndicator(
+                              isOnline: true,
+                              size: 6,
+                              showBorder: false,
+                              animate: true,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              ChatPresencePresentation.onlineNow(context),
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppTheme.success,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                   ],
@@ -424,8 +445,7 @@ class _AdminItemWidgetState extends State<_AdminItemWidget>
     );
   }
 
-  /// ينفذ العملية `_getInitials`.
-  /// Runs the `_getInitials` operation.
+  /// العربية: يعيد initials.
   String _getInitials(String name) {
     final parts = name.trim().split(' ').where((e) => e.isNotEmpty).toList();
     if (parts.isEmpty) return '?';

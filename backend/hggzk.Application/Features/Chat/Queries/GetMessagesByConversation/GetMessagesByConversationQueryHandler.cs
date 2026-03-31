@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -52,6 +53,11 @@ namespace YemenBooking.Application.Features.Chat.Queries.GetMessagesByConversati
             var dtos = _mapper.Map<IEnumerable<ChatMessageDto>>(items).ToList();
             for (int i = 0; i < dtos.Count; i++)
             {
+                dtos[i].Attachments = dtos[i].Attachments
+                    .GroupBy(att => att.Id)
+                    .Select(group => group.First())
+                    .ToList();
+
                 dtos[i].CreatedAt = await _currentUserService.ConvertFromUtcToUserLocalAsync(dtos[i].CreatedAt);
                 dtos[i].UpdatedAt = await _currentUserService.ConvertFromUtcToUserLocalAsync(dtos[i].UpdatedAt);
                 if (dtos[i].EditedAt.HasValue)
