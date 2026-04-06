@@ -9,6 +9,7 @@ using YemenBooking.Application.Common.Interfaces;
 using YemenBooking.Application.Contracts.Services.Storage;
 using YemenBooking.Application.Features.AuditLog.Services;
 using YemenBooking.Application.Features.Notifications.Services;
+using YemenBooking.Application.Features.Reviews;
 using YemenBooking.Core.Interfaces;
 namespace YemenBooking.Application.Features.Reviews.Commands.SubmitReview;
 
@@ -366,7 +367,8 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
                         Name: fileName,
                         SizeBytes: imageBytes.LongLength,
                         ContentType: contentType,
-                        DisplayOrder: i));
+                        DisplayOrder: i,
+                        ThumbnailUrl: null));
                     _logger.LogInformation("تم رفع صورة المراجعة: {FileName}", fileName);
                 }
                 else

@@ -3,6 +3,7 @@
 import 'package:equatable/equatable.dart';
 import 'property_image.dart';
 import 'amenity.dart';
+import 'nearby_place.dart';
 import 'policy.dart';
 
 /// Describes a managed property together with the operational data the portal
@@ -166,6 +167,11 @@ class Property extends Equatable {
   /// سياسات العقار التي تحدد قواعد الحجز وتوقعات الضيف.
   final List<Policy> policies;
 
+  /// Real nearby places surfaced in property details.
+  ///
+  /// الأماكن القريبة الحقيقية المعروضة في تفاصيل العقار.
+  final List<NearbyPlace> nearbyPlaces;
+
   /// Optional dashboard metrics returned alongside the property payload.
   ///
   /// مؤشرات اختيارية تعود مع حمولة العقار لتغذية اللوحات.
@@ -207,6 +213,7 @@ class Property extends Equatable {
     this.images = const [],
     this.amenities = const [],
     this.policies = const [],
+    this.nearbyPlaces = const [],
     this.stats,
   });
 
@@ -273,6 +280,7 @@ class Property extends Equatable {
         images,
         amenities,
         policies,
+        nearbyPlaces,
         stats,
       ];
 }

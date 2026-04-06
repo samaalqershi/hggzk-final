@@ -870,6 +870,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
               longitude: detailsState.property.longitude,
               propertyName: detailsState.property.name,
               address: detailsState.property.address,
+              nearbyPlaces: detailsState.property.nearbyPlaces,
             ),
           ),
 

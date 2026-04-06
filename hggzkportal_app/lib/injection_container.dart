@@ -388,6 +388,20 @@ import 'features/admin_services/domain/usecases/get_service_details_usecase.dart
     as as_uc5;
 import 'features/admin_services/domain/usecases/get_services_by_type_usecase.dart'
     as as_uc6;
+import 'features/admin_nearby_places/presentation/bloc/nearby_places_bloc.dart';
+import 'features/admin_nearby_places/data/datasources/nearby_places_remote_datasource.dart';
+import 'features/admin_nearby_places/data/repositories/nearby_places_repository_impl.dart';
+import 'features/admin_nearby_places/domain/repositories/nearby_places_repository.dart';
+import 'features/admin_nearby_places/domain/usecases/create_nearby_place_usecase.dart'
+    as anp_uc1;
+import 'features/admin_nearby_places/domain/usecases/update_nearby_place_usecase.dart'
+    as anp_uc2;
+import 'features/admin_nearby_places/domain/usecases/delete_nearby_place_usecase.dart'
+    as anp_uc3;
+import 'features/admin_nearby_places/domain/usecases/get_nearby_places_usecase.dart'
+    as anp_uc4;
+import 'features/admin_nearby_places/domain/usecases/toggle_nearby_place_status_usecase.dart'
+    as anp_uc5;
 
 // Features - Admin Reviews
 import 'features/admin_reviews/presentation/bloc/reviews_list/reviews_list_bloc.dart'
@@ -730,6 +744,9 @@ Future<void> init() async {
 
   // Features - Admin Services
   _initAdminServices();
+
+  // Features - Admin Nearby Places
+  _initAdminNearbyPlaces();
 
   // Features - Admin Reviews
   _initAdminReviews();
@@ -1397,6 +1414,33 @@ void _initAdminServices() {
   // Data source
   sl.registerLazySingleton<ServicesRemoteDataSource>(
       () => ServicesRemoteDataSourceImpl(apiClient: sl()));
+}
+
+void _initAdminNearbyPlaces() {
+  sl.registerFactory(() => NearbyPlacesBloc(
+        getNearbyPlaces: sl<anp_uc4.GetNearbyPlacesUseCase>(),
+        createNearbyPlace: sl<anp_uc1.CreateNearbyPlaceUseCase>(),
+        updateNearbyPlace: sl<anp_uc2.UpdateNearbyPlaceUseCase>(),
+        deleteNearbyPlace: sl<anp_uc3.DeleteNearbyPlaceUseCase>(),
+        toggleNearbyPlaceStatus: sl<anp_uc5.ToggleNearbyPlaceStatusUseCase>(),
+      ));
+
+  sl.registerLazySingleton<anp_uc1.CreateNearbyPlaceUseCase>(
+      () => anp_uc1.CreateNearbyPlaceUseCase(sl()));
+  sl.registerLazySingleton<anp_uc2.UpdateNearbyPlaceUseCase>(
+      () => anp_uc2.UpdateNearbyPlaceUseCase(sl()));
+  sl.registerLazySingleton<anp_uc3.DeleteNearbyPlaceUseCase>(
+      () => anp_uc3.DeleteNearbyPlaceUseCase(sl()));
+  sl.registerLazySingleton<anp_uc4.GetNearbyPlacesUseCase>(
+      () => anp_uc4.GetNearbyPlacesUseCase(sl()));
+  sl.registerLazySingleton<anp_uc5.ToggleNearbyPlaceStatusUseCase>(
+      () => anp_uc5.ToggleNearbyPlaceStatusUseCase(sl()));
+
+  sl.registerLazySingleton<NearbyPlacesRepository>(
+      () => NearbyPlacesRepositoryImpl(remoteDataSource: sl()));
+
+  sl.registerLazySingleton<NearbyPlacesRemoteDataSource>(
+      () => NearbyPlacesRemoteDataSourceImpl(apiClient: sl()));
 }
 
 void _initAdminReviews() {

@@ -40,6 +40,8 @@ import 'package:hggzkportal/features/property_types/presentation/bloc/unit_type_
 import 'package:hggzkportal/features/admin_services/presentation/pages/admin_services_page.dart';
 import 'package:hggzkportal/features/admin_services/presentation/pages/create_service_page.dart';
 import 'package:hggzkportal/features/admin_services/presentation/pages/edit_service_page.dart';
+import 'package:hggzkportal/features/admin_nearby_places/presentation/pages/admin_nearby_places_page.dart';
+import 'package:hggzkportal/features/admin_nearby_places/presentation/pages/nearby_place_form_page.dart';
 import 'package:hggzkportal/features/admin_amenities/presentation/pages/amenities_management_page.dart';
 import 'package:hggzkportal/features/admin_amenities/presentation/pages/create_amenity_page.dart';
 import 'package:hggzkportal/features/admin_amenities/presentation/pages/edit_amenity_page.dart';
@@ -54,6 +56,7 @@ import 'package:hggzkportal/features/admin_reviews/presentation/bloc/reviews_lis
 import 'package:hggzkportal/features/admin_reviews/presentation/bloc/review_details/review_details_bloc.dart'
     as ar_details_bloc;
 import 'package:hggzkportal/features/admin_services/presentation/bloc/services_bloc.dart';
+import 'package:hggzkportal/features/admin_nearby_places/presentation/bloc/nearby_places_bloc.dart';
 import 'package:hggzkportal/features/admin_amenities/presentation/bloc/amenities_bloc.dart'
     as aa_bloc;
 import 'package:hggzkportal/features/admin_policies/presentation/bloc/policies_bloc.dart'
@@ -1099,6 +1102,31 @@ class AppRouter {
                 serviceId: serviceId,
                 initialService: service is Object ? service as dynamic : null,
               ),
+            );
+          },
+        ),
+
+        GoRoute(
+          path: '/admin/nearby-places',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            return BlocProvider<NearbyPlacesBloc>(
+              create: (_) => di.sl<NearbyPlacesBloc>(),
+              child: AdminNearbyPlacesPage(
+                initialPropertyId: extra?['propertyId'] as String?,
+                initialPropertyName: extra?['propertyName'] as String?,
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/admin/nearby-places/form',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>? ?? const {};
+            return NearbyPlaceFormPage(
+              propertyId: extra['propertyId'] as String? ?? '',
+              propertyName: extra['propertyName'] as String? ?? '',
+              nearbyPlace: extra['nearbyPlace'] as dynamic,
             );
           },
         ),

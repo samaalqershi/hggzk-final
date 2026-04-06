@@ -16,12 +16,14 @@ import '../../data/services/screen_search_service.dart';
 import '../widgets/screen_search_dialog.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
+
 class AdminHubPage extends StatefulWidget {
   /// العربية: ينشئ مثيلًا جديدًا من `AdminHubPage`.
   const AdminHubPage({super.key});
   @override
   State<AdminHubPage> createState() => _AdminHubPageState();
 }
+
 class _AdminHubPageState extends State<AdminHubPage>
     with TickerProviderStateMixin {
   // Animation Controllers
@@ -53,6 +55,7 @@ class _AdminHubPageState extends State<AdminHubPage>
     _initializeAnimations();
     _setupScrollListener();
   }
+
   void _initializeAnimations() {
     // Main entrance animation
     _mainAnimationController = AnimationController(
@@ -92,6 +95,7 @@ class _AdminHubPageState extends State<AdminHubPage>
     // Start animations
     _mainAnimationController.forward();
   }
+
   void _setupScrollListener() {
     _scrollController.addListener(() {
       final shouldShow = _scrollController.offset > 200;
@@ -102,6 +106,7 @@ class _AdminHubPageState extends State<AdminHubPage>
       }
     });
   }
+
   Widget _buildCompanyFooter(bool isDesktop, bool isTablet) {
     final currentYear = DateTime.now().year;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -353,6 +358,7 @@ class _AdminHubPageState extends State<AdminHubPage>
       ),
     );
   }
+
   Widget _buildLogo(bool isDesktop, bool isTablet) {
     // تكبير الشعار بنسبة 1.5x - 2x
     final double logoWidth = isDesktop ? 120 : (isTablet ? 96 : 72);
@@ -372,6 +378,7 @@ class _AdminHubPageState extends State<AdminHubPage>
           _buildLogoPlaceholder(logoWidth, logoHeight),
     );
   }
+
   Widget _buildLogoPlaceholder(double width, double height) {
     return Container(
       width: width,
@@ -407,6 +414,7 @@ class _AdminHubPageState extends State<AdminHubPage>
       ),
     );
   }
+
   @override
   void dispose() {
     _mainAnimationController.dispose();
@@ -415,6 +423,7 @@ class _AdminHubPageState extends State<AdminHubPage>
     _scrollController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -487,6 +496,7 @@ class _AdminHubPageState extends State<AdminHubPage>
       ),
     );
   }
+
   Widget _buildAnimatedBackground() {
     return Stack(
       children: [
@@ -589,6 +599,7 @@ class _AdminHubPageState extends State<AdminHubPage>
       ],
     );
   }
+
   Widget _buildPremiumAppBar(BuildContext context, bool isDesktop) {
     return SliverAppBar(
       expandedHeight: 0,
@@ -742,6 +753,7 @@ class _AdminHubPageState extends State<AdminHubPage>
       ],
     );
   }
+
   Widget _buildAppBarAction({
     required IconData icon,
     required VoidCallback onTap,
@@ -806,6 +818,7 @@ class _AdminHubPageState extends State<AdminHubPage>
       ],
     );
   }
+
   Widget _buildHeroSection(bool isDesktop, bool isTablet) {
     final hour = DateTime.now().hour;
     String greeting;
@@ -981,6 +994,7 @@ class _AdminHubPageState extends State<AdminHubPage>
       ),
     );
   }
+
   Widget _buildAdminFeaturesSection(bool isDesktop, bool isTablet) {
     final isAdmin = context.select((AuthBloc bloc) {
       final s = bloc.state;
@@ -1078,6 +1092,7 @@ class _AdminHubPageState extends State<AdminHubPage>
       ],
     );
   }
+
   Widget _buildFeatureCard(_AdminFeature feature, int index) {
     final isHovered = _hoveredCardIndex == index;
 
@@ -1304,6 +1319,7 @@ class _AdminHubPageState extends State<AdminHubPage>
       ),
     );
   }
+
   Widget _buildFloatingHeader(BuildContext context) {
     return AnimatedPositioned(
       duration: const Duration(milliseconds: 300),
@@ -1398,6 +1414,7 @@ class _AdminHubPageState extends State<AdminHubPage>
       ),
     );
   }
+
   Widget _buildMiniStat({
     required IconData icon,
     required String value,
@@ -1433,6 +1450,7 @@ class _AdminHubPageState extends State<AdminHubPage>
       ),
     );
   }
+
   void _showSearchDialog(BuildContext context) {
     HapticFeedback.lightImpact();
 
@@ -1504,6 +1522,13 @@ class _AdminHubPageState extends State<AdminHubPage>
           icon: Icons.room_service_rounded,
           gradient: [AppTheme.primaryCyan, AppTheme.primaryBlue],
           onTap: () => context.push('/admin/services'),
+        ),
+        _AdminFeature(
+          title: 'الأماكن القريبة',
+          description: 'إدارة المعالم القريبة للعقارات',
+          icon: Icons.add_location_alt_rounded,
+          gradient: [AppTheme.neonGreen, AppTheme.primaryBlue],
+          onTap: () => context.push('/admin/nearby-places'),
         ),
         _AdminFeature(
           title: 'المرافق',
@@ -1660,6 +1685,7 @@ class _GridPatternPainter extends CustomPainter {
       );
     }
   }
+
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

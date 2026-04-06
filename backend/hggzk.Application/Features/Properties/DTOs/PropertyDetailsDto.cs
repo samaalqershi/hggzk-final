@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using YemenBooking.Application.Features.Units;
 using YemenBooking.Application.Common.Models;
 using YemenBooking.Application.Features.Amenities.DTOs;
+using YemenBooking.Application.Features.NearbyPlaces.DTOs;
 using YemenBooking.Application.Features.Properties.DTOs;
 using YemenBooking.Application.Features.PropertyServices.DTOs;
 using YemenBooking.Application.Features.Units.DTOs;
@@ -132,6 +133,12 @@ public class PropertyDetailsDto
     /// يحصل أو يعيّن سياسات العقار.
     /// </summary>
     public List<PropertyPolicyDto> Policies { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets the nearby places.
+    /// يحصل أو يعيّن الأماكن القريبة.
+    /// </summary>
+    public List<PropertyNearbyPlaceDto> NearbyPlaces { get; set; } = new();
     
     /// <summary>
     /// Gets or sets the available units.

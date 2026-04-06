@@ -2,6 +2,7 @@ using AutoMapper;
 using YemenBooking.Core.Entities;
 using YemenBooking.Application.Common.Models;
 using YemenBooking.Application.Features.Properties.DTOs;
+using YemenBooking.Application.Features.Reviews;
 using YemenBooking.Application.Features.Reviews.DTOs;
 
 namespace YemenBooking.Application.Mappings;

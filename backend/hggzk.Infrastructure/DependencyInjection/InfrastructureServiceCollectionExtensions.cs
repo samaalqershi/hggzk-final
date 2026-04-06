@@ -45,6 +45,7 @@ public static class InfrastructureServiceCollectionExtensions
         // Typed clients are registered centrally so HttpClient-dependent services resolve correctly.
         services.AddHttpClient<IPaymentGatewayService, PaymentGatewayService>();
         services.AddHttpClient<IGeolocationService, GeolocationService>();
+        services.AddHttpClient<IPropertyTravelMetricsService, GooglePropertyTravelMetricsService>();
         services.AddHttpClient<ISabaCashWalletService, SabaCashWalletService>();
         services.AddHttpClient<IJwaliWalletService, JwaliWalletService>();
         services.AddHttpClient<IFloskWalletService, FloskWalletService>();

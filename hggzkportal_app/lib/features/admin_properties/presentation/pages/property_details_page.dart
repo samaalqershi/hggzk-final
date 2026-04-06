@@ -866,6 +866,10 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
                   ],
                 ),
               ),
+              if (property.nearbyPlaces.isNotEmpty || _isAdmin) ...[
+                const SizedBox(height: 16),
+                _buildNearbyPlacesSection(property),
+              ],
             ],
           ),
         ),
@@ -967,6 +971,144 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage>
         ),
       ),
     );
+  }
+
+  Widget _buildNearbyPlacesSection(Property property) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.darkCard.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.darkBorder.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'الأماكن القريبة',
+                      style: AppTextStyles.heading3.copyWith(
+                        color: AppTheme.textWhite,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'بيانات حقيقية ستظهر في تطبيق العميل داخل صفحة الموقع',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppTheme.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: () {
+                  context.push(
+                    '/admin/nearby-places',
+                    extra: {
+                      'propertyId': property.id,
+                      'propertyName': property.name,
+                    },
+                  );
+                },
+                icon: const Icon(Icons.edit_location_alt_rounded),
+                label: Text(property.nearbyPlaces.isEmpty
+                    ? 'إضافة الأماكن'
+                    : 'إدارة الأماكن'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (property.nearbyPlaces.isEmpty)
+            Text(
+              'لا توجد أماكن قريبة مضافة لهذا العقار بعد.',
+              style:
+                  AppTextStyles.bodyMedium.copyWith(color: AppTheme.textMuted),
+            )
+          else
+            ...property.nearbyPlaces.take(6).map((place) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(
+                        _resolveNearbyPlaceIcon(place.category, place.icon),
+                        color: AppTheme.primaryBlue,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            place.name,
+                            style: AppTextStyles.bodyLarge.copyWith(
+                              color: AppTheme.textWhite,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            '${_formatNearbyDistance(place.distanceInMeters)}${place.walkingMinutes != null ? ' • ${place.walkingMinutes} دقيقة مشياً' : ''}${place.drivingMinutes != null ? ' • ${place.drivingMinutes} دقيقة بالسيارة' : ''}',
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppTheme.textMuted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
+    );
+  }
+
+  IconData _resolveNearbyPlaceIcon(String category, String icon) {
+    final key = '$category $icon'.toLowerCase();
+    if (key.contains('hospital') || key.contains('مستشفى')) {
+      return Icons.local_hospital_rounded;
+    }
+    if (key.contains('restaurant') || key.contains('مطعم')) {
+      return Icons.restaurant_rounded;
+    }
+    if (key.contains('market') || key.contains('mall') || key.contains('سوق')) {
+      return Icons.shopping_bag_rounded;
+    }
+    if (key.contains('mosque') ||
+        key.contains('جامع') ||
+        key.contains('مسجد')) {
+      return Icons.mosque_rounded;
+    }
+    if (key.contains('school') ||
+        key.contains('university') ||
+        key.contains('جامعة') ||
+        key.contains('مدرسة')) {
+      return Icons.school_rounded;
+    }
+    return Icons.place_rounded;
+  }
+
+  String _formatNearbyDistance(int meters) {
+    if (meters >= 1000) {
+      return '${(meters / 1000).toStringAsFixed(meters % 1000 == 0 ? 0 : 1)} كم';
+    }
+    return '$meters م';
   }
 }
 

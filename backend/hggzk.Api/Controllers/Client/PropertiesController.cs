@@ -8,6 +8,7 @@ using YemenBooking.Application.Features.Properties.Queries.SearchProperties;
 using YemenBooking.Application.Features.Properties.Queries.GetPropertyDetails;
 using YemenBooking.Application.Features.Properties.Queries.GetNearbyProperties;
 using YemenBooking.Application.Features.Properties.Queries.GetCheckPropertyAvailability;
+using YemenBooking.Application.Features.NearbyPlaces.Queries.GetNearbyPlaces;
 using YemenBooking.Application.Features.Policies.Queries.GetPropertyPolicies;
 using YemenBooking.Application.Features.Policies.DTOs;
 using YemenBooking.Application.Features.SearchAndFilters.DTOs;
@@ -155,6 +156,23 @@ namespace YemenBooking.Api.Controllers.Client
         {
             var query = new GetPropertyPoliciesQuery { PropertyId = id };
             var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// يعيد الأماكن القريبة الحقيقية الخاصة بالعقار.
+        /// Returns the real nearby places for the property.
+        /// </summary>
+        [HttpGet("{id}/nearby-places")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ResultDto<List<YemenBooking.Application.Features.NearbyPlaces.DTOs.PropertyNearbyPlaceDto>>>> GetPropertyNearbyPlaces(Guid id)
+        {
+            var result = await _mediator.Send(new GetNearbyPlacesQuery
+            {
+                PropertyId = id,
+                IsActive = true
+            });
+
             return Ok(result);
         }
 

@@ -507,27 +507,6 @@ var app = builder.Build();
 
 app.UseMiddleware<SearchDiagnosticsLoggingMiddleware>();
 
-// Ensure required stored procedures exist during startup.
-// التأكد من وجود الإجراءات المخزنة المطلوبة عند بدء التطبيق.
-using (var scope = app.Services.CreateScope())
-{
-    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
-    try
-    {
-        var connection = scope.ServiceProvider.GetRequiredService<IDbConnection>();
-        connection.Open();
-        StoredProceduresInitializer.EnsureAdvancedSearchProc(connection);
-    }
-    catch (Exception ex)
-    {
-        logger.LogCritical(ex, "Failed to ensure stored procedures on startup");
-        if (app.Environment.IsDevelopment())
-        {
-            throw;
-        }
-    }
-}
-
 // Apply migrations and run data seeding during startup.
 // تطبيق المهاجرات وتشغيل البذور عند بدء التشغيل.
 using (var scope = app.Services.CreateScope())
@@ -554,6 +533,27 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         logger.LogCritical(ex, "Failed to migrate and seed database on startup");
+        if (app.Environment.IsDevelopment())
+        {
+            throw;
+        }
+    }
+}
+
+// Ensure required stored procedures exist only after the database schema exists.
+// التأكد من وجود الإجراءات المخزنة المطلوبة بعد إنشاء القاعدة وتطبيق المهاجرات.
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
+    try
+    {
+        var connection = scope.ServiceProvider.GetRequiredService<IDbConnection>();
+        connection.Open();
+        StoredProceduresInitializer.EnsureAdvancedSearchProc(connection);
+    }
+    catch (Exception ex)
+    {
+        logger.LogCritical(ex, "Failed to ensure stored procedures on startup");
         if (app.Environment.IsDevelopment())
         {
             throw;

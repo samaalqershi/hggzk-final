@@ -467,6 +467,26 @@ class ScreenSearchService {
       adminOnly: true,
     ),
     SearchableScreen(
+      id: 'nearby_places_list',
+      titleAr: 'الأماكن القريبة',
+      titleEn: 'Nearby Places',
+      descriptionAr: 'عرض وإدارة الأماكن القريبة للعقارات',
+      descriptionEn: 'View and manage nearby places for properties',
+      path: '/admin/nearby-places',
+      icon: Icons.add_location_alt_rounded,
+      gradientColors: [AppTheme.neonGreen, AppTheme.primaryBlue],
+      searchKeywords: [
+        'أماكن',
+        'قريبة',
+        'معالم',
+        'nearby',
+        'places',
+        'landmarks',
+        'locations'
+      ],
+      category: ScreenCategory.services,
+    ),
+    SearchableScreen(
       id: 'create_amenity',
       titleAr: 'إضافة مرفق جديد',
       titleEn: 'Add New Amenity',

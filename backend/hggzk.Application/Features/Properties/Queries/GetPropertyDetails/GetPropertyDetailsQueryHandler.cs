@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using YemenBooking.Application.Common.Models;
 using YemenBooking.Core.Interfaces.Repositories;
 using YemenBooking.Application.Features.Amenities.DTOs;
+using YemenBooking.Application.Features.NearbyPlaces.DTOs;
 using YemenBooking.Application.Features.Policies.DTOs;
 using YemenBooking.Application.Features.Properties.DTOs;
 using YemenBooking.Application.Features.PropertyServices.DTOs;
@@ -22,6 +23,7 @@ public class GetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyDetails
     private readonly IAmenityRepository _amenityRepository;
     private readonly IPropertyServiceRepository _propertyServiceRepository;
     private readonly IPolicyRepository _policyRepository;
+    private readonly IPropertyNearbyPlaceRepository _nearbyPlaceRepository;
     private readonly IFavoriteRepository _favoriteRepository;
     private readonly IReviewRepository _reviewRepository;
     private readonly ILogger<GetPropertyDetailsQueryHandler> _logger;
@@ -37,6 +39,7 @@ public class GetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyDetails
         IAmenityRepository amenityRepository,
         IPropertyServiceRepository propertyServiceRepository,
         IPolicyRepository policyRepository,
+        IPropertyNearbyPlaceRepository nearbyPlaceRepository,
         IFavoriteRepository favoriteRepository,
         IReviewRepository reviewRepository,
         ILogger<GetPropertyDetailsQueryHandler> logger)
@@ -47,6 +50,7 @@ public class GetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyDetails
         _amenityRepository = amenityRepository;
         _propertyServiceRepository = propertyServiceRepository;
         _policyRepository = policyRepository;
+        _nearbyPlaceRepository = nearbyPlaceRepository;
         _favoriteRepository = favoriteRepository;
         _reviewRepository = reviewRepository;
         _logger = logger;
@@ -158,6 +162,32 @@ public class GetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyDetails
                 RulesJson = policy.Rules
             }).ToList() ?? new List<PropertyPolicyDto>();
 
+            var nearbyPlaces = await _nearbyPlaceRepository.GetByPropertyIdAsync(property.Id, cancellationToken);
+            var nearbyPlaceDtos = nearbyPlaces
+                .Where(place => place.IsActive)
+                .Select(place => new PropertyNearbyPlaceDto
+                {
+                    Id = place.Id,
+                    PropertyId = place.PropertyId,
+                    PropertyName = property.Name ?? string.Empty,
+                    PropertyNameEn = property.NameEn,
+                    Name = place.Name,
+                    NameEn = place.NameEn,
+                    Description = place.Description,
+                    DescriptionEn = place.DescriptionEn,
+                    Category = place.Category,
+                    Icon = place.Icon,
+                    Latitude = place.Latitude,
+                    Longitude = place.Longitude,
+                    DistanceInMeters = place.DistanceInMeters,
+                    WalkingMinutes = place.WalkingMinutes,
+                    DrivingMinutes = place.DrivingMinutes,
+                    DisplayOrder = place.DisplayOrder,
+                    IsActive = place.IsActive,
+                    CreatedAt = place.CreatedAt,
+                    UpdatedAt = place.UpdatedAt
+                }).ToList();
+
             // الحصول على إحصائيات العقار
             // الحصول على إحصائيات التقييم
             var ratingStats = await _reviewRepository.GetPropertyRatingStatsAsync(property.Id, cancellationToken);
@@ -247,7 +277,8 @@ public class GetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyDetails
                 Images = imageDtos,
                 Amenities = amenityDtos,
                 Services = serviceDtos,
-                Policies = policyDtos
+                Policies = policyDtos,
+                NearbyPlaces = nearbyPlaceDtos
             };
 
             _logger.LogInformation("تم الحصول على تفاصيل العقار بنجاح. معرف العقار: {PropertyId}", request.PropertyId);

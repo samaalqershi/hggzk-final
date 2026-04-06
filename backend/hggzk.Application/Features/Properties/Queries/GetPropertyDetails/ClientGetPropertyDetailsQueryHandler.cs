@@ -7,6 +7,7 @@ using YemenBooking.Core.Helpers;
 using YemenBooking.Application.Features.Policies;
 using YemenBooking.Application.Features.Amenities.DTOs;
 using YemenBooking.Application.Common.Helpers;
+using YemenBooking.Application.Features.NearbyPlaces.DTOs;
 using YemenBooking.Application.Features.Properties.DTOs;
 using YemenBooking.Application.Features.PropertyServices.DTOs;
 using YemenBooking.Application.Features;
@@ -22,6 +23,7 @@ public class ClientGetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyD
     private readonly IAmenityRepository _amenityRepository;
     private readonly IPropertyServiceRepository _propertyServiceRepository;
     private readonly IPolicyRepository _policyRepository;
+    private readonly IPropertyNearbyPlaceRepository _nearbyPlaceRepository;
     private readonly IUnitRepository _unitRepository;
     private readonly IPropertyRepository _propertyRepository;
     private readonly IPropertyTypeRepository _propertyTypeRepository;
@@ -38,6 +40,7 @@ public class ClientGetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyD
         IAmenityRepository amenityRepository,
         IPropertyServiceRepository propertyServiceRepository,
         IPolicyRepository policyRepository,
+        IPropertyNearbyPlaceRepository nearbyPlaceRepository,
         IUnitRepository unitRepository,
         IPropertyRepository propertyRepository,
         IPropertyTypeRepository propertyTypeRepository,
@@ -49,6 +52,7 @@ public class ClientGetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyD
         _amenityRepository = amenityRepository;
         _propertyServiceRepository = propertyServiceRepository;
         _policyRepository = policyRepository;
+        _nearbyPlaceRepository = nearbyPlaceRepository;
         _unitRepository = unitRepository;
         _propertyRepository = propertyRepository;
         _propertyTypeRepository = propertyTypeRepository;
@@ -125,6 +129,7 @@ public class ClientGetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyD
             Amenities = await GetPropertyAmenities(property.Id),
             Services = await GetPropertyServices(property.Id),
             Policies = await GetPropertyPolicies(property.Id),
+            NearbyPlaces = await GetPropertyNearbyPlaces(property.Id),
             IsApproved = property.IsApproved,
             Currency = property.Currency,
             IsFeatured = property.IsFeatured,
@@ -381,6 +386,45 @@ public class ClientGetPropertyDetailsQueryHandler : IRequestHandler<GetPropertyD
         {
             _logger.LogError(ex, "خطأ في جلب سياسات الكيان {PropertyId}", propertyId);
             return new List<PropertyPolicyDto>();
+        }
+    }
+
+    private async Task<List<PropertyNearbyPlaceDto>> GetPropertyNearbyPlaces(Guid propertyId)
+    {
+        try
+        {
+            var places = await _nearbyPlaceRepository.GetByPropertyIdAsync(propertyId, CancellationToken.None);
+
+            return places
+                .Where(place => place.IsActive)
+                .Select(place => new PropertyNearbyPlaceDto
+                {
+                    Id = place.Id,
+                    PropertyId = place.PropertyId,
+                    PropertyName = place.Property?.Name ?? string.Empty,
+                    PropertyNameEn = place.Property?.NameEn,
+                    Name = place.Name,
+                    NameEn = place.NameEn,
+                    Description = place.Description,
+                    DescriptionEn = place.DescriptionEn,
+                    Category = place.Category,
+                    Icon = place.Icon,
+                    Latitude = place.Latitude,
+                    Longitude = place.Longitude,
+                    DistanceInMeters = place.DistanceInMeters,
+                    WalkingMinutes = place.WalkingMinutes,
+                    DrivingMinutes = place.DrivingMinutes,
+                    DisplayOrder = place.DisplayOrder,
+                    IsActive = place.IsActive,
+                    CreatedAt = place.CreatedAt,
+                    UpdatedAt = place.UpdatedAt
+                })
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "خطأ في جلب الأماكن القريبة للكيان {PropertyId}", propertyId);
+            return new List<PropertyNearbyPlaceDto>();
         }
     }
 }

@@ -4,12 +4,14 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../domain/entities/property_detail.dart';
 
 class LocationMapWidget extends StatefulWidget {
   final double latitude;
   final double longitude;
   final String propertyName;
   final String address;
+  final List<NearbyPlace> nearbyPlaces;
 
   const LocationMapWidget({
     super.key,
@@ -17,6 +19,7 @@ class LocationMapWidget extends StatefulWidget {
     required this.longitude,
     required this.propertyName,
     required this.address,
+    required this.nearbyPlaces,
   });
 
   @override
@@ -34,8 +37,19 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
   @override
   void initState() {
     super.initState();
-    _initializeMarker();
+    _initializeMarkers();
     _initializeAnimations();
+  }
+
+  @override
+  void didUpdateWidget(covariant LocationMapWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.latitude != widget.latitude ||
+        oldWidget.longitude != widget.longitude ||
+        oldWidget.nearbyPlaces != widget.nearbyPlaces) {
+      _initializeMarkers();
+      _fitMapToVisibleMarkers();
+    }
   }
 
   void _initializeAnimations() {
@@ -53,8 +67,15 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
     ));
   }
 
-  void _initializeMarker() {
-    _markers.add(
+  Future<void> _initializeMarkers() async {
+    final updatedMarkers = <Marker>{};
+    final propertyIcon = await _createMarkerIcon(
+      icon: Icons.apartment_rounded,
+      color: AppTheme.primaryBlue,
+      backgroundColor: AppTheme.primaryBlue.withOpacity(0.18),
+    );
+
+    updatedMarkers.add(
       Marker(
         markerId: const MarkerId('property'),
         position: LatLng(widget.latitude, widget.longitude),
@@ -62,7 +83,133 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
           title: widget.propertyName,
           snippet: widget.address,
         ),
+        icon: propertyIcon,
       ),
+    );
+
+    final placesWithCoordinates = widget.nearbyPlaces
+        .where(
+          (place) =>
+              place.isActive &&
+              place.latitude != null &&
+              place.longitude != null,
+        )
+        .toList()
+      ..sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
+
+    for (final place in placesWithCoordinates) {
+      final markerColor = _resolvePlaceColor(place);
+      updatedMarkers.add(
+        Marker(
+          markerId: MarkerId('nearby_${place.id}'),
+          position: LatLng(place.latitude!, place.longitude!),
+          infoWindow: InfoWindow(
+            title: place.name,
+            snippet:
+                '${place.category} • ${_formatDistance(place.distanceInMeters)}',
+          ),
+          icon: await _createMarkerIcon(
+            icon: _resolvePlaceIcon(place),
+            color: markerColor,
+            backgroundColor: markerColor.withOpacity(0.18),
+          ),
+        ),
+      );
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _markers
+        ..clear()
+        ..addAll(updatedMarkers);
+    });
+  }
+
+  Future<BitmapDescriptor> _createMarkerIcon({
+    required IconData icon,
+    required Color color,
+    required Color backgroundColor,
+  }) async {
+    const double size = 112;
+    const double iconSize = 48;
+    final recorder = PictureRecorder();
+    final canvas = Canvas(recorder);
+    final paint = Paint()..color = backgroundColor;
+    final borderPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 6;
+    final shadowPaint = Paint()
+      ..color = color.withOpacity(0.18)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 18);
+
+    final center = Offset(size / 2, size / 2);
+    canvas.drawCircle(center, 36, shadowPaint);
+    canvas.drawCircle(center, 36, paint);
+    canvas.drawCircle(center, 36, borderPaint);
+
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
+    textPainter.text = TextSpan(
+      text: String.fromCharCode(icon.codePoint),
+      style: TextStyle(
+        fontSize: iconSize,
+        fontFamily: icon.fontFamily,
+        package: icon.fontPackage,
+        color: color,
+      ),
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        center.dx - (textPainter.width / 2),
+        center.dy - (textPainter.height / 2),
+      ),
+    );
+
+    final image = await recorder.endRecording().toImage(
+          size.toInt(),
+          size.toInt(),
+        );
+    final byteData = await image.toByteData(format: ImageByteFormat.png);
+    return BitmapDescriptor.fromBytes(
+      Uint8List.view(byteData!.buffer),
+    );
+  }
+
+  Future<void> _fitMapToVisibleMarkers() async {
+    if (_mapController == null || _markers.isEmpty) {
+      return;
+    }
+
+    if (_markers.length == 1) {
+      await _mapController!.animateCamera(
+        CameraUpdate.newLatLngZoom(
+          LatLng(widget.latitude, widget.longitude),
+          15,
+        ),
+      );
+      return;
+    }
+
+    final latitudes = _markers.map((marker) => marker.position.latitude);
+    final longitudes = _markers.map((marker) => marker.position.longitude);
+    final bounds = LatLngBounds(
+      southwest: LatLng(
+        latitudes.reduce((a, b) => a < b ? a : b),
+        longitudes.reduce((a, b) => a < b ? a : b),
+      ),
+      northeast: LatLng(
+        latitudes.reduce((a, b) => a > b ? a : b),
+        longitudes.reduce((a, b) => a > b ? a : b),
+      ),
+    );
+
+    await _mapController!.animateCamera(
+      CameraUpdate.newLatLngBounds(bounds, 72),
     );
   }
 
@@ -351,6 +498,7 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
                 onMapCreated: (GoogleMapController controller) {
                   _mapController = controller;
                   _setFuturisticMapStyle();
+                  _fitMapToVisibleMarkers();
                 },
                 zoomControlsEnabled: false,
                 mapToolbarEnabled: false,
@@ -444,43 +592,14 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
   }
 
   Widget _buildFuturisticNearbyPlaces() {
-    final places = [
-      {
-        'icon': Icons.school,
-        'title': 'جامعة صنعاء',
-        'distance': '650 م',
-        'time': '9 دقائق مشياً',
-        'color': AppTheme.info,
-      },
-      {
-        'icon': Icons.local_hospital,
-        'title': 'مستشفى الثورة العام',
-        'distance': '1.1 كم',
-        'time': '14 دقيقة مشياً',
-        'color': AppTheme.error,
-      },
-      {
-        'icon': Icons.shopping_cart,
-        'title': 'سوق المعلا المركزي',
-        'distance': '900 م',
-        'time': '12 دقيقة مشياً',
-        'color': AppTheme.primaryPurple,
-      },
-      {
-        'icon': Icons.mosque,
-        'title': 'جامع الصالح',
-        'distance': '450 م',
-        'time': '6 دقائق مشياً',
-        'color': AppTheme.success,
-      },
-      {
-        'icon': Icons.restaurant,
-        'title': 'مطعم الفل اليمني',
-        'distance': '1.6 كم',
-        'time': '5 دقائق بالسيارة',
-        'color': AppTheme.warning,
-      },
-    ];
+    final places = widget.nearbyPlaces.where((place) => place.isActive).toList()
+      ..sort((a, b) {
+        final orderCompare = a.displayOrder.compareTo(b.displayOrder);
+        if (orderCompare != 0) {
+          return orderCompare;
+        }
+        return a.distanceInMeters.compareTo(b.distanceInMeters);
+      });
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -532,32 +651,52 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
             ],
           ),
           const SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.9),
-                width: 0.9,
+          if (places.isEmpty)
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppTheme.darkBorder.withOpacity(0.9),
+                  width: 0.9,
+                ),
+                color: AppTheme.darkCard.withOpacity(0.96),
               ),
-              color: AppTheme.darkCard.withOpacity(0.96),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                children: [
-                  for (int i = 0; i < places.length; i++)
-                    _buildNearbyPlaceTimelineRow(
-                      icon: places[i]['icon'] as IconData,
-                      title: places[i]['title'] as String,
-                      distance: places[i]['distance'] as String,
-                      time: places[i]['time'] as String,
-                      color: places[i]['color'] as Color,
-                      isLast: i == places.length - 1,
-                    ),
-                ],
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'لا توجد أماكن قريبة مضافة لهذا العقار حالياً',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppTheme.textLight,
+                ),
+              ),
+            )
+          else
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppTheme.darkBorder.withOpacity(0.9),
+                  width: 0.9,
+                ),
+                color: AppTheme.darkCard.withOpacity(0.96),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    for (int i = 0; i < places.length; i++)
+                      _buildNearbyPlaceTimelineRow(
+                        icon: _resolvePlaceIcon(places[i]),
+                        title: places[i].name,
+                        distance: _formatDistance(places[i].distanceInMeters),
+                        time: _formatTime(places[i]),
+                        color: _resolvePlaceColor(places[i]),
+                        isLast: i == places.length - 1,
+                      ),
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -821,6 +960,7 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
           longitude: widget.longitude,
           propertyName: widget.propertyName,
           address: widget.address,
+          nearbyPlaces: widget.nearbyPlaces,
         ),
       ),
     );
@@ -828,13 +968,127 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
 
   void _showAllNearbyPlaces() {
     HapticFeedback.lightImpact();
-    // Navigate to all nearby places page
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('عرض جميع الأماكن القريبة...'),
-        duration: Duration(seconds: 1),
+    final places =
+        widget.nearbyPlaces.where((place) => place.isActive).toList();
+    if (places.isEmpty) {
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppTheme.darkCard.withOpacity(0.96),
+              AppTheme.darkSurface,
+            ],
+          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+        ),
+        child: ListView.separated(
+          shrinkWrap: true,
+          padding: const EdgeInsets.all(20),
+          itemBuilder: (context, index) {
+            final place = places[index];
+            return ListTile(
+              leading: Icon(
+                _resolvePlaceIcon(place),
+                color: _resolvePlaceColor(place),
+              ),
+              title: Text(
+                place.name,
+                style:
+                    AppTextStyles.bodyLarge.copyWith(color: AppTheme.textWhite),
+              ),
+              subtitle: Text(
+                '${_formatDistance(place.distanceInMeters)} • ${_formatTime(place)}',
+                style:
+                    AppTextStyles.caption.copyWith(color: AppTheme.textLight),
+              ),
+            );
+          },
+          separatorBuilder: (_, __) => Divider(
+            color: AppTheme.darkBorder.withOpacity(0.5),
+          ),
+          itemCount: places.length,
+        ),
       ),
     );
+  }
+
+  IconData _resolvePlaceIcon(NearbyPlace place) {
+    final key = '${place.icon} ${place.category}'.toLowerCase();
+    if (key.contains('hospital') ||
+        key.contains('medical') ||
+        key.contains('مستشفى')) {
+      return Icons.local_hospital;
+    }
+    if (key.contains('restaurant') || key.contains('مطعم')) {
+      return Icons.restaurant;
+    }
+    if (key.contains('market') || key.contains('mall') || key.contains('سوق')) {
+      return Icons.shopping_cart;
+    }
+    if (key.contains('mosque') ||
+        key.contains('جامع') ||
+        key.contains('مسجد')) {
+      return Icons.mosque;
+    }
+    if (key.contains('school') ||
+        key.contains('university') ||
+        key.contains('جامعة') ||
+        key.contains('مدرسة')) {
+      return Icons.school;
+    }
+    return Icons.place;
+  }
+
+  Color _resolvePlaceColor(NearbyPlace place) {
+    final key = '${place.icon} ${place.category}'.toLowerCase();
+    if (key.contains('hospital') ||
+        key.contains('medical') ||
+        key.contains('مستشفى')) {
+      return AppTheme.error;
+    }
+    if (key.contains('restaurant') || key.contains('مطعم')) {
+      return AppTheme.warning;
+    }
+    if (key.contains('market') || key.contains('mall') || key.contains('سوق')) {
+      return AppTheme.primaryPurple;
+    }
+    if (key.contains('mosque') ||
+        key.contains('جامع') ||
+        key.contains('مسجد')) {
+      return AppTheme.success;
+    }
+    if (key.contains('school') ||
+        key.contains('university') ||
+        key.contains('جامعة') ||
+        key.contains('مدرسة')) {
+      return AppTheme.info;
+    }
+    return AppTheme.primaryBlue;
+  }
+
+  String _formatDistance(int distanceInMeters) {
+    if (distanceInMeters >= 1000) {
+      return '${(distanceInMeters / 1000).toStringAsFixed(distanceInMeters % 1000 == 0 ? 0 : 1)} كم';
+    }
+    return '$distanceInMeters م';
+  }
+
+  String _formatTime(NearbyPlace place) {
+    if (place.walkingMinutes != null && place.walkingMinutes! > 0) {
+      return '${place.walkingMinutes} دقيقة مشياً';
+    }
+    if (place.drivingMinutes != null && place.drivingMinutes! > 0) {
+      return '${place.drivingMinutes} دقيقة بالسيارة';
+    }
+    return 'المسافة التقريبية';
   }
 
   void _showPlaceDetails(String placeName) {
@@ -968,6 +1222,7 @@ class FullScreenMapView extends StatefulWidget {
   final double longitude;
   final String propertyName;
   final String address;
+  final List<NearbyPlace> nearbyPlaces;
 
   const FullScreenMapView({
     super.key,
@@ -975,6 +1230,7 @@ class FullScreenMapView extends StatefulWidget {
     required this.longitude,
     required this.propertyName,
     required this.address,
+    required this.nearbyPlaces,
   });
 
   @override
@@ -994,7 +1250,18 @@ class _FullScreenMapViewState extends State<FullScreenMapView> {
   }
 
   void _initializeMapElements() {
-    _markers.add(
+    _buildMapElementsAsync();
+  }
+
+  Future<void> _buildMapElementsAsync() async {
+    final updatedMarkers = <Marker>{};
+    final propertyIcon = await _createMarkerIcon(
+      icon: Icons.apartment_rounded,
+      color: AppTheme.primaryBlue,
+      backgroundColor: AppTheme.primaryBlue.withOpacity(0.18),
+    );
+
+    updatedMarkers.add(
       Marker(
         markerId: const MarkerId('property'),
         position: LatLng(widget.latitude, widget.longitude),
@@ -1002,11 +1269,40 @@ class _FullScreenMapViewState extends State<FullScreenMapView> {
           title: widget.propertyName,
           snippet: widget.address,
         ),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        icon: propertyIcon,
       ),
     );
 
-    _circles.add(
+    final placesWithCoordinates = widget.nearbyPlaces
+        .where(
+          (place) =>
+              place.isActive &&
+              place.latitude != null &&
+              place.longitude != null,
+        )
+        .toList();
+
+    for (final place in placesWithCoordinates) {
+      final markerColor = _resolvePlaceColor(place);
+      updatedMarkers.add(
+        Marker(
+          markerId: MarkerId('nearby_${place.id}'),
+          position: LatLng(place.latitude!, place.longitude!),
+          infoWindow: InfoWindow(
+            title: place.name,
+            snippet:
+                '${place.category} • ${_formatDistance(place.distanceInMeters)}',
+          ),
+          icon: await _createMarkerIcon(
+            icon: _resolvePlaceIcon(place),
+            color: markerColor,
+            backgroundColor: markerColor.withOpacity(0.18),
+          ),
+        ),
+      );
+    }
+
+    final updatedCircles = <Circle>{
       Circle(
         circleId: const CircleId('property_area'),
         center: LatLng(widget.latitude, widget.longitude),
@@ -1015,7 +1311,20 @@ class _FullScreenMapViewState extends State<FullScreenMapView> {
         strokeColor: AppTheme.primaryBlue.withOpacity(0.5),
         strokeWidth: 2,
       ),
-    );
+    };
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _markers
+        ..clear()
+        ..addAll(updatedMarkers);
+      _circles
+        ..clear()
+        ..addAll(updatedCircles);
+    });
   }
 
   @override
@@ -1133,6 +1442,7 @@ class _FullScreenMapViewState extends State<FullScreenMapView> {
               if (_currentMapType == MapType.normal) {
                 _setFuturisticMapStyle();
               }
+              _fitMapToVisibleMarkers();
             },
             mapType: _currentMapType,
             myLocationEnabled: true,
@@ -1322,6 +1632,150 @@ class _FullScreenMapViewState extends State<FullScreenMapView> {
     ''';
 
     _mapController?.setMapStyle(mapStyle);
+  }
+
+  Future<BitmapDescriptor> _createMarkerIcon({
+    required IconData icon,
+    required Color color,
+    required Color backgroundColor,
+  }) async {
+    const double size = 112;
+    const double iconSize = 48;
+    final recorder = PictureRecorder();
+    final canvas = Canvas(recorder);
+    final paint = Paint()..color = backgroundColor;
+    final borderPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 6;
+    final shadowPaint = Paint()
+      ..color = color.withOpacity(0.18)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 18);
+
+    final center = Offset(size / 2, size / 2);
+    canvas.drawCircle(center, 36, shadowPaint);
+    canvas.drawCircle(center, 36, paint);
+    canvas.drawCircle(center, 36, borderPaint);
+
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
+    textPainter.text = TextSpan(
+      text: String.fromCharCode(icon.codePoint),
+      style: TextStyle(
+        fontSize: iconSize,
+        fontFamily: icon.fontFamily,
+        package: icon.fontPackage,
+        color: color,
+      ),
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        center.dx - (textPainter.width / 2),
+        center.dy - (textPainter.height / 2),
+      ),
+    );
+
+    final image = await recorder.endRecording().toImage(
+          size.toInt(),
+          size.toInt(),
+        );
+    final byteData = await image.toByteData(format: ImageByteFormat.png);
+    return BitmapDescriptor.fromBytes(Uint8List.view(byteData!.buffer));
+  }
+
+  IconData _resolvePlaceIcon(NearbyPlace place) {
+    final key = '${place.icon} ${place.category}'.toLowerCase();
+    if (key.contains('hospital') ||
+        key.contains('medical') ||
+        key.contains('مستشفى')) {
+      return Icons.local_hospital;
+    }
+    if (key.contains('restaurant') || key.contains('مطعم')) {
+      return Icons.restaurant;
+    }
+    if (key.contains('market') || key.contains('mall') || key.contains('سوق')) {
+      return Icons.shopping_cart;
+    }
+    if (key.contains('mosque') ||
+        key.contains('جامع') ||
+        key.contains('مسجد')) {
+      return Icons.mosque;
+    }
+    if (key.contains('school') ||
+        key.contains('university') ||
+        key.contains('جامعة') ||
+        key.contains('مدرسة')) {
+      return Icons.school;
+    }
+    return Icons.place;
+  }
+
+  Color _resolvePlaceColor(NearbyPlace place) {
+    final key = '${place.icon} ${place.category}'.toLowerCase();
+    if (key.contains('hospital') ||
+        key.contains('medical') ||
+        key.contains('مستشفى')) {
+      return AppTheme.error;
+    }
+    if (key.contains('restaurant') || key.contains('مطعم')) {
+      return AppTheme.warning;
+    }
+    if (key.contains('market') || key.contains('mall') || key.contains('سوق')) {
+      return AppTheme.primaryPurple;
+    }
+    if (key.contains('mosque') ||
+        key.contains('جامع') ||
+        key.contains('مسجد')) {
+      return AppTheme.success;
+    }
+    if (key.contains('school') ||
+        key.contains('university') ||
+        key.contains('جامعة') ||
+        key.contains('مدرسة')) {
+      return AppTheme.info;
+    }
+    return AppTheme.primaryBlue;
+  }
+
+  Future<void> _fitMapToVisibleMarkers() async {
+    if (_mapController == null || _markers.isEmpty) {
+      return;
+    }
+
+    if (_markers.length == 1) {
+      await _mapController!.animateCamera(
+        CameraUpdate.newLatLngZoom(
+          LatLng(widget.latitude, widget.longitude),
+          16,
+        ),
+      );
+      return;
+    }
+
+    final latitudes = _markers.map((marker) => marker.position.latitude);
+    final longitudes = _markers.map((marker) => marker.position.longitude);
+    final bounds = LatLngBounds(
+      southwest: LatLng(
+        latitudes.reduce((a, b) => a < b ? a : b),
+        longitudes.reduce((a, b) => a < b ? a : b),
+      ),
+      northeast: LatLng(
+        latitudes.reduce((a, b) => a > b ? a : b),
+        longitudes.reduce((a, b) => a > b ? a : b),
+      ),
+    );
+
+    await _mapController!.animateCamera(
+      CameraUpdate.newLatLngBounds(bounds, 86),
+    );
+  }
+
+  String _formatDistance(int distanceInMeters) {
+    if (distanceInMeters >= 1000) {
+      return '${(distanceInMeters / 1000).toStringAsFixed(distanceInMeters % 1000 == 0 ? 0 : 1)} كم';
+    }
+    return '$distanceInMeters م';
   }
 }
 

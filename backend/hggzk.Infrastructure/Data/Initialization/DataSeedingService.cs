@@ -422,6 +422,40 @@ namespace YemenBooking.Infrastructure.Data.Initialization
                 }
             }
 
+            // Property Nearby Places: ensure every seeded property has 4-6 realistic nearby places
+            {
+                var propertiesForNearbyPlaces = await _context.Properties
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                if (propertiesForNearbyPlaces.Any())
+                {
+                    var nearbyPlaceSeeder = new PropertyNearbyPlaceSeeder();
+                    var seededNearbyPlaces = nearbyPlaceSeeder.SeedData(propertiesForNearbyPlaces).ToList();
+
+                    var existingNearbyPlaceKeys = await _context.PropertyNearbyPlaces
+                        .AsNoTracking()
+                        .Select(place => new { place.PropertyId, place.Name })
+                        .ToListAsync();
+
+                    var existingKeySet = existingNearbyPlaceKeys
+                        .Select(item => $"{item.PropertyId:N}:{item.Name}")
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                    var newNearbyPlaces = seededNearbyPlaces
+                        .Where(place => !existingKeySet.Contains($"{place.PropertyId:N}:{place.Name}"))
+                        .ToList();
+
+                    if (newNearbyPlaces.Any())
+                    {
+                        _logger.LogInformation("🔄 بدء إضافة {Count} مكان قريب واقعي للعقارات...", newNearbyPlaces.Count);
+                        _context.PropertyNearbyPlaces.AddRange(newNearbyPlaces);
+                        await _context.SaveChangesAsync();
+                        _logger.LogInformation("✅ تم إضافة {Count} مكان قريب واقعي بنجاح", newNearbyPlaces.Count);
+                    }
+                }
+            }
+
             // Units: استخدام السيدر الجديد الدقيق بدون تعديلات
             var existingUnitIds = await _context.Units.Select(u => u.Id).ToListAsync();
             var seededUnits = new UnitSeeder().SeedData().ToList();

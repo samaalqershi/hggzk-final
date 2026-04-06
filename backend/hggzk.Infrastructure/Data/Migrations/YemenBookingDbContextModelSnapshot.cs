@@ -3358,6 +3358,102 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                     b.ToTable("PropertyPolicies", (string)null);
                 });
 
+            modelBuilder.Entity("YemenBooking.Core.Entities.PropertyNearbyPlace", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("NearbyPlaceId");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("DescriptionEn")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<int?>("DrivingMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DistanceInMeters")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<decimal?>("Latitude")
+                        .HasPrecision(10, 7)
+                        .HasColumnType("numeric(10,7)");
+
+                    b.Property<decimal?>("Longitude")
+                        .HasPrecision(10, 7)
+                        .HasColumnType("numeric(10,7)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("NameEn")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("WalkingMinutes")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId")
+                        .HasDatabaseName("IX_PropertyNearbyPlaces_PropertyId");
+
+                    b.HasIndex("PropertyId", "DisplayOrder")
+                        .HasDatabaseName("IX_PropertyNearbyPlaces_PropertyId_DisplayOrder");
+
+                    b.ToTable("PropertyNearbyPlaces", (string)null);
+                });
+
             modelBuilder.Entity("YemenBooking.Core.Entities.PropertyService", b =>
                 {
                     b.Property<Guid>("Id")
@@ -6295,6 +6391,17 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                     b.Navigation("Property");
                 });
 
+            modelBuilder.Entity("YemenBooking.Core.Entities.PropertyNearbyPlace", b =>
+                {
+                    b.HasOne("YemenBooking.Core.Entities.Property", "Property")
+                        .WithMany("NearbyPlaces")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Property");
+                });
+
             modelBuilder.Entity("YemenBooking.Core.Entities.PropertyService", b =>
                 {
                     b.HasOne("YemenBooking.Core.Entities.Property", "Property")
@@ -6710,6 +6817,8 @@ namespace YemenBooking.Infrastructure.Data.Migrations
                     b.Navigation("Amenities");
 
                     b.Navigation("Images");
+
+                    b.Navigation("NearbyPlaces");
 
                     b.Navigation("Policies");
 

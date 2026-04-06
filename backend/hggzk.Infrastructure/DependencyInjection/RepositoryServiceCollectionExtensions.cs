@@ -39,6 +39,7 @@ public static class RepositoryServiceCollectionExtensions
         services.AddScoped<IPropertyTypeAmenityRepository, PropertyTypeAmenityRepository>();
         services.AddScoped<IPropertyImageRepository, PropertyImageRepository>();
         services.AddScoped<IPropertyServiceRepository, PropertyServiceRepository>();
+        services.AddScoped<IPropertyNearbyPlaceRepository, PropertyNearbyPlaceRepository>();
         services.AddScoped<IPropertyAmenityRepository, PropertyAmenityRepository>();
         services.AddScoped<IUnitRepository, UnitRepository>();
         services.AddScoped<IUnitTypeRepository, UnitTypeRepository>();

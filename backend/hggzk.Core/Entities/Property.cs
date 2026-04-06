@@ -220,6 +220,13 @@ public class Property : BaseEntity<Guid>
     /// </summary>
     [Display(Name = "السياسات المرتبطة بالكيان")]
     public virtual ICollection<PropertyPolicy> Policies { get; set; } = new List<PropertyPolicy>();
+
+    /// <summary>
+    /// مجموعة الأماكن القريبة الحقيقية المرتبطة بهذا العقار.
+    /// Collection of real nearby places associated with this property.
+    /// </summary>
+    [Display(Name = "الأماكن القريبة المرتبطة بالكيان")]
+    public virtual ICollection<PropertyNearbyPlace> NearbyPlaces { get; set; } = new List<PropertyNearbyPlace>();
     
     /// <summary>
     /// مجموعة المراجعات الخاصة بالعقار.

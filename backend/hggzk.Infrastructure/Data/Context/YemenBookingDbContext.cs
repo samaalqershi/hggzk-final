@@ -194,6 +194,12 @@ public class YemenBookingDbContext : DbContext
     public DbSet<PropertyPolicy> PropertyPolicies { get; set; }
 
     /// <summary>
+    /// Property nearby places table.
+    /// جدول الأماكن القريبة للعقارات.
+    /// </summary>
+    public DbSet<PropertyNearbyPlace> PropertyNearbyPlaces { get; set; }
+
+    /// <summary>
     /// Staff table.
     /// جدول الموظفين.
     /// </summary>
@@ -401,6 +407,7 @@ public class YemenBookingDbContext : DbContext
         modelBuilder.ApplyConfiguration(new AmenityConfiguration());
         modelBuilder.ApplyConfiguration(new PropertyTypeAmenityConfiguration());
         modelBuilder.ApplyConfiguration(new PropertyAmenityConfiguration());
+        modelBuilder.ApplyConfiguration(new PropertyNearbyPlaceConfiguration());
         modelBuilder.ApplyConfiguration(new UnitTypeFieldConfiguration());
         modelBuilder.ApplyConfiguration(new FieldGroupConfiguration());
         modelBuilder.ApplyConfiguration(new FieldGroupFieldConfiguration());

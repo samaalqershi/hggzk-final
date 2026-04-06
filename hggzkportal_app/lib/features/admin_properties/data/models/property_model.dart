@@ -2,11 +2,13 @@
 
 import 'package:hggzkportal/core/constants/api_constants.dart';
 import 'package:hggzkportal/features/admin_properties/domain/entities/amenity.dart';
+import 'package:hggzkportal/features/admin_properties/domain/entities/nearby_place.dart';
 import 'package:hggzkportal/features/admin_properties/domain/entities/policy.dart';
 import 'package:hggzkportal/features/admin_properties/domain/entities/property.dart';
 import 'package:hggzkportal/features/admin_properties/domain/entities/property_image.dart';
 import 'property_image_model.dart';
 import 'amenity_model.dart';
+import 'nearby_place_model.dart';
 import 'policy_model.dart';
 
 /// Maps property payloads from the backend into the domain entity while also
@@ -51,6 +53,7 @@ class PropertyModel extends Property {
     super.images,
     super.amenities,
     super.policies,
+    super.nearbyPlaces,
     super.stats,
   });
 
@@ -200,6 +203,16 @@ class PropertyModel extends Property {
               .whereType<Policy>()
               .toList() ??
           [],
+      nearbyPlaces: (json['nearbyPlaces'] as List<dynamic>?)
+              ?.map((e) {
+                if (e is Map<String, dynamic>) {
+                  return NearbyPlaceModel.fromJson(e);
+                }
+                return null;
+              })
+              .whereType<NearbyPlace>()
+              .toList() ??
+          [],
       stats: json['stats'] != null && json['stats'] is Map<String, dynamic>
           ? PropertyStatsModel.fromJson(json['stats'] as Map<String, dynamic>)
           : null,
@@ -242,6 +255,8 @@ class PropertyModel extends Property {
       'images': images.map((e) => (e as PropertyImageModel).toJson()).toList(),
       'amenities': amenities.map((e) => (e as AmenityModel).toJson()).toList(),
       'policies': policies.map((e) => (e as PolicyModel).toJson()).toList(),
+      'nearbyPlaces':
+          nearbyPlaces.map((e) => (e as NearbyPlaceModel).toJson()).toList(),
       'stats': stats != null ? (stats as PropertyStatsModel).toJson() : null,
     };
   }

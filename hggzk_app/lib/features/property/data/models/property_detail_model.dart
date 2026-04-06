@@ -38,6 +38,7 @@ class PropertyDetailModel extends PropertyDetail {
     required super.amenities,
     required super.services,
     required super.policies,
+    required super.nearbyPlaces,
     required super.units,
   });
 
@@ -119,6 +120,10 @@ class PropertyDetailModel extends PropertyDetail {
               ?.map((e) => PropertyPolicyModel.fromJson(e))
               .toList() ??
           [],
+      nearbyPlaces: (json['nearbyPlaces'] as List?)
+              ?.map((e) => NearbyPlaceModel.fromJson(e))
+              .toList() ??
+          [],
       units: (json['units'] as List?)
               ?.map((e) => UnitModel.fromJson(e))
               .toList() ??
@@ -159,6 +164,8 @@ class PropertyDetailModel extends PropertyDetail {
           services.map((e) => (e as PropertyServiceModel).toJson()).toList(),
       'policies':
           policies.map((e) => (e as PropertyPolicyModel).toJson()).toList(),
+      'nearbyPlaces':
+          nearbyPlaces.map((e) => (e as NearbyPlaceModel).toJson()).toList(),
       'units': units.map((e) => (e as UnitModel).toJson()).toList(),
     };
   }
@@ -346,6 +353,71 @@ class PropertyPolicyModel extends PropertyPolicy {
       'type': type,
       'description': description,
       'rules': rules,
+    };
+  }
+}
+
+class NearbyPlaceModel extends NearbyPlace {
+  const NearbyPlaceModel({
+    required super.id,
+    required super.name,
+    super.nameEn,
+    super.description,
+    super.descriptionEn,
+    required super.category,
+    required super.icon,
+    super.latitude,
+    super.longitude,
+    required super.distanceInMeters,
+    super.walkingMinutes,
+    super.drivingMinutes,
+    super.displayOrder,
+    super.isActive,
+  });
+
+  factory NearbyPlaceModel.fromJson(Map<String, dynamic> json) {
+    return NearbyPlaceModel(
+      id: json['id']?.toString() ?? '',
+      name: LocalizedApiValue.text(
+        json,
+        arabicKey: 'name',
+        englishKey: 'nameEn',
+      ),
+      nameEn: json['nameEn']?.toString(),
+      description: LocalizedApiValue.text(
+        json,
+        arabicKey: 'description',
+        englishKey: 'descriptionEn',
+      ),
+      descriptionEn: json['descriptionEn']?.toString(),
+      category: json['category']?.toString() ?? '',
+      icon: json['icon']?.toString() ?? '',
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      distanceInMeters: (json['distanceInMeters'] as num?)?.toInt() ?? 0,
+      walkingMinutes: (json['walkingMinutes'] as num?)?.toInt(),
+      drivingMinutes: (json['drivingMinutes'] as num?)?.toInt(),
+      displayOrder: (json['displayOrder'] as num?)?.toInt() ?? 0,
+      isActive: json['isActive'] as bool? ?? true,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'nameEn': nameEn,
+      'description': description,
+      'descriptionEn': descriptionEn,
+      'category': category,
+      'icon': icon,
+      'latitude': latitude,
+      'longitude': longitude,
+      'distanceInMeters': distanceInMeters,
+      'walkingMinutes': walkingMinutes,
+      'drivingMinutes': drivingMinutes,
+      'displayOrder': displayOrder,
+      'isActive': isActive,
     };
   }
 }
