@@ -1,38 +1,19 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'dart:math' as math;
-import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/price_widget.dart';
 
-/// العربية: يمثل العنصر `PriceBreakdownWidget`.
 class PriceBreakdownWidget extends StatefulWidget {
-  /// العربية: يخزن القيمة `nights`.
   final int nights;
-
-  /// العربية: يخزن القيمة `pricePerNight`.
   final double pricePerNight;
-
-  /// العربية: يخزن القيمة `servicesTotal`.
   final double servicesTotal;
-
-  /// العربية: يخزن القيمة `taxRate`.
   final double taxRate;
-
-  /// العربية: يخزن القيمة `currency`.
   final String currency;
-
-  /// العربية: يخزن القيمة `discount`.
   final double? discount;
-
-  /// العربية: يخزن القيمة `promoCode`.
   final String? promoCode;
-
-  /// العربية: يخزن القيمة `services`.
   final List<Map<String, dynamic>>? services;
 
-  /// العربية: ينشئ مثيلًا جديدًا من `PriceBreakdownWidget`.
   const PriceBreakdownWidget({
     super.key,
     required this.nights,
@@ -45,30 +26,19 @@ class PriceBreakdownWidget extends StatefulWidget {
     this.services,
   });
 
-  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<PriceBreakdownWidget> createState() => _PriceBreakdownWidgetState();
 }
 
-/// العربية: يمثل الحالة الخاصة بـ `PriceBreakdownWidgetState`.
 class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     with TickerProviderStateMixin {
-  /// العربية: يخزن القيمة `expandController`.
   late AnimationController _expandController;
-
-  /// العربية: يخزن القيمة `shimmerController`.
   late AnimationController _shimmerController;
-
-  /// العربية: يخزن القيمة `itemControllers`.
   late List<AnimationController> _itemControllers;
-
-  /// العربية: يخزن القيمة `itemAnimations`.
   late List<Animation<double>> _itemAnimations;
 
-  /// العربية: يحدد ما إذا كانت القيمة `isExpanded` مفعلة.
   bool _isExpanded = false;
 
-  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -103,7 +73,6 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     }).toList();
   }
 
-  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _expandController.dispose();
@@ -114,7 +83,6 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     super.dispose();
   }
 
-  /// العربية: يبدل expanded.
   void _toggleExpanded() {
     setState(() {
       _isExpanded = !_isExpanded;
@@ -132,14 +100,13 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     });
   }
 
-  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     final accommodationTotal = widget.nights * widget.pricePerNight;
     final subtotal = accommodationTotal + widget.servicesTotal;
     final discountAmount = widget.discount ?? 0;
     final afterDiscount = subtotal - discountAmount;
-    final double taxAmount =
+    const double taxAmount =
         0; // Taxes are not applied; show services details instead
     final total = afterDiscount;
 
@@ -221,7 +188,6 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     );
   }
 
-  /// العربية: يبني compact header.
   Widget _buildCompactHeader() {
     return Row(
       children: [
@@ -244,9 +210,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
         ),
         const SizedBox(width: 8),
         Text(
-          context.tr(
-            'booking.price.details',
-          ),
+          'تفاصيل السعر',
           style: AppTextStyles.bodyMedium.copyWith(
             fontWeight: FontWeight.w600,
             color: AppTheme.textWhite.withOpacity(0.9),
@@ -256,7 +220,6 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     );
   }
 
-  /// العربية: يبني compact summary row.
   Widget _buildCompactSummaryRow(double total) {
     return Container(
       padding: const EdgeInsets.all(10),
@@ -272,9 +235,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            context.tr(
-              'booking.price.total',
-            ),
+            'المجموع الكلي',
             style: AppTextStyles.bodyMedium.copyWith(
               fontWeight: FontWeight.w600,
               color: AppTheme.textWhite.withOpacity(0.9),
@@ -294,7 +255,6 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     );
   }
 
-  /// العربية: يبني compact details.
   Widget _buildCompactDetails({
     required double accommodationTotal,
     required double subtotal,
@@ -308,14 +268,8 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
 
         // Accommodation
         _buildAnimatedCompactPriceRow(
-          label: context.tr(
-            'booking.price.stay',
-            params: {
-              'nights': widget.nights,
-              'price': widget.pricePerNight.toStringAsFixed(0),
-              'currency': widget.currency,
-            },
-          ),
+          label:
+              'الإقامة (${widget.nights} × ${widget.pricePerNight.toStringAsFixed(0)} ${widget.currency})',
           amount: accommodationTotal,
           index: 0,
           icon: Icons.hotel_rounded,
@@ -326,9 +280,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
         if (widget.servicesTotal > 0) ...[
           const SizedBox(height: 8),
           _buildAnimatedCompactPriceRow(
-            label: context.tr(
-              'booking.price.services',
-            ),
+            label: 'الخدمات الإضافية',
             amount: widget.servicesTotal,
             index: 1,
             icon: Icons.room_service_rounded,
@@ -380,9 +332,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
         _buildSubtleDivider(),
         const SizedBox(height: 10),
         _buildAnimatedCompactPriceRow(
-          label: context.tr(
-            'booking.price.subtotal',
-          ),
+          label: 'المجموع الفرعي',
           amount: subtotal,
           index: 2,
           isSubtotal: true,
@@ -392,10 +342,8 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
         if (discountAmount > 0) ...[
           const SizedBox(height: 8),
           _buildAnimatedCompactPriceRow(
-            label: context.tr(
-                  'booking.price.discount',
-                ) +
-                (widget.promoCode != null ? ' (${widget.promoCode})' : ''),
+            label:
+                'الخصم${widget.promoCode != null ? ' (${widget.promoCode})' : ''}',
             amount: -discountAmount,
             index: 3,
             icon: Icons.discount_rounded,
@@ -407,7 +355,6 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     );
   }
 
-  /// العربية: يبني animated compact price row.
   Widget _buildAnimatedCompactPriceRow({
     required String label,
     required double amount,
@@ -484,7 +431,6 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     );
   }
 
-  /// العربية: يبني subtle divider.
   Widget _buildSubtleDivider() {
     return Container(
       height: 0.5,
@@ -500,7 +446,6 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
     );
   }
 
-  /// العربية: يبني compact toggle button.
   Widget _buildCompactToggleButton() {
     return GestureDetector(
       onTap: _toggleExpanded,
@@ -514,13 +459,7 @@ class _PriceBreakdownWidgetState extends State<PriceBreakdownWidget>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              _isExpanded
-                  ? context.tr(
-                      'booking.price.hideDetails',
-                    )
-                  : context.tr(
-                      'booking.price.showDetails',
-                    ),
+              _isExpanded ? 'إخفاء التفاصيل' : 'عرض التفاصيل',
               style: AppTextStyles.caption.copyWith(
                 color: AppTheme.primaryBlue.withOpacity(0.9),
                 fontWeight: FontWeight.w600,

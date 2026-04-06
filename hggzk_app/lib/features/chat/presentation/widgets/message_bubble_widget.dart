@@ -178,11 +178,10 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
         // FIXED: Remove alignment from ScaleTransition to preserve message position
         child: Container(
           margin: EdgeInsets.only(
-            // FIXED: Proper margins for left/right alignment
-            left: widget.isMe ? MediaQuery.of(context).size.width * 0.2 : 8,
-            right: widget.isMe ? 8 : MediaQuery.of(context).size.width * 0.2,
+            left: widget.isMe ? MediaQuery.of(context).size.width * 0.18 : 10,
+            right: widget.isMe ? 10 : MediaQuery.of(context).size.width * 0.18,
             top: _getTopPadding(),
-            bottom: 2,
+            bottom: 4,
           ),
           child: Column(
             crossAxisAlignment:
@@ -202,7 +201,7 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
                   children: [
                     Container(
                       constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.72,
+                        maxWidth: MediaQuery.of(context).size.width * 0.76,
                         minWidth: 60,
                       ),
                       child: ClipRRect(
@@ -219,31 +218,33 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
-                                        AppTheme.primaryBlue.withOpacity(0.9),
+                                        AppTheme.primaryBlue.withOpacity(0.96),
                                         AppTheme.primaryPurple
-                                            .withOpacity(0.85),
+                                            .withOpacity(0.88),
                                       ],
                                     )
                                   : LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
                                       colors: [
-                                        AppTheme.darkCard.withOpacity(0.6),
-                                        AppTheme.darkCard.withOpacity(0.4),
+                                        Colors.white.withOpacity(0.08),
+                                        Colors.white.withOpacity(0.03),
                                       ],
                                     ),
                               borderRadius: borderRadius,
                               border: Border.all(
                                 color: widget.isMe
-                                    ? Colors.white.withOpacity(0.08)
-                                    : AppTheme.darkBorder.withOpacity(0.08),
-                                width: 0.5,
+                                    ? Colors.white.withOpacity(0.12)
+                                    : AppTheme.darkBorder.withOpacity(0.1),
+                                width: 0.8,
                               ),
                               boxShadow: [
                                 BoxShadow(
                                   color: widget.isMe
                                       ? AppTheme.primaryBlue.withOpacity(0.15)
-                                      : Colors.black.withOpacity(0.03),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
+                                      : Colors.black.withOpacity(0.08),
+                                  blurRadius: 18,
+                                  offset: const Offset(0, 10),
                                 ),
                               ],
                             ),
@@ -304,28 +305,36 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
     return GestureDetector(
       onTap: widget.onReplyTap,
       child: Container(
-        margin: const EdgeInsets.all(6),
-        padding: const EdgeInsets.all(5),
+        margin: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
             colors: widget.isMe
                 ? [
-                    Colors.white.withOpacity(0.12),
-                    Colors.white.withOpacity(0.06),
+                    Colors.white.withOpacity(0.18),
+                    Colors.white.withOpacity(0.08),
                   ]
                 : [
-                    AppTheme.primaryBlue.withOpacity(0.06),
-                    AppTheme.primaryBlue.withOpacity(0.03),
+                    AppTheme.primaryBlue.withOpacity(0.08),
+                    AppTheme.primaryPurple.withOpacity(0.04),
                   ],
           ),
-          borderRadius: BorderRadius.circular(5),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: widget.isMe
+                ? Colors.white.withOpacity(0.08)
+                : AppTheme.primaryBlue.withOpacity(0.08),
+            width: 0.6,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 2,
-              height: 20,
+              height: 28,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
@@ -353,10 +362,10 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
                     context.tr('chat.message.replyTo'),
                     style: AppTextStyles.caption.copyWith(
                       color: widget.isMe
-                          ? Colors.white.withOpacity(0.6)
-                          : AppTheme.primaryBlue.withOpacity(0.7),
+                          ? Colors.white.withOpacity(0.78)
+                          : AppTheme.primaryBlue.withOpacity(0.8),
                       fontWeight: FontWeight.w600,
-                      fontSize: 9,
+                      fontSize: 9.5,
                     ),
                   ),
                   const SizedBox(height: 1),
@@ -366,9 +375,9 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
                     ),
                     style: AppTextStyles.caption.copyWith(
                       color: widget.isMe
-                          ? Colors.white.withOpacity(0.4)
-                          : AppTheme.textMuted.withOpacity(0.5),
-                      fontSize: 10,
+                          ? Colors.white.withOpacity(0.56)
+                          : AppTheme.textMuted.withOpacity(0.64),
+                      fontSize: 10.5,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -393,19 +402,19 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
         widget.message.content!.trim().isNotEmpty) {
       return Padding(
         padding: EdgeInsets.fromLTRB(
-          8,
-          isCaption ? 6 : 5,
-          8,
-          isCaption ? 2 : 5,
+          12,
+          isCaption ? 8 : 10,
+          12,
+          isCaption ? 4 : 8,
         ),
         child: Text(
           widget.message.content!,
           style: AppTextStyles.bodySmall.copyWith(
             color: widget.isMe
                 ? Colors.white
-                : AppTheme.textWhite.withOpacity(0.85),
-            height: 1.35,
-            fontSize: isCaption ? 11.5 : 12,
+                : AppTheme.textWhite.withOpacity(0.9),
+            height: 1.45,
+            fontSize: isCaption ? 12 : 12.6,
           ),
         ),
       );
@@ -1168,12 +1177,7 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
   /// يرسم الوقت وحالة التعديل وحالة التسليم داخل الفقاعة.
   Widget _buildMinimalFooter() {
     return Padding(
-      padding: const EdgeInsets.only(
-        left: 8,
-        right: 5,
-        bottom: 5,
-        top: 1,
-      ),
+      padding: const EdgeInsets.fromLTRB(12, 4, 10, 10),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,
@@ -1185,9 +1189,10 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
                 context.tr('chat.message.edited'),
                 style: AppTextStyles.caption.copyWith(
                   color: widget.isMe
-                      ? Colors.white.withOpacity(0.4)
-                      : AppTheme.textMuted.withOpacity(0.35),
-                  fontSize: 8,
+                      ? Colors.white.withOpacity(0.56)
+                      : AppTheme.textMuted.withOpacity(0.46),
+                  fontSize: 8.5,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -1195,18 +1200,19 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
             _formatTime(widget.message.createdAt),
             style: AppTextStyles.caption.copyWith(
               color: widget.isMe
-                  ? Colors.white.withOpacity(0.5)
-                  : AppTheme.textMuted.withOpacity(0.4),
-              fontSize: 9,
+                  ? Colors.white.withOpacity(0.7)
+                  : AppTheme.textMuted.withOpacity(0.58),
+              fontSize: 9.5,
+              fontWeight: FontWeight.w600,
             ),
           ),
           if (widget.isMe) ...[
-            const SizedBox(width: 2),
+            const SizedBox(width: 4),
             MessageStatusIndicator(
               status: widget.message.status,
               deliveryReceipt: widget.message.deliveryReceipt,
-              color: Colors.white.withOpacity(0.5),
-              size: 10,
+              color: Colors.white.withOpacity(0.7),
+              size: 11,
             ),
           ],
         ],
@@ -1335,15 +1341,17 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
             ),
             decoration: BoxDecoration(
               gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
                 colors: [
-                  AppTheme.darkCard.withOpacity(0.5),
-                  AppTheme.darkCard.withOpacity(0.3),
+                  Colors.white.withOpacity(0.08),
+                  Colors.white.withOpacity(0.03),
                 ],
               ),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(999),
               border: Border.all(
-                color: AppTheme.darkBorder.withOpacity(0.15),
-                width: 0.5,
+                color: AppTheme.darkBorder.withOpacity(0.1),
+                width: 0.8,
               ),
             ),
             child: Row(
@@ -1358,9 +1366,9 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
                   Text(
                     entry.value.toString(),
                     style: AppTextStyles.caption.copyWith(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textWhite.withOpacity(0.6),
+                      fontSize: 8.5,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textWhite.withOpacity(0.72),
                     ),
                   ),
                 ],
@@ -1394,8 +1402,8 @@ class _MessageBubbleWidgetState extends State<MessageBubbleWidget>
   /// Computes the bubble radius so grouped messages can connect cleanly.
   /// يحسب نصف قطر الفقاعة حتى تتصل الرسائل المجمعة بشكل متناسق.
   BorderRadius _getBorderRadius(bool showTail) {
-    const radius = 8.0;
-    const smallRadius = 2.0;
+    const radius = 22.0;
+    const smallRadius = 6.0;
 
     if (widget.isMe) {
       return BorderRadius.only(

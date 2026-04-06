@@ -2,31 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:ui';
-import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
-/// Displays the property's pinned location, address context, and map actions.
-/// يعرض موقع العقار المثبّت وسياق العنوان وأفعال الخريطة.
 class LocationMapWidget extends StatefulWidget {
-  /// Latitude used to place the property marker.
-  /// خط العرض المستخدم لوضع مؤشر العقار.
   final double latitude;
-
-  /// Longitude used to place the property marker.
-  /// خط الطول المستخدم لوضع مؤشر العقار.
   final double longitude;
-
-  /// Property name shown in the map header and marker info window.
-  /// اسم العقار الظاهر في ترويسة الخريطة ومربع معلومات المؤشر.
   final String propertyName;
-
-  /// Address shown beside the map and inside the info window.
-  /// العنوان الظاهر بجانب الخريطة وداخل نافذة المعلومات.
   final String address;
 
-  /// Builds the location section for property details.
-  /// ينشئ قسم الموقع لتفاصيل العقار.
   const LocationMapWidget({
     super.key,
     required this.latitude,
@@ -35,34 +19,18 @@ class LocationMapWidget extends StatefulWidget {
     required this.address,
   });
 
-  /// Creates the state object that drives map and pulse animations.
-  /// ينشئ كائن الحالة الذي يقود حركات الخريطة والنبض.
   @override
   State<LocationMapWidget> createState() => _LocationMapWidgetState();
 }
 
-/// Controls the marker setup, map controller, and pulse effect.
-/// يتحكم في إعداد المؤشر ومتحكم الخريطة وتأثير النبض.
 class _LocationMapWidgetState extends State<LocationMapWidget>
     with SingleTickerProviderStateMixin {
-  /// Controller for the embedded Google Map widget.
-  /// متحكم عنصر Google Map المضمّن.
+  static const double _mapHeight = 260.0;
   GoogleMapController? _mapController;
-
-  /// Marker set used to pin the property location.
-  /// مجموعة المؤشرات المستخدمة لتثبيت موقع العقار.
   final Set<Marker> _markers = {};
-
-  /// Repeats the pulsing marker background effect.
-  /// يكرر تأثير خلفية المؤشر النابضة.
   late AnimationController _pulseController;
-
-  /// Animation that scales the marker pulse.
-  /// الحركة التي تغيّر حجم النبضة حول المؤشر.
   late Animation<double> _pulseAnimation;
 
-  /// Prepares the marker and the pulse animation.
-  /// يجهز المؤشر وحركة النبض.
   @override
   void initState() {
     super.initState();
@@ -70,8 +38,6 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
     _initializeAnimations();
   }
 
-  /// Sets up the repeating pulse animation behind the marker.
-  /// يهيئ حركة النبض المتكررة خلف المؤشر.
   void _initializeAnimations() {
     _pulseController = AnimationController(
       duration: const Duration(seconds: 2),
@@ -87,8 +53,6 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
     ));
   }
 
-  /// Adds the location marker for the current property coordinates.
-  /// يضيف مؤشر الموقع لإحداثيات العقار الحالية.
   void _initializeMarker() {
     _markers.add(
       Marker(
@@ -102,8 +66,6 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
     );
   }
 
-  /// Releases the map controller and pulse animation.
-  /// يحرر متحكم الخريطة وحركة النبض.
   @override
   void dispose() {
     _mapController?.dispose();
@@ -111,94 +73,163 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
     super.dispose();
   }
 
-  /// Renders the location section with the header, actions, and map view.
-  /// يرسم قسم الموقع مع الترويسة والأفعال وعرض الخريطة.
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildFuturisticLocationHeader(),
-          const SizedBox(height: 16),
-          _buildFuturisticActionButtons(),
-          const SizedBox(height: 16),
-          _buildFuturisticMap(),
-        ],
-      ),
+    // عرض المحتوى مباشرة بدون scroll داخلي
+    // السكرول الوحيد يكون في صفحة تفاصيل العقار
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildFuturisticLocationHeader(),
+        const SizedBox(height: 16),
+        _buildFuturisticActionButtons(),
+        const SizedBox(height: 16),
+        _buildFuturisticMap(),
+        const SizedBox(height: 16),
+        _buildFuturisticNearbyPlaces(),
+      ],
     );
   }
 
-  /// Builds the futuristic location header.
-  /// العربية: يبني futuristic location header.
   Widget _buildFuturisticLocationHeader() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.primaryBlue.withOpacity(0.2),
-            AppTheme.primaryCyan.withOpacity(0.1),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AnimatedBuilder(
-            animation: _pulseAnimation,
-            builder: (context, child) {
-              return Transform.scale(
-                scale: _pulseAnimation.value,
-                child: Container(
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'موقع العقار على الخريطة',
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: AppTheme.textWhite,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      height: 2,
+                      width: 70,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.centerRight,
+                          end: Alignment.centerLeft,
+                          colors: [
+                            AppTheme.primaryCyan.withOpacity(0.9),
+                            AppTheme.primaryPurple.withOpacity(0.5),
+                            Colors.transparent,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              AnimatedBuilder(
+                animation: _pulseAnimation,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: _pulseAnimation.value,
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(999),
+                        color: AppTheme.primaryViolet,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.primaryBlue.withOpacity(0.4),
+                            blurRadius: 16,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.location_on,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: AppTheme.primaryBlue.withOpacity(0.45),
+                width: 0.8,
+              ),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppTheme.darkCard.withOpacity(0.96),
+                  AppTheme.darkSurface.withOpacity(0.96),
+                ],
+              ),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+                child: Padding(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.4),
-                        blurRadius: 20,
-                        spreadRadius: 2,
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: AppTheme.darkSurface.withOpacity(0.9),
+                          border: Border.all(
+                            color: AppTheme.primaryBlue.withOpacity(0.4),
+                            width: 0.7,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.place_outlined,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.propertyName,
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppTheme.primaryBlue,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              widget.address,
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppTheme.textLight,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.location_on,
-                    color: Colors.white,
-                    size: 24,
-                  ),
                 ),
-              );
-            },
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.tr('property.map.location'),
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  widget.address,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppTheme.textWhite,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ],
@@ -206,8 +237,6 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
     );
   }
 
-  /// Builds the futuristic action buttons.
-  /// العربية: يبني futuristic action buttons.
   Widget _buildFuturisticActionButtons() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -215,11 +244,27 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
         children: [
           Expanded(
             child: _buildActionButton(
+              icon: Icons.directions,
+              label: 'الاتجاهات',
+              backgroundColor: AppTheme.primaryBlue,
+              onTap: _openDirections,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildActionButton(
+              icon: Icons.share_location,
+              label: 'مشاركة الموقع',
+              backgroundColor: AppTheme.primaryPurple,
+              onTap: _shareLocation,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildActionButton(
               icon: Icons.map,
-              label: context.tr('property.map.fullscreen'),
-              gradient: LinearGradient(
-                colors: [AppTheme.success, AppTheme.neonGreen],
-              ),
+              label: 'ملء الشاشة',
+              backgroundColor: AppTheme.success,
               onTap: _openFullScreenMap,
             ),
           ),
@@ -228,12 +273,10 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
     );
   }
 
-  /// Builds the action button.
-  /// العربية: يبني action button.
   Widget _buildActionButton({
     required IconData icon,
     required String label,
-    required LinearGradient gradient,
+    required Color backgroundColor,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
@@ -244,11 +287,11 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          gradient: gradient,
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: gradient.colors[0].withOpacity(0.3),
+              color: backgroundColor.withOpacity(0.25),
               blurRadius: 12,
               spreadRadius: 1,
             ),
@@ -264,8 +307,8 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
               style: AppTextStyles.caption.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
+                letterSpacing: 0.3,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -273,11 +316,8 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
     );
   }
 
-  /// Builds the futuristic map.
-  /// العربية: يبني futuristic map.
   Widget _buildFuturisticMap() {
     return Container(
-      height: 300,
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -295,54 +335,43 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(18),
-        child: Stack(
-          children: [
-            GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: LatLng(widget.latitude, widget.longitude),
-                zoom: 15,
-                tilt: 45,
+        child: SizedBox(
+          height: _mapHeight,
+          width: double.infinity,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(widget.latitude, widget.longitude),
+                  zoom: 15,
+                  tilt: 45,
+                ),
+                markers: _markers,
+                onMapCreated: (GoogleMapController controller) {
+                  _mapController = controller;
+                  _setFuturisticMapStyle();
+                },
+                zoomControlsEnabled: false,
+                mapToolbarEnabled: false,
+                myLocationButtonEnabled: false,
+                compassEnabled: true,
+                mapType: MapType.normal,
               ),
-              markers: _markers,
-              onMapCreated: (GoogleMapController controller) {
-                _mapController = controller;
-                _setFuturisticMapStyle();
-              },
-              zoomControlsEnabled: false,
-              mapToolbarEnabled: false,
-              myLocationButtonEnabled: false,
-              compassEnabled: true,
-              mapType: MapType.normal,
-            ),
-
-            // Gradient overlay
-            Positioned.fill(
-              child: IgnorePointer(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        AppTheme.primaryBlue.withOpacity(0.1),
-                        Colors.transparent,
-                        Colors.transparent,
-                        AppTheme.darkBackground.withOpacity(0.3),
-                      ],
-                      stops: const [0.0, 0.2, 0.8, 1.0],
-                    ),
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Container(
+                    color: AppTheme.darkBackground.withOpacity(0.25),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  /// Sets the futuristic map style.
-  /// العربية: يضبط futuristic map style.
   void _setFuturisticMapStyle() {
     const String mapStyle = '''
     [
@@ -414,8 +443,374 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
     _mapController?.setMapStyle(mapStyle);
   }
 
-  /// Opens the full screen map.
-  /// العربية: يفتح full screen map.
+  Widget _buildFuturisticNearbyPlaces() {
+    final places = [
+      {
+        'icon': Icons.school,
+        'title': 'جامعة صنعاء',
+        'distance': '650 م',
+        'time': '9 دقائق مشياً',
+        'color': AppTheme.info,
+      },
+      {
+        'icon': Icons.local_hospital,
+        'title': 'مستشفى الثورة العام',
+        'distance': '1.1 كم',
+        'time': '14 دقيقة مشياً',
+        'color': AppTheme.error,
+      },
+      {
+        'icon': Icons.shopping_cart,
+        'title': 'سوق المعلا المركزي',
+        'distance': '900 م',
+        'time': '12 دقيقة مشياً',
+        'color': AppTheme.primaryPurple,
+      },
+      {
+        'icon': Icons.mosque,
+        'title': 'جامع الصالح',
+        'distance': '450 م',
+        'time': '6 دقائق مشياً',
+        'color': AppTheme.success,
+      },
+      {
+        'icon': Icons.restaurant,
+        'title': 'مطعم الفل اليمني',
+        'distance': '1.6 كم',
+        'time': '5 دقائق بالسيارة',
+        'color': AppTheme.warning,
+      },
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'الأماكن القريبة',
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: AppTheme.textWhite,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      height: 2,
+                      width: 64,
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryBlue,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              GestureDetector(
+                onTap: _showAllNearbyPlaces,
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(999),
+                    color: AppTheme.primaryViolet,
+                  ),
+                  child: const Icon(
+                    Icons.explore,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: AppTheme.darkBorder.withOpacity(0.9),
+                width: 0.9,
+              ),
+              color: AppTheme.darkCard.withOpacity(0.96),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                children: [
+                  for (int i = 0; i < places.length; i++)
+                    _buildNearbyPlaceTimelineRow(
+                      icon: places[i]['icon'] as IconData,
+                      title: places[i]['title'] as String,
+                      distance: places[i]['distance'] as String,
+                      time: places[i]['time'] as String,
+                      color: places[i]['color'] as Color,
+                      isLast: i == places.length - 1,
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNearbyPlaceTimelineRow({
+    required IconData icon,
+    required String title,
+    required String distance,
+    required String time,
+    required Color color,
+    required bool isLast,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            children: [
+              Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: color.withOpacity(0.9),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withOpacity(0.35),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+              ),
+              if (!isLast) ...[
+                const SizedBox(height: 4),
+                Container(
+                  width: 2,
+                  height: 34,
+                  color: color.withOpacity(0.35),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _buildNearbyPlaceItem(
+              icon: icon,
+              title: title,
+              distance: distance,
+              time: time,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNearbyPlaceItem({
+    required IconData icon,
+    required String title,
+    required String distance,
+    required String time,
+    required Color color,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: color.withOpacity(0.35),
+          width: 0.8,
+        ),
+        color: AppTheme.darkCard.withOpacity(0.96),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _showPlaceDetails(title),
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withOpacity(0.25),
+                        blurRadius: 10,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 20,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppTheme.textWhite,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.location_on_outlined,
+                                size: 12,
+                                color: AppTheme.textMuted,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                distance,
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppTheme.textMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            width: 1,
+                            height: 12,
+                            color: AppTheme.textMuted.withOpacity(0.3),
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.directions_walk,
+                                size: 12,
+                                color: AppTheme.textMuted,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                time,
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppTheme.textMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.14),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openDirections() {
+    // Open directions in Google Maps or Apple Maps
+    HapticFeedback.heavyImpact();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryCyan,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.directions,
+                size: 16,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text('جاري فتح الاتجاهات...'),
+          ],
+        ),
+        backgroundColor: AppTheme.darkCard,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+    // TODO: Implement actual maps integration
+  }
+
+  void _shareLocation() {
+    HapticFeedback.mediumImpact();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryPurple,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.share_location,
+                size: 16,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text('جاري مشاركة الموقع...'),
+          ],
+        ),
+        backgroundColor: AppTheme.darkCard,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+    // TODO: Implement share functionality
+  }
+
   void _openFullScreenMap() {
     HapticFeedback.mediumImpact();
     Navigator.push(
@@ -430,30 +825,150 @@ class _LocationMapWidgetState extends State<LocationMapWidget>
       ),
     );
   }
+
+  void _showAllNearbyPlaces() {
+    HapticFeedback.lightImpact();
+    // Navigate to all nearby places page
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('عرض جميع الأماكن القريبة...'),
+        duration: Duration(seconds: 1),
+      ),
+    );
+  }
+
+  void _showPlaceDetails(String placeName) {
+    HapticFeedback.lightImpact();
+    // Show place details bottom sheet or navigate to details page
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: 200,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppTheme.darkCard.withOpacity(0.95),
+              AppTheme.darkSurface,
+            ],
+          ),
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(30),
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(30),
+          ),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 12),
+                  width: 50,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryCyan,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  placeName,
+                  style: AppTextStyles.h2.copyWith(
+                    color: AppTheme.textWhite,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _buildBottomSheetButton(
+                          icon: Icons.directions,
+                          label: 'الاتجاهات',
+                          onTap: () {
+                            Navigator.pop(context);
+                            _openDirections();
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildBottomSheetButton(
+                          icon: Icons.info_outline,
+                          label: 'المعلومات',
+                          onTap: () {
+                            Navigator.pop(context);
+                            // Show more info
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomSheetButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: AppTheme.primaryPurple,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primaryBlue.withOpacity(0.3),
+              blurRadius: 12,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: AppTextStyles.buttonMedium.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 // Full screen map view
-/// Describes the FullScreenMapView type used in the property feature.
-/// العربية: يمثل `FullScreenMapView`.
 class FullScreenMapView extends StatefulWidget {
-  /// Keeps the latitude value available to this object.
-  /// العربية: يخزن القيمة `latitude`.
   final double latitude;
-
-  /// Keeps the longitude value available to this object.
-  /// العربية: يخزن القيمة `longitude`.
   final double longitude;
-
-  /// Keeps the propertyName value available to this object.
-  /// العربية: يخزن القيمة `propertyName`.
   final String propertyName;
-
-  /// Keeps the address value available to this object.
-  /// العربية: يخزن القيمة `address`.
   final String address;
 
-  /// Constructs the FullScreenMapView value used by this feature.
-  /// العربية: ينشئ مثيلًا جديدًا من `FullScreenMapView`.
   const FullScreenMapView({
     super.key,
     required this.latitude,
@@ -462,48 +977,22 @@ class FullScreenMapView extends StatefulWidget {
     required this.address,
   });
 
-  /// Builds the state object for this widget used by this feature.
-  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<FullScreenMapView> createState() => _FullScreenMapViewState();
 }
 
-/// Describes the state for `FullScreenMapViewState`.
-/// العربية: يمثل الحالة الخاصة بـ `FullScreenMapViewState`.
 class _FullScreenMapViewState extends State<FullScreenMapView> {
-  /// Keeps the mapController value available to this object.
-  /// العربية: يخزن القيمة `mapController`.
   GoogleMapController? _mapController;
-
-  /// Keeps the currentMapType value available to this object.
-  /// العربية: يخزن القيمة `currentMapType`.
   MapType _currentMapType = MapType.normal;
-
-  /// Keeps the markers value available to this object.
-  /// العربية: يخزن القيمة `markers`.
   final Set<Marker> _markers = {};
-
-  /// Keeps the circles value available to this object.
-  /// العربية: يخزن القيمة `circles`.
   final Set<Circle> _circles = {};
 
-  final List<MapType> _mapTypes = const [
-    MapType.normal,
-    MapType.satellite,
-    MapType.terrain,
-    MapType.hybrid,
-  ];
-
-  /// Initializes the state for this widget.
-  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
     _initializeMapElements();
   }
 
-  /// Initializes the map elements.
-  /// العربية: يهيئ map elements.
   void _initializeMapElements() {
     _markers.add(
       Marker(
@@ -529,8 +1018,6 @@ class _FullScreenMapViewState extends State<FullScreenMapView> {
     );
   }
 
-  /// Builds the widget tree for this component.
-  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -611,13 +1098,19 @@ class _FullScreenMapViewState extends State<FullScreenMapView> {
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: IconButton(
                   icon: Icon(
-                    _mapTypeIcon(),
+                    _currentMapType == MapType.normal
+                        ? Icons.satellite_outlined
+                        : Icons.map_outlined,
                     color: Colors.white,
                     size: 20,
                   ),
                   onPressed: () {
                     HapticFeedback.lightImpact();
-                    _cycleMapType();
+                    setState(() {
+                      _currentMapType = _currentMapType == MapType.normal
+                          ? MapType.satellite
+                          : MapType.normal;
+                    });
                   },
                 ),
               ),
@@ -639,8 +1132,6 @@ class _FullScreenMapViewState extends State<FullScreenMapView> {
               _mapController = controller;
               if (_currentMapType == MapType.normal) {
                 _setFuturisticMapStyle();
-              } else {
-                _mapController?.setMapStyle(null);
               }
             },
             mapType: _currentMapType,
@@ -711,7 +1202,7 @@ class _FullScreenMapViewState extends State<FullScreenMapView> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          gradient: AppTheme.primaryGradient,
+                          color: AppTheme.primaryViolet,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
@@ -756,8 +1247,6 @@ class _FullScreenMapViewState extends State<FullScreenMapView> {
     );
   }
 
-  /// Builds the map control button.
-  /// العربية: يبني map control button.
   Widget _buildMapControlButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -804,8 +1293,6 @@ class _FullScreenMapViewState extends State<FullScreenMapView> {
     );
   }
 
-  /// Sets the futuristic map style.
-  /// العربية: يضبط futuristic map style.
   void _setFuturisticMapStyle() {
     const String mapStyle = '''
     [
@@ -836,38 +1323,610 @@ class _FullScreenMapViewState extends State<FullScreenMapView> {
 
     _mapController?.setMapStyle(mapStyle);
   }
-
-  // [ISSUE 1017] اضافة زر والية تغيير طريقة عرض الخريطة في صفحة كامل الخريطة في صفحة تفاصيل العقار
-  /// Processes the cycleMapType flow and maps it into the property feature behavior.
-  /// العربية: يعالج `cycleMapType`.
-  void _cycleMapType() {
-    final currentIndex = _mapTypes.indexOf(_currentMapType);
-    final nextIndex = (currentIndex + 1) % _mapTypes.length;
-    setState(() {
-      _currentMapType = _mapTypes[nextIndex];
-    });
-
-    if (_currentMapType == MapType.normal) {
-      _setFuturisticMapStyle();
-    } else {
-      _mapController?.setMapStyle(null);
-    }
-  }
-
-  /// Maps the type icon.
-  /// العربية: يحّول type icon.
-  IconData _mapTypeIcon() {
-    switch (_currentMapType) {
-      case MapType.normal:
-        return Icons.layers_outlined;
-      case MapType.satellite:
-        return Icons.satellite_outlined;
-      case MapType.terrain:
-        return Icons.terrain_outlined;
-      case MapType.hybrid:
-        return Icons.public_outlined;
-      default:
-        return Icons.map_outlined;
-    }
-  }
 }
+
+// import 'package:flutter/material.dart';
+// import 'package:flutter/services.dart';
+// import 'package:google_maps_flutter/google_maps_flutter.dart';
+// import 'dart:ui';
+// import '../../../../core/theme/app_theme.dart';
+// import '../../../../core/theme/app_text_styles.dart';
+
+// class LocationMapWidget extends StatefulWidget {
+//   final double latitude;
+//   final double longitude;
+//   final String propertyName;
+//   final String address;
+
+//   const LocationMapWidget({
+//     super.key,
+//     required this.latitude,
+//     required this.longitude,
+//     required this.propertyName,
+//     required this.address,
+//   });
+
+//   @override
+//   State<LocationMapWidget> createState() => _LocationMapWidgetState();
+// }
+
+// class _LocationMapWidgetState extends State<LocationMapWidget>
+//     with SingleTickerProviderStateMixin {
+//   GoogleMapController? _mapController;
+//   final Set<Marker> _markers = {};
+//   late AnimationController _fadeController;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _initializeMarker();
+//     _fadeController = AnimationController(
+//       duration: const Duration(milliseconds: 800),
+//       vsync: this,
+//     )..forward();
+//   }
+
+//   void _initializeMarker() {
+//     _markers.add(
+//       Marker(
+//         markerId: const MarkerId('property'),
+//         position: LatLng(widget.latitude, widget.longitude),
+//         infoWindow: InfoWindow(
+//           title: widget.propertyName,
+//           snippet: widget.address,
+//         ),
+//       ),
+//     );
+//   }
+
+//   @override
+//   void dispose() {
+//     _mapController?.dispose();
+//     _fadeController.dispose();
+//     super.dispose();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return FadeTransition(
+//       opacity: _fadeController,
+//       child: SingleChildScrollView(
+//         physics: const BouncingScrollPhysics(),
+//         child: Padding(
+//           padding: const EdgeInsets.all(20),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               _buildElegantLocationHeader(),
+//               const SizedBox(height: 20),
+//               _buildElegantActionButtons(),
+//               const SizedBox(height: 20),
+//               _buildElegantMap(),
+//               const SizedBox(height: 20),
+//               _buildElegantNearbyPlaces(),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildElegantLocationHeader() {
+//     return Container(
+//       padding: const EdgeInsets.all(20),
+//       decoration: BoxDecoration(
+//         gradient: LinearGradient(
+//           begin: Alignment.topLeft,
+//           end: Alignment.bottomRight,
+//           colors: [
+//             AppTheme.primaryCyan.withOpacity(0.08),
+//             AppTheme.primaryCyan.withOpacity(0.03),
+//           ],
+//         ),
+//         borderRadius: BorderRadius.circular(20),
+//         border: Border.all(
+//           color: AppTheme.primaryCyan.withOpacity(0.15),
+//           width: 1,
+//         ),
+//       ),
+//       child: Row(
+//         children: [
+//           Container(
+//             width: 48,
+//             height: 48,
+//             decoration: BoxDecoration(
+//               gradient: LinearGradient(
+//                 colors: [
+//                   AppTheme.primaryCyan.withOpacity(0.2),
+//                   AppTheme.primaryCyan.withOpacity(0.1),
+//                 ],
+//               ),
+//               borderRadius: BorderRadius.circular(12),
+//             ),
+//             child: Icon(
+//               Icons.location_on_rounded,
+//               color: AppTheme.primaryCyan,
+//               size: 24,
+//             ),
+//           ),
+//           const SizedBox(width: 16),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   'الموقع',
+//                   style: AppTextStyles.caption.copyWith(
+//                     color: AppTheme.textMuted,
+//
+//                   ),
+//                 ),
+//                 const SizedBox(height: 4),
+//                 Text(
+//                   widget.address,
+//                   style: AppTextStyles.bodyMedium.copyWith(
+//                     color: AppTheme.textWhite,
+//                     fontWeight: FontWeight.w600,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildElegantActionButtons() {
+//     return Row(
+//       children: [
+//         Expanded(
+//           child: _buildActionButton(
+//             icon: Icons.directions_rounded,
+//             label: 'الاتجاهات',
+//             gradient: AppTheme.primaryGradient,
+//             onTap: _openDirections,
+//           ),
+//         ),
+//         const SizedBox(width: 12),
+//         Expanded(
+//           child: _buildActionButton(
+//             icon: Icons.share_location_rounded,
+//             label: 'مشاركة',
+//             gradient: LinearGradient(
+//               colors: [
+//                 AppTheme.primaryPurple,
+//                 AppTheme.primaryPurple.withOpacity(0.8)
+//               ],
+//             ),
+//             onTap: _shareLocation,
+//           ),
+//         ),
+//         const SizedBox(width: 12),
+//         Expanded(
+//           child: _buildActionButton(
+//             icon: Icons.fullscreen_rounded,
+//             label: 'ملء الشاشة',
+//             gradient: LinearGradient(
+//               colors: [AppTheme.success, AppTheme.success.withOpacity(0.8)],
+//             ),
+//             onTap: _openFullScreenMap,
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+
+//   Widget _buildActionButton({
+//     required IconData icon,
+//     required String label,
+//     required Gradient gradient,
+//     required VoidCallback onTap,
+//   }) {
+//     return Container(
+//       decoration: BoxDecoration(
+//         gradient: gradient,
+//         borderRadius: BorderRadius.circular(16),
+//         boxShadow: [
+//           BoxShadow(
+//             color: gradient.colors[0].withOpacity(0.2),
+//             blurRadius: 8,
+//             offset: const Offset(0, 3),
+//           ),
+//         ],
+//       ),
+//       child: Material(
+//         color: Colors.transparent,
+//         borderRadius: BorderRadius.circular(16),
+//         child: InkWell(
+//           onTap: () {
+//             onTap();
+//             HapticFeedback.lightImpact();
+//           },
+//           borderRadius: BorderRadius.circular(16),
+//           child: Container(
+//             padding: const EdgeInsets.symmetric(vertical: 14),
+//             child: Column(
+//               mainAxisSize: MainAxisSize.min,
+//               children: [
+//                 Icon(icon, color: Colors.white, size: 22),
+//                 const SizedBox(height: 4),
+//                 Text(
+//                   label,
+//                   style: AppTextStyles.caption.copyWith(
+//                     color: Colors.white,
+//                     fontWeight: FontWeight.w600,
+//
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildElegantMap() {
+//     return Container(
+//       height: 320,
+//       decoration: BoxDecoration(
+//         borderRadius: BorderRadius.circular(20),
+//         boxShadow: [
+//           BoxShadow(
+//             color: AppTheme.shadowDark.withOpacity(0.2),
+//             blurRadius: 15,
+//             offset: const Offset(0, 5),
+//           ),
+//         ],
+//       ),
+//       child: ClipRRect(
+//         borderRadius: BorderRadius.circular(20),
+//         child: GoogleMap(
+//           initialCameraPosition: CameraPosition(
+//             target: LatLng(widget.latitude, widget.longitude),
+//             zoom: 15,
+//           ),
+//           markers: _markers,
+//           onMapCreated: (GoogleMapController controller) {
+//             _mapController = controller;
+//             _setElegantMapStyle();
+//           },
+//           zoomControlsEnabled: false,
+//           mapToolbarEnabled: false,
+//           myLocationButtonEnabled: false,
+//           compassEnabled: false,
+//           mapType: MapType.normal,
+//         ),
+//       ),
+//     );
+//   }
+
+//   void _setElegantMapStyle() {
+//     const String mapStyle = '''
+//     [
+//       {
+//         "elementType": "geometry",
+//         "stylers": [{"color": "#f5f5f5"}]
+//       },
+//       {
+//         "elementType": "labels.icon",
+//         "stylers": [{"visibility": "off"}]
+//       },
+//       {
+//         "elementType": "labels.text.fill",
+//         "stylers": [{"color": "#616161"}]
+//       },
+//       {
+//         "elementType": "labels.text.stroke",
+//         "stylers": [{"color": "#f5f5f5"}]
+//       },
+//       {
+//         "featureType": "administrative.land_parcel",
+//         "elementType": "labels.text.fill",
+//         "stylers": [{"color": "#bdbdbd"}]
+//       },
+//       {
+//         "featureType": "poi",
+//         "elementType": "geometry",
+//         "stylers": [{"color": "#eeeeee"}]
+//       },
+//       {
+//         "featureType": "poi",
+//         "elementType": "labels.text.fill",
+//         "stylers": [{"color": "#757575"}]
+//       },
+//       {
+//         "featureType": "poi.park",
+//         "elementType": "geometry",
+//         "stylers": [{"color": "#e5e5e5"}]
+//       },
+//       {
+//         "featureType": "poi.park",
+//         "elementType": "labels.text.fill",
+//         "stylers": [{"color": "#9e9e9e"}]
+//       },
+//       {
+//         "featureType": "road",
+//         "elementType": "geometry",
+//         "stylers": [{"color": "#ffffff"}]
+//       },
+//       {
+//         "featureType": "road.arterial",
+//         "elementType": "labels.text.fill",
+//         "stylers": [{"color": "#757575"}]
+//       },
+//       {
+//         "featureType": "road.highway",
+//         "elementType": "geometry",
+//         "stylers": [{"color": "#dadada"}]
+//       },
+//       {
+//         "featureType": "road.highway",
+//         "elementType": "labels.text.fill",
+//         "stylers": [{"color": "#616161"}]
+//       },
+//       {
+//         "featureType": "road.local",
+//         "elementType": "labels.text.fill",
+//         "stylers": [{"color": "#9e9e9e"}]
+//       },
+//       {
+//         "featureType": "transit.line",
+//         "elementType": "geometry",
+//         "stylers": [{"color": "#e5e5e5"}]
+//       },
+//       {
+//         "featureType": "transit.station",
+//         "elementType": "geometry",
+//         "stylers": [{"color": "#eeeeee"}]
+//       },
+//       {
+//         "featureType": "water",
+//         "elementType": "geometry",
+//         "stylers": [{"color": "#c9c9c9"}]
+//       },
+//       {
+//         "featureType": "water",
+//         "elementType": "labels.text.fill",
+//         "stylers": [{"color": "#9e9e9e"}]
+//       }
+//     ]
+//     ''';
+
+//     _mapController?.setMapStyle(mapStyle);
+//   }
+
+//   Widget _buildElegantNearbyPlaces() {
+//     final places = [
+//       {
+//         'icon': Icons.school_rounded,
+//         'title': 'مدرسة الملك فهد',
+//         'distance': '500 م',
+//         'time': '7 دقائق مشياً',
+//         'color': AppTheme.info,
+//       },
+//       {
+//         'icon': Icons.local_hospital_rounded,
+//         'title': 'مستشفى الملك عبدالعزيز',
+//         'distance': '1.2 كم',
+//         'time': '15 دقيقة مشياً',
+//         'color': AppTheme.error,
+//       },
+//       {
+//         'icon': Icons.shopping_cart_rounded,
+//         'title': 'سوبر ماركت العثيم',
+//         'distance': '300 م',
+//         'time': '4 دقائق مشياً',
+//         'color': AppTheme.primaryPurple,
+//       },
+//       {
+//         'icon': Icons.mosque_rounded,
+//         'title': 'مسجد الرحمن',
+//         'distance': '200 م',
+//         'time': '3 دقائق مشياً',
+//         'color': AppTheme.success,
+//       },
+//     ];
+
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Row(
+//           children: [
+//             Container(
+//               width: 36,
+//               height: 36,
+//               decoration: BoxDecoration(
+//                 gradient: AppTheme.primaryGradient,
+//                 borderRadius: BorderRadius.circular(10),
+//               ),
+//               child: const Icon(
+//                 Icons.explore_rounded,
+//                 size: 18,
+//                 color: Colors.white,
+//               ),
+//             ),
+//             const SizedBox(width: 12),
+//             Text(
+//               'الأماكن القريبة',
+//               style: AppTextStyles.bodyLarge.copyWith(
+//                 color: AppTheme.textWhite,
+//                 fontWeight: FontWeight.w600,
+//               ),
+//             ),
+//           ],
+//         ),
+//         const SizedBox(height: 16),
+//         ...places.asMap().entries.map((entry) {
+//           final index = entry.key;
+//           final place = entry.value;
+//           return TweenAnimationBuilder<double>(
+//             tween: Tween(begin: 0.0, end: 1.0),
+//             duration: Duration(milliseconds: 400 + (index * 100)),
+//             curve: Curves.easeOutCubic,
+//             builder: (context, value, child) {
+//               return Transform.scale(
+//                 scale: 0.95 + (0.05 * value),
+//                 child: Opacity(
+//                   opacity: value,
+//                   child: _buildNearbyPlaceItem(
+//                     icon: place['icon'] as IconData,
+//                     title: place['title'] as String,
+//                     distance: place['distance'] as String,
+//                     time: place['time'] as String,
+//                     color: place['color'] as Color,
+//                   ),
+//                 ),
+//               );
+//             },
+//           );
+//         }),
+//       ],
+//     );
+//   }
+
+//   Widget _buildNearbyPlaceItem({
+//     required IconData icon,
+//     required String title,
+//     required String distance,
+//     required String time,
+//     required Color color,
+//   }) {
+//     return Container(
+//       margin: const EdgeInsets.only(bottom: 12),
+//       decoration: BoxDecoration(
+//         gradient: LinearGradient(
+//           colors: [
+//             color.withOpacity(0.08),
+//             color.withOpacity(0.03),
+//           ],
+//         ),
+//         borderRadius: BorderRadius.circular(16),
+//         border: Border.all(
+//           color: color.withOpacity(0.15),
+//           width: 1,
+//         ),
+//       ),
+//       child: Material(
+//         color: Colors.transparent,
+//         borderRadius: BorderRadius.circular(16),
+//         child: InkWell(
+//           onTap: () => _showPlaceDetails(title),
+//           borderRadius: BorderRadius.circular(16),
+//           child: Padding(
+//             padding: const EdgeInsets.all(14),
+//             child: Row(
+//               children: [
+//                 Container(
+//                   width: 42,
+//                   height: 42,
+//                   decoration: BoxDecoration(
+//                     gradient: LinearGradient(
+//                       colors: [
+//                         color.withOpacity(0.2),
+//                         color.withOpacity(0.1),
+//                       ],
+//                     ),
+//                     borderRadius: BorderRadius.circular(12),
+//                   ),
+//                   child: Icon(
+//                     icon,
+//                     size: 22,
+//                     color: color,
+//                   ),
+//                 ),
+//                 const SizedBox(width: 14),
+//                 Expanded(
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Text(
+//                         title,
+//                         style: AppTextStyles.bodyMedium.copyWith(
+//                           color: AppTheme.textWhite,
+//                           fontWeight: FontWeight.w600,
+//                         ),
+//                       ),
+//                       const SizedBox(height: 4),
+//                       Row(
+//                         children: [
+//                           Icon(
+//                             Icons.location_on_outlined,
+//                             size: 12,
+//                             color: AppTheme.textMuted,
+//                           ),
+//                           const SizedBox(width: 4),
+//                           Text(
+//                             distance,
+//                             style: AppTextStyles.caption.copyWith(
+//                               color: AppTheme.textMuted,
+//
+//                             ),
+//                           ),
+//                           const SizedBox(width: 8),
+//                           Container(
+//                             width: 1,
+//                             height: 12,
+//                             color: AppTheme.textMuted.withOpacity(0.3),
+//                           ),
+//                           const SizedBox(width: 8),
+//                           Icon(
+//                             Icons.directions_walk_rounded,
+//                             size: 12,
+//                             color: AppTheme.textMuted,
+//                           ),
+//                           const SizedBox(width: 4),
+//                           Text(
+//                             time,
+//                             style: AppTextStyles.caption.copyWith(
+//                               color: AppTheme.textMuted,
+//
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//                 Container(
+//                   width: 32,
+//                   height: 32,
+//                   decoration: BoxDecoration(
+//                     color: color.withOpacity(0.1),
+//                     borderRadius: BorderRadius.circular(8),
+//                   ),
+//                   child: Icon(
+//                     Icons.arrow_forward_ios_rounded,
+//                     size: 14,
+//                     color: color,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   void _openDirections() {
+//     HapticFeedback.lightImpact();
+//     // TODO: Implement actual directions
+//   }
+
+//   void _shareLocation() {
+//     HapticFeedback.lightImpact();
+//     // TODO: Implement share functionality
+//   }
+
+//   void _openFullScreenMap() {
+//     HapticFeedback.lightImpact();
+//     // TODO: Navigate to full screen map
+//   }
+
+//   void _showPlaceDetails(String placeName) {
+//     HapticFeedback.lightImpact();
+//     // TODO: Show place details
+//   }
+// }

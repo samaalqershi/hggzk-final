@@ -87,6 +87,7 @@ class AppLocalizations {
     'edit': 'common.edit',
     'add': 'common.add',
     'remove': 'common.remove',
+    'unread': 'common.unread',
     'yes': 'common.yes',
     'no': 'common.no',
     'ok': 'common.ok',
@@ -149,6 +150,7 @@ class AppLocalizations {
       'common.skip': 'تخطي',
       'common.login': 'تسجيل الدخول',
       'common.required': 'هذا الحقل مطلوب',
+      'common.unread': 'غير مقروء',
       'common.sessionExpired':
           'انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى',
       'support.help_support': 'الدعم والمساعدة',
@@ -175,6 +177,7 @@ class AppLocalizations {
       'common.skip': 'Skip',
       'common.login': 'Login',
       'common.required': 'This field is required',
+      'common.unread': 'Unread',
       'common.sessionExpired': 'Session expired. Please sign in again',
       'support.help_support': 'Help & Support',
       'support.reference': 'Reference',

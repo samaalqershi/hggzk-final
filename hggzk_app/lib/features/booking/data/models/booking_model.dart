@@ -1,4 +1,5 @@
 import '../../../../core/enums/booking_status.dart';
+import '../../../review/data/models/review_image_model.dart';
 import '../../domain/entities/booking.dart';
 import 'payment_model.dart';
 
@@ -324,6 +325,7 @@ class BookingUserReviewModel extends BookingUserReview {
     super.responseDate,
     required super.isPendingApproval,
     required super.isDisabled,
+    super.images,
   });
 
   /// العربية: ينشئ مثيلًا جديدًا من `BookingUserReviewModel.fromJson`.
@@ -349,6 +351,14 @@ class BookingUserReviewModel extends BookingUserReview {
           : null,
       isPendingApproval: json['isPendingApproval'] ?? false,
       isDisabled: json['isDisabled'] ?? false,
+      images: (json['images'] as List?)
+              ?.map(
+                (e) => ReviewImageModel.fromJson(
+                  (e as Map).cast<String, dynamic>(),
+                ),
+              )
+              .toList() ??
+          const [],
     );
   }
 
@@ -369,6 +379,7 @@ class BookingUserReviewModel extends BookingUserReview {
       responseDate: entity.responseDate,
       isPendingApproval: entity.isPendingApproval,
       isDisabled: entity.isDisabled,
+      images: entity.images,
     );
   }
 
@@ -389,6 +400,20 @@ class BookingUserReviewModel extends BookingUserReview {
       'responseDate': responseDate?.toIso8601String(),
       'isPendingApproval': isPendingApproval,
       'isDisabled': isDisabled,
+      'images': images
+          .map(
+            (e) => ReviewImageModel(
+              id: e.id,
+              url: e.url,
+              thumbnailUrl: e.thumbnailUrl,
+              caption: e.caption,
+              displayOrder: e.displayOrder,
+              sizeBytes: e.sizeBytes,
+              type: e.type,
+              uploadedAt: e.uploadedAt,
+            ).toJson(),
+          )
+          .toList(),
     };
   }
 }

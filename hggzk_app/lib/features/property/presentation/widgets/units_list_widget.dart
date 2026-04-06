@@ -2,29 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'dart:math' as math;
-import '../../../../core/localization/app_localizations.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/unit.dart';
 
-/// Describes the UnitsListWidget widget used in the property feature.
-/// العربية: يمثل العنصر `UnitsListWidget`.
 class UnitsListWidget extends StatefulWidget {
-  /// Keeps the units value available to this object.
-  /// العربية: يخزن القيمة `units`.
   final List<Unit> units;
-
-  /// Processes the Function flow and maps it into the property feature behavior.
-  /// العربية: يعالج `Function`.
   final Function(Unit) onUnitSelect;
-
-  /// Keeps the selectedUnitId value available to this object.
-  /// العربية: يخزن القيمة `selectedUnitId`.
   final String? selectedUnitId;
 
-  /// Constructs the UnitsListWidget value used by this feature.
-  /// العربية: ينشئ مثيلًا جديدًا من `UnitsListWidget`.
   const UnitsListWidget({
     super.key,
     required this.units,
@@ -32,50 +20,23 @@ class UnitsListWidget extends StatefulWidget {
     this.selectedUnitId,
   });
 
-  /// Builds the state object for this widget used by this feature.
-  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<UnitsListWidget> createState() => _UnitsListWidgetState();
 }
 
-/// Describes the state for `UnitsListWidgetState`.
-/// العربية: يمثل الحالة الخاصة بـ `UnitsListWidgetState`.
 class _UnitsListWidgetState extends State<UnitsListWidget>
     with TickerProviderStateMixin {
-  /// Keeps the gridController value available to this object.
-  /// العربية: يخزن القيمة `gridController`.
   late AnimationController _gridController;
-
-  /// Keeps the pulseController value available to this object.
-  /// العربية: يخزن القيمة `pulseController`.
   late AnimationController _pulseController;
-
-  /// Keeps the shimmerController value available to this object.
-  /// العربية: يخزن القيمة `shimmerController`.
   late AnimationController _shimmerController;
 
-  /// Keeps the gridAnimation value available to this object.
-  /// العربية: يخزن القيمة `gridAnimation`.
   late Animation<double> _gridAnimation;
-
-  /// Keeps the pulseAnimation value available to this object.
-  /// العربية: يخزن القيمة `pulseAnimation`.
   late Animation<double> _pulseAnimation;
 
-  /// Keeps the cardControllers value available to this object.
-  /// العربية: يخزن القيمة `cardControllers`.
   final Map<String, AnimationController> _cardControllers = {};
-
-  /// Keeps the orbs value available to this object.
-  /// العربية: يخزن القيمة `orbs`.
   final List<_FloatingOrb> _orbs = [];
+  bool _isGridView = false;
 
-  /// Indicates whether `isGridView` is enabled.
-  /// العربية: يحدد ما إذا كانت القيمة `isGridView` مفعلة.
-  bool _isGridView = true;
-
-  /// Initializes the state for this widget.
-  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -84,8 +45,6 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     _startAnimations();
   }
 
-  /// Initializes the animations.
-  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     _gridController = AnimationController(
       duration: const Duration(milliseconds: 600),
@@ -119,16 +78,12 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     ));
   }
 
-  /// Generates the orbs.
-  /// العربية: ينشئ orbs.
   void _generateOrbs() {
     for (int i = 0; i < 5; i++) {
       _orbs.add(_FloatingOrb());
     }
   }
 
-  /// Starts the animations.
-  /// العربية: يبدأ animations.
   void _startAnimations() {
     Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted) {
@@ -137,8 +92,6 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     });
   }
 
-  /// Releases the resources used by this instance.
-  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _gridController.dispose();
@@ -150,8 +103,6 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     super.dispose();
   }
 
-  /// Builds the widget tree for this component.
-  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     if (widget.units.isEmpty) {
@@ -161,28 +112,25 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     return Stack(
       children: [
         _buildAnimatedBackground(),
-        Column(
-          children: [
-            _buildViewToggle(),
-            Expanded(
-              child: AnimatedBuilder(
-                animation: _gridAnimation,
-                builder: (context, child) {
-                  return Transform.scale(
-                    scale: 0.95 + (_gridAnimation.value * 0.05),
-                    child: _isGridView ? _buildGridView() : _buildListView(),
-                  );
-                },
+        AnimatedBuilder(
+          animation: _gridAnimation,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: 0.95 + (_gridAnimation.value * 0.05),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildViewToggle(),
+                  _isGridView ? _buildGridView() : _buildListView(),
+                ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );
   }
 
-  /// Builds the view toggle.
-  /// العربية: يبني view toggle.
   Widget _buildViewToggle() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -229,8 +177,6 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
-  /// Builds the toggle button.
-  /// العربية: يبني toggle button.
   Widget _buildToggleButton({
     required IconData icon,
     required bool isSelected,
@@ -242,7 +188,7 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          gradient: isSelected ? AppTheme.primaryGradient : null,
+          color: isSelected ? AppTheme.primaryBlue : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
         ),
         child: Icon(
@@ -254,11 +200,10 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
-  /// Builds the grid view.
-  /// العربية: يبني grid view.
   Widget _buildGridView() {
     return GridView.builder(
-      physics: const BouncingScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -285,11 +230,10 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
-  /// Builds the list view.
-  /// العربية: يبني list view.
   Widget _buildListView() {
     return ListView.builder(
-      physics: const BouncingScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       itemCount: widget.units.length,
       itemBuilder: (context, index) {
@@ -312,8 +256,6 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
-  /// Builds the compact unit card.
-  /// العربية: يبني compact unit card.
   Widget _buildCompactUnitCard(Unit unit, bool isSelected, int index) {
     // Debug: unit card build info
     // print('[UnitsListWidget] build card: unit.id=${unit.id}, selectedUnitId=${widget.selectedUnitId}, isSelected=$isSelected');
@@ -385,8 +327,6 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
-  /// Builds the horizontal unit card.
-  /// العربية: يبني horizontal unit card.
   Widget _buildHorizontalUnitCard(Unit unit, bool isSelected, int index) {
     return GestureDetector(
       onTap: () {
@@ -398,47 +338,48 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        height: 120,
+        height: 135,
         decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isSelected
+                ? AppTheme.primaryBlue.withOpacity(0.6)
+                : AppTheme.darkBorder.withOpacity(0.7),
+            width: isSelected ? 1.2 : 0.8,
+          ),
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: isSelected
-                ? [
-                    AppTheme.primaryBlue.withOpacity(0.25),
-                    AppTheme.primaryPurple.withOpacity(0.15),
-                  ]
-                : [
-                    AppTheme.darkCard.withOpacity(0.7),
-                    AppTheme.darkCard.withOpacity(0.5),
-                  ],
+            colors: [
+              AppTheme.darkCard.withOpacity(0.96),
+              AppTheme.darkSurface.withOpacity(0.96),
+            ],
           ),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected
-                ? AppTheme.primaryBlue.withOpacity(0.5)
-                : AppTheme.darkBorder.withOpacity(0.2),
-            width: isSelected ? 1.5 : 0.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected
-                  ? AppTheme.primaryBlue.withOpacity(0.2)
-                  : AppTheme.shadowDark.withOpacity(0.1),
-              blurRadius: isSelected ? 15 : 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.primaryBlue.withOpacity(0.25),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: AppTheme.shadowDark.withOpacity(0.4),
+                    blurRadius: 14,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(18),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Row(
               children: [
                 _buildHorizontalImageSection(unit, isSelected),
                 Expanded(
-                  child: _buildHorizontalContent(context, unit, isSelected),
+                  child: _buildHorizontalContent(unit, isSelected),
                 ),
               ],
             ),
@@ -448,8 +389,6 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
-  /// Builds the compact image section.
-  /// العربية: يبني compact image section.
   Widget _buildCompactImageSection(Unit unit, bool isSelected) {
     return Stack(
       children: [
@@ -578,14 +517,12 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
-  /// Builds the horizontal image section.
-  /// العربية: يبني horizontal image section.
   Widget _buildHorizontalImageSection(Unit unit, bool isSelected) {
     return Container(
       width: 120,
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.horizontal(
-          left: Radius.circular(14),
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.horizontal(
+          left: Radius.circular(18),
         ),
       ),
       child: Stack(
@@ -594,7 +531,7 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
           if (unit.images.isNotEmpty)
             ClipRRect(
               borderRadius: const BorderRadius.horizontal(
-                left: Radius.circular(14),
+                left: Radius.circular(18),
               ),
               child: CachedImageWidget(
                 imageUrl: unit.images.first.url,
@@ -605,8 +542,8 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
             Container(
               decoration: BoxDecoration(
                 color: AppTheme.darkCard,
-                borderRadius: BorderRadius.horizontal(
-                  left: Radius.circular(14),
+                borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(18),
                 ),
               ),
               child: Center(
@@ -617,15 +554,52 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
                 ),
               ),
             ),
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withOpacity(0.0),
+                  Colors.black.withOpacity(0.45),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            top: 8,
+            left: 8,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                unit.unitTypeName,
+                style: AppTextStyles.caption.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
           if (isSelected)
             Positioned(
-              top: 8,
+              bottom: 8,
               left: 8,
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   gradient: AppTheme.primaryGradient,
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryBlue.withOpacity(0.6),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: const Icon(
                   Icons.check,
@@ -639,8 +613,6 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
-  /// Builds the compact content.
-  /// العربية: يبني compact content.
   Widget _buildCompactContent(Unit unit, bool isSelected) {
     return Expanded(
       child: Padding(
@@ -669,7 +641,10 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
                   ),
                 ),
                 const SizedBox(height: 4),
-                if (unit.dynamicFields.isNotEmpty) _buildMiniFeatures(unit),
+                // إظهار الحقول إذا كان هناك fieldValues أو dynamicFields
+                if (unit.fieldValues.isNotEmpty ||
+                    unit.dynamicFields.isNotEmpty)
+                  _buildMiniFeatures(unit),
               ],
             ),
             Container(
@@ -692,13 +667,7 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
-  /// Builds the horizontal content.
-  /// العربية: يبني horizontal content.
-  Widget _buildHorizontalContent(
-    BuildContext context,
-    Unit unit,
-    bool isSelected,
-  ) {
+  Widget _buildHorizontalContent(Unit unit, bool isSelected) {
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Column(
@@ -728,6 +697,25 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
                       ),
                     ),
                   ),
+                  const SizedBox(width: 8),
+                  if (unit.adultCapacity != null)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.people_outline,
+                          size: 13,
+                          color: Colors.white70,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          '${unit.adultCapacity}',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppTheme.textWhite,
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
               const SizedBox(height: 4),
@@ -740,26 +728,33 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+              // إظهار الحقول إذا كان هناك fieldValues أو dynamicFields
+              if (unit.fieldValues.isNotEmpty ||
+                  unit.dynamicFields.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                _buildMiniFeatures(unit),
+              ],
             ],
           ),
-          if (unit.dynamicFields.isNotEmpty) _buildMiniFeatures(unit),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 6,
-            ),
-            decoration: BoxDecoration(
-              gradient: isSelected ? AppTheme.primaryGradient : null,
-              color: !isSelected ? AppTheme.primaryBlue.withOpacity(0.2) : null,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              isSelected
-                  ? context.tr('property.units.selected')
-                  : context.tr('property.units.select'),
-              style: AppTextStyles.caption.copyWith(
-                color: isSelected ? Colors.white : AppTheme.primaryBlue,
-                fontWeight: FontWeight.bold,
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                gradient: isSelected ? AppTheme.primaryGradient : null,
+                color:
+                    !isSelected ? AppTheme.primaryBlue.withOpacity(0.16) : null,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                isSelected ? 'محدد' : 'اختيار',
+                style: AppTextStyles.caption.copyWith(
+                  color: isSelected ? Colors.white : AppTheme.primaryBlue,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -768,40 +763,50 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
-  /// Builds the mini features.
-  /// العربية: يبني mini features.
   Widget _buildMiniFeatures(Unit unit) {
-    final features = unit.dynamicFields
-        .expand((group) => group.fieldValues)
-        .take(3)
-        .toList();
+    // جمع الحقول من fieldValues و dynamicFields مع الأولوية للحقول الأساسية
+    final List<Map<String, dynamic>> filterFields = _getFilterFields(unit);
 
-    return Wrap(
-      spacing: 4,
-      runSpacing: 3,
-      children: features.map((field) {
-        return Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 6,
-            vertical: 2,
-          ),
-          decoration: BoxDecoration(
-            color: AppTheme.primaryBlue.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(4),
-          ),
+    if (filterFields.isEmpty) return const SizedBox.shrink();
+
+    final visibleFields = filterFields.take(4).toList();
+
+    // عرض الحقول في عمود كامل العرض مع المسمى والقيمة
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: visibleFields.map((fieldData) {
+        final icon = _getFieldTypeIcon(fieldData['fieldTypeId'] ?? 'text');
+        final color = _getFieldTypeColor(fieldData['fieldTypeId'] ?? 'text');
+        final displayName =
+            fieldData['displayName'] ?? fieldData['fieldName'] ?? '';
+        final formattedValue = _formatDynamicFieldValue(
+          fieldData['value'],
+          fieldData['fieldTypeId'] ?? 'text',
+        );
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 3),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                _getFieldIcon(field.fieldName),
+                icon,
                 size: 10,
-                color: AppTheme.primaryBlue,
+                color: color.withOpacity(0.7),
               ),
-              const SizedBox(width: 3),
+              const SizedBox(width: 4),
               Text(
-                '${field.value}',
+                '$displayName:',
                 style: AppTextStyles.caption.copyWith(
-                  color: AppTheme.textWhite,
+                  color: AppTheme.textMuted,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                formattedValue,
+                style: AppTextStyles.caption.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -811,10 +816,184 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
-  /// Builds the empty state.
-  /// العربية: يبني empty state.
+  /// جمع الحقول للعرض مع الأولوية للحقول الأساسية (isPrimaryFilter)
+  List<Map<String, dynamic>> _getFilterFields(Unit unit) {
+    final List<Map<String, dynamic>> filterFields = [];
+
+    // أولوية: الحقول التي isPrimaryFilter = true
+    for (final fieldValue in unit.fieldValues) {
+      if (fieldValue.isPrimaryFilter == true) {
+        filterFields.add({
+          'displayName': fieldValue.displayName.isNotEmpty
+              ? fieldValue.displayName
+              : fieldValue.fieldName,
+          'value': fieldValue.value,
+          'fieldTypeId': fieldValue.fieldTypeId ?? 'text',
+        });
+      }
+    }
+    for (final group in unit.dynamicFields) {
+      for (final field in group.fieldValues) {
+        if (field.isPrimaryFilter == true) {
+          filterFields.add({
+            'displayName': field.displayName.isNotEmpty
+                ? field.displayName
+                : field.fieldName,
+            'value': field.value,
+            'fieldTypeId': field.fieldTypeId ?? 'text',
+          });
+        }
+      }
+    }
+
+    if (filterFields.isNotEmpty) {
+      return filterFields;
+    }
+
+    // بديل: إذا لم تكن هناك حقول أساسية، اعرض أول 4 حقول ذات قيمة
+    for (final fieldValue in unit.fieldValues) {
+      if (fieldValue.value.isNotEmpty && filterFields.length < 4) {
+        filterFields.add({
+          'displayName': fieldValue.displayName.isNotEmpty
+              ? fieldValue.displayName
+              : fieldValue.fieldName,
+          'value': fieldValue.value,
+          'fieldTypeId': fieldValue.fieldTypeId ?? 'text',
+        });
+      }
+    }
+    for (final group in unit.dynamicFields) {
+      for (final field in group.fieldValues) {
+        if (field.value.isNotEmpty && filterFields.length < 4) {
+          filterFields.add({
+            'displayName': field.displayName.isNotEmpty
+                ? field.displayName
+                : field.fieldName,
+            'value': field.value,
+            'fieldTypeId': field.fieldTypeId ?? 'text',
+          });
+        }
+      }
+    }
+
+    return filterFields;
+  }
+
+  /// تنسيق قيمة الحقل حسب نوعه
+  String _formatDynamicFieldValue(dynamic value, String fieldType) {
+    if (value == null || value.toString().isEmpty) {
+      return 'غير محدد';
+    }
+
+    switch (fieldType) {
+      case 'boolean':
+        final boolValue = value.toString().toLowerCase();
+        return (boolValue == 'true' || boolValue == '1' || boolValue == 'yes')
+            ? 'نعم'
+            : 'لا';
+
+      case 'currency':
+        if (value is num) {
+          return '${value.toStringAsFixed(0)} ر.ي';
+        }
+        final numValue = double.tryParse(value.toString());
+        if (numValue != null) {
+          return '${numValue.toStringAsFixed(0)} ر.ي';
+        }
+        return '$value';
+
+      case 'date':
+        try {
+          DateTime date;
+          if (value is DateTime) {
+            date = value;
+          } else {
+            date = DateTime.parse(value.toString());
+          }
+          return DateFormat('dd/MM/yyyy').format(date);
+        } catch (_) {
+          return value.toString();
+        }
+
+      case 'number':
+        if (value is num) {
+          return value.toStringAsFixed(value is int ? 0 : 1);
+        }
+        return value.toString();
+
+      case 'multiselect':
+        if (value is List) {
+          final items = value.take(2).join(', ');
+          if (value.length > 2) {
+            return '$items +${value.length - 2}';
+          }
+          return items;
+        }
+        return value.toString();
+
+      default:
+        final strValue = value.toString();
+        return strValue.length > 12
+            ? '${strValue.substring(0, 12)}...'
+            : strValue;
+    }
+  }
+
+  /// الحصول على أيقونة حسب نوع الحقل
+  IconData _getFieldTypeIcon(String fieldType) {
+    switch (fieldType) {
+      case 'text':
+        return Icons.text_fields_rounded;
+      case 'textarea':
+        return Icons.notes_rounded;
+      case 'number':
+        return Icons.numbers_rounded;
+      case 'currency':
+        return Icons.attach_money_rounded;
+      case 'boolean':
+        return Icons.toggle_on_rounded;
+      case 'select':
+        return Icons.arrow_drop_down_circle_rounded;
+      case 'multiselect':
+        return Icons.checklist_rounded;
+      case 'date':
+        return Icons.calendar_today_rounded;
+      case 'email':
+        return Icons.email_rounded;
+      case 'phone':
+        return Icons.phone_rounded;
+      case 'file':
+        return Icons.attach_file_rounded;
+      case 'image':
+        return Icons.image_rounded;
+      default:
+        return Icons.info_outline;
+    }
+  }
+
+  /// الحصول على لون حسب نوع الحقل
+  Color _getFieldTypeColor(String fieldType) {
+    switch (fieldType) {
+      case 'boolean':
+        return AppTheme.info;
+      case 'currency':
+      case 'number':
+        return AppTheme.success;
+      case 'date':
+        return AppTheme.primaryPurple;
+      case 'select':
+      case 'multiselect':
+        return AppTheme.primaryViolet;
+      case 'email':
+        return AppTheme.primaryBlue;
+      case 'phone':
+        return AppTheme.primaryCyan;
+      default:
+        return AppTheme.primaryBlue;
+    }
+  }
+
   Widget _buildEmptyState() {
-    final context = this.context;
     return Center(
       child: Container(
         padding: const EdgeInsets.all(24),
@@ -845,7 +1024,7 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
               shaderCallback: (bounds) =>
                   AppTheme.primaryGradient.createShader(bounds),
               child: Text(
-                context.tr('property.units.noUnitsAvailable'),
+                'لا توجد وحدات متاحة',
                 style: AppTextStyles.bodyLarge.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -854,7 +1033,7 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
             ),
             const SizedBox(height: 8),
             Text(
-              context.tr('property.units.allUnitsBookedNow'),
+              'جميع الوحدات محجوزة حالياً',
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted,
               ),
@@ -865,8 +1044,6 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
     );
   }
 
-  /// Builds the animated background.
-  /// العربية: يبني animated background.
   Widget _buildAnimatedBackground() {
     return Positioned.fill(
       child: AnimatedBuilder(
@@ -882,70 +1059,20 @@ class _UnitsListWidgetState extends State<UnitsListWidget>
       ),
     );
   }
-
-  /// Exposes the field icon.
-  /// العربية: يعيد field icon.
-  IconData _getFieldIcon(String fieldName) {
-    final name = fieldName.toLowerCase();
-    if (name.contains('bed') || name.contains('سرير')) return Icons.bed;
-    if (name.contains('bath') || name.contains('حمام')) return Icons.bathroom;
-    if (name.contains('area') || name.contains('مساحة'))
-      return Icons.square_foot;
-    if (name.contains('guest') || name.contains('ضيف')) return Icons.people;
-    return Icons.info_outline;
-  }
-
-  /// Exposes the pricing period.
-  /// العربية: يعيد pricing period.
-  String _getPricingPeriod(BuildContext context, PricingMethod method) {
-    switch (method) {
-      case PricingMethod.hourly:
-        return context.tr('property.units.hour');
-      case PricingMethod.daily:
-        return context.tr('property.units.night');
-      case PricingMethod.weekly:
-        return context.tr('property.units.week');
-      case PricingMethod.monthly:
-        return context.tr('property.units.month');
-    }
-  }
 }
 
-/// Describes the FloatingOrb type used in the property feature.
-/// العربية: يمثل `FloatingOrb`.
 class _FloatingOrb {
-  /// Keeps the x value available to this object.
-  /// العربية: يخزن القيمة `x`.
   late double x;
-
-  /// Keeps the y value available to this object.
-  /// العربية: يخزن القيمة `y`.
   late double y;
-
-  /// Keeps the size value available to this object.
-  /// العربية: يخزن القيمة `size`.
   late double size;
-
-  /// Keeps the speed value available to this object.
-  /// العربية: يخزن القيمة `speed`.
   late double speed;
-
-  /// Keeps the color value available to this object.
-  /// العربية: يخزن القيمة `color`.
   late Color color;
-
-  /// Keeps the opacity value available to this object.
-  /// العربية: يخزن القيمة `opacity`.
   late double opacity;
 
-  /// Constructs the FloatingOrb value used by this feature.
-  /// العربية: ينشئ مثيلًا جديدًا من `FloatingOrb`.
   _FloatingOrb() {
     reset();
   }
 
-  /// Processes the reset flow and maps it into the property feature behavior.
-  /// العربية: يعالج `reset`.
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -961,8 +1088,6 @@ class _FloatingOrb {
     color = colors[math.Random().nextInt(colors.length)];
   }
 
-  /// Updates the required operation for `update`.
-  /// العربية: يحدّث العملية المطلوبة لـ `update`.
   void update() {
     y -= speed;
     if (y < -0.1) {
@@ -972,26 +1097,15 @@ class _FloatingOrb {
   }
 }
 
-/// Describes the OrbsPainter type used in the property feature.
-/// العربية: يمثل `OrbsPainter`.
 class _OrbsPainter extends CustomPainter {
-  /// Keeps the orbs value available to this object.
-  /// العربية: يخزن القيمة `orbs`.
   final List<_FloatingOrb> orbs;
-
-  /// Keeps the animationValue value available to this object.
-  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
 
-  /// Constructs the OrbsPainter value used by this feature.
-  /// العربية: ينشئ مثيلًا جديدًا من `OrbsPainter`.
   _OrbsPainter({
     required this.orbs,
     required this.animationValue,
   });
 
-  /// Processes the paint flow and maps it into the property feature behavior.
-  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     for (var orb in orbs) {
@@ -1017,8 +1131,6 @@ class _OrbsPainter extends CustomPainter {
     }
   }
 
-  /// Processes the shouldRepaint flow and maps it into the property feature behavior.
-  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

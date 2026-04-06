@@ -77,7 +77,10 @@ class HggzkApp extends StatelessWidget {
                   );
 
                   SystemChrome.setSystemUIOverlayStyle(overlayStyle);
-                  return child ?? const SizedBox.shrink();
+                  return KeyedSubtree(
+                    key: ValueKey(themeState.themeMode),
+                    child: child ?? const SizedBox.shrink(),
+                  );
                 },
               );
             },

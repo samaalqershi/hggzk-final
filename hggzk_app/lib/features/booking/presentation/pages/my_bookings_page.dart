@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'dart:ui';
 import 'dart:math' as math;
-import 'package:hggzk/core/localization/app_localizations.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/enums/booking_status.dart';
@@ -17,75 +17,39 @@ import '../bloc/booking_event.dart';
 import '../bloc/booking_state.dart';
 import '../widgets/booking_card_widget.dart';
 
-/// العربية: يمثل عنصر الصفحة `MyBookingsPage`.
 class MyBookingsPage extends StatefulWidget {
-  /// العربية: ينشئ مثيلًا جديدًا من `MyBookingsPage`.
   const MyBookingsPage({super.key});
 
-  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<MyBookingsPage> createState() => _MyBookingsPageState();
 }
 
-/// العربية: يمثل الحالة الخاصة بـ `MyBookingsPageState`.
 class _MyBookingsPageState extends State<MyBookingsPage>
     with TickerProviderStateMixin {
   // Animation Controllers
-  /// العربية: يخزن القيمة `backgroundAnimationController`.
   late AnimationController _backgroundAnimationController;
-
-  /// العربية: يخزن القيمة `floatingAnimationController`.
   late AnimationController _floatingAnimationController;
-
-  /// العربية: يخزن القيمة `fadeController`.
   late AnimationController _fadeController;
-
-  /// العربية: يخزن القيمة `headerMorphController`.
   late AnimationController _headerMorphController;
-
-  /// العربية: يخزن القيمة `tabController`.
   late TabController _tabController;
 
-  /// العربية: يخزن القيمة `fadeStartTimer`.
   Timer? _fadeStartTimer;
 
   // Animations
-  /// العربية: يخزن القيمة `fadeAnimation`.
   late Animation<double> _fadeAnimation;
-
-  /// العربية: يخزن القيمة `scaleAnimation`.
-  late Animation<double> _scaleAnimation;
-
-  /// العربية: يخزن القيمة `headerMorphAnimation`.
-  late Animation<double> _headerMorphAnimation;
 
   // State
   final ScrollController _scrollController = ScrollController();
-
-  /// العربية: يخزن القيمة `selectedStatus`.
   BookingStatus? _selectedStatus;
-
-  /// العربية: يخزن القيمة `scrollOffset`.
   double _scrollOffset = 0;
   double _scrollProgress = 0; // نسبة التمرير من 0 إلى 1
 
   // Constants for smooth transitions
-  /// العربية: يخزن القيمة `expandedHeight`.
   static const double _expandedHeight = 160.0;
-
-  /// العربية: يخزن القيمة `collapsedHeight`.
   static const double _collapsedHeight = 56.0;
-
-  /// العربية: يخزن القيمة `tabBarHeight`.
   static const double _tabBarHeight = 44.0;
-
-  /// العربية: يخزن القيمة `statsHeight`.
   static const double _statsHeight = 100.0;
-
-  /// العربية: يخزن القيمة `minStatsHeight`.
   static const double _minStatsHeight = 128.0;
-
-  /// العربية: يخزن القيمة `totalScrollRange`.
   static const double _totalScrollRange = _expandedHeight + _statsHeight;
 
   // Statistics
@@ -98,22 +62,13 @@ class _MyBookingsPageState extends State<MyBookingsPage>
   };
 
   // Subtle Particles
-  /// العربية: يخزن القيمة `particles`.
   final List<_SubtleParticle> _particles = [];
   // Cache last loaded bookings to avoid empty list when bloc state changes externally
-  /// العربية: يخزن القيمة `cachedBookings`.
   List<dynamic> _cachedBookings = [];
-
-  /// العربية: يخزن القيمة `pendingCancelReason`.
   String? _pendingCancelReason;
-
-  /// العربية: يخزن القيمة `pendingCancelBookingId`.
   String? _pendingCancelBookingId;
-
-  /// العربية: يخزن القيمة `pendingCancelUserId`.
   String? _pendingCancelUserId;
 
-  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -128,7 +83,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     _loadBookings();
   }
 
-  /// العربية: ينتقل إلى to edit.
   Future<void> _navigateToEdit(dynamic booking) async {
     HapticFeedback.selectionClick();
     // Prepare initially selected services from booking
@@ -157,7 +111,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     _loadBookings();
   }
 
-  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     // Slow background animation for subtlety
     _backgroundAnimationController = AnimationController(
@@ -190,32 +143,14 @@ class _MyBookingsPageState extends State<MyBookingsPage>
       parent: _fadeController,
       curve: Curves.easeIn,
     ));
-
-    _scaleAnimation = Tween<double>(
-      begin: 0.95,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeOut,
-    ));
-
-    _headerMorphAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _headerMorphController,
-      curve: Curves.easeInOutCubic,
-    ));
   }
 
-  /// العربية: ينشئ subtle particles.
   void _generateSubtleParticles() {
     for (int i = 0; i < 6; i++) {
       _particles.add(_SubtleParticle());
     }
   }
 
-  /// العربية: يبدأ animations.
   void _startAnimations() {
     _fadeStartTimer?.cancel();
     _fadeStartTimer = Timer(const Duration(milliseconds: 100), () {
@@ -224,7 +159,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     });
   }
 
-  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _fadeStartTimer?.cancel();
@@ -237,7 +171,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     super.dispose();
   }
 
-  /// العربية: يعالج `onTabChanged`.
   void _onTabChanged() {
     if (!_tabController.indexIsChanging) {
       HapticFeedback.selectionClick();
@@ -261,7 +194,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     }
   }
 
-  /// العربية: يعالج `onScroll`.
   void _onScroll() {
     setState(() {
       _scrollOffset = _scrollController.offset;
@@ -282,7 +214,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     }
   }
 
-  /// العربية: يحمل bookings.
   void _loadBookings() {
     final authState = context.read<AuthBloc>().state;
     if (authState is AuthAuthenticated) {
@@ -297,7 +228,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     }
   }
 
-  /// العربية: يحمل more bookings.
   void _loadMoreBookings() {
     final state = context.read<BookingBloc>().state;
     if (state is UserBookingsLoaded && !state.isLoadingMore && state.hasMore) {
@@ -316,7 +246,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     }
   }
 
-  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
@@ -350,7 +279,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  /// العربية: يبني subtle background.
   Widget _buildSubtleBackground() {
     return AnimatedBuilder(
       animation: _backgroundAnimationController,
@@ -379,7 +307,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  /// العربية: يبني subtle particles.
   Widget _buildSubtleParticles() {
     return AnimatedBuilder(
       animation: _floatingAnimationController,
@@ -395,7 +322,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  /// العربية: يبني advanced sliver app bar.
   Widget _buildAdvancedSliverAppBar() {
     return SliverAppBar(
       expandedHeight: _expandedHeight,
@@ -405,13 +331,16 @@ class _MyBookingsPageState extends State<MyBookingsPage>
       elevation: 0,
       automaticallyImplyLeading: false,
       leading: const SizedBox.shrink(),
+
+      // Actions with fade effect
       actions: [
-        _buildMinimalActionButton(
-          icon: Icons.search_rounded,
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            context.push('/search');
-          },
+        AnimatedOpacity(
+          opacity: 1.0 - (_scrollProgress * 0.3),
+          duration: const Duration(milliseconds: 150),
+          child: _buildMinimalActionButton(
+            icon: Icons.filter_list_rounded,
+            onPressed: _showFilterDialog,
+          ),
         ),
       ],
 
@@ -487,7 +416,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  /// العربية: يبني morphing header.
   Widget _buildMorphingHeader(double progress) {
     // حساب القيم التدريجية
     final double iconSize = 24 + (24 * progress);
@@ -539,16 +467,12 @@ class _MyBookingsPageState extends State<MyBookingsPage>
               children: [
                 AnimatedDefaultTextStyle(
                   duration: const Duration(milliseconds: 200),
-                  style: AppTextStyles.h3.copyWith(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontWeight: FontWeight.w600,
                     color:
                         AppTheme.textWhite.withOpacity(0.9 + (0.05 * progress)),
                   ),
-                  child: Text(
-                    context.tr(
-                      'booking.myBookings.title',
-                    ),
-                  ),
+                  child: Text(context.tr('booking.myBookings.title')),
                 ),
 
                 // Subtitle that fades in/out
@@ -559,9 +483,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                     duration: const Duration(milliseconds: 200),
                     height: progress * 14,
                     child: Text(
-                      context.tr(
-                        'booking.myBookings.subtitle',
-                      ),
+                      context.tr('booking.myBookings.subtitle'),
                       style: AppTextStyles.caption.copyWith(
                         color: AppTheme.textMuted.withOpacity(0.6),
                       ),
@@ -602,7 +524,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  /// العربية: يبني smooth tab bar.
   Widget _buildSmoothTabBar(double progress) {
     return Container(
       height: _tabBarHeight,
@@ -649,24 +570,12 @@ class _MyBookingsPageState extends State<MyBookingsPage>
             tabs: [
               _buildCompactTab(context.tr('booking.myBookings.all'),
                   _statusCounts.values.fold(0, (a, b) => a + b), progress),
-              _buildCompactTab(
-                  context.tr(
-                    'booking.myBookings.confirmed',
-                  ),
-                  _statusCounts[BookingStatus.confirmed] ?? 0,
-                  progress),
-              _buildCompactTab(
-                  context.tr(
-                    'booking.status.pending',
-                  ),
-                  _statusCounts[BookingStatus.pending] ?? 0,
-                  progress),
-              _buildCompactTab(
-                  context.tr(
-                    'booking.myBookings.completed',
-                  ),
-                  _statusCounts[BookingStatus.completed] ?? 0,
-                  progress),
+              _buildCompactTab(context.tr('booking.status.confirmed'),
+                  _statusCounts[BookingStatus.confirmed] ?? 0, progress),
+              _buildCompactTab(context.tr('booking.status.pending'),
+                  _statusCounts[BookingStatus.pending] ?? 0, progress),
+              _buildCompactTab(context.tr('booking.status.completed'),
+                  _statusCounts[BookingStatus.completed] ?? 0, progress),
             ],
           ),
         ),
@@ -674,7 +583,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  /// العربية: يبني minimal action button.
   Widget _buildMinimalActionButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -705,7 +613,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  /// العربية: يبني compact tab.
   Widget _buildCompactTab(String label, int count, double progress) {
     return Tab(
       height: 36,
@@ -737,7 +644,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                 ),
                 child: Text(
                   count.toString(),
-                  style: AppTextStyles.caption.copyWith(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -749,7 +656,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  /// العربية: يبني compact statistics.
   Widget _buildCompactStatistics() {
     return SliverToBoxAdapter(
       child: AnimatedOpacity(
@@ -793,36 +699,28 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                         children: [
                           _buildMinimalStatCard(
                             icon: Icons.check_circle_rounded,
-                            title: context.tr(
-                              'booking.myBookings.confirmed',
-                            ),
+                            title: context.tr('booking.status.confirmed'),
                             count: _statusCounts[BookingStatus.confirmed] ?? 0,
                             color: AppTheme.success.withOpacity(0.8),
                           ),
                           const SizedBox(width: 10),
                           _buildMinimalStatCard(
                             icon: Icons.hourglass_empty_rounded,
-                            title: context.tr(
-                              'booking.status.pending',
-                            ),
+                            title: context.tr('booking.status.pending'),
                             count: _statusCounts[BookingStatus.pending] ?? 0,
                             color: AppTheme.warning.withOpacity(0.8),
                           ),
                           const SizedBox(width: 10),
                           _buildMinimalStatCard(
                             icon: Icons.done_all_rounded,
-                            title: context.tr(
-                              'booking.myBookings.completed',
-                            ),
+                            title: context.tr('booking.status.completed'),
                             count: _statusCounts[BookingStatus.completed] ?? 0,
                             color: AppTheme.info.withOpacity(0.8),
                           ),
                           const SizedBox(width: 10),
                           _buildMinimalStatCard(
                             icon: Icons.cancel_rounded,
-                            title: context.tr(
-                              'booking.myBookings.cancelled',
-                            ),
+                            title: context.tr('booking.status.cancelled'),
                             count: _statusCounts[BookingStatus.cancelled] ?? 0,
                             color: AppTheme.error.withOpacity(0.8),
                           ),
@@ -839,7 +737,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  /// العربية: يبني minimal stat card.
   Widget _buildMinimalStatCard({
     required IconData icon,
     required String title,
@@ -913,10 +810,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  /// العربية: يبني body sliver.
   Widget _buildBodySliver() {
     return SliverPadding(
-      padding: const EdgeInsets.only(left: 18, right: 18, top: 12, bottom: 12),
+      padding: const EdgeInsets.all(12),
       sliver: BlocBuilder<BookingBloc, BookingState>(
         builder: (context, state) {
           // Determine current bookings (use cached when not in UserBookingsLoaded)
@@ -957,9 +853,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       child: LoadingWidget(
                         type: LoadingType.futuristic,
-                        message: context.tr(
-                          'booking.myBookings.loadingMore',
-                        ),
+                        message: context.tr('booking.myBookings.loadingMore'),
                       ),
                     );
                   }
@@ -980,18 +874,9 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                             child: BookingCardWidget(
                               booking: booking,
                               onTap: () => _navigateToDetails(booking.id),
-                              // [ISSUE 1013] اخفاء سياسة الغاء الحجز وزر الغاء الحجز في كروت الحجوزات وصفحة تفاصيل الحجز بعد تجاوز المدة المسموح بها للالغاء
-                              // تم تعطيل كود الإصلاح أدناه لإرجاع السلوك القديم (إظهار زر الإلغاء في كرت الحجز حتى عند انتهاء مهلة الإلغاء/عندما canCancel=false)
-                              // onCancel: booking.canCancel
-                              //     ? () => _showCancelDialog(booking)
-                              //     : null,
-                              onCancel:
-                                  booking.status == BookingStatus.pending ||
-                                          (booking.status ==
-                                                  BookingStatus.confirmed &&
-                                              booking.canCancel)
-                                      ? () => _showCancelDialog(booking)
-                                      : null,
+                              onCancel: booking.canCancel
+                                  ? () => _showCancelDialog(booking)
+                                  : null,
                               onReview: booking.canReview
                                   ? () => _navigateToReview(booking)
                                   : null,
@@ -1018,17 +903,13 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  /// العربية: يبني minimal loader.
   Widget _buildMinimalLoader() {
     return LoadingWidget(
       type: LoadingType.futuristic,
-      message: context.tr(
-        'booking.myBookings.loading',
-      ),
+      message: context.tr('booking.myBookings.loading'),
     );
   }
 
-  /// العربية: يبني minimal error.
   Widget _buildMinimalError(BookingError state) {
     return Center(
       child: Container(
@@ -1061,9 +942,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
             ),
             const SizedBox(height: 16),
             Text(
-              context.tr(
-                'booking.myBookings.errorTitle',
-              ),
+              context.tr('booking.myBookings.errorTitle'),
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppTheme.textWhite.withOpacity(0.9),
                 fontWeight: FontWeight.w600,
@@ -1085,7 +964,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  /// العربية: يبني minimal retry button.
   Widget _buildMinimalRetryButton() {
     return Container(
       decoration: BoxDecoration(
@@ -1114,9 +992,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                     color: Colors.white, size: 16),
                 const SizedBox(width: 6),
                 Text(
-                  context.tr(
-                    'booking.myBookings.retry',
-                  ),
+                  context.tr('booking.myBookings.retry'),
                   style: AppTextStyles.caption.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -1130,7 +1006,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  /// العربية: يحدّث statistics.
   void _updateStatistics(dynamic bookings) {
     _statusCounts = {
       BookingStatus.confirmed: 0,
@@ -1148,7 +1023,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     }
   }
 
-  /// العربية: يحدّث statistics from counts.
   void _updateStatisticsFromCounts(Map<dynamic, dynamic> counts) {
     int _read(dynamic key) {
       final v = counts[key];
@@ -1167,30 +1041,24 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     };
   }
 
-  /// العربية: ينتقل إلى to details.
   Future<void> _navigateToDetails(String bookingId) async {
     HapticFeedback.selectionClick();
-    await context.push('/booking/$bookingId');
-    // Refresh bookings after returning from details
-    _loadBookings();
+    final hasChanges = await context.push<bool>('/booking/$bookingId');
+    if (!mounted) return;
+    if (hasChanges == true) {
+      _loadBookings();
+    }
   }
 
-  /// العربية: ينتقل إلى to review.
   void _navigateToReview(dynamic booking) {
     HapticFeedback.selectionClick();
-    context.push<bool>('/review/write', extra: {
+    context.push('/review/write', extra: {
       'bookingId': booking.id,
       'propertyId': booking.propertyId,
       'propertyName': booking.propertyName,
-    }).then((created) {
-      if (!mounted || created != true) {
-        return;
-      }
-      _loadBookings();
     });
   }
 
-  /// العربية: يعرض cancel dialog.
   void _showCancelDialog(dynamic booking) {
     HapticFeedback.mediumImpact();
     final authState = context.read<AuthBloc>().state;
@@ -1225,9 +1093,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          context.tr(
-                            'booking.details.cancelConfirmTitle',
-                          ),
+                          context.tr('booking.details.cancelConfirmTitle'),
                           style: AppTextStyles.h3.copyWith(
                             color: AppTheme.textWhite,
                             fontWeight: FontWeight.w700,
@@ -1238,9 +1104,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    context.tr(
-                      'booking.details.cancelConfirmMessage',
-                    ),
+                    context.tr('booking.details.cancelConfirmMessage'),
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppTheme.textMuted,
                       height: 1.4,
@@ -1254,9 +1118,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                     style: AppTextStyles.bodySmall
                         .copyWith(color: AppTheme.textWhite),
                     decoration: InputDecoration(
-                      hintText: context.tr(
-                        'booking.details.cancelReasonHint',
-                      ),
+                      hintText: context.tr('booking.details.cancelReasonHint'),
                       hintStyle: AppTextStyles.bodySmall
                           .copyWith(color: AppTheme.textMuted),
                       filled: true,
@@ -1290,9 +1152,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                             ),
                           ),
                           child: Text(
-                            context.tr(
-                              'booking.details.back',
-                            ),
+                            context.tr('booking.details.back'),
                             style: AppTextStyles.buttonMedium
                                 .copyWith(color: AppTheme.textWhite),
                           ),
@@ -1323,9 +1183,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                             ),
                           ),
                           child: Text(
-                            context.tr(
-                              'booking.details.cancelBooking',
-                            ),
+                            context.tr('booking.details.cancelBooking'),
                             style: AppTextStyles.buttonMedium
                                 .copyWith(color: Colors.white),
                           ),
@@ -1342,16 +1200,11 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     ).then((_) => reasonController.dispose());
   }
 
-  /// العربية: يعالج booking state.
   void _handleBookingState(BuildContext context, BookingState state) {
     if (state is BookingCancelled) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            context.tr(
-              'booking.details.cancelledSuccess',
-            ),
-          ),
+          content: Text(context.tr('booking.details.cancelledSuccess')),
           backgroundColor: AppTheme.success,
         ),
       );
@@ -1378,43 +1231,33 @@ class _MyBookingsPageState extends State<MyBookingsPage>
 
       if (code == 'CANCELLATION_AFTER_CHECKIN') {
         _showPolicyDialog(
-          title: context.tr(
-            'booking.details.cancellationAfterCheckInTitle',
-          ),
-          description: context.tr(
-            'booking.details.cancellationAfterCheckInMessage',
-          ),
+          title: context.tr('booking.details.cancellationAfterCheckInTitle'),
+          description:
+              context.tr('booking.details.cancellationAfterCheckInMessage'),
         );
         return;
       }
 
       if (code == 'CANCELLATION_NOT_ALLOWED') {
         _showPolicyDialog(
-          title: context.tr(
-            'booking.details.cancellationNotAllowedTitle',
-          ),
-          description: context.tr(
-            'booking.details.cancellationNotAllowedMessage',
-          ),
+          title: context.tr('booking.details.cancellationNotAllowedTitle'),
+          description:
+              context.tr('booking.details.cancellationNotAllowedMessage'),
         );
         return;
       }
 
       if (code == 'CANCELLATION_WINDOW_EXCEEDED') {
         _showPolicyDialog(
-          title: context.tr(
-            'booking.details.cancellationWindowExceededTitle',
-          ),
-          description: context.tr(
-            'booking.details.cancellationWindowExceededMessage',
-          ),
+          title: context.tr('booking.details.cancellationWindowExceededTitle'),
+          description:
+              context.tr('booking.details.cancellationWindowExceededMessage'),
         );
         return;
       }
     }
   }
 
-  /// العربية: يعرض policy dialog.
   void _showPolicyDialog({required String title, required String description}) {
     showDialog(
       context: context,
@@ -1472,9 +1315,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                         ),
                       ),
                       child: Text(
-                        context.tr(
-                          'booking.details.ok',
-                        ),
+                        context.tr('booking.details.ok'),
                         style: AppTextStyles.buttonMedium
                             .copyWith(color: Colors.white),
                       ),
@@ -1489,7 +1330,6 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  /// العربية: يعرض refund then cancel dialog.
   void _showRefundThenCancelDialog() {
     final authState = context.read<AuthBloc>().state;
     if (authState is! AuthAuthenticated) {
@@ -1504,11 +1344,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     if (bookingId == null || bookingId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            context.tr(
-              'booking.details.cancellationRetryFailed',
-            ),
-          ),
+          content: Text(context.tr('booking.details.cancellationRetryFailed')),
           backgroundColor: AppTheme.error,
         ),
       );
@@ -1540,9 +1376,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          context.tr(
-                            'booking.details.refundCancelTitle',
-                          ),
+                          context.tr('booking.details.refundCancelTitle'),
                           style: AppTextStyles.h3.copyWith(
                             color: AppTheme.textWhite,
                             fontWeight: FontWeight.w700,
@@ -1553,9 +1387,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    context.tr(
-                      'booking.details.refundCancelMessage',
-                    ),
+                    context.tr('booking.details.refundCancelMessage'),
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppTheme.textMuted,
                       height: 1.4,
@@ -1577,9 +1409,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                             ),
                           ),
                           child: Text(
-                            context.tr(
-                              'booking.details.back',
-                            ),
+                            context.tr('booking.details.back'),
                             style: AppTextStyles.buttonMedium
                                 .copyWith(color: AppTheme.textWhite),
                           ),
@@ -1607,9 +1437,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                             ),
                           ),
                           child: Text(
-                            context.tr(
-                              'booking.details.refundCancelAction',
-                            ),
+                            context.tr('booking.details.refundCancelAction'),
                             style: AppTextStyles.buttonMedium
                                 .copyWith(color: Colors.white),
                           ),
@@ -1626,7 +1454,11 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  /// العربية: يبني unauthenticated view.
+  void _showFilterDialog() {
+    HapticFeedback.selectionClick();
+    // Implementation for filter dialog
+  }
+
   Widget _buildUnauthenticatedView(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
@@ -1671,9 +1503,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  context.tr(
-                    'booking.myBookings.title',
-                  ),
+                  context.tr('booking.myBookings.title'),
                   style: AppTextStyles.h2.copyWith(
                     color: AppTheme.textWhite,
                     fontWeight: FontWeight.bold,
@@ -1681,9 +1511,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  context.tr(
-                    'booking.myBookings.signInRequired',
-                  ),
+                  context.tr('booking.myBookings.signInRequired'),
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: AppTheme.textMuted,
                   ),
@@ -1708,9 +1536,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                       elevation: 0,
                     ),
                     child: Text(
-                      context.tr(
-                        'booking.myBookings.signIn',
-                      ),
+                      context.tr('booking.myBookings.signIn'),
                       style: AppTextStyles.buttonLarge.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -1739,9 +1565,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                       ),
                     ),
                     child: Text(
-                      context.tr(
-                        'booking.myBookings.createAccount',
-                      ),
+                      context.tr('booking.myBookings.createAccount'),
                       style: AppTextStyles.buttonLarge.copyWith(
                         color: AppTheme.primaryBlue,
                         fontWeight: FontWeight.w600,
@@ -1759,21 +1583,15 @@ class _MyBookingsPageState extends State<MyBookingsPage>
 }
 
 // [نفس الـ Painters السابقة بدون تغيير]
-/// العربية: يمثل `SubtleGridPainter`.
 class _SubtleGridPainter extends CustomPainter {
-  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
-
-  /// العربية: يخزن القيمة `scrollOffset`.
   final double scrollOffset;
 
-  /// العربية: ينشئ مثيلًا جديدًا من `SubtleGridPainter`.
   _SubtleGridPainter({
     required this.animationValue,
     required this.scrollOffset,
   });
 
-  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1804,37 +1622,22 @@ class _SubtleGridPainter extends CustomPainter {
     }
   }
 
-  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-/// العربية: يمثل `SubtleParticle`.
 class _SubtleParticle {
-  /// العربية: يخزن القيمة `x`.
   late double x;
-
-  /// العربية: يخزن القيمة `y`.
   late double y;
-
-  /// العربية: يخزن القيمة `size`.
   late double size;
-
-  /// العربية: يخزن القيمة `opacity`.
   late double opacity;
-
-  /// العربية: يخزن القيمة `color`.
   late Color color;
-
-  /// العربية: يخزن القيمة `speed`.
   late double speed;
 
-  /// العربية: ينشئ مثيلًا جديدًا من `SubtleParticle`.
   _SubtleParticle() {
     reset();
   }
 
-  /// العربية: يعالج `reset`.
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -1850,7 +1653,6 @@ class _SubtleParticle {
     color = colors[math.Random().nextInt(colors.length)];
   }
 
-  /// العربية: يحدّث العملية المطلوبة لـ `update`.
   void update(double animationValue) {
     y -= speed;
     if (y < -0.1) {
@@ -1860,21 +1662,15 @@ class _SubtleParticle {
   }
 }
 
-/// العربية: يمثل `SubtleParticlePainter`.
 class _SubtleParticlePainter extends CustomPainter {
-  /// العربية: يخزن القيمة `particles`.
   final List<_SubtleParticle> particles;
-
-  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
 
-  /// العربية: ينشئ مثيلًا جديدًا من `SubtleParticlePainter`.
   _SubtleParticlePainter({
     required this.particles,
     required this.animationValue,
   });
 
-  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     for (var particle in particles) {
@@ -1893,7 +1689,6 @@ class _SubtleParticlePainter extends CustomPainter {
     }
   }
 
-  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

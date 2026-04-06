@@ -3,53 +3,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui';
-import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/amenity.dart';
 
-/// Describes the AmenitiesGridWidget widget used in the property feature.
-/// العربية: يمثل العنصر `AmenitiesGridWidget`.
 class AmenitiesGridWidget extends StatefulWidget {
-  /// Keeps the amenities value available to this object.
-  /// العربية: يخزن القيمة `amenities`.
   final List<Amenity> amenities;
 
-  /// Constructs the AmenitiesGridWidget value used by this feature.
-  /// العربية: ينشئ مثيلًا جديدًا من `AmenitiesGridWidget`.
   const AmenitiesGridWidget({
     super.key,
     required this.amenities,
   });
 
-  /// Builds the state object for this widget used by this feature.
-  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<AmenitiesGridWidget> createState() => _AmenitiesGridWidgetState();
 }
 
-/// Describes the state for `AmenitiesGridWidgetState`.
-/// العربية: يمثل الحالة الخاصة بـ `AmenitiesGridWidgetState`.
 class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
     with SingleTickerProviderStateMixin {
-  /// Keeps the fadeController value available to this object.
-  /// العربية: يخزن القيمة `fadeController`.
   late AnimationController _fadeController;
-
-  /// Keeps the fadeAnimation value available to this object.
-  /// العربية: يخزن القيمة `fadeAnimation`.
   late Animation<double> _fadeAnimation;
 
-  /// Keeps the expandedCategories value available to this object.
-  /// العربية: يخزن القيمة `expandedCategories`.
   final Map<String, bool> _expandedCategories = {};
-
-  /// Keeps the selectedAmenityId value available to this object.
-  /// العربية: يخزن القيمة `selectedAmenityId`.
   String? _selectedAmenityId;
 
-  /// Initializes the state for this widget.
-  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -62,8 +39,6 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
     }
   }
 
-  /// Initializes the animations.
-  /// العربية: يهيئ animations.
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 600),
@@ -78,20 +53,40 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
     _fadeController.forward();
   }
 
-  /// Releases the resources used by this instance.
-  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _fadeController.dispose();
     super.dispose();
   }
 
-  /// Processes the groupAmenitiesByCategory flow and maps it into the property feature behavior.
-  /// العربية: يعالج `groupAmenitiesByCategory`.
+  /// الحصول على لون الفئة بناءً على اسمها
+  Color _getCategoryColor(String category) {
+    switch (category) {
+      case 'أساسيات':
+        return AppTheme.primaryBlue;
+      case 'مرافق':
+        return AppTheme.primaryCyan;
+      case 'ترفيه':
+        return AppTheme.primaryPurple;
+      case 'خدمات':
+        return AppTheme.success;
+      case 'رياضة':
+        return AppTheme.warning;
+      case 'مواصلات':
+        return AppTheme.primaryViolet;
+      case 'أمان':
+        return AppTheme.error;
+      case 'تقنية':
+        return AppTheme.primaryBlue;
+      default:
+        return AppTheme.primaryCyan;
+    }
+  }
+
   Map<String, List<Amenity>> _groupAmenitiesByCategory() {
     final groupedAmenities = <String, List<Amenity>>{};
     for (final amenity in widget.amenities) {
-      final category = amenity.category ?? 'عام';
+      final category = amenity.category;
       if (!groupedAmenities.containsKey(category)) {
         groupedAmenities[category] = [];
       }
@@ -100,72 +95,282 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
     return groupedAmenities;
   }
 
-  /// Builds the widget tree for this component.
-  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
+  Map<String, List<Amenity>> _buildMockGroupedAmenities() {
+    final now = DateTime.now();
+
+    final mockList = <Amenity>[
+      Amenity(
+        id: 'a1',
+        name: 'واي فاي فائق السرعة',
+        description: 'اتصال إنترنت مستقر يناسب العمل عن بعد والبث بدقة عالية.',
+        iconUrl: '',
+        category: 'أساسيات',
+        icon: 'wifi',
+        isActive: true,
+        extraCost: null,
+        displayOrder: 1,
+        createdAt: now,
+      ),
+      Amenity(
+        id: 'a2',
+        name: 'موقف سيارات مجاني',
+        description: 'موقف خاص داخل المبنى مزود بكاميرات مراقبة.',
+        iconUrl: '',
+        category: 'مرافق',
+        icon: 'local_parking',
+        isActive: true,
+        extraCost: null,
+        displayOrder: 2,
+        createdAt: now,
+      ),
+      Amenity(
+        id: 'a3',
+        name: 'مسبح خارجي بإضاءة ليلية',
+        description: 'مسبح أنيق بإضاءة نيون ليلية وإطلالة مفتوحة.',
+        iconUrl: '',
+        category: 'ترفيه',
+        icon: 'pool',
+        isActive: true,
+        extraCost: 25,
+        displayOrder: 3,
+        createdAt: now,
+      ),
+      Amenity(
+        id: 'a4',
+        name: 'خدمة تنظيف يومية',
+        description:
+            'تنظيف الغرف والأجنحة بشكل يومي للحفاظ على أعلى مستوى من النظافة.',
+        iconUrl: '',
+        category: 'خدمات',
+        icon: 'cleaning_services',
+        isActive: true,
+        extraCost: null,
+        displayOrder: 4,
+        createdAt: now,
+      ),
+      Amenity(
+        id: 'a5',
+        name: 'نادي رياضي مجهز',
+        description: 'معدات رياضية حديثة متاحة على مدار 24 ساعة.',
+        iconUrl: '',
+        category: 'رياضة',
+        icon: 'fitness_center',
+        isActive: true,
+        extraCost: null,
+        displayOrder: 5,
+        createdAt: now,
+      ),
+      Amenity(
+        id: 'a6',
+        name: 'خدمة نقل من المطار',
+        description: 'نقل خاص من وإلى المطار عند الطلب.',
+        iconUrl: '',
+        category: 'مواصلات',
+        icon: 'directions_car',
+        isActive: false,
+        extraCost: 40,
+        displayOrder: 6,
+        createdAt: now,
+      ),
+    ];
+
+    final grouped = <String, List<Amenity>>{};
+    for (final amenity in mockList) {
+      final category = amenity.category;
+      grouped.putIfAbsent(category, () => []);
+      grouped[category]!.add(amenity);
+    }
+    return grouped;
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (widget.amenities.isEmpty) {
-      return _buildUltraMinimalEmptyState();
-    }
+    // الكود الأصلي المعتمد على بيانات العقار الحقيقية (معلّق مؤقتاً لعرض بيانات تجريبية)
+    // if (widget.amenities.isEmpty) {
+    //   return _buildUltraMinimalEmptyState();
+    // }
+    //
+    // final groupedAmenities = _groupAmenitiesByCategory();
 
-    final groupedAmenities = _groupAmenitiesByCategory();
+    final groupedAmenities = _buildMockGroupedAmenities();
+
+    final items = <_AmenityWithCategory>[];
+    groupedAmenities.forEach((category, amenities) {
+      for (final amenity in amenities) {
+        items.add(_AmenityWithCategory(category: category, amenity: amenity));
+      }
+    });
 
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: ListView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        padding: EdgeInsets.zero,
-        itemCount: groupedAmenities.length,
-        itemBuilder: (context, index) {
-          final category = groupedAmenities.keys.elementAt(index);
-          final categoryAmenities = groupedAmenities[category]!;
-
-          return _buildUltraMinimalCategory(
-            context,
-            category,
-            categoryAmenities,
-            index,
-          );
-        },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildAmenitiesSectionTitle(),
+          const SizedBox(height: 10),
+          if (items.isNotEmpty) _buildAmenitiesTimeline(items),
+        ],
       ),
     );
   }
 
-  /// Builds the ultra minimal empty state.
-  /// العربية: يبني ultra minimal empty state.
-  Widget _buildUltraMinimalEmptyState() {
-    final context = this.context;
+  Widget _buildAmenitiesSectionTitle() {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'الخدمات والمرافق',
+                style: AppTextStyles.bodyLarge.copyWith(
+                  color: AppTheme.textWhite,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                height: 2,
+                width: 80,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerRight,
+                    end: Alignment.centerLeft,
+                    colors: [
+                      AppTheme.primaryBlue.withOpacity(0.9),
+                      AppTheme.primaryPurple.withOpacity(0.5),
+                      Colors.transparent,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        Container(
+          width: 30,
+          height: 30,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            color: AppTheme.primaryViolet,
+          ),
+          child: const Icon(
+            Icons.grid_view_rounded,
+            size: 16,
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAmenitiesTimeline(List<_AmenityWithCategory> items) {
     return Container(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      margin: const EdgeInsets.only(top: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppTheme.darkBorder.withOpacity(0.9),
+          width: 0.9,
+        ),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.darkCard.withOpacity(0.96),
+            AppTheme.darkSurface.withOpacity(0.96),
+          ],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+        child: Column(
+          children: [
+            for (int i = 0; i < items.length; i++)
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: Duration(milliseconds: 260 + (i * 70)),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, child) {
+                  return Opacity(
+                    opacity: value,
+                    child: Transform.translate(
+                      offset: Offset(0, (1 - value) * 10),
+                      child: child,
+                    ),
+                  );
+                },
+                child: _buildAmenityTimelineRow(
+                  items[i],
+                  isLast: i == items.length - 1,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAmenityTimelineRow(
+    _AmenityWithCategory item, {
+    required bool isLast,
+  }) {
+    final categoryColor = _getCategoryColor(item.category);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppTheme.primaryBlue.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              Icons.info_outline,
-              size: 24,
-              color: AppTheme.primaryBlue.withOpacity(0.3),
-            ),
+          Column(
+            children: [
+              Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [
+                      categoryColor.withOpacity(0.9),
+                      categoryColor.withOpacity(0.4),
+                    ],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: categoryColor.withOpacity(0.35),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+              ),
+              if (!isLast) ...[
+                const SizedBox(height: 4),
+                Container(
+                  width: 2,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        categoryColor.withOpacity(0.4),
+                        categoryColor.withOpacity(0.0),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            context.tr('property.amenities.emptyTitle'),
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.textWhite.withOpacity(0.7),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            context.tr('property.amenities.emptySubtitle'),
-            style: AppTextStyles.caption.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.5),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _buildUltraMinimalAmenityChip(
+              item.amenity,
+              categoryColor,
             ),
           ),
         ],
@@ -173,186 +378,17 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
     );
   }
 
-  /// Builds the ultra minimal category.
-  /// العربية: يبني ultra minimal category.
-  Widget _buildUltraMinimalCategory(
-    BuildContext context,
-    String category,
-    List<Amenity> amenities,
-    int categoryIndex,
-  ) {
-    final isExpanded = _expandedCategories[category] ?? false;
-    final categoryColor = _getCategoryColor(category);
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.03),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.05),
-          width: 0.5,
-        ),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Column(
-            children: [
-              _buildMinimalCategoryHeader(
-                context,
-                category,
-                categoryColor,
-                amenities.length,
-              ),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                height: isExpanded ? null : 0,
-                child: isExpanded
-                    ? _buildMinimalAmenitiesGrid(amenities, categoryIndex)
-                    : null,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Builds the minimal category header.
-  /// العربية: يبني minimal category header.
-  Widget _buildMinimalCategoryHeader(
-    BuildContext context,
-    String category,
-    Color color,
-    int count,
-  ) {
-    final isExpanded = _expandedCategories[category] ?? false;
-
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _expandedCategories[category] = !isExpanded;
-        });
-        HapticFeedback.selectionClick();
-      },
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              color.withOpacity(0.05),
-              color.withOpacity(0.02),
-            ],
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    color.withOpacity(0.1),
-                    color.withOpacity(0.05),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                _getCategoryIcon(category),
-                size: 16,
-                color: color.withOpacity(0.7),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _getCategoryDisplayName(context, category),
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppTheme.textWhite.withOpacity(0.9),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    context.tr(
-                      'property.amenities.count',
-                      params: {'count': count},
-                    ),
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.textMuted.withOpacity(0.5),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            AnimatedRotation(
-              turns: isExpanded ? 0.5 : 0,
-              duration: const Duration(milliseconds: 200),
-              child: Icon(
-                Icons.expand_more,
-                color: AppTheme.textMuted.withOpacity(0.3),
-                size: 18,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Builds the minimal amenities grid.
-  /// العربية: يبني minimal amenities grid.
-  Widget _buildMinimalAmenitiesGrid(
-      List<Amenity> amenities, int categoryIndex) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-      child: Wrap(
-        spacing: 10,
-        runSpacing: 10,
-        children: amenities.asMap().entries.map((entry) {
-          final index = entry.key;
-          final amenity = entry.value;
-
-          return TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.0, end: 1.0),
-            duration: Duration(milliseconds: 260 + (index * 70)),
-            curve: Curves.easeOutCubic,
-            builder: (context, value, child) {
-              return Opacity(
-                opacity: value,
-                child: Transform.translate(
-                  offset: Offset(0, (1 - value) * 10),
-                  child: child,
-                ),
-              );
-            },
-            child: _buildUltraMinimalAmenityChip(amenity),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  /// Builds the ultra minimal amenity chip.
-  /// العربية: يبني ultra minimal amenity chip.
-  Widget _buildUltraMinimalAmenityChip(Amenity amenity) {
+  Widget _buildUltraMinimalAmenityChip(Amenity amenity, Color categoryColor) {
     final isSelected = _selectedAmenityId == amenity.id;
     final isInactive = !amenity.isActive;
 
-    final baseColor = isInactive
-        ? AppTheme.darkCard.withOpacity(0.02)
-        : AppTheme.darkCard.withOpacity(0.08);
+    final baseColor = AppTheme.darkSurface.withOpacity(0.96);
 
     final borderColor = isSelected
-        ? AppTheme.primaryBlue.withOpacity(0.35)
-        : AppTheme.darkBorder.withOpacity(isInactive ? 0.08 : 0.18);
+        ? categoryColor.withOpacity(0.55)
+        : (isInactive
+            ? AppTheme.darkBorder.withOpacity(0.7)
+            : categoryColor.withOpacity(0.4));
 
     final textColor = isInactive
         ? AppTheme.textMuted.withOpacity(0.45)
@@ -373,21 +409,29 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    AppTheme.primaryBlue.withOpacity(0.18),
-                    AppTheme.primaryPurple.withOpacity(0.10),
+                    categoryColor.withOpacity(0.32),
+                    categoryColor.withOpacity(0.16),
                   ],
                 )
-              : null,
-          color: isSelected ? null : baseColor,
-          borderRadius: BorderRadius.circular(12),
+              : LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    baseColor,
+                    isInactive
+                        ? AppTheme.darkCard.withOpacity(0.9)
+                        : categoryColor.withOpacity(0.18),
+                  ],
+                ),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: borderColor,
-            width: isSelected ? 1 : 0.7,
+            width: isSelected ? 1 : 0.8,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.22),
+                    color: categoryColor.withOpacity(0.26),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -403,10 +447,10 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    (isInactive ? AppTheme.darkBorder : AppTheme.primaryBlue)
-                        .withOpacity(0.22),
-                    (isInactive ? AppTheme.darkBorder : AppTheme.primaryBlue)
-                        .withOpacity(0.10),
+                    (isInactive ? AppTheme.darkBorder : categoryColor)
+                        .withOpacity(0.32),
+                    (isInactive ? AppTheme.darkBorder : categoryColor)
+                        .withOpacity(0.14),
                   ],
                 ),
                 shape: BoxShape.circle,
@@ -459,7 +503,7 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
-                  context.tr('property.amenities.unavailable'),
+                  'غير متوفر',
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.error.withOpacity(0.9),
                     fontWeight: FontWeight.w600,
@@ -473,152 +517,10 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
     );
   }
 
-  /// Resolves a localized display label for amenity categories.
-  /// العربية: يعيد تسمية محلية لفئات المرافق.
-  String _getCategoryDisplayName(BuildContext context, String category) {
-    switch (category.toLowerCase()) {
-      case 'عام':
-      case 'general':
-        return context.tr('property.amenities.category.general');
-      case 'أساسيات':
-      case 'basics':
-        return context.tr('property.amenities.category.basics');
-      case 'مرافق':
-      case 'facilities':
-        return context.tr('property.amenities.category.facilities');
-      case 'خدمات':
-      case 'services':
-        return context.tr('property.amenities.category.services');
-      case 'ترفيه':
-      case 'entertainment':
-        return context.tr('property.amenities.category.entertainment');
-      case 'أمان':
-      case 'security':
-        return context.tr('property.amenities.category.security');
-      case 'مطبخ':
-      case 'kitchen':
-        return context.tr('property.amenities.category.kitchen');
-      case 'أجهزة':
-      case 'devices':
-        return context.tr('property.amenities.category.devices');
-      case 'حمام':
-      case 'bathroom':
-        return context.tr('property.amenities.category.bathroom');
-      case 'نوم':
-      case 'sleeping':
-        return context.tr('property.amenities.category.sleeping');
-      case 'رياضة':
-      case 'sports':
-        return context.tr('property.amenities.category.sports');
-      case 'مواصلات':
-      case 'transportation':
-        return context.tr('property.amenities.category.transportation');
-      case 'وصول':
-      case 'accessibility':
-        return context.tr('property.amenities.category.accessibility');
-      case 'خارجي':
-      case 'outdoor':
-        return context.tr('property.amenities.category.outdoor');
-      case 'أطفال':
-      case 'children':
-        return context.tr('property.amenities.category.children');
-      case 'حيوانات':
-      case 'pets':
-        return context.tr('property.amenities.category.pets');
-      case 'عمل':
-      case 'business':
-        return context.tr('property.amenities.category.business');
-      case 'ديني':
-      case 'religious':
-        return context.tr('property.amenities.category.religious');
-      default:
-        return category;
-    }
-  }
-
-  /// Exposes the category icon.
-  /// العربية: يعيد category icon.
-  IconData _getCategoryIcon(String category) {
-    switch (category.toLowerCase()) {
-      case 'أساسيات':
-      case 'basics':
-        return Icons.check_circle_outline;
-      case 'مرافق':
-      case 'facilities':
-        return Icons.business_outlined;
-      case 'خدمات':
-      case 'services':
-        return Icons.room_service_outlined;
-      case 'ترفيه':
-      case 'entertainment':
-        return Icons.sports_esports_outlined;
-      case 'أمان':
-      case 'security':
-        return Icons.security_outlined;
-      case 'مطبخ':
-        return Icons.kitchen_outlined;
-      case 'أجهزة':
-        return Icons.devices_outlined;
-      case 'حمام':
-        return Icons.bathroom_outlined;
-      case 'نوم':
-        return Icons.bed_outlined;
-      case 'رياضة':
-        return Icons.fitness_center_outlined;
-      case 'مواصلات':
-        return Icons.directions_car_outlined;
-      case 'وصول':
-        return Icons.accessible_outlined;
-      case 'خارجي':
-        return Icons.deck_outlined;
-      case 'أطفال':
-        return Icons.child_care_outlined;
-      case 'حيوانات':
-        return Icons.pets_outlined;
-      case 'عمل':
-        return Icons.business_center_outlined;
-      case 'ديني':
-        return Icons.mosque_outlined;
-      default:
-        return Icons.category_outlined;
-    }
-  }
-
-  /// Exposes the category color.
-  /// العربية: يعيد category color.
-  Color _getCategoryColor(String category) {
-    switch (category.toLowerCase()) {
-      case 'أساسيات':
-      case 'basics':
-        return AppTheme.primaryBlue;
-      case 'مرافق':
-      case 'facilities':
-        return AppTheme.primaryCyan;
-      case 'خدمات':
-      case 'services':
-        return AppTheme.primaryPurple;
-      case 'ترفيه':
-      case 'entertainment':
-        return AppTheme.primaryViolet;
-      case 'أمان':
-      case 'security':
-        return AppTheme.success;
-      case 'مطبخ':
-        return AppTheme.warning;
-      case 'رياضة':
-        return AppTheme.info;
-      default:
-        return AppTheme.primaryBlue;
-    }
-  }
-
-  // دالة محدثة للحصول على أيقونة المرفق من الخادم أو استخدام افتراضية
-  /// Exposes the amenity icon.
-  /// العربية: يعيد amenity icon.
   IconData _getAmenityIcon(Amenity amenity) {
     // إذا كان للمرفق أيقونة محددة من الخادم
-    if (amenity.icon != null && amenity.icon!.isNotEmpty) {
-      return _getIconFromName(amenity.icon!);
+    if (amenity.icon.isNotEmpty) {
+      return _getIconFromName(amenity.icon);
     }
 
     // وإلا استخدم الأيقونة الافتراضية بناءً على الاسم
@@ -637,9 +539,6 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
     return Icons.check_circle_outline;
   }
 
-  // دالة لتحويل اسم الأيقونة من السلسلة النصية إلى IconData
-  /// Exposes the icon from name.
-  /// العربية: يعيد icon from name.
   IconData _getIconFromName(String iconName) {
     // خريطة شاملة لتحويل أسماء الأيقونات إلى Material Icons
     final iconMap = <String, IconData>{
@@ -817,4 +716,14 @@ class _AmenitiesGridWidgetState extends State<AmenitiesGridWidget>
 
     return iconMap[iconName] ?? Icons.check_circle_outline;
   }
+}
+
+class _AmenityWithCategory {
+  final String category;
+  final Amenity amenity;
+
+  _AmenityWithCategory({
+    required this.category,
+    required this.amenity,
+  });
 }

@@ -970,10 +970,6 @@ void _initChat() {
       localStorageService: sl(),
       getAdminUsersUseCase: sl(),
     );
-    // Deliver FCM chat events directly to ChatBloc when available
-    try {
-      sl<NotificationService>().bindChatEventSink((event) => bloc.add(event));
-    } catch (_) {}
     bloc.add(const InitializeChatEvent());
     return bloc;
   });

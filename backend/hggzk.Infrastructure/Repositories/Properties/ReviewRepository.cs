@@ -97,7 +97,9 @@ namespace YemenBooking.Infrastructure.Repositories.Properties
         /// يسترجع التقييم المرتبط بالحجز المحدد.
         /// </summary>
         public async Task<Review?> GetReviewByBookingAsync(Guid bookingId, CancellationToken cancellationToken = default)
-            => await _dbSet.FirstOrDefaultAsync(r => r.BookingId == bookingId, cancellationToken);
+            => await _dbSet
+                .Include(r => r.Images)
+                .FirstOrDefaultAsync(r => r.BookingId == bookingId, cancellationToken);
 
         public async Task<(double AverageRating, int TotalReviews)> GetPropertyRatingStatsAsync(Guid propertyId, CancellationToken cancellationToken = default)
         {

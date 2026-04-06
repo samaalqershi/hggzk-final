@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/image_utils.dart';
 import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
@@ -14,30 +13,16 @@ import '../../../favorites/domain/repositories/favorites_repository.dart';
 import 'property_mismatch_badge_widget.dart';
 import 'package:hggzk/core/enums/search_relaxation_level.dart';
 
-/// العربية: يعرّف القيم المتاحة للنوع `CardDisplayType`.
 enum CardDisplayType { list, grid, compact }
 
-/// العربية: يمثل العنصر `SearchResultCardWidget`.
 class SearchResultCardWidget extends StatefulWidget {
-  /// العربية: يخزن القيمة `result`.
   final SearchResult result;
-
-  /// العربية: يخزن القيمة `onTap`.
   final VoidCallback? onTap;
-
-  /// العربية: يخزن القيمة `onFavoriteToggle`.
   final VoidCallback? onFavoriteToggle;
-
-  /// العربية: يخزن القيمة `displayType`.
   final CardDisplayType displayType;
-
-  /// العربية: يخزن القيمة `showDistance`.
   final bool showDistance;
-
-  /// العربية: يخزن القيمة `relaxationLevel`.
   final SearchRelaxationLevel? relaxationLevel;
 
-  /// العربية: ينشئ مثيلًا جديدًا من `SearchResultCardWidget`.
   const SearchResultCardWidget({
     super.key,
     required this.result,
@@ -48,27 +33,17 @@ class SearchResultCardWidget extends StatefulWidget {
     this.relaxationLevel,
   });
 
-  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<SearchResultCardWidget> createState() => _SearchResultCardWidgetState();
 }
 
-/// العربية: يمثل الحالة الخاصة بـ `SearchResultCardWidgetState`.
 class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     with SingleTickerProviderStateMixin {
-  /// العربية: يخزن القيمة `controller`.
   late AnimationController _controller;
-
-  /// العربية: يخزن القيمة `scaleAnimation`.
   late Animation<double> _scaleAnimation;
-
-  /// العربية: يحدد ما إذا كانت القيمة `isPressed` مفعلة.
   bool _isPressed = false;
-
-  /// العربية: يحدد ما إذا كانت القيمة `isFavorite` مفعلة.
   bool _isFavorite = false;
 
-  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -87,7 +62,6 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     _isFavorite = widget.result.isFavorite;
   }
 
-  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _controller.dispose();
@@ -95,7 +69,6 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
   }
 
   /// الحصول على اللون حسب مستوى التخفيف
-  /// العربية: يعيد color for level.
   Color _getColorForLevel() {
     final level = widget.relaxationLevel ?? SearchRelaxationLevel.exact;
     switch (level) {
@@ -113,7 +86,6 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
   }
 
   /// الحصول على الأيقونة حسب مستوى التخفيف
-  /// العربية: يعيد icon for level.
   IconData _getIconForLevel() {
     final level = widget.relaxationLevel ?? SearchRelaxationLevel.exact;
     switch (level) {
@@ -131,24 +103,22 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
   }
 
   /// الحصول على الاسم العربي لمستوى التخفيف
-  /// العربية: يعيد display name.
   String _getDisplayName() {
     final level = widget.relaxationLevel ?? SearchRelaxationLevel.exact;
     switch (level) {
       case SearchRelaxationLevel.exact:
-        return context.tr('search.relaxation.exact');
+        return 'تطابق دقيق';
       case SearchRelaxationLevel.minorRelaxation:
-        return context.tr('search.relaxation.minor');
+        return 'تخفيف بسيط';
       case SearchRelaxationLevel.moderateRelaxation:
-        return context.tr('search.relaxation.moderate');
+        return 'تخفيف متوسط';
       case SearchRelaxationLevel.majorRelaxation:
-        return context.tr('search.relaxation.major');
+        return 'تخفيف كبير';
       case SearchRelaxationLevel.alternativeSuggestions:
-        return context.tr('search.relaxation.alternative');
+        return 'اقتراحات بديلة';
     }
   }
 
-  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     // Debug: Print mismatches info
@@ -170,7 +140,6 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     }
   }
 
-  /// العربية: يعالج `defaultToggleFavorite`.
   Future<void> _defaultToggleFavorite() async {
     try {
       final uid =
@@ -178,11 +147,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
               .toString();
       if (uid.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.tr('search.result.loginRequiredFavorite'),
-            ),
-          ),
+          const SnackBar(content: Text('يجب تسجيل الدخول لإضافة إلى المفضلة')),
         );
         return;
       }
@@ -206,7 +171,6 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     } catch (_) {}
   }
 
-  /// العربية: يبني minimal list card.
   Widget _buildMinimalListCard() {
     return AnimatedBuilder(
       animation: _scaleAnimation,
@@ -251,6 +215,16 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                         _buildTitle(),
                         const SizedBox(height: 8),
                         _buildLocationRow(),
+                        if (widget.result.hasMismatches) ...[
+                          const SizedBox(height: 4),
+                          GestureDetector(
+                            onTap: () => _showMismatchesBottomSheet(context),
+                            child: PropertyMismatchBadgeWidget(
+                              mismatches: widget.result.filterMismatches,
+                              compact: true,
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 12),
                         _buildInfoRow(),
                         const SizedBox(height: 12),
@@ -267,7 +241,6 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
-  /// العربية: يبني minimal grid card.
   Widget _buildMinimalGridCard() {
     return AnimatedBuilder(
       animation: _scaleAnimation,
@@ -372,6 +345,16 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                               ),
                             ],
                           ),
+                          if (widget.result.hasMismatches) ...[
+                            const SizedBox(height: 6),
+                            GestureDetector(
+                              onTap: () => _showMismatchesBottomSheet(context),
+                              child: PropertyMismatchBadgeWidget(
+                                mismatches: widget.result.filterMismatches,
+                                compact: true,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -385,7 +368,6 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
-  /// العربية: يبني minimal compact card.
   Widget _buildMinimalCompactCard() {
     return AnimatedBuilder(
       animation: _scaleAnimation,
@@ -475,7 +457,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                                     ),
                                     child: Text(
                                       '-${((1 - widget.result.discountedPrice / widget.result.minPrice) * 100).toStringAsFixed(0)}%',
-                                      style: AppTextStyles.bodySmall.copyWith(
+                                      style: AppTextStyles.bodyMedium.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -507,7 +489,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                               ),
                               child: Text(
                                 widget.result.propertyType,
-                                style: AppTextStyles.bodySmall.copyWith(
+                                style: AppTextStyles.bodyMedium.copyWith(
                                   color: AppTheme.primaryBlue,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -573,7 +555,8 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                                       Text(
                                         widget.result.averageRating
                                             .toStringAsFixed(1),
-                                        style: AppTextStyles.bodySmall.copyWith(
+                                        style:
+                                            AppTextStyles.bodyMedium.copyWith(
                                           color: AppTheme.warning,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -590,7 +573,8 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                                       Text(
                                         widget.result.minPrice
                                             .toStringAsFixed(0),
-                                        style: AppTextStyles.bodySmall.copyWith(
+                                        style:
+                                            AppTextStyles.bodyMedium.copyWith(
                                           color: AppTheme.textMuted
                                               .withOpacity(0.5),
                                           decoration:
@@ -608,6 +592,18 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                                 ),
                               ],
                             ),
+                            if (widget.result.hasMismatches)
+                              GestureDetector(
+                                onTap: () =>
+                                    _showMismatchesBottomSheet(context),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 6),
+                                  child: PropertyMismatchBadgeWidget(
+                                    mismatches: widget.result.filterMismatches,
+                                    compact: true,
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
                       ),
@@ -622,7 +618,6 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
-  /// العربية: يبني minimal image section.
   Widget _buildMinimalImageSection({double? height}) {
     final radius = Radius.circular(
       widget.displayType == CardDisplayType.grid ? 14 : 16,
@@ -670,10 +665,8 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        context.tr(
-                          'search.result.featured',
-                        ),
-                        style: AppTextStyles.bodySmall.copyWith(
+                        'مميز',
+                        style: AppTextStyles.bodyMedium.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
                         ),
@@ -698,14 +691,8 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    context.tr(
-                      'search.result.discount',
-                      params: {
-                        'value':
-                            '${((1 - widget.result.discountedPrice / widget.result.minPrice) * 100).toStringAsFixed(0)}',
-                      },
-                    ),
-                    style: AppTextStyles.bodySmall.copyWith(
+                    '${((1 - widget.result.discountedPrice / widget.result.minPrice) * 100).toStringAsFixed(0)}% خصم',
+                    style: AppTextStyles.bodyMedium.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
                     ),
@@ -718,7 +705,6 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
-  /// العربية: يبني minimal favorite button.
   Widget _buildMinimalFavoriteButton() {
     return GestureDetector(
       onTap: () {
@@ -748,7 +734,6 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
-  /// العربية: يبني compact favorite button.
   Widget _buildCompactFavoriteButton() {
     return GestureDetector(
       onTap: () {
@@ -778,7 +763,6 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
-  /// العربية: يبني title.
   Widget _buildTitle() {
     return Row(
       children: [
@@ -797,7 +781,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                 ),
                 child: Text(
                   widget.result.propertyType,
-                  style: AppTextStyles.bodySmall.copyWith(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     color: AppTheme.primaryBlue,
                     fontWeight: FontWeight.w500,
                   ),
@@ -831,7 +815,6 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
-  /// العربية: يبني location row.
   Widget _buildLocationRow() {
     return Row(
       children: [
@@ -872,13 +855,8 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                 ),
                 const SizedBox(width: 3),
                 Text(
-                  context.tr(
-                    'search.result.distanceKm',
-                    params: {
-                      'value': widget.result.distanceKm!.toStringAsFixed(1),
-                    },
-                  ),
-                  style: AppTextStyles.bodySmall.copyWith(
+                  '${widget.result.distanceKm!.toStringAsFixed(1)} كم',
+                  style: AppTextStyles.bodyMedium.copyWith(
                     color: AppTheme.textMuted,
                   ),
                 ),
@@ -890,7 +868,6 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
-  /// العربية: يبني info row.
   Widget _buildInfoRow() {
     return Row(
       children: [
@@ -951,6 +928,13 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                   ),
                 ),
                 const SizedBox(width: 4),
+                Text(
+                  'محجوز',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppTheme.error,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           ),
@@ -958,7 +942,6 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
     );
   }
 
-  /// العربية: يبني price row.
   Widget _buildPriceRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -994,9 +977,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  context.tr(
-                    'search.result.perNight',
-                  ),
+                  '/ الليلة',
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.textMuted.withOpacity(0.6),
                   ),
@@ -1025,9 +1006,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  context.tr(
-                    'search.result.view',
-                  ),
+                  'عرض',
                   style: AppTextStyles.caption.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
@@ -1121,9 +1100,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          context.tr(
-                            'search.result.compareWithRequest',
-                          ),
+                          'مقارنة مع طلبك',
                           style:
                               Theme.of(context).textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
@@ -1131,6 +1108,13 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                                   ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // قائمة الفروقات المفصلة
+                    PropertyMismatchBadgeWidget(
+                      mismatches: widget.result.filterMismatches,
+                      compact: false,
                     ),
                     const SizedBox(height: 16),
 
@@ -1176,9 +1160,7 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              context.tr(
-                                'search.result.mismatchSummary',
-                              ),
+                              'هذا العقار يطابق معظم معاييرك مع بعض الاختلافات البسيطة',
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -1209,10 +1191,8 @@ class _SearchResultCardWidgetState extends State<SearchResultCardWidget>
                           ),
                         ),
                         child: Text(
-                          context.tr(
-                            'search.result.understood',
-                          ),
-                          style: AppTextStyles.bodySmall.copyWith(
+                          'فهمت',
+                          style: AppTextStyles.bodyMedium.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),

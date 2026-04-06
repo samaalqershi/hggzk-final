@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -65,6 +64,10 @@ class ConversationItemWidget extends StatelessWidget {
     final displayImage = conversation.avatar ?? otherParticipant?.profileImage;
 
     final isTyping = typingUserIds.isNotEmpty;
+    final subtitleText = _buildConversationSubtitle(
+      context: context,
+      otherParticipant: otherParticipant,
+    );
 
     return Material(
       color: Colors.transparent,
@@ -79,91 +82,155 @@ class ConversationItemWidget extends StatelessWidget {
                 onLongPress!();
               }
             : null,
-        borderRadius: BorderRadius.circular(0),
+        borderRadius: BorderRadius.circular(26),
         child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 10,
-          ),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.03),
-                width: 0.5,
-              ),
+            color: Colors.transparent,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: conversation.hasUnreadMessages
+                  ? [
+                      Colors.white.withOpacity(0.075),
+                      AppTheme.primaryBlue.withOpacity(0.035),
+                    ]
+                  : [
+                      Colors.white.withOpacity(0.05),
+                      Colors.white.withOpacity(0.02),
+                    ],
             ),
+            borderRadius: BorderRadius.circular(26),
+            border: Border.all(
+              color: conversation.hasUnreadMessages
+                  ? AppTheme.primaryBlue.withOpacity(0.12)
+                  : AppTheme.darkBorder.withOpacity(0.07),
+              width: 0.8,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: conversation.hasUnreadMessages
+                    ? AppTheme.primaryBlue.withOpacity(0.06)
+                    : Colors.black.withOpacity(0.06),
+                blurRadius: conversation.hasUnreadMessages ? 18 : 12,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-          child: Row(
+          child: Stack(
             children: [
-              _buildUltraMinimalAvatar(displayImage, displayName),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            displayName,
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              fontWeight: conversation.hasUnreadMessages
-                                  ? FontWeight.w600
-                                  : FontWeight.w500,
-                              fontSize: 13,
-                              color: AppTheme.textWhite.withOpacity(
-                                  conversation.hasUnreadMessages ? 0.95 : 0.8),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (conversation.isMuted)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 6),
-                            child: Icon(
-                              Icons.notifications_off,
-                              size: 10,
-                              color: AppTheme.textMuted.withOpacity(0.3),
-                            ),
-                          ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _formatTime(
-                            context,
-                            conversation.lastMessage?.createdAt ??
-                                conversation.updatedAt,
-                          ),
-                          style: AppTextStyles.caption.copyWith(
-                            color: conversation.hasUnreadMessages
-                                ? AppTheme.primaryBlue.withOpacity(0.7)
-                                : AppTheme.textMuted.withOpacity(0.4),
-                            fontSize: 10,
-                            fontWeight: conversation.hasUnreadMessages
-                                ? FontWeight.w600
-                                : FontWeight.w400,
-                          ),
-                        ),
-                      ],
+              if (conversation.hasUnreadMessages)
+                PositionedDirectional(
+                  start: 0,
+                  top: 10,
+                  bottom: 10,
+                  child: Container(
+                    width: 3,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryBlue.withOpacity(0.78),
+                      borderRadius: BorderRadius.circular(999),
                     ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        if (conversation.lastMessage != null &&
-                            conversation.lastMessage!.senderId == currentUserId)
-                          _buildUltraMinimalStatus(
-                              conversation.lastMessage!.status),
-                        Expanded(
-                          child: isTyping
-                              ? _buildUltraMinimalTyping(context)
-                              : _buildUltraMinimalLastMessage(context),
-                        ),
-                        if (conversation.hasUnreadMessages)
-                          _buildUltraMinimalBadge(),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildUltraMinimalAvatar(displayImage, displayName),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    displayName,
+                                    style: AppTextStyles.bodyMedium.copyWith(
+                                      fontWeight: conversation.hasUnreadMessages
+                                          ? FontWeight.w800
+                                          : FontWeight.w700,
+                                      fontSize: 14,
+                                      color: AppTheme.textWhite.withOpacity(
+                                        conversation.hasUnreadMessages
+                                            ? 0.94
+                                            : 0.84,
+                                      ),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    subtitleText,
+                                    style: AppTextStyles.caption.copyWith(
+                                      color:
+                                          AppTheme.textMuted.withOpacity(0.42),
+                                      fontSize: 9.5,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (conversation.isMuted)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 2, right: 6),
+                                child: Icon(
+                                  Icons.notifications_off_rounded,
+                                  size: 12,
+                                  color: AppTheme.textMuted.withOpacity(0.4),
+                                ),
+                              ),
+                            Text(
+                              _formatTime(
+                                context,
+                                conversation.lastMessage?.createdAt ??
+                                    conversation.updatedAt,
+                              ),
+                              style: AppTextStyles.caption.copyWith(
+                                color: conversation.hasUnreadMessages
+                                    ? AppTheme.primaryBlue.withOpacity(0.82)
+                                    : AppTheme.textMuted.withOpacity(0.5),
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            if (conversation.lastMessage != null &&
+                                conversation.lastMessage!.senderId ==
+                                    currentUserId)
+                              _buildUltraMinimalStatus(
+                                conversation.lastMessage!.status,
+                              ),
+                            Expanded(
+                              child: isTyping
+                                  ? _buildUltraMinimalTyping(context)
+                                  : _buildUltraMinimalLastMessage(context),
+                            ),
+                            if (conversation.hasUnreadMessages) ...[
+                              const SizedBox(width: 8),
+                              _buildUltraMinimalBadge(),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -180,34 +247,45 @@ class ConversationItemWidget extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          width: 42,
-          height: 42,
+          width: 52,
+          height: 52,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: conversation.hasUnreadMessages
-                ? LinearGradient(
-                    colors: [
-                      AppTheme.primaryBlue.withOpacity(0.1),
-                      AppTheme.primaryPurple.withOpacity(0.05),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: conversation.hasUnreadMessages
+                  ? [
+                      AppTheme.primaryBlue.withOpacity(0.18),
+                      AppTheme.primaryPurple.withOpacity(0.1),
+                    ]
+                  : [
+                      Colors.white.withOpacity(0.06),
+                      Colors.white.withOpacity(0.03),
                     ],
-                  )
-                : null,
-            color: !conversation.hasUnreadMessages
-                ? AppTheme.darkCard.withOpacity(0.05)
-                : null,
+            ),
             border: Border.all(
               color: conversation.hasUnreadMessages
-                  ? AppTheme.primaryBlue.withOpacity(0.2)
-                  : AppTheme.darkBorder.withOpacity(0.05),
-              width: 0.5,
+                  ? AppTheme.primaryBlue.withOpacity(0.16)
+                  : AppTheme.darkBorder.withOpacity(0.07),
+              width: 0.9,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: conversation.hasUnreadMessages
+                    ? AppTheme.primaryBlue.withOpacity(0.09)
+                    : Colors.black.withOpacity(0.06),
+                blurRadius: 14,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
           child: ClipOval(
             child: hasImage
                 ? CachedImageWidget(
                     imageUrl: imageUrl,
-                    width: 42,
-                    height: 42,
+                    width: 52,
+                    height: 52,
                     fit: BoxFit.cover,
                   )
                 : Center(
@@ -215,10 +293,10 @@ class ConversationItemWidget extends StatelessWidget {
                       _getInitials(name),
                       style: AppTextStyles.bodySmall.copyWith(
                         color: conversation.hasUnreadMessages
-                            ? AppTheme.primaryBlue.withOpacity(0.7)
-                            : AppTheme.textMuted.withOpacity(0.5),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                            ? AppTheme.primaryBlue.withOpacity(0.92)
+                            : AppTheme.textMuted.withOpacity(0.72),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
                       ),
                     ),
                   ),
@@ -231,7 +309,7 @@ class ConversationItemWidget extends StatelessWidget {
             right: 1,
             child: const OnlineStatusIndicator(
               isOnline: true,
-              size: 8,
+              size: 10,
               showBorder: true,
               animate: true,
             ),
@@ -340,9 +418,10 @@ class ConversationItemWidget extends StatelessWidget {
             messageText,
             style: AppTextStyles.caption.copyWith(
               color: conversation.hasUnreadMessages
-                  ? AppTheme.textWhite.withOpacity(0.7)
-                  : AppTheme.textMuted.withOpacity(0.4),
-              fontSize: 11,
+                  ? AppTheme.textWhite.withOpacity(0.76)
+                  : AppTheme.textMuted.withOpacity(0.56),
+              fontSize: 11.5,
+              height: 1.25,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -359,9 +438,10 @@ class ConversationItemWidget extends StatelessWidget {
         Text(
           context.tr('chat.inbox.typing'),
           style: AppTextStyles.caption.copyWith(
-            color: AppTheme.primaryBlue.withOpacity(0.6),
+            color: AppTheme.primaryBlue.withOpacity(0.82),
             fontStyle: FontStyle.italic,
-            fontSize: 11,
+            fontSize: 11.5,
+            fontWeight: FontWeight.w700,
           ),
         ),
         const SizedBox(width: 4),
@@ -377,10 +457,10 @@ class ConversationItemWidget extends StatelessWidget {
                 curve: Curves.easeInOut,
                 builder: (context, value, child) {
                   return Container(
-                    width: 2,
-                    height: 2,
+                    width: 3,
+                    height: 3,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryBlue.withOpacity(value * 0.6),
+                      color: AppTheme.primaryBlue.withOpacity(value * 0.85),
                       shape: BoxShape.circle,
                     ),
                   );
@@ -398,21 +478,20 @@ class ConversationItemWidget extends StatelessWidget {
   Widget _buildUltraMinimalBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: 5,
-        vertical: 2,
+        horizontal: 6,
+        vertical: 3,
       ),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.primaryBlue.withOpacity(0.8),
-            AppTheme.primaryPurple.withOpacity(0.6),
-          ],
+        color: AppTheme.primaryBlue.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: AppTheme.primaryBlue.withOpacity(0.16),
+          width: 0.7,
         ),
-        borderRadius: BorderRadius.circular(8),
       ),
       constraints: const BoxConstraints(
-        minWidth: 14,
-        minHeight: 14,
+        minWidth: 24,
+        minHeight: 24,
       ),
       child: Center(
         child: Text(
@@ -420,12 +499,40 @@ class ConversationItemWidget extends StatelessWidget {
               ? '99+'
               : conversation.unreadCount.toString(),
           style: AppTextStyles.caption.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-            fontSize: 8,
+            color: AppTheme.primaryBlue.withOpacity(0.92),
+            fontWeight: FontWeight.w700,
+            fontSize: 9,
           ),
         ),
       ),
+    );
+  }
+
+  String _buildConversationSubtitle({
+    required BuildContext context,
+    required ChatUser? otherParticipant,
+  }) {
+    if (conversation.isDirectChat && otherParticipant != null) {
+      if (otherParticipant.isOnline) {
+        return context.tr('chat.thread.onlineNow');
+      }
+      if (otherParticipant.lastSeen != null) {
+        return context.tr(
+          'chat.thread.lastSeen',
+          params: {
+            'value': _formatTime(context, otherParticipant.lastSeen!),
+          },
+        );
+      }
+    }
+
+    if (conversation.description?.trim().isNotEmpty == true) {
+      return conversation.description!.trim();
+    }
+
+    return context.tr(
+      'chat.newConversation.membersCount',
+      params: {'count': conversation.participants.length},
     );
   }
 

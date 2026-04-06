@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:hggzk/features/booking/presentation/widgets/policies_dialog.dart';
 import 'dart:ui';
-import 'package:hggzk/core/localization/app_localizations.dart';
+import 'dart:math' as math;
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/price_widget.dart';
@@ -18,59 +18,47 @@ import '../bloc/booking_event.dart';
 import '../bloc/booking_state.dart';
 import '../widgets/price_breakdown_widget.dart';
 
-/// العربية: يمثل عنصر الصفحة `BookingSummaryPage`.
 class BookingSummaryPage extends StatefulWidget {
-  /// العربية: يخزن القيمة `bookingData`.
   final Map<String, dynamic> bookingData;
 
-  /// العربية: ينشئ مثيلًا جديدًا من `BookingSummaryPage`.
   const BookingSummaryPage({
     super.key,
     required this.bookingData,
   });
 
-  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<BookingSummaryPage> createState() => _BookingSummaryPageState();
 }
 
-/// العربية: يمثل الحالة الخاصة بـ `BookingSummaryPageState`.
 class _BookingSummaryPageState extends State<BookingSummaryPage>
-    with SingleTickerProviderStateMixin {
-  /// العربية: يخزن القيمة `controller`.
-  late AnimationController _controller;
+    with TickerProviderStateMixin {
+  // Animation Controllers
+  late AnimationController _backgroundAnimationController;
+  late AnimationController _cardAnimationController;
+  late AnimationController _shimmerAnimationController;
+
+  // Animations
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
 
   // Calculated values
-  /// العربية: يخزن القيمة `nights`.
   late int nights;
-
-  /// العربية: يخزن القيمة `pricePerNight`.
   late double pricePerNight;
-
-  /// العربية: يخزن القيمة `totalPrice`.
   late double totalPrice;
-
-  /// العربية: يخزن القيمة `servicesTotal`.
   late double servicesTotal;
-
-  /// العربية: يخزن القيمة `grandTotal`.
+  late double tax;
   late double grandTotal;
-
-  /// العربية: يخزن القيمة `currency`.
   late String currency;
 
-  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
     _calculatePrices();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    )..forward();
+    _initializeAnimations();
+    _startAnimations();
   }
 
-  /// العربية: يعالج `calculatePrices`.
   void _calculatePrices() {
     final checkIn = widget.bookingData['checkIn'] as DateTime;
     final checkOut = widget.bookingData['checkOut'] as DateTime;
@@ -86,607 +74,353 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
       (sum, service) => sum + (service['price'] as num).toDouble(),
     );
 
+    tax = 0; // لا ضرائب، نعرض تفاصيل الخدمات بدلاً عنها
     grandTotal = totalPrice + servicesTotal;
   }
 
-  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
+  void _initializeAnimations() {
+    // Slow background animation
+    _backgroundAnimationController = AnimationController(
+      duration: const Duration(seconds: 30),
+      vsync: this,
+    )..repeat();
+
+    // Card Animation
+    _cardAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _cardAnimationController,
+      curve: Curves.easeIn,
+    ));
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _cardAnimationController,
+      curve: Curves.easeOut,
+    ));
+
+    _scaleAnimation = Tween<double>(
+      begin: 0.95,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _cardAnimationController,
+      curve: Curves.easeOut,
+    ));
+
+    // Shimmer Animation
+    _shimmerAnimationController = AnimationController(
+      duration: const Duration(seconds: 4),
+      vsync: this,
+    )..repeat();
+  }
+
+  void _startAnimations() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      _cardAnimationController.forward();
+    });
+  }
+
   @override
   void dispose() {
-    _controller.dispose();
+    _backgroundAnimationController.dispose();
+    _cardAnimationController.dispose();
+    _shimmerAnimationController.dispose();
     super.dispose();
   }
 
-  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
-      appBar: _buildAppBar(),
-      body: BlocConsumer<BookingBloc, BookingState>(
-        listener: _handleBookingState,
-        builder: (context, state) {
-          if (state is BookingLoading) {
-            return LoadingWidget(
-              type: LoadingType.futuristic,
-              message: context.tr(
-                'booking.summary.createLoading',
-              ),
-            );
-          }
-
-          return _buildContent();
-        },
-      ),
-      bottomNavigationBar: _buildBottomBar(),
-    );
-  }
-
-  /// العربية: يعالج booking state.
-  void _handleBookingState(BuildContext context, BookingState state) {
-    if (state is BookingCreated) {
-      final booking = state.booking;
-      final bookingData = Map<String, dynamic>.from(widget.bookingData);
-      bookingData['bookingId'] = booking.id;
-      bookingData['totalAmount'] = booking.totalAmount;
-      bookingData['currency'] = booking.currency;
-
-      context.push('/booking/payment', extra: bookingData).then((result) {
-        if (result is Map && result['bookingId'] != null) {
-          setState(() {
-            widget.bookingData['bookingId'] = result['bookingId'].toString();
-          });
-        } else {
-          setState(() {
-            widget.bookingData['bookingId'] = booking.id;
-          });
-        }
-      });
-    } else if (state is BookingError) {
-      _showSnackBar(state.message, isError: true);
-    }
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // AppBar
-  // ═══════════════════════════════════════════════════════════════
-  /// العربية: يبني app bar.
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: AppTheme.darkCard.withOpacity(0.5),
-      elevation: 0,
-      leading: _buildBackButton(),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.tr(
-              'booking.summary.title',
-            ),
-            style: AppTextStyles.h3.copyWith(
-              color: AppTheme.textWhite,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          Text(
-            context.tr(
-              'booking.summary.step2',
-            ),
-            style: AppTextStyles.caption.copyWith(
-              color: AppTheme.textMuted,
-            ),
-          ),
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          _buildMinimalAppBar(),
         ],
-      ),
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(3),
-        child: Container(
-          height: 3,
-          child: LinearProgressIndicator(
-            value: 0.66,
-            backgroundColor: AppTheme.darkBorder.withOpacity(0.2),
-            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
-          ),
-        ),
-      ),
-    );
-  }
+        body: BlocConsumer<BookingBloc, BookingState>(
+          listener: (context, state) {
+            if (state is BookingCreated) {
+              final booking = state.booking;
+              final bookingData = Map<String, dynamic>.from(widget.bookingData);
+              bookingData['bookingId'] = booking.id;
+              bookingData['totalAmount'] = booking.totalAmount;
+              bookingData['currency'] = booking.currency;
+              context
+                  .push(
+                '/booking/payment',
+                extra: bookingData,
+              )
+                  .then((result) {
+                if (result is Map && result['bookingId'] != null) {
+                  setState(() {
+                    widget.bookingData['bookingId'] =
+                        result['bookingId'].toString();
+                  });
+                } else {
+                  // في حال لم يعد نتيجة، خزّن المعرّف الذي حصلنا عليه عند الإنشاء
+                  setState(() {
+                    widget.bookingData['bookingId'] = booking.id;
+                  });
+                }
+              });
+            } else if (state is BookingError) {
+              _showErrorSnackBar(state.message);
+            }
+          },
+          builder: (context, state) {
+            if (state is BookingLoading) {
+              return const LoadingWidget(
+                type: LoadingType.futuristic,
+                message: 'جاري إنشاء الحجز...\nيرجى الانتظار قليلاً',
+              );
+            }
 
-  /// العربية: يبني back button.
-  Widget _buildBackButton() {
-    return Container(
-      margin: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: AppTheme.glassLight,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppTheme.darkBorder.withOpacity(0.3)),
-      ),
-      child: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-        color: AppTheme.textWhite,
-        onPressed: () {
-          HapticFeedback.selectionClick();
-          final bookingId = widget.bookingData['bookingId'];
-          context.pop(
-            bookingId != null && bookingId.toString().isNotEmpty
-                ? {'bookingId': bookingId}
-                : null,
-          );
-        },
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // المحتوى الرئيسي
-  // ═══════════════════════════════════════════════════════════════
-  /// العربية: يبني content.
-  Widget _buildContent() {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: FadeTransition(
-        opacity: _controller,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, 0.05),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(
-            parent: _controller,
-            curve: Curves.easeOutCubic,
-          )),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
+            return Stack(
               children: [
-                _buildPropertyCard(),
-                const SizedBox(height: 16),
-                _buildBookingDetailsCard(),
-                const SizedBox(height: 16),
-                _buildGuestDetailsCard(),
-                const SizedBox(height: 16),
-                if ((widget.bookingData['selectedServices'] as List)
-                    .isNotEmpty) ...[
-                  _buildServicesCard(),
-                  const SizedBox(height: 16),
-                ],
-                if (widget.bookingData['specialRequests']?.isNotEmpty ??
-                    false) ...[
-                  _buildSpecialRequestsCard(),
-                  const SizedBox(height: 16),
-                ],
-                _buildPriceBreakdown(),
-                const SizedBox(height: 16),
-                _buildPoliciesCard(),
-                const SizedBox(height: 24),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // بطاقة العقار
-  // ═══════════════════════════════════════════════════════════════
-  /// العربية: يبني property card.
-  Widget _buildPropertyCard() {
-    final unitImages = (widget.bookingData['unitImages'] as List?)
-        ?.map((e) => e.toString())
-        .toList();
-    final hasImages = unitImages != null && unitImages.isNotEmpty;
-
-    return _buildCard(
-      child: Row(
-        children: [
-          // صورة العقار
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.primaryBlue.withOpacity(0.2),
-                  AppTheme.primaryPurple.withOpacity(0.1),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: hasImages
-                ? Image.network(unitImages.first, fit: BoxFit.cover)
-                : Center(
-                    child: Icon(
-                      Icons.apartment_rounded,
-                      color: AppTheme.primaryBlue.withOpacity(0.5),
-                      size: 32,
+                _buildSubtleBackground(),
+                _buildSubtleParticles(),
+                SafeArea(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: AnimatedBuilder(
+                      animation: _cardAnimationController,
+                      builder: (context, child) {
+                        return FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: SlideTransition(
+                            position: _slideAnimation,
+                            child: Transform.scale(
+                              scale: _scaleAnimation.value,
+                              child: Column(
+                                children: [
+                                  const SizedBox(height: 16),
+                                  _buildCompactPropertyCard(),
+                                  const SizedBox(height: 12),
+                                  _buildCompactBookingDetails(),
+                                  const SizedBox(height: 12),
+                                  _buildCompactGuestDetails(),
+                                  const SizedBox(height: 12),
+                                  if (widget.bookingData['selectedServices']
+                                      .isNotEmpty) ...[
+                                    _buildCompactServicesCard(),
+                                    const SizedBox(height: 12),
+                                  ],
+                                  if (widget.bookingData['specialRequests']
+                                          ?.isNotEmpty ??
+                                      false) ...[
+                                    _buildCompactSpecialRequestsCard(),
+                                    const SizedBox(height: 12),
+                                  ],
+                                  _buildCompactPriceBreakdown(),
+                                  const SizedBox(height: 12),
+                                  _buildPoliciesNoticeCard(),
+                                  const SizedBox(height: 20),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
-          ),
-          const SizedBox(width: 14),
-
-          // معلومات العقار
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.bookingData['unitName'] ??
-                      widget.bookingData['propertyName'],
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    color: AppTheme.textWhite,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
-                if (widget.bookingData['unitTypeName'] != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    widget.bookingData['unitTypeName'],
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.textMuted,
+              ],
+            );
+          },
+        ),
+      ),
+      bottomNavigationBar: _buildMinimalBottomBar(),
+    );
+  }
+
+  SliverAppBar _buildMinimalAppBar() {
+    final propertyName = widget.bookingData['propertyName'] as String? ?? '';
+
+    return SliverAppBar(
+      expandedHeight: 180,
+      pinned: true,
+      backgroundColor: Colors.transparent,
+      systemOverlayStyle: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+      ),
+      leading: _buildMinimalBackButton(),
+      flexibleSpace: LayoutBuilder(
+        builder: (context, constraints) {
+          final double currentHeight = constraints.maxHeight;
+          final double progress =
+              ((currentHeight - kToolbarHeight) / (180.0 - kToolbarHeight))
+                  .clamp(0.0, 1.0);
+          final double mediaTop = MediaQuery.of(context).padding.top;
+          final double topPadding = mediaTop + 4 + (8 * progress);
+          final double bottomPadding = 4 + (8 * progress);
+
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              // Gradient background
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppTheme.darkCard.withOpacity(0.7),
+                    gradient: LinearGradient(
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                      colors: [
+                        AppTheme.primaryBlue.withOpacity(0.35),
+                        AppTheme.darkCard.withOpacity(0.95),
+                      ],
                     ),
                   ),
-                ],
-                if (_buildCapacityText().isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Row(
+                ),
+              ),
+              // Blur effect
+              Positioned.fill(
+                child: ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(
+                      sigmaX: 8,
+                      sigmaY: 8,
+                    ),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.01),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(
+                  top: topPadding,
+                  left: 16,
+                  right: 16,
+                  bottom: bottomPadding,
+                ),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.people_outline_rounded,
-                        size: 14,
-                        color: AppTheme.textMuted,
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [
+                              AppTheme.primaryBlue.withOpacity(0.95),
+                              AppTheme.primaryPurple.withOpacity(0.7),
+                            ],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primaryBlue.withOpacity(0.35),
+                              blurRadius: 18,
+                              spreadRadius: 3,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.receipt_long_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        _buildCapacityText(),
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppTheme.textMuted,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'مراجعة الملخص',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppTheme.textMuted
+                                      .withOpacity(0.8 + (0.1 * progress)),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                propertyName.isNotEmpty
+                                    ? propertyName
+                                    : 'ملخص الحجز',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.h3.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.textWhite
+                                      .withOpacity(0.95 + (0.05 * progress)),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(999),
+                                      color: AppTheme.darkCard
+                                          .withOpacity(0.6 - (0.2 * progress)),
+                                      border: Border.all(
+                                        color: AppTheme.darkBorder
+                                            .withOpacity(0.4),
+                                        width: 0.6,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'الخطوة 2 من 3',
+                                      style: AppTextStyles.caption.copyWith(
+                                        color:
+                                            AppTheme.textLight.withOpacity(0.9),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ],
-                const SizedBox(height: 8),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    context.tr(
-                      'booking.summary.pricePerNight',
-                      params: {
-                        'price': pricePerNight.toStringAsFixed(0),
-                        'currency': currency,
-                      },
-                    ),
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.primaryBlue,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // بطاقة تفاصيل الحجز
-  // ═══════════════════════════════════════════════════════════════
-  /// العربية: يبني booking details card.
-  Widget _buildBookingDetailsCard() {
-    final checkIn = widget.bookingData['checkIn'] as DateTime;
-    final checkOut = widget.bookingData['checkOut'] as DateTime;
-    final dateFormat = DateFormat('dd MMM yyyy', 'ar');
-
-    return _buildCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildCardHeader(
-            icon: Icons.calendar_month_rounded,
-            title: context.tr(
-              'booking.summary.propertyInfo',
-            ),
-            color: AppTheme.primaryBlue,
-          ),
-          const SizedBox(height: 16),
-          _buildInfoRow(
-            icon: Icons.login_rounded,
-            label: context.tr(
-              'booking.summary.checkIn',
-            ),
-            value: dateFormat.format(checkIn),
-            color: AppTheme.primaryBlue,
-          ),
-          _buildDivider(),
-          _buildInfoRow(
-            icon: Icons.logout_rounded,
-            label: context.tr(
-              'booking.summary.checkOut',
-            ),
-            value: dateFormat.format(checkOut),
-            color: AppTheme.primaryPurple,
-          ),
-          _buildDivider(),
-          _buildInfoRow(
-            icon: Icons.nights_stay_rounded,
-            label: context.tr(
-              'booking.summary.nightsLabel',
-            ),
-            value: context.tr(
-              'booking.summary.nights',
-              params: {'count': nights},
-            ),
-            color: AppTheme.primaryCyan,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // بطاقة تفاصيل الضيوف
-  // ═══════════════════════════════════════════════════════════════
-  /// العربية: يبني guest details card.
-  Widget _buildGuestDetailsCard() {
-    final adultsCount = widget.bookingData['adultsCount'] as int;
-    final childrenCount = widget.bookingData['childrenCount'] as int;
-    final totalGuests = adultsCount + childrenCount;
-
-    return _buildCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildCardHeader(
-            icon: Icons.people_rounded,
-            title: context.tr(
-              'booking.summary.guestsInfo',
-            ),
-            color: AppTheme.success,
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildGuestBadge(
-                icon: Icons.person_rounded,
-                label: context.tr(
-                  'booking.summary.guestAdults',
-                ),
-                count: adultsCount,
-                color: AppTheme.success,
-              ),
-              const SizedBox(width: 12),
-              if (childrenCount > 0)
-                _buildGuestBadge(
-                  icon: Icons.child_care_rounded,
-                  label: context.tr(
-                    'booking.summary.guestChildren',
-                  ),
-                  count: childrenCount,
-                  color: AppTheme.info,
-                ),
-              const Spacer(),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppTheme.success.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.groups_rounded,
-                      size: 16,
-                      color: AppTheme.success,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      context.tr(
-                        'booking.summary.totalGuests',
-                        params: {'count': totalGuests},
-                      ),
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppTheme.success,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
                 ),
               ),
             ],
+          );
+        },
+      ),
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(2),
+        child: Container(
+          height: 2,
+          child: LinearProgressIndicator(
+            value: 0.66,
+            backgroundColor: AppTheme.darkBorder.withOpacity(0.1),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              AppTheme.primaryBlue.withOpacity(0.6),
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
 
-  /// العربية: يبني guest badge.
-  Widget _buildGuestBadge({
-    required IconData icon,
-    required String label,
-    required int count,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.2)),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: color),
-          const SizedBox(width: 6),
-          Text(
-            '$count $label',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppTheme.textWhite,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // بطاقة الخدمات
-  // ═══════════════════════════════════════════════════════════════
-  /// العربية: يبني services card.
-  Widget _buildServicesCard() {
-    final services =
-        widget.bookingData['selectedServices'] as List<Map<String, dynamic>>;
-
-    return _buildCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildCardHeader(
-            icon: Icons.room_service_rounded,
-            title: context.tr(
-              'booking.summary.additionalServices',
-            ),
-            color: AppTheme.primaryViolet,
-          ),
-          const SizedBox(height: 14),
-          ...services.map((service) => _buildServiceItem(service)),
-        ],
-      ),
-    );
-  }
-
-  /// العربية: يبني service item.
-  Widget _buildServiceItem(Map<String, dynamic> service) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: AppTheme.primaryViolet,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              service['name'],
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppTheme.textWhite,
-              ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryViolet.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              '${service['price']} $currency',
-              style: AppTextStyles.caption.copyWith(
-                color: AppTheme.primaryViolet,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // بطاقة الطلبات الخاصة
-  // ═══════════════════════════════════════════════════════════════
-  /// العربية: يبني special requests card.
-  Widget _buildSpecialRequestsCard() {
-    return _buildCard(
-      gradient: LinearGradient(
-        colors: [
-          AppTheme.info.withOpacity(0.08),
-          AppTheme.info.withOpacity(0.03),
-        ],
-      ),
-      borderColor: AppTheme.info.withOpacity(0.2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppTheme.info.withOpacity(0.15),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.note_alt_outlined,
-              color: AppTheme.info,
-              size: 18,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.tr(
-                    'booking.summary.specialRequests',
-                  ),
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppTheme.info,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  widget.bookingData['specialRequests'],
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppTheme.textMuted,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // تفصيل السعر
-  // ═══════════════════════════════════════════════════════════════
-  /// العربية: يبني price breakdown.
-  Widget _buildPriceBreakdown() {
-    return PriceBreakdownWidget(
-      nights: nights,
-      pricePerNight: pricePerNight,
-      servicesTotal: servicesTotal,
-      taxRate: 0.0,
-      currency: currency,
-      services: (widget.bookingData['selectedServices'] as List)
-          .map((e) => Map<String, dynamic>.from(e))
-          .toList(),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // بطاقة السياسات
-  // ═══════════════════════════════════════════════════════════════
-  /// العربية: يبني policies card.
-  Widget _buildPoliciesCard() {
+  Widget _buildPoliciesNoticeCard() {
     final propertyId = widget.bookingData['propertyId'] as String?;
     final propertyName = widget.bookingData['propertyName'] as String? ?? '';
 
@@ -699,102 +433,392 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
           propertyName: propertyName,
         );
       },
-      child: _buildCard(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppTheme.darkCard.withOpacity(0.5),
+              AppTheme.darkCard.withOpacity(0.3),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppTheme.primaryBlue.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Stack(
+              children: [
+                // Decorative gradient
+                Positioned(
+                  top: -20,
+                  right: -20,
+                  child: Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          AppTheme.primaryBlue.withOpacity(0.1),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Content
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Icon with glow
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppTheme.primaryBlue.withOpacity(0.2),
+                              AppTheme.primaryPurple.withOpacity(0.1),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.glowBlue.withOpacity(0.2),
+                              blurRadius: 12,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.policy_rounded,
+                          size: 20,
+                          color: AppTheme.primaryBlue,
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      // Text content
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'سياسات وقوانين الحجز',
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppTheme.textWhite,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'بتأكيدك للحجز، فإنك توافق على سياسات الإلغاء والدفع وقوانين العقار.',
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppTheme.textLight.withOpacity(0.8),
+                                height: 1.4,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+
+                            // Action button
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: AppTheme.primaryGradient.scale(0.3),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color:
+                                        AppTheme.primaryBlue.withOpacity(0.2),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.visibility_outlined,
+                                    size: 14,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'عرض السياسات',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Arrow indicator
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 16,
+                        color: AppTheme.textMuted.withOpacity(0.5),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMinimalBackButton() {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppTheme.darkCard.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: AppTheme.darkBorder.withOpacity(0.2),
+                width: 0.5,
+              ),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, size: 16),
+              color: AppTheme.textWhite.withOpacity(0.9),
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                final bookingId = widget.bookingData['bookingId'];
+                context.pop(bookingId != null && bookingId.toString().isNotEmpty
+                    ? {'bookingId': bookingId}
+                    : null);
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubtleBackground() {
+    return AnimatedBuilder(
+      animation: _backgroundAnimationController,
+      builder: (context, child) {
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppTheme.darkBackground,
+                AppTheme.darkBackground2,
+                AppTheme.darkBackground3,
+              ],
+            ),
+          ),
+          child: CustomPaint(
+            painter: _SubtleWavePainter(
+              animationValue: _backgroundAnimationController.value,
+            ),
+            size: Size.infinite,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSubtleParticles() {
+    return AnimatedBuilder(
+      animation: _shimmerAnimationController,
+      builder: (context, child) {
+        return CustomPaint(
+          painter: _SubtleFloatingParticlesPainter(
+            animationValue: _shimmerAnimationController.value,
+          ),
+          size: Size.infinite,
+        );
+      },
+    );
+  }
+
+  Widget _buildCompactPropertyCard() {
+    final adultsCapacity = widget.bookingData['adultsCapacity'] as int?;
+    final childrenCapacity = widget.bookingData['childrenCapacity'] as int?;
+    final customFeatures = widget.bookingData['customFeatures'] as String?;
+
+    String _buildCapacityText() {
+      final parts = <String>[];
+      if (adultsCapacity != null && adultsCapacity > 0) {
+        parts.add('$adultsCapacity بالغ');
+      }
+      if (childrenCapacity != null && childrenCapacity > 0) {
+        parts.add('$childrenCapacity طفل');
+      }
+      return parts.isEmpty ? '' : parts.join('، ');
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.darkCard.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: AppTheme.primaryBlue.withOpacity(0.1),
+          width: 0.5,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                _buildCompactPropertyImage(),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.bookingData['unitName'] ??
+                            widget.bookingData['propertyName'],
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.textWhite.withOpacity(0.95),
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      if (widget.bookingData['unitTypeName'] != null &&
+                          (widget.bookingData['unitTypeName'] as String)
+                              .isNotEmpty)
+                        Text(
+                          widget.bookingData['unitTypeName'],
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppTheme.textMuted.withOpacity(0.7),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      if (_buildCapacityText().isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          _buildCapacityText(),
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppTheme.textMuted.withOpacity(0.8),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                      if (customFeatures != null &&
+                          customFeatures.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          customFeatures,
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppTheme.textMuted.withOpacity(0.8),
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactPropertyImage() {
+    final unitImages = (widget.bookingData['unitImages'] as List?)
+        ?.map((e) => e.toString())
+        .toList();
+    final hasImages = unitImages != null && unitImages.isNotEmpty;
+
+    return Container(
+      width: 64,
+      height: 64,
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryBlue.withOpacity(0.08),
-            AppTheme.primaryPurple.withOpacity(0.04),
+            AppTheme.primaryBlue.withOpacity(0.2),
+            AppTheme.primaryPurple.withOpacity(0.1),
           ],
         ),
-        borderColor: AppTheme.primaryBlue.withOpacity(0.2),
-        child: Row(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Stack(
           children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.primaryBlue.withOpacity(0.2),
-                    AppTheme.primaryPurple.withOpacity(0.1),
-                  ],
+            if (hasImages)
+              Image.network(
+                unitImages.first,
+                fit: BoxFit.cover,
+              )
+            else
+              Container(
+                color: AppTheme.primaryBlue.withOpacity(0.1),
+                child: Center(
+                  child: Icon(
+                    Icons.apartment_rounded,
+                    color: AppTheme.primaryBlue.withOpacity(0.5),
+                    size: 28,
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(
-                Icons.policy_rounded,
-                color: AppTheme.primaryBlue,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.tr(
-                      'booking.summary.policyCardTitle',
-                    ),
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppTheme.textWhite,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    context.tr(
-                      'booking.summary.policyCardBody',
-                    ),
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.textMuted,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
+            AnimatedBuilder(
+              animation: _shimmerAnimationController,
+              builder: (context, child) {
+                return Positioned.fill(
+                  child: Container(
                     decoration: BoxDecoration(
-                      gradient: AppTheme.primaryGradient,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryBlue.withOpacity(0.25),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.visibility_outlined,
-                          size: 14,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          context.tr(
-                            'booking.summary.viewPolicies',
-                          ),
-                          style: AppTextStyles.caption.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+                      gradient: LinearGradient(
+                        begin: Alignment(
+                            -1 + _shimmerAnimationController.value * 0.5, -1),
+                        end: Alignment(
+                            -0.5 + _shimmerAnimationController.value * 0.5, 1),
+                        colors: [
+                          Colors.transparent,
+                          Colors.white.withOpacity(0.05),
+                          Colors.transparent,
+                        ],
+                      ),
                     ),
                   ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 16,
-              color: AppTheme.textMuted,
+                );
+              },
             ),
           ],
         ),
@@ -802,276 +826,429 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // الشريط السفلي
-  // ═══════════════════════════════════════════════════════════════
-  /// العربية: يبني bottom bar.
-  Widget _buildBottomBar() {
+  Widget _buildCompactBookingDetails() {
+    final checkIn = widget.bookingData['checkIn'] as DateTime;
+    final checkOut = widget.bookingData['checkOut'] as DateTime;
+    final dateFormat = DateFormat('dd MMM yyyy', 'ar');
+
     return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard,
-        border: Border(
-          top: BorderSide(color: AppTheme.darkBorder.withOpacity(0.3)),
+        color: AppTheme.darkCard.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppTheme.darkBorder.withOpacity(0.1),
+          width: 0.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 12,
-            offset: const Offset(0, -4),
-          ),
-        ],
       ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // السعر الإجمالي
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              children: [
+                _buildCompactDetailRow(
+                  icon: Icons.calendar_today_rounded,
+                  iconColor: AppTheme.primaryBlue.withOpacity(0.8),
+                  label: 'تاريخ الوصول',
+                  value: dateFormat.format(checkIn),
+                ),
+                _buildSubtleDivider(),
+                _buildCompactDetailRow(
+                  icon: Icons.calendar_today_outlined,
+                  iconColor: AppTheme.primaryPurple.withOpacity(0.8),
+                  label: 'تاريخ المغادرة',
+                  value: dateFormat.format(checkOut),
+                ),
+                _buildSubtleDivider(),
+                _buildCompactDetailRow(
+                  icon: Icons.nights_stay_rounded,
+                  iconColor: AppTheme.primaryCyan.withOpacity(0.8),
+                  label: 'عدد الليالي',
+                  value: '$nights ${nights == 1 ? 'ليلة' : 'ليالي'}',
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactGuestDetails() {
+    final adultsCount = widget.bookingData['adultsCount'] as int;
+    final childrenCount = widget.bookingData['childrenCount'] as int;
+    final totalGuests = adultsCount + childrenCount;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.darkCard.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppTheme.neonGreen.withOpacity(0.1),
+          width: 0.5,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: _buildCompactDetailRow(
+              icon: Icons.people_outline_rounded,
+              iconColor: AppTheme.neonGreen.withOpacity(0.8),
+              label: 'عدد الضيوف',
+              value:
+                  '$totalGuests ضيف ($adultsCount بالغ${childrenCount > 0 ? '، $childrenCount طفل' : ''})',
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactServicesCard() {
+    final services =
+        widget.bookingData['selectedServices'] as List<Map<String, dynamic>>;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.primaryViolet.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppTheme.primaryViolet.withOpacity(0.1),
+          width: 0.5,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryViolet.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.room_service_rounded,
+                        color: AppTheme.primaryViolet.withOpacity(0.8),
+                        size: 14,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'الخدمات الإضافية',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textWhite.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                ...services.map((service) => Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 4,
+                                height: 4,
+                                decoration: BoxDecoration(
+                                  color:
+                                      AppTheme.primaryViolet.withOpacity(0.5),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                service['name'],
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppTheme.textMuted.withOpacity(0.8),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            '${service['price']} $currency',
+                            style: AppTextStyles.caption.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.primaryViolet.withOpacity(0.9),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactSpecialRequestsCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.info.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppTheme.info.withOpacity(0.2),
+          width: 0.5,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: AppTheme.info.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.info_outline_rounded,
+                    color: AppTheme.info.withOpacity(0.8),
+                    size: 12,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        context.tr(
-                          'booking.summary.totalLabel',
-                        ),
+                        'طلبات خاصة',
                         style: AppTextStyles.caption.copyWith(
-                          color: AppTheme.textMuted,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.info.withOpacity(0.9),
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        context.tr(
-                          'booking.summary.nightsAndServices',
-                          params: {'nights': nights},
-                        ),
+                        widget.bookingData['specialRequests'],
                         style: AppTextStyles.caption.copyWith(
-                          color: AppTheme.textMuted,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: AppTheme.primaryGradient,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryBlue.withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      '${grandTotal.toStringAsFixed(0)} $currency',
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // زر المتابعة
-              GestureDetector(
-                onTap: _navigateToPayment,
-                child: Container(
-                  width: double.infinity,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient,
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.35),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.payment_rounded,
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        context.tr(
-                          'booking.summary.continueToPayment',
-                        ),
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textMuted.withOpacity(0.7),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // مكونات مساعدة
-  // ═══════════════════════════════════════════════════════════════
-  /// العربية: يبني card.
-  Widget _buildCard({
-    required Widget child,
-    LinearGradient? gradient,
-    Color? borderColor,
-  }) {
+  Widget _buildCompactPriceBreakdown() {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: gradient ?? AppTheme.cardGradient,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: borderColor ?? AppTheme.darkBorder.withOpacity(0.2),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.shadowDark,
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      child: PriceBreakdownWidget(
+        nights: nights,
+        pricePerNight: pricePerNight,
+        servicesTotal: servicesTotal,
+        taxRate: 0.05,
+        currency: currency,
+        services: (widget.bookingData['selectedServices'] as List)
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildCompactDetailRow({
+    required IconData icon,
+    required Color iconColor,
+    required String label,
+    required String value,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: iconColor.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              size: 14,
+              color: iconColor,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: AppTextStyles.caption.copyWith(
+              color: AppTheme.textMuted.withOpacity(0.7),
+            ),
+          ),
+          const Spacer(),
+          Text(
+            value,
+            style: AppTextStyles.caption.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textWhite.withOpacity(0.9),
+            ),
           ),
         ],
       ),
-      child: child,
     );
   }
 
-  /// العربية: يبني card header.
-  Widget _buildCardHeader({
-    required IconData icon,
-    required String title,
-    required Color color,
-  }) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: color, size: 18),
+  Widget _buildSubtleDivider() {
+    return Container(
+      height: 0.5,
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.transparent,
+            AppTheme.darkBorder.withOpacity(0.1),
+            Colors.transparent,
+          ],
         ),
-        const SizedBox(width: 10),
+      ),
+    );
+  }
+
+  Widget _buildMinimalBottomBar() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.darkCard.withOpacity(0.9),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildCompactTotalPriceRow(),
+                  const SizedBox(height: 10),
+                  _buildCompactContinueButton(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactTotalPriceRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
         Text(
-          title,
+          'المجموع الكلي',
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textWhite,
             fontWeight: FontWeight.w600,
+            color: AppTheme.textWhite.withOpacity(0.9),
+          ),
+        ),
+        PriceWidget(
+          price: grandTotal,
+          currency: currency,
+          displayType: PriceDisplayType.normal,
+          priceStyle: AppTextStyles.bodyLarge.copyWith(
+            color: AppTheme.primaryBlue.withOpacity(0.9),
+            fontWeight: FontWeight.bold,
           ),
         ),
       ],
     );
   }
 
-  /// العربية: يبني info row.
-  Widget _buildInfoRow({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, size: 16, color: color),
+  Widget _buildCompactContinueButton() {
+    return GestureDetector(
+      onTapDown: (_) => HapticFeedback.selectionClick(),
+      onTap: _navigateToPayment,
+      child: Container(
+        width: double.infinity,
+        height: 44,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppTheme.primaryBlue.withOpacity(0.9),
+              AppTheme.primaryPurple.withOpacity(0.7),
+            ],
           ),
-          const SizedBox(width: 12),
-          Text(
-            label,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppTheme.textMuted,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primaryBlue.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
             ),
-          ),
-          const Spacer(),
-          Text(
-            value,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppTheme.textWhite,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// العربية: يبني divider.
-  Widget _buildDivider() {
-    return Container(
-      height: 1,
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.transparent,
-            AppTheme.darkBorder.withOpacity(0.3),
-            Colors.transparent,
           ],
         ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: _navigateToPayment,
+            borderRadius: BorderRadius.circular(12),
+            child: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.payment_rounded,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'المتابعة إلى الدفع',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  /// العربية: يبني capacity text.
-  String _buildCapacityText() {
-    final adultsCapacity = widget.bookingData['adultsCapacity'] as int?;
-    final childrenCapacity = widget.bookingData['childrenCapacity'] as int?;
-
-    final parts = <String>[];
-    if (adultsCapacity != null && adultsCapacity > 0) {
-      parts.add(
-        context.tr(
-          'booking.summary.capacityAdults',
-          params: {'count': adultsCapacity},
-        ),
-      );
-    }
-    if (childrenCapacity != null && childrenCapacity > 0) {
-      parts.add(
-        context.tr(
-          'booking.summary.capacityChildren',
-          params: {'count': childrenCapacity},
-        ),
-      );
-    }
-    return parts.isEmpty ? '' : parts.join('، ');
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // التنقل والإجراءات
-  // ═══════════════════════════════════════════════════════════════
-  /// العربية: ينتقل إلى to payment.
   void _navigateToPayment() {
     HapticFeedback.mediumImpact();
     final authState = context.read<AuthBloc>().state;
@@ -1081,7 +1258,7 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
       return;
     }
 
-    // إذا كان لدينا bookingId مسبقاً
+    // إذا كان لدينا bookingId مسبقاً، نكمل مباشرة إلى الدفع بدون إنشاء حجز جديد
     final existingBookingId = widget.bookingData['bookingId'] as String?;
     if (existingBookingId != null && existingBookingId.isNotEmpty) {
       context.push('/booking/payment', extra: widget.bookingData);
@@ -1118,24 +1295,81 @@ class _BookingSummaryPageState extends State<BookingSummaryPage>
       specialRequests: widget.bookingData['specialRequests'] as String?,
     );
 
-    context.read<BookingBloc>().add(
-          CreateBookingEvent(bookingRequest: bookingRequest),
-        );
+    context
+        .read<BookingBloc>()
+        .add(CreateBookingEvent(bookingRequest: bookingRequest));
   }
 
-  /// العربية: يعرض snack bar.
-  void _showSnackBar(String message, {bool isError = false}) {
+  void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          message,
-          style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
-        ),
-        backgroundColor: isError ? AppTheme.error : AppTheme.darkCard,
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        content: Text(message),
+        backgroundColor: AppTheme.error,
       ),
     );
   }
+}
+
+// Subtle Wave Painter
+class _SubtleWavePainter extends CustomPainter {
+  final double animationValue;
+
+  _SubtleWavePainter({
+    required this.animationValue,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.3;
+
+    for (int i = 0; i < 3; i++) {
+      paint.color = AppTheme.primaryBlue.withOpacity(0.02 + (i * 0.01));
+
+      final path = Path();
+
+      for (double x = 0; x < size.width; x++) {
+        final y = size.height / 2 +
+            math.sin((x / size.width * math.pi) + animationValue + (i * 0.5)) *
+                (20 + i * 5);
+
+        if (x == 0) {
+          path.moveTo(x, y);
+        } else {
+          path.lineTo(x, y);
+        }
+      }
+
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+// Subtle Floating Particles Painter
+class _SubtleFloatingParticlesPainter extends CustomPainter {
+  final double animationValue;
+
+  _SubtleFloatingParticlesPainter({required this.animationValue});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..style = PaintingStyle.fill;
+
+    for (int i = 0; i < 8; i++) {
+      final x = (math.sin(animationValue * math.pi + i) + 1) / 2 * size.width;
+      final y = ((animationValue + i * 0.1) % 1) * size.height;
+      final opacity = math.sin(animationValue * math.pi + i).abs() * 0.1;
+      final radius = 1 + math.sin(animationValue * math.pi + i).abs() * 2;
+
+      paint.color = AppTheme.primaryBlue.withOpacity(opacity);
+      canvas.drawCircle(Offset(x, y), radius, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

@@ -39,6 +39,9 @@ class ReviewRepositoryImpl implements ReviewRepository {
     required int value,
     required String comment,
     List<String>? imagesBase64,
+    String? videoBase64,
+    String? videoThumbnailBase64,
+    void Function(double progress)? onSendProgress,
   }) async {
     if (await networkInfo.isConnected) {
       try {
@@ -51,6 +54,9 @@ class ReviewRepositoryImpl implements ReviewRepository {
           value: value,
           comment: comment,
           imagesBase64: imagesBase64,
+          videoBase64: videoBase64,
+          videoThumbnailBase64: videoThumbnailBase64,
+          onSendProgress: onSendProgress,
         );
         return Right(result.toEntity());
       } catch (e) {

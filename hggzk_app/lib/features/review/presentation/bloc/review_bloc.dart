@@ -70,7 +70,7 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     CreateReviewEvent event,
     Emitter<ReviewState> emit,
   ) async {
-    emit(ReviewCreating());
+    emit(const ReviewCreating(progress: 0.0));
 
     final result = await createReviewUseCase(
       CreateReviewParams(
@@ -82,6 +82,12 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
         value: event.value,
         comment: event.comment,
         imagesBase64: event.imagesBase64,
+        videoBase64: event.videoBase64,
+        videoThumbnailBase64: event.videoThumbnailBase64,
+        onProgress: (progress) {
+          if (emit.isDone) return;
+          emit(ReviewCreating(progress: progress));
+        },
       ),
     );
 

@@ -35,6 +35,12 @@ namespace YemenBooking.Application.Features.Reviews.DTOs {
         public string Url { get; set; } = string.Empty;
 
         /// <summary>
+        /// رابط الصورة المصغرة أو صورة معاينة الفيديو.
+        /// Thumbnail URL or poster image for video media.
+        /// </summary>
+        public string ThumbnailUrl { get; set; } = string.Empty;
+
+        /// <summary>
         /// حجم الصورة بالبايت
         /// Size in bytes
         /// </summary>

@@ -153,7 +153,10 @@ class _ChatPageState extends State<ChatPage>
     _generateParticles();
     _syncCurrentUser();
     _subscribeToChatState();
-    _chatBloc.add(const LoadChatSettingsEvent());
+    final currentState = _chatBloc.state;
+    if (currentState is ChatLoaded && currentState.settings == null) {
+      _chatBloc.add(const LoadChatSettingsEvent());
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _ensureInitialMessagesLoaded();
@@ -257,10 +260,6 @@ class _ChatPageState extends State<ChatPage>
 
   bool _isTypingIndicatorsEnabled() {
     return _currentChatSettings()?.showTypingIndicator ?? true;
-  }
-
-  bool _isReadReceiptsEnabled() {
-    return _currentChatSettings()?.showReadReceipts ?? true;
   }
 
   /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
@@ -868,8 +867,8 @@ class _ChatPageState extends State<ChatPage>
       controller: _scrollController,
       reverse: true,
       padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 8,
+        horizontal: 10,
+        vertical: 14,
       ),
       physics: const BouncingScrollPhysics(),
       itemCount: messages.length + (typingUsers.isNotEmpty ? 1 : 0),
@@ -1005,7 +1004,7 @@ class _ChatPageState extends State<ChatPage>
   Widget _buildFloatingScrollButton() {
     return Positioned(
       bottom: 8,
-      right: 8,
+      right: 14,
       child: AnimatedScale(
         scale: _showScrollToBottom ? 1.0 : 0.0,
         duration: const Duration(milliseconds: 200),
@@ -1016,25 +1015,32 @@ class _ChatPageState extends State<ChatPage>
             child: GestureDetector(
               onTap: _scrollToBottom,
               child: Container(
-                width: 36,
-                height: 36,
+                width: 46,
+                height: 46,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.darkCard.withOpacity(0.5),
-                      AppTheme.darkCard.withOpacity(0.3),
+                      Colors.white.withOpacity(0.12),
+                      Colors.white.withOpacity(0.05),
                     ],
                   ),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: AppTheme.primaryBlue.withOpacity(0.15),
-                    width: 0.5,
+                    color: AppTheme.primaryBlue.withOpacity(0.18),
+                    width: 0.8,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryBlue.withOpacity(0.12),
+                      blurRadius: 18,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
                 ),
                 child: Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: AppTheme.textWhite.withOpacity(0.6),
-                  size: 18,
+                  color: AppTheme.textWhite.withOpacity(0.82),
+                  size: 22,
                 ),
               ),
             ),
@@ -1046,44 +1052,57 @@ class _ChatPageState extends State<ChatPage>
 
   /// العربية: يبني premium bottom section.
   Widget _buildPremiumBottomSection() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (_replyToMessageId != null) _buildPremiumReplySection(),
-        if (_editingMessage != null) _buildPremiumEditSection(),
-        MessageInputWidget(
-          controller: _messageController,
-          focusNode: _messageFocusNode,
-          conversationId: widget.conversation.id,
-          replyToMessageId: _replyToMessageId,
-          editingMessage: _editingMessage,
-          onSend: _sendMessage,
-          onSendSelectedImages: _sendSelectedImages,
-          onSendSelectedVideos: _sendSelectedVideos,
-          onAttachment: _pickAttachment,
-          onPickGalleryImages: _pickAttachment,
-          onPickCameraImage: _captureImage,
-          onPickGalleryVideos: _pickVideoAttachments,
-          selectedImagePaths: List<String>.unmodifiable(_selectedImagePaths),
-          selectedVideoPaths: List<String>.unmodifiable(_selectedVideoPaths),
-          onRemoveSelectedImage: _removeSelectedImage,
-          onClearSelectedImages: _clearSelectedImages,
-          onRemoveSelectedVideo: _removeSelectedVideo,
-          onClearSelectedVideos: _clearSelectedVideos,
-          onLocation: _shareLocation,
-          onCancelReply: () {
-            setState(() {
-              _replyToMessageId = null;
-            });
-          },
-          onCancelEdit: () {
-            setState(() {
-              _editingMessage = null;
-              _messageController.clear();
-            });
-          },
-        ),
-      ],
+    return Container(
+      margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 24,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_replyToMessageId != null) _buildPremiumReplySection(),
+          if (_editingMessage != null) _buildPremiumEditSection(),
+          MessageInputWidget(
+            controller: _messageController,
+            focusNode: _messageFocusNode,
+            conversationId: widget.conversation.id,
+            replyToMessageId: _replyToMessageId,
+            editingMessage: _editingMessage,
+            onSend: _sendMessage,
+            onSendSelectedImages: _sendSelectedImages,
+            onSendSelectedVideos: _sendSelectedVideos,
+            onAttachment: _pickAttachment,
+            onPickGalleryImages: _pickAttachment,
+            onPickCameraImage: _captureImage,
+            onPickGalleryVideos: _pickVideoAttachments,
+            selectedImagePaths: List<String>.unmodifiable(_selectedImagePaths),
+            selectedVideoPaths: List<String>.unmodifiable(_selectedVideoPaths),
+            onRemoveSelectedImage: _removeSelectedImage,
+            onClearSelectedImages: _clearSelectedImages,
+            onRemoveSelectedVideo: _removeSelectedVideo,
+            onClearSelectedVideos: _clearSelectedVideos,
+            onLocation: _shareLocation,
+            onCancelReply: () {
+              setState(() {
+                _replyToMessageId = null;
+              });
+            },
+            onCancelEdit: () {
+              setState(() {
+                _editingMessage = null;
+                _messageController.clear();
+              });
+            },
+          ),
+        ],
+      ),
     );
   }
 

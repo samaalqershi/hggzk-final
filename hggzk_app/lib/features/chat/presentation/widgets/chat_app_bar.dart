@@ -54,7 +54,7 @@ class ChatAppBar extends StatefulWidget implements PreferredSizeWidget {
   /// Exposes the height expected by `Scaffold.appBar`.
   /// يحدد الارتفاع المتوقع من `Scaffold.appBar`.
   @override
-  Size get preferredSize => const Size.fromHeight(52);
+  Size get preferredSize => const Size.fromHeight(70);
 
   /// Creates the state object that drives header animations.
   /// ينشئ كائن الحالة الذي يدير حركات الرأس.
@@ -129,36 +129,32 @@ class _ChatAppBarState extends State<ChatAppBar>
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
               colors: [
-                AppTheme.darkCard.withOpacity(0.85),
-                AppTheme.darkCard.withOpacity(0.8),
+                Colors.white.withOpacity(0.08),
+                Colors.white.withOpacity(0.035),
               ],
             ),
             border: Border(
               bottom: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.05),
-                width: 0.5,
+                color: AppTheme.darkBorder.withOpacity(0.08),
+                width: 0.8,
               ),
             ),
           ),
           child: SafeArea(
             child: Container(
-              height: 52,
-              padding: const EdgeInsets.symmetric(horizontal: 4),
+              height: 70,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               child: Row(
                 children: [
-                  // Back button - Premium minimal style
                   _buildMinimalIconButton(
                     icon: Icons.arrow_back_ios_new_rounded,
                     onPressed: widget.onBackPressed,
-                    size: 16,
+                    size: 18,
                   ),
-
-                  const SizedBox(width: 6),
-
-                  // User info - Compact and elegant
+                  const SizedBox(width: 10),
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
@@ -169,7 +165,7 @@ class _ChatAppBarState extends State<ChatAppBar>
                       child: Row(
                         children: [
                           _buildPremiumAvatar(displayImage, displayName),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -178,26 +174,53 @@ class _ChatAppBarState extends State<ChatAppBar>
                                 Text(
                                   displayName,
                                   style: AppTextStyles.bodyMedium.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                    color: AppTheme.textWhite.withOpacity(0.9),
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 14,
+                                    color: AppTheme.textWhite.withOpacity(0.95),
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
+                                const SizedBox(height: 4),
                                 if (statusText != null)
-                                  AnimatedDefaultTextStyle(
-                                    duration: const Duration(milliseconds: 200),
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: _getStatusColor(),
-                                      fontSize: 9,
-                                    ),
-                                    child: Text(
-                                      statusText,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 6,
+                                        height: 6,
+                                        decoration: BoxDecoration(
+                                          color: _getStatusColor(),
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: _getStatusColor()
+                                                  .withOpacity(0.5),
+                                              blurRadius: 8,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: AnimatedDefaultTextStyle(
+                                          duration:
+                                              const Duration(milliseconds: 200),
+                                          style: AppTextStyles.caption.copyWith(
+                                            color: _getStatusColor(),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          child: Text(
+                                            statusText,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
+                                if (statusText == null)
+                                  const SizedBox(height: 10),
                               ],
                             ),
                           ),
@@ -205,8 +228,6 @@ class _ChatAppBarState extends State<ChatAppBar>
                       ),
                     ),
                   ),
-
-                  // Action buttons - Minimal style
                   if (widget.onCallPressed != null)
                     _buildMinimalIconButton(
                       icon: Icons.call_rounded,
@@ -246,26 +267,35 @@ class _ChatAppBarState extends State<ChatAppBar>
         onPressed();
       },
       child: Container(
-        width: 32, // Reduced from 36
-        height: 32,
-        margin: const EdgeInsets.symmetric(horizontal: 2),
+        width: 40,
+        height: 40,
+        margin: const EdgeInsets.symmetric(horizontal: 3),
         decoration: BoxDecoration(
           gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
             colors: [
+              Colors.white.withOpacity(0.08),
               Colors.white.withOpacity(0.03),
-              Colors.white.withOpacity(0.01),
             ],
           ),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: Colors.white.withOpacity(0.05),
-            width: 0.5,
+            color: Colors.white.withOpacity(0.08),
+            width: 0.8,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Icon(
           icon,
           size: size,
-          color: AppTheme.textWhite.withOpacity(0.7),
+          color: AppTheme.textWhite.withOpacity(0.82),
         ),
       ),
     );
@@ -282,54 +312,62 @@ class _ChatAppBarState extends State<ChatAppBar>
         return Stack(
           children: [
             Container(
-              width: 34, // Reduced from 36
-              height: 34,
+              width: 48,
+              height: 48,
+              padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                   colors: [
-                    AppTheme.primaryBlue.withOpacity(0.08),
-                    AppTheme.primaryPurple.withOpacity(0.04),
+                    AppTheme.primaryBlue.withOpacity(
+                      0.42 * _glowAnimation.value,
+                    ),
+                    AppTheme.primaryPurple.withOpacity(
+                      0.28 * _glowAnimation.value,
+                    ),
                   ],
-                ),
-                border: Border.all(
-                  color: AppTheme.primaryBlue.withOpacity(0.15),
-                  width: 0.5,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: AppTheme.primaryBlue.withOpacity(
-                      0.05 * _glowAnimation.value,
+                      0.18 * _glowAnimation.value,
                     ),
-                    blurRadius: 8,
-                    spreadRadius: 0.5,
+                    blurRadius: 14,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
-              child: hasImage
-                  ? ClipOval(
-                      child: CachedImageWidget(
-                        imageUrl: imageUrl,
-                        width: 34,
-                        height: 34,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  : Center(
-                      child: Text(
-                        _getInitials(name),
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppTheme.primaryBlue.withOpacity(0.8),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 11,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppTheme.darkSurface,
+                ),
+                child: hasImage
+                    ? ClipOval(
+                        child: CachedImageWidget(
+                          imageUrl: imageUrl,
+                          width: 44,
+                          height: 44,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Center(
+                        child: Text(
+                          _getInitials(name),
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppTheme.textWhite.withOpacity(0.92),
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
-                    ),
+              ),
             ),
             if (widget.conversation.isDirectChat)
               Positioned(
-                bottom: 0,
-                right: 0,
+                bottom: 1,
+                right: 1,
                 child: _buildMinimalOnlineIndicator(),
               ),
           ],
@@ -349,7 +387,7 @@ class _ChatAppBarState extends State<ChatAppBar>
 
     return const OnlineStatusIndicator(
       isOnline: true,
-      size: 7,
+      size: 11,
       showBorder: true,
       animate: true,
     );

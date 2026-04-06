@@ -22,6 +22,9 @@ abstract class ReviewRemoteDataSource {
     required int value,
     required String comment,
     List<String>? imagesBase64,
+    String? videoBase64,
+    String? videoThumbnailBase64,
+    void Function(double progress)? onSendProgress,
   });
 
   /// Exposes the property reviews.
@@ -74,6 +77,9 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
     required int value,
     required String comment,
     List<String>? imagesBase64,
+    String? videoBase64,
+    String? videoThumbnailBase64,
+    void Function(double progress)? onSendProgress,
   }) async {
     const requestName = 'review.createReview';
     logRequestStart(requestName, details: {
@@ -96,6 +102,12 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
           'value': value,
           'comment': comment,
           'imagesBase64': imagesBase64 ?? [],
+          'videoBase64': videoBase64,
+          'videoThumbnailBase64': videoThumbnailBase64,
+        },
+        onSendProgress: (sent, total) {
+          if (onSendProgress == null || total <= 0) return;
+          onSendProgress((sent / total).clamp(0.0, 1.0));
         },
       );
 

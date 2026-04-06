@@ -87,6 +87,7 @@ namespace YemenBooking.Application.Features.Reviews.Queries.GetReviewByBooking
                     ReviewId = img.ReviewId,
                     Name = img.Name,
                     Url = img.Url,
+                    ThumbnailUrl = ReviewImageMetadataHelper.GetThumbnailUrl(img),
                     SizeBytes = img.SizeBytes,
                     Type = img.Type,
                     Category = img.Category,

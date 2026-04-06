@@ -18,8 +18,6 @@ import 'package:hggzk/features/booking/presentation/pages/my_bookings_page.dart'
 import 'package:hggzk/features/chat/presentation/pages/conversations_page.dart';
 import 'package:hggzk/features/favorites/presentation/pages/favorites_page.dart';
 import 'package:hggzk/features/home/presentation/pages/futuristic_home_page.dart';
-import 'package:hggzk/features/notifications/presentation/bloc/notification_bloc.dart';
-import 'package:hggzk/features/notifications/presentation/bloc/notification_event.dart';
 
 import 'package:hggzk/app/navigation/switch_main_tab_notification.dart';
 
@@ -91,17 +89,16 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   /// without rebuilding the rest of the shell.
   final Map<int, Animation<double>> _itemScaleAnimations = {};
 
-  /// يعرض الصفحات الأربع الأساسية داخل shell مع بقاء كل صفحة في
-  /// مكانها عبر التنقل بين التبويبات.
-  /// Exposes the four core shell pages while preserving state across
-  /// tab switches.
-  List<Widget> get _pages => [
-        const NavigationPage(child: HomePage()),
-        const NavigationPage(child: FavoritesPage()),
-        const NavigationPage(child: MyBookingsPage()),
-        const NavigationPage(child: ConversationsPage()),
-        const NavigationPage(child: ProfilePage()),
-      ];
+  /// يحتفظ بالصفحات التي زارها المستخدم حتى لا يبدأ التطبيق بتحميل جميع
+  /// التبويبات دفعة واحدة.
+  /// Tracks visited tabs so startup work stays limited to the active section.
+  late final Set<int> _visitedTabIndexes;
+
+  /// يخزن نسخ الصفحات بعد إنشائها لأول مرة للحفاظ على حالتها عند العودة
+  /// إليها.
+  /// Caches lazily created tab pages so revisiting keeps the existing state.
+  late final List<Widget?> _pageCache;
+
   List<_NavItem> get _navItems => [
         _NavItem(
           icon: Icons.home_rounded,
@@ -155,15 +152,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     //   _currentIndex = 1;
     // }
     _currentIndex = widget.initialTabIndex;
+    _visitedTabIndexes = <int>{_currentIndex};
+    _pageCache = List<Widget?>.filled(5, null);
     _initializeControllers();
     _initializeAnimations();
     _startAnimations();
-
-    // Load notifications only for authenticated users to avoid 401->force logout->login navigation on app start
-    final authState = context.read<AuthBloc>().state;
-    if (authState is AuthAuthenticated) {
-      context.read<NotificationBloc>().add(const LoadNotificationsEvent());
-    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -316,6 +309,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
       setState(() {
         _currentIndex = index;
+        _visitedTabIndexes.add(index);
       });
 
       _pageController.animateToPage(
@@ -346,10 +340,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               onPageChanged: (index) {
                 setState(() {
                   _currentIndex = index;
+                  _visitedTabIndexes.add(index);
                 });
               },
               physics: const NeverScrollableScrollPhysics(),
-              children: _pages,
+              children: List<Widget>.generate(
+                5,
+                _buildPageForIndex,
+              ),
             ),
 
             // Futuristic bottom navigation
@@ -370,6 +368,44 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  /// يبني صفحة التبويب المطلوبة عند أول زيارة فقط، ثم يعيد استخدامها
+  /// في الزيارات التالية.
+  /// Lazily instantiates a tab the first time it is visited, then reuses it.
+  Widget _buildPageForIndex(int index) {
+    if (!_visitedTabIndexes.contains(index)) {
+      return const SizedBox.shrink();
+    }
+
+    final cachedPage = _pageCache[index];
+    if (cachedPage != null) {
+      return cachedPage;
+    }
+
+    late final Widget page;
+    switch (index) {
+      case 0:
+        page = const NavigationPage(child: HomePage());
+        break;
+      case 1:
+        page = const NavigationPage(child: FavoritesPage());
+        break;
+      case 2:
+        page = const NavigationPage(child: MyBookingsPage());
+        break;
+      case 3:
+        page = const NavigationPage(child: ConversationsPage());
+        break;
+      case 4:
+        page = const NavigationPage(child: ProfilePage());
+        break;
+      default:
+        page = const SizedBox.shrink();
+    }
+
+    _pageCache[index] = page;
+    return page;
   }
 
   /// يبني الشريط السفلي المستقبلي مع الخلفية الزجاجية والموجة وخط

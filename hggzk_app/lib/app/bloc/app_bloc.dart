@@ -19,7 +19,6 @@ import 'package:hggzk/features/reference/presentation/bloc/reference_bloc.dart';
 import 'package:hggzk/features/review/presentation/bloc/review_bloc.dart';
 import 'package:hggzk/features/search/presentation/bloc/search_bloc.dart';
 import 'package:hggzk/features/settings/presentation/bloc/settings_bloc.dart';
-import 'package:hggzk/features/settings/presentation/bloc/settings_event.dart';
 import 'package:hggzk/features/splash/presentation/bloc/splash_bloc.dart';
 import 'package:hggzk/features/splash/presentation/bloc/splash_event.dart';
 
@@ -246,7 +245,7 @@ class AppBloc {
       create: (context) => authBloc,
     ),
     BlocProvider<SettingsBloc>(
-      create: (context) => settingsBloc..add(LoadSettingsEvent()),
+      create: (context) => settingsBloc,
     ),
     BlocProvider<NotificationBloc>(
       create: (context) => notificationBloc,
@@ -307,9 +306,6 @@ class AppBloc {
   static void initializeEvents() {
     // Check authentication status on app start
     authBloc.add(const CheckAuthStatusEvent());
-
-    // Load settings
-    settingsBloc.add(LoadSettingsEvent());
 
     // Load notifications if user is authenticated
     authBloc.stream.listen((state) {

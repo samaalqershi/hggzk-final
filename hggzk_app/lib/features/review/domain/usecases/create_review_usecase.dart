@@ -27,6 +27,9 @@ class CreateReviewUseCase {
       value: params.value,
       comment: params.comment,
       imagesBase64: params.imagesBase64,
+      videoBase64: params.videoBase64,
+      videoThumbnailBase64: params.videoThumbnailBase64,
+      onSendProgress: params.onProgress,
     );
   }
 }
@@ -66,6 +69,18 @@ class CreateReviewParams extends Equatable {
   /// صور اختيارية مشفّرة للرفع مع المراجعة.
   final List<String>? imagesBase64;
 
+  /// Optional review video encoded for upload.
+  /// فيديو مراجعة اختياري مشفّر للرفع.
+  final String? videoBase64;
+
+  /// Optional thumbnail encoded for the attached review video.
+  /// صورة مصغرة اختيارية مشفرة للفيديو المرفق.
+  final String? videoThumbnailBase64;
+
+  /// Optional upload progress callback emitted while the payload is sent.
+  /// استدعاء اختياري لتقدم الرفع أثناء إرسال الحمولة.
+  final void Function(double progress)? onProgress;
+
   /// Bundles the full review payload used by the submission flow.
   /// يجمع حمولة المراجعة الكاملة المستخدمة في مسار الإرسال.
   const CreateReviewParams({
@@ -77,6 +92,9 @@ class CreateReviewParams extends Equatable {
     required this.value,
     required this.comment,
     this.imagesBase64,
+    this.videoBase64,
+    this.videoThumbnailBase64,
+    this.onProgress,
   });
 
   /// Keeps request comparisons stable for repeated submissions.
@@ -91,5 +109,7 @@ class CreateReviewParams extends Equatable {
         value,
         comment,
         imagesBase64,
+        videoBase64,
+        videoThumbnailBase64,
       ];
 }

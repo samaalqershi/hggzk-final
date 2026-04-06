@@ -1,28 +1,15 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/property_detail.dart';
 
-/// Describes the PropertyImagesGridWidget widget used in the property feature.
-/// العربية: يمثل العنصر `PropertyImagesGridWidget`.
 class PropertyImagesGridWidget extends StatefulWidget {
-  /// Keeps the images value available to this object.
-  /// العربية: يخزن القيمة `images`.
   final List<PropertyImage> images;
-
-  /// Processes the Function flow and maps it into the property feature behavior.
-  /// العربية: يعالج `Function`.
   final Function(int)? onImageTap;
-
-  /// Keeps the height value available to this object.
-  /// العربية: يخزن القيمة `height`.
   final double height;
 
-  /// Constructs the PropertyImagesGridWidget value used by this feature.
-  /// العربية: ينشئ مثيلًا جديدًا من `PropertyImagesGridWidget`.
   const PropertyImagesGridWidget({
     super.key,
     required this.images,
@@ -30,31 +17,17 @@ class PropertyImagesGridWidget extends StatefulWidget {
     this.height = 320,
   });
 
-  /// Builds the state object for this widget used by this feature.
-  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<PropertyImagesGridWidget> createState() =>
       _PropertyImagesGridWidgetState();
 }
 
-/// Describes the state for `PropertyImagesGridWidgetState`.
-/// العربية: يمثل الحالة الخاصة بـ `PropertyImagesGridWidgetState`.
 class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
     with TickerProviderStateMixin {
-  /// Keeps the shimmerController value available to this object.
-  /// العربية: يخزن القيمة `shimmerController`.
   late AnimationController _shimmerController;
-
-  /// Keeps the scaleController value available to this object.
-  /// العربية: يخزن القيمة `scaleController`.
   late AnimationController _scaleController;
-
-  /// Keeps the hoveredIndex value available to this object.
-  /// العربية: يخزن القيمة `hoveredIndex`.
   int? _hoveredIndex;
 
-  /// Initializes the state for this widget.
-  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -69,8 +42,6 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
     );
   }
 
-  /// Releases the resources used by this instance.
-  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _shimmerController.dispose();
@@ -78,8 +49,6 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
     super.dispose();
   }
 
-  /// Builds the widget tree for this component.
-  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     if (widget.images.isEmpty) {
@@ -101,8 +70,6 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
     return _buildMultiImagesLayout();
   }
 
-  /// Builds the empty state.
-  /// العربية: يبني empty state.
   Widget _buildEmptyState() {
     return Container(
       height: widget.height,
@@ -138,7 +105,7 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
             ),
             const SizedBox(height: 12),
             Text(
-              context.tr('property.images.none'),
+              'لا توجد صور متاحة',
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted,
               ),
@@ -149,8 +116,6 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
     );
   }
 
-  /// Builds the single image.
-  /// العربية: يبني single image.
   Widget _buildSingleImage() {
     return GestureDetector(
       onTap: () => widget.onImageTap?.call(0),
@@ -160,7 +125,11 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
           fit: StackFit.expand,
           children: [
             _buildImageWithEffects(widget.images[0], 0, true),
-            _buildGradientOverlay(),
+            Container(
+              decoration: BoxDecoration(
+                color: AppTheme.primaryPurple,
+              ),
+            ),
             _buildImageCounter(1, 1),
           ],
         ),
@@ -168,8 +137,6 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
     );
   }
 
-  /// Builds the two images layout.
-  /// العربية: يبني two images layout.
   Widget _buildTwoImagesLayout() {
     return SizedBox(
       height: widget.height,
@@ -208,8 +175,6 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
     );
   }
 
-  /// Builds the three images layout.
-  /// العربية: يبني three images layout.
   Widget _buildThreeImagesLayout() {
     return SizedBox(
       height: widget.height,
@@ -267,8 +232,6 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
     );
   }
 
-  /// Builds the multi images layout.
-  /// العربية: يبني multi images layout.
   Widget _buildMultiImagesLayout() {
     return SizedBox(
       height: widget.height,
@@ -354,8 +317,6 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
     );
   }
 
-  /// Builds the image with effects.
-  /// العربية: يبني image with effects.
   Widget _buildImageWithEffects(PropertyImage image, int index, bool isMain) {
     return MouseRegion(
       onEnter: (_) => setState(() => _hoveredIndex = index),
@@ -394,8 +355,6 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
     );
   }
 
-  /// Builds the more images overlay.
-  /// العربية: يبني more images overlay.
   Widget _buildMoreImagesOverlay(int remainingCount) {
     return Stack(
       fit: StackFit.expand,
@@ -419,7 +378,7 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        gradient: AppTheme.primaryGradient,
+                        color: AppTheme.primaryCyan,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -429,19 +388,15 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
                       ),
                     ),
                     const SizedBox(height: 8),
-                    ShaderMask(
-                      shaderCallback: (bounds) =>
-                          AppTheme.primaryGradient.createShader(bounds),
-                      child: Text(
-                        '+$remainingCount',
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    Text(
+                      '+$remainingCount',
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: AppTheme.primaryPurple,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      context.tr('property.images.more'),
+                      'صور إضافية',
                       style: AppTextStyles.caption.copyWith(
                         color: Colors.white.withOpacity(0.8),
                       ),
@@ -456,8 +411,6 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
     );
   }
 
-  /// Builds the gradient overlay.
-  /// العربية: يبني gradient overlay.
   Widget _buildGradientOverlay() {
     return Container(
       decoration: BoxDecoration(
@@ -473,8 +426,6 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
     );
   }
 
-  /// Builds the image counter.
-  /// العربية: يبني image counter.
   Widget _buildImageCounter(int current, int total) {
     return Positioned(
       bottom: 10,
@@ -522,13 +473,11 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
     );
   }
 
-  /// Builds the featured badge.
-  /// العربية: يبني featured badge.
   Widget _buildFeaturedBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        gradient: AppTheme.primaryGradient,
+        color: AppTheme.primaryPurple,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -541,7 +490,7 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
           ),
           const SizedBox(width: 3),
           Text(
-            context.tr('property.images.featured'),
+            'مميز',
             style: AppTextStyles.caption.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -553,19 +502,11 @@ class _PropertyImagesGridWidgetState extends State<PropertyImagesGridWidget>
   }
 }
 
-/// Describes the ShimmerPainter type used in the property feature.
-/// العربية: يمثل `ShimmerPainter`.
 class _ShimmerPainter extends CustomPainter {
-  /// Keeps the shimmerPosition value available to this object.
-  /// العربية: يخزن القيمة `shimmerPosition`.
   final double shimmerPosition;
 
-  /// Constructs the ShimmerPainter value used by this feature.
-  /// العربية: ينشئ مثيلًا جديدًا من `ShimmerPainter`.
   _ShimmerPainter({required this.shimmerPosition});
 
-  /// Processes the paint flow and maps it into the property feature behavior.
-  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
@@ -589,8 +530,6 @@ class _ShimmerPainter extends CustomPainter {
     canvas.drawRect(rect, paint);
   }
 
-  /// Processes the shouldRepaint flow and maps it into the property feature behavior.
-  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

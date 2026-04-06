@@ -5,8 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hggzk/features/home/presentation/widgets/futuristic_home_app_bar.dart';
-import 'package:hggzk/features/home/presentation/widgets/elegant_property_types_section.dart';
-import 'package:hggzk/features/home/presentation/widgets/elegant_unit_types_section.dart';
+import 'package:hggzk/features/home/presentation/widgets/premium_property_types_bar.dart';
 import 'package:hggzk/features/home/presentation/widgets/refresh_indicator_widget.dart';
 import 'package:hggzk/features/home/presentation/widgets/section_loading_widget.dart';
 import 'package:hggzk/features/home/presentation/widgets/section_visibility_detector.dart';
@@ -64,6 +63,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   final List<_AdvancedParticle> _particles = [];
   final GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
+  final GlobalKey _dynamicFieldsSectionKey = GlobalKey();
 
   // Arabic: حالة الظهور التفاعلي داخل الصفحة الرئيسية.
   // English: Interactive state used within the home screen.
@@ -463,9 +463,41 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             ),
           );
 
-          // Arabic: أنواع العقارات والوحدات أصبحت داخل المحتوى وليست مثبّتة.
-          // English: Property and unit types now live inside the content area
-          // instead of being pinned.
+          if (state is HomeLoaded && state.propertyTypes.isNotEmpty) {
+            final hasUnits = state.selectedPropertyTypeId != null &&
+                (state.unitTypes[state.selectedPropertyTypeId] ?? const [])
+                    .isNotEmpty;
+            final double headerHeight = hasUnits ? 104.0 : 56.0;
+
+            slivers.add(
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _PropertyTypesBarDelegate(
+                  height: headerHeight,
+                  child: PremiumPropertyTypesBar(
+                    propertyTypes: state.propertyTypes,
+                    selectedTypeId: state.selectedPropertyTypeId,
+                    onTypeSelected: (id) {
+                      HapticFeedback.selectionClick();
+                      context.read<HomeBloc>().add(
+                            UpdatePropertyTypeFilterEvent(propertyTypeId: id),
+                          );
+                    },
+                    onUnitTypeSelected: (unitTypeId) {
+                      HapticFeedback.lightImpact();
+                      context.read<HomeBloc>().add(
+                            UpdateUnitTypeSelectionEvent(
+                              unitTypeId: unitTypeId,
+                            ),
+                          );
+                      _revealDynamicFieldsSection();
+                    },
+                    scrollOffset: _scrollOffset,
+                  ),
+                ),
+              ),
+            );
+          }
 
           // Arabic: نضيف المحتوى الرئيسي.
           // English: Add the main content.
@@ -592,61 +624,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     final isTablet = size.width > 600;
     final isDesktop = size.width > 1200;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: [
-              const SizedBox(height: 16),
-
-              // Arabic: تنبيه عند وجود تواريخ محفوظة أصبحت قديمة.
-              // English: Warning when saved dates are now stale.
-              _buildExpiredDatesWarning(context),
-            ],
-          ),
-        ),
-
-        // Arabic: قسم أنواع العقارات بتصميمه الجديد.
-        // English: Property types section in its updated design.
-        _buildPropertyTypesSection(),
-
-        // Arabic: قسم أنواع الوحدات بالتصميم الجديد.
-        // English: Unit types section in its updated design.
-        _buildUnitTypesSection(),
-
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-
-              // Arabic: الحقول الديناميكية لم تعد جزءًا من فلترة الصفحة
-              // الرئيسية، لذا أُخفيت هنا.
-              // English: Dynamic unit fields are no longer part of home-screen
-              // filtering, so they stay hidden here.
-              _buildDynamicFieldsSection(),
-
-              const SizedBox(height: 20),
-
-              // Arabic: محتوى الأقسام.
-              // English: Section content.
-              _buildSectionsContent(),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 20),
-
-        // Arabic: التذييل يظهر فقط بعد اكتمال تحميل البيانات.
-        // English: Footer appears only after data has finished loading.
-        _buildConditionalFooter(isDesktop, isTablet),
-
-        const SizedBox(
-            height:
-                16), // مساحة صغيرة للتنفس - padding الأساسي يأتي من NavigationPage
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 16),
+          _buildExpiredDatesWarning(context),
+          const SizedBox(height: 20),
+          _buildDynamicFieldsSection(),
+          const SizedBox(height: 20),
+          _buildSectionsContent(),
+          _buildConditionalFooter(isDesktop, isTablet),
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 
@@ -1456,46 +1448,42 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         final selectedUnit =
             unitTypes.firstWhere((u) => u.id == selectedUnitId);
 
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeOutExpo,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppTheme.darkCard.withOpacity(0.3),
-                AppTheme.darkSurface.withOpacity(0.2),
-              ],
+        return Container(
+          key: _dynamicFieldsSectionKey,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeOutExpo,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppTheme.darkCard.withOpacity(0.3),
+                  AppTheme.darkSurface.withOpacity(0.2),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: AppTheme.primaryBlue.withOpacity(0.1),
+                width: 0.5,
+              ),
             ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
-              width: 0.5,
-            ),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // عنوان القسم
-                    _buildDynamicFieldsHeader(selectedUnit),
-
-                    const SizedBox(height: 16),
-
-                    // حقول التاريخ والضيوف
-                    _buildHomeUnitInlineFilters(selectedUnit, state),
-
-                    const SizedBox(height: 20),
-
-                    // زر الاستكشاف
-                    _buildExploreNowButton(unitTypes, state),
-                  ],
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildDynamicFieldsHeader(selectedUnit),
+                      const SizedBox(height: 16),
+                      _buildHomeUnitInlineFilters(selectedUnit, state),
+                      const SizedBox(height: 20),
+                      _buildExploreNowButton(unitTypes, state),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -1747,52 +1735,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     context.push('/property/$id');
   }
 
-  Widget _buildPropertyTypesSection() {
-    return BlocBuilder<HomeBloc, HomeState>(
-      builder: (context, state) {
-        if (state is! HomeLoaded || state.propertyTypes.isEmpty) {
-          return const SizedBox.shrink();
-        }
-
-        return ElegantPropertyTypesSection(
-          propertyTypes: state.propertyTypes,
-          selectedTypeId: state.selectedPropertyTypeId,
-          onTypeSelected: (id) {
-            HapticFeedback.selectionClick();
-            context.read<HomeBloc>().add(
-                  UpdatePropertyTypeFilterEvent(propertyTypeId: id),
-                );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildUnitTypesSection() {
-    return BlocBuilder<HomeBloc, HomeState>(
-      builder: (context, state) {
-        if (state is! HomeLoaded || state.selectedPropertyTypeId == null) {
-          return const SizedBox.shrink();
-        }
-
-        final unitTypes =
-            state.unitTypes[state.selectedPropertyTypeId] ?? const [];
-        if (unitTypes.isEmpty) {
-          return const SizedBox.shrink();
-        }
-
-        return ElegantUnitTypesSection(
-          unitTypes: unitTypes,
-          selectedUnitTypeId: state.selectedUnitTypeId,
-          onUnitTypeSelected: (unitTypeId) {
-            HapticFeedback.lightImpact();
-            context.read<HomeBloc>().add(
-                  UpdateUnitTypeSelectionEvent(unitTypeId: unitTypeId),
-                );
-          },
-        );
-      },
-    );
+  void _revealDynamicFieldsSection() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 150));
+      if (!mounted) return;
+      final targetContext = _dynamicFieldsSectionKey.currentContext;
+      if (targetContext == null) return;
+      Scrollable.ensureVisible(
+        targetContext,
+        duration: const Duration(milliseconds: 450),
+        curve: Curves.easeOutExpo,
+        alignment: 0.08,
+      );
+    });
   }
 }
 
@@ -1972,4 +1927,37 @@ class _FuturisticGridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+class _PropertyTypesBarDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  final double height;
+
+  _PropertyTypesBarDelegate({
+    required this.child,
+    this.height = 56.0,
+  });
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return SizedBox(
+      height: height,
+      child: child,
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _PropertyTypesBarDelegate oldDelegate) {
+    return child != oldDelegate.child || height != oldDelegate.height;
+  }
 }

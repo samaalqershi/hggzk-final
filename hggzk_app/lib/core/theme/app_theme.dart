@@ -54,45 +54,44 @@ class AppTheme {
   // 🎨 Primary Gradient Colors
   /// Exposes the `primaryBlue` value for callers that need it.
   /// العربية: يعيد القيمة `primaryBlue`.
-  static Color get primaryBlue => isDark
-      ? const Color.fromARGB(255, 79, 169, 254)
-      : const Color(0xFF0066CC);
+  static Color get primaryBlue =>
+      isDark ? const Color(0xFF38BDF8) : const Color(0xFF0EA5E9);
 
   /// Exposes the `primaryPurple` value for callers that need it.
   /// العربية: يعيد القيمة `primaryPurple`.
   static Color get primaryPurple =>
-      isDark ? const Color(0xFF667EEA) : const Color(0xFF6366F1);
+      isDark ? const Color(0xFF14B8A6) : const Color(0xFF0D9488);
 
   /// Exposes the `primaryViolet` value for callers that need it.
   /// العربية: يعيد القيمة `primaryViolet`.
   static Color get primaryViolet =>
-      isDark ? const Color(0xFF764BA2) : const Color(0xFF8B5CF6);
+      isDark ? const Color(0xFF10B981) : const Color(0xFF059669);
 
   /// Exposes the `primaryCyan` value for callers that need it.
   /// العربية: يعيد القيمة `primaryCyan`.
   static Color get primaryCyan =>
-      isDark ? const Color.fromARGB(255, 0, 161, 254) : const Color(0xFF0891B2);
+      isDark ? const Color(0xFF22D3EE) : const Color(0xFF06B6D4);
 
   // 🌟 Neon & Glow Colors
   /// Exposes the `neonBlue` value for callers that need it.
   /// العربية: يعيد القيمة `neonBlue`.
   static Color get neonBlue =>
-      isDark ? const Color.fromARGB(255, 0, 174, 255) : const Color(0xFF0EA5E9);
+      isDark ? const Color(0xFF0EA5E9) : const Color(0xFF0369A1);
 
   /// Exposes the `neonPurple` value for callers that need it.
   /// العربية: يعيد القيمة `neonPurple`.
   static Color get neonPurple =>
-      isDark ? const Color(0xFF9D50FF) : const Color(0xFFA855F7);
+      isDark ? const Color(0xFF2DD4BF) : const Color(0xFF14B8A6);
 
   /// Exposes the `neonGreen` value for callers that need it.
   /// العربية: يعيد القيمة `neonGreen`.
   static Color get neonGreen =>
-      isDark ? const Color(0xFF00FF88) : const Color(0xFF10B981);
+      isDark ? const Color(0xFF34D399) : const Color(0xFF10B981);
 
   /// Exposes the `glowBlue` value for callers that need it.
   /// العربية: يعيد القيمة `glowBlue`.
   static Color get glowBlue =>
-      isDark ? const Color(0xFF4FACFE) : const Color(0xFF3B82F6);
+      isDark ? const Color(0xFF38BDF8) : const Color(0xFF2563EB);
 
   /// Exposes the `glowWhite` value for callers that need it.
   /// العربية: يعيد القيمة `glowWhite`.
@@ -103,40 +102,32 @@ class AppTheme {
   /// Exposes the `darkBackground` value for callers that need it.
   /// العربية: يعيد القيمة `darkBackground`.
   static Color get darkBackground =>
-      isDark ? const Color(0xFF0A0E27) : const Color(0xFFFAFAFA);
+      isDark ? const Color(0xFF020617) : const Color(0xFFF9FAFB);
 
   /// Exposes the `darkBackground2` value for callers that need it.
   /// العربية: يعيد القيمة `darkBackground2`.
   static Color get darkBackground2 =>
-      isDark ? const Color(0xFF0F1629) : const Color(0xFFFAFAFA);
+      isDark ? const Color(0xFF020617) : const Color(0xFFF3F4F6);
 
   /// Exposes the `darkBackground3` value for callers that need it.
   /// العربية: يعيد القيمة `darkBackground3`.
   static Color get darkBackground3 =>
-      isDark ? const Color(0xFF1A0E3D) : const Color(0xFFFAFAFA);
-
-  // static Color get darkBackground => isDark ? const Color(0xFF0A0E27) : const Color(0xFFFAFBFF);
-  // static Color get darkBackground2 => isDark ? const Color(0xFF0D1332) : const Color(0xFFF5F7FE);
-  // static Color get darkBackground3 => isDark ? const Color(0xFF11183F) : const Color(0xFFF0F3FD);
-
-  // static Color get darkBackground => isDark ? const Color(0xFF0A0E27) : const Color(0xFFF0F4FF);
-  // static Color get darkBackground2 => isDark ? const Color(0xFF1A1547) : const Color(0xFFE8EFFF);
-  // static Color get darkBackground3 => isDark ? const Color(0xFF2D1B69) : const Color(0xFFE0E8FF);
+      isDark ? const Color(0xFF020617) : const Color(0xFFE5E7EB);
 
   /// Exposes the `darkSurface` value for callers that need it.
   /// العربية: يعيد القيمة `darkSurface`.
   static Color get darkSurface =>
-      isDark ? const Color(0xFF151930) : const Color(0xFFFFFFFF);
+      isDark ? const Color(0xFF020617) : const Color(0xFFFFFFFF);
 
   /// Exposes the `darkCard` value for callers that need it.
   /// العربية: يعيد القيمة `darkCard`.
   static Color get darkCard =>
-      isDark ? const Color(0xFF1E2341) : const Color(0xFFFFFFFF);
+      isDark ? const Color(0xFF020617) : const Color(0xFFFFFFFF);
 
   /// Exposes the `darkBorder` value for callers that need it.
   /// العربية: يعيد القيمة `darkBorder`.
   static Color get darkBorder =>
-      isDark ? const Color(0xFF2A3050) : const Color(0xFFE5E5E5);
+      isDark ? const Color(0xFF1F2937) : const Color(0xFFE5E5EB);
 
   // ☀️ Light Theme Base Colors
   /// Exposes the `lightBackground` value for callers that need it.
@@ -163,22 +154,22 @@ class AppTheme {
   /// Exposes the `textWhite` value for callers that need it.
   /// العربية: يعيد القيمة `textWhite`.
   static Color get textWhite =>
-      isDark ? const Color(0xFFFFFFFF) : const Color(0xFF111827);
+      isDark ? const Color(0xFFF9FAFB) : const Color(0xFF020617);
 
   /// Exposes the `textLight` value for callers that need it.
   /// العربية: يعيد القيمة `textLight`.
   static Color get textLight =>
-      isDark ? const Color(0xFFB8C4E6) : const Color(0xFF374151);
+      isDark ? const Color(0xFFE5E7EB) : const Color(0xFF374151);
 
   /// Exposes the `textMuted` value for callers that need it.
   /// العربية: يعيد القيمة `textMuted`.
   static Color get textMuted =>
-      isDark ? const Color(0xFF8B95B7) : const Color(0xFF6B7280);
+      isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
 
   /// Exposes the `textDark` value for callers that need it.
   /// العربية: يعيد القيمة `textDark`.
   static Color get textDark =>
-      isDark ? const Color(0xFF1A1F36) : const Color(0xFF030712);
+      isDark ? const Color(0xFF020617) : const Color(0xFF020617);
 
   // ✨ Glass & Blur Effects
   /// Exposes the `glassDark` value for callers that need it.
@@ -220,7 +211,7 @@ class AppTheme {
   /// Exposes the `info` value for callers that need it.
   /// العربية: يعيد القيمة `info`.
   static Color get info =>
-      isDark ? const Color.fromARGB(255, 0, 183, 255) : const Color(0xFF0284C7);
+      isDark ? const Color(0xFF00D4FF) : const Color(0xFF0284C7);
 
   // 🎭 Shadows & Overlays
   /// Exposes the `shadowDark` value for callers that need it.
@@ -249,7 +240,12 @@ class AppTheme {
   static LinearGradient get primaryGradient => LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [primaryCyan, primaryBlue, primaryPurple, primaryViolet],
+        colors: [
+          primaryBlue,
+          primaryCyan,
+          primaryCyan,
+          primaryPurple,
+        ],
         stops: const [0.0, 0.3, 0.6, 1.0],
       );
 
@@ -270,22 +266,22 @@ class AppTheme {
   /// Exposes the `cardGradient` value for callers that need it.
   /// العربية: يعيد القيمة `cardGradient`.
   static LinearGradient get cardGradient => isDark
-      ? const LinearGradient(
+      ? LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0x1A4FACFE),
-            Color(0x0D667EEA),
-            Color(0x1A764BA2),
+            primaryBlue.withOpacity(0.1),
+            primaryPurple.withOpacity(0.05),
+            primaryViolet.withOpacity(0.1),
           ],
         )
-      : const LinearGradient(
+      : LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0x050066CC),
-            Color(0x036366F1),
-            Color(0x058B5CF6),
+            primaryBlue.withOpacity(0.02),
+            primaryPurple.withOpacity(0.015),
+            primaryViolet.withOpacity(0.02),
           ],
         );
 
@@ -322,18 +318,18 @@ class AppTheme {
   /// Exposes the `glowGradient` value for callers that need it.
   /// العربية: يعيد القيمة `glowGradient`.
   static RadialGradient get glowGradient => isDark
-      ? const RadialGradient(
+      ? RadialGradient(
           colors: [
-            Color(0x804FACFE),
-            Color(0x404FACFE),
-            Color(0x004FACFE),
+            primaryBlue.withOpacity(0.5),
+            primaryPurple.withOpacity(0.25),
+            Colors.transparent,
           ],
         )
-      : const RadialGradient(
+      : RadialGradient(
           colors: [
-            Color(0x1A0066CC),
-            Color(0x0D0066CC),
-            Color(0x000066CC),
+            primaryBlue.withOpacity(0.1),
+            primaryPurple.withOpacity(0.05),
+            Colors.transparent,
           ],
         );
 

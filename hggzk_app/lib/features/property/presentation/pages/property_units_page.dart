@@ -5,57 +5,31 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui';
 import 'dart:math' as math;
-import '../../../../core/localization/app_localizations.dart';
+import 'package:hggzk/core/services/data_sync_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import 'package:hggzk/app/dependency_injection/injection_container.dart';
 import 'package:hggzk/core/services/filter_storage_service.dart';
-import '../../domain/entities/unit.dart';
 import '../../domain/entities/property_detail.dart';
 import '../../domain/entities/property_policy.dart';
+import '../../domain/entities/unit.dart';
 import '../../../../core/utils/image_utils.dart';
+import '../../../../core/widgets/cached_image_widget.dart';
 import '../bloc/property_bloc.dart';
 import '../bloc/property_event.dart';
 import '../bloc/property_state.dart';
 import 'unit_gallery_page.dart';
 
-/// Describes the `PropertyUnitsPage` page widget.
-/// العربية: يمثل عنصر الصفحة `PropertyUnitsPage`.
 class PropertyUnitsPage extends StatefulWidget {
-  /// Keeps the propertyId value available to this object.
-  /// العربية: يخزن القيمة `propertyId`.
   final String propertyId;
-
-  /// Keeps the propertyName value available to this object.
-  /// العربية: يخزن القيمة `propertyName`.
   final String propertyName;
-
-  /// Keeps the checkInDate value available to this object.
-  /// العربية: يخزن القيمة `checkInDate`.
   final DateTime? checkInDate;
-
-  /// Keeps the checkOutDate value available to this object.
-  /// العربية: يخزن القيمة `checkOutDate`.
   final DateTime? checkOutDate;
-
-  /// Keeps the guestsCount value available to this object.
-  /// العربية: يخزن القيمة `guestsCount`.
   final int guestsCount;
-
-  /// Keeps the units value available to this object.
-  /// العربية: يخزن القيمة `units`.
   final List<dynamic>? units;
-
-  /// Keeps the propertyServices value available to this object.
-  /// العربية: يخزن القيمة `propertyServices`.
   final List<PropertyService>? propertyServices;
-
-  /// Keeps the propertyPolicies value available to this object.
-  /// العربية: يخزن القيمة `propertyPolicies`.
   final List<PropertyPolicy>? propertyPolicies;
 
-  /// Constructs the PropertyUnitsPage value used by this feature.
-  /// العربية: ينشئ مثيلًا جديدًا من `PropertyUnitsPage`.
   const PropertyUnitsPage({
     super.key,
     required this.propertyId,
@@ -68,74 +42,33 @@ class PropertyUnitsPage extends StatefulWidget {
     this.propertyPolicies,
   });
 
-  /// Builds the state object for this widget used by this feature.
-  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<PropertyUnitsPage> createState() => _PropertyUnitsPageState();
 }
 
-/// Describes the state for `PropertyUnitsPageState`.
-/// العربية: يمثل الحالة الخاصة بـ `PropertyUnitsPageState`.
 class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     with TickerProviderStateMixin {
-  /// Keeps the checkInDate value available to this object.
-  /// العربية: يخزن القيمة `checkInDate`.
   late DateTime _checkInDate;
-
-  /// Keeps the checkOutDate value available to this object.
-  /// العربية: يخزن القيمة `checkOutDate`.
   late DateTime _checkOutDate;
-
-  /// Keeps the guestsCount value available to this object.
-  /// العربية: يخزن القيمة `guestsCount`.
-  late int _guestsCount;
-
-  /// Indicates whether `hasDateFilter` is enabled.
-  /// العربية: يحدد ما إذا كانت القيمة `hasDateFilter` مفعلة.
   late bool _hasDateFilter;
-
-  /// Keeps the selectedUnitId value available to this object.
-  /// العربية: يخزن القيمة `selectedUnitId`.
+  late int _adults;
+  late int _children;
+  late int _guestsCount;
   String? _selectedUnitId;
-
-  /// Keeps the selectedUnitTypeId value available to this object.
-  /// العربية: يخزن القيمة `selectedUnitTypeId`.
   String? _selectedUnitTypeId;
+  List<dynamic> _unitTypes = [];
 
-  /// Keeps the fadeController value available to this object.
-  /// العربية: يخزن القيمة `fadeController`.
   late AnimationController _fadeController;
-
-  /// Keeps the slideController value available to this object.
-  /// العربية: يخزن القيمة `slideController`.
   late AnimationController _slideController;
-
-  /// Keeps the pulseController value available to this object.
-  /// العربية: يخزن القيمة `pulseController`.
   late AnimationController _pulseController;
-
-  /// Keeps the waveController value available to this object.
-  /// العربية: يخزن القيمة `waveController`.
   late AnimationController _waveController;
 
-  /// Keeps the fadeAnimation value available to this object.
-  /// العربية: يخزن القيمة `fadeAnimation`.
   late Animation<double> _fadeAnimation;
-
-  /// Keeps the slideAnimation value available to this object.
-  /// العربية: يخزن القيمة `slideAnimation`.
   late Animation<Offset> _slideAnimation;
-
-  /// Keeps the pulseAnimation value available to this object.
-  /// العربية: يخزن القيمة `pulseAnimation`.
   late Animation<double> _pulseAnimation;
 
-  /// Keeps the cubes value available to this object.
-  /// العربية: يخزن القيمة `cubes`.
   final List<_FloatingCube> _cubes = [];
 
-  /// Initializes the state for this widget.
-  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -144,17 +77,24 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     _checkOutDate =
         widget.checkOutDate ?? _checkInDate.add(const Duration(days: 1));
     _guestsCount = widget.guestsCount;
+    _adults = widget.guestsCount <= 0 ? 1 : widget.guestsCount;
+    _children = 0;
 
     final selections = sl<FilterStorageService>().getHomeSelections();
     _selectedUnitTypeId = selections['unitTypeId'] as String?;
+    _primeUnitTypes();
 
     _initializeAnimations();
     _generateCubes();
     _startAnimations();
   }
 
-  /// Initializes the animations.
-  /// العربية: يهيئ animations.
+  int get _effectiveGuestsCount {
+    final total = _adults + _children;
+    if (total > 0) return total;
+    return _guestsCount <= 0 ? 1 : _guestsCount;
+  }
+
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 600),
@@ -179,28 +119,34 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeIn));
+    ).animate(CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeIn,
+    ));
 
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-      CurvedAnimation(parent: _slideController, curve: Curves.easeOutBack),
-    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.2),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _slideController,
+      curve: Curves.easeOutBack,
+    ));
 
-    _pulseAnimation = Tween<double>(begin: 0.98, end: 1.02).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
+    _pulseAnimation = Tween<double>(
+      begin: 0.98,
+      end: 1.02,
+    ).animate(CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    ));
   }
 
-  /// Generates the cubes.
-  /// العربية: ينشئ cubes.
   void _generateCubes() {
     for (int i = 0; i < 5; i++) {
       _cubes.add(_FloatingCube());
     }
   }
 
-  /// Starts the animations.
-  /// العربية: يبدأ animations.
   void _startAnimations() {
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) {
@@ -210,8 +156,27 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     });
   }
 
-  /// Releases the resources used by this instance.
-  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
+  void _primeUnitTypes() async {
+    String? propertyTypeId;
+    try {
+      final selections = sl<FilterStorageService>().getHomeSelections();
+      propertyTypeId = selections['propertyTypeId'] as String?;
+    } catch (_) {}
+
+    if (propertyTypeId == null || propertyTypeId.isEmpty) {
+      return;
+    }
+
+    try {
+      final unitTypeModels = await sl<DataSyncService>()
+          .getUnitTypes(propertyTypeId: propertyTypeId);
+      if (!mounted) return;
+      setState(() {
+        _unitTypes = unitTypeModels;
+      });
+    } catch (_) {}
+  }
+
   @override
   void dispose() {
     _fadeController.dispose();
@@ -221,21 +186,17 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     super.dispose();
   }
 
-  /// Builds the widget tree for this component.
-  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => sl<PropertyBloc>()
-        ..add(
-          GetPropertyUnitsEvent(
-            propertyId: widget.propertyId,
-            checkInDate: _hasDateFilter ? _checkInDate : null,
-            checkOutDate: _hasDateFilter ? _checkOutDate : null,
-            guestsCount: _guestsCount,
-            unitTypeId: _selectedUnitTypeId,
-          ),
-        ),
+        ..add(GetPropertyUnitsEvent(
+          propertyId: widget.propertyId,
+          checkInDate: _hasDateFilter ? _checkInDate : null,
+          checkOutDate: _hasDateFilter ? _checkOutDate : null,
+          guestsCount: _effectiveGuestsCount,
+          unitTypeId: _selectedUnitTypeId,
+        )),
       child: Scaffold(
         backgroundColor: AppTheme.darkBackground,
         body: Stack(
@@ -270,7 +231,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                           color: AppTheme.primaryBlue,
                           child: ListView.builder(
                             physics: const BouncingScrollPhysics(),
-                            padding: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.fromLTRB(14, 8, 14, 18),
                             itemCount: state.units.length,
                             itemBuilder: (context, index) {
                               final unit = state.units[index];
@@ -307,16 +268,14 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
-  /// Builds the animated background.
-  /// العربية: يبني animated background.
   Widget _buildAnimatedBackground() {
     return Container(
-      decoration: BoxDecoration(gradient: AppTheme.darkGradient),
+      decoration: BoxDecoration(
+        gradient: AppTheme.darkGradient,
+      ),
     );
   }
 
-  /// Builds the floating cubes.
-  /// العربية: يبني floating cubes.
   Widget _buildFloatingCubes() {
     return AnimatedBuilder(
       animation: _waveController,
@@ -332,8 +291,121 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
-  /// Builds the futuristic app bar.
-  /// العربية: يبني futuristic app bar.
+  void _showGuestsSelector(BuildContext context) {
+    int tempAdults = _adults;
+    int tempChildren = _children;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: AppTheme.darkCard.withOpacity(0.98),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'تحديد عدد الضيوف',
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          color: AppTheme.textWhite,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 18),
+                        color: AppTheme.textMuted,
+                        onPressed: () => Navigator.of(ctx).pop(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _buildGuestCounter(
+                    label: 'البالغين',
+                    count: tempAdults,
+                    onIncrement: () {
+                      setModalState(() {
+                        tempAdults++;
+                      });
+                    },
+                    onDecrement: () {
+                      if (tempAdults > 0) {
+                        setModalState(() {
+                          tempAdults--;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildGuestCounter(
+                    label: 'الأطفال',
+                    count: tempChildren,
+                    onIncrement: () {
+                      setModalState(() {
+                        tempChildren++;
+                      });
+                    },
+                    onDecrement: () {
+                      if (tempChildren > 0) {
+                        setModalState(() {
+                          tempChildren--;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _adults = tempAdults;
+                          _children = tempChildren;
+                        });
+                        Navigator.of(ctx).pop();
+                        _loadUnits(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryCyan,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'تطبيق',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildFuturisticAppBar() {
     return Container(
       decoration: BoxDecoration(
@@ -371,7 +443,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                           shaderCallback: (bounds) =>
                               AppTheme.primaryGradient.createShader(bounds),
                           child: Text(
-                            context.tr('property.units.availableTitle'),
+                            'الوحدات المتاحة',
                             style: AppTextStyles.bodyLarge.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -399,8 +471,6 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
-  /// Builds the glass back button.
-  /// العربية: يبني glass back button.
   Widget _buildGlassBackButton() {
     return Container(
       decoration: BoxDecoration(
@@ -434,16 +504,24 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
-  /// Builds the filter button.
-  /// العربية: يبني filter button.
   Widget _buildFilterButton() {
+    final hasSelectedType = _selectedUnitTypeId != null;
     return Container(
       decoration: BoxDecoration(
-        gradient: AppTheme.primaryGradient,
+        gradient: hasSelectedType
+            ? AppTheme.primaryGradient
+            : LinearGradient(
+                colors: [
+                  AppTheme.darkCard.withOpacity(0.72),
+                  AppTheme.darkSurface.withOpacity(0.52),
+                ],
+              ),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
+            color:
+                (hasSelectedType ? AppTheme.primaryBlue : AppTheme.shadowDark)
+                    .withOpacity(0.24),
             blurRadius: 10,
             spreadRadius: 1,
           ),
@@ -452,172 +530,14 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => _showFilterDialog(context),
+          onTap: () => _showUnitTypeSelector(context),
           borderRadius: BorderRadius.circular(12),
-          child: const Padding(
-            padding: EdgeInsets.all(10),
-            child: Icon(Icons.filter_list, size: 16, color: Colors.white),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Builds the futuristic date selector.
-  /// العربية: يبني futuristic date selector.
-  Widget _buildFuturisticDateSelector() {
-    final nights =
-        _hasDateFilter ? _checkOutDate.difference(_checkInDate).inDays : null;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.5),
-        border: Border(
-          bottom: BorderSide(
-            color: AppTheme.primaryBlue.withOpacity(0.1),
-            width: 0.5,
-          ),
-        ),
-      ),
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              children: [
-                if (!_hasDateFilter)
-                  Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryBlue.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppTheme.primaryBlue.withOpacity(0.2),
-                        width: 0.5,
-                      ),
-                    ),
-                    child: Text(
-                      context.tr('property.units.allWithoutDateFilter'),
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppTheme.textMuted,
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildFuturisticDateCard(
-                        title: context.tr('property.units.checkIn'),
-                        date: _hasDateFilter ? _checkInDate : null,
-                        icon: Icons.login,
-                        color: AppTheme.primaryBlue,
-                        onTap: () => _selectCheckInDate(context),
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      child: AnimatedBuilder(
-                        animation: _pulseAnimation,
-                        builder: (context, child) {
-                          return Transform.scale(
-                            scale: _pulseAnimation.value,
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                gradient: AppTheme.primaryGradient,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppTheme.primaryBlue.withOpacity(
-                                      0.4,
-                                    ),
-                                    blurRadius: 15,
-                                    spreadRadius: 1,
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    _hasDateFilter
-                                        ? Icons.nights_stay
-                                        : Icons.event_available,
-                                    color: AppTheme.isDark
-                                        ? Colors.white
-                                        : AppTheme.textDark,
-                                    size: 14,
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    _hasDateFilter
-                                        ? '$nights'
-                                        : context
-                                            .tr('property.units.withoutDates'),
-                                    style: AppTextStyles.bodyMedium.copyWith(
-                                      color: AppTheme.isDark
-                                          ? Colors.white
-                                          : AppTheme.textDark,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    _hasDateFilter
-                                        ? (nights == 1
-                                            ? context
-                                                .tr('property.units.nightsOne')
-                                            : context.tr(
-                                                'property.units.nightsMany'))
-                                        : context.tr('property.units.dates'),
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: AppTheme.isDark
-                                          ? Colors.white.withOpacity(0.9)
-                                          : AppTheme.textDark.withOpacity(0.8),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: _buildFuturisticDateCard(
-                        title: context.tr('property.units.checkOut'),
-                        date: _hasDateFilter ? _checkOutDate : null,
-                        icon: Icons.logout,
-                        color: AppTheme.primaryPurple,
-                        onTap: () => _selectCheckOutDate(context),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                _buildFuturisticGuestsSelector(),
-                if (_hasDateFilter) ...[
-                  const SizedBox(height: 8),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton.icon(
-                      onPressed: () => _clearDateFilter(context),
-                      icon: const Icon(Icons.filter_alt_off_rounded, size: 16),
-                      label: Text(
-                        context.tr('property.units.showAll'),
-                      ),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppTheme.textMuted,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
+            padding: const EdgeInsets.all(10),
+            child: Icon(
+              Icons.meeting_room_outlined,
+              size: 16,
+              color: hasSelectedType ? Colors.white : AppTheme.textWhite,
             ),
           ),
         ),
@@ -625,8 +545,211 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
-  /// Builds the futuristic date card.
-  /// العربية: يبني futuristic date card.
+  Widget _buildFuturisticDateSelector() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(14, 12, 14, 4),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.darkCard.withOpacity(0.96),
+            AppTheme.darkSurface.withOpacity(0.94),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppTheme.darkBorder.withOpacity(0.75),
+          width: 0.8,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.shadowDark.withOpacity(0.42),
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: BlocBuilder<PropertyBloc, PropertyState>(
+              builder: (context, state) {
+                final totalUnits =
+                    state is PropertyUnitsLoaded ? state.units.length : 0;
+                final selectedTypeLabel = _getSelectedUnitTypeLabel();
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            gradient: AppTheme.primaryGradient,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.primaryBlue.withOpacity(0.26),
+                                blurRadius: 12,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.meeting_room_outlined,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'تحديد نوع الوحدة',
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  color: AppTheme.textWhite,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                totalUnits > 0
+                                    ? '$totalUnits وحدة متاحة للعرض'
+                                    : 'اختر نوع الوحدة لعرض الخيارات المناسبة',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppTheme.textMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (_selectedUnitTypeId != null)
+                          GestureDetector(
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              setState(() {
+                                _selectedUnitTypeId = null;
+                              });
+                              _loadUnits(context);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 7,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppTheme.error.withOpacity(0.10),
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(
+                                  color: AppTheme.error.withOpacity(0.22),
+                                ),
+                              ),
+                              child: Text(
+                                'مسح',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppTheme.error,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    GestureDetector(
+                      onTap: () => _showUnitTypeSelector(context),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 14,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppTheme.primaryBlue.withOpacity(0.16),
+                              AppTheme.primaryPurple.withOpacity(0.08),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: AppTheme.primaryBlue.withOpacity(0.24),
+                            width: 0.8,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.06),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Icons.apartment_rounded,
+                                color: AppTheme.primaryBlue,
+                                size: 18,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'النوع المحدد',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppTheme.textMuted,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    selectedTypeLabel,
+                                    style: AppTextStyles.bodyMedium.copyWith(
+                                      color: AppTheme.textWhite,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: AppTheme.primaryGradient,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildFuturisticDateCard({
     required String title,
     required DateTime? date,
@@ -643,10 +766,16 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [color.withOpacity(0.2), color.withOpacity(0.1)],
+            colors: [
+              color.withOpacity(0.2),
+              color.withOpacity(0.1),
+            ],
           ),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.3), width: 0.5),
+          border: Border.all(
+            color: color.withOpacity(0.3),
+            width: 0.5,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -670,9 +799,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                 colors: [color, color.withOpacity(0.8)],
               ).createShader(bounds),
               child: Text(
-                date != null
-                    ? _formatDate(date)
-                    : context.tr('property.units.chooseDate'),
+                date != null ? _formatDate(date) : 'اختر التاريخ',
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -685,113 +812,287 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
-  /// Builds the futuristic guests selector.
-  /// العربية: يبني futuristic guests selector.
   Widget _buildFuturisticGuestsSelector() {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.primaryCyan.withOpacity(0.2),
-            AppTheme.primaryCyan.withOpacity(0.1),
+    final int totalGuests = _adults + _children;
+    return GestureDetector(
+      onTap: () => _showGuestsSelector(context),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppTheme.primaryCyan.withOpacity(0.2),
+              AppTheme.primaryCyan.withOpacity(0.1),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppTheme.primaryCyan.withOpacity(0.3),
+            width: 0.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.people_outline,
+              color: AppTheme.primaryCyan,
+              size: 18,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'الضيوف',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppTheme.textMuted,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'بالغين: $_adults • أطفال: $_children',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppTheme.textWhite,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                totalGuests.toString(),
+                style: AppTextStyles.bodyLarge.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppTheme.primaryCyan.withOpacity(0.3),
-          width: 0.5,
-        ),
       ),
-      child: Row(
-        children: [
-          Icon(Icons.people_outline, color: AppTheme.primaryCyan, size: 18),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              context.tr('property.units.guestCount'),
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppTheme.textWhite,
-                fontWeight: FontWeight.w600,
+    );
+  }
+
+  Widget _buildUnitTypeAndGuestsRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: () => _showUnitTypeSelector(context),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppTheme.primaryBlue.withOpacity(0.18),
+                    AppTheme.primaryBlue.withOpacity(0.10),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppTheme.primaryBlue.withOpacity(0.35),
+                  width: 0.6,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.meeting_room_outlined,
+                    color: AppTheme.primaryBlue,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _selectedUnitTypeId == null
+                          ? 'كل أنواع الوحدات'
+                          : 'نوع وحدة محدد',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppTheme.textWhite,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppTheme.textMuted,
+                    size: 18,
+                  ),
+                ],
               ),
             ),
           ),
-          Row(
-            children: [
-              _buildGuestControlButton(
-                icon: Icons.remove_circle,
-                onPressed: _guestsCount > 1
-                    ? () {
-                        setState(() {
-                          _guestsCount--;
-                        });
-                        _loadUnits(context);
-                        HapticFeedback.lightImpact();
-                      }
-                    : null,
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 10),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  gradient: AppTheme.primaryGradient,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  _guestsCount.toString(),
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              _buildGuestControlButton(
-                icon: Icons.add_circle,
-                onPressed: () {
-                  setState(() {
-                    _guestsCount++;
-                  });
-                  _loadUnits(context);
-                  HapticFeedback.lightImpact();
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Builds the guest control button.
-  /// العربية: يبني guest control button.
-  Widget _buildGuestControlButton({
-    required IconData icon,
-    VoidCallback? onPressed,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(6),
-          child: Icon(
-            icon,
-            color: onPressed != null
-                ? AppTheme.primaryCyan
-                : AppTheme.textMuted.withOpacity(0.3),
-            size: 20,
-          ),
         ),
-      ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildFuturisticGuestsSelector(),
+        ),
+      ],
     );
   }
 
-  /// Builds the futuristic unit card.
-  /// العربية: يبني futuristic unit card.
+  void _showUnitTypeSelector(BuildContext context) async {
+    String? propertyTypeId;
+    try {
+      final selections = sl<FilterStorageService>().getHomeSelections();
+      propertyTypeId = selections['propertyTypeId'] as String?;
+    } catch (_) {}
+
+    if (propertyTypeId == null || propertyTypeId.isEmpty) {
+      // لا يوجد لدينا معرف نوع عقار صالح، لا يمكن تحميل أنواع الوحدات
+      return;
+    }
+
+    final dataSync = sl<DataSyncService>();
+    List<dynamic> unitTypeModels = [];
+    try {
+      unitTypeModels =
+          await dataSync.getUnitTypes(propertyTypeId: propertyTypeId);
+      if (mounted) {
+        setState(() {
+          _unitTypes = unitTypeModels;
+        });
+      }
+    } catch (_) {
+      unitTypeModels = [];
+    }
+
+    final entries = unitTypeModels
+        .map((e) => MapEntry(e.id as String, e.name as String))
+        .toSet()
+        .toList();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        String? tempSelected = _selectedUnitTypeId;
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: AppTheme.darkCard.withOpacity(0.98),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'اختيار نوع الوحدة',
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          color: AppTheme.textWhite,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 18),
+                        color: AppTheme.textMuted,
+                        onPressed: () => Navigator.of(ctx).pop(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      ChoiceChip(
+                        label: Text(
+                          'كل الوحدات',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: tempSelected == null
+                                ? AppTheme.textWhite
+                                : AppTheme.textMuted,
+                          ),
+                        ),
+                        selected: tempSelected == null,
+                        selectedColor: AppTheme.primaryBlue.withOpacity(0.4),
+                        backgroundColor:
+                            AppTheme.darkBackground.withOpacity(0.6),
+                        onSelected: (v) {
+                          setModalState(() {
+                            tempSelected = null;
+                          });
+                        },
+                      ),
+                      for (final e in entries)
+                        ChoiceChip(
+                          label: Text(
+                            e.value,
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: tempSelected == e.key
+                                  ? AppTheme.textWhite
+                                  : AppTheme.textMuted,
+                            ),
+                          ),
+                          selected: tempSelected == e.key,
+                          selectedColor: AppTheme.primaryBlue.withOpacity(0.5),
+                          backgroundColor:
+                              AppTheme.darkBackground.withOpacity(0.6),
+                          onSelected: (v) {
+                            setModalState(() {
+                              tempSelected = e.key;
+                            });
+                          },
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedUnitTypeId = tempSelected;
+                        });
+                        Navigator.of(ctx).pop();
+                        _loadUnits(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryBlue,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'تطبيق',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildFuturisticUnitCard(
     BuildContext context,
     Unit unit,
@@ -799,491 +1100,424 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     int index,
   ) {
     final accentColor = _getUnitAccentColor(index);
+    final currency = unit.currency ?? 'ريال';
+    final hasPrice = (unit.pricePerNight != null && unit.pricePerNight! > 0) ||
+        (unit.totalPrice != null && unit.totalPrice! > 0);
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 280),
-      curve: Curves.easeOutCubic,
-      margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+    return GestureDetector(
+      onTap: () => _selectUnit(context, unit),
+      child: AnimatedScale(
+        scale: isSelected ? 0.992 : 1.0,
+        duration: const Duration(milliseconds: 160),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 240),
+          curve: Curves.easeOutCubic,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: isSelected
+                  ? accentColor.withOpacity(0.70)
+                  : AppTheme.darkBorder.withOpacity(0.88),
+              width: isSelected ? 1.2 : 0.8,
+            ),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppTheme.darkCard.withOpacity(0.97),
+                AppTheme.darkSurface.withOpacity(0.96),
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.shadowDark.withOpacity(0.55),
+                blurRadius: 24,
+                spreadRadius: 0.6,
+                offset: const Offset(0, 14),
+              ),
+              if (isSelected)
+                BoxShadow(
+                  color: accentColor.withOpacity(0.22),
+                  blurRadius: 22,
+                  spreadRadius: 0.3,
+                  offset: const Offset(0, 10),
+                ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Column(
+                children: [
+                  _buildUnitCardHeader(unit, isSelected, accentColor),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+                    child: Column(
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildUnitPreview(unit, accentColor),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: _buildUnitCardBody(
+                                unit,
+                                isSelected,
+                                accentColor,
+                                currency,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (hasPrice) ...[
+                          const SizedBox(height: 14),
+                          _buildPricePanel(
+                            unit: unit,
+                            accentColor: accentColor,
+                            currency: currency,
+                          ),
+                        ],
+                        if (unit.fieldValues.isNotEmpty ||
+                            unit.dynamicFields.isNotEmpty) ...[
+                          const SizedBox(height: 14),
+                          _buildUnitFeaturesGrid(unit, accentColor),
+                        ],
+                        const SizedBox(height: 12),
+                        _buildUnitCardActions(
+                          context,
+                          unit,
+                          isSelected,
+                          accentColor,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUnitCardHeader(Unit unit, bool isSelected, Color accentColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.centerRight,
+          end: Alignment.centerLeft,
           colors: [
-            Colors.white.withOpacity(isSelected ? 0.16 : 0.08),
-            accentColor.withOpacity(isSelected ? 0.28 : 0.10),
-            AppTheme.darkBorder.withOpacity(0.20),
+            accentColor.withOpacity(0.24),
+            accentColor.withOpacity(0.06),
           ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: accentColor.withOpacity(isSelected ? 0.20 : 0.10),
-            blurRadius: isSelected ? 28 : 18,
-            spreadRadius: isSelected ? 1 : 0,
-            offset: const Offset(0, 14),
+        border: Border(
+          bottom: BorderSide(
+            color: AppTheme.darkBorder.withOpacity(0.66),
+            width: 0.7,
           ),
-          BoxShadow(
-            color: AppTheme.shadowDark.withOpacity(0.30),
-            blurRadius: 18,
-            offset: const Offset(0, 10),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  accentColor.withOpacity(0.95),
+                  accentColor.withOpacity(0.66),
+                ],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: accentColor.withOpacity(0.32),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.bedroom_parent_outlined,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  unit.unitTypeName,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppTheme.textWhite,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  _getPricingPeriodLabel(unit.pricingMethod),
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppTheme.textMuted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(999),
+              color: isSelected
+                  ? accentColor.withOpacity(0.18)
+                  : Colors.white.withOpacity(0.04),
+              border: Border.all(
+                color: isSelected
+                    ? accentColor.withOpacity(0.34)
+                    : Colors.white.withOpacity(0.08),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isSelected
+                      ? Icons.check_circle_rounded
+                      : Icons.radio_button_unchecked_rounded,
+                  size: 15,
+                  color: isSelected ? accentColor : AppTheme.textMuted,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  isSelected ? 'تم الاختيار' : 'اختيار',
+                  style: AppTextStyles.caption.copyWith(
+                    color: isSelected ? accentColor : AppTheme.textMuted,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildUnitPreview(Unit unit, Color accentColor) {
+    final primaryImage = _getPrimaryUnitImage(unit);
+    return GestureDetector(
+      onTap: () => _openUnitGallery(unit),
       child: Container(
-        margin: const EdgeInsets.all(1.1),
+        width: 118,
+        height: 122,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(27),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppTheme.darkCard.withOpacity(isSelected ? 0.96 : 0.90),
-              AppTheme.darkSurface.withOpacity(0.96),
-            ],
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.08),
+            width: 0.8,
           ),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(27),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(27),
-              onTap: () => _selectUnit(context, unit),
-              child: Column(
-                children: [
-                  _buildUnitImagesSection(unit, isSelected, index),
-                  _buildUnitInfoSection(unit, isSelected, index),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Builds the unit images section.
-  /// العربية: يبني unit images section.
-  Widget _buildUnitImagesSection(Unit unit, bool isSelected, int index) {
-    final accentColor = _getUnitAccentColor(index);
-    final primaryImage = _getPrimaryUnitImage(unit);
-    final previewImages = unit.images.take(3).toList();
-    const imageTextShadows = [
-      Shadow(color: Color(0xB3000000), blurRadius: 10, offset: Offset(0, 2)),
-    ];
-
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => UnitGalleryPage(
-              images: unit.images,
-              initialIndex: 0,
-              unitName: unit.name,
-            ),
-          ),
-        );
-      },
-      child: SizedBox(
-        height: 232,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (primaryImage == null ||
-                ImageUtils.resolveUrl(primaryImage.url).isEmpty)
+          borderRadius: BorderRadius.circular(17),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (primaryImage == null ||
+                  ImageUtils.resolveUrl(primaryImage.url).isEmpty)
+                Container(
+                  color: AppTheme.darkSurface,
+                  child: Icon(
+                    Icons.image_outlined,
+                    size: 32,
+                    color: AppTheme.textMuted.withOpacity(0.45),
+                  ),
+                )
+              else
+                CachedImageWidget(
+                  imageUrl: ImageUtils.resolveUrl(primaryImage.url),
+                  fit: BoxFit.cover,
+                ),
               Container(
-                color: AppTheme.darkSurface,
-                child: Center(
-                  child: Container(
-                    width: 78,
-                    height: 78,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.06),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.image_outlined,
-                      size: 34,
-                      color: AppTheme.textMuted.withOpacity(0.5),
-                    ),
-                  ),
-                ),
-              )
-            else
-              Image.network(
-                ImageUtils.resolveUrl(primaryImage.url),
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: AppTheme.darkSurface,
-                    child: Icon(
-                      Icons.broken_image_outlined,
-                      size: 46,
-                      color: AppTheme.textMuted.withOpacity(0.35),
-                    ),
-                  );
-                },
-              ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.08),
-                    accentColor.withOpacity(0.14),
-                    AppTheme.darkBackground.withOpacity(0.90),
-                  ],
-                  stops: const [0.0, 0.45, 1.0],
-                ),
-              ),
-            ),
-            Positioned(
-              top: 16,
-              left: 16,
-              right: 16,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _buildPremiumBadge(
-                          icon: Icons.apartment_rounded,
-                          label: unit.unitTypeName,
-                          color: accentColor,
-                          emphasized: true,
-                        ),
-                        _buildPremiumBadge(
-                          icon: Icons.photo_library_outlined,
-                          label: unit.images.isEmpty
-                              ? context.tr('property.units.noImages')
-                              : context.tr(
-                                  'property.units.imagesCount',
-                                  params: {'count': '${unit.images.length}'},
-                                ),
-                          color: Colors.white,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 220),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? accentColor.withOpacity(0.18)
-                          : AppTheme.darkBackground.withOpacity(0.55),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: isSelected
-                            ? accentColor.withOpacity(0.40)
-                            : Colors.white.withOpacity(0.08),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          isSelected
-                              ? Icons.check_circle_rounded
-                              : Icons.radio_button_unchecked_rounded,
-                          size: 16,
-                          color: isSelected ? accentColor : AppTheme.textMuted,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          isSelected
-                              ? context.tr('property.units.selected')
-                              : context.tr('property.units.select'),
-                          style: AppTextStyles.caption.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            shadows: imageTextShadows,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 16,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          context.tr('property.units.galleryTitle'),
-                          style: AppTextStyles.caption.copyWith(
-                            color: Colors.white.withOpacity(0.72),
-                            fontWeight: FontWeight.w600,
-                            shadows: imageTextShadows,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          unit.name,
-                          style: AppTextStyles.h6.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            height: 1.25,
-                            shadows: imageTextShadows,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          unit.customFeatures.isNotEmpty
-                              ? unit.customFeatures
-                              : context.tr('property.units.tapToViewImages'),
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: Colors.white.withOpacity(0.78),
-                            height: 1.35,
-                            shadows: imageTextShadows,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (previewImages.isNotEmpty) ...[
-                    const SizedBox(width: 16),
-                    _buildUnitImageStrip(previewImages),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Builds the unit info section.
-  /// العربية: يبني unit info section.
-  Widget _buildUnitInfoSection(Unit unit, bool isSelected, int index) {
-    final accentColor = _getUnitAccentColor(index);
-    final currency = unit.currency ?? context.tr('property.units.currency');
-
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.white.withOpacity(0.02),
-            AppTheme.darkSurface.withOpacity(0.88),
-          ],
-        ),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(27)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        unit.name,
-                        style: AppTextStyles.h5.copyWith(
-                          color: AppTheme.textWhite,
-                          fontWeight: FontWeight.w800,
-                          height: 1.28,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (unit.propertyName.isNotEmpty) ...[
-                        const SizedBox(height: 6),
-                        Text(
-                          unit.propertyName,
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppTheme.textLight,
-                            height: 1.35,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.03),
+                      accentColor.withOpacity(0.08),
+                      Colors.black.withOpacity(0.46),
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
-                Container(
+              ),
+              Positioned(
+                right: 8,
+                left: 8,
+                bottom: 8,
+                child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
+                    horizontal: 8,
+                    vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? accentColor.withOpacity(0.16)
-                        : Colors.white.withOpacity(0.04),
-                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.black.withOpacity(0.34),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isSelected
-                          ? accentColor.withOpacity(0.34)
-                          : Colors.white.withOpacity(0.07),
+                      color: Colors.white.withOpacity(0.08),
                     ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        isSelected
-                            ? context.tr('property.units.status')
-                            : context.tr('property.units.action'),
+                        '${unit.images.length} صور',
                         style: AppTextStyles.caption.copyWith(
-                          color: AppTheme.textMuted,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        isSelected
-                            ? context.tr('property.units.selectedReady')
-                            : context.tr('property.units.select'),
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppTheme.textWhite,
+                          color: Colors.white,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
+                      const Icon(
+                        Icons.photo_library_outlined,
+                        color: Colors.white,
+                        size: 14,
+                      ),
                     ],
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _buildPremiumBadge(
-                  icon: Icons.people_alt_outlined,
-                  label: _formatGuestsSummary(unit),
-                  color: AppTheme.primaryBlue,
-                ),
-                _buildPremiumBadge(
-                  icon: Icons.schedule_outlined,
-                  label: _getPricingPeriodLabel(unit.pricingMethod),
-                  color: accentColor,
-                ),
-                if (unit.distanceKm != null)
-                  _buildPremiumBadge(
-                    icon: Icons.near_me_outlined,
-                    label: context.tr(
-                      'property.units.distanceKm',
-                      params: {
-                        'value': unit.distanceKm!.toStringAsFixed(1),
-                      },
-                    ),
-                    color: AppTheme.warning,
-                  ),
-              ],
-            ),
-            if ((unit.pricePerNight != null && unit.pricePerNight! > 0) ||
-                (unit.totalPrice != null && unit.totalPrice! > 0)) ...[
-              const SizedBox(height: 16),
-              _buildPricePanel(
-                unit: unit,
-                accentColor: accentColor,
-                currency: currency,
               ),
             ],
-            if (unit.customFeatures.isNotEmpty) ...[
-              const SizedBox(height: 14),
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.04),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: accentColor.withOpacity(0.14)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 10,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: accentColor.withOpacity(0.14),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.auto_awesome_outlined,
-                        size: 18,
-                        color: accentColor,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            context.tr('property.units.keyHighlights'),
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppTheme.textWhite,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            unit.customFeatures,
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppTheme.textLight,
-                              height: 1.5,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            if (unit.fieldValues.isNotEmpty ||
-                unit.dynamicFields.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              _buildUnitFeaturesGrid(unit, accentColor),
-            ],
-          ],
+          ),
         ),
       ),
     );
   }
 
-  /// Builds the unit features grid.
-  /// العربية: يبني unit features grid.
+  Widget _buildUnitCardBody(
+    Unit unit,
+    bool isSelected,
+    Color accentColor,
+    String currency,
+  ) {
+    final highlightPrice = unit.pricePerNight != null && unit.pricePerNight! > 0
+        ? _formatPrice(unit.pricePerNight!, currency)
+        : (unit.totalPrice != null && unit.totalPrice! > 0
+            ? _formatPrice(unit.totalPrice!, currency)
+            : null);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          unit.name,
+          style: AppTextStyles.bodyLarge.copyWith(
+            color: AppTheme.textWhite,
+            fontWeight: FontWeight.w800,
+            height: 1.28,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        if (unit.propertyName.isNotEmpty) ...[
+          const SizedBox(height: 5),
+          Text(
+            unit.propertyName,
+            style: AppTextStyles.caption.copyWith(
+              color: AppTheme.textMuted,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+        const SizedBox(height: 8),
+        Text(
+          unit.customFeatures.isNotEmpty
+              ? unit.customFeatures
+              : 'وحدة مجهزة بعناية لتجربة إقامة مريحة ومتكاملة.',
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppTheme.textLight,
+            height: 1.45,
+          ),
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _buildPremiumBadge(
+              icon: Icons.people_alt_outlined,
+              label: _formatGuestsSummary(unit),
+              color: AppTheme.primaryBlue,
+            ),
+            _buildPremiumBadge(
+              icon: Icons.schedule_outlined,
+              label: _getPricingPeriodLabel(unit.pricingMethod),
+              color: accentColor,
+            ),
+            if (unit.distanceKm != null)
+              _buildPremiumBadge(
+                icon: Icons.near_me_outlined,
+                label: '${unit.distanceKm!.toStringAsFixed(1)} كم',
+                color: AppTheme.warning,
+              ),
+          ],
+        ),
+        if (highlightPrice != null) ...[
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? accentColor.withOpacity(0.10)
+                  : Colors.white.withOpacity(0.04),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isSelected
+                    ? accentColor.withOpacity(0.22)
+                    : Colors.white.withOpacity(0.06),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.local_offer_outlined,
+                  size: 16,
+                  color: accentColor,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    highlightPrice,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppTheme.textWhite,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                Text(
+                  'يبدأ من',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppTheme.textMuted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
   Widget _buildUnitFeaturesGrid(Unit unit, Color accentColor) {
     final filterFields = _getFilterFields(unit);
 
@@ -1296,9 +1530,11 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
+        color: Colors.white.withOpacity(0.035),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.07),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1320,7 +1556,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
               ),
               const SizedBox(width: 10),
               Text(
-                context.tr('property.units.basicAmenities'),
+                'المزايا الأساسية',
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppTheme.textWhite,
                   fontWeight: FontWeight.w700,
@@ -1329,36 +1565,25 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
             ],
           ),
           const SizedBox(height: 12),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final singleColumn = constraints.maxWidth < 380;
-              final itemWidth = singleColumn
-                  ? constraints.maxWidth
-                  : (constraints.maxWidth - 10) / 2;
-
-              return Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: visibleFields.map((fieldData) {
-                  return SizedBox(
-                    width: itemWidth,
-                    child: _buildDynamicFieldRow(
-                      displayName: fieldData['displayName'],
-                      value: fieldData['value'],
-                      fieldType: fieldData['fieldTypeId'],
-                    ),
-                  );
-                }).toList(),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: visibleFields.map((fieldData) {
+              return SizedBox(
+                width: 130,
+                child: _buildDynamicFieldRow(
+                  displayName: fieldData['displayName'],
+                  value: fieldData['value'],
+                  fieldType: fieldData['fieldTypeId'],
+                ),
               );
-            },
+            }).toList(),
           ),
         ],
       ),
     );
   }
 
-  /// Exposes the filter fields.
-  /// العربية: يعيد filter fields.
   List<Map<String, dynamic>> _getFilterFields(Unit unit) {
     final List<Map<String, dynamic>> filterFields = [];
 
@@ -1420,8 +1645,6 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     return fallback;
   }
 
-  /// Builds the dynamic field row.
-  /// العربية: يبني dynamic field row.
   Widget _buildDynamicFieldRow({
     required String displayName,
     required dynamic value,
@@ -1436,7 +1659,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.04),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.18)),
+        border: Border.all(
+          color: color.withOpacity(0.18),
+        ),
       ),
       child: Row(
         children: [
@@ -1447,7 +1672,11 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
               color: color.withOpacity(0.14),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, size: 16, color: color),
+            child: Icon(
+              icon,
+              size: 16,
+              color: color,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -1480,8 +1709,6 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
-  /// Exposes the unit accent color.
-  /// العربية: يعيد unit accent color.
   Color _getUnitAccentColor(int index) {
     const paletteOffsets = <int>[0, 1, 2, 3];
     switch (paletteOffsets[index % paletteOffsets.length]) {
@@ -1496,8 +1723,35 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     }
   }
 
-  /// Exposes the primary unit image.
-  /// العربية: يعيد primary unit image.
+  String _getSelectedUnitTypeLabel() {
+    if (_selectedUnitTypeId == null) {
+      return 'كل أنواع الوحدات';
+    }
+
+    for (final type in _unitTypes) {
+      if (type.id == _selectedUnitTypeId) {
+        return (type.name as String?)?.trim().isNotEmpty == true
+            ? type.name as String
+            : 'نوع وحدة محدد';
+      }
+    }
+
+    return 'نوع وحدة محدد';
+  }
+
+  void _openUnitGallery(Unit unit) {
+    HapticFeedback.lightImpact();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => UnitGalleryPage(
+          images: unit.images,
+          initialIndex: 0,
+          unitName: unit.name,
+        ),
+      ),
+    );
+  }
+
   UnitImage? _getPrimaryUnitImage(Unit unit) {
     if (unit.images.isEmpty) {
       return null;
@@ -1512,8 +1766,6 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     return unit.images.first;
   }
 
-  /// Builds the premium badge.
-  /// العربية: يبني premium badge.
   Widget _buildPremiumBadge({
     required IconData icon,
     required String label,
@@ -1554,8 +1806,6 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
-  /// Builds the unit image strip.
-  /// العربية: يبني unit image strip.
   Widget _buildUnitImageStrip(List<UnitImage> images) {
     final visibleImages = images.take(3).toList();
     return SizedBox(
@@ -1605,8 +1855,6 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
-  /// Builds the price panel.
-  /// العربية: يبني price panel.
   Widget _buildPricePanel({
     required Unit unit,
     required Color accentColor,
@@ -1619,15 +1867,17 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.centerRight,
+          end: Alignment.centerLeft,
           colors: [
-            Colors.white.withOpacity(0.08),
-            accentColor.withOpacity(0.12),
+            accentColor.withOpacity(0.16),
+            accentColor.withOpacity(0.06),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: accentColor.withOpacity(0.25)),
+        border: Border.all(
+          color: accentColor.withOpacity(0.22),
+        ),
       ),
       child: Row(
         children: [
@@ -1650,9 +1900,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  hasBasePrice
-                      ? context.tr('property.units.priceFrom')
-                      : context.tr('property.units.totalPrice'),
+                  hasBasePrice ? 'السعر يبدأ من' : 'السعر الإجمالي',
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.textMuted,
                   ),
@@ -1670,14 +1918,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                 const SizedBox(height: 4),
                 Text(
                   hasBasePrice
-                      ? context.tr(
-                          'property.units.per',
-                          params: {
-                            'period':
-                                _getPricingPeriodLabel(unit.pricingMethod),
-                          },
-                        )
-                      : context.tr('property.units.selectedPeriod'),
+                      ? 'لكل ${_getPricingPeriodLabel(unit.pricingMethod)}'
+                      : 'للفترة المختارة',
                   style: AppTextStyles.caption.copyWith(
                     color: AppTheme.textLight,
                   ),
@@ -1689,15 +1931,17 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.12),
+                color: Colors.black.withOpacity(0.10),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withOpacity(0.08)),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.08),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    context.tr('property.units.total'),
+                    'الإجمالي',
                     style: AppTextStyles.caption.copyWith(
                       color: AppTheme.textMuted,
                     ),
@@ -1718,75 +1962,167 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
-  /// Formats the guests summary.
-  /// العربية: ينسق guests summary.
+  Widget _buildUnitCardActions(
+    BuildContext context,
+    Unit unit,
+    bool isSelected,
+    Color accentColor,
+  ) {
+    return Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: () => _openUnitGallery(unit),
+            child: Container(
+              height: 44,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.04),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.08),
+                ),
+              ),
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.photo_library_outlined,
+                      size: 16,
+                      color: AppTheme.textWhite,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'عرض الصور',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppTheme.textWhite,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: GestureDetector(
+            onTap: () => _selectUnit(context, unit),
+            child: Container(
+              height: 44,
+              decoration: BoxDecoration(
+                gradient: isSelected
+                    ? LinearGradient(
+                        colors: [
+                          accentColor.withOpacity(0.22),
+                          accentColor.withOpacity(0.12),
+                        ],
+                      )
+                    : AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isSelected
+                      ? accentColor.withOpacity(0.30)
+                      : Colors.white.withOpacity(0.10),
+                ),
+                boxShadow: isSelected
+                    ? []
+                    : [
+                        BoxShadow(
+                          color: AppTheme.primaryBlue.withOpacity(0.24),
+                          blurRadius: 14,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+              ),
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isSelected
+                          ? Icons.check_circle_rounded
+                          : Icons.touch_app_rounded,
+                      size: 16,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      isSelected ? 'تم اختيارها' : 'اختيار الوحدة',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   String _formatGuestsSummary(Unit unit) {
     final adults = unit.adultCapacity ?? 0;
     final children = unit.childrenCapacity ?? 0;
 
     if (adults <= 0 && children <= 0) {
-      return context.tr('property.units.capacityUnknown');
+      return 'السعة غير محددة';
     }
 
     if (children > 0) {
-      return '$adults ${context.tr('home.adults')} • $children ${context.tr('home.children')}';
+      return '$adults بالغ • $children طفل';
     }
 
     if (adults == 1) {
-      return context.tr('property.units.oneGuest');
+      return 'ضيف واحد';
     }
 
-    return context.tr(
-      'property.units.guestsCount',
-      params: {'count': adults},
-    );
+    return '$adults ضيوف';
   }
 
-  /// Formats the price.
-  /// العربية: ينسق price.
   String _formatPrice(double price, String currency) {
     final hasFraction = price % 1 != 0;
     return '${price.toStringAsFixed(hasFraction ? 1 : 0)} $currency';
   }
 
-  /// Exposes the pricing period label.
-  /// العربية: يعيد pricing period label.
   String _getPricingPeriodLabel(PricingMethod method) {
     switch (method) {
       case PricingMethod.hourly:
-        return context.tr('property.units.hour');
+        return 'ساعة';
       case PricingMethod.daily:
-        return context.tr('property.units.night');
+        return 'ليلة';
       case PricingMethod.weekly:
-        return context.tr('property.units.week');
+        return 'أسبوع';
       case PricingMethod.monthly:
-        return context.tr('property.units.month');
+        return 'شهر';
     }
   }
 
-  /// Formats the dynamic field value.
-  /// العربية: ينسق dynamic field value.
   String _formatDynamicFieldValue(dynamic value, String fieldType) {
     if (value == null || value.toString().isEmpty) {
-      return context.tr('property.units.unknown');
+      return 'غير محدد';
     }
 
     switch (fieldType) {
       case 'boolean':
         final boolValue = value.toString().toLowerCase();
         return (boolValue == 'true' || boolValue == '1' || boolValue == 'yes')
-            ? context.tr('property.units.yes')
-            : context.tr('property.units.no');
+            ? 'نعم'
+            : 'لا';
 
       case 'currency':
         if (value is num) {
-          return '${value.toStringAsFixed(0)} ${context.tr('property.units.currency')}';
+          return '${value.toStringAsFixed(0)} ريال';
         }
         final numValue = double.tryParse(value.toString());
         if (numValue != null) {
-          return '${numValue.toStringAsFixed(0)} ${context.tr('property.units.currency')}';
+          return '${numValue.toStringAsFixed(0)} ريال';
         }
-        return '$value ${context.tr('property.units.currency')}';
+        return '$value ريال';
 
       case 'date':
         try {
@@ -1847,9 +2183,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
 
       case 'file':
       case 'image':
-        return context.tr(
-          'property.units.attachedFile',
-        );
+        return 'ملف مرفق';
 
       default:
         final strValue = value.toString();
@@ -1859,8 +2193,6 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     }
   }
 
-  /// Exposes the field type icon.
-  /// العربية: يعيد field type icon.
   IconData _getFieldTypeIcon(String fieldType) {
     switch (fieldType) {
       case 'text':
@@ -1892,8 +2224,6 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     }
   }
 
-  /// Exposes the field type color.
-  /// العربية: يعيد field type color.
   Color _getFieldTypeColor(String fieldType) {
     switch (fieldType) {
       case 'boolean':
@@ -1918,8 +2248,6 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     }
   }
 
-  /// Builds the futuristic bottom bar.
-  /// العربية: يبني futuristic bottom bar.
   Widget _buildFuturisticBottomBar() {
     return BlocBuilder<PropertyBloc, PropertyState>(
       builder: (context, state) {
@@ -1968,9 +2296,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  context.tr(
-                                    'property.units.selectedUnit',
-                                  ),
+                                  'الوحدة المحددة',
                                   style: AppTextStyles.caption.copyWith(
                                     color: AppTheme.textMuted,
                                   ),
@@ -1989,9 +2315,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  context.tr(
-                                    'property.units.status',
-                                  ),
+                                  'الحالة',
                                   style: AppTextStyles.caption.copyWith(
                                     color: AppTheme.textMuted,
                                   ),
@@ -2002,9 +2326,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                                       .primaryGradient
                                       .createShader(bounds),
                                   child: Text(
-                                    context.tr(
-                                      'property.units.readyForBooking',
-                                    ),
+                                    'جاهز للحجز',
                                     style: AppTextStyles.bodyLarge.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -2025,9 +2347,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                               const Icon(Icons.calendar_today, size: 16),
                               const SizedBox(width: 8),
                               Text(
-                                context.tr(
-                                  'property.units.continueBooking',
-                                ),
+                                'متابعة الحجز',
                                 style: AppTextStyles.buttonMedium.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -2050,8 +2370,6 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
-  /// Builds the futuristic loader.
-  /// العربية: يبني futuristic loader.
   Widget _buildFuturisticLoader() {
     return Center(
       child: Column(
@@ -2076,9 +2394,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
             shaderCallback: (bounds) =>
                 AppTheme.primaryGradient.createShader(bounds),
             child: Text(
-              context.tr(
-                'property.units.searchingAvailableUnits',
-              ),
+              'جاري البحث عن الوحدات المتاحة',
               style: AppTextStyles.bodyMedium.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
@@ -2090,8 +2406,6 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
-  /// Builds the futuristic error.
-  /// العربية: يبني futuristic error.
   Widget _buildFuturisticError(BuildContext context, PropertyError state) {
     return Center(
       child: Container(
@@ -2113,13 +2427,17 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 40, color: AppTheme.error),
+            Icon(
+              Icons.error_outline,
+              size: 40,
+              color: AppTheme.error,
+            ),
             const SizedBox(height: 12),
             Text(
-              context.tr(
-                'property.errorTitle',
+              'حدث خطأ',
+              style: AppTextStyles.bodyLarge.copyWith(
+                color: AppTheme.error,
               ),
-              style: AppTextStyles.bodyLarge.copyWith(color: AppTheme.error),
             ),
             const SizedBox(height: 6),
             Text(
@@ -2138,9 +2456,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                   const Icon(Icons.refresh, size: 16),
                   const SizedBox(width: 6),
                   Text(
-                    context.tr(
-                      'property.retry',
-                    ),
+                    'إعادة المحاولة',
                     style: AppTextStyles.buttonMedium.copyWith(
                       color: Colors.white,
                     ),
@@ -2154,9 +2470,8 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
-  /// Builds the futuristic empty state.
-  /// العربية: يبني futuristic empty state.
   Widget _buildFuturisticEmptyState(BuildContext context) {
+    final hasSelectedType = _selectedUnitTypeId != null;
     return Center(
       child: Container(
         margin: const EdgeInsets.all(16),
@@ -2187,9 +2502,7 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
               shaderCallback: (bounds) =>
                   AppTheme.primaryGradient.createShader(bounds),
               child: Text(
-                context.tr(
-                  'property.units.noUnitsAvailable',
-                ),
+                'لا توجد وحدات متاحة',
                 style: AppTextStyles.bodyLarge.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -2198,63 +2511,44 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
             ),
             const SizedBox(height: 8),
             Text(
-              _hasDateFilter
-                  ? context.tr(
-                      'property.units.noUnitsInDates',
-                    )
-                  : context.tr('property.units.chooseDatesHint'),
+              hasSelectedType
+                  ? 'لا توجد وحدات ضمن نوع الوحدة المحدد حالياً'
+                  : 'لا توجد وحدات متاحة حالياً لهذا العقار',
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppTheme.textMuted,
               ),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                _buildGlowingButton(
-                  onPressed: () => _showDatePicker(context),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.calendar_today, size: 16),
-                      const SizedBox(width: 6),
-                      Text(
-                        _hasDateFilter
-                            ? context.tr(
-                                'property.units.changeDates',
-                              )
-                            : context.tr(
-                                'property.units.selectDates',
-                              ),
-                        style: AppTextStyles.buttonMedium.copyWith(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
+            _buildGlowingButton(
+              onPressed: () {
+                if (hasSelectedType) {
+                  setState(() {
+                    _selectedUnitTypeId = null;
+                  });
+                  _loadUnits(context);
+                  return;
+                }
+                Navigator.pop(context);
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    hasSelectedType
+                        ? Icons.filter_alt_off_rounded
+                        : Icons.arrow_back_rounded,
+                    size: 16,
                   ),
-                ),
-                if (_hasDateFilter)
-                  _buildGlowingButton(
-                    onPressed: () => _clearDateFilter(context),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.filter_alt_off_rounded, size: 16),
-                        const SizedBox(width: 6),
-                        Text(
-                          context.tr(
-                            'property.units.showAll',
-                          ),
-                          style: AppTextStyles.buttonMedium.copyWith(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
+                  const SizedBox(width: 6),
+                  Text(
+                    hasSelectedType ? 'عرض كل الوحدات' : 'العودة',
+                    style: AppTextStyles.buttonMedium.copyWith(
+                      color: Colors.white,
                     ),
                   ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -2262,8 +2556,6 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
-  /// Builds the glowing button.
-  /// العربية: يبني glowing button.
   Widget _buildGlowingButton({
     required VoidCallback onPressed,
     required Widget child,
@@ -2294,31 +2586,34 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     );
   }
 
-  /// Formats the date.
-  /// العربية: ينسق date.
   String _formatDate(DateTime date) {
-    return DateFormat(
-      'd MMMM',
-      Localizations.localeOf(context).toString(),
-    ).format(date);
+    final months = [
+      'يناير',
+      'فبراير',
+      'مارس',
+      'أبريل',
+      'مايو',
+      'يونيو',
+      'يوليو',
+      'أغسطس',
+      'سبتمبر',
+      'أكتوبر',
+      'نوفمبر',
+      'ديسمبر'
+    ];
+    return '${date.day} ${months[date.month - 1]}';
   }
 
-  /// Loads the units.
-  /// العربية: يحمل units.
   void _loadUnits(BuildContext context) {
-    context.read<PropertyBloc>().add(
-          GetPropertyUnitsEvent(
-            propertyId: widget.propertyId,
-            checkInDate: _hasDateFilter ? _checkInDate : null,
-            checkOutDate: _hasDateFilter ? _checkOutDate : null,
-            guestsCount: _guestsCount,
-            unitTypeId: _selectedUnitTypeId,
-          ),
-        );
+    context.read<PropertyBloc>().add(GetPropertyUnitsEvent(
+          propertyId: widget.propertyId,
+          checkInDate: _hasDateFilter ? _checkInDate : null,
+          checkOutDate: _hasDateFilter ? _checkOutDate : null,
+          guestsCount: _effectiveGuestsCount,
+          unitTypeId: _selectedUnitTypeId,
+        ));
   }
 
-  /// Selects the check in date.
-  /// العربية: يختار check in date.
   void _selectCheckInDate(BuildContext context) async {
     final date = await showDatePicker(
       context: context,
@@ -2340,7 +2635,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                 onSurface: AppTheme.textDark,
               );
         return Theme(
-          data: baseTheme.copyWith(colorScheme: colorScheme),
+          data: baseTheme.copyWith(
+            colorScheme: colorScheme,
+          ),
           child: child!,
         );
       },
@@ -2361,8 +2658,6 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     }
   }
 
-  /// Selects the check out date.
-  /// العربية: يختار check out date.
   void _selectCheckOutDate(BuildContext context) async {
     final date = await showDatePicker(
       context: context,
@@ -2384,7 +2679,9 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
                 onSurface: AppTheme.textDark,
               );
         return Theme(
-          data: baseTheme.copyWith(colorScheme: colorScheme),
+          data: baseTheme.copyWith(
+            colorScheme: colorScheme,
+          ),
           child: child!,
         );
       },
@@ -2402,8 +2699,6 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     }
   }
 
-  /// Processes the clearDateFilter flow and maps it into the property feature behavior.
-  /// العربية: يعالج `clearDateFilter`.
   void _clearDateFilter(BuildContext context) {
     setState(() {
       _hasDateFilter = false;
@@ -2411,14 +2706,10 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     _loadUnits(context);
   }
 
-  /// Shows the date picker.
-  /// العربية: يعرض date picker.
   void _showDatePicker(BuildContext context) {
     _selectCheckInDate(context);
   }
 
-  /// Shows the filter dialog.
-  /// العربية: يعرض filter dialog.
   void _showFilterDialog(BuildContext context) {
     HapticFeedback.mediumImpact();
     final state = context.read<PropertyBloc>().state;
@@ -2435,105 +2726,433 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     }
     final entries = types.entries.toList();
 
+    bool tempHasDateFilter = _hasDateFilter;
+    DateTime tempCheckIn = _checkInDate;
+    DateTime tempCheckOut = _checkOutDate;
+    int tempAdults = _adults;
+    int tempChildren = _children;
+    String? tempUnitTypeId = _selectedUnitTypeId;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (ctx) {
-        return Container(
-          decoration: BoxDecoration(
-            color: AppTheme.darkCard.withOpacity(0.98),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
-                blurRadius: 20,
-                offset: const Offset(0, -4),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    context.tr(
-                      'property.units.unitTypeTitle',
-                    ),
-                    style: AppTextStyles.bodyLarge.copyWith(
-                      color: AppTheme.textWhite,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, size: 18),
-                    color: AppTheme.textMuted,
-                    onPressed: () => Navigator.of(ctx).pop(),
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: AppTheme.darkCard.withOpacity(0.98),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(20)),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryBlue.withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, -4),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  ChoiceChip(
-                    label: Text(
-                      context.tr(
-                        'property.units.allUnits',
-                      ),
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: _selectedUnitTypeId == null
-                            ? AppTheme.textWhite
-                            : AppTheme.textMuted,
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'تصفية الوحدات',
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            color: AppTheme.textWhite,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, size: 18),
+                          color: AppTheme.textMuted,
+                          onPressed: () => Navigator.of(ctx).pop(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // التواريخ
+                    Text(
+                      'التواريخ',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppTheme.textWhite,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    selected: _selectedUnitTypeId == null,
-                    selectedColor: AppTheme.primaryBlue.withOpacity(0.4),
-                    backgroundColor: AppTheme.darkBackground.withOpacity(0.6),
-                    onSelected: (v) {
-                      setState(() {
-                        _selectedUnitTypeId = null;
-                      });
-                      Navigator.of(ctx).pop();
-                      _loadUnits(context);
-                    },
-                  ),
-                  for (final e in entries)
-                    ChoiceChip(
-                      label: Text(
-                        e.value,
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: _selectedUnitTypeId == e.key
-                              ? AppTheme.textWhite
-                              : AppTheme.textMuted,
+                    const SizedBox(height: 8),
+                    if (!tempHasDateFilter)
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryBlue.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppTheme.primaryBlue.withOpacity(0.2),
+                            width: 0.5,
+                          ),
+                        ),
+                        child: Text(
+                          'لن يتم استخدام التواريخ في البحث إلا بعد اختيارها.',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppTheme.textMuted,
+                            height: 1.5,
+                          ),
                         ),
                       ),
-                      selected: _selectedUnitTypeId == e.key,
-                      selectedColor: AppTheme.primaryBlue.withOpacity(0.5),
-                      backgroundColor: AppTheme.darkBackground.withOpacity(0.6),
-                      onSelected: (v) {
-                        setState(() {
-                          _selectedUnitTypeId = e.key;
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildDateField(
+                            context: ctx,
+                            label: 'تسجيل الوصول',
+                            date: tempHasDateFilter ? tempCheckIn : null,
+                            onTap: () async {
+                              final picked = await showDatePicker(
+                                context: ctx,
+                                initialDate: tempCheckIn,
+                                firstDate: DateTime.now(),
+                                lastDate: DateTime.now()
+                                    .add(const Duration(days: 365)),
+                              );
+                              if (picked != null) {
+                                setDialogState(() {
+                                  tempHasDateFilter = true;
+                                  tempCheckIn = picked;
+                                  if (tempCheckOut.isBefore(tempCheckIn
+                                      .add(const Duration(days: 1)))) {
+                                    tempCheckOut = tempCheckIn
+                                        .add(const Duration(days: 1));
+                                  }
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildDateField(
+                            context: ctx,
+                            label: 'تسجيل المغادرة',
+                            date: tempHasDateFilter ? tempCheckOut : null,
+                            onTap: () async {
+                              final picked = await showDatePicker(
+                                context: ctx,
+                                initialDate: tempCheckOut,
+                                firstDate:
+                                    tempCheckIn.add(const Duration(days: 1)),
+                                lastDate: DateTime.now()
+                                    .add(const Duration(days: 365)),
+                              );
+                              if (picked != null) {
+                                setDialogState(() {
+                                  tempHasDateFilter = true;
+                                  tempCheckOut = picked;
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (tempHasDateFilter) ...[
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton.icon(
+                          onPressed: () {
+                            setDialogState(() {
+                              tempHasDateFilter = false;
+                            });
+                          },
+                          icon: const Icon(Icons.filter_alt_off_rounded,
+                              size: 16),
+                          label: const Text('عرض كل الوحدات'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppTheme.textMuted,
+                          ),
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+
+                    // عدد البالغين والأطفال
+                    Text(
+                      'عدد الضيوف',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppTheme.textWhite,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildGuestCounter(
+                      label: 'البالغين',
+                      count: tempAdults,
+                      onIncrement: () {
+                        setDialogState(() {
+                          tempAdults++;
                         });
-                        Navigator.of(ctx).pop();
-                        _loadUnits(context);
+                      },
+                      onDecrement: () {
+                        if (tempAdults > 0) {
+                          setDialogState(() {
+                            tempAdults--;
+                          });
+                        }
                       },
                     ),
-                ],
+                    const SizedBox(height: 8),
+                    _buildGuestCounter(
+                      label: 'الأطفال',
+                      count: tempChildren,
+                      onIncrement: () {
+                        setDialogState(() {
+                          tempChildren++;
+                        });
+                      },
+                      onDecrement: () {
+                        if (tempChildren > 0) {
+                          setDialogState(() {
+                            tempChildren--;
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // نوع الوحدة
+                    Text(
+                      'نوع الوحدة',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppTheme.textWhite,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ChoiceChip(
+                          label: Text(
+                            'كل الوحدات',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: tempUnitTypeId == null
+                                  ? AppTheme.textWhite
+                                  : AppTheme.textMuted,
+                            ),
+                          ),
+                          selected: tempUnitTypeId == null,
+                          selectedColor: AppTheme.primaryBlue.withOpacity(0.4),
+                          backgroundColor:
+                              AppTheme.darkBackground.withOpacity(0.6),
+                          onSelected: (v) {
+                            setDialogState(() {
+                              tempUnitTypeId = null;
+                            });
+                          },
+                        ),
+                        for (final e in entries)
+                          ChoiceChip(
+                            label: Text(
+                              e.value,
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: tempUnitTypeId == e.key
+                                    ? AppTheme.textWhite
+                                    : AppTheme.textMuted,
+                              ),
+                            ),
+                            selected: tempUnitTypeId == e.key,
+                            selectedColor:
+                                AppTheme.primaryBlue.withOpacity(0.5),
+                            backgroundColor:
+                                AppTheme.darkBackground.withOpacity(0.6),
+                            onSelected: (v) {
+                              setDialogState(() {
+                                tempUnitTypeId = e.key;
+                              });
+                            },
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // زر التطبيق
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _hasDateFilter = tempHasDateFilter;
+                            _checkInDate = tempCheckIn;
+                            _checkOutDate = tempCheckOut;
+                            _adults = tempAdults;
+                            _children = tempChildren;
+                            _selectedUnitTypeId = tempUnitTypeId;
+                          });
+                          Navigator.of(ctx).pop();
+                          _loadUnits(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryBlue,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'تطبيق الفلاتر',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 
-  /// Selects the unit.
-  /// العربية: يختار unit.
+  Widget _buildDateField({
+    required BuildContext context,
+    required String label,
+    required DateTime? date,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppTheme.darkBackground.withOpacity(0.6),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: AppTheme.primaryBlue.withOpacity(0.3),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: AppTextStyles.caption.copyWith(
+                color: AppTheme.textMuted,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              date != null
+                  ? '${date.day}/${date.month}/${date.year}'
+                  : 'اختر التاريخ',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppTheme.textWhite,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuestCounter({
+    required String label,
+    required int count,
+    required VoidCallback onIncrement,
+    required VoidCallback onDecrement,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTheme.darkBackground.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: AppTheme.primaryBlue.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppTheme.textWhite,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Row(
+            children: [
+              IconButton(
+                onPressed: onDecrement,
+                icon: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryBlue.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Icon(
+                    Icons.remove,
+                    size: 16,
+                    color: AppTheme.primaryBlue,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                constraints: const BoxConstraints(minWidth: 40),
+                child: Text(
+                  count.toString(),
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    color: AppTheme.textWhite,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: onIncrement,
+                icon: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryBlue.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Icon(
+                    Icons.add,
+                    size: 16,
+                    color: AppTheme.primaryBlue,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   void _selectUnit(BuildContext context, Unit unit) {
     final state = context.read<PropertyBloc>().state;
     final currentSelected =
@@ -2546,52 +3165,38 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
     HapticFeedback.mediumImpact();
   }
 
-  /// Processes the proceedToBooking flow and maps it into the property feature behavior.
-  /// العربية: يعالج `proceedToBooking`.
   void _proceedToBooking(BuildContext context, Unit unit) {
     HapticFeedback.heavyImpact();
+
     if (!_hasDateFilter) {
       _showDateSelectionRequiredMessage();
       return;
     }
 
-    final selections = sl<FilterStorageService>().getHomeSelections();
-    final DateTime checkIn = _checkInDate;
-    final DateTime checkOut = _checkOutDate;
-    final int adults = (selections['adults'] as int?) ?? _guestsCount;
-    final int children = (selections['children'] as int?) ?? 0;
-
-    context.push(
-      '/booking/form',
-      extra: {
-        'propertyId': widget.propertyId,
-        'propertyName': widget.propertyName,
-        'unitId': unit.id,
-        'unitName': unit.name,
-        'unitTypeName': unit.unitTypeName,
-        'unitImages': unit.images.map((e) => e.url).toList(),
-        'adultsCapacity': unit.adultCapacity,
-        'childrenCapacity': unit.childrenCapacity,
-        'customFeatures': unit.customFeatures,
-        'services': widget.propertyServices,
-        'policies': widget.propertyPolicies,
-        'checkInDate': checkIn,
-        'checkOutDate': checkOut,
-        'adults': adults,
-        'children': children,
-      },
-    );
+    context.push('/booking/form', extra: {
+      'propertyId': widget.propertyId,
+      'propertyName': widget.propertyName,
+      'unitId': unit.id,
+      'unitName': unit.name,
+      'unitTypeName': unit.unitTypeName,
+      'unitImages': unit.images.map((e) => e.url).toList(),
+      'adultsCapacity': unit.adultCapacity,
+      'childrenCapacity': unit.childrenCapacity,
+      'customFeatures': unit.customFeatures,
+      'services': null,
+      'policies': null,
+      'checkInDate': _checkInDate,
+      'checkOutDate': _checkOutDate,
+      'adults': _adults,
+      'children': _children,
+    });
   }
 
-  /// Shows the date selection required message.
-  /// العربية: يعرض date selection required message.
   void _showDateSelectionRequiredMessage() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          context.tr(
-            'property.units.selectBookingDates',
-          ),
+          'اختر تاريخ الوصول والمغادرة أولاً قبل متابعة الحجز.',
           style: AppTextStyles.bodySmall.copyWith(color: Colors.white),
         ),
         backgroundColor: AppTheme.warning,
@@ -2601,45 +3206,19 @@ class _PropertyUnitsPageState extends State<PropertyUnitsPage>
   }
 }
 
-/// Describes the FloatingCube type used in the property feature.
-/// العربية: يمثل `FloatingCube`.
 class _FloatingCube {
-  /// Keeps the x value available to this object.
-  /// العربية: يخزن القيمة `x`.
   late double x;
-
-  /// Keeps the y value available to this object.
-  /// العربية: يخزن القيمة `y`.
   late double y;
-
-  /// Keeps the z value available to this object.
-  /// العربية: يخزن القيمة `z`.
   late double z;
-
-  /// Keeps the size value available to this object.
-  /// العربية: يخزن القيمة `size`.
   late double size;
-
-  /// Keeps the rotationSpeed value available to this object.
-  /// العربية: يخزن القيمة `rotationSpeed`.
   late double rotationSpeed;
-
-  /// Keeps the color value available to this object.
-  /// العربية: يخزن القيمة `color`.
   late Color color;
-
-  /// Keeps the opacity value available to this object.
-  /// العربية: يخزن القيمة `opacity`.
   late double opacity;
 
-  /// Constructs the FloatingCube value used by this feature.
-  /// العربية: ينشئ مثيلًا جديدًا من `FloatingCube`.
   _FloatingCube() {
     reset();
   }
 
-  /// Processes the reset flow and maps it into the property feature behavior.
-  /// العربية: يعالج `reset`.
   void reset() {
     x = math.Random().nextDouble();
     y = math.Random().nextDouble();
@@ -2656,8 +3235,6 @@ class _FloatingCube {
     color = colors[math.Random().nextInt(colors.length)];
   }
 
-  /// Updates the required operation for `update`.
-  /// العربية: يحدّث العملية المطلوبة لـ `update`.
   void update(double animationValue) {
     y -= 0.0005;
     if (y < -0.1) {
@@ -2667,29 +3244,24 @@ class _FloatingCube {
   }
 }
 
-/// Describes the CubePainter type used in the property feature.
-/// العربية: يمثل `CubePainter`.
 class _CubePainter extends CustomPainter {
-  /// Keeps the cubes value available to this object.
-  /// العربية: يخزن القيمة `cubes`.
   final List<_FloatingCube> cubes;
-
-  /// Keeps the animationValue value available to this object.
-  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
 
-  /// Constructs the CubePainter value used by this feature.
-  /// العربية: ينشئ مثيلًا جديدًا من `CubePainter`.
-  _CubePainter({required this.cubes, required this.animationValue});
+  _CubePainter({
+    required this.cubes,
+    required this.animationValue,
+  });
 
-  /// Processes the paint flow and maps it into the property feature behavior.
-  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     for (var cube in cubes) {
       cube.update(animationValue);
 
-      final center = Offset(cube.x * size.width, cube.y * size.height);
+      final center = Offset(
+        cube.x * size.width,
+        cube.y * size.height,
+      );
 
       final rotation = animationValue * cube.rotationSpeed * 2 * math.pi;
 
@@ -2703,48 +3275,34 @@ class _CubePainter extends CustomPainter {
             cube.color.withOpacity(cube.opacity),
             cube.color.withOpacity(cube.opacity * 0.5),
           ],
-        ).createShader(
-          Rect.fromCenter(
-            center: Offset.zero,
-            width: cube.size,
-            height: cube.size,
-          ),
-        )
+        ).createShader(Rect.fromCenter(
+          center: Offset.zero,
+          width: cube.size,
+          height: cube.size,
+        ))
         ..style = PaintingStyle.fill;
 
       final path = Path()
-        ..addRect(
-          Rect.fromCenter(
-            center: Offset.zero,
-            width: cube.size * cube.z,
-            height: cube.size * cube.z,
-          ),
-        );
+        ..addRect(Rect.fromCenter(
+          center: Offset.zero,
+          width: cube.size * cube.z,
+          height: cube.size * cube.z,
+        ));
 
       canvas.drawPath(path, paint);
       canvas.restore();
     }
   }
 
-  /// Processes the shouldRepaint flow and maps it into the property feature behavior.
-  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-/// Describes the CubeLoaderPainter type used in the property feature.
-/// العربية: يمثل `CubeLoaderPainter`.
 class _CubeLoaderPainter extends CustomPainter {
-  /// Keeps the animationValue value available to this object.
-  /// العربية: يخزن القيمة `animationValue`.
   final double animationValue;
 
-  /// Constructs the CubeLoaderPainter value used by this feature.
-  /// العربية: ينشئ مثيلًا جديدًا من `CubeLoaderPainter`.
   _CubeLoaderPainter({required this.animationValue});
 
-  /// Processes the paint flow and maps it into the property feature behavior.
-  /// العربية: يعالج `paint`.
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
@@ -2777,8 +3335,6 @@ class _CubeLoaderPainter extends CustomPainter {
     }
   }
 
-  /// Processes the shouldRepaint flow and maps it into the property feature behavior.
-  /// العربية: يعالج `shouldRepaint`.
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

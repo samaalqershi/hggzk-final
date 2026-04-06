@@ -408,25 +408,66 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     return AnimatedBuilder(
       animation: Listenable.merge([_waveAnimation, _glowAnimation]),
       builder: (context, child) {
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppTheme.darkBackground,
-                AppTheme.darkSurface.withOpacity(0.95),
-                AppTheme.darkCard.withOpacity(0.90),
-              ],
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppTheme.darkBackground,
+                    AppTheme.darkSurface.withOpacity(0.96),
+                    AppTheme.darkCard.withOpacity(0.92),
+                  ],
+                ),
+              ),
             ),
-          ),
-          child: CustomPaint(
-            painter: _UltraWavePainter(
-              waveAnimation: _waveAnimation.value,
-              glowIntensity: _glowAnimation.value,
+            Positioned(
+              top: -120,
+              right: -60,
+              child: Container(
+                width: 240,
+                height: 240,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      AppTheme.primaryBlue
+                          .withOpacity(0.18 * _glowAnimation.value),
+                      AppTheme.primaryBlue.withOpacity(0.0),
+                    ],
+                  ),
+                ),
+              ),
             ),
-            size: Size.infinite,
-          ),
+            Positioned(
+              bottom: -140,
+              left: -70,
+              child: Container(
+                width: 260,
+                height: 260,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      AppTheme.primaryPurple
+                          .withOpacity(0.14 * _glowAnimation.value),
+                      AppTheme.primaryPurple.withOpacity(0.0),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            CustomPaint(
+              painter: _UltraWavePainter(
+                waveAnimation: _waveAnimation.value,
+                glowIntensity: _glowAnimation.value,
+              ),
+              size: Size.infinite,
+            ),
+          ],
         );
       },
     );
@@ -452,45 +493,81 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
   Widget _buildUltraHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          _buildNanoButton(
-            icon: Icons.close_rounded,
-            onTap: () => Navigator.pop(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppTheme.darkCard.withOpacity(0.34),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: AppTheme.darkBorder.withOpacity(0.18),
+            width: 0.8,
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.14),
+              blurRadius: 18,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: Row(
               children: [
-                ShaderMask(
-                  shaderCallback: (bounds) => LinearGradient(
-                    colors: [
-                      AppTheme.primaryCyan,
-                      AppTheme.primaryBlue,
-                      AppTheme.primaryPurple,
+                _buildNanoButton(
+                  icon: Icons.close_rounded,
+                  onTap: () => Navigator.pop(context),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ShaderMask(
+                        shaderCallback: (bounds) => LinearGradient(
+                          colors: [
+                            AppTheme.primaryCyan,
+                            AppTheme.primaryBlue,
+                            AppTheme.primaryPurple,
+                          ],
+                          stops: const [0.0, 0.5, 1.0],
+                        ).createShader(bounds),
+                        child: Text(
+                          context.tr('search.filters.searchTitle'),
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textWhite,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        _activeFilterCount > 0
+                            ? '$_activeFilterCount فلتر نشط'
+                            : 'خصص نتائجك بدقة أكبر',
+                        style: AppTextStyles.caption.copyWith(
+                          color: _activeFilterCount > 0
+                              ? AppTheme.primaryBlue.withOpacity(0.85)
+                              : AppTheme.textMuted.withOpacity(0.72),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ).createShader(bounds),
-                  child: Text(
-                    context.tr('search.filters.searchTitle'),
-                    style: AppTextStyles.bodyLarge.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textWhite,
-                    ),
                   ),
                 ),
+                if (_activeFilterCount > 0)
+                  _buildNanoTextButton(
+                    label: context.tr('search.filters.clear'),
+                    icon: Icons.clear_all_rounded,
+                    onTap: _resetFilters,
+                    color: AppTheme.error,
+                  ),
               ],
             ),
           ),
-          if (_activeFilterCount > 0)
-            _buildNanoTextButton(
-              label: context.tr('search.filters.clear'),
-              icon: Icons.clear_all_rounded,
-              onTap: _resetFilters,
-              color: AppTheme.error,
-            ),
-        ],
+        ),
       ),
     );
   }
@@ -569,44 +646,70 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
       {
         'label': context.tr('search.filters.sort.popularity'),
         'icon': Icons.trending_up_rounded,
+        'value': 'popularity',
       },
       {
         'label': context.tr('search.filters.sort.rating'),
         'icon': Icons.star_rounded,
+        'value': 'rating',
       },
       {
         'label': context.tr('search.filters.sort.priceAsc'),
         'icon': Icons.attach_money_rounded,
+        'value': 'price_asc',
       },
       {
         'label': context.tr('search.filters.sort.distance'),
         'icon': Icons.near_me_rounded,
+        'value': 'distance',
       },
     ];
+    final selectedSort = _filters['sortBy'] as String?;
 
-    return Container(
-      height: 36,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: quickFilters.length,
-        itemBuilder: (context, index) {
-          final filter = quickFilters[index];
-          final isSelected = false;
+    return _NanoSection(
+      title: context.tr('sortBy'),
+      icon: Icons.swap_vert_rounded,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppTheme.primaryBlue.withOpacity(0.10),
+              AppTheme.primaryPurple.withOpacity(0.05),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppTheme.primaryBlue.withOpacity(0.12),
+            width: 0.7,
+          ),
+        ),
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: quickFilters.map((filter) {
+            final value = filter['value'] as String;
+            final isSelected = selectedSort == value;
 
-          return Padding(
-            padding: EdgeInsets.only(
-              right: index == 0 ? 0 : 8,
-            ),
-            child: _buildQuickFilterChip(
+            return _buildQuickFilterChip(
               label: filter['label'] as String,
               icon: filter['icon'] as IconData,
               isSelected: isSelected,
               onTap: () {
                 HapticFeedback.lightImpact();
+                setState(() {
+                  if (isSelected) {
+                    _filters.remove('sortBy');
+                  } else {
+                    _filters['sortBy'] = value;
+                  }
+                  _calculateActiveFilters();
+                });
               },
-            ),
-          );
-        },
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -654,69 +757,142 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
       title: context.tr('search.filters.propertySearchTitle'),
       icon: Icons.search_rounded,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withOpacity(0.35),
-          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppTheme.darkCard.withOpacity(0.54),
+              AppTheme.darkSurface.withOpacity(0.34),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.16),
-            width: 0.6,
+            color: AppTheme.primaryBlue.withOpacity(0.12),
+            width: 0.8,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.10),
+              blurRadius: 14,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
-        child: TextField(
-          controller: _searchTermController,
-          focusNode: _searchTermFocusNode,
-          textInputAction: TextInputAction.search,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppTheme.textWhite,
-            fontWeight: FontWeight.w500,
-          ),
-          onChanged: (value) {
-            final normalized = value.trim();
-            setState(() {
-              if (normalized.isEmpty) {
-                _filters.remove('searchTerm');
-              } else {
-                _filters['searchTerm'] = normalized;
-              }
-              _calculateActiveFilters();
-            });
-          },
-          onSubmitted: (_) {
-            HapticFeedback.selectionClick();
-            _searchTermFocusNode.unfocus();
-          },
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            isDense: true,
-            hintText: context.tr('search.filters.searchHint'),
-            hintStyle: AppTextStyles.bodySmall.copyWith(
-              color: AppTheme.textMuted.withOpacity(0.7),
-            ),
-            prefixIcon: Icon(
-              Icons.manage_search_rounded,
-              size: 18,
-              color: AppTheme.primaryBlue.withOpacity(0.85),
-            ),
-            suffixIcon: _searchTermController.text.trim().isEmpty
-                ? null
-                : IconButton(
-                    tooltip: context.tr('search.filters.clear'),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      setState(() {
-                        _searchTermController.clear();
-                        _filters.remove('searchTerm');
-                        _calculateActiveFilters();
-                      });
-                    },
-                    icon: Icon(
-                      Icons.close_rounded,
-                      size: 17,
-                      color: AppTheme.textMuted.withOpacity(0.7),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryBlue.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppTheme.primaryBlue.withOpacity(0.10),
+                  width: 0.7,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppTheme.primaryBlue.withOpacity(0.24),
+                          AppTheme.primaryPurple.withOpacity(0.14),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    child: Icon(
+                      Icons.travel_explore_rounded,
+                      size: 18,
+                      color: AppTheme.primaryCyan,
                     ),
                   ),
-          ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      context.tr('search.filters.searchHint'),
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppTheme.textMuted.withOpacity(0.72),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppTheme.darkBackground.withOpacity(0.20),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: AppTheme.darkBorder.withOpacity(0.14),
+                  width: 0.8,
+                ),
+              ),
+              child: TextField(
+                controller: _searchTermController,
+                focusNode: _searchTermFocusNode,
+                textInputAction: TextInputAction.search,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppTheme.textWhite,
+                  fontWeight: FontWeight.w600,
+                ),
+                onChanged: (value) {
+                  final normalized = value.trim();
+                  setState(() {
+                    if (normalized.isEmpty) {
+                      _filters.remove('searchTerm');
+                    } else {
+                      _filters['searchTerm'] = normalized;
+                    }
+                    _calculateActiveFilters();
+                  });
+                },
+                onSubmitted: (_) {
+                  HapticFeedback.selectionClick();
+                  _searchTermFocusNode.unfocus();
+                },
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  isDense: true,
+                  hintText: context.tr('search.filters.searchHint'),
+                  hintStyle: AppTextStyles.bodySmall.copyWith(
+                    color: AppTheme.textMuted.withOpacity(0.7),
+                  ),
+                  prefixIcon: Icon(
+                    Icons.manage_search_rounded,
+                    size: 18,
+                    color: AppTheme.primaryBlue.withOpacity(0.85),
+                  ),
+                  suffixIcon: _searchTermController.text.trim().isEmpty
+                      ? null
+                      : IconButton(
+                          tooltip: context.tr('search.filters.clear'),
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            setState(() {
+                              _searchTermController.clear();
+                              _filters.remove('searchTerm');
+                              _calculateActiveFilters();
+                            });
+                          },
+                          icon: Icon(
+                            Icons.close_rounded,
+                            size: 17,
+                            color: AppTheme.textMuted.withOpacity(0.7),
+                          ),
+                        ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -733,26 +909,42 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
         decoration: BoxDecoration(
-          gradient: isSelected ? AppTheme.primaryGradient : null,
-          color: !isSelected ? AppTheme.darkCard.withOpacity(0.5) : null,
-          borderRadius: BorderRadius.circular(12),
+          gradient: isSelected
+              ? LinearGradient(
+                  colors: [
+                    AppTheme.primaryBlue,
+                    AppTheme.primaryPurple,
+                  ],
+                )
+              : LinearGradient(
+                  colors: [
+                    AppTheme.darkCard.withOpacity(0.62),
+                    AppTheme.darkSurface.withOpacity(0.48),
+                  ],
+                ),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
-                ? Colors.transparent
-                : AppTheme.darkBorder.withOpacity(0.2),
-            width: 0.5,
+                ? Colors.white.withOpacity(0.12)
+                : AppTheme.darkBorder.withOpacity(0.24),
+            width: 0.9,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.2),
-                    blurRadius: 12,
-                    spreadRadius: 1,
-                  ),
-                ]
-              : [],
+          boxShadow: [
+            if (isSelected)
+              BoxShadow(
+                color: AppTheme.primaryBlue.withOpacity(0.22),
+                blurRadius: 18,
+                offset: const Offset(0, 10),
+              )
+            else
+              BoxShadow(
+                color: Colors.black.withOpacity(0.10),
+                blurRadius: 10,
+                offset: const Offset(0, 6),
+              ),
+          ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -851,38 +1043,71 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: date != null
-              ? AppTheme.primaryBlue.withOpacity(0.08)
-              : AppTheme.darkCard.withOpacity(0.3),
-          borderRadius: BorderRadius.circular(10),
+          gradient: LinearGradient(
+            colors: date != null
+                ? [
+                    AppTheme.primaryBlue.withOpacity(0.14),
+                    AppTheme.primaryPurple.withOpacity(0.06),
+                  ]
+                : [
+                    AppTheme.darkCard.withOpacity(0.42),
+                    AppTheme.darkSurface.withOpacity(0.26),
+                  ],
+          ),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: date != null
-                ? AppTheme.primaryBlue.withOpacity(0.2)
+                ? AppTheme.primaryBlue.withOpacity(0.26)
                 : AppTheme.darkBorder.withOpacity(0.15),
-            width: 0.5,
+            width: 0.8,
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text(
-              label,
-              style: AppTextStyles.caption.copyWith(
-                color: AppTheme.textMuted.withOpacity(0.6),
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: date != null
+                    ? AppTheme.primaryBlue.withOpacity(0.14)
+                    : AppTheme.darkBackground.withOpacity(0.22),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.event_rounded,
+                size: 18,
+                color: date != null
+                    ? AppTheme.primaryCyan
+                    : AppTheme.textMuted.withOpacity(0.72),
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              date != null
-                  ? _formatDate(date)
-                  : context.tr('search.filters.select'),
-              style: AppTextStyles.bodySmall.copyWith(
-                color: date != null
-                    ? AppTheme.textWhite
-                    : AppTheme.textMuted.withOpacity(0.5),
-                fontWeight: date != null ? FontWeight.w600 : FontWeight.w400,
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppTheme.textMuted.withOpacity(0.6),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    date != null
+                        ? _formatDate(date)
+                        : context.tr('search.filters.select'),
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: date != null
+                          ? AppTheme.textWhite
+                          : AppTheme.textMuted.withOpacity(0.5),
+                      fontWeight:
+                          date != null ? FontWeight.w700 : FontWeight.w400,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -899,39 +1124,80 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
       title: context.tr('search.filters.guests'),
       icon: Icons.people_outline_rounded,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.darkCard.withOpacity(0.4),
-              AppTheme.darkCard.withOpacity(0.2),
+              AppTheme.darkCard.withOpacity(0.46),
+              AppTheme.darkSurface.withOpacity(0.24),
             ],
           ),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.15),
-            width: 0.5,
+            color: AppTheme.primaryBlue.withOpacity(0.10),
+            width: 0.8,
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
           children: [
-            Text(
-              guestsCount == 1
-                  ? context.tr(
-                      'search.filters.guestsOne',
-                      params: {'value': '$guestsCount'},
-                    )
-                  : context.tr(
-                      'search.filters.guestsMany',
-                      params: {'value': '$guestsCount'},
-                    ),
-              style: AppTextStyles.bodySmall.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textWhite,
-              ),
-            ),
             Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppTheme.primaryBlue.withOpacity(0.18),
+                        AppTheme.primaryPurple.withOpacity(0.10),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(
+                    Icons.groups_rounded,
+                    color: AppTheme.primaryCyan,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    guestsCount == 1
+                        ? context.tr(
+                            'search.filters.guestsOne',
+                            params: {'value': '$guestsCount'},
+                          )
+                        : context.tr(
+                            'search.filters.guestsMany',
+                            params: {'value': '$guestsCount'},
+                          ),
+                    style: AppTextStyles.bodySmall.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textWhite,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryBlue.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    '$guestsCount',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppTheme.primaryCyan,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildNanoCounterButton(
                   icon: Icons.remove,
@@ -946,16 +1212,16 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 12),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 6,
+                    horizontal: 18,
+                    vertical: 9,
                   ),
                   decoration: BoxDecoration(
                     gradient: AppTheme.primaryGradient,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.2),
-                        blurRadius: 8,
+                        color: AppTheme.primaryBlue.withOpacity(0.22),
+                        blurRadius: 12,
                       ),
                     ],
                   ),
@@ -1256,13 +1522,18 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     };
 
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(10),
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.darkCard.withOpacity(0.40),
+            AppTheme.darkSurface.withOpacity(0.22),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: AppTheme.darkBorder.withOpacity(0.15),
-          width: 0.5,
+          width: 0.8,
         ),
       ),
       child: Column(
@@ -1281,15 +1552,23 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
                 child: Text(
                   value.toStringAsFixed(0),
                   style: AppTextStyles.bodySmall.copyWith(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                     color: AppTheme.textWhite,
                   ),
                 ),
               ),
-              Text(
-                currencySymbols[currency] ?? currency,
-                style: AppTextStyles.caption.copyWith(
-                  color: AppTheme.textMuted.withOpacity(0.5),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryBlue.withOpacity(0.10),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  currencySymbols[currency] ?? currency,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppTheme.primaryCyan,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -1648,12 +1927,16 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
               ? LinearGradient(
                   colors: [
                     AppTheme.primaryBlue.withOpacity(0.26),
-                    AppTheme.primaryCyan.withOpacity(0.18),
+                    AppTheme.primaryPurple.withOpacity(0.14),
                   ],
                 )
-              : null,
-          color: !isSelected ? AppTheme.darkCard.withOpacity(0.32) : null,
-          borderRadius: BorderRadius.circular(16),
+              : LinearGradient(
+                  colors: [
+                    AppTheme.darkCard.withOpacity(0.40),
+                    AppTheme.darkSurface.withOpacity(0.22),
+                  ],
+                ),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: isSelected
                 ? AppTheme.primaryBlue.withOpacity(0.45)
@@ -1664,11 +1947,17 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
               ? [
                   BoxShadow(
                     color: AppTheme.primaryBlue.withOpacity(0.18),
-                    blurRadius: 14,
+                    blurRadius: 18,
                     spreadRadius: 1,
                   ),
                 ]
-              : [],
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
         ),
         child: Row(
           children: [
@@ -1685,7 +1974,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
                 isSelected ? Icons.check_rounded : icon,
                 size: 19,
                 color: isSelected
-                    ? AppTheme.primaryCyan
+                    ? Colors.white
                     : AppTheme.textMuted.withOpacity(0.8),
               ),
             ),
@@ -1702,6 +1991,16 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppTheme.textWhite,
                       fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isSelected ? 'محدد الآن' : 'اضغط للتحديد',
+                    style: AppTextStyles.caption.copyWith(
+                      color: isSelected
+                          ? AppTheme.primaryCyan.withOpacity(0.92)
+                          : AppTheme.textMuted.withOpacity(0.55),
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -1722,7 +2021,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
                 textAlign: TextAlign.center,
                 style: AppTextStyles.caption.copyWith(
                   color: isSelected
-                      ? AppTheme.primaryCyan
+                      ? Colors.white
                       : AppTheme.textMuted.withOpacity(0.8),
                   fontWeight: FontWeight.w700,
                 ),
@@ -1883,11 +2182,16 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
                         child: Container(
                           height: 44,
                           decoration: BoxDecoration(
-                            color: AppTheme.error.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
+                            gradient: LinearGradient(
+                              colors: [
+                                AppTheme.error.withOpacity(0.16),
+                                AppTheme.error.withOpacity(0.08),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: AppTheme.error.withOpacity(0.2),
-                              width: 0.5,
+                              color: AppTheme.error.withOpacity(0.28),
+                              width: 0.8,
                             ),
                           ),
                           child: Center(
@@ -1919,7 +2223,7 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
                         animation: _glowAnimation,
                         builder: (context, child) {
                           return Container(
-                            height: 44,
+                            height: 48,
                             decoration: BoxDecoration(
                               gradient: _isValidFilter
                                   ? AppTheme.primaryGradient
@@ -1929,7 +2233,13 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
                                         AppTheme.textMuted.withOpacity(0.2),
                                       ],
                                     ),
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: _isValidFilter
+                                    ? Colors.white.withOpacity(0.10)
+                                    : AppTheme.textMuted.withOpacity(0.12),
+                                width: 0.8,
+                              ),
                               boxShadow: _isValidFilter
                                   ? [
                                       BoxShadow(
@@ -2002,14 +2312,19 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 36,
-        height: 36,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(10),
+          gradient: LinearGradient(
+            colors: [
+              AppTheme.darkCard.withOpacity(0.72),
+              AppTheme.darkSurface.withOpacity(0.52),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.2),
-            width: 0.5,
+            color: AppTheme.darkBorder.withOpacity(0.22),
+            width: 0.8,
           ),
         ),
         child: Icon(
@@ -2031,13 +2346,18 @@ class _SearchFiltersPageState extends State<SearchFiltersPage>
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
+          gradient: LinearGradient(
+            colors: [
+              color.withOpacity(0.16),
+              color.withOpacity(0.08),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: color.withOpacity(0.2),
-            width: 0.5,
+            color: color.withOpacity(0.24),
+            width: 0.8,
           ),
         ),
         child: Row(
@@ -2344,28 +2664,42 @@ class _NanoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(14),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.darkCard.withOpacity(0.34),
+            AppTheme.darkSurface.withOpacity(0.18),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(
           color: hasError
-              ? AppTheme.error.withOpacity(0.3)
-              : AppTheme.darkBorder.withOpacity(0.1),
-          width: hasError ? 1.5 : 0.5,
+              ? AppTheme.error.withOpacity(0.32)
+              : AppTheme.primaryBlue.withOpacity(0.10),
+          width: hasError ? 1.4 : 0.8,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.10),
+            blurRadius: 18,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(22),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(18),
             child: Column(
               children: [
                 Row(
                   children: [
                     Container(
-                      width: 28,
-                      height: 28,
+                      width: 36,
+                      height: 36,
                       decoration: BoxDecoration(
                         gradient: hasError
                             ? LinearGradient(
@@ -2375,20 +2709,32 @@ class _NanoSection extends StatelessWidget {
                                 ],
                               )
                             : AppTheme.primaryGradient,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: (hasError
+                                    ? AppTheme.error
+                                    : AppTheme.primaryBlue)
+                                .withOpacity(0.18),
+                            blurRadius: 10,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
                       ),
                       child: Icon(
                         hasError ? Icons.warning_amber_rounded : icon,
-                        size: 14,
+                        size: 18,
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Text(
-                      title,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: hasError ? AppTheme.error : AppTheme.textWhite,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: hasError ? AppTheme.error : AppTheme.textWhite,
+                        ),
                       ),
                     ),
                     if (isRequired) ...[
@@ -2401,11 +2747,10 @@ class _NanoSection extends StatelessWidget {
                         ),
                       ),
                     ],
-                    const Spacer(),
                     if (headerSuffix != null) headerSuffix!,
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 child,
               ],
             ),

@@ -371,30 +371,37 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
+      borderRadius: BorderRadius.circular(28),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
         child: Container(
           padding: EdgeInsets.only(
-            left: 8,
-            right: 8,
-            top: 4,
-            bottom: MediaQuery.of(context).viewInsets.bottom > 0 ? 4 : 8,
+            left: 10,
+            right: 10,
+            top: 8,
+            bottom: MediaQuery.of(context).viewInsets.bottom > 0 ? 8 : 10,
           ),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
               colors: [
-                AppTheme.darkCard.withOpacity(0.85),
-                AppTheme.darkCard.withOpacity(0.8),
+                Colors.white.withOpacity(0.08),
+                Colors.white.withOpacity(0.04),
               ],
             ),
-            border: Border(
-              top: BorderSide(
-                color: AppTheme.darkBorder.withOpacity(0.03),
-                width: 0.5,
-              ),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: AppTheme.primaryBlue.withOpacity(0.12),
+              width: 0.8,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primaryBlue.withOpacity(0.08),
+                blurRadius: 24,
+                offset: const Offset(0, 12),
+              ),
+            ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -500,15 +507,17 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
       decoration: BoxDecoration(
         gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
           colors: [
-            AppTheme.darkCard.withOpacity(0.6),
-            AppTheme.darkCard.withOpacity(0.38),
+            Colors.white.withOpacity(0.08),
+            Colors.white.withOpacity(0.04),
           ],
         ),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: AppTheme.darkBorder.withOpacity(0.1),
-          width: 0.5,
+          width: 0.8,
         ),
       ),
       child: Column(
@@ -847,11 +856,13 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: 32,
-        height: 32,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
           gradient: _showAttachmentOptions
               ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                   colors: [
                     AppTheme.primaryBlue.withOpacity(0.8),
                     AppTheme.primaryPurple.withOpacity(0.7),
@@ -861,12 +872,12 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
           color: !_showAttachmentOptions
               ? AppTheme.darkCard.withOpacity(0.4)
               : null,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: _showAttachmentOptions
                 ? Colors.white.withOpacity(0.15)
                 : AppTheme.darkBorder.withOpacity(0.15),
-            width: 0.5,
+            width: 0.8,
           ),
         ),
         child: AnimatedRotation(
@@ -877,7 +888,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
             color: _showAttachmentOptions
                 ? Colors.white
                 : AppTheme.textMuted.withOpacity(0.5),
-            size: 18,
+            size: 22,
           ),
         ),
       ),
@@ -888,22 +899,24 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
   Widget _buildMinimalInputField() {
     return Container(
       constraints: const BoxConstraints(
-        minHeight: 32,
-        maxHeight: 80,
+        minHeight: 46,
+        maxHeight: 104,
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
           colors: [
-            AppTheme.darkCard.withOpacity(0.5),
-            AppTheme.darkCard.withOpacity(0.3),
+            Colors.white.withOpacity(0.08),
+            Colors.white.withOpacity(0.035),
           ],
         ),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: widget.focusNode.hasFocus
-              ? AppTheme.primaryBlue.withOpacity(0.2)
-              : AppTheme.darkBorder.withOpacity(0.08),
-          width: 0.5,
+              ? AppTheme.primaryBlue.withOpacity(0.24)
+              : AppTheme.darkBorder.withOpacity(0.1),
+          width: 0.8,
         ),
       ),
       child: Row(
@@ -916,7 +929,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
               maxLines: null,
               textInputAction: TextInputAction.newline,
               style: AppTextStyles.bodySmall.copyWith(
-                fontSize: 12,
+                fontSize: 13,
                 color: AppTheme.textWhite.withOpacity(0.9),
                 height: 1.3,
               ),
@@ -933,13 +946,13 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
                             'chat.composer.messageHint',
                           ),
                 hintStyle: AppTextStyles.bodySmall.copyWith(
-                  color: AppTheme.textMuted.withOpacity(0.35),
-                  fontSize: 12,
+                  color: AppTheme.textMuted.withOpacity(0.44),
+                  fontSize: 12.5,
                 ),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 6,
+                  horizontal: 12,
+                  vertical: 12,
                 ),
                 isDense: true,
               ),
@@ -955,11 +968,11 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
           GestureDetector(
             onTap: _insertEmoji,
             child: Container(
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.all(10),
               child: Icon(
                 Icons.emoji_emotions_outlined,
-                color: AppTheme.textMuted.withOpacity(0.35),
-                size: 16,
+                color: AppTheme.textMuted.withOpacity(0.5),
+                size: 18,
               ),
             ),
           ),
@@ -984,11 +997,13 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
           onLongPressEnd: !showSend ? (_) => _finishRecording() : null,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            width: _isRecording ? 38 : 32,
-            height: _isRecording ? 38 : 32,
+            width: _isRecording ? 50 : 44,
+            height: _isRecording ? 50 : 44,
             decoration: BoxDecoration(
               gradient: showSend || _isRecording
                   ? LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                       colors: [
                         _isRecording
                             ? AppTheme.error.withOpacity(0.85)
@@ -1007,7 +1022,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
                 color: showSend || _isRecording
                     ? Colors.white.withOpacity(0.15)
                     : AppTheme.darkBorder.withOpacity(0.15),
-                width: 0.5,
+                width: 0.8,
               ),
               boxShadow: showSend || _isRecording
                   ? [
@@ -1016,8 +1031,8 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
                                 ? AppTheme.error
                                 : AppTheme.primaryBlue)
                             .withOpacity(0.22),
-                        blurRadius: _isRecording ? 10 : 6,
-                        offset: const Offset(0, 1),
+                        blurRadius: _isRecording ? 18 : 14,
+                        offset: const Offset(0, 8),
                       ),
                     ]
                   : null,
@@ -1041,7 +1056,7 @@ class _MessageInputWidgetState extends State<MessageInputWidget>
                         color: showSend || _isRecording
                             ? Colors.white
                             : AppTheme.textMuted.withOpacity(0.5),
-                        size: 16,
+                        size: 20,
                         key: ValueKey(showSend),
                       ),
               ),

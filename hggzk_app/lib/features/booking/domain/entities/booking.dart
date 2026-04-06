@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:hggzk/features/booking/domain/entities/payment.dart';
+import 'package:hggzk/features/review/domain/entities/review_image.dart';
 import '../../../../core/enums/booking_status.dart';
 
 /// Canonical booking record used by details, history, and payment flows.
@@ -321,6 +322,9 @@ class BookingUserReview extends Equatable {
   /// العربية: يحدد ما إذا كانت القيمة `isDisabled` مفعلة.
   final bool isDisabled;
 
+  /// العربية: الوسائط المرفقة بالمراجعة.
+  final List<ReviewImage> images;
+
   /// العربية: ينشئ مثيلًا جديدًا من `BookingUserReview`.
   const BookingUserReview({
     required this.id,
@@ -337,6 +341,7 @@ class BookingUserReview extends Equatable {
     this.responseDate,
     required this.isPendingApproval,
     required this.isDisabled,
+    this.images = const [],
   });
 
   /// العربية: يعيد خصائص المساواة الخاصة بهذا الكائن.
@@ -356,6 +361,7 @@ class BookingUserReview extends Equatable {
         responseDate,
         isPendingApproval,
         isDisabled,
+        images,
       ];
 }
 

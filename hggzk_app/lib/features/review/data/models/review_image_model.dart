@@ -22,11 +22,12 @@ class ReviewImageModel extends ReviewImage {
     return ReviewImageModel(
       id: json['id'] ?? '',
       url: json['url'] ?? '',
-      thumbnailUrl: json['thumbnailUrl'] ?? '',
+      thumbnailUrl:
+          json['thumbnailUrl'] ?? json['thumbnail_url'] ?? json['url'] ?? '',
       caption: json['caption'],
       displayOrder: json['displayOrder'] ?? 0,
       sizeBytes: json['sizeBytes'],
-      type: json['type'],
+      type: json['type'] ?? json['mimeType'] ?? json['mime_type'],
       uploadedAt: json['uploadedAt'] != null
           ? DateTime.parse(json['uploadedAt'])
           : null,

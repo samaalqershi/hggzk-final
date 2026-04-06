@@ -7,7 +7,6 @@ import 'dart:math' as math;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/constants/route_constants.dart';
@@ -310,7 +309,7 @@ class _ConversationsPageState extends State<ConversationsPage>
   /// العربية: يبني ultra premium header.
   Widget _buildUltraPremiumHeader() {
     return Container(
-      height: _isSearching ? 110 : 60,
+      height: _isSearching ? 264 : 206,
       child: Stack(
         children: [
           // Glass background
@@ -343,11 +342,12 @@ class _ConversationsPageState extends State<ConversationsPage>
             children: [
               _buildMinimalHeaderContent(),
               AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 320),
                 curve: Curves.easeOutCubic,
-                height: _isSearching ? 50 : 0,
+                height: _isSearching ? 58 : 0,
                 child: _isSearching ? _buildUltraMinimalSearch() : null,
               ),
+              SizedBox(height: _isSearching ? 6 : 8),
             ],
           ),
         ],
@@ -358,82 +358,211 @@ class _ConversationsPageState extends State<ConversationsPage>
   /// العربية: يبني minimal header content.
   Widget _buildMinimalHeaderContent() {
     return Container(
-      height: 60,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Column(
         children: [
-          // Minimal logo
-          AnimatedBuilder(
-            animation: _pulseAnimation,
-            builder: (context, child) {
+          Row(
+            children: [
+              AnimatedBuilder(
+                animation: _pulseAnimation,
+                builder: (context, child) {
+                  return Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppTheme.primaryBlue
+                              .withOpacity(0.18 * _pulseAnimation.value),
+                          AppTheme.primaryPurple
+                              .withOpacity(0.12 * _pulseAnimation.value),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: AppTheme.primaryBlue.withOpacity(0.16),
+                        width: 0.8,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primaryBlue.withOpacity(0.12),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.forum_rounded,
+                      color: AppTheme.primaryBlue.withOpacity(0.9),
+                      size: 20,
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr('chat.inbox.title'),
+                      style: AppTextStyles.h3.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.textWhite.withOpacity(0.96),
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      context.tr('chat.inbox.searchHint'),
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppTheme.textMuted.withOpacity(0.66),
+                        fontSize: 11,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              _buildMinimalIconButton(
+                icon: _isSearching ? Icons.close_rounded : Icons.search_rounded,
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  setState(() {
+                    _isSearching = !_isSearching;
+                    if (!_isSearching) {
+                      _searchQuery = '';
+                      _searchController.clear();
+                      _searchFocusNode.unfocus();
+                    } else {
+                      Future.delayed(const Duration(milliseconds: 280), () {
+                        _searchFocusNode.requestFocus();
+                      });
+                    }
+                  });
+                },
+              ),
+              const SizedBox(width: 8),
+              _buildMinimalIconButton(
+                icon: Icons.more_horiz_rounded,
+                onTap: _showMinimalOptions,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          BlocBuilder<ChatBloc, ChatState>(
+            builder: (context, state) {
+              final totalConversations =
+                  state is ChatLoaded ? state.conversations.length : 0;
+              final unreadConversations = state is ChatLoaded
+                  ? state.conversations
+                      .where((conversation) => conversation.hasUnreadMessages)
+                      .length
+                  : 0;
+
               return Container(
-                width: 32,
-                height: 32,
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                     colors: [
-                      AppTheme.primaryBlue
-                          .withOpacity(0.1 * _pulseAnimation.value),
-                      AppTheme.primaryPurple
-                          .withOpacity(0.05 * _pulseAnimation.value),
+                      Colors.white.withOpacity(0.06),
+                      Colors.white.withOpacity(0.025),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: AppTheme.primaryBlue.withOpacity(0.1),
-                    width: 0.5,
+                    color: AppTheme.primaryBlue.withOpacity(0.14),
+                    width: 0.8,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryBlue.withOpacity(0.08),
+                      blurRadius: 26,
+                      offset: const Offset(0, 14),
+                    ),
+                  ],
                 ),
-                child: Icon(
-                  Icons.forum_outlined,
-                  color: AppTheme.primaryBlue.withOpacity(0.6),
-                  size: 16,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildHeaderMetric(
+                        label: context.tr('chat.inbox.title'),
+                        value: '$totalConversations',
+                        icon: Icons.chat_bubble_rounded,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _buildHeaderMetric(
+                        label: context.tr('common.unread'),
+                        value: '$unreadConversations',
+                        icon: Icons.mark_chat_unread_rounded,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _buildHeaderMetric(
+                        label: context.tr('chat.inbox.startConversation'),
+                        value: '+',
+                        icon: Icons.add_comment_rounded,
+                      ),
+                    ),
+                  ],
                 ),
               );
             },
           ),
+        ],
+      ),
+    );
+  }
 
-          const SizedBox(width: 12),
-
-          // Minimal title
+  Widget _buildHeaderMetric({
+    required String label,
+    required String value,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.035),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.06),
+          width: 0.6,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            icon,
+            size: 15,
+            color: AppTheme.primaryBlue.withOpacity(0.76),
+          ),
+          const SizedBox(height: 8),
           Text(
-            context.tr('chat.inbox.title'),
+            value,
             style: AppTextStyles.h3.copyWith(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
               color: AppTheme.textWhite.withOpacity(0.9),
-              letterSpacing: 0.5,
             ),
           ),
-
-          const Spacer(),
-
-          // Minimal search toggle
-          _buildMinimalIconButton(
-            icon: _isSearching ? Icons.close : Icons.search,
-            onTap: () {
-              HapticFeedback.selectionClick();
-              setState(() {
-                _isSearching = !_isSearching;
-                if (!_isSearching) {
-                  _searchQuery = '';
-                  _searchController.clear();
-                  _searchFocusNode.unfocus();
-                } else {
-                  Future.delayed(const Duration(milliseconds: 300), () {
-                    _searchFocusNode.requestFocus();
-                  });
-                }
-              });
-            },
-          ),
-
-          const SizedBox(width: 8),
-
-          // Minimal menu
-          _buildMinimalIconButton(
-            icon: Icons.more_horiz,
-            onTap: _showMinimalOptions,
+          const SizedBox(height: 3),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.caption.copyWith(
+              color: AppTheme.textMuted.withOpacity(0.58),
+              fontSize: 9,
+            ),
           ),
         ],
       ),
@@ -448,20 +577,27 @@ class _ConversationsPageState extends State<ConversationsPage>
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 28,
-        height: 28,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(6),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white.withOpacity(0.07),
+              Colors.white.withOpacity(0.03),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: AppTheme.darkBorder.withOpacity(0.05),
-            width: 0.5,
+            color: AppTheme.darkBorder.withOpacity(0.09),
+            width: 0.8,
           ),
         ),
         child: Icon(
           icon,
-          color: AppTheme.textWhite.withOpacity(0.6),
-          size: 16,
+          color: AppTheme.textWhite.withOpacity(0.78),
+          size: 18,
         ),
       ),
     );
@@ -472,19 +608,26 @@ class _ConversationsPageState extends State<ConversationsPage>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
-        height: 36,
+        height: 46,
         decoration: BoxDecoration(
-          color: AppTheme.darkCard.withOpacity(0.03),
-          borderRadius: BorderRadius.circular(10),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white.withOpacity(0.06),
+              Colors.white.withOpacity(0.025),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.1),
-            width: 0.5,
+            color: AppTheme.primaryBlue.withOpacity(0.14),
+            width: 0.8,
           ),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(18),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
             child: TextField(
               controller: _searchController,
               focusNode: _searchFocusNode,
@@ -494,7 +637,7 @@ class _ConversationsPageState extends State<ConversationsPage>
                 });
               },
               style: AppTextStyles.bodySmall.copyWith(
-                fontSize: 13,
+                fontSize: 13.5,
                 color: AppTheme.textWhite.withOpacity(0.9),
               ),
               decoration: InputDecoration(
@@ -502,18 +645,18 @@ class _ConversationsPageState extends State<ConversationsPage>
                   'chat.inbox.searchHint',
                 ),
                 hintStyle: AppTextStyles.caption.copyWith(
-                  color: AppTheme.textMuted.withOpacity(0.3),
+                  color: AppTheme.textMuted.withOpacity(0.45),
                   fontSize: 12,
                 ),
                 prefixIcon: Icon(
                   Icons.search,
-                  color: AppTheme.primaryBlue.withOpacity(0.3),
-                  size: 16,
+                  color: AppTheme.primaryBlue.withOpacity(0.55),
+                  size: 18,
                 ),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
+                  horizontal: 14,
+                  vertical: 12,
                 ),
               ),
             ),
@@ -823,8 +966,8 @@ class _ConversationsPageState extends State<ConversationsPage>
           parent: AlwaysScrollableScrollPhysics(),
         ),
         padding: const EdgeInsets.only(
-          top: 4,
-          bottom: 80, // Space for FAB
+          top: 12,
+          bottom: 104,
         ),
         itemCount: conversations.length + (state.isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {

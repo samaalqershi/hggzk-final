@@ -21,6 +21,9 @@ abstract class ReviewRepository {
     required int value,
     required String comment,
     List<String>? imagesBase64,
+    String? videoBase64,
+    String? videoThumbnailBase64,
+    void Function(double progress)? onSendProgress,
   });
 
   /// Loads a paginated review feed for one property.

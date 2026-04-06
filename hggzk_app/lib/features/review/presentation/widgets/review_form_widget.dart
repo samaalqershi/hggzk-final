@@ -1,40 +1,42 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+
 import '../../../../core/localization/app_localizations.dart';
-import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/theme/app_theme.dart';
 import 'rating_selector_widget.dart';
+import 'review_media_picker_widget.dart';
 
-/// Collects a structured property review with ratings, text, and media.
-/// يجمع مراجعة منظمة للعقار تشمل التقييمات والنص والصور.
-///
-/// The widget keeps the review payload aligned with the bloc contract so the
-/// screen can submit a complete review without guessing default values.
-/// يطابق هذا العنصر حمولة المراجعة مع عقد الـ bloc حتى ترسل الشاشة مراجعة
-/// مكتملة من دون افتراض قيم افتراضية.
+typedef ReviewFormSubmitCallback = void Function(
+  Map<String, int> ratings,
+  String comment,
+  List<String>? images,
+);
+
+typedef ReviewFormSubmitWithMediaCallback = void Function(
+  Map<String, int> ratings,
+  String comment,
+  List<String>? images,
+  String? videoBase64,
+  String? videoThumbnailBase64,
+);
+
 class ReviewFormWidget extends StatefulWidget {
-  /// Receives the final ratings, comment text, and optional image paths.
-  /// يستقبل التقييمات النهائية، ونص التعليق، ومسارات الصور الاختيارية.
-  final Function(Map<String, int> ratings, String comment, List<String>? images)
-      onSubmit;
+  final ReviewFormSubmitCallback onSubmit;
+  final ReviewFormSubmitWithMediaCallback? onSubmitWithMedia;
 
-  /// Builds the review form shown on the write-review screen.
-  /// ينشئ نموذج التقييم الظاهر في شاشة كتابة المراجعة.
   const ReviewFormWidget({
     super.key,
     required this.onSubmit,
+    this.onSubmitWithMedia,
   });
 
-  /// Builds the interactive state that tracks ratings and comment changes.
-  /// ينشئ الحالة التفاعلية التي تتابع تغيّر التقييمات والتعليق.
   @override
   State<ReviewFormWidget> createState() => _ReviewFormWidgetState();
 }
 
-/// Maintains the draft review data and the animated summary card.
-/// يحفظ بيانات المراجعة قيد التحرير وبطاقة الملخص المتحركة.
 class _ReviewFormWidgetState extends State<ReviewFormWidget>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
@@ -46,20 +48,14 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     'value': 0,
   };
 
-  /// Tracks whether the reviewer recommends the property overall.
-  /// يحدد ما إذا كان المراجع يوصي بالعقار بشكل عام.
+  List<String> _selectedImages = [];
+  String? _selectedVideoBase64;
+  String? _selectedVideoThumbnailBase64;
   bool _isRecommended = true;
 
-  /// Drives the subtle glow around the summary banner.
-  /// يقود التوهج الخفيف حول شريط الملخص.
   late AnimationController _glowController;
-
-  /// Softens the highlight pulse used in the summary banner.
-  /// يضبط نبضة التوهج الظاهرة في شريط الملخص.
   late Animation<double> _glowAnimation;
 
-  /// Hooks the comment listener and starts the repeating glow animation.
-  /// يربط مستمع التعليق ويبدأ حركة التوهج المتكررة.
   @override
   void initState() {
     super.initState();
@@ -75,8 +71,6 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     );
   }
 
-  /// Releases the text controller and animation resources.
-  /// يحرر متحكم النص وموارد الحركة.
   @override
   void dispose() {
     _commentController.removeListener(_onCommentChanged);
@@ -85,15 +79,11 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     super.dispose();
   }
 
-  /// Refreshes the form so helper text and submit state stay accurate.
-  /// يحدّث النموذج ليبقى النص المساعد وحالة الإرسال دقيقين.
   void _onCommentChanged() {
     if (!mounted) return;
     setState(() {});
   }
 
-  /// Builds the form shell and its logical review sections.
-  /// يبني هيكل النموذج وأقسام المراجعة المنطقية.
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -109,6 +99,8 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
             const Divider(height: 1),
             _buildCommentSection(),
             const Divider(height: 1),
+            _buildMediaSection(),
+            const Divider(height: 1),
             _buildRecommendationSection(),
             _buildSubmitButton(),
           ],
@@ -117,13 +109,71 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     );
   }
 
-  /// Builds the summary block that seeds the detailed rating controls.
-  /// يبني كتلة الملخص التي تهيئ عناصر التقييم التفصيلية.
+  Widget _buildSectionTitle(String title, IconData icon) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: AppTextStyles.bodyLarge.copyWith(
+                  color: AppTheme.textWhite,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                height: 2,
+                width: 56,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerRight,
+                    end: Alignment.centerLeft,
+                    colors: [
+                      AppTheme.primaryCyan.withOpacity(0.8),
+                      AppTheme.primaryPurple.withOpacity(0.4),
+                      Colors.transparent,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: AppTheme.darkSurface,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: AppTheme.primaryBlue.withOpacity(0.45),
+              width: 0.8,
+            ),
+          ),
+          child: Icon(
+            icon,
+            size: 16,
+            color: AppTheme.primaryBlue,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildOverallExperience() {
     final overallRating = _getOverallRating();
 
     return Container(
-      padding: const EdgeInsets.all(AppDimensions.paddingMedium),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimensions.paddingSmall,
+        vertical: AppDimensions.paddingMedium,
+      ),
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -176,9 +226,7 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          context.tr(
-                            'reviews.overallExperience',
-                          ),
+                          context.tr('reviews.overallExperience'),
                           style: AppTextStyles.h2.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -193,7 +241,7 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
                         const SizedBox(height: AppDimensions.spacingSm),
                         RatingSelectorWidget(
                           rating: overallRating,
-                          starSize: 28,
+                          starSize: 24,
                           alignment: MainAxisAlignment.start,
                           onRatingChanged: (value) {
                             setState(() {
@@ -216,21 +264,15 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     );
   }
 
-  /// Builds the category-by-category rating controls.
-  /// يبني عناصر التقييم حسب كل فئة.
   Widget _buildRatingSection() {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            context.tr(
-              'reviews.rateAspects',
-            ),
-            style: AppTextStyles.h2.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+          _buildSectionTitle(
+            context.tr('reviews.rateAspects'),
+            Icons.auto_awesome_motion_rounded,
           ),
           const SizedBox(height: AppDimensions.spacingMd),
           _buildRatingItem(
@@ -261,8 +303,6 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     );
   }
 
-  /// Builds one detailed rating control and its progress indicator.
-  /// يبني عنصر تقييم مفصلًا مع مؤشر التقدم الخاص به.
   Widget _buildRatingItem(String label, String key, IconData icon) {
     final rating = _ratings[key]!;
     final progress = rating / 5;
@@ -357,7 +397,7 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
                       const SizedBox(height: AppDimensions.spacingXs),
                       RatingSelectorWidget(
                         rating: rating,
-                        starSize: 20,
+                        starSize: 24,
                         alignment: MainAxisAlignment.start,
                         onRatingChanged: (newRating) {
                           setState(() {
@@ -376,21 +416,15 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     );
   }
 
-  /// Builds the free-text review area and its validation rules.
-  /// يبني مساحة التعليق النصي وقواعد التحقق الخاصة بها.
   Widget _buildCommentSection() {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            context.tr(
-              'reviews.commentSectionTitle',
-            ),
-            style: AppTextStyles.h2.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+          _buildSectionTitle(
+            context.tr('reviews.commentSectionTitle'),
+            Icons.chat_bubble_outline_rounded,
           ),
           const SizedBox(height: AppDimensions.spacingMd),
           TextFormField(
@@ -398,9 +432,7 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
             maxLines: 5,
             maxLength: 500,
             decoration: InputDecoration(
-              hintText: context.tr(
-                'reviews.commentHint',
-              ),
+              hintText: context.tr('reviews.commentHint'),
               filled: true,
               fillColor: AppTheme.inputBackground,
               border: OutlineInputBorder(
@@ -421,14 +453,10 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return context.tr(
-                  'reviews.commentRequired',
-                );
+                return context.tr('reviews.commentRequired');
               }
               if (value.length < 10) {
-                return context.tr(
-                  'reviews.commentMinLength',
-                );
+                return context.tr('reviews.commentMinLength');
               }
               return null;
             },
@@ -438,8 +466,21 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     );
   }
 
-  /// Builds the yes-or-no recommendation toggle.
-  /// يبني مفتاح التوصية بنعم أو لا.
+  Widget _buildMediaSection() {
+    return Container(
+      padding: const EdgeInsets.all(AppDimensions.paddingMedium),
+      child: ReviewMediaPickerWidget(
+        onChanged: (draft) {
+          setState(() {
+            _selectedImages = draft.imagesBase64;
+            _selectedVideoBase64 = draft.videoBase64;
+            _selectedVideoThumbnailBase64 = draft.videoThumbnailBase64;
+          });
+        },
+      ),
+    );
+  }
+
   Widget _buildRecommendationSection() {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.paddingMedium),
@@ -447,30 +488,29 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
         children: [
           Expanded(
             child: Text(
-              context.tr(
-                'reviews.recommendThisPlace',
-              ),
-              style: AppTextStyles.h2.copyWith(
-                fontWeight: FontWeight.bold,
+              context.tr('reviews.recommendThisPlace'),
+              style: AppTextStyles.bodyLarge.copyWith(
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
-          Switch(
-            value: _isRecommended,
-            onChanged: (value) {
-              setState(() {
-                _isRecommended = value;
-              });
-            },
-            activeColor: AppTheme.primaryBlue,
+          Transform.scale(
+            scale: 0.9,
+            child: Switch(
+              value: _isRecommended,
+              onChanged: (value) {
+                setState(() {
+                  _isRecommended = value;
+                });
+              },
+              activeThumbColor: AppTheme.primaryBlue,
+            ),
           ),
         ],
       ),
     );
   }
 
-  /// Builds the submit action and its readiness styling.
-  /// يبني فعل الإرسال وأسلوب الجاهزية الخاص به.
   Widget _buildSubmitButton() {
     final canSubmit = _canSubmit();
 
@@ -479,7 +519,8 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
       child: AnimatedBuilder(
         animation: _glowAnimation,
         builder: (context, _) {
-          final baseGradient = AppTheme.primaryGradient;
+          final baseGradient = LinearGradient(
+              colors: [AppTheme.primaryBlue, AppTheme.primaryBlue]);
           final shadowColor = baseGradient.colors.first
               .withOpacity(0.25 + (_glowAnimation.value * 0.2));
 
@@ -512,7 +553,7 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
                   onTap: canSubmit ? _submitReview : null,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      vertical: AppDimensions.paddingMedium,
+                      vertical: AppDimensions.paddingSmall,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -524,9 +565,7 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
                         ),
                         const SizedBox(width: AppDimensions.spacingSm),
                         Text(
-                          context.tr(
-                            'reviews.submitReview',
-                          ),
+                          context.tr('reviews.submitReview'),
                           style: AppTextStyles.buttonLarge.copyWith(
                             color: Colors.white,
                           ),
@@ -543,35 +582,38 @@ class _ReviewFormWidgetState extends State<ReviewFormWidget>
     );
   }
 
-  /// Exposes whether the form contains enough data to submit a review.
-  /// يعيد ما إذا كان النموذج يحتوي على بيانات كافية للإرسال.
   bool _canSubmit() {
     return _ratings.values.every((rating) => rating > 0) &&
         _commentController.text.isNotEmpty;
   }
 
-  /// Averages the category ratings into the summary score shown at the top.
-  /// يحسب متوسط تقييمات الفئات ليظهر كدرجة عامة في الأعلى.
   int _getOverallRating() {
     final total = _ratings.values.fold(0, (sum, rating) => sum + rating);
     if (total == 0) return 0;
     return (total / _ratings.length).round();
   }
 
-  /// Sends the collected review payload to the parent screen.
-  /// يرسل حمولة المراجعة المجمعة إلى الشاشة الأب.
   void _submitReview() {
     if (_formKey.currentState!.validate()) {
+      if (widget.onSubmitWithMedia != null) {
+        widget.onSubmitWithMedia!(
+          _ratings,
+          _commentController.text,
+          _selectedImages.isNotEmpty ? _selectedImages : null,
+          _selectedVideoBase64,
+          _selectedVideoThumbnailBase64,
+        );
+        return;
+      }
+
       widget.onSubmit(
         _ratings,
         _commentController.text,
-        null,
+        _selectedImages.isNotEmpty ? _selectedImages : null,
       );
     }
   }
 
-  /// Maps each category key to its accent color in the UI.
-  /// يربط كل مفتاح فئة بلونه البارز داخل الواجهة.
   Color _getCategoryColor(String key) {
     switch (key) {
       case 'cleanliness':

@@ -1,84 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:ui';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../domain/entities/favorite.dart';
 
-/// Card that presents one saved property and wires the remove and open
-/// actions used by the favorites screen.
-/// بطاقة تعرض عقارًا محفوظًا واحدًا وتربط أفعال الفتح والإزالة التي تستخدمها
-/// شاشة المفضلة.
+enum FavoriteViewType { grid, large, list }
+
 class FavoritePropertyCardWidget extends StatefulWidget {
-  /// Favorite record rendered by this card.
-  /// سجل المفضلة الذي تعرضه هذه البطاقة.
   final Favorite favorite;
-
-  /// Switches between compact grid and wide list presentation.
-  /// يبدّل بين عرض الشبكة المضغوطة وعرض القائمة العريضة.
   final bool isGridView;
-
-  /// Delays the entrance animation so multiple cards feel sequenced.
-  /// يؤخر حركة الظهور كي تبدو البطاقات متتابعة.
+  final FavoriteViewType? viewType;
   final Duration animationDelay;
-
-  /// Opens the property detail flow for this saved item.
-  /// يفتح مسار تفاصيل العقار لهذا العنصر المحفوظ.
   final VoidCallback onTap;
-
-  /// Removes the item from favorites and lets the page refresh its list.
-  /// يزيل العنصر من المفضلة ويتيح للصفحة تحديث قائمتها.
   final VoidCallback onRemove;
 
-  /// Builds the card in either compact or wide presentation mode.
-  /// ينشئ البطاقة في وضع العرض المضغوط أو العريض.
   const FavoritePropertyCardWidget({
     super.key,
     required this.favorite,
     required this.isGridView,
+    this.viewType,
     required this.animationDelay,
     required this.onTap,
     required this.onRemove,
   });
 
-  /// Sets up the animated entry state used by the card.
-  /// يهيئ حالة الظهور المتحرك المستخدمة من البطاقة.
   @override
   State<FavoritePropertyCardWidget> createState() =>
       _FavoritePropertyCardWidgetState();
 }
 
-/// Manages entrance motion, hover feedback, and remove state for one favorite
-/// card.
-/// يدير حركة الظهور وتغذية التحويم وحالة الإزالة لبطاقة مفضلة واحدة.
 class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     with SingleTickerProviderStateMixin {
-  /// Drives the fade, scale, and slide entrance animations.
-  /// يقود حركات الظهور بالتلاشي والتدرج والانزلاق.
   late AnimationController _animationController;
-
-  /// Fades the card into view.
-  /// يدرج البطاقة تدريجيًا إلى الشاشة.
   late Animation<double> _fadeAnimation;
-
-  /// Slightly scales the card as it appears.
-  /// يغيّر حجم البطاقة قليلًا أثناء الظهور.
   late Animation<double> _scaleAnimation;
-
-  /// Slides the card upward during entrance.
-  /// ينزلق بالبطاقة قليلًا إلى الأعلى عند الظهور.
   late Animation<Offset> _slideAnimation;
 
-  /// Tracks press feedback so the card feels responsive on every platform.
-  /// يتتبع تغذية الضغط كي تبدو البطاقة مستجيبة على كل المنصات.
   bool _isHovered = false;
-
-  /// Marks the card while the remove action is in progress.
-  /// يعلّم البطاقة أثناء تنفيذ عملية الإزالة.
   bool _isRemoving = false;
 
-  /// Starts the entrance animation after the configured delay.
-  /// يبدأ حركة الظهور بعد التأخير المحدد.
+  FavoriteViewType get _effectiveViewType =>
+      widget.viewType ??
+      (widget.isGridView ? FavoriteViewType.grid : FavoriteViewType.list);
+
   @override
   void initState() {
     super.initState();
@@ -118,348 +84,293 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     });
   }
 
-  /// Releases the animation controller owned by this card.
-  /// يحرر متحكم الحركة المملوك لهذه البطاقة.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
-  /// Builds the favorite card in either grid or list mode.
-  /// يبني بطاقة المفضلة في وضع الشبكة أو القائمة.
   @override
   Widget build(BuildContext context) {
+    Widget child;
+    switch (_effectiveViewType) {
+      case FavoriteViewType.grid:
+        child = _buildGridCard();
+        break;
+      case FavoriteViewType.large:
+        child = _buildLargeCard();
+        break;
+      case FavoriteViewType.list:
+        child = _buildListCard();
+        break;
+    }
+
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SlideTransition(
         position: _slideAnimation,
         child: ScaleTransition(
           scale: _scaleAnimation,
-          child: widget.isGridView ? _buildGridCard() : _buildListCard(),
+          child: child,
         ),
       ),
     );
   }
 
-  /// Builds the compact grid presentation of the favorite item.
-  /// يبني العرض الشبكي المختصر لعنصر المفضلة.
   Widget _buildGridCard() {
     return GestureDetector(
+      onTap: widget.onTap,
       onTapDown: (_) => setState(() => _isHovered = true),
       onTapUp: (_) => setState(() => _isHovered = false),
       onTapCancel: () => setState(() => _isHovered = false),
-      onTap: widget.onTap,
-      child: Transform.scale(
-        scale: _isHovered ? 0.97 : 1.0,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        transform: Matrix4.identity()..translate(0.0, _isHovered ? -1.5 : 0.0),
         child: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppTheme.darkCard,
-                AppTheme.darkCard.withOpacity(0.95),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(20),
+            color: AppTheme.darkCard.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: AppTheme.darkBorder.withOpacity(0.1),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.shadowDark.withOpacity(0.1),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Column(
-              children: [
-                // Image Section with Overlay Info
-                Expanded(
-                  flex: 3,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      // Property Image
-                      _buildPropertyImage(),
-
-                      // Dark gradient overlay
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              AppTheme.darkBackground.withOpacity(0.8),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // Type Badge (Top Left)
-                      Positioned(
-                        top: 12,
-                        left: 12,
-                        child: _buildNeuroTypeBadge(),
-                      ),
-
-                      // Remove Button (Top Right)
-                      Positioned(
-                        top: 12,
-                        right: 12,
-                        child: _buildRemoveButton(size: 24),
-                      ),
-
-                      // Bottom Info Bar (bedrooms, bathrooms, area)
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppTheme.darkBackground.withOpacity(0.9),
-                          ),
-                          child: _buildPropertySpecsRow(),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Content Section
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Property Name
-                        Text(
-                          widget.favorite.propertyName,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppTheme.textWhite,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-
-                        // Location Row with Circular Icon
-                        _buildNeuroLocationRow(),
-
-                        // Bottom Row (Price & Rating)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // Price with Gradient Background
-                            _buildNeuroPriceTag(),
-
-                            // Rating or Action Icon
-                            if (widget.favorite.averageRating > 0)
-                              _buildNeuroRatingBar()
-                            else
-                              Icon(
-                                Icons.arrow_circle_left_outlined,
-                                color: AppTheme.primaryCyan,
-                                size: 28,
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Progress Indicator (Gradient Line at Bottom)
-                Container(
-                  height: 3,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppTheme.primaryCyan,
-                        AppTheme.primaryPurple,
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+              width: 0.5,
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  /// Builds the wide list presentation of the favorite item.
-  /// يبني العرض القائمي العريض لعنصر المفضلة.
-  Widget _buildListCard() {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isHovered = true),
-      onTapUp: (_) => setState(() => _isHovered = false),
-      onTapCancel: () => setState(() => _isHovered = false),
-      onTap: widget.onTap,
-      child: Transform.scale(
-        scale: _isHovered ? 0.98 : 1.0,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppTheme.darkCard,
-                AppTheme.darkCard.withOpacity(0.95),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: AppTheme.darkBorder.withOpacity(0.1),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.shadowDark.withOpacity(0.1),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Image Section with Overlays
-                Stack(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Image section and badges aligned with the refreshed style
+              Expanded(
+                flex: 3,
+                child: Stack(
                   children: [
-                    // Property Image with Fixed Height
-                    SizedBox(
-                      height: 200,
-                      width: double.infinity,
-                      child: _buildPropertyImage(),
-                    ),
-
-                    // Dark gradient overlay
                     Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              AppTheme.darkBackground.withOpacity(0.6),
-                            ],
-                          ),
-                        ),
-                      ),
+                      child: _buildImageSection(),
                     ),
-
-                    // Type Badge (Top Left)
                     Positioned(
-                      top: 12,
-                      left: 12,
-                      child: _buildNeuroTypeBadge(),
-                    ),
-
-                    // Remove Button (Top Right)
-                    Positioned(
-                      top: 12,
-                      right: 12,
-                      child: _buildRemoveButton(size: 32),
-                    ),
-
-                    // Bottom Info Bar (bedrooms, bathrooms, area)
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.darkBackground.withOpacity(0.9),
-                        ),
-                        child: _buildPropertySpecsRow(),
+                      top: 8,
+                      left: 8,
+                      right: 8,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildTypeBadge(compact: true),
+                          _buildRemoveButton(size: 24),
+                        ],
                       ),
                     ),
                   ],
                 ),
+              ),
 
-                // Content Section
-                Padding(
-                  padding: const EdgeInsets.all(16),
+              // Content section
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Property Name
                       Text(
                         widget.favorite.propertyName,
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          color: AppTheme.textWhite,
+                        style: AppTextStyles.bodySmall.copyWith(
                           fontWeight: FontWeight.w600,
+                          color: AppTheme.textWhite,
                         ),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-
-                      const SizedBox(height: 10),
-
-                      // Location Row with Circular Icon
-                      _buildNeuroLocationRow(),
-
-                      const SizedBox(height: 14),
-
-                      // Bottom Row (Price & Rating)
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on,
+                            size: 12,
+                            color: AppTheme.textMuted.withOpacity(0.6),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              widget.favorite.city,
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppTheme.textMuted,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Price with Gradient Background
-                          _buildNeuroPriceTag(),
-
-                          // Rating or Action Icon
-                          if (widget.favorite.averageRating > 0)
-                            _buildNeuroRatingBar()
-                          else
-                            Icon(
-                              Icons.arrow_circle_left_outlined,
-                              color: AppTheme.primaryCyan,
-                              size: 32,
+                          _buildRating(isCompact: true),
+                          Text(
+                            '${widget.favorite.minPrice.toStringAsFixed(0)} ${widget.favorite.currency}',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppTheme.primaryBlue,
+                              fontWeight: FontWeight.w600,
                             ),
+                          ),
                         ],
                       ),
                     ],
                   ),
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-                // Progress Indicator (Gradient Line at Bottom)
-                Container(
-                  height: 3,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppTheme.primaryCyan,
-                        AppTheme.primaryPurple,
+  Widget _buildLargeCard() {
+    return GestureDetector(
+      onTap: widget.onTap,
+      onTapDown: (_) => setState(() => _isHovered = true),
+      onTapUp: (_) => setState(() => _isHovered = false),
+      onTapCancel: () => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.only(bottom: 12),
+        transform: Matrix4.identity()..translate(_isHovered ? 1.5 : 0.0, 0.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppTheme.darkCard.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppTheme.darkBorder.withOpacity(0.1),
+              width: 0.5,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildImageSection(height: 160),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.favorite.propertyName,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.textWhite.withOpacity(0.9),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildRemoveButton(size: 24),
                       ],
                     ),
+                    const SizedBox(height: 8),
+                    _buildLocation(),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildRating(isCompact: false),
+                        Text(
+                          '${widget.favorite.minPrice.toStringAsFixed(0)} ${widget.favorite.currency}',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppTheme.primaryBlue,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildListCard() {
+    return GestureDetector(
+      onTap: widget.onTap,
+      onTapDown: (_) => setState(() => _isHovered = true),
+      onTapUp: (_) => setState(() => _isHovered = false),
+      onTapCancel: () => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.only(bottom: 8),
+        transform: Matrix4.identity()..translate(_isHovered ? 1.5 : 0.0, 0.0),
+        child: Container(
+          height: 95,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.shadowDark.withOpacity(0.05),
+                blurRadius: _isHovered ? 8 : 5,
+                offset: Offset(_isHovered ? 1.5 : 0, 2),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppTheme.darkCard.withOpacity(0.45),
+                      AppTheme.darkCard.withOpacity(0.25),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppTheme.darkBorder.withOpacity(0.06),
+                    width: 0.5,
                   ),
                 ),
-              ],
+                child: Row(
+                  children: [
+                    // Image section
+                    _buildImageSection(width: 95),
+
+                    // Content section
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildTitle(maxLines: 1),
+                                ),
+                                _buildRemoveButton(size: 22),
+                              ],
+                            ),
+                            const SizedBox(height: 3),
+                            _buildLocation(),
+                            const SizedBox(height: 4),
+                            _buildRating(isCompact: false),
+                            const Spacer(),
+                            _buildBottomInfo(isCompact: false),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
@@ -467,12 +378,12 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     );
   }
 
-  /// Renders the hero image and its fallback gradient.
-  /// يرسم صورة العقار الرئيسية وخلفيتها البديلة.
-  Widget _buildPropertyImage() {
+  Widget _buildImageSection({double? width, double? height}) {
+    // Get main image or first image
     String? imageUrl = widget.favorite.propertyImage;
     if ((imageUrl.isEmpty || imageUrl == 'null') &&
         widget.favorite.images.isNotEmpty) {
+      // Try to find main image first
       final mainImage = widget.favorite.images.firstWhere(
         (img) => img.isMain,
         orElse: () => widget.favorite.images.first,
@@ -480,146 +391,107 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
       imageUrl = mainImage.url;
     }
 
-    if (imageUrl != null && imageUrl.isNotEmpty && imageUrl != 'null') {
-      return CachedImageWidget(
-        imageUrl: imageUrl,
-        fit: BoxFit.cover,
-      );
-    } else {
-      return Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppTheme.darkBackground2.withOpacity(0.5),
-              AppTheme.darkBackground3.withOpacity(0.3),
-            ],
-          ),
-        ),
-        child: Center(
-          child: Icon(
-            Icons.architecture_rounded,
-            size: 36,
-            color: AppTheme.textMuted.withOpacity(0.2),
-          ),
-        ),
-      );
-    }
-  }
-
-  /// Builds the small type badge shown over the image.
-  /// يبني شارة النوع الصغيرة الظاهرة فوق الصورة.
-  Widget _buildNeuroTypeBadge() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      width: width,
+      height: height,
       decoration: BoxDecoration(
-        color: AppTheme.darkCard.withOpacity(0.8),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: AppTheme.primaryCyan.withOpacity(0.3),
-          width: 1,
-        ),
+        borderRadius: (_effectiveViewType == FavoriteViewType.grid ||
+                _effectiveViewType == FavoriteViewType.large)
+            ? const BorderRadius.vertical(top: Radius.circular(10))
+            : const BorderRadius.horizontal(left: Radius.circular(10)),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Stack(
+        fit: StackFit.expand,
         children: [
-          Icon(
-            Icons.auto_awesome_rounded,
-            size: 12,
-            color: AppTheme.primaryCyan,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            widget.favorite.typeName,
-            style: AppTextStyles.caption.copyWith(
-              color: AppTheme.primaryCyan,
-              fontWeight: FontWeight.w600,
+          // Property image
+          imageUrl.isNotEmpty && imageUrl != 'null'
+              ? ClipRRect(
+                  borderRadius: (_effectiveViewType == FavoriteViewType.grid ||
+                          _effectiveViewType == FavoriteViewType.large)
+                      ? const BorderRadius.vertical(
+                          top: Radius.circular(10),
+                        )
+                      : const BorderRadius.horizontal(
+                          left: Radius.circular(10),
+                        ),
+                  child: CachedImageWidget(
+                    imageUrl: imageUrl,
+                    fit: BoxFit.cover,
+                  ),
+                )
+              : Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppTheme.primaryBlue.withOpacity(0.2),
+                        AppTheme.primaryPurple.withOpacity(0.15),
+                      ],
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.home_rounded,
+                    size: 28,
+                    color: Colors.white.withOpacity(0.4),
+                  ),
+                ),
+
+          // Gradient overlay
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.25),
+                ],
+              ),
             ),
           ),
+
+          // Star rating badge
+          if (_effectiveViewType == FavoriteViewType.list &&
+              widget.favorite.starRating > 0)
+            Positioned(
+              bottom: 6,
+              left: 6,
+              child: _buildStarRatingBadge(),
+            ),
         ],
       ),
     );
   }
 
-  /// Builds the compact specification row for bedrooms, baths, and area.
-  /// يبني صف المواصفات المختصر لغرف النوم والحمامات والمساحة.
-  Widget _buildPropertySpecsRow() {
-    return Row(
-      children: [
-        // Add room info if available from the favorite entity
-        // Since the favorite entity might not have these fields,
-        // we'll show other relevant info
-        if (widget.favorite.amenities.isNotEmpty)
-          _buildMiniSpec(
-            Icons.check_circle_outline_rounded,
-            '${widget.favorite.amenities.length}',
-          ),
-        if (widget.favorite.starRating > 0)
-          _buildMiniSpec(
-            Icons.star_rounded,
-            '${widget.favorite.starRating}',
-          ),
-      ],
-    );
-  }
-
-  /// Builds one of the small numeric spec chips.
-  /// يبني إحدى شرائح المواصفات الرقمية الصغيرة.
-  Widget _buildMiniSpec(IconData icon, String value) {
-    return Container(
-      margin: const EdgeInsets.only(left: 8),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 12,
-            color: AppTheme.textLight.withOpacity(0.7),
-          ),
-          const SizedBox(width: 3),
-          Text(
-            value,
-            style: AppTextStyles.caption.copyWith(
-              color: AppTheme.textLight.withOpacity(0.8),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+  Widget _buildTitle({required int maxLines}) {
+    return Text(
+      widget.favorite.propertyName,
+      style: AppTextStyles.bodyMedium.copyWith(
+        fontWeight: FontWeight.w600,
+        color: AppTheme.textWhite.withOpacity(0.85),
       ),
+      maxLines: maxLines,
+      overflow: TextOverflow.ellipsis,
     );
   }
 
-  /// Builds the location row that anchors the property context.
-  /// يبني صف الموقع الذي يثبت سياق العقار.
-  Widget _buildNeuroLocationRow() {
+  Widget _buildLocation() {
     final location = widget.favorite.propertyLocation.isNotEmpty
         ? widget.favorite.propertyLocation
         : '${widget.favorite.city}, ${widget.favorite.address}';
 
     return Row(
       children: [
-        Container(
-          width: 16,
-          height: 16,
-          decoration: BoxDecoration(
-            color: AppTheme.primaryCyan.withOpacity(0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: Icon(
-              Icons.navigation_rounded,
-              size: 10,
-              color: AppTheme.primaryCyan,
-            ),
-          ),
+        Icon(
+          Icons.location_on_outlined,
+          size: 11,
+          color: AppTheme.textMuted.withOpacity(0.45),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 2),
         Expanded(
           child: Text(
             location,
             style: AppTextStyles.caption.copyWith(
-              color: AppTheme.textMuted,
+              color: AppTheme.textMuted.withOpacity(0.55),
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -629,44 +501,175 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     );
   }
 
-  /// Builds the price badge with discount-aware formatting.
-  /// يبني شارة السعر مع تنسيق يأخذ الخصم في الحسبان.
-  Widget _buildNeuroPriceTag() {
+  Widget _buildRating({required bool isCompact}) {
+    return Row(
+      children: [
+        // Stars
+        ...List.generate(5, (index) {
+          final isFilled = index < widget.favorite.starRating;
+          return Icon(
+            isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
+            size: isCompact ? 10 : 11,
+            color: isFilled
+                ? AppTheme.warning.withOpacity(0.8)
+                : AppTheme.textMuted.withOpacity(0.3),
+          );
+        }),
+
+        const SizedBox(width: 4),
+
+        // Average rating
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppTheme.warning.withOpacity(0.08),
+                AppTheme.warning.withOpacity(0.04),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            widget.favorite.averageRating.toStringAsFixed(1),
+            style: AppTextStyles.caption.copyWith(
+              color: AppTheme.warning.withOpacity(0.8),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+
+        const SizedBox(width: 3),
+
+        // Reviews count
+        Text(
+          '(${widget.favorite.reviewsCount})',
+          style: AppTextStyles.caption.copyWith(
+            color: AppTheme.textMuted.withOpacity(0.4),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomInfo({required bool isCompact}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Owner name
+        Expanded(
+          child: Row(
+            children: [
+              Icon(
+                Icons.person_outline_rounded,
+                size: isCompact ? 10 : 11,
+                color: AppTheme.textMuted.withOpacity(0.4),
+              ),
+              const SizedBox(width: 2),
+              Expanded(
+                child: Text(
+                  widget.favorite.ownerName,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppTheme.textMuted.withOpacity(0.5),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Amenities count
+        if (widget.favorite.amenities.isNotEmpty)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+            decoration: BoxDecoration(
+              color: AppTheme.darkSurface.withOpacity(0.25),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.check_circle_outline_rounded,
+                  size: isCompact ? 9 : 10,
+                  color: AppTheme.success.withOpacity(0.6),
+                ),
+                const SizedBox(width: 2),
+                Text(
+                  '${widget.favorite.amenities.length}',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppTheme.textWhite.withOpacity(0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildTypeBadge({required bool compact}) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 4,
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 5 : 6,
+        vertical: compact ? 2 : 3,
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryCyan.withOpacity(0.1),
-            AppTheme.primaryPurple.withOpacity(0.05),
+            AppTheme.primaryBlue.withOpacity(0.8),
+            AppTheme.primaryPurple.withOpacity(0.7),
           ],
         ),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(5),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryBlue.withOpacity(0.25),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Text(
+        widget.favorite.typeName,
+        style: AppTextStyles.caption.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStarRatingBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.black.withOpacity(0.6),
+            Colors.black.withOpacity(0.4),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(
+          color: AppTheme.warning.withOpacity(0.3),
+          width: 0.5,
+        ),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.payments_rounded,
-            size: 14,
-            color: AppTheme.primaryCyan,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            widget.favorite.minPrice.toStringAsFixed(0),
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.primaryCyan,
-              fontWeight: FontWeight.bold,
-            ),
+            Icons.star_rounded,
+            size: 11,
+            color: AppTheme.warning,
           ),
           const SizedBox(width: 2),
           Text(
-            widget.favorite.currency,
+            widget.favorite.starRating.toString(),
             style: AppTextStyles.caption.copyWith(
-              color: AppTheme.primaryCyan.withOpacity(0.7),
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -674,45 +677,6 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     );
   }
 
-  /// Builds the rating strip shown near the price and title.
-  /// يبني شريط التقييم الظاهر قرب السعر والعنوان.
-  Widget _buildNeuroRatingBar() {
-    final rating = widget.favorite.averageRating;
-    final starCount = widget.favorite.starRating;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppTheme.warning.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ...List.generate(5, (index) {
-            return Icon(
-              index < starCount
-                  ? Icons.star_rounded
-                  : Icons.star_outline_rounded,
-              size: 12,
-              color: AppTheme.warning,
-            );
-          }),
-          const SizedBox(width: 4),
-          Text(
-            rating.toStringAsFixed(1),
-            style: AppTextStyles.caption.copyWith(
-              color: AppTheme.warning,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Builds the remove action used to delete the favorite entry.
-  /// يبني فعل الإزالة المستخدم لحذف عنصر المفضلة.
   Widget _buildRemoveButton({required double size}) {
     return GestureDetector(
       onTap: () {
@@ -760,8 +724,6 @@ class _FavoritePropertyCardWidgetState extends State<FavoritePropertyCardWidget>
     );
   }
 
-  /// Plays the removal animation before invoking the delete callback.
-  /// يشغّل حركة الإزالة قبل استدعاء فعل الحذف.
   void _animateRemoval() {
     setState(() {
       _isRemoving = true;

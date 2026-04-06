@@ -6,6 +6,7 @@ using YemenBooking.Core.Entities;
 using YemenBooking.Core.Enums;
 using System.Text.Json;
 using YemenBooking.Application.Common.Interfaces;
+using YemenBooking.Application.Contracts.Services.Storage;
 using YemenBooking.Application.Features.AuditLog.Services;
 using YemenBooking.Application.Features.Notifications.Services;
 using YemenBooking.Core.Interfaces;
@@ -22,6 +23,7 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
     private readonly IBookingRepository _bookingRepository;
     private readonly IPropertyRepository _propertyRepository;
     private readonly IFileUploadService _fileUploadService;
+    private readonly IFileStorageService _fileStorageService;
     private readonly INotificationService _notificationService;
     private readonly ILogger<SubmitReviewCommandHandler> _logger;
     private readonly IAuditService _auditService;
@@ -47,6 +49,7 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
         IBookingRepository bookingRepository,
         IPropertyRepository propertyRepository,
         IFileUploadService fileUploadService,
+        IFileStorageService fileStorageService,
         INotificationService notificationService,
         ILogger<SubmitReviewCommandHandler> logger,
         IAuditService auditService,
@@ -58,6 +61,7 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
         _bookingRepository = bookingRepository;
         _propertyRepository = propertyRepository;
         _fileUploadService = fileUploadService;
+        _fileStorageService = fileStorageService;
         _notificationService = notificationService;
         _logger = logger;
         _auditService = auditService;
@@ -134,6 +138,15 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
 
             // رفع الصور المرفقة
             uploadedImages = await UploadReviewImages(request.ImagesBase64 ?? new List<string>(), request.BookingId, cancellationToken);
+            var uploadedVideo = await UploadReviewVideoAsync(
+                request.VideoBase64,
+                request.VideoThumbnailBase64,
+                request.BookingId,
+                cancellationToken);
+            if (uploadedVideo != null)
+            {
+                uploadedImages.Add(uploadedVideo);
+            }
 
             // حساب التقييم الإجمالي
             var overallRating = (request.Cleanliness + request.Service + request.Location + request.Value) / 4.0m;
@@ -295,6 +308,34 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
             }
         }
 
+        if (!string.IsNullOrWhiteSpace(request.VideoBase64))
+        {
+            try
+            {
+                var videoBytes = Convert.FromBase64String(ExtractBase64Payload(request.VideoBase64));
+                if (videoBytes.Length > 25 * 1024 * 1024)
+                {
+                    return ResultDto<SubmitReviewResponse>.Failed("حجم فيديو التقييم يجب أن يكون أقل من 25 ميجابايت", "VIDEO_TOO_LARGE");
+                }
+            }
+            catch (FormatException)
+            {
+                return ResultDto<SubmitReviewResponse>.Failed("تنسيق فيديو التقييم غير صحيح", "INVALID_VIDEO_FORMAT");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.VideoThumbnailBase64))
+        {
+            try
+            {
+                _ = Convert.FromBase64String(ExtractBase64Payload(request.VideoThumbnailBase64));
+            }
+            catch (FormatException)
+            {
+                return ResultDto<SubmitReviewResponse>.Failed("تنسيق الصورة المصغرة للفيديو غير صحيح", "INVALID_VIDEO_THUMBNAIL_FORMAT");
+            }
+        }
+
         return ResultDto<SubmitReviewResponse>.Ok(null, "البيانات صحيحة");
     }
 
@@ -342,6 +383,82 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
         return uploaded;
     }
 
+    private async Task<UploadedReviewImage?> UploadReviewVideoAsync(
+        string? videoBase64,
+        string? videoThumbnailBase64,
+        Guid bookingId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(videoBase64))
+        {
+            return null;
+        }
+
+        try
+        {
+            var contentType = ExtractContentType(videoBase64);
+            var extension = GetMediaFileExtension(contentType);
+            var videoBytes = Convert.FromBase64String(ExtractBase64Payload(videoBase64));
+            var fileName = $"review_video_{bookingId}_{DateTime.UtcNow:yyyyMMddHHmmss}.{extension}";
+
+            var uploadResult = await _fileStorageService.UploadFileAsync(
+                videoBytes,
+                fileName,
+                contentType,
+                "reviews",
+                cancellationToken);
+
+            if (!uploadResult.IsSuccess || string.IsNullOrWhiteSpace(uploadResult.FileUrl))
+            {
+                return null;
+            }
+
+            string? thumbnailUrl = null;
+            if (!string.IsNullOrWhiteSpace(videoThumbnailBase64))
+            {
+                try
+                {
+                    var thumbnailContentType = ExtractContentType(videoThumbnailBase64);
+                    var thumbnailExtension = GetMediaFileExtension(thumbnailContentType);
+                    var thumbnailBytes = Convert.FromBase64String(
+                        ExtractBase64Payload(videoThumbnailBase64));
+                    var thumbnailFileName =
+                        $"review_video_{bookingId}_{DateTime.UtcNow:yyyyMMddHHmmss}_poster.{thumbnailExtension}";
+
+                    var thumbnailUpload = await _fileStorageService.UploadFileAsync(
+                        thumbnailBytes,
+                        thumbnailFileName,
+                        thumbnailContentType,
+                        "reviews",
+                        cancellationToken);
+
+                    if (thumbnailUpload.IsSuccess &&
+                        !string.IsNullOrWhiteSpace(thumbnailUpload.FileUrl))
+                    {
+                        thumbnailUrl = thumbnailUpload.FileUrl;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "تعذر رفع الصورة المصغرة لفيديو المراجعة");
+                }
+            }
+
+            return new UploadedReviewImage(
+                Url: uploadResult.FileUrl!,
+                Name: fileName,
+                SizeBytes: videoBytes.LongLength,
+                ContentType: contentType,
+                DisplayOrder: 999,
+                ThumbnailUrl: thumbnailUrl);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "خطأ أثناء رفع فيديو التقييم للحجز {BookingId}", bookingId);
+            return null;
+        }
+    }
+
     private async Task DeleteUploadedImages(List<string> imageUrls, CancellationToken cancellationToken)
     {
         foreach (var imageUrl in imageUrls)
@@ -378,7 +495,7 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
                     Category = ImageCategory.Gallery,
                     Caption = string.Empty,
                     AltText = string.Empty,
-                    Tags = string.Empty,
+                    Tags = ReviewImageMetadataHelper.BuildTags(image.ThumbnailUrl),
                     IsMain = image.DisplayOrder == 0,
                     DisplayOrder = image.DisplayOrder,
                     UploadedAt = DateTime.UtcNow,
@@ -437,10 +554,26 @@ public class SubmitReviewCommandHandler : IRequestHandler<SubmitReviewCommand, R
         };
     }
 
+    private static string GetMediaFileExtension(string contentType)
+    {
+        return contentType.ToLowerInvariant() switch
+        {
+            "image/png" => "png",
+            "image/webp" => "webp",
+            "image/gif" => "gif",
+            "video/mp4" => "mp4",
+            "video/quicktime" => "mov",
+            "video/webm" => "webm",
+            "video/x-matroska" => "mkv",
+            _ => GetFileExtension(contentType)
+        };
+    }
+
     private sealed record UploadedReviewImage(
         string Url,
         string Name,
         long SizeBytes,
         string ContentType,
-        int DisplayOrder);
+        int DisplayOrder,
+        string? ThumbnailUrl);
 }

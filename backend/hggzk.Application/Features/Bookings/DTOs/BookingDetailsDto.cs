@@ -4,6 +4,7 @@ using YemenBooking.Core.Enums;
 using YemenBooking.Application.Common.Models;
 using YemenBooking.Application.Features.PropertyServices.DTOs;
 using YemenBooking.Application.Features.Payments.DTOs;
+using YemenBooking.Application.Features.Reviews.DTOs;
 
 namespace YemenBooking.Application.Features.Bookings.DTOs {
     /// <summary>
@@ -373,6 +374,12 @@ namespace YemenBooking.Application.Features.Bookings.DTOs {
         /// IsDisabled property.
         /// </summary>
         public bool IsDisabled { get; set; }
+
+        /// <summary>
+        /// الوسائط المرفقة بالمراجعة.
+        /// Review media attached to this booking review.
+        /// </summary>
+        public List<ReviewImageDto> Images { get; set; } = new();
     }
 
     /// <summary>

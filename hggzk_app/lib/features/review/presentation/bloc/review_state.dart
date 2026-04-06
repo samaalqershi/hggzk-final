@@ -120,7 +120,18 @@ class ReviewCreated extends ReviewState {
 
 /// Indicates that the create-review request is still in flight.
 /// تشير إلى أن طلب إنشاء المراجعة ما زال قيد التنفيذ.
-class ReviewCreating extends ReviewState {}
+class ReviewCreating extends ReviewState {
+  /// Upload progress between `0.0` and `1.0`.
+  /// تقدم رفع حمولة المراجعة بين `0.0` و `1.0`.
+  final double progress;
+
+  /// Builds the in-flight review creation state.
+  /// ينشئ حالة إنشاء المراجعة أثناء التنفيذ.
+  const ReviewCreating({this.progress = 0.0});
+
+  @override
+  List<Object?> get props => [progress];
+}
 
 /// Holds the server-side image references after a successful upload.
 /// تحتفظ بمراجع الصور على الخادم بعد نجاح الرفع.

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui';
-import 'package:hggzk/core/localization/app_localizations.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
@@ -12,27 +12,14 @@ import '../../domain/entities/booking.dart';
 import '../../domain/entities/payment.dart';
 import 'booking_status_widget.dart';
 
-/// العربية: يمثل العنصر `BookingCardWidget`.
 class BookingCardWidget extends StatefulWidget {
-  /// العربية: يخزن القيمة `booking`.
   final Booking booking;
-
-  /// العربية: يخزن القيمة `onTap`.
   final VoidCallback onTap;
-
-  /// العربية: يخزن القيمة `onCancel`.
   final VoidCallback? onCancel;
-
-  /// العربية: يخزن القيمة `onReview`.
   final VoidCallback? onReview;
-
-  /// العربية: يخزن القيمة `showActions`.
   final bool showActions;
-
-  /// العربية: يخزن القيمة `onEdit`.
   final VoidCallback? onEdit;
 
-  /// العربية: ينشئ مثيلًا جديدًا من `BookingCardWidget`.
   const BookingCardWidget({
     super.key,
     required this.booking,
@@ -43,24 +30,16 @@ class BookingCardWidget extends StatefulWidget {
     this.onEdit,
   });
 
-  /// العربية: ينشئ كائن الحالة الخاص بهذا العنصر.
   @override
   State<BookingCardWidget> createState() => _BookingCardWidgetState();
 }
 
-/// العربية: يمثل الحالة الخاصة بـ `BookingCardWidgetState`.
 class _BookingCardWidgetState extends State<BookingCardWidget>
     with SingleTickerProviderStateMixin {
-  /// العربية: يخزن القيمة `shimmerController`.
   late AnimationController _shimmerController;
-
-  /// العربية: يخزن القيمة `shimmerAnimation`.
   late Animation<double> _shimmerAnimation;
-
-  /// العربية: يحدد ما إذا كانت القيمة `isPressed` مفعلة.
   bool _isPressed = false;
 
-  /// العربية: يهيئ الحالة الخاصة بهذا العنصر.
   @override
   void initState() {
     super.initState();
@@ -78,14 +57,12 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     ));
   }
 
-  /// العربية: يحرر الموارد المستخدمة بواسطة هذا الكائن.
   @override
   void dispose() {
     _shimmerController.dispose();
     super.dispose();
   }
 
-  /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd MMM', 'ar');
@@ -103,17 +80,25 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
         duration: const Duration(milliseconds: 100),
         child: Container(
           decoration: BoxDecoration(
-            color: AppTheme.darkCard.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: _getStatusColor().withOpacity(0.15),
-              width: 0.5,
+              color: AppTheme.darkBorder.withOpacity(0.9),
+              width: 0.8,
+            ),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppTheme.darkCard.withOpacity(0.96),
+                AppTheme.darkSurface.withOpacity(0.96),
+              ],
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
+                color: AppTheme.shadowDark.withOpacity(0.55),
+                blurRadius: 22,
+                spreadRadius: 0.8,
+                offset: const Offset(0, 14),
               ),
             ],
           ),
@@ -148,10 +133,10 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
                   // Content
                   Column(
                     children: [
-                      _buildMinimalHeader(context),
-                      _buildCompactPropertyInfo(context),
-                      _buildCompactBookingDetails(context, dateFormat),
-                      if (widget.showActions) _buildMinimalActions(context),
+                      _buildMinimalHeader(),
+                      _buildCompactPropertyInfo(),
+                      _buildCompactBookingDetails(dateFormat),
+                      if (widget.showActions) _buildMinimalActions(),
                     ],
                   ),
                 ],
@@ -163,163 +148,201 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     );
   }
 
-  /// العربية: يبني minimal header.
-  Widget _buildMinimalHeader(BuildContext context) {
+  Widget _buildMinimalHeader() {
     final bool isMissed = _hasStarted() && !_isCancelledOrDone();
     final bool isPartiallyPaid = _isPartiallyPaid();
+
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: _getStatusColor().withOpacity(0.05),
+        gradient: LinearGradient(
+          begin: Alignment.centerRight,
+          end: Alignment.centerLeft,
+          colors: [
+            _getStatusColor().withOpacity(0.25),
+            _getStatusColor().withOpacity(0.05),
+          ],
+        ),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(18),
+        ),
+        border: Border(
+          bottom: BorderSide(
+            color: AppTheme.darkBorder.withOpacity(0.6),
+            width: 0.6,
+          ),
+        ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  _getStatusColor().withOpacity(0.9),
+                  _getStatusColor().withOpacity(0.6),
+                ],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: _getStatusColor().withOpacity(0.35),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Icon(
+              _getStatusIcon(),
+              color: Colors.white,
+              size: 16,
+            ),
+          ),
+          const SizedBox(width: 10),
           Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: _getStatusColor().withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      _getStatusIcon(),
-                      color: _getStatusColor(),
-                      size: 14,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  if (!isMissed) ...[
-                    BookingStatusWidget(
-                      status: widget.booking.status,
-                      isPaid: widget.booking.isPaid,
-                      style: AppTextStyles.caption.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                      showIcon: false,
-                      animated: false,
-                    ),
-                    const SizedBox(width: 6),
-                  ],
-                  if (widget.booking.isPaid)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppTheme.success.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: AppTheme.success.withOpacity(0.3),
-                          width: 0.5,
-                        ),
-                      ),
-                      child: Text(
-                        context.tr(
-                          'booking.card.fullyPaid',
-                        ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!isMissed)
+                      BookingStatusWidget(
+                        status: widget.booking.status,
+                        isPaid: widget.booking.isPaid,
                         style: AppTextStyles.caption.copyWith(
-                          color: AppTheme.success.withOpacity(0.9),
                           fontWeight: FontWeight.w600,
                         ),
+                        showIcon: false,
+                        animated: false,
                       ),
-                    )
-                  else ...[
-                    if (isPartiallyPaid)
+                    if (!isMissed) const SizedBox(width: 6),
+                    if (isMissed)
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
-                          color: AppTheme.info.withOpacity(0.06),
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(999),
+                          color: AppTheme.error.withOpacity(0.12),
                           border: Border.all(
-                            color: AppTheme.info.withOpacity(0.3),
-                            width: 0.5,
+                            color: AppTheme.error.withOpacity(0.4),
+                            width: 0.6,
                           ),
                         ),
                         child: Text(
-                          context.tr(
-                            'booking.card.partiallyPaid',
-                          ),
+                          context.tr('booking.status.missed'),
                           style: AppTextStyles.caption.copyWith(
-                            color: AppTheme.info.withOpacity(0.9),
+                            color: AppTheme.error.withOpacity(0.95),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: [
+                    if (widget.booking.isPaid)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(999),
+                          color: AppTheme.success.withOpacity(0.09),
+                          border: Border.all(
+                            color: AppTheme.success.withOpacity(0.4),
+                            width: 0.6,
+                          ),
+                        ),
+                        child: Text(
+                          context.tr('booking.status.fullyPaid'),
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppTheme.success.withOpacity(0.95),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       )
-                    else ...[
-                      // [ISSUE 1011] تعديل حالة الحجز لتكون في انتظار الدفع وليس في انتظار التأكيد في حال كان الحجز غير مدفوع (في كرت الحجز + في صفحة الحجز)
-                      // تم تعطيل كود الإصلاح أدناه لإرجاع السلوك القديم (عدم إظهار شارة "في انتظار الدفع" في كرت الحجز)
-                      // if (!_hasStarted() && !_isCancelledOrDone() && _showAwaitingPayment())
-                      //   Container(
-                      //     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      //     decoration: BoxDecoration(
-                      //       color: AppTheme.warning.withOpacity(0.06),
-                      //       borderRadius: BorderRadius.circular(6),
-                      //       border: Border.all(
-                      //         color: AppTheme.warning.withOpacity(0.3),
-                      //         width: 0.5,
-                      //       ),
-                      //     ),
-                      //     child: Text(
-                      //       'في انتظار الدفع',
-                      //       style: AppTextStyles.caption.copyWith(
-                      //         color: AppTheme.warning.withOpacity(0.9),
-                      //         fontWeight: FontWeight.w600,
-                      //       ),
-                      //     ),
-                      //   ),
-                    ],
-                    if (isMissed)
-                      Padding(
-                        padding: const EdgeInsetsDirectional.only(start: 6),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppTheme.error.withOpacity(0.06),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: AppTheme.error.withOpacity(0.3),
-                              width: 0.5,
-                            ),
+                    else if (isPartiallyPaid)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(999),
+                          color: AppTheme.info.withOpacity(0.08),
+                          border: Border.all(
+                            color: AppTheme.info.withOpacity(0.4),
+                            width: 0.6,
                           ),
-                          child: Text(
-                            context.tr(
-                              'booking.card.missed',
-                            ),
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppTheme.error.withOpacity(0.9),
-                              fontWeight: FontWeight.w600,
-                            ),
+                        ),
+                        child: Text(
+                          context.tr('booking.status.partiallyPaid'),
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppTheme.info.withOpacity(0.95),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      )
+                    else if (!_hasStarted() &&
+                        !_isCancelledOrDone() &&
+                        _showAwaitingPayment())
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(999),
+                          color: AppTheme.warning.withOpacity(0.08),
+                          border: Border.all(
+                            color: AppTheme.warning.withOpacity(0.4),
+                            width: 0.6,
+                          ),
+                        ),
+                        child: Text(
+                          context.tr('booking.status.waitingPayment'),
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppTheme.warning.withOpacity(0.95),
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                   ],
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           const SizedBox(width: 8),
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(999),
+              gradient: LinearGradient(
+                begin: Alignment.centerRight,
+                end: Alignment.centerLeft,
+                colors: [
+                  AppTheme.primaryBlue.withOpacity(0.9),
+                  AppTheme.primaryPurple.withOpacity(0.7),
+                ],
               ),
-              child: Text(
-                '#${widget.booking.bookingNumber}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.caption.copyWith(
-                  color: AppTheme.primaryBlue.withOpacity(0.9),
-                  fontWeight: FontWeight.w600,
-                ),
+            ),
+            child: Text(
+              '#${widget.booking.bookingNumber}',
+              style: AppTextStyles.caption.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -328,14 +351,13 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     );
   }
 
-  /// العربية: يبني compact property info.
-  Widget _buildCompactPropertyInfo(BuildContext context) {
-    return Padding(
+  Widget _buildCompactPropertyInfo() {
+    return Container(
       padding: const EdgeInsets.all(12),
       child: Row(
         children: [
           _buildMinimalPropertyImage(),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -343,8 +365,8 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
                 Text(
                   widget.booking.propertyName,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textWhite.withOpacity(0.95),
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textWhite.withOpacity(0.98),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -354,7 +376,7 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
                   Text(
                     widget.booking.unitName!,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppTheme.textMuted.withOpacity(0.7),
+                      color: AppTheme.textMuted.withOpacity(0.75),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -365,18 +387,16 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
                   children: [
                     Icon(
                       Icons.location_on_outlined,
-                      size: 10,
-                      color: AppTheme.primaryCyan.withOpacity(0.7),
+                      size: 11,
+                      color: AppTheme.primaryCyan.withOpacity(0.8),
                     ),
-                    const SizedBox(width: 3),
+                    const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         widget.booking.propertyAddress ??
-                            context.tr(
-                              'booking.card.propertyLocation',
-                            ),
+                            context.tr('booking.card.propertyAddress'),
                         style: AppTextStyles.caption.copyWith(
-                          color: AppTheme.textMuted.withOpacity(0.6),
+                          color: AppTheme.textMuted.withOpacity(0.7),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -392,7 +412,6 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     );
   }
 
-  /// العربية: يبني minimal property image.
   Widget _buildMinimalPropertyImage() {
     return Container(
       width: 56,
@@ -415,243 +434,166 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
                 height: 56,
                 borderRadius: BorderRadius.circular(12),
               )
-            : Container(
-                color: AppTheme.primaryBlue.withOpacity(0.1),
-                child: Icon(
-                  Icons.apartment_rounded,
-                  color: AppTheme.primaryBlue.withOpacity(0.5),
-                  size: 24,
-                ),
+            : Icon(
+                Icons.image_outlined,
+                color: AppTheme.textMuted.withOpacity(0.5),
+                size: 24,
               ),
       ),
     );
   }
 
-  /// العربية: يبني compact booking details.
-  Widget _buildCompactBookingDetails(
-      BuildContext context, DateFormat dateFormat) {
+  Widget _buildCompactBookingDetails(DateFormat dateFormat) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: AppTheme.darkBackground.withOpacity(0.2),
-        border: Border(
-          top: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
-            width: 0.5,
-          ),
-          bottom: BorderSide(
-            color: AppTheme.darkBorder.withOpacity(0.1),
-            width: 0.5,
-          ),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Column(
         children: [
-          _buildCompactDetailItem(
-            icon: Icons.calendar_today_rounded,
-            iconColor: AppTheme.primaryBlue.withOpacity(0.8),
-            label: context.tr(
-              'booking.card.checkIn',
-            ),
-            value: dateFormat.format(widget.booking.checkInDate),
-          ),
-          _buildMinimalDivider(),
-          _buildCompactDetailItem(
+          _buildDetailRow(
             icon: Icons.calendar_today_outlined,
-            iconColor: AppTheme.primaryPurple.withOpacity(0.8),
-            label: context.tr(
-              'booking.card.checkOut',
-            ),
-            value: dateFormat.format(widget.booking.checkOutDate),
+            label: context.tr('booking.card.stayDates'),
+            value:
+                '${dateFormat.format(widget.booking.checkInDate)} - ${dateFormat.format(widget.booking.checkOutDate)}',
           ),
-          _buildMinimalDivider(),
-          _buildCompactDetailItem(
-            icon: Icons.people_outline_rounded,
-            iconColor: AppTheme.primaryCyan.withOpacity(0.8),
-            label: context.tr(
-              'booking.card.guests',
-            ),
-            value: widget.booking.totalGuests.toString(),
+          const SizedBox(height: 8),
+          _buildDetailRow(
+            icon: Icons.nights_stay_outlined,
+            label: context.tr('booking.details.nights'),
+            value: _localizedNightsLabel(widget.booking.numberOfNights),
           ),
+          const SizedBox(height: 8),
+          _buildDetailRow(
+            icon: Icons.people_outline,
+            label: context.tr('booking.card.guests'),
+            value: _localizedGuestCount(widget.booking.totalGuests),
+          ),
+          const SizedBox(height: 8),
+          _buildPriceRow(),
         ],
       ),
     );
   }
 
-  /// العربية: يبني compact detail item.
-  Widget _buildCompactDetailItem({
+  Widget _buildDetailRow({
     required IconData icon,
-    required Color iconColor,
     required String label,
     required String value,
   }) {
-    return Column(
+    return Row(
       children: [
-        Container(
-          padding: const EdgeInsets.all(5),
-          decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.08),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            icon,
-            size: 14,
-            color: iconColor,
-          ),
+        Icon(
+          icon,
+          size: 14,
+          color: AppTheme.textMuted.withOpacity(0.6),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(width: 6),
         Text(
           label,
           style: AppTextStyles.caption.copyWith(
             color: AppTheme.textMuted.withOpacity(0.6),
           ),
         ),
+        const Spacer(),
         Text(
           value,
           style: AppTextStyles.caption.copyWith(
-            fontWeight: FontWeight.w600,
             color: AppTheme.textWhite.withOpacity(0.9),
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
     );
   }
 
-  /// العربية: يبني minimal divider.
-  Widget _buildMinimalDivider() {
-    return Container(
-      height: 28,
-      width: 0.5,
-      color: AppTheme.darkBorder.withOpacity(0.1),
+  Widget _buildPriceRow() {
+    final remaining = _calculateRemainingAmount();
+    final isPartiallyPaid = _isPartiallyPaid();
+
+    return Row(
+      children: [
+        Icon(
+          Icons.attach_money,
+          size: 14,
+          color: AppTheme.primaryCyan.withOpacity(0.8),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          isPartiallyPaid
+              ? context.tr('booking.card.remainingAmount')
+              : context.tr('booking.details.totalAmount'),
+          style: AppTextStyles.caption.copyWith(
+            color: AppTheme.textMuted.withOpacity(0.6),
+          ),
+        ),
+        const Spacer(),
+        PriceWidget(
+          price: isPartiallyPaid ? remaining : widget.booking.totalAmount,
+          currency: widget.booking.currency,
+          displayType: PriceDisplayType.normal,
+          priceStyle: AppTextStyles.bodyMedium.copyWith(
+            fontWeight: FontWeight.bold,
+            color: isPartiallyPaid
+                ? AppTheme.warning.withOpacity(0.9)
+                : AppTheme.primaryCyan.withOpacity(0.9),
+          ),
+        ),
+      ],
     );
   }
 
-  /// العربية: يبني minimal actions.
-  Widget _buildMinimalActions(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          PriceWidget(
-            price: widget.booking.totalAmount,
-            currency: widget.booking.currency,
-            displayType: PriceDisplayType.compact,
-            priceStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppTheme.primaryBlue.withOpacity(0.9),
-              fontWeight: FontWeight.w600,
-            ),
+  Widget _buildMinimalActions() {
+    if (!widget.showActions) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: AppTheme.darkBorder.withOpacity(0.3),
+            width: 0.5,
           ),
-          Row(
-            children: [
-              if (widget.onCancel != null && widget.booking.canCancel)
-                _buildMinimalActionButton(
-                  context: context,
-                  label: context.tr(
-                    'booking.card.cancel',
-                  ),
-                  onPressed: widget.onCancel!,
-                  color: AppTheme.error.withOpacity(0.8),
-                  icon: Icons.close_rounded,
-                ),
-              if (widget.onReview != null)
-                _buildMinimalActionButton(
-                  context: context,
-                  label: context.tr(
-                    'booking.card.review',
-                  ),
-                  onPressed: widget.onReview!,
-                  color: AppTheme.warning.withOpacity(0.8),
-                  icon: Icons.star_outline_rounded,
-                ),
-              if (widget.onEdit != null && widget.booking.canModify)
-                _buildMinimalActionButton(
-                  context: context,
-                  label: context.tr(
-                    'booking.card.edit',
-                  ),
-                  onPressed: widget.onEdit!,
-                  color: AppTheme.info.withOpacity(0.8),
-                  icon: Icons.edit_rounded,
-                ),
-              _buildMinimalActionButton(
-                context: context,
-                label: context.tr(
-                  'booking.card.details',
-                ),
-                onPressed: widget.onTap,
-                color: AppTheme.primaryBlue.withOpacity(0.9),
-                icon: Icons.arrow_forward_rounded,
-                isPrimary: true,
-              ),
-            ],
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (widget.booking.status == BookingStatus.pending &&
+              widget.onCancel != null)
+            _buildMinimalActionButton(
+              label: context.tr('booking.card.cancel'),
+              onPressed: widget.onCancel!,
+              color: AppTheme.error,
+              icon: Icons.close_rounded,
+            ),
+          if (widget.booking.status == BookingStatus.completed &&
+              widget.onReview != null)
+            _buildMinimalActionButton(
+              label: context.tr('booking.card.review'),
+              onPressed: widget.onReview!,
+              color: AppTheme.warning,
+              icon: Icons.star_border_rounded,
+            ),
+          if (widget.onEdit != null &&
+              widget.booking.status != BookingStatus.cancelled &&
+              widget.booking.status != BookingStatus.completed)
+            _buildMinimalActionButton(
+              label: context.tr('booking.card.edit'),
+              onPressed: widget.onEdit!,
+              color: AppTheme.info,
+              icon: Icons.edit_outlined,
+            ),
+          _buildMinimalActionButton(
+            label: context.tr('booking.card.details'),
+            onPressed: widget.onTap,
+            color: AppTheme.primaryBlue,
+            icon: Icons.arrow_forward_rounded,
+            isPrimary: true,
           ),
         ],
       ),
     );
   }
 
-  /// العربية: يعالج `hasStarted`.
-  bool _hasStarted() {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final checkInDate = DateTime(
-      widget.booking.checkInDate.year,
-      widget.booking.checkInDate.month,
-      widget.booking.checkInDate.day,
-    );
-    return today.isAfter(checkInDate);
-  }
-
-  /// العربية: يعالج `isCancelledOrDone`.
-  bool _isCancelledOrDone() {
-    return widget.booking.status == BookingStatus.cancelled ||
-        widget.booking.status == BookingStatus.completed ||
-        widget.booking.status == BookingStatus.checkedIn;
-  }
-
-  /// العربية: يعرض awaiting payment.
-  bool _showAwaitingPayment() {
-    // يظهر "في انتظار الدفع" فقط إذا كان الحجز مؤكد وغير مدفوع
-    return widget.booking.status == BookingStatus.confirmed &&
-        !widget.booking.isPaid;
-  }
-
-  /// العربية: يعالج `calculatePaidAmount`.
-  double _calculatePaidAmount() {
-    double paid = 0.0;
-    for (final payment in widget.booking.payments) {
-      try {
-        if (payment.status == PaymentStatus.completed) {
-          paid += payment.amount;
-        }
-      } catch (_) {}
-    }
-    return paid;
-  }
-
-  /// العربية: يعالج `calculateRemainingAmount`.
-  double _calculateRemainingAmount() {
-    final total = widget.booking.totalAmount;
-    final paid = _calculatePaidAmount();
-    final remaining = total - paid;
-    return remaining > 0 ? remaining : 0.0;
-  }
-
-  /// العربية: يعالج `isPartiallyPaid`.
-  bool _isPartiallyPaid() {
-    if (widget.booking.isPaid) {
-      return false;
-    }
-    final paid = _calculatePaidAmount();
-    final remaining = _calculateRemainingAmount();
-    return paid > 0.0 && remaining > 0.0;
-  }
-
-  /// العربية: يبني minimal action button.
   Widget _buildMinimalActionButton({
-    required BuildContext context,
     required String label,
     required VoidCallback onPressed,
     required Color color,
@@ -714,7 +656,63 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     );
   }
 
-  /// العربية: يعيد status color.
+  // Helper Methods
+  bool _hasStarted() {
+    return widget.booking.checkInDate.isBefore(DateTime.now());
+  }
+
+  bool _isCancelledOrDone() {
+    return widget.booking.status == BookingStatus.cancelled ||
+        widget.booking.status == BookingStatus.completed;
+  }
+
+  bool _showAwaitingPayment() {
+    return !widget.booking.isPaid &&
+        widget.booking.status == BookingStatus.pending;
+  }
+
+  String _localizedNightsLabel(int nights) {
+    final suffixKey = nights == 1
+        ? 'booking.details.nightSingle'
+        : 'booking.details.nightPlural';
+    return '${nights} ${context.tr(suffixKey)}';
+  }
+
+  String _localizedGuestCount(int guests) {
+    final suffixKey = guests == 1
+        ? 'booking.details.guestSingle'
+        : 'booking.details.guestPlural';
+    return '${guests} ${context.tr(suffixKey)}';
+  }
+
+  double _calculatePaidAmount() {
+    double paid = 0.0;
+    for (final payment in widget.booking.payments) {
+      try {
+        if (payment.status == PaymentStatus.completed) {
+          paid += payment.amount;
+        }
+      } catch (_) {}
+    }
+    return paid;
+  }
+
+  double _calculateRemainingAmount() {
+    final total = widget.booking.totalAmount;
+    final paid = _calculatePaidAmount();
+    final remaining = total - paid;
+    return remaining > 0 ? remaining : 0.0;
+  }
+
+  bool _isPartiallyPaid() {
+    if (widget.booking.isPaid) {
+      return false;
+    }
+    final paid = _calculatePaidAmount();
+    final remaining = _calculateRemainingAmount();
+    return paid > 0.0 && remaining > 0.0;
+  }
+
   Color _getStatusColor() {
     switch (widget.booking.status) {
       case BookingStatus.confirmed:
@@ -730,7 +728,6 @@ class _BookingCardWidgetState extends State<BookingCardWidget>
     }
   }
 
-  /// العربية: يعيد status icon.
   IconData _getStatusIcon() {
     switch (widget.booking.status) {
       case BookingStatus.confirmed:

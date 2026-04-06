@@ -234,7 +234,7 @@ public class ClientGetReviewsSummaryQueryHandler : IRequestHandler<ClientGetRevi
                         ReviewId = img.ReviewId,
                         Name = img.Name,
                         Url = img.Url ?? string.Empty,
-                        ThumbnailUrl = img.Url ?? string.Empty,
+                        ThumbnailUrl = ReviewImageMetadataHelper.GetThumbnailUrl(img),
                         Caption = img.Caption,
                         DisplayOrder = img.DisplayOrder,
                         SizeBytes = img.SizeBytes,

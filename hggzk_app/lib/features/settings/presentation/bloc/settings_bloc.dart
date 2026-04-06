@@ -1,5 +1,8 @@
 import 'package:hggzk/features/auth/data/datasources/auth_local_datasource.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hggzk/app/bloc/app_bloc.dart';
+import 'package:hggzk/core/bloc/theme/theme_event.dart' as core_theme;
 import '../../../../core/constants/storage_constants.dart';
 import '../../../../core/usecases/usecase.dart';
 import 'package:hggzk/app/dependency_injection/injection_container.dart';
@@ -114,6 +117,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       (failure) => emit(SettingsError(failure.message)),
       (settings) {
         _currentSettings = settings;
+        AppBloc.theme.add(
+          core_theme.SetThemeEvent(
+            themeMode: settings.darkMode ? ThemeMode.dark : ThemeMode.light,
+          ),
+        );
         emit(SettingsLoaded(settings));
       },
     );
@@ -174,6 +182,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         (success) async {
           _currentSettings = _currentSettings!.copyWith(
             darkMode: event.isDarkMode,
+          );
+          AppBloc.theme.add(
+            core_theme.SetThemeEvent(
+              themeMode: event.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            ),
           );
           emit(SettingsUpdated(
             _currentSettings!,

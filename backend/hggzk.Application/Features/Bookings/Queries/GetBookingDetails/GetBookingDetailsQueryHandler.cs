@@ -8,6 +8,7 @@ using YemenBooking.Application.Common.Interfaces;
 using YemenBooking.Application.Features.Bookings.DTOs;
 using YemenBooking.Application.Features.Payments.DTOs;
 using YemenBooking.Application.Features.PropertyServices.DTOs;
+using YemenBooking.Application.Features.Reviews.DTOs;
 using YemenBooking.Application.Features;
 using System.Text.Json;
 
@@ -299,7 +300,24 @@ public class GetBookingDetailsQueryHandler : IRequestHandler<GetBookingDetailsQu
                         ResponseText = existingReview.ResponseText,
                         ResponseDate = existingReview.ResponseDate,
                         IsPendingApproval = existingReview.IsPendingApproval,
-                        IsDisabled = existingReview.IsDisabled
+                        IsDisabled = existingReview.IsDisabled,
+                        Images = existingReview.Images?
+                            .OrderBy(img => img.DisplayOrder)
+                            .Select(img => new ReviewImageDto
+                            {
+                                Id = img.Id,
+                                ReviewId = img.ReviewId,
+                                Name = img.Name,
+                                Url = img.Url,
+                                ThumbnailUrl = ReviewImageMetadataHelper.GetThumbnailUrl(img),
+                                SizeBytes = img.SizeBytes,
+                                Type = img.Type,
+                                Category = img.Category,
+                                Caption = img.Caption,
+                                AltText = img.AltText,
+                                UploadedAt = img.UploadedAt
+                            })
+                            .ToList() ?? new List<ReviewImageDto>()
                     }
             };
 
@@ -314,6 +332,23 @@ public class GetBookingDetailsQueryHandler : IRequestHandler<GetBookingDetailsQu
             if (bookingDetailsDto.ActualCheckOutDate.HasValue)
                 bookingDetailsDto.ActualCheckOutDate = await _currentUserService.ConvertFromUtcToUserLocalAsync(bookingDetailsDto.ActualCheckOutDate.Value);
             bookingDetailsDto.BookingDate = bookingDetailsDto.BookedAt;
+            if (bookingDetailsDto.UserReview != null)
+            {
+                bookingDetailsDto.UserReview.CreatedAt = await _currentUserService.ConvertFromUtcToUserLocalAsync(
+                    bookingDetailsDto.UserReview.CreatedAt);
+                if (bookingDetailsDto.UserReview.ResponseDate.HasValue)
+                {
+                    bookingDetailsDto.UserReview.ResponseDate = await _currentUserService.ConvertFromUtcToUserLocalAsync(
+                        bookingDetailsDto.UserReview.ResponseDate.Value);
+                }
+
+                for (var i = 0; i < bookingDetailsDto.UserReview.Images.Count; i++)
+                {
+                    bookingDetailsDto.UserReview.Images[i].UploadedAt =
+                        await _currentUserService.ConvertFromUtcToUserLocalAsync(
+                            bookingDetailsDto.UserReview.Images[i].UploadedAt);
+                }
+            }
 
             // Populate compatibility fields and calculated values expected by the mobile app.
             bookingDetailsDto.CheckInDate = bookingDetailsDto.CheckIn;

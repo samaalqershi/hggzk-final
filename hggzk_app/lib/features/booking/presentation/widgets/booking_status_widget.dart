@@ -1,39 +1,17 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'package:hggzk/core/localization/app_localizations.dart';
 import '../../../../core/enums/booking_status.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
-/// Compact badge that summarizes the booking lifecycle state.
-/// شارة مختصرة تلخّص حالة الحجز الحالية.
 class BookingStatusWidget extends StatefulWidget {
-  /// Primary booking state displayed to the user.
-  /// حالة الحجز الأساسية التي تُعرض للمستخدم.
   final BookingStatus status;
-
-  /// Optional payment flag used to refine the pending label in some flows.
-  /// إشارة اختيارية للدفع تُستخدم لتخصيص النص في بعض الحالات.
   final bool? isPaid;
-
-  /// Allows the badge text style to inherit from surrounding widgets.
-  /// يسمح للنص بأن يرث النمط من العناصر المحيطة.
   final TextStyle? style;
-
-  /// Controls whether the status icon is shown beside the label.
-  /// يتحكم في إظهار الأيقونة بجانب النص.
   final bool showIcon;
-
-  /// Overrides the default icon size when the badge is used in dense layouts.
-  /// يغيّر حجم الأيقونة الافتراضي في المساحات الضيقة.
   final double? iconSize;
-
-  /// Enables the subtle pulse animation for states that need attention.
-  /// يفعّل حركة النبض الخفيفة للحالات التي تحتاج الانتباه.
   final bool animated;
 
-  /// Builds a status badge configured for the current booking.
-  /// ينشئ شارة حالة مهيأة حسب الحجز الحالي.
   const BookingStatusWidget({
     super.key,
     required this.status,
@@ -44,26 +22,15 @@ class BookingStatusWidget extends StatefulWidget {
     this.animated = false,
   });
 
-  /// Builds the animation-aware state for the badge.
-  /// ينشئ حالة الشارة المراعية للحركة.
   @override
   State<BookingStatusWidget> createState() => _BookingStatusWidgetState();
 }
 
-/// Drives the optional pulse animation and resolves the visible badge content.
-/// يدير حركة النبض الاختيارية ويحدد محتوى الشارة الظاهر.
 class _BookingStatusWidgetState extends State<BookingStatusWidget>
     with SingleTickerProviderStateMixin {
-  /// Repeats the pulse effect when the booking is still waiting.
-  /// يكرر تأثير النبض عندما يكون الحجز ما يزال قيد الانتظار.
   late AnimationController _animationController;
-
-  /// Scales the badge slightly so the pending state feels alive.
-  /// يكبّر الشارة قليلًا لإظهار أن الحالة قيد المتابعة.
   late Animation<double> _pulseAnimation;
 
-  /// Builds the animation controller only when the badge can animate.
-  /// يهيئ وحدة الحركة فقط عندما تكون الشارة قابلة للنبض.
   @override
   void initState() {
     super.initState();
@@ -85,16 +52,12 @@ class _BookingStatusWidgetState extends State<BookingStatusWidget>
     }
   }
 
-  /// Stops the pulse controller so the widget does not leak animation ticks.
-  /// يوقف وحدة الحركة حتى لا يبقى العنصر يستهلك الإطارات.
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
-  /// Renders a compact status chip with optional animation and iconography.
-  /// يرسم شارة حالة مدمجة مع حركة وأيقونة عند الحاجة.
   @override
   Widget build(BuildContext context) {
     final shouldAnimate =
@@ -108,15 +71,22 @@ class _BookingStatusWidgetState extends State<BookingStatusWidget>
           scale: shouldAnimate ? _pulseAnimation.value : 1.0,
           child: Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 4,
+              horizontal: 10,
+              vertical: 5,
             ),
             decoration: BoxDecoration(
-              color: _getStatusColor().withOpacity(0.08),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(999),
+              gradient: LinearGradient(
+                begin: Alignment.centerRight,
+                end: Alignment.centerLeft,
+                colors: [
+                  _getStatusColor().withOpacity(0.18),
+                  _getStatusColor().withOpacity(0.06),
+                ],
+              ),
               border: Border.all(
-                color: _getStatusColor().withOpacity(0.2),
-                width: 0.5,
+                color: _getStatusColor().withOpacity(0.45),
+                width: 0.7,
               ),
             ),
             child: Row(
@@ -138,7 +108,7 @@ class _BookingStatusWidgetState extends State<BookingStatusWidget>
                   const SizedBox(width: 4),
                 ],
                 Text(
-                  _getStatusText(context),
+                  _getStatusText(),
                   style: (widget.style ?? AppTextStyles.caption).copyWith(
                     color: _getStatusColor(),
                     fontWeight: FontWeight.w600,
@@ -152,8 +122,6 @@ class _BookingStatusWidgetState extends State<BookingStatusWidget>
     );
   }
 
-  /// Maps each booking state to the palette used across the app.
-  /// يربط كل حالة حجز بلونها المعتمد داخل التطبيق.
   Color _getStatusColor() {
     switch (widget.status) {
       case BookingStatus.confirmed:
@@ -169,8 +137,6 @@ class _BookingStatusWidgetState extends State<BookingStatusWidget>
     }
   }
 
-  /// Chooses the icon that best communicates the current booking phase.
-  /// يختار الأيقونة الأنسب للتعبير عن مرحلة الحجز الحالية.
   IconData _getStatusIcon() {
     switch (widget.status) {
       case BookingStatus.confirmed:
@@ -186,38 +152,21 @@ class _BookingStatusWidgetState extends State<BookingStatusWidget>
     }
   }
 
-  /// يعيد النص المحلي المعروض داخل الشارة.
-  String _getStatusText(BuildContext context) {
+  String _getStatusText() {
     switch (widget.status) {
       case BookingStatus.confirmed:
-        return context.tr(
-          'booking.status.confirmed',
-        );
+        return 'مؤكد';
       case BookingStatus.pending:
-        // [ISSUE 1011] تعديل حالة الحجز لتكون في انتظار الدفع وليس في انتظار التأكيد في حال كان الحجز غير مدفوع
-        // تم تعطيل كود الإصلاح أدناه لإرجاع السلوك القديم (إظهار "في انتظار التأكيد" حتى وإن كان الحجز غير مدفوع)
-        // if (widget.isPaid == false) {
-        //   return 'في انتظار الدفع';
-        // }
-        return widget.isPaid == false
-            ? context.tr(
-                'booking.status.waitingPayment',
-              )
-            : context.tr(
-                'booking.status.pending',
-              );
+        if (widget.isPaid == false) {
+          return 'في انتظار الدفع';
+        }
+        return 'في انتظار التأكيد';
       case BookingStatus.cancelled:
-        return context.tr(
-          'booking.status.cancelled',
-        );
+        return 'ملغى';
       case BookingStatus.completed:
-        return context.tr(
-          'booking.status.completed',
-        );
+        return 'مكتمل';
       case BookingStatus.checkedIn:
-        return context.tr(
-          'booking.status.checkedIn',
-        );
+        return 'تم تسجيل الوصول';
     }
   }
 }

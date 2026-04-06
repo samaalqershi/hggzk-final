@@ -113,7 +113,7 @@ public class ClientGetPropertyReviewsQueryHandler : IRequestHandler<ClientGetPro
                         ReviewId = img.ReviewId,
                         Name = img.Name,
                         Url = img.Url,
-                        ThumbnailUrl = img.Url,
+                        ThumbnailUrl = ReviewImageMetadataHelper.GetThumbnailUrl(img),
                         Caption = img.Caption,
                         DisplayOrder = img.DisplayOrder,
                         SizeBytes = img.SizeBytes,

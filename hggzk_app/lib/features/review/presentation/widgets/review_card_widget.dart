@@ -7,6 +7,7 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/cached_image_widget.dart';
 import '../../../../core/widgets/rating_widget.dart';
+import 'review_video_player_dialog.dart';
 import '../../domain/entities/review.dart';
 import 'response_card_widget.dart';
 import 'upload_review_image_widget.dart';
@@ -502,7 +503,10 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
 
                 return UploadReviewImageWidget(
                   imageUrl: displayImages[index].url,
-                  onTap: () => _showImageGallery(context, images, index),
+                  thumbnailUrl: displayImages[index].thumbnailUrl,
+                  mimeType: displayImages[index].type,
+                  onTap: () =>
+                      _openMedia(context, displayImages[index], images, index),
                 );
               },
             ),
@@ -695,6 +699,24 @@ class _ReviewCardWidgetState extends State<ReviewCardWidget> {
   void _showImageGallery(
       BuildContext context, List<dynamic> images, int initialIndex) {
     // TODO: Implement image gallery viewer
+  }
+
+  void _openMedia(
+    BuildContext context,
+    dynamic media,
+    List<dynamic> images,
+    int initialIndex,
+  ) {
+    final mimeType = media.type?.toString().toLowerCase() ?? '';
+    if (mimeType.startsWith('video/')) {
+      showDialog<void>(
+        context: context,
+        builder: (_) => ReviewVideoPlayerDialog(videoUrl: media.url as String),
+      );
+      return;
+    }
+
+    _showImageGallery(context, images, initialIndex);
   }
 
   /// Processes `reportReview`.

@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'dart:math' as math;
+import 'package:hggzk/app/bloc/app_bloc.dart';
+import 'package:hggzk/core/bloc/theme/theme_bloc.dart';
+import 'package:hggzk/core/bloc/theme/theme_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/localization/app_localizations.dart';
@@ -354,22 +357,7 @@ class _SettingsPageState extends State<SettingsPage>
                 ),
                 onTap: () => context.push('/settings/language'),
               ),
-              FuturisticSettingsItem(
-                icon: Icons.dark_mode_rounded,
-                title: context.tr('settings.item.theme'),
-                subtitle: settings.darkMode
-                    ? context.tr('settings.item.themeDark')
-                    : context.tr('settings.item.themeLight'),
-                gradient: LinearGradient(
-                  colors: [AppTheme.primaryViolet, AppTheme.neonPurple],
-                ),
-                trailing: FuturisticThemeToggle(
-                  isDarkMode: settings.darkMode,
-                  onChanged: (isDark) {
-                    context.read<SettingsBloc>().add(UpdateThemeEvent(isDark));
-                  },
-                ),
-              ),
+              _buildThemeSettingsItem(),
               FuturisticSettingsItem(
                 icon: Icons.fingerprint_rounded,
                 title: context.tr('settings.item.biometric'),
@@ -508,6 +496,32 @@ class _SettingsPageState extends State<SettingsPage>
           const SizedBox(height: 40),
         ],
       ),
+    );
+  }
+
+  Widget _buildThemeSettingsItem() {
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      bloc: AppBloc.theme,
+      builder: (context, themeState) {
+        final isDarkMode = themeState.themeMode != ThemeMode.light;
+
+        return FuturisticSettingsItem(
+          icon: Icons.dark_mode_rounded,
+          title: context.tr('settings.item.theme'),
+          subtitle: isDarkMode
+              ? context.tr('settings.item.themeDark')
+              : context.tr('settings.item.themeLight'),
+          gradient: LinearGradient(
+            colors: [AppTheme.primaryViolet, AppTheme.neonPurple],
+          ),
+          trailing: FuturisticThemeToggle(
+            isDarkMode: isDarkMode,
+            onChanged: (isDark) {
+              context.read<SettingsBloc>().add(UpdateThemeEvent(isDark));
+            },
+          ),
+        );
+      },
     );
   }
 

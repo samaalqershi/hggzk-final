@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hggzk/core/error/failure_localizer.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
+import 'dart:math' as math;
 import 'package:hggzk/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:hggzk/features/auth/presentation/bloc/auth_state.dart';
 import 'package:hggzk/features/booking/domain/usecases/get_booking_details_usecase.dart';
@@ -137,9 +138,12 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
   /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     if (_isLoadingBookingDetails) {
       return Scaffold(
-        backgroundColor: Colors.transparent,
+        backgroundColor:
+            isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
         body: Center(
           child: LoadingWidget(
             type: LoadingType.circular,
@@ -153,12 +157,14 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
 
     if (_bookingDetailsError != null) {
       return Scaffold(
-        backgroundColor: Colors.transparent,
+        backgroundColor:
+            isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor:
+              isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.close, color: Colors.white),
+            icon: Icon(Icons.close, color: AppTheme.textWhite),
             onPressed: () => context.pop(),
           ),
         ),
@@ -171,7 +177,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                 Text(
                   _bookingDetailsError!,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: Colors.white,
+                    color: AppTheme.textWhite,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -207,6 +213,83 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
 
 /// Describes `WriteReviewView`.
 /// العربية: يمثل `WriteReviewView`.
+class _StarryBackground extends StatelessWidget {
+  final bool isDark;
+
+  const _StarryBackground({
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: _StarryBackgroundPainter(isDark: isDark),
+    );
+  }
+}
+
+class _StarryBackgroundPainter extends CustomPainter {
+  static const int _starCount = 42;
+  final bool isDark;
+
+  const _StarryBackgroundPainter({
+    required this.isDark,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final backgroundPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: isDark
+            ? const [
+                Color(0xFF050816),
+                Color(0xFF050816),
+              ]
+            : const [
+                Color(0xFFF8FBFF),
+                Color(0xFFF1F7FF),
+              ],
+      ).createShader(rect);
+
+    canvas.drawRect(rect, backgroundPaint);
+
+    final random = math.Random(7);
+    final starPaint = Paint()
+      ..color = (isDark ? Colors.white : AppTheme.primaryBlue)
+          .withOpacity(isDark ? 0.32 : 0.08)
+      ..style = PaintingStyle.fill;
+
+    for (var i = 0; i < _starCount; i++) {
+      final dx = random.nextDouble() * size.width;
+      final dy = random.nextDouble() * size.height;
+      final radius = 0.4 + random.nextDouble() * 1.3;
+      canvas.drawCircle(Offset(dx, dy), radius, starPaint);
+    }
+
+    final glowPaint = Paint()
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 18);
+    final glowColors = [
+      AppTheme.primaryBlue.withOpacity(isDark ? 0.18 : 0.1),
+      AppTheme.primaryPurple.withOpacity(isDark ? 0.16 : 0.08),
+      AppTheme.primaryCyan.withOpacity(isDark ? 0.14 : 0.07),
+    ];
+
+    for (final color in glowColors) {
+      glowPaint.color = color;
+      final dx = (0.2 + random.nextDouble() * 0.6) * size.width;
+      final dy = (0.1 + random.nextDouble() * 0.6) * size.height;
+      final radius = size.shortestSide * (0.25 + random.nextDouble() * 0.2);
+      canvas.drawCircle(Offset(dx, dy), radius, glowPaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
 class _WriteReviewView extends StatelessWidget {
   /// Keeps the `bookingId` value.
   /// العربية: يخزن القيمة `bookingId`.
@@ -232,12 +315,15 @@ class _WriteReviewView extends StatelessWidget {
   /// العربية: يبني شجرة العناصر الخاصة بهذا المكوّن.
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor:
+          isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
       appBar: _buildAppBar(context),
       body: Stack(
         children: [
-          _buildFuturisticBackground(),
+          _buildFuturisticBackground(context),
           BlocConsumer<ReviewBloc, ReviewState>(
             listener: (context, state) {
               if (state is ReviewCreated) {
@@ -247,30 +333,93 @@ class _WriteReviewView extends StatelessWidget {
               }
             },
             builder: (context, state) {
-              if (state is ReviewCreating) {
-                return Center(
-                  child: LoadingWidget(
-                    type: LoadingType.circular,
-                    message: context.tr(
-                      'reviews.sendingReview',
+              final isCreating = state is ReviewCreating;
+              final progress = isCreating ? state.progress : 0.0;
+
+              return Stack(
+                children: [
+                  SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimensions.paddingSmall,
+                      vertical: AppDimensions.paddingMedium,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildPropertyInfo(context),
+                        const SizedBox(height: AppDimensions.spacingMd),
+                        _buildFormCard(context),
+                      ],
                     ),
                   ),
-                );
-              }
-
-              return SafeArea(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.all(AppDimensions.paddingMedium),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildPropertyInfo(context),
-                      const SizedBox(height: AppDimensions.spacingMd),
-                      _buildFormCard(context),
-                    ],
-                  ),
-                ),
+                  if (isCreating)
+                    Positioned.fill(
+                      child: Container(
+                        color: AppTheme.overlayDark.withOpacity(0.28),
+                        alignment: Alignment.center,
+                        child: Container(
+                          margin: const EdgeInsets.all(24),
+                          padding: const EdgeInsets.all(
+                            AppDimensions.paddingMedium,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.darkSurface.withOpacity(0.92),
+                            borderRadius: BorderRadius.circular(
+                              AppDimensions.borderRadiusLg,
+                            ),
+                            border: Border.all(
+                              color: AppTheme.primaryBlue.withOpacity(0.24),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.primaryBlue.withOpacity(0.14),
+                                blurRadius: 24,
+                                offset: const Offset(0, 12),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr('reviews.sendingReview'),
+                                style: AppTextStyles.bodyLarge.copyWith(
+                                  color: AppTheme.textWhite,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: AppDimensions.spacingSm),
+                              LinearProgressIndicator(
+                                value: progress > 0 ? progress : null,
+                                minHeight: 8,
+                                backgroundColor:
+                                    AppTheme.darkBorder.withOpacity(0.6),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppTheme.primaryBlue,
+                                ),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              const SizedBox(height: AppDimensions.spacingSm),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  progress > 0
+                                      ? '${(progress * 100).clamp(0, 100).toStringAsFixed(0)}%'
+                                      : '...',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppTheme.textMuted,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               );
             },
           ),
@@ -313,9 +462,7 @@ class _WriteReviewView extends StatelessWidget {
         shaderCallback: (bounds) =>
             AppTheme.primaryGradient.createShader(bounds),
         child: Text(
-          context.tr(
-            'reviews.writeReviewTitle',
-          ),
+          context.tr('reviews.writeReviewTitle'),
           style: AppTextStyles.h2.copyWith(
             color: AppTheme.textWhite,
             fontWeight: FontWeight.bold,
@@ -338,81 +485,88 @@ class _WriteReviewView extends StatelessWidget {
   Widget _buildPropertyInfo(BuildContext context) {
     return Container(
       width: double.infinity,
+      padding: const EdgeInsets.all(AppDimensions.paddingMedium),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            AppTheme.primaryBlue.withOpacity(0.28),
-            AppTheme.primaryPurple.withOpacity(0.24),
-          ],
-        ),
         borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLg),
         border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.35),
-          width: 0.7,
+          color: AppTheme.primaryBlue.withOpacity(0.45),
+          width: 0.8,
+        ),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.darkCard.withOpacity(0.98),
+            AppTheme.darkSurface.withOpacity(0.98),
+          ],
         ),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLg),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: Padding(
-            padding: const EdgeInsets.all(AppDimensions.paddingMedium),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: AppTheme.primaryGradient,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.35),
-                        blurRadius: 16,
-                        spreadRadius: 2,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr('reviews.experienceAt'),
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: AppTheme.textWhite,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.2,
                       ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.rate_review_rounded,
-                    color: Colors.white,
-                    size: 26,
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      height: 2,
+                      width: 64,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.centerRight,
+                          end: Alignment.centerLeft,
+                          colors: [
+                            AppTheme.primaryCyan.withOpacity(0.9),
+                            AppTheme.primaryPurple.withOpacity(0.5),
+                            Colors.transparent,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: AppTheme.darkSurface,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: AppTheme.primaryBlue.withOpacity(0.45),
+                    width: 0.8,
                   ),
                 ),
-                const SizedBox(width: AppDimensions.spacingMd),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.tr(
-                          'reviews.reviewExperienceTitle',
-                        ),
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppTheme.textWhite.withOpacity(0.9),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: AppDimensions.spacingXs),
-                      Text(
-                        propertyName,
-                        style: AppTextStyles.h2.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
+                child: const Icon(
+                  Icons.rate_review_rounded,
+                  size: 18,
+                  color: Colors.white,
                 ),
-              ],
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimensions.spacingMd),
+          Text(
+            propertyName,
+            style: AppTextStyles.h2.copyWith(
+              color: AppTheme.textWhite,
+              fontWeight: FontWeight.bold,
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -423,84 +577,98 @@ class _WriteReviewView extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(
+          AppDimensions.borderRadiusLg,
+        ),
+        border: Border.all(
+          color: AppTheme.primaryBlue.withOpacity(0.5),
+          width: 0.9,
+        ),
         gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
           colors: [
-            AppTheme.darkCard.withOpacity(0.92),
-            AppTheme.darkCard.withOpacity(0.78),
+            AppTheme.darkCard.withOpacity(0.96),
+            AppTheme.darkSurface.withOpacity(0.96),
           ],
         ),
-        borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLg),
-        border: Border.all(
-          color: AppTheme.darkBorder.withOpacity(0.7),
-          width: 0.7,
-        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryBlue.withOpacity(0.22),
+            blurRadius: 26,
+            spreadRadius: 1,
+            offset: const Offset(0, 14),
+          ),
+        ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppDimensions.borderRadiusLg),
+        borderRadius: BorderRadius.circular(
+          AppDimensions.borderRadiusLg,
+        ),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(AppDimensions.paddingMedium),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withOpacity(0.14),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        Icons.stars_rounded,
-                        color: Colors.white,
-                        size: 18,
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(
+              AppDimensions.paddingMedium,
+            ),
+            child: ReviewFormWidget(
+              onSubmit: (ratings, comment, images) {
+                if (propertyId.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        context.tr('reviews.cannotDetermineProperty'),
                       ),
                     ),
-                    const SizedBox(width: AppDimensions.spacingSm),
-                    Expanded(
-                      child: Text(
-                        context.tr('reviews.reviewExperienceHint'),
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppTheme.textMuted,
-                          height: 1.4,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1, color: Colors.transparent),
-              ReviewFormWidget(
-                onSubmit: (ratings, comment, _) {
-                  if (propertyId.trim().isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          context.tr('reviews.cannotDetermineProperty'),
-                        ),
+                  );
+                  return;
+                }
+                context.read<ReviewBloc>().add(
+                      CreateReviewEvent(
+                        bookingId: bookingId,
+                        propertyId: propertyId,
+                        cleanliness: ratings['cleanliness']!,
+                        service: ratings['service']!,
+                        location: ratings['location']!,
+                        value: ratings['value']!,
+                        comment: comment,
+                        imagesBase64: images,
                       ),
                     );
-                    return;
-                  }
-                  context.read<ReviewBloc>().add(
-                        CreateReviewEvent(
-                          bookingId: bookingId,
-                          propertyId: propertyId,
-                          cleanliness: ratings['cleanliness']!,
-                          service: ratings['service']!,
-                          location: ratings['location']!,
-                          value: ratings['value']!,
-                          comment: comment,
-                          imagesBase64: null,
-                        ),
-                      );
-                },
-              ),
-            ],
+              },
+              onSubmitWithMedia: (
+                ratings,
+                comment,
+                images,
+                videoBase64,
+                videoThumbnailBase64,
+              ) {
+                if (propertyId.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        context.tr('reviews.cannotDetermineProperty'),
+                      ),
+                    ),
+                  );
+                  return;
+                }
+                context.read<ReviewBloc>().add(
+                      CreateReviewEvent(
+                        bookingId: bookingId,
+                        propertyId: propertyId,
+                        cleanliness: ratings['cleanliness']!,
+                        service: ratings['service']!,
+                        location: ratings['location']!,
+                        value: ratings['value']!,
+                        comment: comment,
+                        imagesBase64: images,
+                        videoBase64: videoBase64,
+                        videoThumbnailBase64: videoThumbnailBase64,
+                      ),
+                    );
+              },
+            ),
           ),
         ),
       ),
@@ -509,19 +677,11 @@ class _WriteReviewView extends StatelessWidget {
 
   /// Builds the futuristic background.
   /// العربية: يبني futuristic background.
-  Widget _buildFuturisticBackground() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppTheme.darkBackground,
-            AppTheme.darkBackground2,
-            AppTheme.darkBackground3,
-          ],
-        ),
-      ),
+  Widget _buildFuturisticBackground(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Positioned.fill(
+      child: _StarryBackground(isDark: isDark),
     );
   }
 

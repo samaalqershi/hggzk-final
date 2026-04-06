@@ -19,7 +19,6 @@ import '../../../../core/constants/route_constants.dart';
 import '../../../../core/widgets/language_switch_button.dart';
 import 'package:hggzk/app/bloc/app_bloc.dart';
 import '../../../../core/bloc/theme/theme_bloc.dart';
-import '../../../../core/bloc/theme/theme_event.dart';
 import '../../../../core/bloc/theme/theme_state.dart';
 import '../../../settings/domain/entities/app_settings.dart';
 import '../../../settings/presentation/bloc/settings_bloc.dart';
@@ -95,69 +94,70 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.darkBackground,
-      body: BlocBuilder<AuthBloc, AuthState>(
-        buildWhen: (previous, current) {
-          // Avoid rebuilding on transient loading to prevent flicker to unauthenticated view
-          return current is! AuthLoading;
-        },
-        builder: (context, state) {
-          if (state is AuthUnauthenticated) {
-            return _buildUnauthenticatedView(context);
-          }
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      bloc: AppBloc.theme,
+      builder: (context, themeState) {
+        return Scaffold(
+          backgroundColor: AppTheme.darkBackground,
+          body: BlocBuilder<AuthBloc, AuthState>(
+            buildWhen: (previous, current) {
+              // Avoid rebuilding on transient loading to prevent flicker to unauthenticated view
+              return current is! AuthLoading;
+            },
+            builder: (context, state) {
+              if (state is AuthUnauthenticated) {
+                return _buildUnauthenticatedView(context);
+              }
 
-          // Extract user from states that carry it to keep UI stable during updates
-          final dynamic user = state is AuthAuthenticated
-              ? state.user
-              : state is AuthProfileUpdateSuccess
+              final dynamic user = state is AuthAuthenticated
                   ? state.user
-                  : state is AuthProfileImageUploadSuccess
+                  : state is AuthProfileUpdateSuccess
                       ? state.user
-                      : state is AuthLoginSuccess
+                      : state is AuthProfileImageUploadSuccess
                           ? state.user
-                          : null;
+                          : state is AuthLoginSuccess
+                              ? state.user
+                              : null;
 
-          if (user == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
+              if (user == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          return Stack(
-            children: [
-              _buildMinimalBackground(),
-
-              CustomScrollView(
-                physics: const BouncingScrollPhysics(),
-                slivers: [
-                  _buildMinimalAppBar(context, user),
-                  SliverToBoxAdapter(
-                    child: FadeTransition(
-                      opacity: _fadeController,
-                      child: Column(
-                        children: [
-                          _buildProfileHeader(context, user),
-                          const SizedBox(height: 20),
-                          _buildMinimalInfoCard(user),
-                          const SizedBox(height: 16),
-                          _buildMinimalMenuOptions(context),
-                          const SizedBox(height: 16),
-                          _buildLogoutButton(context),
-                          const SizedBox(height: 12),
-                          _buildDeleteAccountButton(context),
-                          const SizedBox(height: 32),
-                        ],
+              return Stack(
+                children: [
+                  _buildMinimalBackground(),
+                  CustomScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    slivers: [
+                      _buildMinimalAppBar(context, user),
+                      SliverToBoxAdapter(
+                        child: FadeTransition(
+                          opacity: _fadeController,
+                          child: Column(
+                            children: [
+                              _buildProfileHeader(context, user),
+                              const SizedBox(height: 20),
+                              _buildMinimalInfoCard(user),
+                              const SizedBox(height: 16),
+                              _buildMinimalMenuOptions(context),
+                              const SizedBox(height: 16),
+                              _buildLogoutButton(context),
+                              const SizedBox(height: 12),
+                              _buildDeleteAccountButton(context),
+                              const SizedBox(height: 32),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
+                  _buildFloatingThemeToggle(),
                 ],
-              ),
-
-              // زر تبديل الثيم العائم
-              _buildFloatingThemeToggle(),
-            ],
-          );
-        },
-      ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -595,8 +595,9 @@ class _ProfilePageState extends State<ProfilePage>
                     _themeSwitchController.forward().then((_) {
                       _themeSwitchController.reverse();
                     });
-                    AppBloc.theme
-                        .add(const ToggleThemeEvent()); // استخدام AppBloc.theme
+                    context.read<SettingsBloc>().add(
+                          UpdateThemeEvent(!isDark),
+                        );
                   },
                   child: AnimatedBuilder(
                     animation: Listenable.merge([
@@ -739,8 +740,9 @@ class _ProfilePageState extends State<ProfilePage>
               _themeSwitchController.forward().then((_) {
                 _themeSwitchController.reverse();
               });
-              AppBloc.theme
-                  .add(const ToggleThemeEvent()); // استخدام AppBloc.theme
+              context.read<SettingsBloc>().add(
+                    UpdateThemeEvent(!isDark),
+                  );
             },
             borderRadius: BorderRadius.circular(12),
             child: Padding(

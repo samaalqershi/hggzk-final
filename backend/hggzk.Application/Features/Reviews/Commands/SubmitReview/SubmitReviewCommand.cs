@@ -57,6 +57,18 @@ public class SubmitReviewCommand : IRequest<ResultDto<SubmitReviewResponse>>
     /// Attached images encoded as Base64.
     /// </summary>
     public List<string> ImagesBase64 { get; set; } = new();
+
+    /// <summary>
+    /// فيديو مراجعة اختياري بصيغة Base64.
+    /// Optional review video encoded as Base64.
+    /// </summary>
+    public string? VideoBase64 { get; set; }
+
+    /// <summary>
+    /// الصورة المصغرة الاختيارية للفيديو بصيغة Base64.
+    /// Optional poster image for the review video encoded as Base64.
+    /// </summary>
+    public string? VideoThumbnailBase64 { get; set; }
 }
 
 /// <summary>

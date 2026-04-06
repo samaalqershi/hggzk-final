@@ -53,6 +53,14 @@ class CreateReviewEvent extends ReviewEvent {
   /// حمولة الصور الاختيارية المشفرة للرفع.
   final List<String>? imagesBase64;
 
+  /// Optional review video encoded for upload.
+  /// فيديو مراجعة اختياري مشفر للرفع.
+  final String? videoBase64;
+
+  /// Optional poster image for the attached review video.
+  /// صورة مصغرة اختيارية للفيديو المرفق بالمراجعة.
+  final String? videoThumbnailBase64;
+
   /// Builds the review-submission request.
   /// ينشئ طلب إرسال المراجعة.
   const CreateReviewEvent({
@@ -64,6 +72,8 @@ class CreateReviewEvent extends ReviewEvent {
     required this.value,
     required this.comment,
     this.imagesBase64,
+    this.videoBase64,
+    this.videoThumbnailBase64,
   });
 
   /// Review creation is compared by booking, property, ratings, text, and
@@ -79,6 +89,8 @@ class CreateReviewEvent extends ReviewEvent {
         value,
         comment,
         imagesBase64,
+        videoBase64,
+        videoThumbnailBase64,
       ];
 }
 

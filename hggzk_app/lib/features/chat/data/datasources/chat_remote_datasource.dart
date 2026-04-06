@@ -984,12 +984,27 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       logRequestSuccess(requestName, statusCode: response.statusCode);
 
-      if (response.data['success'] != true) {
+      final raw = response.data;
+      if (raw is Map<String, dynamic>) {
+        final success = raw['success'];
+        if (success == null || success == true) {
+          return;
+        }
+
         throw ServerException(
-          response.data['message'] ??
+          raw['message'] ??
               AppLocalizations.translateSync('chat.errors.unknown'),
         );
       }
+
+      if ((response.statusCode ?? 0) >= 200 &&
+          (response.statusCode ?? 0) < 300) {
+        return;
+      }
+
+      throw ServerException(
+        AppLocalizations.translateSync('chat.errors.unknown'),
+      );
     } on DioException catch (e, s) {
       logRequestError(requestName, e, stackTrace: s);
       throw ApiException.fromDioError(e);

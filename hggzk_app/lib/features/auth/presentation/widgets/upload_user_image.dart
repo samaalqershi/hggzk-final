@@ -16,6 +16,8 @@ import '../../../../core/widgets/cached_image_widget.dart';
 /// يوفّر واجهة اختيار وقص ورفع صورة المستخدم مع معاينة فورية للحالة الحالية.
 /// Provides a profile-image picker with cropping support and instant preview
 /// of the current selection.
+enum _UserImageSourceAction { camera, gallery, remove }
+
 class UploadUserImage extends StatefulWidget {
   /// رابط الصورة الحالية للمستخدم إن وُجدت.
   /// Current image URL for the user when one already exists.
@@ -104,49 +106,93 @@ class _UploadUserImageState extends State<UploadUserImage>
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Simple static avatar border - thin and without animation
-          Container(
-            width: widget.size,
-            height: widget.size,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppTheme.darkCard.withOpacity(0.8),
-              border: Border.all(
-                color: AppTheme.primaryBlue.withOpacity(0.4),
-                width: 1.0,
-              ),
-            ),
-            child: ClipOval(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  _buildUltraMinimalImageContent(),
-                  if (_isLoading) _buildLoadingOverlay(),
-                ],
-              ),
-            ),
+          AnimatedBuilder(
+            animation: _rotateAnimation,
+            builder: (context, child) {
+              return Transform.rotate(
+                angle: _rotateAnimation.value,
+                child: Container(
+                  width: widget.size + 6,
+                  height: widget.size + 6,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: SweepGradient(
+                      colors: [
+                        AppTheme.primaryBlue.withOpacity(0.6),
+                        AppTheme.primaryPurple.withOpacity(0.4),
+                        AppTheme.primaryCyan.withOpacity(0.3),
+                        AppTheme.primaryViolet.withOpacity(0.4),
+                        AppTheme.primaryBlue.withOpacity(0.6),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
-
-          // Simple static camera badge
+          AnimatedBuilder(
+            animation: _pulseAnimation,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _pulseAnimation.value * (_isHovered ? 0.97 : 1.0),
+                child: Container(
+                  width: widget.size,
+                  height: widget.size,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppTheme.darkCard.withOpacity(0.8),
+                    border: Border.all(
+                      color: AppTheme.darkBackground,
+                      width: 3,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryBlue.withOpacity(0.15),
+                        blurRadius: 15,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        _buildUltraMinimalImageContent(),
+                        if (_isLoading) _buildLoadingOverlay(),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
           if (widget.enabled)
             Positioned(
               bottom: 2,
               right: 2,
-              child: Container(
-                width: 28,
-                height: 28,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: _isHovered ? 32 : 30,
+                height: _isHovered ? 32 : 30,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppTheme.primaryBlue.withOpacity(0.85),
-                      AppTheme.primaryPurple.withOpacity(0.7),
+                      AppTheme.primaryBlue.withOpacity(0.8),
+                      AppTheme.primaryPurple.withOpacity(0.6),
                     ],
                   ),
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: AppTheme.darkBackground,
-                    width: 1.0,
+                    width: 2.5,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                    ),
+                  ],
                 ),
                 child: Icon(
                   _isLoading ? Icons.hourglass_empty : Icons.camera_alt,
@@ -220,7 +266,7 @@ class _UploadUserImageState extends State<UploadUserImage>
 
   void _showImageSourceDialog() {
     HapticFeedback.lightImpact();
-    showModalBottomSheet(
+    showModalBottomSheet<_UserImageSourceAction>(
       context: context,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black26,
@@ -228,22 +274,36 @@ class _UploadUserImageState extends State<UploadUserImage>
         hasCurrentImage:
             _selectedImage != null || widget.currentImageUrl != null,
         onCameraPressed: () {
-          Navigator.pop(context);
-          _pickImage(ImageSource.camera);
+          Navigator.pop(context, _UserImageSourceAction.camera);
         },
         onGalleryPressed: () {
-          Navigator.pop(context);
-          _pickImage(ImageSource.gallery);
+          Navigator.pop(context, _UserImageSourceAction.gallery);
         },
         onRemovePressed: () {
-          Navigator.pop(context);
+          Navigator.pop(context, _UserImageSourceAction.remove);
+        },
+      ),
+    ).then((action) async {
+      if (!mounted || action == null) return;
+
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+      if (!mounted) return;
+
+      switch (action) {
+        case _UserImageSourceAction.camera:
+          await _pickImage(ImageSource.camera);
+          break;
+        case _UserImageSourceAction.gallery:
+          await _pickImage(ImageSource.gallery);
+          break;
+        case _UserImageSourceAction.remove:
           setState(() {
             _selectedImage = null;
           });
           widget.onImageSelected('');
-        },
-      ),
-    );
+          break;
+      }
+    });
   }
 
   Future<void> _pickImage(ImageSource source) async {

@@ -139,8 +139,8 @@ class HomeLoaded extends HomeState {
     List<PropertyType>? propertyTypes,
     Map<String, List<UnitType>>? unitTypes,
     bool? combinedUnitsPreloaded,
-    String? selectedPropertyTypeId,
-    String? selectedUnitTypeId,
+    Object? selectedPropertyTypeId = const _Undefined(),
+    Object? selectedUnitTypeId = const _Undefined(),
     Map<String, dynamic>? dynamicFieldValues,
     String? searchQuery,
     bool? isRefreshing,
@@ -154,9 +154,12 @@ class HomeLoaded extends HomeState {
       unitTypes: unitTypes ?? this.unitTypes,
       combinedUnitsPreloaded:
           combinedUnitsPreloaded ?? this.combinedUnitsPreloaded,
-      selectedPropertyTypeId:
-          selectedPropertyTypeId ?? this.selectedPropertyTypeId,
-      selectedUnitTypeId: selectedUnitTypeId ?? this.selectedUnitTypeId,
+      selectedPropertyTypeId: selectedPropertyTypeId is _Undefined
+          ? this.selectedPropertyTypeId
+          : selectedPropertyTypeId as String?,
+      selectedUnitTypeId: selectedUnitTypeId is _Undefined
+          ? this.selectedUnitTypeId
+          : selectedUnitTypeId as String?,
       dynamicFieldValues: dynamicFieldValues ?? this.dynamicFieldValues,
       searchQuery: searchQuery ?? this.searchQuery,
       isRefreshing: isRefreshing ?? this.isRefreshing,
@@ -164,6 +167,10 @@ class HomeLoaded extends HomeState {
       sectionsLoadingMore: sectionsLoadingMore ?? this.sectionsLoadingMore,
     );
   }
+}
+
+class _Undefined {
+  const _Undefined();
 }
 
 /// تمثل حالة تحميل قسم واحد فقط بينما تبقى بقية الصفحة الرئيسية جاهزة
